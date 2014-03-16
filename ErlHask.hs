@@ -137,6 +137,7 @@ eval eCtx (Tuple exps) = do
 eval eCtx (Let bindings exps) = do
   let eCtx' = setupFunctionContext eCtx bindings
   evalExps eCtx' exps
+eval eCtx exp = error $ concat ["Unhandled expression: ", show exp]
 
 -- eval fctx (Put key value) = do
 --   ctx <- get
