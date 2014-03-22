@@ -30,7 +30,7 @@ twoLetMod = unlines [
     "                (X, 2)",
     "        in  %% Line 8",
     "             call 'erlang':'display'",
-    "                 (X)",
+    "                 (Y)",
     "end"]
     -- "            call 'io':'format'",
     -- "                ([126|[112]], [Y|[]])",
@@ -98,16 +98,22 @@ data ErlTerm = ErlList [ErlTerm] |
 
 type VarTable = M.Map String ErlTerm
 type ProcessDictionary = M.Map String ErlTerm
-type ModTable = M.Map String (S.Ann S.Module)
+type ModTable = M.Map String S.Module
 
 data EvalCtx = ECtx VarTable
-type ErlProcessState a = State ProcessDictionary a
+type ErlProcessState a = State (ModTable, ProcessDictionary) a
 
 newEvalCtx :: EvalCtx
 newEvalCtx = ECtx M.empty
 
 newProcDict :: ProcessDictionary
 newProcDict = M.empty
+
+newModTable :: ModTable
+newModTable = M.empty
+
+newProcState :: (ModTable, ProcessDictionary)
+newProcState = (newModTable, newProcDict)
 
 unann :: Ann a -> a
 unann (Constr a) = a
@@ -134,10 +140,27 @@ eval eCtx (Lit l) = return $ literalToTerm l
 eval eCtx (Tuple exps) = do
   elements <- mapM (evalExps eCtx) exps
   return $ ErlTuple elements
-eval eCtx (Let bindings exps) = do
-  let eCtx' = setupFunctionContext eCtx bindings
+eval eCtx (Let (var,val) exps) = do
+  value <- evalExps eCtx val
+  let eCtx' = setupFunctionContext eCtx (var,value)
   evalExps eCtx' exps
+
+eval eCtx (ModCall (mod0, arity0) args0) = do
+  let evalExps' = evalExps eCtx
+  mod <- evalExps' mod0
+  arity <- evalExps' arity0
+  args <- mapM evalExps' args0
+  modCall mod arity args
+
+eval (ECtx varTable) (Var var) = do
+  let Just val = M.lookup var varTable
+  return val   
+
 eval eCtx exp = error $ concat ["Unhandled expression: ", show exp]
+
+modCall :: ErlTerm -> ErlTerm -> [ErlTerm] -> ErlProcessState ErlTerm
+modCall (ErlAtom mod) (ErlAtom fn) args = undefined
+modCall mod arity args = error $ concat ["Wrong type of call", show mod, show arity, show args]
 
 -- eval fctx (Put key value) = do
 --   ctx <- get
@@ -159,23 +182,42 @@ eval eCtx exp = error $ concat ["Unhandled expression: ", show exp]
 --     Nothing -> error "nope dope"
 --     Just value -> return value
 
-setupFunctionContext :: EvalCtx -> ([Var], Exps) -> EvalCtx
-setupFunctionContext _ _ = undefined
+setupFunctionContext :: EvalCtx -> ([Var], ErlTerm) -> EvalCtx
+setupFunctionContext eCtx ([], _) = eCtx
+setupFunctionContext (ECtx varTable) ((x:xs), value) =
+  let varTable' = M.insert x value varTable
+  in setupFunctionContext (ECtx varTable') (xs, value)
+  
+setupFunctionContext _ _ = error "setupFunctionContext not yet defined"
 
-findFn :: String -> Integer -> [FunDef] -> Maybe FunDef
+findFn0 :: String -> Integer -> [FunDef] -> Maybe FunDef
 -- findFn = undefined
-findFn name arity funs =
+findFn0 name arity funs =
   let
     aname = Atom name
     test = \(FunDef nm funs) ->
       let (Function ((Atom n), a)) = unann nm
       in (n == name) && (a == arity)
-  in find test funs
+  in
+   find test funs
+
+findFn :: String -> Integer -> [FunDef] -> Maybe Exps
+-- findFn = undefined
+findFn name arity funs =
+  case findFn0 name arity funs of
+    Just (FunDef _ aexp) ->
+      let lambda = unann aexp
+      in Just $ unlambda lambda
+    _ ->
+      Nothing
+
+unlambda :: S.Exp -> S.Exps
+unlambda (Lambda [] exps) = exps
+unlambda e = error $ concat ["It is not a lambda", show e]
 
 -- | The main entry point.
 main :: IO ()
 main = do
-  putStrLn "Welcome to FP Haskell Center!"
   putStrLn "Have a good day!"
   case P.parseModule twoLetMod of
     Left er ->  do
@@ -186,8 +228,7 @@ main = do
       putStrLn $ show m
       putStrLn $ PP.prettyPrint m
       let Module modName exports attributes funs = unann m
-      let Just (FunDef _ aexp) = findFn "main" 0 funs
-      let exp = unann aexp
-      print $ evalState (eval newEvalCtx exp) newProcDict
+      let Just exp = findFn "main" 0 funs
+      print $ evalState (evalExps newEvalCtx exp) newProcState
                                                           
                 
