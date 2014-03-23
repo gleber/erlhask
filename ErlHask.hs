@@ -12,82 +12,12 @@ import Language.CoreErlang.Parser as P
 import Language.CoreErlang.Syntax as S
 import Language.CoreErlang.Pretty as PP
 
+import ErlHaskExamples
+
+errorL :: [String] -> x
+errorL args = error $ L.intercalate " " args
+
 type Key = String
-
-twoLetMod = unlines [
-    "module 'simple' ['main'/0]",
-    "    attributes []",
-    "'main'/0 = ",
-    "%% Line 5",
-    "fun () ->",
-    "    let <X> =",
-    "        %% Line 6",
-    "        call 'random':'uniform'",
-    "            ()",
-    "    in  let <Y> =",
-    "            %% Line 7",
-    "            call 'erlang':'+'",
-    "                (X, 2)",
-    "        in  %% Line 8",
-    "             call 'erlang':'display'",
-    "                 (Y)",
-    "end"]
-    -- "            call 'io':'format'",
-    -- "                ([126|[112]], [Y|[]])",
-
-simpleModule = unlines [
-    "module 'simple' ['main'/0]",
-    "    attributes []",
-    "'main'/0 =",
-    "    fun () ->",
-    "       let <X> =",
-    "           call 'erlang':'date'",
-    "               ()",
-    "       in",
-    "           call 'erlang':'display'",
-    "               (X)",
-    "end"]
-
--- Constr (Module (Atom "simple")
---         [Function (Atom "main",0)]
---         []
---         [FunDef (Constr (Function (Atom "main",0)))
---          (Constr (Lambda []
---                   (Exp (Constr (Let (["X"],
---                                      Exp (Constr
---                                           (ModCall (Exp (Constr (Lit (LAtom (Atom "mod")))),
---                                                     Exp (Constr (Lit (LAtom (Atom "read"))))) [])))
---                                 (Exp (Constr
---                                       (ModCall (Exp (Constr (Lit (LAtom (Atom "erlang")))),
---                                                 Exp (Constr (Lit (LAtom (Atom "display")))))
---                                        [Exp (Constr (Var "X"))])
---                                      ))
---                                )))
---                  ))
---         ])
-
-
-
--- (Module (Atom "simple")
---  [Function (Atom "main",0)]
---  []
---  [FunDef (Constr (Function (Atom "main",0)))
---   (Constr (Lambda [] (Exp
---                       (Constr
---                        (Let (["X"],
---                              Exp (Constr (ModCall (Exp (Constr (Lit (LAtom (Atom "random")))),
---                                                    Exp (Constr (Lit (LAtom (Atom "uniform"))))) [])))
---                         (Exp (Constr
---                               (Let (["Y"],
---                                     Exp (Constr (ModCall (Exp (Constr (Lit (LAtom (Atom "erlang")))),
---                                                           Exp (Constr (Lit (LAtom (Atom "+")))))
---                                                  [Exp (Constr (Var "X")),
---                                                   Exp (Constr (Lit (LInt 2)))]
---                                                 )))
---                                (Exp (Constr
---                                      (ModCall (Exp (Constr (Lit (LAtom (Atom "erlang")))),
---                                                Exp (Constr (Lit (LAtom (Atom "display")))))
---                                       [Exp (Constr (Var "X"))])))))))))))])
 
 data ErlTerm = ErlList [ErlTerm] |
                ErlTuple [ErlTerm] |
@@ -154,41 +84,23 @@ eval eCtx (ModCall (mod0, arity0) args0) = do
 
 eval (ECtx varTable) (Var var) = do
   let Just val = M.lookup var varTable
-  return val   
+  return val
 
-eval eCtx exp = error $ concat ["Unhandled expression: ", show exp]
+eval eCtx exp =
+  error $ concat ["Unhandled expression: ", show exp]
 
 modCall :: ErlTerm -> ErlTerm -> [ErlTerm] -> ErlProcessState ErlTerm
-modCall (ErlAtom mod) (ErlAtom fn) args = undefined
-modCall mod arity args = error $ concat ["Wrong type of call", show mod, show arity, show args]
-
--- eval fctx (Put key value) = do
---   ctx <- get
---   evaluated <- eval fctx value
---   let procDict = M.insert key evaluated (pcProcDict ctx)
---   put $ ctx {pcProcDict = procDict}
---   return evaluated
-
--- eval _ (Get key) = do
---   ctx <- get
---   case M.lookup key (pcProcDict ctx) of
---     Nothing -> return $ ErlangTerm ["Fuck", "you"]
---     Just value -> return value
-
--- eval _ (Literal term) = return term
-
--- eval (ECtx eCtx) (Variable name) =
---   case M.lookup name eCtx of
---     Nothing -> error "nope dope"
---     Just value -> return value
+modCall (ErlAtom mod) (ErlAtom fn) args = do
+  -- (mt, _) <- get
+  errorL ["modCall not yet implemented", mod, fn, show args]
+modCall mod fn args =
+  errorL ["Wrong type of call", show mod, show fn, show args]
 
 setupFunctionContext :: EvalCtx -> ([Var], ErlTerm) -> EvalCtx
 setupFunctionContext eCtx ([], _) = eCtx
-setupFunctionContext (ECtx varTable) ((x:xs), value) =
+setupFunctionContext (ECtx varTable) (x:xs, value) =
   let varTable' = M.insert x value varTable
   in setupFunctionContext (ECtx varTable') (xs, value)
-  
-setupFunctionContext _ _ = error "setupFunctionContext not yet defined"
 
 findFn0 :: String -> Integer -> [FunDef] -> Maybe FunDef
 -- findFn = undefined
@@ -213,7 +125,8 @@ findFn name arity funs =
 
 unlambda :: S.Exp -> S.Exps
 unlambda (Lambda [] exps) = exps
-unlambda e = error $ concat ["It is not a lambda", show e]
+unlambda e =
+  error $ concat ["It is not a lambda", show e]
 
 -- | The main entry point.
 main :: IO ()
@@ -222,7 +135,7 @@ main = do
   case P.parseModule twoLetMod of
     Left er ->  do
       putStrLn "Error"
-      print er 
+      print er
     Right m -> do
       -- @(Ann Module name _ funs)
       putStrLn $ show m
@@ -230,5 +143,41 @@ main = do
       let Module modName exports attributes funs = unann m
       let Just exp = findFn "main" 0 funs
       print $ evalState (evalExps newEvalCtx exp) newProcState
-                                                          
-                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- eval fctx (Put key value) = do
+--   ctx <- get
+--   evaluated <- eval fctx value
+--   let procDict = M.insert key evaluated (pcProcDict ctx)
+--   put $ ctx {pcProcDict = procDict}
+--   return evaluated
+
+-- eval _ (Get key) = do
+--   ctx <- get
+--   case M.lookup key (pcProcDict ctx) of
+--     Nothing -> return $ ErlangTerm ["Fuck", "you"]
+--     Just value -> return value
+
+-- eval _ (Literal term) = return term
+
+-- eval (ECtx eCtx) (Variable name) =
+--   case M.lookup name eCtx of
+--     Nothing -> error "nope dope"
+--     Just value -> return value
