@@ -5,7 +5,9 @@ import qualified Data.Map as M
 import Data.List as L
 import Data.Char as C
 
-import Control.Monad.State (State, put, get, runState, evalState)
+import Control.Monad.State
+  (State, StateT, put, get, runState, evalState, evalStateT, runStateT,
+   liftIO)
 import Data.Map as M
 
 import Language.CoreErlang.Parser as P
@@ -31,7 +33,7 @@ type ProcessDictionary = M.Map String ErlTerm
 type ModTable = M.Map String S.Module
 
 data EvalCtx = ECtx VarTable
-type ErlProcessState a = State (ModTable, ProcessDictionary) a
+type ErlProcessState a = StateT (ModTable, ProcessDictionary) IO a
 
 newEvalCtx :: EvalCtx
 newEvalCtx = ECtx M.empty
@@ -90,9 +92,21 @@ eval eCtx exp =
   error $ concat ["Unhandled expression: ", show exp]
 
 modCall :: ErlTerm -> ErlTerm -> [ErlTerm] -> ErlProcessState ErlTerm
+modCall (ErlAtom "erlang") (ErlAtom "display") (arg:[]) = do
+  liftIO $ print arg
+  return arg
+modCall (ErlAtom "erlang") (ErlAtom "+") (a:b:[]) = do
+  let ErlNum aa = a
+  let ErlNum bb = b
+  return $ ErlNum (aa + bb)
+-- modCall (ErlAtom "random") (ErlAtom "uniform") args = do
+--   return $ ErlNum 1
 modCall (ErlAtom mod) (ErlAtom fn) args = do
-  -- (mt, _) <- get
-  errorL ["modCall not yet implemented", mod, fn, show args]
+  (mt, _) <- get
+  case M.lookup mod mt of
+    Just _ -> errorL ["Not yet done"]
+    Nothing -> errorL ["modCall not yet implemented", mod, fn, show args]
+
 modCall mod fn args =
   errorL ["Wrong type of call", show mod, show fn, show args]
 
@@ -103,7 +117,6 @@ setupFunctionContext (ECtx varTable) (x:xs, value) =
   in setupFunctionContext (ECtx varTable') (xs, value)
 
 findFn0 :: String -> Integer -> [FunDef] -> Maybe FunDef
--- findFn = undefined
 findFn0 name arity funs =
   let
     aname = Atom name
@@ -114,7 +127,6 @@ findFn0 name arity funs =
    find test funs
 
 findFn :: String -> Integer -> [FunDef] -> Maybe Exps
--- findFn = undefined
 findFn name arity funs =
   case findFn0 name arity funs of
     Just (FunDef _ aexp) ->
@@ -128,6 +140,18 @@ unlambda (Lambda [] exps) = exps
 unlambda e =
   error $ concat ["It is not a lambda", show e]
 
+findModFn :: Module -> String -> Integer -> Maybe Exps
+findModFn m name arity =
+  let Module modName exports attributes funs = m
+  in
+   findFn name arity funs
+
+evalModFn :: EvalCtx -> Module -> String -> Integer -> ErlProcessState ErlTerm
+evalModFn eCtx mod fn arity = do
+  let Just exp = findModFn mod fn arity
+  evalExps eCtx exp
+  
+
 -- | The main entry point.
 main :: IO ()
 main = do
@@ -140,10 +164,10 @@ main = do
       -- @(Ann Module name _ funs)
       putStrLn $ show m
       putStrLn $ PP.prettyPrint m
-      let Module modName exports attributes funs = unann m
-      let Just exp = findFn "main" 0 funs
-      print $ evalState (evalExps newEvalCtx exp) newProcState
-
+      let eCtx = newEvalCtx
+      let runner = evalModFn eCtx (unann m) "main" 0
+      result <- evalStateT runner newProcState
+      print result
 
 
 
