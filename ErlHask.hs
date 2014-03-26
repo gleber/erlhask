@@ -5,6 +5,8 @@ import qualified Data.Map as M
 import Data.List as L
 import Data.Char as C
 
+import System.Random (getStdRandom, randomIO)
+
 import Control.Monad.State
   (State, StateT, put, get, runState, evalState, evalStateT, runStateT,
    liftIO)
@@ -95,15 +97,20 @@ modCall :: ErlTerm -> ErlTerm -> [ErlTerm] -> ErlProcessState ErlTerm
 modCall (ErlAtom "erlang") (ErlAtom "display") (arg:[]) = do
   liftIO $ print arg
   return arg
-modCall (ErlAtom "erlang") (ErlAtom "+") (a:b:[]) = do
-  let ErlNum aa = a
-  let ErlNum bb = b
-  return $ ErlNum (aa + bb)
--- modCall (ErlAtom "random") (ErlAtom "uniform") args = do
---   return $ ErlNum 1
+modCall (ErlAtom "erlang") (ErlAtom "+") (a:b:[]) =
+  return $ case (a, b) of
+    (ErlNum aa, ErlNum bb) -> ErlNum (aa + bb)
+    (ErlNum aa, ErlFloat bb) -> ErlFloat (fromInteger aa + bb)
+    (ErlFloat aa, ErlNum bb) -> ErlFloat (aa + fromInteger bb)
+    (ErlFloat aa, ErlFloat bb) -> ErlFloat (aa + bb)
+modCall (ErlAtom "random") (ErlAtom "uniform") args = do
+  value <- liftIO $ (randomIO :: IO Double)
+  return $ ErlFloat value
 modCall (ErlAtom mod) (ErlAtom fn) args = do
-  (mt, _) <- get
-  case M.lookup mod mt of
+  (modTable, _) <- get
+  case M.lookup mod modTable of
+    -- Just ErlModule _ -> errorL ["Not yet done"]
+    -- Just HaskellModule _ -> errorL ["Not yet done"]
     Just _ -> errorL ["Not yet done"]
     Nothing -> errorL ["modCall not yet implemented", mod, fn, show args]
 
@@ -150,7 +157,7 @@ evalModFn :: EvalCtx -> Module -> String -> Integer -> ErlProcessState ErlTerm
 evalModFn eCtx mod fn arity = do
   let Just exp = findModFn mod fn arity
   evalExps eCtx exp
-  
+
 
 -- | The main entry point.
 main :: IO ()
@@ -161,13 +168,12 @@ main = do
       putStrLn "Error"
       print er
     Right m -> do
-      -- @(Ann Module name _ funs)
-      putStrLn $ show m
       putStrLn $ PP.prettyPrint m
       let eCtx = newEvalCtx
       let runner = evalModFn eCtx (unann m) "main" 0
       result <- evalStateT runner newProcState
-      print result
+      return ()
+      -- print result
 
 
 
