@@ -2,52 +2,35 @@
 module Main where
 
 import qualified Data.Map as M
-import Data.List as L
+import qualified Data.List as L
 import Data.Char as C
 
-import System.Random (getStdRandom, randomIO)
-
-import Control.Monad.State
-  (State, StateT, put, get, runState, evalState, evalStateT, runStateT,
-   liftIO)
-import Data.Map as M
+import Control.Monad.State (put, get, evalStateT, liftIO)
 
 import Language.CoreErlang.Parser as P
 import Language.CoreErlang.Syntax as S
 import Language.CoreErlang.Pretty as PP
 
 import ErlHaskExamples
+import ErlCore
+import ErlBifs as Bifs
+
+maybeError :: String -> Maybe a -> Either String a
+maybeError what = maybe (Left what) Right
+
+maybeErrorL :: [String] -> Maybe a -> Either String a
+maybeErrorL what = maybe (Left (L.intercalate " " what)) Right
+
+orFail = flip maybeError
+
+orFailL = flip maybeErrorL
 
 errorL :: [String] -> x
 errorL args = error $ L.intercalate " " args
 
-type Key = String
-
-data ErlTerm = ErlList [ErlTerm] |
-               ErlTuple [ErlTerm] |
-               ErlAtom String |
-               ErlNum Integer |
-               ErlFloat Double
-             deriving Show
-
-type VarTable = M.Map String ErlTerm
-type ProcessDictionary = M.Map String ErlTerm
-type ModTable = M.Map String S.Module
-
-data EvalCtx = ECtx VarTable
-type ErlProcessState a = StateT (ModTable, ProcessDictionary) IO a
-
-newEvalCtx :: EvalCtx
-newEvalCtx = ECtx M.empty
-
-newProcDict :: ProcessDictionary
-newProcDict = M.empty
-
-newModTable :: ModTable
-newModTable = M.empty
-
-newProcState :: (ModTable, ProcessDictionary)
-newProcState = (newModTable, newProcDict)
+showFunCall :: String -> String -> [ErlTerm] -> String
+showFunCall emod fn args =
+  concat [emod, ":", fn, "(", L.intercalate "," (L.map show args), ")"]
 
 unann :: Ann a -> a
 unann (Constr a) = a
@@ -70,7 +53,7 @@ evalExps eCtx (Exps aexs) = do
 
 eval :: EvalCtx -> S.Exp -> ErlProcessState ErlTerm
 -- eval = undefined
-eval eCtx (Lit l) = return $ literalToTerm l
+eval _ (Lit l) = return $ literalToTerm l
 eval eCtx (Tuple exps) = do
   elements <- mapM (evalExps eCtx) exps
   return $ ErlTuple elements
@@ -81,41 +64,35 @@ eval eCtx (Let (var,val) exps) = do
 
 eval eCtx (ModCall (mod0, arity0) args0) = do
   let evalExps' = evalExps eCtx
-  mod <- evalExps' mod0
+  emod <- evalExps' mod0
   arity <- evalExps' arity0
   args <- mapM evalExps' args0
-  modCall mod arity args
+  modCall emod arity args
 
 eval (ECtx varTable) (Var var) = do
   let Just val = M.lookup var varTable
   return val
 
-eval eCtx exp =
-  error $ concat ["Unhandled expression: ", show exp]
+eval _ expr =
+  error $ concat ["Unhandled expression: ", show expr]
+
 
 modCall :: ErlTerm -> ErlTerm -> [ErlTerm] -> ErlProcessState ErlTerm
-modCall (ErlAtom "erlang") (ErlAtom "display") (arg:[]) = do
-  liftIO $ print arg
-  return arg
-modCall (ErlAtom "erlang") (ErlAtom "+") (a:b:[]) =
-  return $ case (a, b) of
-    (ErlNum aa, ErlNum bb) -> ErlNum (aa + bb)
-    (ErlNum aa, ErlFloat bb) -> ErlFloat (fromInteger aa + bb)
-    (ErlFloat aa, ErlNum bb) -> ErlFloat (aa + fromInteger bb)
-    (ErlFloat aa, ErlFloat bb) -> ErlFloat (aa + bb)
-modCall (ErlAtom "random") (ErlAtom "uniform") args = do
-  value <- liftIO $ (randomIO :: IO Double)
-  return $ ErlFloat value
-modCall (ErlAtom mod) (ErlAtom fn) args = do
+modCall (ErlAtom emod) (ErlAtom fn) args = do
   (modTable, _) <- get
-  case M.lookup mod modTable of
-    -- Just ErlModule _ -> errorL ["Not yet done"]
-    -- Just HaskellModule _ -> errorL ["Not yet done"]
-    Just _ -> errorL ["Not yet done"]
-    Nothing -> errorL ["modCall not yet implemented", mod, fn, show args]
+  let arity = (toInteger (length args))
+  let call = do
+        erlmod <- M.lookup emod modTable `orFailL` ["Module not found for:", showFunCall emod fn args]
+        case erlmod of
+          EModule _ -> error "Loading of EModules is not yet done"
+          HModule funs -> do
+            fun <- M.lookup (fn, arity) funs `orFailL` ["Function not found for:", showFunCall emod fn args]
+            return $ fun args
 
-modCall mod fn args =
-  errorL ["Wrong type of call", show mod, show fn, show args]
+  either error id call
+
+modCall emod fn args =
+  errorL ["Wrong type of call", show emod, show fn, show args]
 
 setupFunctionContext :: EvalCtx -> ([Var], ErlTerm) -> EvalCtx
 setupFunctionContext eCtx ([], _) = eCtx
@@ -123,17 +100,16 @@ setupFunctionContext (ECtx varTable) (x:xs, value) =
   let varTable' = M.insert x value varTable
   in setupFunctionContext (ECtx varTable') (xs, value)
 
-findFn0 :: String -> Integer -> [FunDef] -> Maybe FunDef
+findFn0 :: String -> Arity -> [FunDef] -> Maybe FunDef
 findFn0 name arity funs =
   let
-    aname = Atom name
-    test = \(FunDef nm funs) ->
+    test = \(FunDef nm _) ->
       let (Function ((Atom n), a)) = unann nm
       in (n == name) && (a == arity)
   in
-   find test funs
+   L.find test funs
 
-findFn :: String -> Integer -> [FunDef] -> Maybe Exps
+findFn :: String -> Arity -> [FunDef] -> Maybe Exps
 findFn name arity funs =
   case findFn0 name arity funs of
     Just (FunDef _ aexp) ->
@@ -145,19 +121,35 @@ findFn name arity funs =
 unlambda :: S.Exp -> S.Exps
 unlambda (Lambda [] exps) = exps
 unlambda e =
-  error $ concat ["It is not a lambda", show e]
+  errorL ["It is not a lambda", show e]
 
-findModFn :: Module -> String -> Integer -> Maybe Exps
+findModFn :: S.Module -> String -> Arity -> Maybe Exps
 findModFn m name arity =
-  let Module modName exports attributes funs = m
+  let Module _modName _exports _attributes funs = m
   in
    findFn name arity funs
 
-evalModFn :: EvalCtx -> Module -> String -> Integer -> ErlProcessState ErlTerm
-evalModFn eCtx mod fn arity = do
-  let Just exp = findModFn mod fn arity
-  evalExps eCtx exp
+evalModFn :: EvalCtx -> S.Module -> String -> Arity -> ErlProcessState ErlTerm
+evalModFn eCtx emod fn arity = do
+  let Just expr = findModFn emod fn arity
+  evalExps eCtx expr
 
+
+newEvalCtx :: EvalCtx
+newEvalCtx = ECtx M.empty
+
+newProcDict :: ProcessDictionary
+newProcDict = M.empty
+
+newModTable :: ModTable
+newModTable =
+  M.fromList Bifs.all
+
+newProcState :: (ModTable, ProcessDictionary)
+newProcState = (newModTable, newProcDict)
+
+-- loadEModule :: String -> ErlProcessState ()
+-- loadEModule = do
 
 -- | The main entry point.
 main :: IO ()
@@ -174,20 +166,6 @@ main = do
       result <- evalStateT runner newProcState
       return ()
       -- print result
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
