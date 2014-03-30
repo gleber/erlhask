@@ -28,6 +28,14 @@ orFailL = flip maybeErrorL
 errorL :: [String] -> x
 errorL args = error $ L.intercalate " " args
 
+showShortFunName :: String -> Arity -> String
+showShortFunName fn arity =
+  concat [fn, "/", show arity]
+
+showFunName :: String -> String -> Arity -> String
+showFunName emod fn arity =
+  concat [emod, ":", fn, "/", show arity]
+
 showFunCall :: String -> String -> [ErlTerm] -> String
 showFunCall emod fn args =
   concat [emod, ":", fn, "(", L.intercalate "," (L.map show args), ")"]
@@ -67,7 +75,7 @@ eval eCtx (ModCall (mod0, arity0) args0) = do
   emod <- evalExps' mod0
   arity <- evalExps' arity0
   args <- mapM evalExps' args0
-  modCall emod arity args
+  modCall eCtx emod arity args
 
 eval (ECtx varTable) (Var var) = do
   let Just val = M.lookup var varTable
@@ -77,21 +85,23 @@ eval _ expr =
   error $ concat ["Unhandled expression: ", show expr]
 
 
-modCall :: ErlTerm -> ErlTerm -> [ErlTerm] -> ErlProcessState ErlTerm
-modCall (ErlAtom emod) (ErlAtom fn) args = do
+modCall :: EvalCtx -> ErlTerm -> ErlTerm -> [ErlTerm] -> ErlProcessState ErlTerm
+modCall eCtx (ErlAtom emod) (ErlAtom fn) args = do
   (modTable, _) <- get
   let arity = (toInteger (length args))
   let call = do
         erlmod <- M.lookup emod modTable `orFailL` ["Module not found for:", showFunCall emod fn args]
         case erlmod of
-          EModule _ -> error "Loading of EModules is not yet done"
+          EModule emodule -> do
+            -- evalModFn :: EvalCtx -> S.Module -> String -> Arity -> ErlProcessState ErlTerm
+            return $ evalModFn eCtx emodule fn args
           HModule funs -> do
             fun <- M.lookup (fn, arity) funs `orFailL` ["Function not found for:", showFunCall emod fn args]
-            return $ fun args
+            return $ applyFunLambda fun args
 
   either error id call
 
-modCall emod fn args =
+modCall _ emod fn args =
   errorL ["Wrong type of call", show emod, show fn, show args]
 
 setupFunctionContext :: EvalCtx -> ([Var], ErlTerm) -> EvalCtx
@@ -100,8 +110,41 @@ setupFunctionContext (ECtx varTable) (x:xs, value) =
   let varTable' = M.insert x value varTable
   in setupFunctionContext (ECtx varTable') (xs, value)
 
-findFn0 :: String -> Arity -> [FunDef] -> Maybe FunDef
-findFn0 name arity funs =
+setupFunctionContext' :: EvalCtx -> [([Var], ErlTerm)] -> EvalCtx
+setupFunctionContext' eCtx args =
+  L.foldl (\oCtx arg -> setupFunctionContext oCtx arg) eCtx args
+
+unlambda :: S.Exp -> S.Exps
+unlambda (Lambda _ exps) = exps
+unlambda e =
+  errorL ["It is not a lambda", show e]
+
+-- applyLambda :: ErlLambda -> [ErlTerm] -> ErlProcessState ErlTerm
+
+applyFunLambda :: ErlFun -> [ErlTerm] -> ErlProcessState ErlTerm
+applyFunLambda fun args = fun args
+
+-- applyELambda :: EvalCtx -> S.Exps -> [Var] -> [ErlTerm] -> ErlProcessState ErlTerm
+-- applyELambda eCtx expressions names args =
+--   let fun = expsToErlFun eCtx names expressions
+--   in applyFunLambda fun args 
+
+expsToErlFun :: EvalCtx -> [Var] -> S.Exps -> ErlFun
+expsToErlFun eCtx argNames expressions =
+  let arity = length argNames
+  in
+   \args -> do     
+     case length args of
+       arity ->
+         let
+           bargs = L.zipWith (\x y -> ([x],y)) argNames args
+           newEvalCtx = setupFunctionContext' eCtx bargs
+         in
+          evalExps newEvalCtx expressions
+       _ -> errorL ["Wrong arity!", show argNames, show args, show expressions]       
+
+findExportedFunction :: String -> Arity -> [FunDef] -> Maybe FunDef
+findExportedFunction name arity funs =
   let
     test = \(FunDef nm _) ->
       let (Function ((Atom n), a)) = unann nm
@@ -109,30 +152,30 @@ findFn0 name arity funs =
   in
    L.find test funs
 
-findFn :: String -> Arity -> [FunDef] -> Maybe Exps
-findFn name arity funs =
-  case findFn0 name arity funs of
-    Just (FunDef _ aexp) ->
-      let lambda = unann aexp
-      in Just $ unlambda lambda
-    _ ->
-      Nothing
+-- lambdify :: S.Exp -> ErlFun
+-- lambdify (Lambda args exps) =
+--   ELambda args (evalExps newEvalCtx )
 
-unlambda :: S.Exp -> S.Exps
-unlambda (Lambda [] exps) = exps
-unlambda e =
-  errorL ["It is not a lambda", show e]
+findFn :: String -> Arity -> [FunDef] -> Maybe ErlFun
+findFn name arity funs = do
+  (FunDef _ aexp) <- findExportedFunction name arity funs
+  let (Lambda vars exprs) = unann aexp
+  return $ expsToErlFun newEvalCtx vars exprs
 
-findModFn :: S.Module -> String -> Arity -> Maybe Exps
+findModFn :: S.Module -> String -> Arity -> Maybe ErlFun
 findModFn m name arity =
   let Module _modName _exports _attributes funs = m
   in
    findFn name arity funs
 
-evalModFn :: EvalCtx -> S.Module -> String -> Arity -> ErlProcessState ErlTerm
-evalModFn eCtx emod fn arity = do
-  let Just expr = findModFn emod fn arity
-  evalExps eCtx expr
+evalModFn :: EvalCtx -> S.Module -> String -> [ErlTerm] -> ErlProcessState ErlTerm
+evalModFn eCtx emod fn args = do
+  let arity = (toInteger (length args))
+    in case findModFn emod fn arity of
+    Just fun ->
+      applyFunLambda fun args
+    Nothing ->
+      errorL ["Can not find", showShortFunName fn arity, "in", show emod]
 
 
 newEvalCtx :: EvalCtx
@@ -143,27 +186,39 @@ newProcDict = M.empty
 
 newModTable :: ModTable
 newModTable =
-  M.fromList Bifs.all
+  let bifs = Bifs.all
+  in M.fromList bifs
 
 newProcState :: (ModTable, ProcessDictionary)
 newProcState = (newModTable, newProcDict)
 
--- loadEModule :: String -> ErlProcessState ()
--- loadEModule = do
+loadEModule :: String -> IO (Either String S.Module)
+loadEModule moduleName = do
+  fileContent <- readFile ("samples/" ++ moduleName ++ ".core") -- `catch` \_ -> do return $ Left ""
+  case P.parseModule fileContent of
+    Left er ->  do
+      return $ Left $ show er
+    Right m -> do
+      return $ Right (unann m)
 
 -- | The main entry point.
 main :: IO ()
 main = do
   putStrLn "Have a good day!"
-  case P.parseModule twoLetMod of
+  case P.parseModule start of
     Left er ->  do
       putStrLn "Error"
       print er
     Right m -> do
       putStrLn $ PP.prettyPrint m
+
+      Right simple <- loadEModule "simple"
+      let modTable0 = newModTable
+      let modTable = M.insert "simple" (EModule simple) modTable0
+
       let eCtx = newEvalCtx
-      let runner = evalModFn eCtx (unann m) "main" 0
-      result <- evalStateT runner newProcState
+      let runner = evalModFn eCtx (unann m) "main" []
+      result <- evalStateT runner (modTable, newProcDict)
       return ()
       -- print result
 

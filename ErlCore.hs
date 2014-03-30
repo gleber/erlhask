@@ -44,6 +44,8 @@ type ModTable = M.Map String ErlModule
 type ErlFunHead = (FunName, Arity)
 type ErlFun = ([ErlTerm] -> ErlProcessState ErlTerm)
 
+data ErlLambda = ELambda [String] ErlFun
+
 data ErlModule = EModule S.Module |
                  HModule (M.Map ErlFunHead ErlFun)
 
