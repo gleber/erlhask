@@ -1,19 +1,10 @@
 module ErlCore where
 
-
-import System.Random (getStdRandom, randomIO)
-
-import Control.Monad.State
-  (State, StateT, put, get, runState, evalState, evalStateT, runStateT,
-   liftIO)
-import Data.Map as M
-
+import Control.Monad.State (StateT)
 import qualified Data.Map as M
 import qualified Data.List as L
 
-import Language.CoreErlang.Parser as P
 import Language.CoreErlang.Syntax as S
-import Language.CoreErlang.Pretty as PP
 
 type FunName = String
 type Arity = Integer
@@ -23,7 +14,9 @@ data ErlTerm = ErlList [ErlTerm] |
                ErlTuple [ErlTerm] |
                ErlAtom String |
                ErlNum Integer |
-               ErlFloat Double
+               ErlFloat Double |
+               ErlFunName FunName Arity |
+               ErlLambda [Var] ErlFun
                -- ErlBitstring |
                -- ErlPid |
                -- ErlPort |
@@ -36,6 +29,8 @@ instance Show ErlTerm where
   show (ErlFloat double) = show double
   show (ErlList list) = L.concat ["[", L.intercalate ", " $ L.map show list, "]"]
   show (ErlTuple tuple) = L.concat ["{", L.intercalate ", " $ L.map show tuple, "}"]
+  show (ErlFunName fn arity) = fn ++ "/" ++ (show arity)
+  show (ErlLambda _ _) = "#Fun<...>"
 
 type VarTable = M.Map String ErlTerm
 type ProcessDictionary = M.Map String ErlTerm
@@ -44,10 +39,8 @@ type ModTable = M.Map String ErlModule
 type ErlFunHead = (FunName, Arity)
 type ErlFun = ([ErlTerm] -> ErlProcessState ErlTerm)
 
-data ErlLambda = ELambda [String] ErlFun
-
 data ErlModule = EModule S.Module |
                  HModule (M.Map ErlFunHead ErlFun)
 
 data EvalCtx = ECtx VarTable
-type ErlProcessState a = StateT (ModTable, ProcessDictionary) IO a
+type ErlProcessState a = StateT (ErlModule, ModTable, ProcessDictionary) IO a

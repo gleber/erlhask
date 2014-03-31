@@ -1,17 +1,21 @@
 -- | Main entry point to the application.
 module Main where
 
+-- import Debug.HTrace
+
 import qualified Data.Map as M
 import qualified Data.List as L
 import Data.Char as C
 
-import Control.Monad.State (put, get, evalStateT, liftIO)
+import Control.Monad.State (
+  -- put,
+  get,
+  evalStateT)
 
 import Language.CoreErlang.Parser as P
 import Language.CoreErlang.Syntax as S
 import Language.CoreErlang.Pretty as PP
 
-import ErlHaskExamples
 import ErlCore
 import ErlBifs as Bifs
 
@@ -21,8 +25,10 @@ maybeError what = maybe (Left what) Right
 maybeErrorL :: [String] -> Maybe a -> Either String a
 maybeErrorL what = maybe (Left (L.intercalate " " what)) Right
 
+orFail :: Maybe a -> String -> Either String a
 orFail = flip maybeError
 
+orFailL :: Maybe a -> [String] -> Either String a
 orFailL = flip maybeErrorL
 
 errorL :: [String] -> x
@@ -61,6 +67,7 @@ evalExps eCtx (Exps aexs) = do
 
 eval :: EvalCtx -> S.Exp -> ErlProcessState ErlTerm
 -- eval = undefined
+-- eval _ expr | htrace ("eval " ++ show expr) False = undefined
 eval _ (Lit l) = return $ literalToTerm l
 eval eCtx (Tuple exps) = do
   elements <- mapM (evalExps eCtx) exps
@@ -75,33 +82,51 @@ eval eCtx (ModCall (mod0, arity0) args0) = do
   emod <- evalExps' mod0
   arity <- evalExps' arity0
   args <- mapM evalExps' args0
-  modCall eCtx emod arity args
+  modCall emod arity args
 
 eval (ECtx varTable) (Var var) = do
   let Just val = M.lookup var varTable
   return val
 
+eval eCtx (App lambda args) = do
+  ((EModule curMod), _, _) <- get
+  let evalExps' = evalExps eCtx
+  lambda' <- evalExps' lambda
+  args' <- mapM evalExps' args
+  case lambda' of
+    (ErlFunName name _arity) -> do
+      evalModFn curMod name args'
+    (ErlLambda _argNames fun) -> do
+      fun args'
+    _ -> errorL ["Can not apply", show lambda']
+
+eval _ (Fun (Function ((Atom name), arity))) =
+  return $ ErlFunName name arity
+
+eval eCtx (Lambda argNames exprs) = do
+  return $ ErlLambda argNames $ expsToErlFun eCtx argNames exprs
+
 eval _ expr =
   error $ concat ["Unhandled expression: ", show expr]
 
 
-modCall :: EvalCtx -> ErlTerm -> ErlTerm -> [ErlTerm] -> ErlProcessState ErlTerm
-modCall eCtx (ErlAtom emod) (ErlAtom fn) args = do
-  (modTable, _) <- get
+modCall :: ErlTerm -> ErlTerm -> [ErlTerm] -> ErlProcessState ErlTerm
+modCall (ErlAtom emod) (ErlAtom fn) args = do
+  (_, modTable, _) <- get
   let arity = (toInteger (length args))
   let call = do
         erlmod <- M.lookup emod modTable `orFailL` ["Module not found for:", showFunCall emod fn args]
         case erlmod of
           EModule emodule -> do
             -- evalModFn :: EvalCtx -> S.Module -> String -> Arity -> ErlProcessState ErlTerm
-            return $ evalModFn eCtx emodule fn args
+            return $ evalModFn emodule fn args
           HModule funs -> do
             fun <- M.lookup (fn, arity) funs `orFailL` ["Function not found for:", showFunCall emod fn args]
             return $ applyFunLambda fun args
 
   either error id call
 
-modCall _ emod fn args =
+modCall emod fn args =
   errorL ["Wrong type of call", show emod, show fn, show args]
 
 setupFunctionContext :: EvalCtx -> ([Var], ErlTerm) -> EvalCtx
@@ -119,8 +144,6 @@ unlambda (Lambda _ exps) = exps
 unlambda e =
   errorL ["It is not a lambda", show e]
 
--- applyLambda :: ErlLambda -> [ErlTerm] -> ErlProcessState ErlTerm
-
 applyFunLambda :: ErlFun -> [ErlTerm] -> ErlProcessState ErlTerm
 applyFunLambda fun args = fun args
 
@@ -135,12 +158,12 @@ expsToErlFun eCtx argNames expressions =
   in
    \args -> do     
      case length args of
-       arity ->
+       a | a == arity ->
          let
            bargs = L.zipWith (\x y -> ([x],y)) argNames args
-           newEvalCtx = setupFunctionContext' eCtx bargs
+           evalCtx' = setupFunctionContext' eCtx bargs
          in
-          evalExps newEvalCtx expressions
+          evalExps evalCtx' expressions
        _ -> errorL ["Wrong arity!", show argNames, show args, show expressions]       
 
 findExportedFunction :: String -> Arity -> [FunDef] -> Maybe FunDef
@@ -151,10 +174,6 @@ findExportedFunction name arity funs =
       in (n == name) && (a == arity)
   in
    L.find test funs
-
--- lambdify :: S.Exp -> ErlFun
--- lambdify (Lambda args exps) =
---   ELambda args (evalExps newEvalCtx )
 
 findFn :: String -> Arity -> [FunDef] -> Maybe ErlFun
 findFn name arity funs = do
@@ -168,8 +187,8 @@ findModFn m name arity =
   in
    findFn name arity funs
 
-evalModFn :: EvalCtx -> S.Module -> String -> [ErlTerm] -> ErlProcessState ErlTerm
-evalModFn eCtx emod fn args = do
+evalModFn :: S.Module -> String -> [ErlTerm] -> ErlProcessState ErlTerm
+evalModFn emod fn args = do
   let arity = (toInteger (length args))
     in case findModFn emod fn arity of
     Just fun ->
@@ -189,8 +208,8 @@ newModTable =
   let bifs = Bifs.all
   in M.fromList bifs
 
-newProcState :: (ModTable, ProcessDictionary)
-newProcState = (newModTable, newProcDict)
+newProcState :: ErlModule -> (ErlModule, ModTable, ProcessDictionary)
+newProcState emod = (emod, newModTable, newProcDict)
 
 loadEModule :: String -> IO (Either String S.Module)
 loadEModule moduleName = do
@@ -204,23 +223,16 @@ loadEModule moduleName = do
 -- | The main entry point.
 main :: IO ()
 main = do
-  putStrLn "Have a good day!"
-  case P.parseModule start of
-    Left er ->  do
-      putStrLn "Error"
-      print er
-    Right m -> do
-      putStrLn $ PP.prettyPrint m
+  Right boot <- loadEModule "boot"
+  let boot' = EModule boot
+  putStrLn $ PP.prettyPrint boot
+  let modTable0 = newModTable
+  let modTable = M.insert "boot" boot' modTable0
 
-      Right simple <- loadEModule "simple"
-      let modTable0 = newModTable
-      let modTable = M.insert "simple" (EModule simple) modTable0
-
-      let eCtx = newEvalCtx
-      let runner = evalModFn eCtx (unann m) "main" []
-      result <- evalStateT runner (modTable, newProcDict)
-      return ()
-      -- print result
+  let runner = evalModFn boot "start" []
+  result <- evalStateT runner (boot', modTable, newProcDict) 
+  print result
+  return ()
 
 
 
