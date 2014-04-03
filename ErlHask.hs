@@ -1,7 +1,14 @@
 -- | Main entry point to the application.
 module Main where
 
--- import Debug.HTrace
+import Debug.HTrace
+
+import Control.Distributed.Process
+import Control.Distributed.Process.Node
+import Network.Transport.TCP
+
+import Control.Concurrent
+import Control.Concurrent.MVar
 
 import Data.Hashable
 
@@ -14,7 +21,7 @@ import Control.Monad.State (
   get,
   evalStateT)
 
-import Control.Monad (foldM)
+import Control.Monad (foldM, liftM)
 
 import Language.CoreErlang.Parser as P
 import Language.CoreErlang.Syntax as S
@@ -35,8 +42,8 @@ orFail = flip maybeError
 orFailL :: Maybe a -> [String] -> Either String a
 orFailL = flip maybeErrorL
 
-errorL :: [String] -> x
-errorL args = error $ L.intercalate " " args
+errorL :: [String] -> ErlProcessState x
+errorL args = liftM (die $ L.intercalate " " args)
 
 showShortFunName :: String -> Arity -> String
 showShortFunName fn arity =
@@ -87,8 +94,7 @@ evalExps eCtx (Exps aexs) = do
   fmap last $ mapM (eval eCtx) xs
 
 eval :: EvalCtx -> S.Exp -> ErlProcessState ErlTerm
--- eval = undefined
--- eval _ expr | htrace ("eval " ++ show expr) False = undefined
+eval _ expr | htrace ("eval " ++ show expr) False = undefined
 eval _ (Lit l) = return $ literalToTerm l
 eval eCtx (Tuple exps) = do
   elements <- mapM (evalExps eCtx) exps
@@ -136,12 +142,12 @@ eval eCtx (Case val alts) = do
 eval eCtx (List list) = do
   exprListToTerm eCtx list
 
-eval eCtx (Op (Atom op) exprs) = do
-  args' <- mapM evalExps' args
-  
+-- eval eCtx (Op (Atom op) exprs) = do
+--   args' <- mapM evalExps' args
+
 
 eval _ expr =
-  error $ concat ["Unhandled expression: ", show expr]
+  errorL ["Unhandled expression: ", show expr]
 
 matchAlts :: EvalCtx -> ErlTerm -> [S.Alt] -> ErlProcessState ErlTerm
 matchAlts _ _ [] = errorL ["No matching clauses"]
@@ -157,7 +163,7 @@ matchAlts eCtx0 val (alt:xs) = do
         False ->
           matchAlts eCtx val xs
     Nothing ->
-      matchAlts eCtx0 val xs      
+      matchAlts eCtx0 val xs
 
 -- (Pats [PTuple [PLit (LAtom (Atom "ok")),
 --                PVar "Z"]])
@@ -235,13 +241,13 @@ applyFunLambda fun args = fun args
 -- applyELambda :: EvalCtx -> S.Exps -> [Var] -> [ErlTerm] -> ErlProcessState ErlTerm
 -- applyELambda eCtx expressions names args =
 --   let fun = expsToErlFun eCtx names expressions
---   in applyFunLambda fun args 
+--   in applyFunLambda fun args
 
 expsToErlFun :: EvalCtx -> [Var] -> S.Exps -> ErlFun
 expsToErlFun eCtx argNames expressions =
   let arity = length argNames
   in
-   \args -> do     
+   \args -> do
      case length args of
        a | a == arity ->
          let
@@ -249,7 +255,7 @@ expsToErlFun eCtx argNames expressions =
            evalCtx' = setupFunctionContext' eCtx bargs
          in
           evalExps evalCtx' expressions
-       _ -> errorL ["Wrong arity!", show argNames, show args, show expressions]       
+       _ -> errorL ["Wrong arity!", show argNames, show args, show expressions]
 
 findExportedFunction :: String -> Arity -> [FunDef] -> Maybe FunDef
 findExportedFunction name arity funs =
@@ -308,15 +314,26 @@ loadEModule moduleName = do
 -- | The main entry point.
 main :: IO ()
 main = do
-  Right boot <- loadEModule "boot"
+  Right transport <- createTransport "127.0.0.1" "8080"
+                     defaultTCPParameters
+  node <- newLocalNode transport initRemoteTable
+  runProcess node bootProc
+  liftIO $ threadDelay 1000000
+
+
+bootProc :: Process ()
+bootProc = do
+  Right boot <- liftIO $ loadEModule "boot"
   let boot' = EModule boot
-  putStrLn $ PP.prettyPrint boot
+  liftIO $ putStrLn $ PP.prettyPrint boot
   let modTable0 = newModTable
   let modTable = M.insert "boot" boot' modTable0
-
   let runner = evalModFn boot "start" []
-  result <- evalStateT runner (boot', modTable, newProcDict) 
-  print result
+  liftIO $ putStrLn "Running"
+  result <- evalStateT runner (boot', modTable, newProcDict)
+  liftIO $ putStrLn "Done"
+  liftIO $ print result
+  liftIO $ threadDelay 1000000
   return ()
 
 

@@ -5,6 +5,10 @@ module ErlCore where
 import GHC.Generics (Generic)
 import Data.Hashable
 
+import Control.Distributed.Process
+import Control.Distributed.Process.Node
+import Network.Transport.TCP
+
 import Control.Monad.State (StateT)
 import qualified Data.Map as M
 import qualified Data.List as L
@@ -43,7 +47,6 @@ instance Show ErlTerm where
 instance Hashable S.Exps where
   hashWithSalt salt exprs = hashWithSalt salt (show exprs)
 
-  
 
 type VarTable = M.Map String ErlTerm
 type ProcessDictionary = M.Map String ErlTerm
@@ -56,4 +59,4 @@ data ErlModule = EModule S.Module |
                  HModule (M.Map ErlFunHead ErlFun)
 
 data EvalCtx = ECtx VarTable
-type ErlProcessState a = StateT (ErlModule, ModTable, ProcessDictionary) IO a
+type ErlProcessState a = StateT (ErlModule, ModTable, ProcessDictionary) Process a
