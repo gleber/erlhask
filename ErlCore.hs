@@ -1,4 +1,9 @@
+{-# LANGUAGE DeriveGeneric, StandaloneDeriving #-}
+
 module ErlCore where
+
+import GHC.Generics (Generic)
+import Data.Hashable
 
 import Control.Monad.State (StateT)
 import qualified Data.Map as M
@@ -10,27 +15,35 @@ type FunName = String
 type Arity = Integer
 type Key = String
 
+instance Eq ErlTerm where
+  (==) (ErlLambda a _ _) (ErlLambda b _ _) = a == b
+  (==) (ErlAtom a) (ErlAtom b) = a == b
+
 data ErlTerm = ErlList [ErlTerm] |
                ErlTuple [ErlTerm] |
                ErlAtom String |
                ErlNum Integer |
                ErlFloat Double |
                ErlFunName FunName Arity |
-               ErlLambda [Var] ErlFun
+               ErlLambda FunName [Var] ErlFun
                -- ErlBitstring |
                -- ErlPid |
                -- ErlPort |
                -- ErlRef
 
-
 instance Show ErlTerm where
-  show (ErlAtom atom) = concat ["'", show atom, "'"]
+  show (ErlAtom atom) = concat ["'", atom, "'"]
   show (ErlNum num) = show num
   show (ErlFloat double) = show double
   show (ErlList list) = L.concat ["[", L.intercalate ", " $ L.map show list, "]"]
   show (ErlTuple tuple) = L.concat ["{", L.intercalate ", " $ L.map show tuple, "}"]
   show (ErlFunName fn arity) = fn ++ "/" ++ (show arity)
-  show (ErlLambda _ _) = "#Fun<...>"
+  show (ErlLambda name _ _) = "#Fun<" ++ name ++ ">"
+
+instance Hashable S.Exps where
+  hashWithSalt salt exprs = hashWithSalt salt (show exprs)
+
+  
 
 type VarTable = M.Map String ErlTerm
 type ProcessDictionary = M.Map String ErlTerm

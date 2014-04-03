@@ -3,6 +3,8 @@ module Main where
 
 -- import Debug.HTrace
 
+import Data.Hashable
+
 import qualified Data.Map as M
 import qualified Data.List as L
 import Data.Char as C
@@ -11,6 +13,8 @@ import Control.Monad.State (
   -- put,
   get,
   evalStateT)
+
+import Control.Monad (foldM)
 
 import Language.CoreErlang.Parser as P
 import Language.CoreErlang.Syntax as S
@@ -58,6 +62,23 @@ literalToTerm (LFloat double) = ErlFloat double
 literalToTerm (LAtom (Atom atom_name)) = ErlAtom atom_name
 literalToTerm LNil = ErlList []
 
+-- (LL [Exp (Constr (Lit (LInt 1)))]
+--  (Exp (Constr
+--        (List (LL [Exp (Constr (Lit (LInt 2)))]
+--               (Exp (Constr
+--                     (List (L [Exp (Constr (Lit (LInt 3)))]
+--                           )))))))))
+exprListToTerm :: EvalCtx ->  S.List S.Exps -> ErlProcessState ErlTerm
+exprListToTerm eCtx (LL exprs tail) = do
+  vals <- mapM (evalExps eCtx) exprs
+  (ErlList tail) <- evalExps eCtx tail
+  return $ ErlList (vals ++ tail)
+exprListToTerm eCtx (L exprs) = do
+  vals <- mapM (evalExps eCtx) exprs
+  return $ ErlList vals
+
+-- PList (LL [PVar "K"] (PList (LL [PVar "L"] (PVar "_cor8")))) [1, 2, 3]
+
 evalExps :: EvalCtx -> S.Exps -> ErlProcessState ErlTerm
 evalExps eCtx (Exp e) = eval eCtx (unann e)
 evalExps eCtx (Exps aexs) = do
@@ -85,8 +106,9 @@ eval eCtx (ModCall (mod0, arity0) args0) = do
   modCall emod arity args
 
 eval (ECtx varTable) (Var var) = do
-  let Just val = M.lookup var varTable
-  return val
+  case M.lookup var varTable of
+    Just val -> return val
+    Nothing -> errorL ["Missing binding?", var, show $ M.toList varTable]
 
 eval eCtx (App lambda args) = do
   ((EModule curMod), _, _) <- get
@@ -96,7 +118,7 @@ eval eCtx (App lambda args) = do
   case lambda' of
     (ErlFunName name _arity) -> do
       evalModFn curMod name args'
-    (ErlLambda _argNames fun) -> do
+    (ErlLambda _name _argNames fun) -> do
       fun args'
     _ -> errorL ["Can not apply", show lambda']
 
@@ -104,11 +126,74 @@ eval _ (Fun (Function ((Atom name), arity))) =
   return $ ErlFunName name arity
 
 eval eCtx (Lambda argNames exprs) = do
-  return $ ErlLambda argNames $ expsToErlFun eCtx argNames exprs
+  return $ ErlLambda (show $ hash exprs) argNames (expsToErlFun eCtx argNames exprs)
+
+eval eCtx (Case val alts) = do
+  let alts' = map unann alts
+  val' <- evalExps eCtx val
+  matchAlts eCtx val' alts'
+
+eval eCtx (List list) = do
+  exprListToTerm eCtx list
+
+eval eCtx (Op (Atom op) exprs) = do
+  args' <- mapM evalExps' args
+  
 
 eval _ expr =
   error $ concat ["Unhandled expression: ", show expr]
 
+matchAlts :: EvalCtx -> ErlTerm -> [S.Alt] -> ErlProcessState ErlTerm
+matchAlts _ _ [] = errorL ["No matching clauses"]
+matchAlts eCtx0 val (alt:xs) = do
+  let (Alt pats guard exprs) = alt
+  let matched = matchPats eCtx0 pats val
+  case matched of
+    Just eCtx -> do
+      guarded <- matchGuard eCtx guard
+      case guarded of
+        True ->
+          evalExps eCtx exprs
+        False ->
+          matchAlts eCtx val xs
+    Nothing ->
+      matchAlts eCtx0 val xs      
+
+-- (Pats [PTuple [PLit (LAtom (Atom "ok")),
+--                PVar "Z"]])
+matchPats :: EvalCtx -> S.Pats -> ErlTerm -> Maybe EvalCtx
+matchPats eCtx (Pats [pat]) term = matchPats eCtx (Pat pat) term
+matchPats eCtx (Pat pat) term = do
+  matchPat eCtx pat term
+
+matchPat :: EvalCtx -> S.Pat -> ErlTerm -> Maybe EvalCtx
+matchPat eCtx (PTuple pat) (ErlTuple term) = do
+  if
+    L.length pat == L.length term
+    then foldM (\ctx (p,e) -> matchPat ctx p e) eCtx (L.zip pat term)
+    else Nothing
+matchPat eCtx (PLit lit) term = do
+  let lit' = literalToTerm lit
+  if lit' == term
+    then Just eCtx
+    else Nothing
+matchPat eCtx (PVar var) term = do
+  return $ setupFunctionContext eCtx ([var], term)
+
+-- PList (LL [PVar "K"] (PList (LL [PVar "L"] (PVar "_cor8")))) [1, 2, 3]
+matchPat eCtx (PList (LL [head] tail)) (ErlList (x:xs)) = do
+  eCtx' <- matchPat eCtx head x
+  matchPat eCtx' tail (ErlList xs)
+
+matchPat _ pat term = errorL ["Not implemented matching of", show pat, show term]
+
+matchGuard :: EvalCtx -> S.Guard -> ErlProcessState Bool
+matchGuard eCtx (Guard exprs) = do
+  evaled <- evalExps eCtx exprs
+  case evaled of
+    ErlAtom "true" ->
+      return True
+    _ -> return False
 
 modCall :: ErlTerm -> ErlTerm -> [ErlTerm] -> ErlProcessState ErlTerm
 modCall (ErlAtom emod) (ErlAtom fn) args = do

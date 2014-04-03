@@ -9,7 +9,8 @@ start() ->
     X = random:uniform(),
     Y = X + call_lambda(),
     {ok, Z} = return_tuple(),
-    erlang:display(Y + Z).
+    [K, L | _] = return_list(),
+    erlang:display(Y + Z + K + L).
 
 lambda(Y) ->
     X = random:uniform(),
@@ -22,7 +23,10 @@ call_lambda() ->
     L(5).
 
 return_tuple() ->
-    {ok, random:uniform()}.
+    {ok, random:uniform(), 1}.
+
+return_list() ->
+    [1, 2, 3].
 
 do(X) ->
     random:uniform() + X.
