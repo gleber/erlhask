@@ -1,6 +1,8 @@
 -- | Main entry point to the application.
 module Main where
 
+import Network (withSocketsDo)
+
 import Debug.HTrace
 
 import Control.Distributed.Process
@@ -22,6 +24,7 @@ import Control.Monad.State (
   evalStateT)
 
 import Control.Monad (foldM, liftM)
+import Control.Monad.Trans.Class (lift)
 
 import Language.CoreErlang.Parser as P
 import Language.CoreErlang.Syntax as S
@@ -42,8 +45,11 @@ orFail = flip maybeError
 orFailL :: Maybe a -> [String] -> Either String a
 orFailL = flip maybeErrorL
 
-errorL :: [String] -> ErlProcessState x
-errorL args = liftM (die $ L.intercalate " " args)
+errorL :: [String] -> a
+errorL args = error (L.intercalate " " args)
+
+dieL :: [String] -> ErlProcessState x
+dieL args = lift $ die (L.intercalate " " args)
 
 showShortFunName :: String -> Arity -> String
 showShortFunName fn arity =
@@ -114,7 +120,7 @@ eval eCtx (ModCall (mod0, arity0) args0) = do
 eval (ECtx varTable) (Var var) = do
   case M.lookup var varTable of
     Just val -> return val
-    Nothing -> errorL ["Missing binding?", var, show $ M.toList varTable]
+    Nothing -> dieL ["Missing binding?", var, show $ M.toList varTable]
 
 eval eCtx (App lambda args) = do
   ((EModule curMod), _, _) <- get
@@ -126,7 +132,7 @@ eval eCtx (App lambda args) = do
       evalModFn curMod name args'
     (ErlLambda _name _argNames fun) -> do
       fun args'
-    _ -> errorL ["Can not apply", show lambda']
+    _ -> dieL ["Can not apply", show lambda']
 
 eval _ (Fun (Function ((Atom name), arity))) =
   return $ ErlFunName name arity
@@ -147,7 +153,7 @@ eval eCtx (List list) = do
 
 
 eval _ expr =
-  errorL ["Unhandled expression: ", show expr]
+  dieL ["Unhandled expression: ", show expr]
 
 matchAlts :: EvalCtx -> ErlTerm -> [S.Alt] -> ErlProcessState ErlTerm
 matchAlts _ _ [] = errorL ["No matching clauses"]
@@ -313,16 +319,19 @@ loadEModule moduleName = do
 
 -- | The main entry point.
 main :: IO ()
-main = do
-  Right transport <- createTransport "127.0.0.1" "8080"
-                     defaultTCPParameters
-  node <- newLocalNode transport initRemoteTable
-  runProcess node bootProc
-  liftIO $ threadDelay 1000000
+main = withSocketsDo $ do
+  tr <- createTransport "localhost" "8081" defaultTCPParameters
+  case tr of
+    Left e -> do
+      liftIO $ print e
+    Right transport -> do
+      node <- newLocalNode transport initRemoteTable
+      runProcess node bootProc
+      liftIO $ threadDelay 1000000
 
 
 bootProc :: Process ()
-bootProc = do
+bootProc = do  
   Right boot <- liftIO $ loadEModule "boot"
   let boot' = EModule boot
   liftIO $ putStrLn $ PP.prettyPrint boot
