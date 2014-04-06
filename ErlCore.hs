@@ -1,8 +1,10 @@
-{-# LANGUAGE DeriveGeneric, StandaloneDeriving #-}
+{-# LANGUAGE DeriveGeneric, StandaloneDeriving, TemplateHaskell, DeriveDataTypeable #-}
 
 module ErlCore where
 
-import GHC.Generics (Generic)
+import Data.Binary
+import Data.Typeable
+import GHC.Generics
 import Data.Hashable
 
 import Control.Distributed.Process
@@ -15,8 +17,9 @@ import qualified Data.List as L
 
 import Language.CoreErlang.Syntax as S
 
+type ModName = String
 type FunName = String
-type Arity = Integer
+type ErlArity = Integer
 type Key = String
 
 instance Eq ErlTerm where
@@ -28,12 +31,16 @@ data ErlTerm = ErlList [ErlTerm] |
                ErlAtom String |
                ErlNum Integer |
                ErlFloat Double |
-               ErlFunName FunName Arity |
+               ErlFunName FunName ErlArity |
                ErlLambda FunName [Var] ErlFun
-               -- ErlBitstring |
-               -- ErlPid |
-               -- ErlPort |
-               -- ErlRef
+             deriving (Generic, Typeable)
+
+instance Binary ErlTerm
+
+-- ErlBitstring |
+-- ErlPid |
+-- ErlPort |
+-- ErlRef
 
 instance Show ErlTerm where
   show (ErlAtom atom) = concat ["'", atom, "'"]
@@ -47,16 +54,20 @@ instance Show ErlTerm where
 instance Hashable S.Exps where
   hashWithSalt salt exprs = hashWithSalt salt (show exprs)
 
-
 type VarTable = M.Map String ErlTerm
 type ProcessDictionary = M.Map String ErlTerm
 type ModTable = M.Map String ErlModule
 
-type ErlFunHead = (FunName, Arity)
+type ErlMFA = (ModName, FunName, ErlArity)
+type ErlFunHead = (FunName, ErlArity)
 type ErlFun = ([ErlTerm] -> ErlProcessState ErlTerm)
 
 data ErlModule = EModule S.Module |
                  HModule (M.Map ErlFunHead ErlFun)
+               deriving (Generic, Typeable)
+
+bootModule :: ErlModule
+bootModule = HModule (M.empty)
 
 data EvalCtx = ECtx VarTable
 type ErlProcessState a = StateT (ErlModule, ModTable, ProcessDictionary) Process a

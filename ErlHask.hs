@@ -1,3 +1,5 @@
+{-# LANGUAGE TemplateHaskell #-}
+
 -- | Main entry point to the application.
 module Main where
 
@@ -6,6 +8,7 @@ import Network (withSocketsDo)
 import Debug.HTrace
 
 import Control.Distributed.Process
+import Control.Distributed.Process.Closure
 import Control.Distributed.Process.Node
 import Network.Transport.TCP
 
@@ -17,6 +20,8 @@ import Data.Hashable
 import qualified Data.Map as M
 import qualified Data.List as L
 import Data.Char as C
+
+import Control.Exception
 
 import Control.Monad.State (
   -- put,
@@ -51,11 +56,11 @@ errorL args = error (L.intercalate " " args)
 dieL :: [String] -> ErlProcessState x
 dieL args = lift $ die (L.intercalate " " args)
 
-showShortFunName :: String -> Arity -> String
+showShortFunName :: String -> ErlArity -> String
 showShortFunName fn arity =
   concat [fn, "/", show arity]
 
-showFunName :: String -> String -> Arity -> String
+showFunName :: String -> String -> ErlArity -> String
 showFunName emod fn arity =
   concat [emod, ":", fn, "/", show arity]
 
@@ -100,7 +105,7 @@ evalExps eCtx (Exps aexs) = do
   fmap last $ mapM (eval eCtx) xs
 
 eval :: EvalCtx -> S.Exp -> ErlProcessState ErlTerm
-eval _ expr | htrace ("eval " ++ show expr) False = undefined
+-- eval _ expr | htrace ("eval " ++ show expr) False = undefined
 eval _ (Lit l) = return $ literalToTerm l
 eval eCtx (Tuple exps) = do
   elements <- mapM (evalExps eCtx) exps
@@ -131,7 +136,7 @@ eval eCtx (App lambda args) = do
     (ErlFunName name _arity) -> do
       evalModFn curMod name args'
     (ErlLambda _name _argNames fun) -> do
-      fun args'
+      applyFunLambda fun args'
     _ -> dieL ["Can not apply", show lambda']
 
 eval _ (Fun (Function ((Atom name), arity))) =
@@ -156,7 +161,7 @@ eval _ expr =
   dieL ["Unhandled expression: ", show expr]
 
 matchAlts :: EvalCtx -> ErlTerm -> [S.Alt] -> ErlProcessState ErlTerm
-matchAlts _ _ [] = errorL ["No matching clauses"]
+matchAlts _ _ [] = dieL ["No matching clauses"]
 matchAlts eCtx0 val (alt:xs) = do
   let (Alt pats guard exprs) = alt
   let matched = matchPats eCtx0 pats val
@@ -197,7 +202,7 @@ matchPat eCtx (PList (LL [head] tail)) (ErlList (x:xs)) = do
   eCtx' <- matchPat eCtx head x
   matchPat eCtx' tail (ErlList xs)
 
-matchPat _ pat term = errorL ["Not implemented matching of", show pat, show term]
+-- matchPat _ pat term = errorL ["Not implemented matching of", show pat, show term]
 
 matchGuard :: EvalCtx -> S.Guard -> ErlProcessState Bool
 matchGuard eCtx (Guard exprs) = do
@@ -208,23 +213,26 @@ matchGuard eCtx (Guard exprs) = do
     _ -> return False
 
 modCall :: ErlTerm -> ErlTerm -> [ErlTerm] -> ErlProcessState ErlTerm
-modCall (ErlAtom emod) (ErlAtom fn) args = do
+modCall (ErlAtom emod) (ErlAtom fn) args =
+  applyMFA emod fn args
+
+modCall emod fn args =
+  dieL ["Wrong type of call", show emod, show fn, show args]
+
+applyMFA :: ModName -> FunName -> [ErlTerm] -> ErlProcessState ErlTerm
+applyMFA emod fn args = do
   (_, modTable, _) <- get
   let arity = (toInteger (length args))
   let call = do
         erlmod <- M.lookup emod modTable `orFailL` ["Module not found for:", showFunCall emod fn args]
         case erlmod of
           EModule emodule -> do
-            -- evalModFn :: EvalCtx -> S.Module -> String -> Arity -> ErlProcessState ErlTerm
+            -- evalModFn :: EvalCtx -> S.Module -> String -> ErlArity -> ErlProcessState ErlTerm
             return $ evalModFn emodule fn args
           HModule funs -> do
             fun <- M.lookup (fn, arity) funs `orFailL` ["Function not found for:", showFunCall emod fn args]
             return $ applyFunLambda fun args
-
   either error id call
-
-modCall emod fn args =
-  errorL ["Wrong type of call", show emod, show fn, show args]
 
 setupFunctionContext :: EvalCtx -> ([Var], ErlTerm) -> EvalCtx
 setupFunctionContext eCtx ([], _) = eCtx
@@ -238,8 +246,6 @@ setupFunctionContext' eCtx args =
 
 unlambda :: S.Exp -> S.Exps
 unlambda (Lambda _ exps) = exps
-unlambda e =
-  errorL ["It is not a lambda", show e]
 
 applyFunLambda :: ErlFun -> [ErlTerm] -> ErlProcessState ErlTerm
 applyFunLambda fun args = fun args
@@ -261,9 +267,8 @@ expsToErlFun eCtx argNames expressions =
            evalCtx' = setupFunctionContext' eCtx bargs
          in
           evalExps evalCtx' expressions
-       _ -> errorL ["Wrong arity!", show argNames, show args, show expressions]
 
-findExportedFunction :: String -> Arity -> [FunDef] -> Maybe FunDef
+findExportedFunction :: String -> ErlArity -> [FunDef] -> Maybe FunDef
 findExportedFunction name arity funs =
   let
     test = \(FunDef nm _) ->
@@ -272,13 +277,13 @@ findExportedFunction name arity funs =
   in
    L.find test funs
 
-findFn :: String -> Arity -> [FunDef] -> Maybe ErlFun
+findFn :: String -> ErlArity -> [FunDef] -> Maybe ErlFun
 findFn name arity funs = do
   (FunDef _ aexp) <- findExportedFunction name arity funs
   let (Lambda vars exprs) = unann aexp
   return $ expsToErlFun newEvalCtx vars exprs
 
-findModFn :: S.Module -> String -> Arity -> Maybe ErlFun
+findModFn :: S.Module -> String -> ErlArity -> Maybe ErlFun
 findModFn m name arity =
   let Module _modName _exports _attributes funs = m
   in
@@ -291,7 +296,7 @@ evalModFn emod fn args = do
     Just fun ->
       applyFunLambda fun args
     Nothing ->
-      errorL ["Can not find", showShortFunName fn arity, "in", show emod]
+      dieL ["Can not find", showShortFunName fn arity, "in", show emod]
 
 
 newEvalCtx :: EvalCtx
@@ -308,62 +313,60 @@ newModTable =
 newProcState :: ErlModule -> (ErlModule, ModTable, ProcessDictionary)
 newProcState emod = (emod, newModTable, newProcDict)
 
-loadEModule :: String -> IO (Either String S.Module)
-loadEModule moduleName = do
-  fileContent <- readFile ("samples/" ++ moduleName ++ ".core") -- `catch` \_ -> do return $ Left ""
+loadEModule0 :: String -> IO (Either String S.Module)
+loadEModule0 moduleName = do
+  fileContent <- readFile ("samples/" ++ moduleName ++ ".core")
   case P.parseModule fileContent of
     Left er ->  do
       return $ Left $ show er
     Right m -> do
       return $ Right (unann m)
 
--- | The main entry point.
-main :: IO ()
-main = withSocketsDo $ do
-  tr <- createTransport "localhost" "8081" defaultTCPParameters
-  case tr of
-    Left e -> do
-      liftIO $ print e
-    Right transport -> do
-      node <- newLocalNode transport initRemoteTable
-      runProcess node bootProc
-      liftIO $ threadDelay 1000000
+loadEModule :: ModTable -> String -> IO (Either String ModTable)
+loadEModule modTable moduleName = do
+  res <- loadEModule0 moduleName
+  case res of
+    Left er -> return $ Left er
+    Right m -> do
+      let m' = EModule m
+      let modTable' = M.insert moduleName m' modTable
+      return $ Right modTable'
 
-
-bootProc :: Process ()
-bootProc = do  
-  Right boot <- liftIO $ loadEModule "boot"
-  let boot' = EModule boot
-  liftIO $ putStrLn $ PP.prettyPrint boot
-  let modTable0 = newModTable
-  let modTable = M.insert "boot" boot' modTable0
-  let runner = evalModFn boot "start" []
-  liftIO $ putStrLn "Running"
-  result <- evalStateT runner (boot', modTable, newProcDict)
+--evaluator :: ErlProcessState ErlTerm -> ErlModule -> ModTable -> ProcessDictionary -> Process ()
+evaluator :: (ModName, FunName, [ErlTerm]) -> Process ()
+evaluator (emod, fn, args) = do
+  let runner = applyMFA emod fn args
+  result <- evalStateT runner (bootModule, newModTable, newProcDict)
   liftIO $ putStrLn "Done"
   liftIO $ print result
-  liftIO $ threadDelay 1000000
+  return ()
+remotable ['evaluator]
+
+           -- runner boot'
+bootProc :: Process ()
+bootProc = do
+  liftIO $ putStrLn "Boot process starting..."
+  -- Right modTable <- liftIO $ loadEModule newModTable "boot"
+  liftIO $ putStrLn "Running"
+  node <- getSelfNode
+  spawnSupervised node ($(mkClosure 'evaluator) ("boot", "start", []))
   return ()
 
 
-
-
--- eval fctx (Put key value) = do
---   ctx <- get
---   evaluated <- eval fctx value
---   let procDict = M.insert key evaluated (pcProcDict ctx)
---   put $ ctx {pcProcDict = procDict}
---   return evaluated
-
--- eval _ (Get key) = do
---   ctx <- get
---   case M.lookup key (pcProcDict ctx) of
---     Nothing -> return $ ErlangTerm ["Fuck", "you"]
---     Just value -> return value
-
--- eval _ (Literal term) = return term
-
--- eval (ECtx eCtx) (Variable name) =
---   case M.lookup name eCtx of
---     Nothing -> error "nope dope"
---     Just value -> return value
+-- | The main entry point.
+main :: IO ()
+main = withSocketsDo $ do
+  putStrLn "Booting..."
+  tr <- createTransport "localhost" "8081" defaultTCPParameters
+  case tr of
+    Left e -> do
+      putStrLn "Faield to create a transport"
+      print e
+    Right transport -> do
+      putStrLn "Transport created."
+      node <- newLocalNode transport initRemoteTable
+      putStrLn "Node created."
+      putStrLn "Running boot process..."
+      runProcess node bootProc
+      putStrLn "Boot process terminated"
+      liftIO $ threadDelay 1000000
