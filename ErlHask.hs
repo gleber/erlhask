@@ -1,9 +1,7 @@
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TemplateHaskell, DataKinds, DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances #-}
 
 -- | Main entry point to the application.
 module Main where
-
-import Network (withSocketsDo)
 
 import Debug.HTrace
 
@@ -12,10 +10,14 @@ import Control.Distributed.Process.Closure
 import Control.Distributed.Process.Node
 import Network.Transport.TCP
 
+import Data.Hashable
+import Data.Binary (Binary)
+import Data.Typeable
+import GHC.Generics
+
 import Control.Concurrent
 import Control.Concurrent.MVar
 
-import Data.Hashable
 
 import qualified Data.Map as M
 import qualified Data.List as L
@@ -135,7 +137,7 @@ eval eCtx (App lambda args) = do
   case lambda' of
     (ErlFunName name _arity) -> do
       evalModFn curMod name args'
-    (ErlLambda _name _argNames fun) -> do
+    fun@(ErlLambda _name _argNames _eCtx _exprs) -> do
       applyFunLambda fun args'
     _ -> dieL ["Can not apply", show lambda']
 
@@ -143,8 +145,7 @@ eval _ (Fun (Function ((Atom name), arity))) =
   return $ ErlFunName name arity
 
 eval eCtx (Lambda argNames exprs) = do
-  return $ ErlLambda (show $ hash exprs) argNames (expsToErlFun eCtx argNames exprs)
-
+  return $ ErlLambda (show $ hash exprs) argNames eCtx exprs
 eval eCtx (Case val alts) = do
   let alts' = map unann alts
   val' <- evalExps eCtx val
@@ -231,7 +232,7 @@ applyMFA emod fn args = do
             return $ evalModFn emodule fn args
           HModule funs -> do
             fun <- M.lookup (fn, arity) funs `orFailL` ["Function not found for:", showFunCall emod fn args]
-            return $ applyFunLambda fun args
+            return $ applyHLambda fun args
   either error id call
 
 setupFunctionContext :: EvalCtx -> ([Var], ErlTerm) -> EvalCtx
@@ -247,13 +248,17 @@ setupFunctionContext' eCtx args =
 unlambda :: S.Exp -> S.Exps
 unlambda (Lambda _ exps) = exps
 
-applyFunLambda :: ErlFun -> [ErlTerm] -> ErlProcessState ErlTerm
-applyFunLambda fun args = fun args
+applyFunLambda :: ErlTerm -> [ErlTerm] -> ErlProcessState ErlTerm
+applyFunLambda (ErlLambda _name names ctx exprs) args =
+  applyELambda ctx exprs names args
 
--- applyELambda :: EvalCtx -> S.Exps -> [Var] -> [ErlTerm] -> ErlProcessState ErlTerm
--- applyELambda eCtx expressions names args =
---   let fun = expsToErlFun eCtx names expressions
---   in applyFunLambda fun args
+applyELambda :: EvalCtx -> S.Exps -> [Var] -> [ErlTerm] -> ErlProcessState ErlTerm
+applyELambda eCtx expressions names args =
+  let fun = expsToErlFun eCtx names expressions
+  in fun args
+
+applyHLambda :: ErlFun -> [ErlTerm] -> ErlProcessState ErlTerm
+applyHLambda fun args = fun args
 
 expsToErlFun :: EvalCtx -> [Var] -> S.Exps -> ErlFun
 expsToErlFun eCtx argNames expressions =
@@ -277,13 +282,13 @@ findExportedFunction name arity funs =
   in
    L.find test funs
 
-findFn :: String -> ErlArity -> [FunDef] -> Maybe ErlFun
+findFn :: String -> ErlArity -> [FunDef] -> Maybe ErlTerm
 findFn name arity funs = do
   (FunDef _ aexp) <- findExportedFunction name arity funs
   let (Lambda vars exprs) = unann aexp
-  return $ expsToErlFun newEvalCtx vars exprs
+  return $ ErlLambda (show $ hash exprs) vars newEvalCtx exprs
 
-findModFn :: S.Module -> String -> ErlArity -> Maybe ErlFun
+findModFn :: S.Module -> String -> ErlArity -> Maybe ErlTerm
 findModFn m name arity =
   let Module _modName _exports _attributes funs = m
   in
@@ -355,7 +360,7 @@ bootProc = do
 
 -- | The main entry point.
 main :: IO ()
-main = withSocketsDo $ do
+main = do
   putStrLn "Booting..."
   tr <- createTransport "localhost" "8081" defaultTCPParameters
   case tr of
