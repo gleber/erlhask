@@ -340,6 +340,7 @@ loadEModule modTable moduleName = do
 --evaluator :: ErlProcessState ErlTerm -> ErlModule -> ModTable -> ProcessDictionary -> Process ()
 evaluator :: (ModName, FunName, [ErlTerm]) -> Process ()
 evaluator (emod, fn, args) = do
+  liftIO $ putStrLn "Evaluating"
   let runner = applyMFA emod fn args
   result <- evalStateT runner (bootModule, newModTable, newProcDict)
   liftIO $ putStrLn "Done"
@@ -347,14 +348,15 @@ evaluator (emod, fn, args) = do
   return ()
 remotable ['evaluator]
 
-           -- runner boot'
+
 bootProc :: Process ()
 bootProc = do
   liftIO $ putStrLn "Boot process starting..."
   -- Right modTable <- liftIO $ loadEModule newModTable "boot"
   liftIO $ putStrLn "Running"
   node <- getSelfNode
-  spawnSupervised node ($(mkClosure 'evaluator) ("boot", "start", []))
+  let clos = $(mkClosure 'evaluator) :: ((ModName, FunName, [ErlTerm]) -> Closure (Process ()))
+  spawnSupervised node (clos ("boot", "start", []))
   return ()
 
 
