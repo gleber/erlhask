@@ -75,41 +75,41 @@ type ErlProcessState a = StateT (ErlModule, ModTable, ProcessDictionary) Process
 instance Binary ErlTerm
 instance Binary EvalCtx
 
-deriving instance Generic (S.List a)
-deriving instance Generic S.Pats
-deriving instance Generic S.Pat
-deriving instance Generic S.Literal
-deriving instance Generic S.Const
-deriving instance Generic S.Function
-deriving instance Generic S.Guard
-deriving instance Generic S.TimeOut
-deriving instance Generic S.Atom
-deriving instance Generic S.Alt
-deriving instance Generic S.Alias
-deriving instance Generic S.FunDef
-deriving instance Generic (S.Ann a)
-deriving instance Generic (S.BitString a)
-deriving instance Generic S.Exp
-deriving instance Generic S.Exps
-instance Binary (S.List S.Const)
-instance Binary (S.List S.Exps)
-instance Binary (S.List S.Pat)
-instance Binary S.Const
-instance Binary S.TimeOut
-instance Binary S.Atom
-instance Binary S.FunDef
-instance Binary S.Alt
-instance Binary S.Alias
-instance Binary S.Pat
-instance Binary S.Pats
-instance Binary S.Literal
-instance Binary (S.Ann S.Function)
-instance Binary S.Function
-instance Binary S.Guard
-instance Binary (S.BitString S.Exps)
-instance Binary (S.BitString S.Pat)
-instance Binary (S.Ann [Ann Exp])
-instance Binary (S.Ann Exp)
-instance Binary (S.Ann Alt)
-instance Binary S.Exps
-instance Binary S.Exp
+-- deriving instance Generic (S.List a)
+-- deriving instance Generic S.Pats
+-- deriving instance Generic S.Pat
+-- deriving instance Generic S.Literal
+-- deriving instance Generic S.Const
+-- deriving instance Generic S.Function
+-- deriving instance Generic S.Guard
+-- deriving instance Generic S.TimeOut
+-- deriving instance Generic S.Atom
+-- deriving instance Generic S.Alt
+-- deriving instance Generic S.Alias
+-- deriving instance Generic S.FunDef
+-- deriving instance Generic (S.Ann a)
+-- deriving instance Generic (S.BitString a)
+-- deriving instance Generic S.Exp
+-- deriving instance Generic S.Exps
+-- instance Binary (S.List S.Const)
+-- instance Binary (S.List S.Exps)
+-- instance Binary (S.List S.Pat)
+-- instance Binary S.Const
+-- instance Binary S.TimeOut
+-- instance Binary S.Atom
+-- instance Binary S.FunDef
+-- instance Binary S.Alt
+-- instance Binary S.Alias
+-- instance Binary S.Pat
+-- instance Binary S.Pats
+-- instance Binary S.Literal
+-- instance Binary (S.Ann S.Function)
+-- instance Binary S.Function
+-- instance Binary S.Guard
+-- instance Binary (S.BitString S.Exps)
+-- instance Binary (S.BitString S.Pat)
+-- instance Binary (S.Ann [Ann Exp])
+-- instance Binary (S.Ann Exp)
+-- instance Binary (S.Ann Alt)
+-- instance Binary S.Exps
+-- instance Binary S.Exp

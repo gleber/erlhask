@@ -5,3 +5,6 @@ run:
 
 samples:
 	(cd samples; make)
+
+clean:
+	rm -f *.hi *.o *~

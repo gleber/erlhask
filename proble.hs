@@ -4,19 +4,25 @@ module Proble where
 import Control.Distributed.Process
 import Control.Distributed.Process.Closure
 
-import Data.Binary (Binary)
-import Data.Typeable
+import Control.DeepSeq (NFData)
+
+import Data.Binary
+import Data.Typeable (Typeable)
 import GHC.Generics
 
-data ErlTerm = ErlFloat Double
-             deriving (Generic, Typeable)
+data ErlTerm = ErlTerm
+             deriving (Typeable, Generic, Eq)
 
-instance Binary ErlTerm
+instance Binary ErlTerm where
+instance NFData ErlTerm where
 
 evaluator :: ErlTerm -> Process ()
 evaluator _term =
   return ()
 
-remotable ['evaluator]
+$(remotable ['evaluator])
+
+-- main = do
+--   print $ put ErlTerm
 
 main = undefined
