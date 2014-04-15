@@ -354,9 +354,15 @@ bootProc = do
   liftIO $ putStrLn "Boot process starting..."
   -- Right modTable <- liftIO $ loadEModule newModTable "boot"
   liftIO $ putStrLn "Running"
-  node <- getSelfNode
-  let clos = $(mkClosure 'evaluator) :: ((ModName, FunName, [ErlTerm]) -> Closure (Process ()))
-  spawnSupervised node (clos ("boot", "start", []))
+  -- node <- getSelfNode
+  -- liftIO $ print $ show node
+  -- let clos = $(mkClosure 'evaluator) :: (ModName, FunName, [ErlTerm]) -> Closure (Process ())
+  -- (pid, mref) <- spawnMonitor node $ clos ("boot", "start", [])
+
+  pid <- spawnLocal (evaluator ("boot", "start", []))
+  mref <- monitor pid
+  a <- expect :: Process ProcessMonitorNotification
+  liftIO $ print $ show a
   return ()
 
 
@@ -364,7 +370,7 @@ bootProc = do
 main :: IO ()
 main = do
   putStrLn "Booting..."
-  tr <- createTransport "localhost" "8081" defaultTCPParameters
+  tr <- createTransport "localhost" "8981" defaultTCPParameters
   case tr of
     Left e -> do
       putStrLn "Faield to create a transport"
@@ -376,4 +382,3 @@ main = do
       putStrLn "Running boot process..."
       runProcess node bootProc
       putStrLn "Boot process terminated"
-      liftIO $ threadDelay 1000000
