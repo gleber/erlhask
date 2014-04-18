@@ -2,10 +2,14 @@
 
 -export([start/0,
          lambda/1,
+         lambdas_test/0,
          call_lambda/0,
          do/1]).
 
 start() ->
+    process_test().
+
+lambdas_test() ->
     X = random:uniform(),
     Y = X + call_lambda(),
     {ok, Z} = return_tuple(),
@@ -23,10 +27,18 @@ call_lambda() ->
     L(5).
 
 return_tuple() ->
-    {ok, random:uniform(), 1}.
+    {ok, random:uniform()}.
 
 return_list() ->
     [1, 2, 3].
 
 do(X) ->
     random:uniform() + X.
+
+
+
+process_test() ->
+    Pid = spawn(fun() ->
+                        erlang:display("Process spawned!")
+                end),
+    erlang:display({spawned, process, Pid}).

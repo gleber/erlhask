@@ -1,3 +1,5 @@
+.PHONY: samples
+
 all: samples
 
 run:
