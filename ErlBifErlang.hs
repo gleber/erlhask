@@ -4,12 +4,23 @@ module ErlBifErlang (exportedMod) where
 import Control.Monad.State (liftIO)
 import qualified Data.Map as M
 
+import Control.Monad.State (get)
+
 import ErlCore
 import ErlBifsCommon
 
+import ErlEval as Eval
+
 erlang_spawn :: [ErlTerm] -> ErlProcessState ErlTerm
-erlang_spawn (arg:[]) = do
-  undefined
+erlang_spawn (lambda:[]) = do
+  ((EModule _ curMod), _, _) <- get
+  case lambda of
+    (ErlFunName name 0) -> do
+      evalModFn curMod name []
+    fun@(ErlLambda _name _argNames _eCtx _exprs) -> do
+      applyFunLambda fun []
+    _ ->
+      bif_badarg_t
 erlang_spawn _ = bif_badarg_num
 
 erlang_display :: [ErlTerm] -> ErlProcessState ErlTerm

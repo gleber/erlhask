@@ -1,3 +1,6 @@
+{-# LANGUAGE TemplateHaskell, DataKinds, DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module ErlEval where
 
 

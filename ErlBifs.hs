@@ -22,7 +22,11 @@ random =
   HModule "random" (
     M.fromList [(("uniform", 0), random_uniform)])
 
-all :: [(String, ErlModule)]
-all =
+modules :: [(String, ErlModule)]
+modules =
   [("random", random),
    ("erlang", Erlang.exportedMod)]
+
+newBifsModTable :: ModTable
+newBifsModTable =
+  M.fromList modules

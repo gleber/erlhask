@@ -50,17 +50,12 @@ import ErlUtil
 import ErlEval
 import ErlModules
 
-newBifsModTable :: ModTable
-newBifsModTable =
-  let bifs = Bifs.all
-  in M.fromList bifs
-
 evaluator :: (ModName, FunName, [ErlTerm]) -> Process ()
 evaluator (emod, fn, args) = do
   liftIO $ putStrLn "Evaluating"
   let runner = applyMFA emod fn args
   let eval = do
-        result <- evalStateT runner (bootModule, newBifsModTable, newProcDict)
+        result <- evalStateT runner (bootModule, Bifs.newBifsModTable, newProcDict)
         liftIO $ putStrLn "Done"
         liftIO $ print result
         return ()
@@ -68,7 +63,6 @@ evaluator (emod, fn, args) = do
                  liftIO $ print (show e)
                  throw e)
 remotable ['evaluator]
-
 
 bootProc :: Process ()
 bootProc = do

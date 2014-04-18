@@ -63,6 +63,7 @@ type ErlFunHead = (FunName, ErlArity)
 type ErlFun = ([ErlTerm] -> ErlProcessState ErlTerm)
 type ErlFunTable = M.Map ErlFunHead ErlFun
 
+-- TODO: unify both types to store lambdas with Maybe S.Exprs
 data ErlModule = EModule ModName S.Module |
                  HModule ModName ErlFunTable
                deriving (Generic, Typeable)
