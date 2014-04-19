@@ -1,8 +1,8 @@
 {-# LANGUAGE DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances #-}
 
-
 module ErlCore where
 
+import Data.Unique
 import Data.Binary
 import Data.Typeable
 import GHC.Generics
@@ -18,15 +18,13 @@ import qualified Data.List as L
 
 import Language.CoreErlang.Syntax as S
 
+instance Hashable S.Exps where
+  hashWithSalt salt exprs = hashWithSalt salt (show exprs)
 
 type ModName = String
 type FunName = String
 type ErlArity = Integer
 type Key = String
-
--- instance Eq ErlTerm where
---   (==) (ErlLambda a _ _ _) (ErlLambda b _ _ _) = a == b
---   (==) (ErlAtom a) (ErlAtom b) = a == b
 
 data ErlTerm = ErlList [ErlTerm] |
                ErlTuple [ErlTerm] |
@@ -34,13 +32,17 @@ data ErlTerm = ErlList [ErlTerm] |
                ErlNum Integer |
                ErlFloat Double |
                ErlFunName FunName ErlArity |
-               ErlLambda FunName [Var] EvalCtx S.Exps
+               ErlLambda FunName [Var] EvalCtx S.Exps |
+               ErlPid ProcessId |
+               ErlRef Unique
              deriving (Generic, Typeable, Eq)
 -- ErlBitstring |
--- ErlPid |
--- ErlPort |
--- ErlRef
 
+instance Binary Unique where
+  put = undefined
+  get = undefined
+
+instance Binary ErlTerm
 
 instance Show ErlTerm where
   show (ErlAtom atom) = concat ["'", atom, "'"]
@@ -50,9 +52,7 @@ instance Show ErlTerm where
   show (ErlTuple tuple) = L.concat ["{", L.intercalate ", " $ L.map show tuple, "}"]
   show (ErlFunName fn arity) = fn ++ "/" ++ (show arity)
   show (ErlLambda name _ _ _) = "#Fun<" ++ name ++ ">"
-
-instance Hashable S.Exps where
-  hashWithSalt salt exprs = hashWithSalt salt (show exprs)
+  show (ErlPid pid) = concat ["<", show pid, ">"]
 
 type VarTable = M.Map String ErlTerm
 type ProcessDictionary = M.Map String ErlTerm
@@ -77,21 +77,12 @@ bootModule = HModule "boot" (M.empty)
 
 data EvalCtx = ECtx VarTable
      deriving (Generic, Eq)
-
-type ErlProcessState a = StateT (ErlModule, ModTable, ProcessDictionary) Process a
-
-instance Binary ErlTerm
 instance Binary EvalCtx
 
+type ErlProcessState a = StateT (ErlModule, ModTable, ProcessDictionary) Process a
 
 newEvalCtx :: EvalCtx
 newEvalCtx = ECtx M.empty
 
 newProcDict :: ProcessDictionary
 newProcDict = M.empty
-
-newModTable :: ModTable
-newModTable = M.empty
-
-newProcState :: ErlModule -> (ErlModule, ModTable, ProcessDictionary)
-newProcState emod = (emod, newModTable, newProcDict)

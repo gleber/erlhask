@@ -7,6 +7,7 @@
          do/1]).
 
 start() ->
+    %% apply_test().
     process_test().
 
 lambdas_test() ->
@@ -35,10 +36,19 @@ return_list() ->
 do(X) ->
     random:uniform() + X.
 
-
+apply_test() ->
+    F = fun() ->
+                1
+        end,
+    1 = erlang:apply(F, [1]).
 
 process_test() ->
+    Parent = self(),
     Pid = spawn(fun() ->
-                        erlang:display("Process spawned!")
+                        erlang:display("Process spawned!"),
+                        Parent ! done
                 end),
+    receive
+        done -> ok
+    end,
     erlang:display({spawned, process, Pid}).

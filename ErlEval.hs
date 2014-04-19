@@ -50,6 +50,9 @@ import ErlCore
 import ErlUtil
 import ErlModules
 import ErlLangCore
+import ErlBifs as Bifs
+import ErlBifsCommon as BifsCommon
+
 
 -- (LL [Exp (Constr (Lit (LInt 1)))]
 --  (Exp (Constr
@@ -76,7 +79,7 @@ evalExps eCtx (Exps aexs) = do
   fmap last $ mapM (eval eCtx) xs
 
 eval :: EvalCtx -> S.Exp -> ErlProcessState ErlTerm
-eval _ expr | htrace ("eval " ++ show expr) False = undefined
+--eval _ expr | htrace ("eval " ++ show expr) False = undefined
 eval _ (Lit l) = return $ literalToTerm l
 eval eCtx (Tuple exps) = do
   elements <- mapM (evalExps eCtx) exps
@@ -249,6 +252,8 @@ expsToErlFun eCtx argNames expressions =
            evalCtx' = setupFunctionContext' eCtx bargs
          in
           evalExps evalCtx' expressions
+       _ ->
+         BifsCommon.bif_badarg_num
 
 findExportedFunction :: String -> ErlArity -> [FunDef] -> Maybe FunDef
 findExportedFunction name arity funs =
@@ -279,3 +284,53 @@ evalModFn emod fn args = do
       applyFunLambda fun args
     Nothing ->
       dieL ["Can not find", showShortFunName fn arity, "in", show emod]
+
+erlang_apply :: [ErlTerm] -> ErlProcessState ErlTerm
+erlang_apply (lambda:(ErlList args):[]) = do
+  case lambda of
+    (ErlFunName name _arity) -> do
+      ((EModule _ curMod), _, _) <- get
+      evalModFn curMod name args
+    fun@(ErlLambda _name _argNames _eCtx _exprs) -> do
+      applyFunLambda fun args
+    _ ->
+      BifsCommon.bif_badarg_t
+erlang_apply _ = bif_badarg_num
+
+erlang_spawn :: [ErlTerm] -> ErlProcessState ErlTerm
+erlang_spawn (lambda:[]) = do
+  pid <- lift $ spawnLocal (evaluator ("erlang", "apply", [lambda, ErlList []]))
+  return $ ErlPid pid
+erlang_spawn _ = bif_badarg_num
+
+newBaseModTable :: ModTable
+newBaseModTable =
+  M.adjust adjustErlangModule "erlang" Bifs.newBifsModTable
+
+adjustErlangModule :: ErlModule -> ErlModule
+adjustErlangModule (HModule "erlang" funs) =
+  HModule "erlang" $ adjustErlangModule' funs
+
+evalBifs :: ErlFunTable
+evalBifs =
+  M.fromList [
+    (("apply", 2), erlang_apply),
+    (("spawn", 1), erlang_spawn)]
+
+adjustErlangModule' :: ErlFunTable -> ErlFunTable
+adjustErlangModule' funs =
+  M.union evalBifs funs
+
+evaluator :: (ModName, FunName, [ErlTerm]) -> Process ()
+evaluator (emod, fn, args) = do
+  -- liftIO $ putStrLn "Evaluating"
+  let runner = applyMFA emod fn args
+  let eval = do
+        result <- evalStateT runner (bootModule, newBaseModTable, newProcDict)
+        -- liftIO $ putStrLn "Done"
+        -- liftIO $ print result
+        return ()
+  catch eval (\(e :: SomeException) -> do
+                 liftIO $ print (show e)
+                 throw e)
+remotable ['evaluator]
