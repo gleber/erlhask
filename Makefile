@@ -3,6 +3,11 @@
 all: samples
 
 run:
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
 	runhaskell -XStandaloneDeriving ErlHask.hs
 
 samples:

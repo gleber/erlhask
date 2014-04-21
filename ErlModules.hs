@@ -1,6 +1,7 @@
 module ErlModules where
 
 import Language.CoreErlang.Parser as P
+import Language.CoreErlang.Pretty as PP
 import Language.CoreErlang.Syntax as S
 
 import qualified Data.Map as M
@@ -48,4 +49,5 @@ loadEModule0 moduleName = do
     Left er ->  do
       return $ Left $ show er
     Right m -> do
+      putStrLn $ prettyPrint m
       return $ Right (unann m)

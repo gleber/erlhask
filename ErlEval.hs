@@ -6,11 +6,16 @@ module ErlEval where
 
 import Prelude hiding (catch)
 
+import System.IO.Unsafe (unsafePerformIO)
+
 import Debug.HTrace
 
 import Control.Distributed.Process
 import Control.Distributed.Process.Closure
 import Control.Distributed.Process.Node
+import Control.Distributed.Process.Internal.Types (
+  runLocalProcess,
+  lpidCounter, lpidUnique, LocalProcessId(..))
 import Network.Transport.TCP
 
 import Data.Hashable
@@ -52,7 +57,7 @@ import ErlModules
 import ErlLangCore
 import ErlBifs as Bifs
 import ErlBifsCommon as BifsCommon
-
+import ErlSafeEval as Safe
 
 -- (LL [Exp (Constr (Lit (LInt 1)))]
 --  (Exp (Constr
@@ -80,6 +85,10 @@ evalExps eCtx (Exps aexs) = do
 
 eval :: EvalCtx -> S.Exp -> ErlProcessState ErlTerm
 --eval _ expr | htrace ("eval " ++ show expr) False = undefined
+eval eCtx (Seq a b) = do
+  evalExps eCtx a
+  evalExps eCtx b
+
 eval _ (Lit l) = return $ literalToTerm l
 eval eCtx (Tuple exps) = do
   elements <- mapM (evalExps eCtx) exps
@@ -123,6 +132,7 @@ eval _ (Fun (Function ((Atom name), arity))) =
 
 eval eCtx (Lambda argNames exprs) = do
   return $ ErlLambda (show $ hash exprs) argNames eCtx exprs
+
 eval eCtx (Case val alts) = do
   let alts' = map unann alts
   val' <- evalExps eCtx val
@@ -137,8 +147,43 @@ eval eCtx (Op (Atom op) args) = do
   case op of
     "match_fail" -> dieL $ map show args'
 
+eval eCtx (Rec alts (TimeOut time timeoutExps)) = do
+  time' <- evalExps eCtx time
+  case time' of
+    ErlNum time'' -> do
+      let alts' = map unann alts
+      matches <- receiveMatches eCtx alts'
+      Just res <- lift $ receiveTimeout (fromInteger time'') matches
+      return res
+    _ ->
+      BifsCommon.bif_badarg_t
+
+
+
 eval _ expr =
   errorL ["Unhandled expression: ", show expr]
+
+
+
+receiveMatches :: EvalCtx -> [S.Alt] -> ErlProcessState [Match ErlTerm]
+receiveMatches eCtx0 alts = do
+  pid <- getSelfPid
+  return $ map (\(Alt pats guard exprs) ->
+    (matchIf (\(msg :: ErlTerm) ->
+
+               let matched = matchPats eCtx0 pats msg
+               in
+                case matched of
+                  Just eCtx -> do
+                    safeEval pid $ matchGuard eCtx guard
+                  Nothing ->
+                    return False
+             )
+             (\(msg :: ErlTerm) ->
+                 -- let Just eCtx = matchPats eCtx0 pats msg
+                 -- evalExps eCtx exprs
+                 return $ msg
+             )) :: Match ErlTerm) alts
 
 matchAlts :: EvalCtx -> ErlTerm -> [S.Alt] -> ErlProcessState ErlTerm
 matchAlts _ _ [] = dieL ["No matching clauses"]

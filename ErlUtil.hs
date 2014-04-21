@@ -8,6 +8,8 @@ import Network.Transport.TCP
 import Control.Monad.Trans.Class (lift)
 
 import qualified Data.List as L
+import qualified Data.Map as M
+
 import ErlCore
 
 forceMaybeL :: Maybe a -> [String] -> a
@@ -51,3 +53,13 @@ showFunName emod fn arity =
 showFunCall :: String -> String -> [ErlTerm] -> String
 showFunCall emod fn args =
   concat [emod, ":", fn, "(", L.intercalate "," (L.map show args), ")"]
+
+setupFunctionContext :: EvalCtx -> ([Var], ErlTerm) -> EvalCtx
+setupFunctionContext eCtx ([], _) = eCtx
+setupFunctionContext (ECtx varTable) (x:xs, value) =
+  let varTable' = M.insert x value varTable
+  in setupFunctionContext (ECtx varTable') (xs, value)
+
+setupFunctionContext' :: EvalCtx -> [([Var], ErlTerm)] -> EvalCtx
+setupFunctionContext' eCtx args =
+  L.foldl (\oCtx arg -> setupFunctionContext oCtx arg) eCtx args
