@@ -167,7 +167,7 @@ eval _ expr =
 
 receiveMatches :: EvalCtx -> [S.Alt] -> ErlProcessState [Match ErlTerm]
 receiveMatches eCtx0 alts = do
-  pid <- getSelfPid
+  pid <- lift $ getSelfPid
   return $ map (\(Alt pats guard exprs) ->
     (matchIf (\(msg :: ErlTerm) ->
 
@@ -175,9 +175,10 @@ receiveMatches eCtx0 alts = do
                in
                 case matched of
                   Just eCtx -> do
-                    safeEval pid $ matchGuard eCtx guard
+                    -- safeEval pid $ matchGuard eCtx guard
+                    True
                   Nothing ->
-                    return False
+                    False
              )
              (\(msg :: ErlTerm) ->
                  -- let Just eCtx = matchPats eCtx0 pats msg
@@ -261,17 +262,7 @@ applyFunInMod erlmod fn args = do
       evalModFn emodule fn args
     HModule modname funs -> do
       let fun = M.lookup (fn, arity) funs `forceMaybeL` ["Function not found for:", showFunCall modname fn args]
-      applyHLambda fun args
-
-setupFunctionContext :: EvalCtx -> ([Var], ErlTerm) -> EvalCtx
-setupFunctionContext eCtx ([], _) = eCtx
-setupFunctionContext (ECtx varTable) (x:xs, value) =
-  let varTable' = M.insert x value varTable
-  in setupFunctionContext (ECtx varTable') (xs, value)
-
-setupFunctionContext' :: EvalCtx -> [([Var], ErlTerm)] -> EvalCtx
-setupFunctionContext' eCtx args =
-  L.foldl (\oCtx arg -> setupFunctionContext oCtx arg) eCtx args
+      applyFun fun args
 
 applyFunLambda :: ErlTerm -> [ErlTerm] -> ErlProcessState ErlTerm
 applyFunLambda (ErlLambda _name names ctx exprs) args =
@@ -280,25 +271,33 @@ applyFunLambda (ErlLambda _name names ctx exprs) args =
 applyELambda :: EvalCtx -> S.Exps -> [Var] -> [ErlTerm] -> ErlProcessState ErlTerm
 applyELambda eCtx expressions names args =
   let fun = expsToErlFun eCtx names expressions
-  in applyHLambda fun args
+  in applyFun fun args
 
-applyHLambda :: ErlFun -> [ErlTerm] -> ErlProcessState ErlTerm
-applyHLambda fun args = fun args
+applyFun :: ErlFun -> [ErlTerm] -> ErlProcessState ErlTerm
+applyFun (ErlStdFun fun) args = applyStdFun fun args
+applyFun (ErlPureFun fun) args = return $ applyPureFun fun args
+
+applyStdFun :: ErlStdFun -> [ErlTerm] -> ErlProcessState ErlTerm
+applyStdFun fun args = fun args
+
+applyPureFun :: ErlPureFun -> [ErlTerm] -> ErlTerm
+applyPureFun fun args = fun args
 
 expsToErlFun :: EvalCtx -> [Var] -> S.Exps -> ErlFun
 expsToErlFun eCtx argNames expressions =
   let arity = length argNames
+      fn = \args -> do
+        case length args of
+          a | a == arity ->
+            let
+              bargs = L.zipWith (\x y -> ([x],y)) argNames args
+              evalCtx' = setupFunctionContext' eCtx bargs
+            in
+             evalExps evalCtx' expressions
+          _ ->
+            BifsCommon.bif_badarg_num
   in
-   \args -> do
-     case length args of
-       a | a == arity ->
-         let
-           bargs = L.zipWith (\x y -> ([x],y)) argNames args
-           evalCtx' = setupFunctionContext' eCtx bargs
-         in
-          evalExps evalCtx' expressions
-       _ ->
-         BifsCommon.bif_badarg_num
+   ErlStdFun fn
 
 findExportedFunction :: String -> ErlArity -> [FunDef] -> Maybe FunDef
 findExportedFunction name arity funs =
@@ -359,8 +358,8 @@ adjustErlangModule (HModule "erlang" funs) =
 evalBifs :: ErlFunTable
 evalBifs =
   M.fromList [
-    (("apply", 2), erlang_apply),
-    (("spawn", 1), erlang_spawn)]
+    (("apply", 2), ErlStdFun erlang_apply),
+    (("spawn", 1), ErlStdFun erlang_spawn)]
 
 adjustErlangModule' :: ErlFunTable -> ErlFunTable
 adjustErlangModule' funs =

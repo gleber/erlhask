@@ -11,7 +11,7 @@ import System.Random (randomIO)
 import ErlBifErlang as Erlang
 import ErlBifsCommon
 
-random_uniform :: [ErlTerm] -> ErlProcessState ErlTerm
+random_uniform :: ErlStdFun
 random_uniform [] = do
   value <- liftIO $ (randomIO :: IO Double)
   return $ ErlFloat value
@@ -20,7 +20,7 @@ random_uniform _ = bif_badarg_num
 random :: ErlModule
 random =
   HModule "random" (
-    M.fromList [(("uniform", 0), random_uniform)])
+    M.fromList [(("uniform", 0), ErlStdFun random_uniform)])
 
 modules :: [(String, ErlModule)]
 modules =

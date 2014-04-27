@@ -60,7 +60,9 @@ type ModTable = M.Map String ErlModule
 
 type ErlMFA = (ModName, FunName, ErlArity)
 type ErlFunHead = (FunName, ErlArity)
-type ErlFun = ([ErlTerm] -> ErlProcessState ErlTerm)
+type ErlStdFun = ([ErlTerm] -> ErlProcessState ErlTerm)
+type ErlPureFun = ([ErlTerm] -> ErlTerm)
+data ErlFun = ErlStdFun ErlStdFun | ErlPureFun ErlPureFun
 type ErlFunTable = M.Map ErlFunHead ErlFun
 
 -- TODO: unify both types to store lambdas with Maybe S.Exprs

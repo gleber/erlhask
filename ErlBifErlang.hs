@@ -18,15 +18,21 @@ import ErlCore
 import ErlBifsCommon
 
 
-erlang_display, erlang_minus, erlang_plus, erlang_self :: [ErlTerm] -> ErlProcessState ErlTerm
+erlang_display, erlang_self :: ErlStdFun
 
 erlang_display (arg:[]) = do
   liftIO $ print arg
   return arg
 erlang_display _ = bif_badarg_num
 
+erlang_self [] = do
+  pid <- lift $ getSelfPid
+  return $ ErlPid pid
+
+erlang_minus, erlang_plus :: ErlPureFun
+
 erlang_minus (a:b:[]) =
-  return $ case (a, b) of
+  case (a, b) of
     (ErlNum aa, ErlNum bb) -> ErlNum (aa - bb)
     (ErlNum aa, ErlFloat bb) -> ErlFloat (fromInteger aa - bb)
     (ErlFloat aa, ErlNum bb) -> ErlFloat (aa - fromInteger bb)
@@ -35,7 +41,7 @@ erlang_minus (a:b:[]) =
 erlang_minus _ = bif_badarg_num
 
 erlang_plus (a:b:[]) =
-  return $ case (a, b) of
+  case (a, b) of
     (ErlNum aa, ErlNum bb) -> ErlNum (aa + bb)
     (ErlNum aa, ErlFloat bb) -> ErlFloat (fromInteger aa + bb)
     (ErlFloat aa, ErlNum bb) -> ErlFloat (aa + fromInteger bb)
@@ -43,16 +49,12 @@ erlang_plus (a:b:[]) =
     _ -> bif_badarg_t
 erlang_plus _ = bif_badarg_num
 
-erlang_self [] = do
-  pid <- lift $ getSelfPid
-  return $ ErlPid pid
-
 exportedMod :: ErlModule
 exportedMod =
-  HModule "erlang" (M.fromList [(("display", 1), erlang_display),
-                                (("-", 2), erlang_minus),
-                                (("+", 2), erlang_plus),
-                                (("self", 0), erlang_self)
+  HModule "erlang" (M.fromList [(("display", 1), ErlStdFun erlang_display),
+                                (("-", 2), ErlPureFun erlang_minus),
+                                (("+", 2), ErlPureFun erlang_plus),
+                                (("self", 0), ErlStdFun erlang_self)
                                 -- (("spawn", 1), erlang_spawn) - implemented directly in the ErlEval
                                 -- (("apply", 2), erlang_apply) - implemented directly in the ErlEval
                                ])

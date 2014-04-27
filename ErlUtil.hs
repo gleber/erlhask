@@ -10,7 +10,10 @@ import Control.Monad.Trans.Class (lift)
 import qualified Data.List as L
 import qualified Data.Map as M
 
+import Language.CoreErlang.Syntax as S
+
 import ErlCore
+import ErlLangCore
 
 forceMaybeL :: Maybe a -> [String] -> a
 forceMaybeL m e =
