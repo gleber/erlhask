@@ -8,7 +8,15 @@ run:
 	@echo
 	@echo
 	@echo
-	runhaskell -XStandaloneDeriving ErlHask.hs
+	runhaskell -XStandaloneDeriving -Wall Main.hs
+
+compile:
+	@echo
+	@echo
+	@echo
+	@echo
+	@echo
+	ghc -Wall Main.hs
 
 samples:
 	(cd samples; make)

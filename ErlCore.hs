@@ -6,20 +6,14 @@ import Data.Unique
 import Data.Binary
 import Data.Typeable
 import GHC.Generics
-import Data.Hashable
 
 import Control.Distributed.Process
-import Control.Distributed.Process.Node
-import Network.Transport.TCP
 
 import Control.Monad.State (StateT)
 import qualified Data.Map as M
 import qualified Data.List as L
 
 import Language.CoreErlang.Syntax as S
-
-instance Hashable S.Exps where
-  hashWithSalt salt exprs = hashWithSalt salt (show exprs)
 
 type ModName = String
 type FunName = String
@@ -53,6 +47,7 @@ instance Show ErlTerm where
   show (ErlFunName fn arity) = fn ++ "/" ++ (show arity)
   show (ErlLambda name _ _ _) = "#Fun<" ++ name ++ ">"
   show (ErlPid pid) = concat ["<", show pid, ">"]
+  show (ErlRef uniq) = concat ["#Ref<", show (hashUnique uniq), ">"]
 
 type VarTable = M.Map String ErlTerm
 type ProcessDictionary = M.Map String ErlTerm
@@ -71,7 +66,7 @@ data ErlModule = EModule ModName S.Module |
                deriving (Generic, Typeable)
 
 instance Show ErlModule where
-  show (EModule modname exps) = concat ["EModule<", modname, ">"]
+  show (EModule modname _exps) = concat ["EModule<", modname, ">"]
   show (HModule modname _funs) = concat ["HModule<", modname, ">"]
 
 bootModule :: ErlModule

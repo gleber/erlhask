@@ -3,41 +3,22 @@
 
 module ErlEval where
 
-
-import Prelude hiding (catch)
-
-import System.IO.Unsafe (unsafePerformIO)
-
-import Debug.HTrace
+-- import Debug.HTrace
 
 import Control.Distributed.Process
 import Control.Distributed.Process.Closure
-import Control.Distributed.Process.Node
-import Control.Distributed.Process.Internal.Types (
-  runLocalProcess,
-  lpidCounter, lpidUnique, LocalProcessId(..))
-import Network.Transport.TCP
+-- import Control.Distributed.Process.Node
+-- import Network.Transport.TCP
 
 import Data.Hashable
-import Data.Binary (Binary)
-import Data.Typeable
-import GHC.Generics
-import Data.Either.Utils
+-- import Data.Either.Utils
 
-import Control.Monad.IO.Class (MonadIO, liftIO)
-import Control.Applicative ((<$>))
-import Control.Exception (Exception(..), throw, throwIO, SomeException)
-
-import Control.Concurrent
-import Control.Concurrent.MVar
-
+import Control.Exception (throw, SomeException)
 
 import qualified Data.Map as M
 import qualified Data.List as L
-import Data.Char as C
 
 import Control.Monad.State (
-  put,
   get,
   modify,
   evalStateT)
@@ -47,9 +28,8 @@ import Control.Monad.Trans.Class (lift)
 
 -- import Control.Exception.Lifted
 
-import Language.CoreErlang.Parser as P
 import Language.CoreErlang.Syntax as S
-import Language.CoreErlang.Pretty as PP
+-- import Language.CoreErlang.Pretty as PP
 
 import ErlCore
 import ErlUtil
@@ -57,7 +37,7 @@ import ErlModules
 import ErlLangCore
 import ErlBifs as Bifs
 import ErlBifsCommon as BifsCommon
-import ErlSafeEval as Safe
+-- import ErlSafeEval as Safe
 
 -- (LL [Exp (Constr (Lit (LInt 1)))]
 --  (Exp (Constr
@@ -66,10 +46,10 @@ import ErlSafeEval as Safe
 --                     (List (L [Exp (Constr (Lit (LInt 3)))]
 --                           )))))))))
 exprListToTerm :: EvalCtx ->  S.List S.Exps -> ErlProcessState ErlTerm
-exprListToTerm eCtx (LL exprs tail) = do
+exprListToTerm eCtx (LL exprs xs) = do
   vals <- mapM (evalExps eCtx) exprs
-  (ErlList tail) <- evalExps eCtx tail
-  return $ ErlList (vals ++ tail)
+  ErlList t <- evalExps eCtx xs
+  return $ ErlList (vals ++ t)
 exprListToTerm eCtx (L exprs) = do
   vals <- mapM (evalExps eCtx) exprs
   return $ ErlList vals
@@ -86,7 +66,7 @@ evalExps eCtx (Exps aexs) = do
 eval :: EvalCtx -> S.Exp -> ErlProcessState ErlTerm
 --eval _ expr | htrace ("eval " ++ show expr) False = undefined
 eval eCtx (Seq a b) = do
-  evalExps eCtx a
+  _ <- evalExps eCtx a
   evalExps eCtx b
 
 eval _ (Lit l) = return $ literalToTerm l
@@ -111,8 +91,8 @@ eval (ECtx varTable) (Var var) = do
     Nothing -> dieL ["Missing binding?", var, show $ M.toList varTable]
 
 eval eCtx (App lambda args) = do
-  (mod, _, _) <- get
-  case mod of
+  (cmod, _, _) <- get
+  case cmod of
     EModule _ curMod -> do
       let evalExps' = evalExps eCtx
       lambda' <- evalExps' lambda
@@ -125,7 +105,7 @@ eval eCtx (App lambda args) = do
         _ ->
           dieL ["Can not apply", show lambda']
     _ ->
-      errorL ["Unable to apply things in ", show mod]
+      errorL ["Unable to apply things in ", show cmod]
 
 eval _ (Fun (Function ((Atom name), arity))) =
   return $ ErlFunName name arity
@@ -146,8 +126,9 @@ eval eCtx (Op (Atom op) args) = do
   args' <- mapM evalExps' args
   case op of
     "match_fail" -> dieL $ map show args'
+    _ -> errorL ["Not implemented Op", op, show args]
 
-eval eCtx (Rec alts (TimeOut time timeoutExps)) = do
+eval eCtx (Rec alts (TimeOut time _timeoutExps)) = do
   time' <- evalExps eCtx time
   case time' of
     ErlNum time'' -> do
@@ -167,15 +148,14 @@ eval _ expr =
 
 receiveMatches :: EvalCtx -> [S.Alt] -> ErlProcessState [Match ErlTerm]
 receiveMatches eCtx0 alts = do
-  pid <- lift $ getSelfPid
-  return $ map (\(Alt pats guard exprs) ->
+  return $ map (\(Alt pats _guard _exprs) ->
     (matchIf (\(msg :: ErlTerm) ->
 
                let matched = matchPats eCtx0 pats msg
                in
                 case matched of
-                  Just eCtx -> do
-                    -- safeEval pid $ matchGuard eCtx guard
+                  Just _eCtx -> do
+                    -- safeEval $ matchGuard eCtx guard
                     True
                   Nothing ->
                     False
@@ -208,6 +188,8 @@ matchPats :: EvalCtx -> S.Pats -> ErlTerm -> Maybe EvalCtx
 matchPats eCtx (Pats [pat]) term = matchPats eCtx (Pat pat) term
 matchPats eCtx (Pat pat) term = do
   matchPat eCtx pat term
+matchPats _eCtx pat term =
+  errorL ["Not implemented matching of Pats", show pat, "with", show term]
 
 matchPat :: EvalCtx -> S.Pat -> ErlTerm -> Maybe EvalCtx
 matchPat eCtx (PTuple pat) (ErlTuple term) = do
@@ -222,11 +204,13 @@ matchPat eCtx (PLit lit) term = do
     else Nothing
 matchPat eCtx (PVar var) term = do
   return $ setupFunctionContext eCtx ([var], term)
+matchPat _eCtx pat term = do
+  errorL ["Not implemented matching of Pat", show pat, "with", show term]
 
 -- PList (LL [PVar "K"] (PList (LL [PVar "L"] (PVar "_cor8")))) [1, 2, 3]
-matchPat eCtx (PList (LL [head] tail)) (ErlList (x:xs)) = do
-  eCtx' <- matchPat eCtx head x
-  matchPat eCtx' tail (ErlList xs)
+matchPat eCtx (PList (LL [h] t)) (ErlList (x:xs)) = do
+  eCtx' <- matchPat eCtx h x
+  matchPat eCtx' t (ErlList xs)
 
 -- matchPat _ pat term = errorL ["Not implemented matching of", show pat, show term]
 
@@ -248,7 +232,6 @@ modCall emod fn args =
 applyMFA :: ModName -> FunName -> [ErlTerm] -> ErlProcessState ErlTerm
 applyMFA modname fn args = do
   erlmod <- ensureEModule modname
-  (_, modTable, _) <- get
   applyFunInMod erlmod fn args
 
 applyFunInMod :: ErlModule -> FunName -> [ErlTerm] -> ErlProcessState ErlTerm
@@ -267,6 +250,8 @@ applyFunInMod erlmod fn args = do
 applyFunLambda :: ErlTerm -> [ErlTerm] -> ErlProcessState ErlTerm
 applyFunLambda (ErlLambda _name names ctx exprs) args =
   applyELambda ctx exprs names args
+applyFunLambda _ _ =
+  errorL ["Wrong type for applyFunLambda call, dummy!"]
 
 applyELambda :: EvalCtx -> S.Exps -> [Var] -> [ErlTerm] -> ErlProcessState ErlTerm
 applyELambda eCtx expressions names args =
@@ -354,6 +339,8 @@ newBaseModTable =
 adjustErlangModule :: ErlModule -> ErlModule
 adjustErlangModule (HModule "erlang" funs) =
   HModule "erlang" $ adjustErlangModule' funs
+adjustErlangModule _ =
+  errorL ["Wrong module, dummy!"]
 
 evalBifs :: ErlFunTable
 evalBifs =
@@ -369,12 +356,12 @@ evaluator :: (ModName, FunName, [ErlTerm]) -> Process ()
 evaluator (emod, fn, args) = do
   -- liftIO $ putStrLn "Evaluating"
   let runner = applyMFA emod fn args
-  let eval = do
+  let ev = do
         result <- evalStateT runner (bootModule, newBaseModTable, newProcDict)
         -- liftIO $ putStrLn "Done"
         -- liftIO $ print result
         return ()
-  catch eval (\(e :: SomeException) -> do
+  catch ev (\(e :: SomeException) -> do
                  liftIO $ print (show e)
                  throw e)
 remotable ['evaluator]
