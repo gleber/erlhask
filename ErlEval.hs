@@ -37,7 +37,7 @@ import ErlModules
 import ErlLangCore
 import ErlBifs as Bifs
 import ErlBifsCommon as BifsCommon
--- import ErlSafeEval as Safe
+import qualified ErlSafeEval as Safe
 
 -- (LL [Exp (Constr (Lit (LInt 1)))]
 --  (Exp (Constr
@@ -128,18 +128,20 @@ eval eCtx (Op (Atom op) args) = do
     "match_fail" -> dieL $ map show args'
     _ -> errorL ["Not implemented Op", op, show args]
 
-eval eCtx (Rec alts (TimeOut time _timeoutExps)) = do
+eval eCtx (Rec alts (TimeOut time timeoutExps)) = do
   time' <- evalExps eCtx time
   case time' of
     ErlNum time'' -> do
       let alts' = map unann alts
       matches <- receiveMatches eCtx alts'
-      Just res <- lift $ receiveTimeout (fromInteger time'') matches
-      return res
+      res <- lift $ receiveTimeout (fromInteger time'') matches
+      case res of
+        Nothing ->
+          evalExps eCtx timeoutExps
+        Just res ->
+          return res
     _ ->
       BifsCommon.bif_badarg_t
-
-
 
 eval _ expr =
   errorL ["Unhandled expression: ", show expr]
@@ -148,15 +150,13 @@ eval _ expr =
 
 receiveMatches :: EvalCtx -> [S.Alt] -> ErlProcessState [Match ErlTerm]
 receiveMatches eCtx0 alts = do
-  return $ map (\(Alt pats _guard _exprs) ->
+  return $ map (\(Alt pats guard _exprs) ->
     (matchIf (\(msg :: ErlTerm) ->
-
                let matched = matchPats eCtx0 pats msg
                in
                 case matched of
-                  Just _eCtx -> do
-                    -- safeEval $ matchGuard eCtx guard
-                    True
+                  Just eCtx -> do
+                    Safe.matchGuard eCtx guard
                   Nothing ->
                     False
              )

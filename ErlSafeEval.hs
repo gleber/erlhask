@@ -31,41 +31,41 @@ import ErlLangCore
 
 -- -- PList (LL [PVar "K"] (PList (LL [PVar "L"] (PVar "_cor8")))) [1, 2, 3]
 
--- evalExps :: EvalCtx -> S.Exps -> ErlTerm
--- evalExps eCtx (Exp e) = eval eCtx (unann e)
--- evalExps eCtx (Exps aexs) = do
---   let exs = unann aexs
---       xs = L.map unann exs
---   fmap last $ mapM (eval eCtx) xs
+evalExps :: EvalCtx -> S.Exps -> ErlTerm
+evalExps eCtx (Exp e) = eval eCtx (unann e)
+evalExps eCtx (Exps aexs) = do
+  let exs = unann aexs
+      xs = L.map unann exs
+  last $ L.map (eval eCtx) xs
 
--- eval :: EvalCtx -> S.Exp -> ErlTerm
--- --eval _ expr | htrace ("eval " ++ show expr) False = undefined
--- eval eCtx (Seq a b) = do
---   evalExps eCtx a
---   evalExps eCtx b
+eval :: EvalCtx -> S.Exp -> ErlTerm
+--eval _ expr | htrace ("eval " ++ show expr) False = undefined
+eval eCtx (Seq a b) =
+  let _ = evalExps eCtx a
+  in evalExps eCtx b
 
--- eval _ (Lit l) = return $ literalToTerm l
--- eval eCtx (Tuple exps) = do
---   elements <- mapM (evalExps eCtx) exps
---   return $ ErlTuple elements
--- eval eCtx (Let (var,val) exps) = do
---   value <- evalExps eCtx val
---   let eCtx' = setupFunctionContext eCtx (var,value)
---   evalExps eCtx' exps
+eval _ (Lit l) = literalToTerm l
+eval eCtx (Tuple exps) =
+  let elements = map (evalExps eCtx) exps
+  in ErlTuple elements
+eval eCtx (Let (var,val) exps) =
+  let value = evalExps eCtx val
+      eCtx' = setupFunctionContext eCtx (var,value)
+  in evalExps eCtx' exps
 
--- eval eCtx (ModCall (mod0, arity0) args0) = do
+-- eval eCtx (ModCall (mod0, arity0) args0) =
 --   let evalExps' = evalExps eCtx
 --   emod <- evalExps' mod0
 --   arity <- evalExps' arity0
 --   args <- mapM evalExps' args0
 --   modCall emod arity args
 
--- eval (ECtx varTable) (Var var) = do
+-- eval (ECtx varTable) (Var var) =
 --   case M.lookup var varTable of
 --     Just val -> return val
 --     Nothing -> errorL ["Missing binding?", var, show $ M.toList varTable]
 
--- -- eval eCtx (App lambda args) = do
+-- -- eval eCtx (App lambda args) =
 -- --   (mod, _, _) <- get
 -- --   case mod of
 -- --     EModule _ curMod -> do
@@ -85,18 +85,18 @@ import ErlLangCore
 -- eval _ (Fun (Function ((Atom name), arity))) =
 --   ErlFunName name arity
 
--- eval eCtx (Lambda argNames exprs) = do
+-- eval eCtx (Lambda argNames exprs) =
 --   ErlLambda (show $ hash exprs) argNames eCtx exprs
 
--- eval eCtx (Case val alts) = do
+-- eval eCtx (Case val alts) =
 --   let alts' = map unann alts
 --   val' <- evalExps eCtx val
 --   matchAlts eCtx val' alts'
 
--- eval eCtx (List list) = do
+-- eval eCtx (List list) =
 --   exprListToTerm eCtx list
 
--- eval eCtx (Op (Atom op) args) = do
+-- eval eCtx (Op (Atom op) args) =
 --   let evalExps' = evalExps eCtx
 --   args' <- mapM evalExps' args
 --   case op of
@@ -150,13 +150,15 @@ import ErlLangCore
 
 -- -- matchPat _ pat term = errorL ["Not implemented matching of", show pat, show term]
 
--- matchGuard :: EvalCtx -> S.Guard -> ErlProcessState Bool
--- matchGuard eCtx (Guard exprs) = do
---   evaled <- evalExps eCtx exprs
---   case evaled of
---     ErlAtom "true" ->
---       return True
---     _ -> return False
+matchGuard :: EvalCtx -> S.Guard -> Bool
+matchGuard eCtx (Guard exprs) =
+  let evaled = evalExps eCtx exprs
+  in
+   case evaled of
+     ErlAtom "true" ->
+       True
+     _ ->
+       False
 
 
 -- modCall :: ErlTerm -> ErlTerm -> [ErlTerm] -> ErlTerm
