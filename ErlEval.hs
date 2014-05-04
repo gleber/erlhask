@@ -138,8 +138,9 @@ eval eCtx (Rec alts (TimeOut time timeoutExps)) = do
       case res of
         Nothing ->
           evalExps eCtx timeoutExps
-        Just res ->
-          return res
+        Just (msg, (Alt pats _ exprs)) -> do
+          let Just eCtx' = matchPats eCtx pats msg
+          return
     _ ->
       BifsCommon.bif_badarg_t
 
@@ -148,9 +149,9 @@ eval _ expr =
 
 
 
-receiveMatches :: EvalCtx -> [S.Alt] -> ErlProcessState [Match ErlTerm]
+receiveMatches :: EvalCtx -> [S.Alt] -> ErlProcessState [Match (ErlTerm, S.Alt)]
 receiveMatches eCtx0 alts = do
-  return $ map (\(Alt pats guard _exprs) ->
+  return $ map (\alt@(Alt pats guard exprs) ->
     (matchIf (\(msg :: ErlTerm) ->
                let matched = matchPats eCtx0 pats msg
                in
@@ -160,11 +161,9 @@ receiveMatches eCtx0 alts = do
                   Nothing ->
                     False
              )
-             (\(msg :: ErlTerm) ->
-                 -- let Just eCtx = matchPats eCtx0 pats msg
-                 -- evalExps eCtx exprs
-                 return $ msg
-             )) :: Match ErlTerm) alts
+             (\(msg :: ErlTerm) -> do
+                 (msg, alt)
+             )) :: Match (ErlTerm, S.Alt)) alts
 
 matchAlts :: EvalCtx -> ErlTerm -> [S.Alt] -> ErlProcessState ErlTerm
 matchAlts _ _ [] = dieL ["No matching clauses"]
