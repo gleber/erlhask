@@ -49,5 +49,5 @@ loadEModule0 moduleName = do
     Left er ->  do
       return $ Left $ show er
     Right m -> do
-      putStrLn $ prettyPrint m
+      -- putStrLn $ prettyPrint m
       return $ Right (unann m)

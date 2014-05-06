@@ -140,7 +140,7 @@ eval eCtx (Rec alts (TimeOut time timeoutExps)) = do
           evalExps eCtx timeoutExps
         Just (msg, (Alt pats _ exprs)) -> do
           let Just eCtx' = matchPats eCtx pats msg
-          return
+          evalExps eCtx' exprs
     _ ->
       BifsCommon.bif_badarg_t
 
@@ -162,7 +162,7 @@ receiveMatches eCtx0 alts = do
                     False
              )
              (\(msg :: ErlTerm) -> do
-                 (msg, alt)
+                 return (msg, alt)
              )) :: Match (ErlTerm, S.Alt)) alts
 
 matchAlts :: EvalCtx -> ErlTerm -> [S.Alt] -> ErlProcessState ErlTerm
@@ -321,7 +321,8 @@ erlang_apply (lambda:(ErlList args):[]) = do
       evalModFn curMod name args
     fun@(ErlLambda _name _argNames _eCtx _exprs) -> do
       applyFunLambda fun args
-    _ ->
+    _ -> do
+      liftIO $ putStrLn "erlang:apply badarg type"
       BifsCommon.bif_badarg_t
 erlang_apply _ = bif_badarg_num
 

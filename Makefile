@@ -8,7 +8,7 @@ run:
 	@echo
 	@echo
 	@echo
-	runhaskell -XStandaloneDeriving -Wall Main.hs
+	runhaskell -Wall Main.hs
 
 compile:
 	@echo

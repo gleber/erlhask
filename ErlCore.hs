@@ -12,6 +12,7 @@ import Control.Distributed.Process
 import Control.Monad.State (StateT)
 import qualified Data.Map as M
 import qualified Data.List as L
+import qualified Data.Char as C
 
 import Language.CoreErlang.Syntax as S
 
@@ -38,11 +39,20 @@ instance Binary Unique where
 
 instance Binary ErlTerm
 
+erlIsInt :: ErlTerm -> Bool
+erlIsInt (ErlNum _) = True
+erlIsInt _ = False
+
 instance Show ErlTerm where
   show (ErlAtom atom) = concat ["'", atom, "'"]
   show (ErlNum num) = show num
   show (ErlFloat double) = show double
-  show (ErlList list) = L.concat ["[", L.intercalate ", " $ L.map show list, "]"]
+  show (ErlList list) =
+    case L.all erlIsInt list && L.all (C.isPrint . toEnum) list of
+      True ->
+        L.concat ["[", L.intercalate ", " $ L.map show list, "]"]
+      False ->
+        L.concat ["[", L.intercalate ", " $ L.map show list, "]"]
   show (ErlTuple tuple) = L.concat ["{", L.intercalate ", " $ L.map show tuple, "}"]
   show (ErlFunName fn arity) = fn ++ "/" ++ (show arity)
   show (ErlLambda name _ _ _) = "#Fun<" ++ name ++ ">"
