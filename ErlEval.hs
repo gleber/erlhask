@@ -64,7 +64,7 @@ evalExps eCtx (Exps aexs) = do
   fmap last $ mapM (eval eCtx) xs
 
 eval :: EvalCtx -> S.Exp -> ErlProcessState ErlTerm
---eval _ expr | htrace ("eval " ++ show expr) False = undefined
+-- eval _ expr | htrace (show threadId ++ ": eval " ++ show expr) False = undefined
 eval eCtx (Seq a b) = do
   _ <- evalExps eCtx a
   evalExps eCtx b
@@ -130,19 +130,19 @@ eval eCtx (Op (Atom op) args) = do
 
 eval eCtx (Rec alts (TimeOut time timeoutExps)) = do
   time' <- evalExps eCtx time
-  case time' of
-    ErlNum time'' -> do
+  case isTimeout time' of
+    False ->
+      BifsCommon.bif_badarg_t
+    True -> do
       let alts' = map unann alts
       matches <- receiveMatches eCtx alts'
-      res <- lift $ receiveTimeout (fromInteger time'') matches
+      res <- lift $ receive time' matches
       case res of
         Nothing ->
           evalExps eCtx timeoutExps
         Just (msg, (Alt pats _ exprs)) -> do
           let Just eCtx' = matchPats eCtx pats msg
           evalExps eCtx' exprs
-    _ ->
-      BifsCommon.bif_badarg_t
 
 eval _ expr =
   errorL ["Unhandled expression: ", show expr]

@@ -16,6 +16,12 @@ import qualified Data.Char as C
 
 import Language.CoreErlang.Syntax as S
 
+import Control.Concurrent
+import System.IO.Unsafe
+
+threadId :: ThreadId
+threadId = unsafePerformIO $ myThreadId
+
 type ModName = String
 type FunName = String
 type ErlArity = Integer
@@ -33,6 +39,17 @@ data ErlTerm = ErlList [ErlTerm] |
              deriving (Generic, Typeable, Eq)
 -- ErlBitstring |
 
+isTimeout :: ErlTerm -> Bool
+isTimeout (ErlNum _) = True
+isTimeout (ErlAtom "infinity") = True
+isTimeout _ = False
+
+receive :: ErlTerm -> [Match b] -> Process (Maybe b)
+receive (ErlNum time) matches = receiveTimeout (fromInteger time) matches
+receive (ErlAtom "infinity") matches = do
+  res <- receiveWait matches
+  return $ Just res
+
 instance Binary Unique where
   put = undefined
   get = undefined
@@ -43,14 +60,17 @@ erlIsInt :: ErlTerm -> Bool
 erlIsInt (ErlNum _) = True
 erlIsInt _ = False
 
+erlToInt :: ErlTerm -> Integer
+erlToInt (ErlNum a) = a
+
 instance Show ErlTerm where
   show (ErlAtom atom) = concat ["'", atom, "'"]
   show (ErlNum num) = show num
   show (ErlFloat double) = show double
   show (ErlList list) =
-    case L.all erlIsInt list && L.all (C.isPrint . toEnum) list of
+    case L.all erlIsInt list && L.all (C.isPrint . toEnum . fromInteger . erlToInt) list of
       True ->
-        L.concat ["[", L.intercalate ", " $ L.map show list, "]"]
+        L.map (C.chr . fromInteger . erlToInt) list
       False ->
         L.concat ["[", L.intercalate ", " $ L.map show list, "]"]
   show (ErlTuple tuple) = L.concat ["{", L.intercalate ", " $ L.map show tuple, "}"]
