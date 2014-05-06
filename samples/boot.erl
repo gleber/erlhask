@@ -7,6 +7,7 @@
          do/1]).
 
 start() ->
+    %% try_test().
     %% apply_test().
     process_test().
 
@@ -42,6 +43,15 @@ apply_test() ->
         end,
     1 = erlang:apply(F, [1]).
 
+try_test() ->
+    try
+        X = random:uniform(),
+        erlang:error(aaa)
+    catch
+        A:B ->
+            erlang:display({A,B})
+    end.
+
 process_test() ->
     Parent = self(),
     Pid = spawn(fun() ->
@@ -49,6 +59,7 @@ process_test() ->
                         Parent ! done
                 end),
     receive
+        %% X when erlang:float(X) > 1 -> ok1;
         done -> ok
     end,
     erlang:display({spawned, process, Pid}).

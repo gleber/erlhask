@@ -3,7 +3,7 @@
 
 module ErlEval where
 
--- import Debug.HTrace
+import Debug.HTrace
 
 import Control.Distributed.Process
 import Control.Distributed.Process.Closure
@@ -12,6 +12,7 @@ import Control.Distributed.Process.Closure
 
 import Data.Hashable
 -- import Data.Either.Utils
+
 
 import Control.Exception (throw, SomeException)
 
