@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell, DataKinds, DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances #-}
+{-# LANGUAGE DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances, Rank2Types, FlexibleContexts #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module ErlEval where
@@ -260,12 +261,12 @@ applyELambda eCtx expressions names args =
 
 applyFun :: ErlFun -> [ErlTerm] -> ErlProcessState ErlTerm
 applyFun (ErlStdFun fun) args = applyStdFun fun args
-applyFun (ErlPureFun fun) args = return $ applyPureFun fun args
+applyFun (ErlPureFun fun) args = applyPureFun fun args
 
 applyStdFun :: ErlStdFun -> [ErlTerm] -> ErlProcessState ErlTerm
 applyStdFun fun args = fun args
 
-applyPureFun :: ErlPureFun -> [ErlTerm] -> ErlTerm
+applyPureFun :: (Monad m) => ErlPureFun -> [ErlTerm] -> BaseErlProcessState m ErlTerm
 applyPureFun fun args = fun args
 
 expsToErlFun :: EvalCtx -> [Var] -> S.Exps -> ErlFun

@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances, Rank2Types, FlexibleContexts #-}
+
 module ErlModules where
 
 import Language.CoreErlang.Parser as P

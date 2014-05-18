@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances, Rank2Types, FlexibleContexts #-}
+
 module ErlUtil where
 
 import Control.Distributed.Process
@@ -43,7 +45,7 @@ errorL :: [String] -> a
 errorL args = error (L.intercalate " " args)
 
 dieL :: [String] -> ErlProcessState x
-dieL args = lift $ die (L.intercalate " " args)
+dieL args = lift $ fail (L.intercalate " " args)
 
 showShortFunName :: String -> ErlArity -> String
 showShortFunName fn arity =

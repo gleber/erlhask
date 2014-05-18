@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances #-}
+{-# LANGUAGE DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances, Rank2Types, FlexibleContexts #-}
 
 module ErlCore where
 
@@ -85,8 +85,10 @@ type ModTable = M.Map String ErlModule
 
 type ErlMFA = (ModName, FunName, ErlArity)
 type ErlFunHead = (FunName, ErlArity)
+
 type ErlStdFun = ([ErlTerm] -> ErlProcessState ErlTerm)
-type ErlPureFun = ([ErlTerm] -> ErlTerm)
+type ErlPureFun = ([ErlTerm] -> ErlPureState ErlTerm)
+
 data ErlFun = ErlStdFun ErlStdFun | ErlPureFun ErlPureFun
 type ErlFunTable = M.Map ErlFunHead ErlFun
 
@@ -106,7 +108,10 @@ data EvalCtx = ECtx VarTable
      deriving (Generic, Eq)
 instance Binary EvalCtx
 
-type ErlProcessState a = StateT (ErlModule, ModTable, ProcessDictionary) Process a
+type BaseErlProcessState m a = Monad m => StateT (ErlModule, ModTable, ProcessDictionary) m a
+
+type ErlProcessState a = BaseErlProcessState Process a
+type ErlPureState a = BaseErlProcessState Maybe a
 
 newEvalCtx :: EvalCtx
 newEvalCtx = ECtx M.empty
