@@ -1,4 +1,5 @@
-{-# LANGUAGE DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances, Rank2Types, FlexibleContexts #-}
+{-# LANGUAGE DeriveGeneric, StandaloneDeriving, DeriveDataTypeable,
+             FlexibleInstances, Rank2Types, FlexibleContexts #-}
 
 module ErlCore where
 
@@ -62,6 +63,7 @@ erlIsInt _ = False
 
 erlToInt :: ErlTerm -> Integer
 erlToInt (ErlNum a) = a
+erlToInt _ = error "Not an integer"
 
 instance Show ErlTerm where
   show (ErlAtom atom) = concat ["'", atom, "'"]
@@ -86,10 +88,6 @@ type ModTable = M.Map String ErlModule
 type ErlMFA = (ModName, FunName, ErlArity)
 type ErlFunHead = (FunName, ErlArity)
 
-type ErlStdFun = ([ErlTerm] -> ErlProcessState ErlTerm)
-type ErlPureFun = ([ErlTerm] -> ErlPureState ErlTerm)
-
-data ErlFun = ErlStdFun ErlStdFun | ErlPureFun ErlPureFun
 type ErlFunTable = M.Map ErlFunHead ErlFun
 
 -- TODO: unify both types to store lambdas with Maybe S.Exprs
@@ -112,6 +110,12 @@ type BaseErlProcessState m a = Monad m => StateT (ErlModule, ModTable, ProcessDi
 
 type ErlProcessState a = BaseErlProcessState Process a
 type ErlPureState a = BaseErlProcessState Maybe a
+
+type ErlStdFun = ([ErlTerm] -> ErlProcessState ErlTerm)
+type ErlPureFun m = Monad m => ([ErlTerm] -> BaseErlProcessState m ErlTerm)
+
+data ErlFun = ErlStdFun ErlStdFun |
+              ErlPureFun (ErlPureFun Maybe)
 
 newEvalCtx :: EvalCtx
 newEvalCtx = ECtx M.empty

@@ -10,6 +10,9 @@ run:
 	@echo
 	runhaskell -Wall Main.hs
 
+test:
+	runhaskell -Wall test.hs
+
 compile:
 	@echo
 	@echo
