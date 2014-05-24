@@ -1,5 +1,7 @@
 {-# LANGUAGE DeriveGeneric, StandaloneDeriving, DeriveDataTypeable,
-             FlexibleInstances, Rank2Types, FlexibleContexts #-}
+FlexibleInstances, Rank2Types, FlexibleContexts, RankNTypes,
+DeriveGeneric, StandaloneDeriving, DeriveDataTypeable,
+FlexibleInstances, RankNTypes, FlexibleContexts, ImpredicativeTypes #-}
 
 module ErlCore where
 
@@ -10,7 +12,10 @@ import GHC.Generics
 
 import Control.Distributed.Process
 
-import Control.Monad.State (StateT)
+import Control.Monad.Identity (Identity, runIdentity)
+import Control.Monad.RWS.Strict (RWST, runRWST)
+import Control.Monad.Error (ErrorT, Error, runErrorT, throwError, strMsg)
+-- import Control.Monad.State (StateT)
 import qualified Data.Map as M
 import qualified Data.List as L
 import qualified Data.Char as C
@@ -82,7 +87,7 @@ instance Show ErlTerm where
   show (ErlRef uniq) = concat ["#Ref<", show (hashUnique uniq), ">"]
 
 type VarTable = M.Map String ErlTerm
-type ProcessDictionary = M.Map String ErlTerm
+type ProcDict = M.Map String ErlTerm
 type ModTable = M.Map String ErlModule
 
 type ErlMFA = (ModName, FunName, ErlArity)
@@ -106,19 +111,49 @@ data EvalCtx = ECtx VarTable
      deriving (Generic, Eq)
 instance Binary EvalCtx
 
-type BaseErlProcessState m a = Monad m => StateT (ErlModule, ModTable, ProcessDictionary) m a
+data StackFrame = Frame { mfa :: ErlMFA,
+                          args :: [ErlTerm] }
 
-type ErlProcessState a = BaseErlProcessState Process a
-type ErlPureState a = BaseErlProcessState Maybe a
+data ErlExceptionType = ExcError |
+                        ExcThrow |
+                        ExcExit
 
-type ErlStdFun = ([ErlTerm] -> ErlProcessState ErlTerm)
-type ErlPureFun m = Monad m => ([ErlTerm] -> BaseErlProcessState m ErlTerm)
+data ErlException = ErlException { exc_type :: ErlExceptionType,
+                                   frame :: StackFrame }
+instance Error ErlException where
+  strMsg _ = ErlException { }
+
+data ErlPState = ErlPState { curr_mod :: ErlModule,
+                             mod_table :: ModTable,
+                             proc_dict :: ProcDict }
+
+type ErlProcessState m = RWST [StackFrame] [String] ErlPState m
+type ErlProcessEvaluator m = ErrorT ErlException (ErlProcessState m)
+type ErlProcess = ErlProcessEvaluator Process
+
+runErlProcess :: ErlProcess ErlTerm -> ErlModule -> ModTable -> ProcDict -> Process (Either ErlException ErlTerm)
+runErlProcess p cm mt pd = do
+  (res, _, _) <- runRWST (runErrorT p) [Frame {}] (ErlPState { curr_mod = cm,
+                                                               mod_table = mt,
+                                                               proc_dict = pd })
+  return res
+
+type ErlPure = ErlProcessEvaluator Identity
+
+runErlPure :: ErlPure ErlTerm -> Either ErlException ErlTerm
+runErlPure p =
+  let (res, _, _) = runIdentity $ runRWST (runErrorT p) [Frame {}] (ErlPState {})
+  in res
+
+type ErlGeneric = Monad m => ErlProcessEvaluator m ErlTerm
+type ErlStdFun = ([ErlTerm] -> ErlProcess ErlTerm)
+type ErlPureFun = ([ErlTerm] -> ErlGeneric)
 
 data ErlFun = ErlStdFun ErlStdFun |
-              ErlPureFun (ErlPureFun Maybe)
+              ErlPureFun ErlPureFun
 
 newEvalCtx :: EvalCtx
 newEvalCtx = ECtx M.empty
 
-newProcDict :: ProcessDictionary
+newProcDict :: ProcDict
 newProcDict = M.empty

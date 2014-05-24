@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell, DataKinds, DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances #-}
-{-# LANGUAGE DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances, Rank2Types, FlexibleContexts #-}
+{-# LANGUAGE DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances, RankNTypes, FlexibleContexts #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module ErlEval where
@@ -31,7 +31,6 @@ import Control.Monad.Trans.Class (lift)
 -- import Control.Exception.Lifted
 
 import Language.CoreErlang.Syntax as S
--- import Language.CoreErlang.Pretty as PP
 
 import ErlCore
 import ErlUtil
@@ -41,13 +40,7 @@ import ErlBifs as Bifs
 import ErlBifsCommon as BifsCommon
 import qualified ErlSafeEval as Safe
 
--- (LL [Exp (Constr (Lit (LInt 1)))]
---  (Exp (Constr
---        (List (LL [Exp (Constr (Lit (LInt 2)))]
---               (Exp (Constr
---                     (List (L [Exp (Constr (Lit (LInt 3)))]
---                           )))))))))
-exprListToTerm :: EvalCtx ->  S.List S.Exps -> ErlProcessState ErlTerm
+exprListToTerm :: EvalCtx ->  S.List S.Exps -> ErlProcess ErlTerm
 exprListToTerm eCtx (LL exprs xs) = do
   vals <- mapM (evalExps eCtx) exprs
   ErlList t <- evalExps eCtx xs
@@ -58,14 +51,14 @@ exprListToTerm eCtx (L exprs) = do
 
 -- PList (LL [PVar "K"] (PList (LL [PVar "L"] (PVar "_cor8")))) [1, 2, 3]
 
-evalExps :: EvalCtx -> S.Exps -> ErlProcessState ErlTerm
+evalExps :: EvalCtx -> S.Exps -> ErlProcess ErlTerm
 evalExps eCtx (Exp e) = eval eCtx (unann e)
 evalExps eCtx (Exps aexs) = do
   let exs = unann aexs
       xs = L.map unann exs
   fmap last $ mapM (eval eCtx) xs
 
-eval :: EvalCtx -> S.Exp -> ErlProcessState ErlTerm
+eval :: EvalCtx -> S.Exp -> ErlProcess ErlTerm
 -- eval _ expr | htrace (show threadId ++ ": eval " ++ show expr) False = undefined
 eval eCtx (Seq a b) = do
   _ <- evalExps eCtx a
@@ -93,7 +86,8 @@ eval (ECtx varTable) (Var var) = do
     Nothing -> dieL ["Missing binding?", var, show $ M.toList varTable]
 
 eval eCtx (App lambda args) = do
-  (cmod, _, _) <- get
+  pstate <- get
+  let cmod = curr_mod pstate
   case cmod of
     EModule _ curMod -> do
       let evalExps' = evalExps eCtx
@@ -138,7 +132,7 @@ eval eCtx (Rec alts (TimeOut time timeoutExps)) = do
     True -> do
       let alts' = map unann alts
       matches <- receiveMatches eCtx alts'
-      res <- lift $ receive time' matches
+      res <- lift $ lift $ receive time' matches
       case res of
         Nothing ->
           evalExps eCtx timeoutExps
@@ -150,8 +144,7 @@ eval _ expr =
   errorL ["Unhandled expression: ", show expr]
 
 
-
-receiveMatches :: EvalCtx -> [S.Alt] -> ErlProcessState [Match (ErlTerm, S.Alt)]
+receiveMatches :: EvalCtx -> [S.Alt] -> ErlProcess [Match (ErlTerm, S.Alt)]
 receiveMatches eCtx0 alts = do
   return $ map (\alt@(Alt pats guard exprs) ->
     (matchIf (\(msg :: ErlTerm) ->
@@ -167,7 +160,7 @@ receiveMatches eCtx0 alts = do
                  return (msg, alt)
              )) :: Match (ErlTerm, S.Alt)) alts
 
-matchAlts :: EvalCtx -> ErlTerm -> [S.Alt] -> ErlProcessState ErlTerm
+matchAlts :: EvalCtx -> ErlTerm -> [S.Alt] -> ErlProcess ErlTerm
 matchAlts _ _ [] = dieL ["No matching clauses"]
 matchAlts eCtx0 val (alt:xs) = do
   let (Alt pats guard exprs) = alt
@@ -215,7 +208,7 @@ matchPat eCtx (PList (LL [h] t)) (ErlList (x:xs)) = do
 
 -- matchPat _ pat term = errorL ["Not implemented matching of", show pat, show term]
 
-matchGuard :: EvalCtx -> S.Guard -> ErlProcessState Bool
+matchGuard :: EvalCtx -> S.Guard -> ErlProcess Bool
 matchGuard eCtx (Guard exprs) = do
   evaled <- evalExps eCtx exprs
   case evaled of
@@ -223,50 +216,50 @@ matchGuard eCtx (Guard exprs) = do
       return True
     _ -> return False
 
-modCall :: ErlTerm -> ErlTerm -> [ErlTerm] -> ErlProcessState ErlTerm
+modCall :: ErlTerm -> ErlTerm -> [ErlTerm] -> ErlProcess ErlTerm
 modCall (ErlAtom emod) (ErlAtom fn) args =
   applyMFA emod fn args
 
 modCall emod fn args =
   dieL ["Wrong type of call", show emod, show fn, show args]
 
-applyMFA :: ModName -> FunName -> [ErlTerm] -> ErlProcessState ErlTerm
+applyMFA :: ModName -> FunName -> [ErlTerm] -> ErlProcess ErlTerm
 applyMFA modname fn args = do
   erlmod <- ensureEModule modname
   applyFunInMod erlmod fn args
 
-applyFunInMod :: ErlModule -> FunName -> [ErlTerm] -> ErlProcessState ErlTerm
+applyFunInMod :: ErlModule -> FunName -> [ErlTerm] -> ErlProcess ErlTerm
 applyFunInMod erlmod fn args = do
   let arity = (toInteger (length args))
   case erlmod of
     EModule _ emodule -> do
-      -- evalModFn :: EvalCtx -> S.Module -> String -> ErlArity -> ErlProcessState ErlTerm
-      modify $ \(_, mt, c) ->
-        (erlmod, mt, c)
+      -- evalModFn :: EvalCtx -> S.Module -> String -> ErlArity -> ErlProcess ErlTerm
+      modify $ \ps ->
+        ps { curr_mod = erlmod }
       evalModFn emodule fn args
     HModule modname funs -> do
       let fun = M.lookup (fn, arity) funs `forceMaybeL` ["Function not found for:", showFunCall modname fn args]
       applyFun fun args
 
-applyFunLambda :: ErlTerm -> [ErlTerm] -> ErlProcessState ErlTerm
+applyFunLambda :: ErlTerm -> [ErlTerm] -> ErlProcess ErlTerm
 applyFunLambda (ErlLambda _name names ctx exprs) args =
   applyELambda ctx exprs names args
 applyFunLambda _ _ =
   errorL ["Wrong type for applyFunLambda call, dummy!"]
 
-applyELambda :: EvalCtx -> S.Exps -> [Var] -> [ErlTerm] -> ErlProcessState ErlTerm
+applyELambda :: EvalCtx -> S.Exps -> [Var] -> [ErlTerm] -> ErlProcess ErlTerm
 applyELambda eCtx expressions names args =
   let fun = expsToErlFun eCtx names expressions
   in applyFun fun args
 
-applyFun :: ErlFun -> [ErlTerm] -> ErlProcessState ErlTerm
+applyFun :: ErlFun -> [ErlTerm] -> ErlProcess ErlTerm
 applyFun (ErlStdFun fun) args = applyStdFun fun args
 applyFun (ErlPureFun fun) args = applyPureFun fun args
 
-applyStdFun :: ErlStdFun -> [ErlTerm] -> ErlProcessState ErlTerm
+applyStdFun :: ErlStdFun -> [ErlTerm] -> ErlProcess ErlTerm
 applyStdFun fun args = fun args
 
-applyPureFun :: (Monad m) => ErlPureFun -> [ErlTerm] -> BaseErlProcessState m ErlTerm
+applyPureFun :: ErlPureFun -> [ErlTerm] -> ErlGeneric
 applyPureFun fun args = fun args
 
 expsToErlFun :: EvalCtx -> [Var] -> S.Exps -> ErlFun
@@ -306,7 +299,7 @@ findModFn m name arity =
   in
    findFn name arity funs
 
-evalModFn :: S.Module -> String -> [ErlTerm] -> ErlProcessState ErlTerm
+evalModFn :: S.Module -> String -> [ErlTerm] -> ErlProcess ErlTerm
 evalModFn emod fn args = do
   let arity = (toInteger (length args))
     in case findModFn emod fn arity of
@@ -315,11 +308,12 @@ evalModFn emod fn args = do
     Nothing ->
       dieL ["Can not find", showShortFunName fn arity, "in", show emod]
 
-erlang_apply :: [ErlTerm] -> ErlProcessState ErlTerm
+erlang_apply :: ErlStdFun
 erlang_apply (lambda:(ErlList args):[]) = do
   case lambda of
     (ErlFunName name _arity) -> do
-      ((EModule _ curMod), _, _) <- get
+      pstate <- get
+      let (EModule _ curMod) = curr_mod pstate
       evalModFn curMod name args
     fun@(ErlLambda _name _argNames _eCtx _exprs) -> do
       applyFunLambda fun args
@@ -328,9 +322,9 @@ erlang_apply (lambda:(ErlList args):[]) = do
       BifsCommon.bif_badarg_t
 erlang_apply _ = bif_badarg_num
 
-erlang_spawn :: [ErlTerm] -> ErlProcessState ErlTerm
+erlang_spawn :: ErlStdFun
 erlang_spawn (lambda:[]) = do
-  pid <- lift $ spawnLocal (evaluator ("erlang", "apply", [lambda, ErlList []]))
+  pid <- lift $ lift $ spawnLocal (evaluator ("erlang", "apply", [lambda, ErlList []]))
   return $ ErlPid pid
 erlang_spawn _ = bif_badarg_num
 
@@ -356,12 +350,9 @@ adjustErlangModule' funs =
 
 evaluator :: (ModName, FunName, [ErlTerm]) -> Process ()
 evaluator (emod, fn, args) = do
-  -- liftIO $ putStrLn "Evaluating"
   let runner = applyMFA emod fn args
   let ev = do
-        result <- evalStateT runner (bootModule, newBaseModTable, newProcDict)
-        -- liftIO $ putStrLn "Done"
-        -- liftIO $ print result
+        result <- runErlProcess runner bootModule newBaseModTable newProcDict
         return ()
   catch ev (\(e :: SomeException) -> do
                  liftIO $ print (show e)

@@ -21,17 +21,18 @@ import Control.Monad.State (
 import ErlCore
 import ErlLangCore
 
-ensureEModule :: String -> ErlProcessState ErlModule
+ensureEModule :: String -> ErlProcess ErlModule
 ensureEModule moduleName = do
-  (_, modTable, _) <- get
+  pstate <- get
+  let modTable = mod_table pstate
   case M.lookup moduleName modTable of
     Just emodule ->
       return emodule
     Nothing -> do
       r <- liftIO $ loadEModule modTable moduleName
       let (emodule, modTable') = forceEither $ r
-      modify $ \(a, _, c) ->
-        (a, modTable', c)
+      modify $ \ps ->
+        ps { mod_table = modTable' }
       return emodule
 
 loadEModule :: ModTable -> String -> IO (Either String (ErlModule, ModTable))

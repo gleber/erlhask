@@ -59,7 +59,7 @@ process_test() ->
                         Parent ! done
                 end),
     receive
-        %% X when erlang:float(X) > 1 -> ok1;
+        X when erlang:float(X) > 1 -> ok1;
         done -> ok
     end,
     erlang:display({spawned, process, Pid}).

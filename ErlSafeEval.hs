@@ -3,6 +3,8 @@
 
 module ErlSafeEval where
 
+import Debug.HTrace
+
 import Data.Hashable
 
 import qualified Data.Map as M
@@ -39,7 +41,7 @@ evalExps eCtx (Exps aexs) = do
   last $ L.map (eval eCtx) xs
 
 eval :: EvalCtx -> S.Exp -> ErlTerm
---eval _ expr | htrace ("eval " ++ show expr) False = undefined
+eval _ expr | htrace ("eval " ++ show expr) False = undefined
 eval eCtx (Seq a b) =
   let _ = evalExps eCtx a
   in evalExps eCtx b

@@ -44,7 +44,7 @@ orFailL = flip maybeErrorL
 errorL :: [String] -> a
 errorL args = error (L.intercalate " " args)
 
-dieL :: [String] -> ErlProcessState x
+dieL :: [String] -> ErlProcess x
 dieL args = lift $ fail (L.intercalate " " args)
 
 showShortFunName :: String -> ErlArity -> String
