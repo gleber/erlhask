@@ -25,8 +25,11 @@ import Control.Monad.State (
   modify,
   evalStateT)
 
+import Control.Monad.RWS (gets)
+
 import Control.Monad (foldM)
 import Control.Monad.Trans.Class (lift)
+import Control.Monad.Error (throwError, catchError)
 
 -- import Control.Exception.Lifted
 
@@ -86,8 +89,7 @@ eval (ECtx varTable) (Var var) = do
     Nothing -> dieL ["Missing binding?", var, show $ M.toList varTable]
 
 eval eCtx (App lambda args) = do
-  pstate <- get
-  let cmod = curr_mod pstate
+  cmod <- gets curr_mod
   case cmod of
     EModule _ curMod -> do
       let evalExps' = evalExps eCtx
@@ -140,19 +142,30 @@ eval eCtx (Rec alts (TimeOut time timeoutExps)) = do
           let Just eCtx' = matchPats eCtx pats msg
           evalExps eCtx' exprs
 
+eval eCtx (Try body (bodyBind, success) (catchVars, catchBody)) = do
+  cm <- gets curr_mod
+  mt <- gets mod_table
+  pd <- gets proc_dict
+  let catcher = \(ErlException {}) -> evalExps eCtx catchBody
+  -- need to setupFunctionContext here somehow, but not sure what are catchVars
+  val <- (evalExps eCtx body) `catchError` catcher
+  let eCtx' = setupFunctionContext eCtx (bodyBind, val)
+  evalExps eCtx' success
+
 eval _ expr =
   errorL ["Unhandled expression: ", show expr]
 
 
 receiveMatches :: EvalCtx -> [S.Alt] -> ErlProcess [Match (ErlTerm, S.Alt)]
 receiveMatches eCtx0 alts = do
+  mt <- gets mod_table
   return $ map (\alt@(Alt pats guard exprs) ->
     (matchIf (\(msg :: ErlTerm) ->
                let matched = matchPats eCtx0 pats msg
                in
                 case matched of
                   Just eCtx -> do
-                    Safe.matchGuard eCtx guard
+                    Safe.matchGuard eCtx mt guard
                   Nothing ->
                     False
              )
@@ -225,7 +238,7 @@ modCall emod fn args =
 
 applyMFA :: ModName -> FunName -> [ErlTerm] -> ErlProcess ErlTerm
 applyMFA modname fn args = do
-  erlmod <- ensureEModule modname
+  erlmod <- ensureModule modname
   applyFunInMod erlmod fn args
 
 applyFunInMod :: ErlModule -> FunName -> [ErlTerm] -> ErlProcess ErlTerm
@@ -259,7 +272,7 @@ applyFun (ErlPureFun fun) args = applyPureFun fun args
 applyStdFun :: ErlStdFun -> [ErlTerm] -> ErlProcess ErlTerm
 applyStdFun fun args = fun args
 
-applyPureFun :: ErlPureFun -> [ErlTerm] -> ErlGeneric
+applyPureFun :: ErlPureFun -> [ErlTerm] -> ErlGeneric ErlTerm
 applyPureFun fun args = fun args
 
 expsToErlFun :: EvalCtx -> [Var] -> S.Exps -> ErlFun
@@ -312,8 +325,7 @@ erlang_apply :: ErlStdFun
 erlang_apply (lambda:(ErlList args):[]) = do
   case lambda of
     (ErlFunName name _arity) -> do
-      pstate <- get
-      let (EModule _ curMod) = curr_mod pstate
+      (EModule _ curMod) <- gets curr_mod
       evalModFn curMod name args
     fun@(ErlLambda _name _argNames _eCtx _exprs) -> do
       applyFunLambda fun args

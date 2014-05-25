@@ -7,9 +7,9 @@
          do/1]).
 
 start() ->
-    %% try_test().
+    try_test().
     %% apply_test().
-    process_test().
+    %% process_test().
 
 lambdas_test() ->
     X = random:uniform(),

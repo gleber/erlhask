@@ -123,7 +123,7 @@ data ErlException = ErlException { exc_type :: ErlExceptionType,
 instance Error ErlException where
   strMsg _ = ErlException { }
 
-data ErlPState = ErlPState { curr_mod :: ErlModule,
+data ErlPState = ErlPState { curr_mod :: ErlModule, -- move to reader
                              mod_table :: ModTable,
                              proc_dict :: ProcDict }
 
@@ -140,14 +140,14 @@ runErlProcess p cm mt pd = do
 
 type ErlPure = ErlProcessEvaluator Identity
 
-runErlPure :: ErlPure ErlTerm -> Either ErlException ErlTerm
-runErlPure p =
-  let (res, _, _) = runIdentity $ runRWST (runErrorT p) [Frame {}] (ErlPState {})
+runErlPure :: ModTable -> ErlPure ErlTerm -> Either ErlException ErlTerm
+runErlPure mt p =
+  let (res, _, _) = runIdentity $ runRWST (runErrorT p) [Frame {}] (ErlPState {mod_table = mt})
   in res
 
-type ErlGeneric = Monad m => ErlProcessEvaluator m ErlTerm
+type ErlGeneric a = Monad m => ErlProcessEvaluator m a
 type ErlStdFun = ([ErlTerm] -> ErlProcess ErlTerm)
-type ErlPureFun = ([ErlTerm] -> ErlGeneric)
+type ErlPureFun = ([ErlTerm] -> ErlGeneric ErlTerm)
 
 data ErlFun = ErlStdFun ErlStdFun |
               ErlPureFun ErlPureFun

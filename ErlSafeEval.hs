@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell, DataKinds, DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables, RankNTypes #-}
 
 module ErlSafeEval where
 
@@ -12,6 +12,7 @@ import qualified Data.List as L
 import Data.Char as C
 
 import Control.Monad (foldM)
+import Control.Monad.RWS (gets)
 
 import Language.CoreErlang.Parser as P
 import Language.CoreErlang.Syntax as S
@@ -33,39 +34,100 @@ import ErlLangCore
 
 -- -- PList (LL [PVar "K"] (PList (LL [PVar "L"] (PVar "_cor8")))) [1, 2, 3]
 
-evalExps :: EvalCtx -> S.Exps -> ErlTerm
+evalExps :: EvalCtx -> S.Exps -> ErlPure ErlTerm
 evalExps eCtx (Exp e) = eval eCtx (unann e)
 evalExps eCtx (Exps aexs) = do
   let exs = unann aexs
       xs = L.map unann exs
   last $ L.map (eval eCtx) xs
 
-eval :: EvalCtx -> S.Exp -> ErlTerm
+eval :: EvalCtx -> S.Exp -> ErlPure ErlTerm
 eval _ expr | htrace ("eval " ++ show expr) False = undefined
 eval eCtx (Seq a b) =
   let _ = evalExps eCtx a
   in evalExps eCtx b
 
-eval _ (Lit l) = literalToTerm l
-eval eCtx (Tuple exps) =
-  let elements = map (evalExps eCtx) exps
-  in ErlTuple elements
-eval eCtx (Let (var,val) exps) =
-  let value = evalExps eCtx val
-      eCtx' = setupFunctionContext eCtx (var,value)
-  in evalExps eCtx' exps
+eval _ (Lit l) = return $ literalToTerm l
+eval eCtx (Tuple exps) = do
+  elements <- mapM (evalExps eCtx) exps
+  return $ ErlTuple elements
+eval eCtx (Let (var,val) exps) = do
+  value <- evalExps eCtx val
+  let eCtx' = setupFunctionContext eCtx (var, value)
+  evalExps eCtx' exps
 
--- eval eCtx (ModCall (mod0, arity0) args0) =
---   let evalExps' = evalExps eCtx
---   emod <- evalExps' mod0
---   arity <- evalExps' arity0
---   args <- mapM evalExps' args0
---   modCall emod arity args
+{-
 
--- eval (ECtx varTable) (Var var) =
---   case M.lookup var varTable of
---     Just val -> return val
---     Nothing -> errorL ["Missing binding?", var, show $ M.toList varTable]
+                                try
+                                    let <_cor3> =
+                                        call 'erlang':'float'
+                                            (X)
+                                    in  call 'erlang':'>'
+                                            (_cor3, 1)
+                                of <Try> ->
+                                    Try
+                                catch <T,R> ->
+                                    'false'
+
+  (Try
+   (Exp
+    (Constr
+     (Let
+      (["_cor3"],Exp
+                 (Constr
+                  (ModCall (Exp (Constr (Lit (LAtom (Atom "erlang")))),
+                            Exp (Constr (Lit (LAtom (Atom "float")))))
+                   [Exp (Constr (Var "X"))])
+                 ))
+      (Exp
+       (Constr
+        (ModCall (Exp (Constr (Lit (LAtom (Atom "erlang")))),
+                  Exp (Constr (Lit (LAtom (Atom ">")))))
+         [Exp (Constr (Var "_cor3")),
+          Exp (Constr (Lit (LInt 1)))]))))))
+
+   (["Try"],Exp
+            (Constr
+             (Let
+              (["_cor3"],Exp
+                         (Constr
+                          (ModCall (Exp (Constr (Lit (LAtom (Atom "erlang")))),
+                                    Exp (Constr (Lit (LAtom (Atom "float")))))
+                           [Exp (Constr (Var "X"))])))
+              (Exp
+               (Constr
+                (ModCall (Exp (Constr (Lit (LAtom (Atom "erlang")))),
+                          Exp (Constr (Lit (LAtom (Atom ">")))))
+                 [Exp (Constr (Var "_cor3")),
+                  Exp (Constr (Lit (LInt 1)))]))))))
+   (["T","R"],Exp
+              (Constr
+               (Var "Try"))))
+-}
+
+eval eCtx (Try body (bodyBind, success) (catchVars, catchBody)) = do
+  mt <- gets mod_table
+  let bodyRes = runErlPure mt $ evalExps eCtx body
+  case bodyRes of
+    Right val -> do
+      let eCtx' = setupFunctionContext eCtx (bodyBind, val)
+      evalExps eCtx' success
+    Left (ErlException {}) -> do
+      -- need to setupFunctionContext here somehow, but not sure what are catchVars
+      evalExps eCtx catchBody
+
+
+eval eCtx (ModCall (mod0, arity0) args0) = do
+  let evalExps' = evalExps eCtx
+  emod <- evalExps' mod0
+  arity <- evalExps' arity0
+  args <- mapM evalExps' args0
+  modCall emod arity args
+
+eval (ECtx varTable) (Var var) =
+  case M.lookup var varTable of
+    Just val -> return val
+    Nothing -> errorL ["Missing binding?", var, show $ M.toList varTable]
 
 -- -- eval eCtx (App lambda args) =
 -- --   (mod, _, _) <- get
@@ -152,40 +214,37 @@ eval eCtx (Let (var,val) exps) =
 
 -- -- matchPat _ pat term = errorL ["Not implemented matching of", show pat, show term]
 
-matchGuard :: EvalCtx -> S.Guard -> Bool
-matchGuard eCtx (Guard exprs) =
-  let evaled = evalExps eCtx exprs
-  in
-   case evaled of
-     ErlAtom "true" ->
-       True
-     _ ->
-       False
+matchGuard :: EvalCtx -> ModTable -> S.Guard -> Bool
+matchGuard eCtx mt (Guard exprs) =
+  case runErlPure mt $ evalExps eCtx exprs of
+    Right (ErlAtom "true") ->
+      True
+    _ ->
+      False
 
 
--- modCall :: ErlTerm -> ErlTerm -> [ErlTerm] -> ErlTerm
--- modCall (ErlAtom emod) (ErlAtom fn) args =
---   applyMFA emod fn args
+modCall :: ErlTerm -> ErlTerm -> [ErlTerm] -> ErlPure ErlTerm
+modCall (ErlAtom emod) (ErlAtom fn) args =
+  applyMFA emod fn args
 
--- applyMFA :: ModName -> FunName -> [ErlTerm] -> ErlTerm
--- applyMFA modname fn args = do
---   applyFunInMod modname fn args
+applyMFA :: ModName -> FunName -> [ErlTerm] -> ErlPure ErlTerm
+applyMFA modname fn args = do
+  erlmod <- getModule modname
+  applyFunInMod erlmod fn args
 
--- applyFunInMod :: ErlModule -> FunName -> [ErlTerm] -> ErlTerm
--- applyFunInMod erlmod fn args =
---   let arity = (toInteger (length args))
---   in case erlmod of
---     EModule _ emodule -> do
---       evalModFn emodule fn args
---     HModule modname funs -> do
---       let fun = M.lookup (fn, arity) funs `forceMaybeL` ["Function not found for:", showFunCall modname fn args]
---       applyHLambda fun args
+applyFunInMod :: ErlModule -> FunName -> [ErlTerm] -> ErlPure ErlTerm
+applyFunInMod erlmod fn args = do
+  let arity = toInteger (length args)
+  case erlmod of
+    EModule _ emodule -> do
+      errorL ["Should call only BIFs in safe eval mode"]
+    HModule modname funs -> do
+      let fun = M.lookup (fn, arity) funs `forceMaybeL` ["Function not found for:", showFunCall modname fn args]
+      applyFun fun args
 
--- evalModFn :: S.Module -> String -> [ErlTerm] -> ErlTerm
--- evalModFn emod fn args = do
---   let arity = (toInteger (length args))
---     in case findModFn emod fn arity of
---     Just fun ->
---       applyFunLambda fun args
---     Nothing ->
---       dieL ["Can not find", showShortFunName fn arity, "in", show emod]
+applyFun :: ErlFun -> [ErlTerm] -> ErlPure ErlTerm
+applyFun (ErlStdFun fun) args = errorL ["Can't run non-pure function in Safe mode."]
+applyFun (ErlPureFun fun) args = applyPureFun fun args
+
+applyPureFun :: ErlPureFun -> [ErlTerm] -> ErlGeneric ErlTerm
+applyPureFun fun args = fun args

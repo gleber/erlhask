@@ -12,6 +12,8 @@ import Data.Char as C
 
 import Data.Either.Utils
 
+import Control.Monad.RWS (gets)
+import Control.Monad.Error (throwError)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.State (
   put,
@@ -21,10 +23,9 @@ import Control.Monad.State (
 import ErlCore
 import ErlLangCore
 
-ensureEModule :: String -> ErlProcess ErlModule
-ensureEModule moduleName = do
-  pstate <- get
-  let modTable = mod_table pstate
+ensureModule :: ModName -> ErlProcess ErlModule
+ensureModule moduleName = do
+  modTable <- gets mod_table
   case M.lookup moduleName modTable of
     Just emodule ->
       return emodule
@@ -34,6 +35,16 @@ ensureEModule moduleName = do
       modify $ \ps ->
         ps { mod_table = modTable' }
       return emodule
+
+getModule :: ModName -> ErlGeneric ErlModule
+getModule moduleName = do
+  modTable <- gets mod_table
+  case M.lookup moduleName modTable of
+    Just emodule ->
+      return emodule
+    Nothing ->
+      throwError (ErlException {})
+
 
 loadEModule :: ModTable -> String -> IO (Either String (ErlModule, ModTable))
 loadEModule modTable moduleName = do

@@ -13,16 +13,21 @@ import Control.Monad.State (liftIO)
 import qualified Data.Map as M
 
 import Control.Monad.State (get)
+import Control.Monad.Error (throwError)
 
 import ErlCore
 import ErlBifsCommon
 
 
-erlang_display, erlang_self, erlang_send :: ErlStdFun
+erlang_error, erlang_display, erlang_self, erlang_send :: ErlStdFun
+
+erlang_error (arg:[]) = do
+  throwError $ ErlException {}
+erlang_error _ = bif_badarg_num
 
 erlang_display (arg:[]) = do
   liftIO $ print arg
-  return arg
+  return $ ErlAtom "true"
 erlang_display _ = bif_badarg_num
 
 erlang_self [] = do
@@ -38,7 +43,7 @@ erlang_send (pid:msg:[]) = do
       bif_badarg_t
 erlang_send _ = bif_badarg_num
 
-erlang_minus, erlang_plus :: ErlPureFun
+erlang_minus, erlang_plus, erlang_float :: ErlPureFun
 
 erlang_minus (a:b:[]) =
   case (a, b) of
@@ -58,13 +63,23 @@ erlang_plus (a:b:[]) =
     _ -> bif_badarg_t
 erlang_plus _ = bif_badarg_num
 
+erlang_float (a:[]) =
+  case a of
+    ErlFloat a -> return $ ErlFloat a
+    ErlNum a -> return $ ErlFloat $ fromInteger a
+    _ -> bif_badarg_t
+erlang_float _ = bif_badarg_num
+
 exportedMod :: ErlModule
 exportedMod =
   HModule "erlang" (M.fromList [(("display", 1), ErlStdFun erlang_display),
+                                (("!", 2), ErlStdFun erlang_send),
+                                (("self", 0), ErlStdFun erlang_self),
+                                (("error", 1), ErlStdFun erlang_error),
+
                                 (("-", 2), ErlPureFun erlang_minus),
                                 (("+", 2), ErlPureFun erlang_plus),
-                                (("!", 2), ErlStdFun erlang_send),
-                                (("self", 0), ErlStdFun erlang_self)
-                               -- (("spawn", 1), erlang_spawn) - implemented directly in the ErlEval
+                                (("float", 1), ErlPureFun erlang_float)
+                                -- (("spawn", 1), erlang_spawn) - implemented directly in the ErlEval
                                 -- (("apply", 2), erlang_apply) - implemented directly in the ErlEval
                                ])
