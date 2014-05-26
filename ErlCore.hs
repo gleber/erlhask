@@ -118,10 +118,20 @@ data ErlExceptionType = ExcError |
                         ExcThrow |
                         ExcExit
 
+excTypeToTerm :: ErlExceptionType -> ErlTerm
+excTypeToTerm t =
+  case t of
+    ExcError -> ErlAtom "error"
+    ExcThrow -> ErlAtom "throw"
+    ExcExit -> ErlAtom "exit"
+
 data ErlException = ErlException { exc_type :: ErlExceptionType,
+                                   reason :: ErlTerm,
                                    frame :: StackFrame }
 instance Error ErlException where
   strMsg _ = ErlException { }
+
+
 
 data ErlPState = ErlPState { curr_mod :: ErlModule, -- move to reader
                              mod_table :: ModTable,

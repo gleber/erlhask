@@ -22,8 +22,16 @@ import ErlBifsCommon
 erlang_error, erlang_display, erlang_self, erlang_send :: ErlStdFun
 
 erlang_error (arg:[]) = do
-  throwError $ ErlException {}
+  throwError $ ErlException { exc_type = ExcError, reason = arg }
 erlang_error _ = bif_badarg_num
+
+erlang_exit (arg:[]) = do
+  throwError $ ErlException { exc_type = ExcExit, reason = arg }
+erlang_exit _ = bif_badarg_num
+
+erlang_throw (arg:[]) = do
+  throwError $ ErlException { exc_type = ExcThrow, reason = arg }
+erlang_throw _ = bif_badarg_num
 
 erlang_display (arg:[]) = do
   liftIO $ print arg
@@ -76,6 +84,8 @@ exportedMod =
                                 (("!", 2), ErlStdFun erlang_send),
                                 (("self", 0), ErlStdFun erlang_self),
                                 (("error", 1), ErlStdFun erlang_error),
+                                (("throw", 1), ErlStdFun erlang_throw),
+                                (("exit", 1), ErlStdFun erlang_exit),
 
                                 (("-", 2), ErlPureFun erlang_minus),
                                 (("+", 2), ErlPureFun erlang_plus),

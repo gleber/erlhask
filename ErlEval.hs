@@ -146,8 +146,12 @@ eval eCtx (Try body (bodyBind, success) (catchVars, catchBody)) = do
   cm <- gets curr_mod
   mt <- gets mod_table
   pd <- gets proc_dict
-  let catcher = \(ErlException {}) -> evalExps eCtx catchBody
-  -- need to setupFunctionContext here somehow, but not sure what are catchVars
+  let catcher = (\(ErlException { exc_type = excType, reason = term }) -> do
+                  let eCtx' = setupFunctionContext' eCtx (L.zip (L.map (: []) catchVars) [excTypeToTerm(excType),
+                                                                                          term,
+                                                                                          ErlList []])
+                  evalExps eCtx' catchBody
+                )
   val <- (evalExps eCtx body) `catchError` catcher
   let eCtx' = setupFunctionContext eCtx (bodyBind, val)
   evalExps eCtx' success

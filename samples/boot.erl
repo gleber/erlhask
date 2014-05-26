@@ -46,7 +46,8 @@ apply_test() ->
 try_test() ->
     try
         X = random:uniform(),
-        erlang:error(aaa)
+        throw(aaa)
+        %% erlang:exit(aaa)
     catch
         A:B ->
             erlang:display({A,B})
