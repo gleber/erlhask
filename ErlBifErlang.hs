@@ -12,7 +12,8 @@ import Control.Monad.Trans.Class (lift)
 import Control.Monad.State (liftIO)
 import qualified Data.Map as M
 
-import Control.Monad.State (get)
+import Control.Monad.State (get, gets)
+import Control.Monad.Reader (ask)
 import Control.Monad.Error (throwError)
 
 import ErlCore
@@ -22,16 +23,24 @@ import ErlBifsCommon
 erlang_error, erlang_display, erlang_self, erlang_send :: ErlStdFun
 
 erlang_error (arg:[]) = do
-  throwError $ ErlException { exc_type = ExcError, reason = arg }
+  stack <- ask
+  throwError $ ErlException { exc_type = ExcError, reason = arg, stack = stack }
 erlang_error _ = bif_badarg_num
 
 erlang_exit (arg:[]) = do
-  throwError $ ErlException { exc_type = ExcExit, reason = arg }
+  stack <- ask
+  throwError $ ErlException { exc_type = ExcExit, reason = arg, stack = stack }
 erlang_exit _ = bif_badarg_num
 
 erlang_throw (arg:[]) = do
-  throwError $ ErlException { exc_type = ExcThrow, reason = arg }
+  stack <- ask
+  throwError $ ErlException { exc_type = ExcThrow, reason = arg, stack = stack }
 erlang_throw _ = bif_badarg_num
+
+erlang_get_stacktrace (arg:[]) = do
+  exc <- gets last_exc
+  return $ excToTerm exc
+erlang_get_stacktrace _ = bif_badarg_num
 
 erlang_display (arg:[]) = do
   liftIO $ print arg
@@ -85,6 +94,7 @@ exportedMod =
                                 (("self", 0), ErlStdFun erlang_self),
                                 (("error", 1), ErlStdFun erlang_error),
                                 (("throw", 1), ErlStdFun erlang_throw),
+                                (("get_stacktrace", 0), ErlStdFun erlang_get_stacktrace),
                                 (("exit", 1), ErlStdFun erlang_exit),
 
                                 (("-", 2), ErlPureFun erlang_minus),

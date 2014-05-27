@@ -50,7 +50,7 @@ try_test() ->
         %% erlang:exit(aaa)
     catch
         A:B ->
-            erlang:display({A,B})
+            erlang:display({A,B,erlang:get_stacktrace()})
     end.
 
 process_test() ->

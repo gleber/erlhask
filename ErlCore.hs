@@ -15,7 +15,6 @@ import Control.Distributed.Process
 import Control.Monad.Identity (Identity, runIdentity)
 import Control.Monad.RWS.Strict (RWST, runRWST)
 import Control.Monad.Error (ErrorT, Error, runErrorT, throwError, strMsg)
--- import Control.Monad.State (StateT)
 import qualified Data.Map as M
 import qualified Data.List as L
 import qualified Data.Char as C
@@ -75,7 +74,7 @@ instance Show ErlTerm where
   show (ErlNum num) = show num
   show (ErlFloat double) = show double
   show (ErlList list) =
-    case L.all erlIsInt list && L.all (C.isPrint . toEnum . fromInteger . erlToInt) list of
+    case list /= [] && L.all erlIsInt list && L.all (C.isPrint . toEnum . fromInteger . erlToInt) list of
       True ->
         L.map (C.chr . fromInteger . erlToInt) list
       False ->
@@ -111,8 +110,11 @@ data EvalCtx = ECtx VarTable
      deriving (Generic, Eq)
 instance Binary EvalCtx
 
+data FilePos = FilePos String Integer
+
 data StackFrame = Frame { mfa :: ErlMFA,
-                          args :: [ErlTerm] }
+                          args :: Maybe [ErlTerm],
+                          pos :: FilePos }
 
 data ErlExceptionType = ExcError |
                         ExcThrow |
@@ -125,15 +127,23 @@ excTypeToTerm t =
     ExcThrow -> ErlAtom "throw"
     ExcExit -> ErlAtom "exit"
 
+excToTerm :: ErlException -> ErlTerm
+excToTerm ErlException { exc_type = t,
+                         reason = r,
+                         stack = s } =
+  let t' = excTypeToTerm t
+  in ErlTuple [t']
+
 data ErlException = ErlException { exc_type :: ErlExceptionType,
                                    reason :: ErlTerm,
-                                   frame :: StackFrame }
+                                   stack :: [StackFrame] }
 instance Error ErlException where
   strMsg _ = ErlException { }
 
 
 
 data ErlPState = ErlPState { curr_mod :: ErlModule, -- move to reader
+                             last_exc :: ErlException,
                              mod_table :: ModTable,
                              proc_dict :: ProcDict }
 
