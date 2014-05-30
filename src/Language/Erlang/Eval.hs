@@ -25,7 +25,7 @@ import Control.Monad.State (
   modify,
   evalStateT)
 
-import Control.Monad.RWS (gets)
+import Control.Monad.RWS (gets, local)
 
 import Control.Monad (foldM)
 import Control.Monad.Trans.Class (lift)
@@ -96,10 +96,16 @@ eval eCtx (App lambda args) = do
       lambda' <- evalExps' lambda
       args' <- mapM evalExps' args
       case lambda' of
-        (ErlFunName name _arity) -> do
-          evalModFn curMod name args'
-        fun@(ErlLambda _name _argNames _eCtx _exprs) -> do
-          applyFunLambda fun args'
+        (ErlFunName name arity) -> do
+          let frame = Frame { mfa = (modName cmod, name, arity),
+                              args = Nothing,
+                              pos = FilePos "" 0 }
+          local (\s -> (frame:s)) $ evalModFn curMod name args'
+        fun@(ErlLambda name argNames _eCtx _exprs) -> do
+          let frame = Frame { mfa = (modName cmod, name, toInteger $ length argNames),
+                              args = Nothing,
+                              pos = FilePos "" 0 }
+          local (\s -> (frame:s)) $ applyFunLambda fun args'
         _ ->
           dieL ["Can not apply", show lambda']
     _ ->
@@ -157,6 +163,40 @@ eval eCtx (Try body (bodyBind, success) (catchVars, catchBody)) = do
   val <- (evalExps eCtx body) `catchError` catcher
   let eCtx' = setupFunctionContext eCtx (bodyBind, val)
   evalExps eCtx' success
+
+-- Catch
+--   (Exp
+--    (Constr
+--     (ModCall
+--      (Exp
+--       (Constr
+--        (Lit
+--         (LAtom
+--          (Atom \"erlang\")))),Exp
+--                 (Constr
+--                 (Lit
+--                 (LAtom
+--                 (Atom \"apply\"))))) [Exp
+--                 (Constr
+--                 (Var \"F\")),Exp
+--                 (Constr
+--                 (Lit LNil))])))
+
+eval eCtx (Catch body) = do
+  cm <- gets curr_mod
+  mt <- gets mod_table
+  pd <- gets proc_dict
+  let catcher = (\exc@(ErlException { exc_type = excType, reason = term }) -> do
+                    modify $ \ps ->
+                      ps { last_exc = exc }
+                    let x = ErlTuple $ [term, stacktraceToTerm (stack exc)]
+                    case excType of
+                      ExcThrow ->
+                        return $ x
+                      _ ->
+                        return $ ErlTuple $ [excTypeToTerm(excType), x]
+                )
+  (evalExps eCtx body) `catchError` catcher
 
 eval _ expr =
   errorL ["Unhandled expression: ", show expr]
@@ -250,15 +290,18 @@ applyMFA modname fn args = do
 applyFunInMod :: ErlModule -> FunName -> [ErlTerm] -> ErlProcess ErlTerm
 applyFunInMod erlmod fn args = do
   let arity = (toInteger (length args))
+  let frame = Frame { mfa = (modName erlmod, fn, arity),
+                      args = Nothing,
+                      pos = FilePos "" 0 }
   case erlmod of
     EModule _ emodule -> do
       -- evalModFn :: EvalCtx -> S.Module -> String -> ErlArity -> ErlProcess ErlTerm
       modify $ \ps ->
         ps { curr_mod = erlmod }
-      evalModFn emodule fn args
+      local (\s -> (frame:s)) $ evalModFn emodule fn args
     HModule modname funs -> do
       let fun = M.lookup (fn, arity) funs `forceMaybeL` ["Function not found for:", showFunCall modname fn args]
-      applyFun fun args
+      local (\s -> (frame:s)) $ applyFun fun args
 
 applyFunLambda :: ErlTerm -> [ErlTerm] -> ErlProcess ErlTerm
 applyFunLambda (ErlLambda _name names ctx exprs) args =
@@ -330,11 +373,19 @@ evalModFn emod fn args = do
 erlang_apply :: ErlStdFun
 erlang_apply (lambda:(ErlList args):[]) = do
   case lambda of
-    (ErlFunName name _arity) -> do
-      (EModule _ curMod) <- gets curr_mod
-      evalModFn curMod name args
-    fun@(ErlLambda _name _argNames _eCtx _exprs) -> do
-      applyFunLambda fun args
+    (ErlFunName name arity) -> do
+      (EModule mn curMod) <- gets curr_mod
+      let frame = Frame { mfa = (mn, name, arity),
+                          args = Just $ [lambda, ErlList args],
+                          pos = FilePos "" 0 }
+      local (\s -> (frame:s)) $ evalModFn curMod name args
+    fun@(ErlLambda name _argNames _eCtx _exprs) -> do
+      let arity = (toInteger (length args))
+      (EModule mn curMod) <- gets curr_mod
+      let frame = Frame { mfa = (mn, name, arity),
+                          args = Just $ [lambda, ErlList args],
+                          pos = FilePos "" 0 }
+      local (\s -> (frame:s)) $ applyFunLambda fun args
     _ -> do
       liftIO $ putStrLn "erlang:apply badarg type"
       BifsCommon.bif_badarg_t

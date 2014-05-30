@@ -12,7 +12,7 @@ import Data.Char as C
 
 import Data.Either.Utils
 
-import Control.Monad.RWS (gets)
+import Control.Monad.RWS (gets, ask)
 import Control.Monad.Error (throwError)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.State (
@@ -42,8 +42,11 @@ getModule moduleName = do
   case M.lookup moduleName modTable of
     Just emodule ->
       return emodule
-    Nothing ->
-      throwError (ErlException {})
+    Nothing -> do
+      s <- ask
+      throwError (ErlException { exc_type = ExcUnknown,
+                                 reason = ErlAtom "module_not_found",
+                                 stack = s})
 
 
 loadEModule :: ModTable -> String -> IO (Either String (ErlModule, ModTable))

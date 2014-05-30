@@ -17,12 +17,12 @@ import Control.Exception (Exception(..), throw, throwIO, SomeException)
 
 import Control.Monad.State (evalStateT)
 
-import ErlCore
-import qualified ErlBifs as Bifs
+import Language.Erlang.Core
+import qualified Language.Erlang.Bifs as Bifs
 
-import ErlUtil
-import ErlEval
-import ErlModules
+import Language.Erlang.Util
+import Language.Erlang.Eval
+import Language.Erlang.Modules
 
 bootProc :: Process ()
 bootProc = do

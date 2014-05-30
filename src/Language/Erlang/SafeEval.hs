@@ -116,7 +116,6 @@ eval eCtx (Try body (bodyBind, success) (catchVars, catchBody)) = do
       -- need to setupFunctionContext here somehow, but not sure what are catchVars
       evalExps eCtx catchBody
 
-
 eval eCtx (ModCall (mod0, arity0) args0) = do
   let evalExps' = evalExps eCtx
   emod <- evalExps' mod0

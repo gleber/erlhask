@@ -37,9 +37,9 @@ erlang_throw (arg:[]) = do
   throwError $ ErlException { exc_type = ExcThrow, reason = arg, stack = stack }
 erlang_throw _ = bif_badarg_num
 
-erlang_get_stacktrace (arg:[]) = do
+erlang_get_stacktrace [] = do
   exc <- gets last_exc
-  return $ excToTerm exc
+  return $ stacktraceToTerm (tail $ stack exc)
 erlang_get_stacktrace _ = bif_badarg_num
 
 erlang_display (arg:[]) = do

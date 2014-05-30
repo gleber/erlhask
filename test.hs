@@ -26,14 +26,15 @@ type ErlMFA = (ModName, FunName, ErlArity)
 data StackFrame = Frame { mfa :: ErlMFA,
                           args :: [ErlTerm] }
 
-data ErlExceptionType = ExcError String |
+data ErlExceptionType = ExcGeneric |
+                        ExcError |
                         ExcThrow |
                         ExcExit
 
 data ErlException = ErlException { exc_type :: ErlExceptionType,
                                    frame :: StackFrame }
 instance Error ErlException where
-  strMsg _ = ErlException { }
+  strMsg _ = ErlException { exc_type =  }
 
 -- QUESTION: I've seen people define these as newtypes with record syntax instead, why?
 type ErlProcessState m = RWST [StackFrame] [String] () m -- Simplified state, obviously

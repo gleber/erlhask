@@ -99,6 +99,10 @@ data ErlModule = EModule ModName S.Module |
                  HModule ModName ErlFunTable
                deriving (Generic, Typeable)
 
+modName :: ErlModule -> ModName
+modName (EModule mn _) = mn
+modName (HModule mn _) = mn
+
 instance Show ErlModule where
   show (EModule modname _exps) = concat ["EModule<", modname, ">"]
   show (HModule modname _funs) = concat ["HModule<", modname, ">"]
@@ -116,13 +120,26 @@ data StackFrame = Frame { mfa :: ErlMFA,
                           args :: Maybe [ErlTerm],
                           pos :: FilePos }
 
-data ErlExceptionType = ExcError |
+stackToTerm :: StackFrame -> ErlTerm
+stackToTerm Frame { mfa = (mod, fun, arity) } =
+  ErlTuple $ [ErlAtom mod,
+              ErlAtom fun,
+              ErlNum arity,
+              ErlList []]
+
+stacktraceToTerm :: [StackFrame] -> ErlTerm
+stacktraceToTerm l =
+  ErlList $ L.map stackToTerm l
+
+data ErlExceptionType = ExcUnknown |
+                        ExcError |
                         ExcThrow |
                         ExcExit
 
 excTypeToTerm :: ErlExceptionType -> ErlTerm
 excTypeToTerm t =
   case t of
+    ExcUnknown -> ErlAtom "unknown"
     ExcError -> ErlAtom "error"
     ExcThrow -> ErlAtom "throw"
     ExcExit -> ErlAtom "exit"
@@ -132,13 +149,15 @@ excToTerm ErlException { exc_type = t,
                          reason = r,
                          stack = s } =
   let t' = excTypeToTerm t
-  in ErlTuple [t']
+  in ErlTuple [t', r, stacktraceToTerm s]
 
 data ErlException = ErlException { exc_type :: ErlExceptionType,
                                    reason :: ErlTerm,
                                    stack :: [StackFrame] }
 instance Error ErlException where
-  strMsg _ = ErlException { }
+  strMsg str = ErlException { exc_type = ExcUnknown,
+                              reason = ErlAtom str,
+                              stack = [] }
 
 
 
@@ -153,16 +172,16 @@ type ErlProcess = ErlProcessEvaluator Process
 
 runErlProcess :: ErlProcess ErlTerm -> ErlModule -> ModTable -> ProcDict -> Process (Either ErlException ErlTerm)
 runErlProcess p cm mt pd = do
-  (res, _, _) <- runRWST (runErrorT p) [Frame {}] (ErlPState { curr_mod = cm,
-                                                               mod_table = mt,
-                                                               proc_dict = pd })
+  (res, _, _) <- runRWST (runErrorT p) [] (ErlPState { curr_mod = cm,
+                                                       mod_table = mt,
+                                                       proc_dict = pd })
   return res
 
 type ErlPure = ErlProcessEvaluator Identity
 
 runErlPure :: ModTable -> ErlPure ErlTerm -> Either ErlException ErlTerm
 runErlPure mt p =
-  let (res, _, _) = runIdentity $ runRWST (runErrorT p) [Frame {}] (ErlPState {mod_table = mt})
+  let (res, _, _) = runIdentity $ runRWST (runErrorT p) [] (ErlPState {mod_table = mt})
   in res
 
 type ErlGeneric a = Monad m => ErlProcessEvaluator m a

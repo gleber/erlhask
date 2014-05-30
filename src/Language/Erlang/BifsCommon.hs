@@ -4,14 +4,18 @@ module ErlBifsCommon where
 
 import ErlCore
 import Control.Monad.Error (throwError)
+import Control.Monad.RWS (ask)
 
-import Control.Monad.Trans.Class (lift)
 
-bif_badarg :: ErlGeneric ErlTerm
-bif_badarg = throwError (ErlException {})
+bif_badarg :: String -> ErlGeneric ErlTerm
+bif_badarg s = do
+  stack <- ask
+  throwError (ErlException { exc_type = ExcError,
+                             reason = ErlAtom s,
+                             stack = stack })
 
 bif_badarg_num :: ErlGeneric ErlTerm
-bif_badarg_num = bif_badarg
+bif_badarg_num = bif_badarg "badarity"
 
 bif_badarg_t :: ErlGeneric ErlTerm
-bif_badarg_t = bif_badarg
+bif_badarg_t = bif_badarg "badtype"

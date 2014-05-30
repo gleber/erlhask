@@ -7,7 +7,8 @@
          do/1]).
 
 start() ->
-    try_test().
+    %% try_test().
+    catch_test().
     %% apply_test().
     %% process_test().
 
@@ -43,10 +44,23 @@ apply_test() ->
         end,
     1 = erlang:apply(F, [1]).
 
+'catch_test'() ->
+    F = fun() ->
+                throw(aaa)
+        end,
+    X = (catch erlang:apply(F, [])),
+    Y = erlang:get_stacktrace(),
+    erlang:display(X).
+    
+
 try_test() ->
     try
         X = random:uniform(),
-        throw(aaa)
+        %% throw(aaa)
+        F = fun() ->
+                    erlang:error(aaa)
+            end,
+        erlang:apply(F, [])
         %% erlang:exit(aaa)
     catch
         A:B ->
