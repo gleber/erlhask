@@ -1,4 +1,4 @@
-module ErlLangCore where
+module Language.Erlang.Lang where
 
 import qualified Data.Map as M
 import qualified Data.List as L
@@ -6,7 +6,7 @@ import Data.Char as C
 
 import Language.CoreErlang.Syntax as S
 
-import ErlCore
+import Language.Erlang.Core
 
 unann :: Ann a -> a
 unann (Constr a) = a

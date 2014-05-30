@@ -8,7 +8,7 @@ run:
 	@echo
 	@echo
 	@echo
-	runhaskell -Wall Main.hs
+	cabal run
 
 test:
 	runhaskell -Wall test.hs

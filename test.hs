@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric, StandaloneDeriving, DeriveDataTypeable,
 FlexibleInstances, RankNTypes, FlexibleContexts, ImpredicativeTypes #-}
 
--- import ErlCore
+-- import Core
 
 -- import ErlBifErlang
 

@@ -1,7 +1,7 @@
 {-# LANGUAGE TemplateHaskell, RankNTypes, FlexibleContexts #-}
 
 -- | Main entry point to the application.
-module ErlBifErlang (exportedMod) where
+module Language.Erlang.Bif.Erlang (exportedMod) where
 
 import Control.Distributed.Process
 import Control.Distributed.Process.Closure
@@ -16,8 +16,8 @@ import Control.Monad.State (get, gets)
 import Control.Monad.Reader (ask)
 import Control.Monad.Error (throwError)
 
-import ErlCore
-import ErlBifsCommon
+import Language.Erlang.Core
+import Language.Erlang.BifsCommon
 
 
 erlang_error, erlang_display, erlang_self, erlang_send :: ErlStdFun

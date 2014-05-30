@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances, Rank2Types, FlexibleContexts #-}
 
-module ErlModules where
+module Language.Erlang.Modules where
 
 import Language.CoreErlang.Parser as P
 import Language.CoreErlang.Pretty as PP
@@ -20,8 +20,8 @@ import Control.Monad.State (
   get,
   modify)
 
-import ErlCore
-import ErlLangCore
+import Language.Erlang.Core
+import Language.Erlang.Lang
 
 ensureModule :: ModName -> ErlProcess ErlModule
 ensureModule moduleName = do

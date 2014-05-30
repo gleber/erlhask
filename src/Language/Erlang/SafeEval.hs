@@ -1,7 +1,7 @@
 {-# LANGUAGE TemplateHaskell, DataKinds, DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables, RankNTypes #-}
 
-module ErlSafeEval where
+module Language.Erlang.SafeEval where
 
 import Debug.HTrace
 
@@ -18,10 +18,10 @@ import Language.CoreErlang.Parser as P
 import Language.CoreErlang.Syntax as S
 import Language.CoreErlang.Pretty as PP
 
-import ErlCore
-import ErlUtil
-import ErlModules
-import ErlLangCore
+import Language.Erlang.Core
+import Language.Erlang.Util
+import Language.Erlang.Modules
+import Language.Erlang.Lang
 
 -- exprListToTerm :: EvalCtx ->  S.List S.Exps -> ErlTerm
 -- exprListToTerm eCtx (LL exprs tail) = do

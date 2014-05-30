@@ -3,7 +3,7 @@ FlexibleInstances, Rank2Types, FlexibleContexts, RankNTypes,
 DeriveGeneric, StandaloneDeriving, DeriveDataTypeable,
 FlexibleInstances, RankNTypes, FlexibleContexts, ImpredicativeTypes #-}
 
-module ErlCore where
+module Language.Erlang.Core where
 
 import Data.Unique
 import Data.Binary

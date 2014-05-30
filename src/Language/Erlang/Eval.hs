@@ -2,7 +2,7 @@
 {-# LANGUAGE DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances, RankNTypes, FlexibleContexts #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module ErlEval where
+module Language.Erlang.Eval where
 
 import Debug.HTrace
 
@@ -35,13 +35,13 @@ import Control.Monad.Error (throwError, catchError)
 
 import Language.CoreErlang.Syntax as S
 
-import ErlCore
-import ErlUtil
-import ErlModules
-import ErlLangCore
-import ErlBifs as Bifs
-import ErlBifsCommon as BifsCommon
-import qualified ErlSafeEval as Safe
+import Language.Erlang.Core
+import Language.Erlang.Util
+import Language.Erlang.Modules
+import Language.Erlang.Lang
+import Language.Erlang.Bifs as Bifs
+import Language.Erlang.BifsCommon as BifsCommon
+import qualified Language.Erlang.SafeEval as Safe
 
 exprListToTerm :: EvalCtx ->  S.List S.Exps -> ErlProcess ErlTerm
 exprListToTerm eCtx (LL exprs xs) = do

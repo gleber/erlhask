@@ -1,8 +1,8 @@
 {-# LANGUAGE DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances, Rank2Types, FlexibleContexts #-}
 
-module ErlBifsCommon where
+module Language.Erlang.BifsCommon where
 
-import ErlCore
+import Language.Erlang.Core
 import Control.Monad.Error (throwError)
 import Control.Monad.RWS (ask)
 

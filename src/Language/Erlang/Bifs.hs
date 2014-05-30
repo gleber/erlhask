@@ -1,15 +1,15 @@
 -- | Main entry point to the application.
-module ErlBifs where
+module Language.Erlang.Bifs where
 
-import ErlCore
+import Language.Erlang.Core
 
 import qualified Data.Map as M
 
 import Control.Monad.State (liftIO)
 import System.Random (randomIO)
 
-import ErlBifErlang as Erlang
-import ErlBifsCommon
+import Language.Erlang.Bif.Erlang as Erlang
+import Language.Erlang.BifsCommon
 
 random_uniform :: ErlStdFun
 random_uniform [] = do

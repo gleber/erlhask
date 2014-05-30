@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances, Rank2Types, FlexibleContexts #-}
 
-module ErlUtil where
+module Language.Erlang.Util where
 
 import Control.Distributed.Process
 import Control.Distributed.Process.Closure
@@ -14,8 +14,8 @@ import qualified Data.Map as M
 
 import Language.CoreErlang.Syntax as S
 
-import ErlCore
-import ErlLangCore
+import Language.Erlang.Core
+import Language.Erlang.Lang
 
 forceMaybeL :: Maybe a -> [String] -> a
 forceMaybeL m e =
