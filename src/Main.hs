@@ -1,5 +1,5 @@
-{-# LANGUAGE TemplateHaskell, DataKinds, DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TemplateHaskell, DataKinds, DeriveGeneric, StandaloneDeriving,
+             DeriveDataTypeable, FlexibleInstances, ScopedTypeVariables #-}
 
 -- | Main entry point to the application.
 module Main where
@@ -23,6 +23,7 @@ import qualified Language.Erlang.Bifs as Bifs
 import Language.Erlang.Util
 import Language.Erlang.Eval
 import Language.Erlang.Modules
+
 
 bootProc :: Process ()
 bootProc = do
