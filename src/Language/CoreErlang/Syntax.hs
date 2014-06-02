@@ -149,8 +149,8 @@ data Alt
 instance Binary Alt
 
 data Pats
-        = Pat Pat    -- ^ single pattern
-        | Pats [Pat] -- ^ list of patterns
+        = Pat (Ann Pat)    -- ^ single pattern
+        | Pats [Ann Pat] -- ^ list of patterns
   deriving (Eq,Ord,Show,Data,Generic,Typeable)
 
 instance Binary Pats

@@ -223,8 +223,8 @@ clause = do pat <- patterns
             return $ Alt pat g exp
 
 patterns :: Parser Pats
-patterns = liftM Pat pattern <|>
-           liftM Pats (angles $ commaSep pattern)
+patterns = liftM Pat (annotated pattern) <|>
+           liftM Pats (angles $ commaSep $ annotated pattern)
 
 pattern :: Parser Pat
 pattern = liftM PAlias (try alias) {- because of variable -} <|> liftM PVar variable <|>

@@ -239,7 +239,8 @@ matchAlts eCtx0 val (alt:xs) = do
 --                PVar "Z"]])
 matchPats :: EvalCtx -> S.Pats -> ErlTerm -> Maybe EvalCtx
 matchPats eCtx (Pats [pat]) term = matchPats eCtx (Pat pat) term
-matchPats eCtx (Pat pat) term = do
+matchPats eCtx (Pat pat0) term = do
+  let pat = unann pat0
   matchPat eCtx pat term
 matchPats _eCtx pat term =
   errorL ["Not implemented matching of Pats", show pat, "with", show term]
