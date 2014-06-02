@@ -12,10 +12,12 @@ Installation
 ------------
 
 Requirements:
-* Local checkout of all Cloud Haskell libraries at "dev" branch
 * Erlang/OTP installed
+* Local checkout of all Cloud Haskell libraries at "dev" branch
+* Local checkout of [global-variables](gleber@ubuntu:~/code/global-variables) package at "release" branch
 
 Clone:
+
     git clone https://github.com/gleber/erlhask.git
 
 Prepare the sandbox:
@@ -25,11 +27,15 @@ Prepare the sandbox:
 	cabal update
 	cabal install cabal-install
 
-Add add source dependency on Cloud Haskell packages, since ErlHask
+Add source dependency on 'global-variables' package:
+
+    cabal sandbox add-source path/to/global-variables
+
+Add source dependency on Cloud Haskell packages, since ErlHask
 requires "dev" version of Cloud Haskell:
 
     for i in path/to/cloud-haskell/*/; do
-        cabal install add-source $i
+        cabal sandbox add-source $i
     done
 
 Install deps and configure everything:

@@ -19,6 +19,28 @@ import Control.Monad.Error (throwError)
 import Language.Erlang.Core
 import Language.Erlang.BifsCommon
 
+import Control.Concurrent.MVar
+import Data.Global
+
+type ProcessRegistry = M.Map ModName ProcessId
+
+processRegistry :: MVar ProcessRegistry
+processRegistry = declareMVar "process-registry" M.empty
+
+erlang_register, erlang_whereis :: ErlStdFun
+erlang_register ((ErlAtom name):(ErlPid pid):[]) = do
+  liftIO $ modifyMVar_ processRegistry $ (\pr -> return $ M.insert name pid pr)
+  return $ ErlAtom "ok"
+erlang_register _ = bif_badarg_num
+
+erlang_whereis ((ErlAtom name):[]) = do
+  pr <- liftIO $ readMVar processRegistry
+  case M.lookup name pr of
+    Just pid ->
+      return $ ErlPid pid
+    Nothing ->
+      return $ ErlAtom "undefined"
+erlang_whereis _ = bif_badarg_num
 
 erlang_error, erlang_display, erlang_self, erlang_send :: ErlStdFun
 
@@ -96,6 +118,9 @@ exportedMod =
                                 (("throw", 1), ErlStdFun erlang_throw),
                                 (("get_stacktrace", 0), ErlStdFun erlang_get_stacktrace),
                                 (("exit", 1), ErlStdFun erlang_exit),
+
+                                (("register", 2), ErlStdFun erlang_register),
+                                (("whereis", 1), ErlStdFun erlang_whereis),
 
                                 (("-", 2), ErlPureFun erlang_minus),
                                 (("+", 2), ErlPureFun erlang_plus),
