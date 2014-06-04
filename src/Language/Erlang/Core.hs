@@ -179,7 +179,7 @@ runErlProcess p cm mt pd = do
 
 type ErlPure = ErlProcessEvaluator Identity
 
-runErlPure :: ModTable -> ErlPure ErlTerm -> Either ErlException ErlTerm
+runErlPure :: ModTable -> ErlPure a -> Either ErlException a
 runErlPure mt p =
   let (res, _, _) = runIdentity $ runRWST (runErrorT p) [] (ErlPState {mod_table = mt})
   in res
@@ -196,3 +196,6 @@ newEvalCtx = ECtx M.empty
 
 newProcDict :: ProcDict
 newProcDict = M.empty
+
+atom_ok = ErlAtom "ok"
+atom_undefined = ErlAtom "undefined"

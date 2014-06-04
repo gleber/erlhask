@@ -59,12 +59,12 @@ showFunCall :: String -> String -> [ErlTerm] -> String
 showFunCall emod fn args =
   concat [emod, ":", fn, "(", L.intercalate "," (L.map show args), ")"]
 
-setupFunctionContext :: EvalCtx -> ([Var], ErlTerm) -> EvalCtx
+setupFunctionContext :: EvalCtx -> ([Var], ErlSeq) -> EvalCtx
 setupFunctionContext eCtx ([], _) = eCtx
-setupFunctionContext (ECtx varTable) (x:xs, value) =
-  let varTable' = M.insert x value varTable
-  in setupFunctionContext (ECtx varTable') (xs, value)
+setupFunctionContext (ECtx varTable) (vars, ErlSeq terms) =
+  let pairs = L.zip vars terms
+  in ECtx $ L.foldl (\vt (v,t) -> M.insert v t vt) varTable pairs
 
-setupFunctionContext' :: EvalCtx -> [([Var], ErlTerm)] -> EvalCtx
+setupFunctionContext' :: EvalCtx -> [([Var], ErlSeq)] -> EvalCtx
 setupFunctionContext' eCtx args =
   L.foldl (\oCtx arg -> setupFunctionContext oCtx arg) eCtx args

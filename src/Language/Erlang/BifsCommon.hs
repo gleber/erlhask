@@ -19,3 +19,6 @@ bif_badarg_num = bif_badarg "badarity"
 
 bif_badarg_t :: ErlGeneric ErlTerm
 bif_badarg_t = bif_badarg "badtype"
+
+bif_notimpl :: ErlGeneric ErlTerm
+bif_notimpl = bif_badarg "notimpl"

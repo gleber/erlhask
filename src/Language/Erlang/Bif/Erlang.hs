@@ -24,6 +24,10 @@ import Data.Global
 
 type ProcessRegistry = M.Map ModName ProcessId
 
+--
+-- PROCESS REGISTRATION
+--
+
 processRegistry :: MVar ProcessRegistry
 processRegistry = declareMVar "process-registry" M.empty
 
@@ -42,7 +46,11 @@ erlang_whereis ((ErlAtom name):[]) = do
       return $ ErlAtom "undefined"
 erlang_whereis _ = bif_badarg_num
 
-erlang_error, erlang_display, erlang_self, erlang_send :: ErlStdFun
+--
+-- ERRORS RAISING AND HANDLING
+--
+
+erlang_error, erlang_display :: ErlStdFun
 
 erlang_error (arg:[]) = do
   stack <- ask
@@ -64,10 +72,32 @@ erlang_get_stacktrace [] = do
   return $ stacktraceToTerm (tail $ stack exc)
 erlang_get_stacktrace _ = bif_badarg_num
 
+--
+-- DEBUG
+--
+
 erlang_display (arg:[]) = do
   liftIO $ print arg
   return $ ErlAtom "true"
 erlang_display _ = bif_badarg_num
+
+--
+-- PROCESS MANAGEMENT
+--
+
+erlang_self, erlang_send, erlang_process_flag :: ErlStdFun
+
+erlang_process_flag (ErlAtom what:val:[]) = do
+  case what of
+    "trap_exit" -> do
+      liftIO $ putStrLn "erlang:process_flag(trap_exit, _) is not really implemented"
+      return $ ErlAtom "true"
+    _ ->
+      bif_notimpl
+erlang_process_flag (_:_:[]) = do
+  bif_badarg_t
+erlang_process_flag _ = do
+  bif_badarg_num
 
 erlang_self [] = do
   pid <- lift $ lift $ getSelfPid
@@ -81,6 +111,10 @@ erlang_send (pid:msg:[]) = do
     _ ->
       bif_badarg_t
 erlang_send _ = bif_badarg_num
+
+--
+-- MATHS
+--
 
 erlang_minus, erlang_plus, erlang_float :: ErlPureFun
 
@@ -109,6 +143,10 @@ erlang_float (a:[]) =
     _ -> bif_badarg_t
 erlang_float _ = bif_badarg_num
 
+--
+-- EXPORTS
+--
+
 exportedMod :: ErlModule
 exportedMod =
   HModule "erlang" (M.fromList [(("display", 1), ErlStdFun erlang_display),
@@ -118,6 +156,8 @@ exportedMod =
                                 (("throw", 1), ErlStdFun erlang_throw),
                                 (("get_stacktrace", 0), ErlStdFun erlang_get_stacktrace),
                                 (("exit", 1), ErlStdFun erlang_exit),
+
+                                (("process_flag", 2), ErlStdFun erlang_process_flag),
 
                                 (("register", 2), ErlStdFun erlang_register),
                                 (("whereis", 1), ErlStdFun erlang_whereis),

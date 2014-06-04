@@ -29,7 +29,7 @@ bootProc :: Process ()
 bootProc = do
   liftIO $ putStrLn "Boot process starting..."
   liftIO $ putStrLn "Running"
-  pid <- spawnLocal (evaluator ("boot", "start", []))
+  pid <- spawnLocal (evaluator ("init", "boot", [ErlList []]))
   mref <- monitor pid
   a <- expect :: Process ProcessMonitorNotification
   liftIO $ print $ show a
