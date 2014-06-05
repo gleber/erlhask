@@ -280,6 +280,10 @@ matchPat eCtx (PList (LL [h] t)) (ErlList (x:xs)) = do
   matchPat eCtx' t (ErlList xs)
 matchPat eCtx (PList _) (ErlList _) = Nothing
 
+matchPat eCtx (PAlias (Alias var pat)) term = do
+  eCtx' <- matchPat eCtx pat term
+  return $ setupFunctionContext eCtx ([var], ErlSeq [term])
+
 matchPat _eCtx pat term = do
   errorL ["matchPat: Not implemented matching of", show pat, "with", show term]
 
