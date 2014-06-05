@@ -12,6 +12,8 @@ import GHC.Generics
 
 import Control.Distributed.Process
 
+import Control.Concurrent.MVar
+
 import Control.Monad.Identity (Identity, runIdentity)
 import Control.Monad.RWS.Strict (RWST, runRWST)
 import Control.Monad.Error (ErrorT, Error, runErrorT, throwError, strMsg)
@@ -163,7 +165,7 @@ instance Error ErlException where
 
 data ErlPState = ErlPState { curr_mod :: ErlModule, -- move to reader
                              last_exc :: ErlException,
-                             mod_table :: ModTable,
+                             mod_table :: MVar ModTable,
                              proc_dict :: ProcDict }
 
 type ErlProcessState m = RWST [StackFrame] [String] ErlPState m
