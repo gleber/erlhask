@@ -114,7 +114,7 @@ eval eCtx (Let (vars,vals) exps) = do
 -}
 
 eval eCtx (Try body (bodyBind, success) (catchVars, catchBody)) = do
-  mt <- gets mod_table
+  Right mt <- gets mod_table
   let bodyRes = runErlPure mt $ evalExps eCtx body
   case bodyRes of
     Right val -> do
@@ -236,7 +236,7 @@ modCall (ErlAtom emod) (ErlAtom fn) args =
 
 applyMFA :: ModName -> FunName -> [ErlTerm] -> ErlPure ErlTerm
 applyMFA modname fn args = do
-  erlmod <- getModule modname
+  erlmod <- safeGetModule modname
   applyFunInMod erlmod fn args
 
 applyFunInMod :: ErlModule -> FunName -> [ErlTerm] -> ErlPure ErlTerm

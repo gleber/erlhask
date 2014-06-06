@@ -30,8 +30,7 @@ import Control.Monad.RWS (gets, local)
 import Control.Monad (foldM)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Error (throwError, catchError)
-
--- import Control.Exception.Lifted
+import Control.Concurrent.MVar
 
 import Language.CoreErlang.Syntax as S
 
@@ -44,9 +43,9 @@ import Language.Erlang.BifsCommon as BifsCommon
 import qualified Language.Erlang.SafeEval as Safe
 
 exprListToTerm :: EvalCtx ->  S.List S.Exps -> ErlProcess ErlTerm
-exprListToTerm eCtx (LL exprs xs) = do
+exprListToTerm eCtx (LL exprs x) = do
   vals <- mapM (uevalExps eCtx) exprs
-  ErlList t <- uevalExps eCtx xs
+  ErlList t <- uevalExps eCtx x
   return $ ErlList (vals ++ t)
 exprListToTerm eCtx (L exprs) = do
   vals <- mapM (uevalExps eCtx) exprs
@@ -157,7 +156,6 @@ eval eCtx (Rec alts (TimeOut time timeoutExps)) = do
 
 eval eCtx (Try body (bodyBind, success) (catchVars, catchBody)) = do
   cm <- gets curr_mod
-  mt <- gets mod_table
   pd <- gets proc_dict
   let catcher = (\exc@(ErlException { exc_type = excType, reason = term }) -> do
                     let vars = (L.map (: []) catchVars)
@@ -166,7 +164,7 @@ eval eCtx (Try body (bodyBind, success) (catchVars, catchBody)) = do
                                ErlSeq [ErlList []]]
                         eCtx' = setupFunctionContext' eCtx (L.zip vars seq)
                     modify $ \ps ->
-                      ps { last_exc = exc }
+                      ps { last_exc = Just exc }
                     evalExps eCtx' catchBody
                 )
   val <- (evalExps eCtx body) `catchError` catcher
@@ -192,12 +190,9 @@ eval eCtx (Try body (bodyBind, success) (catchVars, catchBody)) = do
 --                 (Lit LNil))])))
 
 eval eCtx (Catch body) = do
-  cm <- gets curr_mod
-  mt <- gets mod_table
-  pd <- gets proc_dict
   let catcher = (\exc@(ErlException { exc_type = excType, reason = term }) -> do
                     modify $ \ps ->
-                      ps { last_exc = exc }
+                      ps { last_exc = Just exc }
                     let x = ErlTuple $ [term, stacktraceToTerm (stack exc)]
                     case excType of
                       ExcThrow ->
@@ -213,7 +208,7 @@ eval _ expr =
 
 receiveMatches :: EvalCtx -> [S.Alt] -> ErlProcess [Match (ErlTerm, S.Alt)]
 receiveMatches eCtx0 alts = do
-  mt <- gets mod_table
+  mt <- getModTable
   return $ map (\alt@(Alt pats guard exprs) ->
     (matchIf (\(msg :: ErlTerm) ->
                let matched = matchPats eCtx0 pats (ErlSeq [msg])
@@ -413,7 +408,8 @@ erlang_apply _ = bif_badarg_num
 
 erlang_spawn :: ErlStdFun
 erlang_spawn (lambda:[]) = do
-  pid <- lift $ lift $ spawnLocal (evaluator ("erlang", "apply", [lambda, ErlList []]))
+  Left mmt <- gets mod_table
+  pid <- lift $ lift $ spawnLocal (localEvaluator mmt ("erlang", "apply", [lambda, ErlList []]))
   return $ ErlPid pid
 erlang_spawn _ = bif_badarg_num
 
@@ -437,13 +433,28 @@ adjustErlangModule' :: ErlFunTable -> ErlFunTable
 adjustErlangModule' funs =
   M.union evalBifs funs
 
-evaluator :: (ModName, FunName, [ErlTerm]) -> Process ()
-evaluator (emod, fn, args) = do
+-- TODO: remote evaluator can not accept MVar, so instead it should
+-- ask boot/kernel/init process for MVar ModTable (does not work,
+-- since local coordinator can not send me a message); so instead I'd
+-- have to send a message to coordinator on remote node, which would
+-- 'spawnLocal' actual process and supply it MVar ModTable
+localEvaluator :: MVar ModTable -> (ModName, FunName, [ErlTerm]) -> Process ()
+localEvaluator mmt (emod, fn, args) = do
   let runner = applyMFA emod fn args
   let ev = do
-        result <- runErlProcess runner bootModule newBaseModTable newProcDict
+        result <- runErlProcess runner bootModule mmt newProcDict
         return ()
   catch ev (\(e :: SomeException) -> do
                  liftIO $ print (show e)
                  throw e)
-remotable ['evaluator]
+
+bootProc :: Process ()
+bootProc = do
+  mmt <- liftIO $ newMVar newBaseModTable
+  liftIO $ putStrLn "Boot process starting..."
+  liftIO $ putStrLn "Running"
+  pid <- spawnLocal (localEvaluator mmt ("init", "boot", [ErlList []]))
+  mref <- monitor pid
+  a <- expect :: Process ProcessMonitorNotification
+  liftIO $ print $ show a
+  return ()

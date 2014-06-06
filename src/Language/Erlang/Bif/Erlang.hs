@@ -22,24 +22,21 @@ import Language.Erlang.BifsCommon
 import Control.Concurrent.MVar
 import Data.Global
 
-type ProcessRegistry = M.Map ModName ProcessId
-
 --
 -- PROCESS REGISTRATION
 --
 
-processRegistry :: MVar ProcessRegistry
-processRegistry = declareMVar "process-registry" M.empty
-
 erlang_register, erlang_whereis :: ErlStdFun
-erlang_register ((ErlAtom name):(ErlPid pid):[]) = do
-  liftIO $ modifyMVar_ processRegistry $ (\pr -> return $ M.insert name pid pr)
+erlang_register [ErlAtom name, ErlPid pid] = do
+  -- TODO: catch already registered exception and
+  -- return badarg
+  lift $ lift $ register name pid
   return $ ErlAtom "ok"
 erlang_register _ = bif_badarg_num
 
-erlang_whereis ((ErlAtom name):[]) = do
-  pr <- liftIO $ readMVar processRegistry
-  case M.lookup name pr of
+erlang_whereis [ErlAtom name] = do
+  n <- lift $ lift $ whereis name
+  case n of
     Just pid ->
       return $ ErlPid pid
     Nothing ->
@@ -69,7 +66,11 @@ erlang_throw _ = bif_badarg_num
 
 erlang_get_stacktrace [] = do
   exc <- gets last_exc
-  return $ stacktraceToTerm (tail $ stack exc)
+  case exc of
+    Nothing ->
+      return $ ErlList []
+    Just exc' ->
+      return $ stacktraceToTerm (tail $ stack exc')
 erlang_get_stacktrace _ = bif_badarg_num
 
 --

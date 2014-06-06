@@ -20,25 +20,31 @@ import Control.Monad.State (
   get,
   modify)
 
+import Control.Concurrent.MVar (readMVar, modifyMVarMasked)
+
 import Language.Erlang.Core
 import Language.Erlang.Lang
 
+getModTable :: ErlProcess ModTable
+getModTable = do
+  Left mvar <- gets mod_table
+  liftIO $ readMVar mvar
+
 ensureModule :: ModName -> ErlProcess ErlModule
 ensureModule moduleName = do
-  modTable <- gets mod_table
-  case M.lookup moduleName modTable of
-    Just emodule ->
-      return emodule
-    Nothing -> do
-      r <- liftIO $ loadEModule modTable moduleName
-      let (emodule, modTable') = forceEither $ r
-      modify $ \ps ->
-        ps { mod_table = modTable' }
-      return emodule
+  Left m <- gets mod_table
+  emodule <- liftIO $ modifyMVarMasked m $ \mt ->
+    case M.lookup moduleName mt of
+      Just emodule ->
+        return (mt, emodule)
+      Nothing -> do
+        Right (emodule, modTable') <- liftIO $ loadEModule mt moduleName
+        return (modTable', emodule)
+  return emodule
 
-getModule :: ModName -> ErlGeneric ErlModule
-getModule moduleName = do
-  modTable <- gets mod_table
+safeGetModule :: ModName -> ErlPure ErlModule
+safeGetModule moduleName = do
+  Right modTable <- gets mod_table
   case M.lookup moduleName modTable of
     Just emodule ->
       return emodule
@@ -47,7 +53,6 @@ getModule moduleName = do
       throwError (ErlException { exc_type = ExcUnknown,
                                  reason = ErlAtom "module_not_found",
                                  stack = s})
-
 
 loadEModule :: ModTable -> String -> IO (Either String (ErlModule, ModTable))
 loadEModule modTable moduleName = do
