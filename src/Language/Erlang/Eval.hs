@@ -39,6 +39,7 @@ import Language.Erlang.Util
 import Language.Erlang.Modules
 import Language.Erlang.Lang
 import Language.Erlang.Bifs as Bifs
+import Language.Erlang.Bif.Erlang as Erlang
 import Language.Erlang.BifsCommon as BifsCommon
 import qualified Language.Erlang.SafeEval as Safe
 
@@ -68,7 +69,7 @@ evalExps eCtx (Exps aexs) = do
 
 
 eval :: EvalCtx -> S.Exp -> ErlProcess ErlTerm
-eval _ expr | htrace (show threadId ++ ": eval " ++ show expr) False = undefined
+-- eval _ expr | htrace (show threadId ++ ": eval " ++ show expr) False = undefined
 eval eCtx (Seq a b) = do
   _ <- evalExps eCtx a
   uevalExps eCtx b
@@ -224,7 +225,6 @@ receiveMatches eCtx0 alts = do
              )) :: Match (ErlTerm, S.Alt)) alts
 
 matchAlts :: EvalCtx -> [S.Alt] -> ErlSeq -> ErlProcess ErlTerm
-matchAlts _ alt term | htrace (show threadId ++ ": matchAlts " ++ show alt ++ " vs " ++ show term) False = undefined
 matchAlts _ [] _ = dieL ["No matching clauses"]
 matchAlts eCtx0 (alt:xs) seq = do
   let (Alt pats guard exprs) = alt
@@ -240,17 +240,9 @@ matchAlts eCtx0 (alt:xs) seq = do
     Nothing ->
       matchAlts eCtx0 xs seq
 
--- (Pats [PTuple [PLit (LAtom (Atom "ok")),
---                PVar "Z"]])
 matchPats :: EvalCtx -> S.Pats -> ErlSeq -> Maybe EvalCtx
--- matchPats _ pat term | htrace (show threadId ++ ": matchPats " ++ show pat ++ " vs " ++ show term) False = undefined
 matchPats eCtx (Pats pats) (ErlSeq seq) =
   foldM (\e (p,t) -> matchPat e (unann p) t) eCtx (L.zip pats seq)
-
-  -- Pats [Constr (PList (LL [PVar "B"] (PVar "Bs"))),
-  --       Constr (PVar "Ss"),
-  --       Constr (PVar "Fs"),
-  --       Constr (PVar "As")]
 
 matchPats _eCtx pat seq =
   errorL ["matchPats: Not implemented matching of", show pat, "with", show seq]
@@ -269,7 +261,6 @@ matchPat eCtx (PLit lit) term = do
 matchPat eCtx (PVar var) term = do
   return $ setupFunctionContext eCtx ([var], ErlSeq [term])
 
--- PList (LL [PVar "K"] (PList (LL [PVar "L"] (PVar "_cor8")))) [1, 2, 3]
 matchPat eCtx (PList (LL [h] t)) (ErlList (x:xs)) = do
   eCtx' <- matchPat eCtx h x
   matchPat eCtx' t (ErlList xs)
@@ -386,7 +377,7 @@ evalModFn emod fn args = do
       dieL ["Can not find", showShortFunName fn arity, "in", show emod]
 
 erlang_apply :: ErlStdFun
-erlang_apply (lambda:(ErlList args):[]) = do
+erlang_apply [lambda, ErlList args] = do
   case lambda of
     (ErlFunName name arity) -> do
       (EModule mn curMod) <- gets curr_mod
@@ -407,11 +398,19 @@ erlang_apply (lambda:(ErlList args):[]) = do
 erlang_apply _ = bif_badarg_num
 
 erlang_spawn :: ErlStdFun
-erlang_spawn (lambda:[]) = do
+erlang_spawn [lambda] = do
   Left mmt <- gets mod_table
-  pid <- lift $ lift $ spawnLocal (localEvaluator mmt ("erlang", "apply", [lambda, ErlList []]))
+  cmod <- gets curr_mod
+  pid <- lift $ lift $ spawnLocal $ localEvaluator cmod mmt ("erlang", "apply", [lambda, ErlList []])
   return $ ErlPid pid
 erlang_spawn _ = bif_badarg_num
+
+erlang_spawn_link :: ErlStdFun
+erlang_spawn_link [lambda] = do
+  p <- erlang_spawn [lambda]
+  Erlang.erlang_link [p]
+  return $ p
+erlang_spawn_link _ = bif_badarg_num
 
 newBaseModTable :: ModTable
 newBaseModTable =
@@ -427,6 +426,7 @@ evalBifs :: ErlFunTable
 evalBifs =
   M.fromList [
     (("apply", 2), ErlStdFun erlang_apply),
+    (("spawn_link", 1), ErlStdFun erlang_spawn_link),
     (("spawn", 1), ErlStdFun erlang_spawn)]
 
 adjustErlangModule' :: ErlFunTable -> ErlFunTable
@@ -438,12 +438,17 @@ adjustErlangModule' funs =
 -- since local coordinator can not send me a message); so instead I'd
 -- have to send a message to coordinator on remote node, which would
 -- 'spawnLocal' actual process and supply it MVar ModTable
-localEvaluator :: MVar ModTable -> (ModName, FunName, [ErlTerm]) -> Process ()
-localEvaluator mmt (emod, fn, args) = do
+localEvaluator :: ErlModule -> MVar ModTable -> (ModName, FunName, [ErlTerm]) -> Process ()
+localEvaluator cmod mmt (emod, fn, args) = do
   let runner = applyMFA emod fn args
   let ev = do
-        result <- runErlProcess runner bootModule mmt newProcDict
-        return ()
+        r <- runErlProcess runner cmod mmt newProcDict
+        case r of
+          Left e -> do
+            say $ show e
+            die e
+          Right _ ->
+            return ()
   catch ev (\(e :: SomeException) -> do
                  liftIO $ print (show e)
                  throw e)
@@ -453,7 +458,7 @@ bootProc = do
   mmt <- liftIO $ newMVar newBaseModTable
   liftIO $ putStrLn "Boot process starting..."
   liftIO $ putStrLn "Running"
-  pid <- spawnLocal (localEvaluator mmt ("init", "boot", [ErlList []]))
+  pid <- spawnLocal (localEvaluator bootModule mmt ("init", "boot", [ErlList []]))
   mref <- monitor pid
   a <- expect :: Process ProcessMonitorNotification
   liftIO $ print $ show a

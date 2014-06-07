@@ -117,10 +117,16 @@ data EvalCtx = ECtx VarTable
 instance Binary EvalCtx
 
 data FilePos = FilePos String Integer
+             deriving (Generic, Show)
+
+instance Binary FilePos
 
 data StackFrame = Frame { mfa :: ErlMFA,
                           args :: Maybe [ErlTerm],
                           pos :: FilePos }
+                deriving (Generic, Show)
+
+instance Binary StackFrame
 
 stackToTerm :: StackFrame -> ErlTerm
 stackToTerm Frame { mfa = (mod, fun, arity) } =
@@ -137,6 +143,9 @@ data ErlExceptionType = ExcUnknown |
                         ExcError |
                         ExcThrow |
                         ExcExit
+                      deriving (Generic, Show)
+
+instance Binary ErlExceptionType
 
 excTypeToTerm :: ErlExceptionType -> ErlTerm
 excTypeToTerm t =
@@ -156,6 +165,10 @@ excToTerm ErlException { exc_type = t,
 data ErlException = ErlException { exc_type :: ErlExceptionType,
                                    reason :: ErlTerm,
                                    stack :: [StackFrame] }
+                  deriving (Generic, Show, Typeable)
+
+instance Binary ErlException
+
 instance Error ErlException where
   strMsg str = ErlException { exc_type = ExcUnknown,
                               reason = ErlAtom str,

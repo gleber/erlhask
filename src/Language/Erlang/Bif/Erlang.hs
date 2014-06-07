@@ -1,7 +1,10 @@
 {-# LANGUAGE TemplateHaskell, RankNTypes, FlexibleContexts #-}
 
 -- | Main entry point to the application.
-module Language.Erlang.Bif.Erlang (exportedMod) where
+module Language.Erlang.Bif.Erlang (exportedMod,
+                                   erlang_link) where
+
+import Debug.HTrace
 
 import Control.Distributed.Process
 import Control.Distributed.Process.Closure
@@ -21,6 +24,10 @@ import Language.Erlang.BifsCommon
 
 import Control.Concurrent.MVar
 import Data.Global
+
+import Control.Distributed.Process.Internal.Types (ProcessSignal(..), Identifier(..))
+import Control.Distributed.Process.Internal.Primitives (sendCtrlMsg)
+
 
 --
 -- PROCESS REGISTRATION
@@ -86,7 +93,14 @@ erlang_display _ = bif_badarg_num
 -- PROCESS MANAGEMENT
 --
 
-erlang_self, erlang_send, erlang_process_flag :: ErlStdFun
+erlang_self, erlang_send, erlang_process_flag, erlang_link :: ErlStdFun
+
+erlang_link [ErlPid them] = do
+  us <- lift $ lift $ getSelfPid
+  let theirNode = processNodeId them
+  lift $ lift $ sendCtrlMsg Nothing (Link (ProcessIdentifier them))
+  lift $ lift $ sendCtrlMsg (Just theirNode) (Link (ProcessIdentifier us))
+  return $ ErlAtom "true"
 
 erlang_process_flag (ErlAtom what:val:[]) = do
   case what of
@@ -162,6 +176,8 @@ exportedMod =
 
                                 (("register", 2), ErlStdFun erlang_register),
                                 (("whereis", 1), ErlStdFun erlang_whereis),
+
+                               (("link", 1), ErlStdFun erlang_link),
 
                                 (("-", 2), ErlPureFun erlang_minus),
                                 (("+", 2), ErlPureFun erlang_plus),
