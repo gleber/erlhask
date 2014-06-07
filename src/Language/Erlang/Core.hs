@@ -12,6 +12,8 @@ import GHC.Generics
 
 import Control.Distributed.Process
 
+import Control.Concurrent.MVar
+
 import Control.Monad.Identity (Identity, runIdentity)
 import Control.Monad.RWS.Strict (RWST, runRWST)
 import Control.Monad.Error (ErrorT, Error, runErrorT, throwError, strMsg)
@@ -161,27 +163,34 @@ instance Error ErlException where
 
 
 
-data ErlPState = ErlPState { curr_mod :: ErlModule, -- move to reader
-                             last_exc :: ErlException,
-                             mod_table :: ModTable,
-                             proc_dict :: ProcDict }
+data ErlPState = ErlPState {
+  curr_mod :: ErlModule, -- move to reader
+  last_exc :: Maybe ErlException,
+  -- either global ModTable in normal evaluator or local ModTable for
+  -- safe evaluator
+  mod_table :: Either (MVar ModTable) ModTable,
+  proc_dict :: ProcDict }
 
 type ErlProcessState m = RWST [StackFrame] [String] ErlPState m
 type ErlProcessEvaluator m = ErrorT ErlException (ErlProcessState m)
 type ErlProcess = ErlProcessEvaluator Process
 
-runErlProcess :: ErlProcess ErlTerm -> ErlModule -> ModTable -> ProcDict -> Process (Either ErlException ErlTerm)
-runErlProcess p cm mt pd = do
-  (res, _, _) <- runRWST (runErrorT p) [] (ErlPState { curr_mod = cm,
-                                                       mod_table = mt,
+runErlProcess :: ErlProcess ErlTerm -> ErlModule -> MVar ModTable -> ProcDict -> Process (Either ErlException ErlTerm)
+runErlProcess p cm mmt pd = do
+  (res, _, _) <- runRWST (runErrorT p) [] (ErlPState { last_exc = Nothing,
+                                                       curr_mod = cm,
+                                                       mod_table = Left mmt,
                                                        proc_dict = pd })
   return res
 
 type ErlPure = ErlProcessEvaluator Identity
 
-runErlPure :: ModTable -> ErlPure ErlTerm -> Either ErlException ErlTerm
+runErlPure :: ModTable -> ErlPure a -> Either ErlException a
 runErlPure mt p =
-  let (res, _, _) = runIdentity $ runRWST (runErrorT p) [] (ErlPState {mod_table = mt})
+  let (res, _, _) = runIdentity $ runRWST (runErrorT p) [] (ErlPState {curr_mod = bootModule,
+                                                                       last_exc = Nothing,
+                                                                       proc_dict = newProcDict,
+                                                                       mod_table = Right mt})
   in res
 
 type ErlGeneric a = Monad m => ErlProcessEvaluator m a
@@ -196,3 +205,6 @@ newEvalCtx = ECtx M.empty
 
 newProcDict :: ProcDict
 newProcDict = M.empty
+
+atom_ok = ErlAtom "ok"
+atom_undefined = ErlAtom "undefined"

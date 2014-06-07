@@ -34,27 +34,35 @@ import Language.Erlang.Lang
 
 -- -- PList (LL [PVar "K"] (PList (LL [PVar "L"] (PVar "_cor8")))) [1, 2, 3]
 
-evalExps :: EvalCtx -> S.Exps -> ErlPure ErlTerm
-evalExps eCtx (Exp e) = eval eCtx (unann e)
+uevalExps :: EvalCtx -> S.Exps -> ErlPure ErlTerm
+uevalExps e s = unseqM $ evalExps e s
+
+evalExps :: EvalCtx -> S.Exps -> ErlPure ErlSeq
+evalExps eCtx (Exp e) = do
+  term <- eval eCtx (unann e)
+  return $ ErlSeq $ [term]
 evalExps eCtx (Exps aexs) = do
   let exs = unann aexs
       xs = L.map unann exs
-  last $ L.map (eval eCtx) xs
+  l <- mapM (eval eCtx) xs
+  return $ ErlSeq l
 
 eval :: EvalCtx -> S.Exp -> ErlPure ErlTerm
 eval _ expr | htrace ("eval " ++ show expr) False = undefined
-eval eCtx (Seq a b) =
-  let _ = evalExps eCtx a
-  in evalExps eCtx b
+eval eCtx (Seq a b) = do
+  _ <- evalExps eCtx a
+  bb <- evalExps eCtx b
+  return $ unseq bb
 
 eval _ (Lit l) = return $ literalToTerm l
 eval eCtx (Tuple exps) = do
-  elements <- mapM (evalExps eCtx) exps
-  return $ ErlTuple elements
-eval eCtx (Let (var,val) exps) = do
-  value <- evalExps eCtx val
-  let eCtx' = setupFunctionContext eCtx (var, value)
-  evalExps eCtx' exps
+  seqs <- mapM ((evalExps eCtx)) exps
+  return $ ErlTuple (L.map unseq seqs)
+eval eCtx (Let (vars,vals) exps) = do
+  seq <- evalExps eCtx vals
+  let eCtx' = setupFunctionContext eCtx (vars, seq)
+  resseq <- evalExps eCtx' exps
+  return $ unseq resseq
 
 {-
 
@@ -106,21 +114,21 @@ eval eCtx (Let (var,val) exps) = do
 -}
 
 eval eCtx (Try body (bodyBind, success) (catchVars, catchBody)) = do
-  mt <- gets mod_table
+  Right mt <- gets mod_table
   let bodyRes = runErlPure mt $ evalExps eCtx body
   case bodyRes of
     Right val -> do
       let eCtx' = setupFunctionContext eCtx (bodyBind, val)
-      evalExps eCtx' success
+      uevalExps eCtx' success
     Left (ErlException {}) -> do
       -- need to setupFunctionContext here somehow, but not sure what are catchVars
-      evalExps eCtx catchBody
+      uevalExps eCtx catchBody
 
 eval eCtx (ModCall (mod0, arity0) args0) = do
-  let evalExps' = evalExps eCtx
-  emod <- evalExps' mod0
-  arity <- evalExps' arity0
-  args <- mapM evalExps' args0
+  let uevalExps' = uevalExps eCtx
+  emod <- uevalExps' mod0
+  arity <- uevalExps' arity0
+  args <- mapM (uevalExps') args0
   modCall emod arity args
 
 eval (ECtx varTable) (Var var) =
@@ -215,7 +223,7 @@ eval (ECtx varTable) (Var var) =
 
 matchGuard :: EvalCtx -> ModTable -> S.Guard -> Bool
 matchGuard eCtx mt (Guard exprs) =
-  case runErlPure mt $ evalExps eCtx exprs of
+  case runErlPure mt $ uevalExps eCtx exprs of
     Right (ErlAtom "true") ->
       True
     _ ->
@@ -228,7 +236,7 @@ modCall (ErlAtom emod) (ErlAtom fn) args =
 
 applyMFA :: ModName -> FunName -> [ErlTerm] -> ErlPure ErlTerm
 applyMFA modname fn args = do
-  erlmod <- getModule modname
+  erlmod <- safeGetModule modname
   applyFunInMod erlmod fn args
 
 applyFunInMod :: ErlModule -> FunName -> [ErlTerm] -> ErlPure ErlTerm

@@ -20,7 +20,7 @@ lambdas_test() ->
     erlang:display(Y + Z + K + L).
 
 lambda(Y) ->
-    X = random:uniform(),
+    X = 10,
     fun(Z) ->
             Y + X + Z
     end.

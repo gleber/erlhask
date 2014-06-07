@@ -25,16 +25,6 @@ import Language.Erlang.Eval
 import Language.Erlang.Modules
 
 
-bootProc :: Process ()
-bootProc = do
-  liftIO $ putStrLn "Boot process starting..."
-  liftIO $ putStrLn "Running"
-  pid <- spawnLocal (evaluator ("boot", "start", []))
-  mref <- monitor pid
-  a <- expect :: Process ProcessMonitorNotification
-  liftIO $ print $ show a
-  return ()
-
 
 -- | The main entry point.
 main :: IO ()

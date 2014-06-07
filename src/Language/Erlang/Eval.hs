@@ -30,8 +30,7 @@ import Control.Monad.RWS (gets, local)
 import Control.Monad (foldM)
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.Error (throwError, catchError)
-
--- import Control.Exception.Lifted
+import Control.Concurrent.MVar
 
 import Language.CoreErlang.Syntax as S
 
@@ -44,43 +43,50 @@ import Language.Erlang.BifsCommon as BifsCommon
 import qualified Language.Erlang.SafeEval as Safe
 
 exprListToTerm :: EvalCtx ->  S.List S.Exps -> ErlProcess ErlTerm
-exprListToTerm eCtx (LL exprs xs) = do
-  vals <- mapM (evalExps eCtx) exprs
-  ErlList t <- evalExps eCtx xs
+exprListToTerm eCtx (LL exprs x) = do
+  vals <- mapM (uevalExps eCtx) exprs
+  ErlList t <- uevalExps eCtx x
   return $ ErlList (vals ++ t)
 exprListToTerm eCtx (L exprs) = do
-  vals <- mapM (evalExps eCtx) exprs
+  vals <- mapM (uevalExps eCtx) exprs
   return $ ErlList vals
 
 -- PList (LL [PVar "K"] (PList (LL [PVar "L"] (PVar "_cor8")))) [1, 2, 3]
 
-evalExps :: EvalCtx -> S.Exps -> ErlProcess ErlTerm
-evalExps eCtx (Exp e) = eval eCtx (unann e)
+uevalExps :: EvalCtx -> S.Exps -> ErlProcess ErlTerm
+uevalExps a b = unseqM $ (evalExps a b)
+
+evalExps :: EvalCtx -> S.Exps -> ErlProcess ErlSeq
+evalExps eCtx (Exp e) = do
+  term <- eval eCtx (unann e)
+  return $ ErlSeq [term]
 evalExps eCtx (Exps aexs) = do
   let exs = unann aexs
       xs = L.map unann exs
-  fmap last $ mapM (eval eCtx) xs
+  l <- mapM (eval eCtx) xs
+  return $ ErlSeq l
+
 
 eval :: EvalCtx -> S.Exp -> ErlProcess ErlTerm
--- eval _ expr | htrace (show threadId ++ ": eval " ++ show expr) False = undefined
+eval _ expr | htrace (show threadId ++ ": eval " ++ show expr) False = undefined
 eval eCtx (Seq a b) = do
   _ <- evalExps eCtx a
-  evalExps eCtx b
+  uevalExps eCtx b
 
 eval _ (Lit l) = return $ literalToTerm l
 eval eCtx (Tuple exps) = do
-  elements <- mapM (evalExps eCtx) exps
+  elements <- mapM (uevalExps eCtx) exps
   return $ ErlTuple elements
 eval eCtx (Let (var,val) exps) = do
   value <- evalExps eCtx val
   let eCtx' = setupFunctionContext eCtx (var,value)
-  evalExps eCtx' exps
+  uevalExps eCtx' exps
 
 eval eCtx (ModCall (mod0, arity0) args0) = do
-  let evalExps' = evalExps eCtx
-  emod <- evalExps' mod0
-  arity <- evalExps' arity0
-  args <- mapM evalExps' args0
+  let uevalExps' = uevalExps eCtx
+  emod <- uevalExps' mod0
+  arity <- uevalExps' arity0
+  args <- mapM uevalExps' args0
   modCall emod arity args
 
 eval (ECtx varTable) (Var var) = do
@@ -92,9 +98,9 @@ eval eCtx (App lambda args) = do
   cmod <- gets curr_mod
   case cmod of
     EModule _ curMod -> do
-      let evalExps' = evalExps eCtx
-      lambda' <- evalExps' lambda
-      args' <- mapM evalExps' args
+      let uevalExps' = uevalExps eCtx
+      lambda' <- uevalExps' lambda
+      args' <- mapM uevalExps' args
       case lambda' of
         (ErlFunName name arity) -> do
           let frame = Frame { mfa = (modName cmod, name, arity),
@@ -120,20 +126,20 @@ eval eCtx (Lambda argNames exprs) = do
 eval eCtx (Case val alts) = do
   let alts' = map unann alts
   val' <- evalExps eCtx val
-  matchAlts eCtx val' alts'
+  matchAlts eCtx alts' val'
 
 eval eCtx (List list) = do
   exprListToTerm eCtx list
 
 eval eCtx (Op (Atom op) args) = do
-  let evalExps' = evalExps eCtx
-  args' <- mapM evalExps' args
+  let uevalExps' = uevalExps eCtx
+  args' <- mapM uevalExps' args
   case op of
     "match_fail" -> dieL $ map show args'
     _ -> errorL ["Not implemented Op", op, show args]
 
 eval eCtx (Rec alts (TimeOut time timeoutExps)) = do
-  time' <- evalExps eCtx time
+  time' <- uevalExps eCtx time
   case isTimeout time' of
     False ->
       BifsCommon.bif_badarg_t
@@ -143,26 +149,27 @@ eval eCtx (Rec alts (TimeOut time timeoutExps)) = do
       res <- lift $ lift $ receive time' matches
       case res of
         Nothing ->
-          evalExps eCtx timeoutExps
+          uevalExps eCtx timeoutExps
         Just (msg, (Alt pats _ exprs)) -> do
-          let Just eCtx' = matchPats eCtx pats msg
-          evalExps eCtx' exprs
+          let Just eCtx' = matchPats eCtx pats (ErlSeq [msg])
+          uevalExps eCtx' exprs
 
 eval eCtx (Try body (bodyBind, success) (catchVars, catchBody)) = do
   cm <- gets curr_mod
-  mt <- gets mod_table
   pd <- gets proc_dict
   let catcher = (\exc@(ErlException { exc_type = excType, reason = term }) -> do
-                  let eCtx' = setupFunctionContext' eCtx (L.zip (L.map (: []) catchVars) [excTypeToTerm(excType),
-                                                                                          term,
-                                                                                          ErlList []])
-                  modify $ \ps ->
-                    ps { last_exc = exc }
-                  evalExps eCtx' catchBody
+                    let vars = (L.map (: []) catchVars)
+                        seq = [ErlSeq [excTypeToTerm(excType)],
+                               ErlSeq [term],
+                               ErlSeq [ErlList []]]
+                        eCtx' = setupFunctionContext' eCtx (L.zip vars seq)
+                    modify $ \ps ->
+                      ps { last_exc = Just exc }
+                    evalExps eCtx' catchBody
                 )
   val <- (evalExps eCtx body) `catchError` catcher
   let eCtx' = setupFunctionContext eCtx (bodyBind, val)
-  evalExps eCtx' success
+  uevalExps eCtx' success
 
 -- Catch
 --   (Exp
@@ -183,12 +190,9 @@ eval eCtx (Try body (bodyBind, success) (catchVars, catchBody)) = do
 --                 (Lit LNil))])))
 
 eval eCtx (Catch body) = do
-  cm <- gets curr_mod
-  mt <- gets mod_table
-  pd <- gets proc_dict
   let catcher = (\exc@(ErlException { exc_type = excType, reason = term }) -> do
                     modify $ \ps ->
-                      ps { last_exc = exc }
+                      ps { last_exc = Just exc }
                     let x = ErlTuple $ [term, stacktraceToTerm (stack exc)]
                     case excType of
                       ExcThrow ->
@@ -196,7 +200,7 @@ eval eCtx (Catch body) = do
                       _ ->
                         return $ ErlTuple $ [excTypeToTerm(excType), x]
                 )
-  (evalExps eCtx body) `catchError` catcher
+  (uevalExps eCtx body) `catchError` catcher
 
 eval _ expr =
   errorL ["Unhandled expression: ", show expr]
@@ -204,10 +208,10 @@ eval _ expr =
 
 receiveMatches :: EvalCtx -> [S.Alt] -> ErlProcess [Match (ErlTerm, S.Alt)]
 receiveMatches eCtx0 alts = do
-  mt <- gets mod_table
+  mt <- getModTable
   return $ map (\alt@(Alt pats guard exprs) ->
     (matchIf (\(msg :: ErlTerm) ->
-               let matched = matchPats eCtx0 pats msg
+               let matched = matchPats eCtx0 pats (ErlSeq [msg])
                in
                 case matched of
                   Just eCtx -> do
@@ -219,31 +223,37 @@ receiveMatches eCtx0 alts = do
                  return (msg, alt)
              )) :: Match (ErlTerm, S.Alt)) alts
 
-matchAlts :: EvalCtx -> ErlTerm -> [S.Alt] -> ErlProcess ErlTerm
-matchAlts _ _ [] = dieL ["No matching clauses"]
-matchAlts eCtx0 val (alt:xs) = do
+matchAlts :: EvalCtx -> [S.Alt] -> ErlSeq -> ErlProcess ErlTerm
+matchAlts _ alt term | htrace (show threadId ++ ": matchAlts " ++ show alt ++ " vs " ++ show term) False = undefined
+matchAlts _ [] _ = dieL ["No matching clauses"]
+matchAlts eCtx0 (alt:xs) seq = do
   let (Alt pats guard exprs) = alt
-  let matched = matchPats eCtx0 pats val
+  let matched = matchPats eCtx0 pats seq
   case matched of
     Just eCtx -> do
       guarded <- matchGuard eCtx guard
       case guarded of
         True ->
-          evalExps eCtx exprs
+          uevalExps eCtx exprs
         False ->
-          matchAlts eCtx val xs
+          matchAlts eCtx xs seq
     Nothing ->
-      matchAlts eCtx0 val xs
+      matchAlts eCtx0 xs seq
 
 -- (Pats [PTuple [PLit (LAtom (Atom "ok")),
 --                PVar "Z"]])
-matchPats :: EvalCtx -> S.Pats -> ErlTerm -> Maybe EvalCtx
-matchPats eCtx (Pats [pat]) term = matchPats eCtx (Pat pat) term
-matchPats eCtx (Pat pat0) term = do
-  let pat = unann pat0
-  matchPat eCtx pat term
-matchPats _eCtx pat term =
-  errorL ["Not implemented matching of Pats", show pat, "with", show term]
+matchPats :: EvalCtx -> S.Pats -> ErlSeq -> Maybe EvalCtx
+-- matchPats _ pat term | htrace (show threadId ++ ": matchPats " ++ show pat ++ " vs " ++ show term) False = undefined
+matchPats eCtx (Pats pats) (ErlSeq seq) =
+  foldM (\e (p,t) -> matchPat e (unann p) t) eCtx (L.zip pats seq)
+
+  -- Pats [Constr (PList (LL [PVar "B"] (PVar "Bs"))),
+  --       Constr (PVar "Ss"),
+  --       Constr (PVar "Fs"),
+  --       Constr (PVar "As")]
+
+matchPats _eCtx pat seq =
+  errorL ["matchPats: Not implemented matching of", show pat, "with", show seq]
 
 matchPat :: EvalCtx -> S.Pat -> ErlTerm -> Maybe EvalCtx
 matchPat eCtx (PTuple pat) (ErlTuple term) = do
@@ -257,20 +267,24 @@ matchPat eCtx (PLit lit) term = do
     then Just eCtx
     else Nothing
 matchPat eCtx (PVar var) term = do
-  return $ setupFunctionContext eCtx ([var], term)
-matchPat _eCtx pat term = do
-  errorL ["Not implemented matching of Pat", show pat, "with", show term]
+  return $ setupFunctionContext eCtx ([var], ErlSeq [term])
 
 -- PList (LL [PVar "K"] (PList (LL [PVar "L"] (PVar "_cor8")))) [1, 2, 3]
 matchPat eCtx (PList (LL [h] t)) (ErlList (x:xs)) = do
   eCtx' <- matchPat eCtx h x
   matchPat eCtx' t (ErlList xs)
+matchPat eCtx (PList _) (ErlList _) = Nothing
 
--- matchPat _ pat term = errorL ["Not implemented matching of", show pat, show term]
+matchPat eCtx (PAlias (Alias var pat)) term = do
+  eCtx' <- matchPat eCtx pat term
+  return $ setupFunctionContext eCtx ([var], ErlSeq [term])
+
+matchPat _eCtx pat term = do
+  errorL ["matchPat: Not implemented matching of", show pat, "with", show term]
 
 matchGuard :: EvalCtx -> S.Guard -> ErlProcess Bool
 matchGuard eCtx (Guard exprs) = do
-  evaled <- evalExps eCtx exprs
+  evaled <- uevalExps eCtx exprs
   case evaled of
     ErlAtom "true" ->
       return True
@@ -332,12 +346,12 @@ expsToErlFun eCtx argNames expressions =
         case length args of
           a | a == arity ->
             let
-              bargs = L.zipWith (\x y -> ([x],y)) argNames args
+              bargs = L.zipWith (\x y -> ([x], ErlSeq [y])) argNames args
               evalCtx' = setupFunctionContext' eCtx bargs
             in
-             evalExps evalCtx' expressions
-          _ ->
-            BifsCommon.bif_badarg_num
+             uevalExps evalCtx' expressions
+          -- _ ->
+          --   BifsCommon.bif_badarg_num
   in
    ErlStdFun fn
 
@@ -394,7 +408,8 @@ erlang_apply _ = bif_badarg_num
 
 erlang_spawn :: ErlStdFun
 erlang_spawn (lambda:[]) = do
-  pid <- lift $ lift $ spawnLocal (evaluator ("erlang", "apply", [lambda, ErlList []]))
+  Left mmt <- gets mod_table
+  pid <- lift $ lift $ spawnLocal (localEvaluator mmt ("erlang", "apply", [lambda, ErlList []]))
   return $ ErlPid pid
 erlang_spawn _ = bif_badarg_num
 
@@ -418,13 +433,28 @@ adjustErlangModule' :: ErlFunTable -> ErlFunTable
 adjustErlangModule' funs =
   M.union evalBifs funs
 
-evaluator :: (ModName, FunName, [ErlTerm]) -> Process ()
-evaluator (emod, fn, args) = do
+-- TODO: remote evaluator can not accept MVar, so instead it should
+-- ask boot/kernel/init process for MVar ModTable (does not work,
+-- since local coordinator can not send me a message); so instead I'd
+-- have to send a message to coordinator on remote node, which would
+-- 'spawnLocal' actual process and supply it MVar ModTable
+localEvaluator :: MVar ModTable -> (ModName, FunName, [ErlTerm]) -> Process ()
+localEvaluator mmt (emod, fn, args) = do
   let runner = applyMFA emod fn args
   let ev = do
-        result <- runErlProcess runner bootModule newBaseModTable newProcDict
+        result <- runErlProcess runner bootModule mmt newProcDict
         return ()
   catch ev (\(e :: SomeException) -> do
                  liftIO $ print (show e)
                  throw e)
-remotable ['evaluator]
+
+bootProc :: Process ()
+bootProc = do
+  mmt <- liftIO $ newMVar newBaseModTable
+  liftIO $ putStrLn "Boot process starting..."
+  liftIO $ putStrLn "Running"
+  pid <- spawnLocal (localEvaluator mmt ("init", "boot", [ErlList []]))
+  mref <- monitor pid
+  a <- expect :: Process ProcessMonitorNotification
+  liftIO $ print $ show a
+  return ()

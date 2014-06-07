@@ -19,3 +19,13 @@ literalToTerm (LInt int) = ErlNum int
 literalToTerm (LFloat double) = ErlFloat double
 literalToTerm (LAtom (Atom atom_name)) = ErlAtom atom_name
 literalToTerm LNil = ErlList []
+
+data ErlSeq = ErlSeq [ErlTerm]
+            deriving Show
+
+unseq :: ErlSeq -> ErlTerm
+unseq (ErlSeq [a]) = a
+unseq (ErlSeq x) = error ("Expected exactly one term, instead got" ++ show x)
+
+unseqM :: Functor f => f ErlSeq -> f ErlTerm
+unseqM = fmap unseq
