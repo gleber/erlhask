@@ -19,6 +19,7 @@ import Control.Exception (throw, SomeException)
 
 import qualified Data.Map as M
 import qualified Data.List as L
+import qualified Data.ByteString as BS
 
 import Control.Monad.State (
   get,
@@ -203,9 +204,123 @@ eval eCtx (Catch body) = do
                 )
   (uevalExps eCtx body) `catchError` catcher
 
+-- ga =
+--   Binary [BitString (Exp (Constr (Lit (LInt 1))))
+--           [Exp (Constr (Lit (LInt 8))),
+--            Exp (Constr (Lit (LInt 1))),
+--            Exp (Constr (Lit (LAtom (Atom "integer")))),
+--            Exp (Constr (List (LL [Exp (Constr (Lit (LAtom (Atom "unsigned"))))]
+--                               (Exp (Constr (List (L [Exp (Constr (Lit (LAtom (Atom "big"))))])))))))],
+--           BitString (
+--             Exp (
+--                Constr (
+--                   Lit (
+--                      LInt 2)))) [Exp (
+--                                     Constr (
+--                                        Lit (
+--                                           LInt 8))),
+--                                  Exp (
+--                                    Constr (
+--                                       Lit (
+--                                          LInt 1))),
+--                                  Exp (
+--                                    Constr (
+--                                       Lit (
+--                                          LAtom (
+--                                             Atom "integer")))),
+--                                  Exp (
+--                                    Constr (
+--                                       List (
+--                                          LL [Exp (
+--                                                 Constr (
+--                                                    Lit (
+--                                                       LAtom (
+--                                                          Atom "unsigned"))))] (
+--                                             Exp (
+--                                                Constr (
+--                                                   List (
+--                                                      L [Exp (
+--                                                            Constr (
+--                                                               Lit (
+--                                                                  LAtom (
+--                                                                     Atom "big"))))])))))))],
+--           BitString (
+--             Exp (
+--                Constr (
+--                   Lit (
+--                      LInt 3)))) [Exp (
+--                                     Constr (
+--                                        Lit (
+--                                           LInt 8))),
+--                                  Exp (
+--                                    Constr (
+--                                       Lit (
+--                                          LInt 1))),
+--                                  Exp (
+--                                    Constr (
+--                                       Lit (
+--                                          LAtom (
+--                                             Atom "integer")))),
+--                                  Exp (
+--                                    Constr (
+--                                       List (
+--                                          LL [Exp (
+--                                                 Constr (
+--                                                    Lit (
+--                                                       LAtom (
+--                                                          Atom "unsigned"))))] (
+--                                             Exp (
+--                                                Constr (
+--                                                   List (
+--                                                      L [Exp (
+--                                                            Constr (
+--                                                               Lit (
+--                                                                  LAtom (
+--                                                                     Atom "big"))))])))))))],
+--           BitString (
+--             Exp (
+--                Constr (
+--                   Var "Y"))) [Exp (
+--                                  Constr (
+--                                     Lit (
+--                                        LInt 8))),
+--                               Exp (
+--                                 Constr (
+--                                    Lit (
+--                                       LInt 1))),
+--                               Exp (
+--                                 Constr (
+--                                    Lit (
+--                                       LAtom (
+--                                          Atom "integer")))),
+--                               Exp (
+--                                 Constr (
+--                                    List (
+--                                       LL [Exp (
+--                                              Constr (
+--                                                 Lit (
+--                                                    LAtom (
+--                                                       Atom "unsigned"))))] (
+--                                          Exp (
+--                                             Constr (
+--                                                List (
+--                                                   L [Exp (
+--                                                         Constr (
+--                                                            Lit (
+--                                                               LAtom (
+--                                                                  Atom "big"))))])))))))]]
+
+eval eCtx (Binary bs) = do
+
+
 eval _ expr =
   errorL ["Unhandled expression: ", show expr]
 
+evalBitString :: EvalCtx -> S.BitString Exps -> ErlProcess Int
+evalBitString eCtx (BitString e params) = do
+  ErlNum v <- eval eCtx e
+  _ <- mapM (eval eCtx) params
+  return v
 
 receiveMatches :: EvalCtx -> [S.Alt] -> ErlProcess [Match (ErlTerm, S.Alt)]
 receiveMatches eCtx0 alts = do
