@@ -14,7 +14,6 @@ Installation
 Requirements:
 * Erlang/OTP installed
 * Local checkout of all Cloud Haskell libraries at "dev" branch
-* Local checkout of [global-variables](gleber@ubuntu:~/code/global-variables) package at "release" branch
 
 Clone:
 
@@ -27,16 +26,22 @@ Prepare the sandbox:
 	cabal update
 	cabal install cabal-install
 
-Add source dependency on 'global-variables' package:
-
-    cabal sandbox add-source path/to/global-variables
-
 Add source dependency on Cloud Haskell packages, since ErlHask
 requires "dev" version of Cloud Haskell:
 
     for i in path/to/cloud-haskell/*/; do
         cabal sandbox add-source $i
     done
+
+Current API exposed by CloudHaskell does not expose a module with few
+primitives, which are necessary to set up bi-directional links
+([feature request pending](https://cloud-haskell.atlassian.net/browse/DP-95)). Hence
+it is necessary to modify distributed-process.cabal file to move the
+line:
+
+    Control.Distributed.Process.Internal.Primitives
+
+from `Other-modules` to `Exposed-modules`.
 
 Install deps and configure everything:
 
