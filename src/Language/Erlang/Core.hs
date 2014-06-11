@@ -7,6 +7,7 @@ module Language.Erlang.Core where
 
 import Data.Unique
 import Data.Binary
+import qualified Data.ByteString.Lazy as BS
 import Data.Typeable
 import GHC.Generics
 
@@ -42,7 +43,8 @@ data ErlTerm = ErlList [ErlTerm] |
                ErlFunName FunName ErlArity |
                ErlLambda FunName [Var] EvalCtx S.Exps |
                ErlPid ProcessId |
-               ErlRef Unique
+               ErlRef Unique |
+               ErlBinary BS.ByteString
              deriving (Generic, Typeable, Eq)
 -- ErlBitstring |
 
@@ -86,6 +88,7 @@ instance Show ErlTerm where
   show (ErlLambda name _ _ _) = "#Fun<" ++ name ++ ">"
   show (ErlPid pid) = concat ["<", show pid, ">"]
   show (ErlRef uniq) = concat ["#Ref<", show (hashUnique uniq), ">"]
+  show (ErlBinary bs) = concat ["<<", L.intercalate "," $ L.map show (BS.unpack bs), ">>"]
 
 type VarTable = M.Map String ErlTerm
 type ProcDict = M.Map String ErlTerm

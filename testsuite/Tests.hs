@@ -84,12 +84,16 @@ testProc modsrc fn res = do
   mmt <- liftIO $ newMVar mt
   let runner = applyMFA "tested" fn []
   let ev = do
-        Right term <- runErlProcess runner bootModule mmt newProcDict
-        liftIO $ putMVar res term
-        return ()
-  catch ev (\(e :: SomeException) -> do
-                 liftIO $ print (show e)
-                 throw e)
+        r <- runErlProcess runner bootModule mmt newProcDict
+        case r of
+          Right term -> do
+            liftIO $ putMVar res term
+            return ()
+          Left e ->
+            error (show e)
+  ev `catch` \(e :: SomeException) -> do
+    liftIO $ print (show e)
+    throw e
 
 testInProc :: String -> String -> ErlTerm -> Assertion
 testInProc modsrc fn expected = do

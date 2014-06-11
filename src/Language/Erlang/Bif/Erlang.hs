@@ -13,6 +13,7 @@ import Network.Transport.TCP
 
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.State (liftIO)
+import qualified Data.List as L
 import qualified Data.Map as M
 
 import Control.Monad.State (get, gets)
@@ -24,6 +25,8 @@ import Language.Erlang.BifsCommon
 
 import Control.Concurrent.MVar
 import Data.Global
+import Data.Binary
+import qualified Data.ByteString.Lazy as BS
 
 import Control.Distributed.Process.Internal.Types (ProcessSignal(..), Identifier(..))
 import Control.Distributed.Process.Internal.Primitives (sendCtrlMsg)
@@ -159,6 +162,15 @@ erlang_float (a:[]) =
 erlang_float _ = bif_badarg_num
 
 --
+-- BINARIES
+--
+
+erlang_binary_to_list [ErlBinary bs] =
+  return $ ErlList $ L.map (ErlNum . toInteger) $ BS.unpack bs
+erlang_binary_to_list [_] = bif_badarg_t
+erlang_binary_to_list _ = bif_badarg_num
+
+--
 -- EXPORTS
 --
 
@@ -172,16 +184,17 @@ exportedMod =
                                 (("get_stacktrace", 0), ErlStdFun erlang_get_stacktrace),
                                 (("exit", 1), ErlStdFun erlang_exit),
 
+                                -- (("spawn", 1), erlang_spawn) - implemented directly in the ErlEval
+                                -- (("apply", 2), erlang_apply) - implemented directly in the ErlEval
                                 (("process_flag", 2), ErlStdFun erlang_process_flag),
 
                                 (("register", 2), ErlStdFun erlang_register),
                                 (("whereis", 1), ErlStdFun erlang_whereis),
 
-                               (("link", 1), ErlStdFun erlang_link),
+                                (("link", 1), ErlStdFun erlang_link),
 
                                 (("-", 2), ErlPureFun erlang_minus),
                                 (("+", 2), ErlPureFun erlang_plus),
-                                (("float", 1), ErlPureFun erlang_float)
-                                -- (("spawn", 1), erlang_spawn) - implemented directly in the ErlEval
-                                -- (("apply", 2), erlang_apply) - implemented directly in the ErlEval
+                                (("float", 1), ErlPureFun erlang_float),
+                                (("binary_to_list", 1), ErlPureFun erlang_binary_to_list)
                                ])
