@@ -14,6 +14,7 @@ import Network.Transport.TCP
 import Control.Monad.Trans.Class (lift)
 import Control.Monad.State (liftIO)
 import qualified Data.List as L
+import qualified Data.Char as C
 import qualified Data.Map as M
 
 import Control.Monad.State (get, gets)
@@ -161,14 +162,104 @@ erlang_float (a:[]) =
     _ -> bif_badarg_t
 erlang_float _ = bif_badarg_num
 
+erlang_concat [ErlList a, ErlList b] =
+  return $ ErlList (a ++ b)
+erlang_concat [_, _] = bif_badarg_t
+erlang_concat _ = bif_badarg_num
+
+erlang_bin_bool_op :: (ErlTerm -> ErlTerm -> Bool) -> [ErlTerm] -> ErlGeneric ErlTerm
+erlang_bin_bool_op op [a, b] =
+  return $ case op a b of
+    True -> atom_true
+    False -> atom_false
+erlang_bin_bool_op _ _ = bif_badarg_num
+
+erlang_lt, erlang_gt, erlang_eq, erlang_neq, erlang_lte, erlang_gte, erlang_eq_ex, erlang_neq_ex :: ErlPureFun
+erlang_lt = erlang_bin_bool_op (<)
+erlang_gt = erlang_bin_bool_op (>)
+erlang_eq = erlang_bin_bool_op (==)
+erlang_neq = erlang_bin_bool_op (/=)
+erlang_lte = erlang_bin_bool_op (<=)
+erlang_gte = erlang_bin_bool_op (>=)
+erlang_eq_ex = erlang_eq --FIXME: that's a hack!
+erlang_neq_ex = erlang_neq --FIXME: that's a hack!
+
+
+erlang_logic_bool_op :: (Bool -> Bool -> Bool) -> [ErlTerm] -> ErlGeneric ErlTerm
+erlang_logic_bool_op op [a@(ErlAtom _), b@(ErlAtom _)] | erlIsBool a && erlIsBool b = do
+  aa <- erlToBool a
+  bb <- erlToBool b
+  return $ case op aa bb of
+    True -> atom_true
+    False -> atom_false
+erlang_logic_bool_op op [_, _] = bif_badarg_t
+erlang_logic_bool_op _ _ = bif_badarg_num
+
+xor :: Bool -> Bool -> Bool
+xor True x = not x
+xor False x =x
+
+erlang_and, erlang_or, erlang_xor, erlang_not :: ErlPureFun
+erlang_and = erlang_logic_bool_op (&&)
+erlang_or = erlang_logic_bool_op (||)
+erlang_xor = erlang_logic_bool_op xor
+
+erlang_not [a@(ErlAtom _)] | erlIsBool a = do
+  aa <- erlToBool a
+  return $ case aa of
+    True -> atom_false
+    False -> atom_true
+erlang_not [_] = bif_badarg_t
+erlang_not _ = bif_badarg_num
+
 --
 -- BINARIES
 --
 
+erlang_binary_to_list, erlang_list_to_binary, erlang_atom_to_list, erlang_list_to_atom :: ErlPureFun
 erlang_binary_to_list [ErlBinary bs] =
   return $ ErlList $ L.map (ErlNum . toInteger) $ BS.unpack bs
 erlang_binary_to_list [_] = bif_badarg_t
 erlang_binary_to_list _ = bif_badarg_num
+
+erlang_list_to_binary [ErlList l] =
+  return $ ErlBinary $ BS.pack $ L.map (fromInteger . erlToInt) l
+erlang_list_to_binary [_] = bif_badarg_t
+erlang_list_to_binary _ = bif_badarg_num
+
+erlang_atom_to_list [ErlAtom a] =
+  return $ ErlList $ L.map (ErlNum . toInteger . C.ord) a
+erlang_atom_to_list [_] = bif_badarg_t
+erlang_atom_to_list _ = bif_badarg_num
+
+erlang_list_to_atom [ErlList l] =
+  return $ ErlAtom $ L.map (C.chr . fromInteger . erlToInt) l
+erlang_list_to_atom [_] = bif_badarg_t
+erlang_list_to_atom _ = bif_badarg_num
+
+--
+-- TYPES
+--
+
+erlang_is_atom [ErlAtom _] = return $ atom_true
+erlang_is_atom [_] = return $ atom_false
+erlang_is_atom _ = bif_badarg_num
+
+erlang_is_list [ErlList _] = return $ atom_true
+erlang_is_list [_] = return $ atom_false
+erlang_is_list _ = bif_badarg_num
+
+erlang_is_binary [ErlBinary _] = return $ atom_true
+erlang_is_binary [_] = return $ atom_false
+erlang_is_binary _ = bif_badarg_num
+
+erlang_is_float [ErlFloat _] = return $ atom_true
+erlang_is_float [_] = return $ atom_false
+erlang_is_float _ = bif_badarg_num
+
+erlang_is_integer [ErlNum _] = return $ atom_true
+erlang_is_integer [_] = return $ atom_false
+erlang_is_integer _ = bif_badarg_num
 
 --
 -- EXPORTS
@@ -193,8 +284,32 @@ exportedMod =
 
                                 (("link", 1), ErlStdFun erlang_link),
 
+                                (("==", 2), ErlPureFun erlang_eq),
+                                (("/=", 2), ErlPureFun erlang_neq),
+                                (("=<", 2), ErlPureFun erlang_lte),
+                                (("<", 2), ErlPureFun erlang_lt),
+                                ((">=", 2), ErlPureFun erlang_gte),
+                                ((">", 2), ErlPureFun erlang_gt),
+                                (("=:=", 2), ErlPureFun erlang_eq_ex),
+                                (("=/=", 2), ErlPureFun erlang_neq_ex),
+
+                                (("not", 1), ErlPureFun erlang_not),
+                                (("and", 2), ErlPureFun erlang_and),
+                                (("or", 2), ErlPureFun erlang_or),
+                                (("xor", 2), ErlPureFun erlang_xor),
+
                                 (("-", 2), ErlPureFun erlang_minus),
                                 (("+", 2), ErlPureFun erlang_plus),
                                 (("float", 1), ErlPureFun erlang_float),
-                                (("binary_to_list", 1), ErlPureFun erlang_binary_to_list)
+                                (("++", 2), ErlPureFun erlang_concat),
+                                (("list_to_binary", 1), ErlPureFun erlang_list_to_binary),
+                                (("binary_to_list", 1), ErlPureFun erlang_binary_to_list),
+                                (("atom_to_list", 1), ErlPureFun erlang_atom_to_list),
+                                (("list_to_atom", 1), ErlPureFun erlang_list_to_atom),
+
+                                (("is_float", 1), ErlPureFun erlang_is_float),
+                                (("is_integer", 1), ErlPureFun erlang_is_integer),
+                                (("is_atom", 1), ErlPureFun erlang_is_atom),
+                                (("is_list", 1), ErlPureFun erlang_is_list),
+                                (("is_binary", 1), ErlPureFun erlang_is_binary)
                                ])

@@ -35,17 +35,19 @@ type FunName = String
 type ErlArity = Integer
 type Key = String
 
-data ErlTerm = ErlList [ErlTerm] |
-               ErlTuple [ErlTerm] |
-               ErlAtom String |
-               ErlNum Integer |
+-- Ordering: number < atom < reference < fun < port < pid < tuple < list < bit string
+data ErlTerm = ErlNum Integer |
                ErlFloat Double |
+               ErlAtom String |
+               ErlRef Unique |
                ErlFunName FunName ErlArity |
                ErlLambda FunName [Var] EvalCtx S.Exps |
+               ErlPort | --FIXME: not yet implemented
                ErlPid ProcessId |
-               ErlRef Unique |
+               ErlTuple [ErlTerm] |
+               ErlList [ErlTerm] |
                ErlBinary BS.ByteString
-             deriving (Generic, Typeable, Eq)
+             deriving (Generic, Typeable, Eq, Ord)
 -- ErlBitstring |
 
 isTimeout :: ErlTerm -> Bool
@@ -116,7 +118,8 @@ bootModule :: ErlModule
 bootModule = HModule "boot" (M.empty)
 
 data EvalCtx = ECtx VarTable
-     deriving (Generic, Eq)
+     deriving (Generic, Eq, Ord) --HACK: Ord is added to simplify
+                                 --deriving of Ord for ErlTerm
 instance Binary EvalCtx
 
 data FilePos = FilePos String Integer

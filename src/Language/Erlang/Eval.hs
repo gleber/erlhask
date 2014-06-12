@@ -372,6 +372,7 @@ matchPat eCtx (PTuple pat) (ErlTuple term) = do
     L.length pat == L.length term
     then foldM (\ctx (p,e) -> matchPat ctx p e) eCtx (L.zip pat term)
     else Nothing
+matchPat eCtx (PTuple pat) _ = Nothing
 matchPat eCtx (PLit lit) term = do
   let lit' = literalToTerm lit
   if lit' == term
