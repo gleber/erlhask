@@ -237,6 +237,16 @@ erlang_list_to_atom [ErlList l] =
 erlang_list_to_atom [_] = bif_badarg_t
 erlang_list_to_atom _ = bif_badarg_num
 
+erlang_list_to_tuple [ErlList l] =
+  return $ ErlTuple l
+erlang_list_to_tuple [_] = bif_badarg_t
+erlang_list_to_tuple _ = bif_badarg_num
+
+erlang_tuple_to_list [ErlTuple l] =
+  return $ ErlList l
+erlang_tuple_to_list [_] = bif_badarg_t
+erlang_tuple_to_list _ = bif_badarg_num
+
 --
 -- TYPES
 --
@@ -302,10 +312,15 @@ exportedMod =
                                 (("+", 2), ErlPureFun erlang_plus),
                                 (("float", 1), ErlPureFun erlang_float),
                                 (("++", 2), ErlPureFun erlang_concat),
+
                                 (("list_to_binary", 1), ErlPureFun erlang_list_to_binary),
                                 (("binary_to_list", 1), ErlPureFun erlang_binary_to_list),
+
                                 (("atom_to_list", 1), ErlPureFun erlang_atom_to_list),
                                 (("list_to_atom", 1), ErlPureFun erlang_list_to_atom),
+
+                                (("list_to_tuple", 1), ErlPureFun erlang_list_to_tuple),
+                                (("tuple_to_list", 1), ErlPureFun erlang_tuple_to_list),
 
                                 (("is_float", 1), ErlPureFun erlang_is_float),
                                 (("is_integer", 1), ErlPureFun erlang_is_integer),
