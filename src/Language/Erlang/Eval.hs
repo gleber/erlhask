@@ -1,5 +1,6 @@
 {-# LANGUAGE TemplateHaskell, DataKinds, DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances #-}
 {-# LANGUAGE DeriveGeneric, StandaloneDeriving, DeriveDataTypeable, FlexibleInstances, RankNTypes, FlexibleContexts #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Language.Erlang.Eval where
@@ -20,6 +21,7 @@ import Control.Exception (throw, SomeException)
 
 import qualified Data.Map as M
 import qualified Data.List as L
+import Data.ByteString.Char8 ()
 import qualified Data.ByteString.Lazy as BS
 
 import Control.Monad.State (
@@ -71,7 +73,7 @@ evalExps eCtx (Exps aexs) = do
 
 
 eval :: EvalCtx -> S.Exp -> ErlProcess ErlTerm
-eval _ expr | htrace (show threadId ++ ": eval " ++ show expr) False = undefined
+-- eval _ expr | htrace (show threadId ++ ": eval " ++ show expr) False = undefined
 eval eCtx (Seq a b) = do
   _ <- evalExps eCtx a
   uevalExps eCtx b
@@ -323,7 +325,8 @@ evalBitString :: EvalCtx -> S.BitString Exps -> ErlProcess BS.ByteString
 evalBitString eCtx (BitString e params) = do
   ErlNum v <- uevalExps eCtx e
   pars <- mapM (uevalExps eCtx) params
-  let ((ErlNum 1):(ErlNum 8):_) = htrace ("Params: " ++ (show pars)) $ pars
+  -- htrace ("Bin build params: " ++ (show pars)) $
+  let ((ErlNum 1):(ErlNum 8):_) = pars
   return $ runPut $ putWord8 $ fromInteger v
 
 receiveMatches :: EvalCtx -> [S.Alt] -> ErlProcess [Match (ErlTerm, S.Alt)]
@@ -373,6 +376,23 @@ matchPat eCtx (PTuple pat) (ErlTuple term) = do
     then foldM (\ctx (p,e) -> matchPat ctx p e) eCtx (L.zip pat term)
     else Nothing
 matchPat eCtx (PTuple pat) _ = Nothing
+
+matchPat eCtx (PBinary (p:ps)) (ErlBinary bs) | BS.length bs >= 1 = do
+  let BitString pp params = p
+      mt = newBaseModTable
+  let Right pars = mapM (runErlPure mt . Safe.uevalExps eCtx) params
+  let ((ErlNum 1):(ErlNum 8):_) = htrace ("Bin build params: " ++ (show pars)) $ pars
+  -- pp :: Hole
+  eCtx' <- matchPat eCtx pp (ErlNum $ toInteger $ BS.head bs) --HACK: assumes that we are matching bytes only
+  matchPat eCtx' (PBinary ps) (ErlBinary $ BS.tail bs)
+matchPat eCtx (PBinary []) (ErlBinary _) = Just eCtx
+matchPat _eCtx (PBinary _) _ = Nothing
+
+matchPat eCtx (PList (LL [h] t)) (ErlList (x:xs)) = do
+  eCtx' <- matchPat eCtx h x
+  matchPat eCtx' t (ErlList xs)
+matchPat eCtx (PList _) _ = Nothing
+
 matchPat eCtx (PLit lit) term = do
   let lit' = literalToTerm lit
   if lit' == term
@@ -381,10 +401,6 @@ matchPat eCtx (PLit lit) term = do
 matchPat eCtx (PVar var) term = do
   return $ setupFunctionContext eCtx ([var], ErlSeq [term])
 
-matchPat eCtx (PList (LL [h] t)) (ErlList (x:xs)) = do
-  eCtx' <- matchPat eCtx h x
-  matchPat eCtx' t (ErlList xs)
-matchPat eCtx (PList _) (ErlList _) = Nothing
 
 matchPat eCtx (PAlias (Alias var pat)) term = do
   eCtx' <- matchPat eCtx pat term
@@ -572,14 +588,3 @@ localEvaluator cmod mmt (emod, fn, args) = do
   catch ev (\(e :: SomeException) -> do
                  liftIO $ print (show e)
                  throw e)
-
-bootProc :: Process ()
-bootProc = do
-  mmt <- liftIO $ newMVar newBaseModTable
-  liftIO $ putStrLn "Boot process starting..."
-  liftIO $ putStrLn "Running"
-  pid <- spawnLocal (localEvaluator bootModule mmt ("init", "boot", [ErlList []]))
-  mref <- monitor pid
-  a <- expect :: Process ProcessMonitorNotification
-  liftIO $ print $ show a
-  return ()

@@ -30,6 +30,7 @@ main = defaultMainWithOpts
        [ testCase "rev" testRev
        , testCase "lambda" lambdaTest
        , testCase "binary" binaryTest
+       , testCase "binaryPattern" binaryPatterTest
        , testProperty "listRevRevId" propListRevRevId
        ] mempty
 
@@ -51,6 +52,8 @@ end
 
 lambdaTest :: Assertion
 lambdaTest = testInProc lambdaTestCode "lambda_test" (ErlNum 6)
+
+--TODO: add tests for bit-by-bit contruction
 
 binaryTestCode = [r|
 module 'binary_test' ['binary_test'/0]
@@ -75,6 +78,30 @@ end
 binaryTest :: Assertion
 binaryTest = testInProc binaryTestCode "binary_test" (ErlNum 6)
 
+--TODO: add tests for bit-by-bit matching
+
+binaryPatterTestCode = [r|
+module 'tested' ['binary_test'/0]
+    attributes []
+'binary_test'/0 =
+    fun () ->
+        let <Z> =
+            42
+        in
+            case #{#<1>(8,1,'integer',['unsigned'|['big']]),
+                   #<Z>(8,1,'integer',['unsigned'|['big']])}# of
+              <#{#<1>(8,1,'integer',['unsigned'|['big']]),
+                 #<Y>(8,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+                  Y
+              ( <_cor1> when 'true' ->
+                    primop 'match_fail'
+                        ({'badmatch',_cor1})
+                -| ['compiler_generated'] )
+            end
+end|]
+
+binaryPatterTest :: Assertion
+binaryPatterTest = testInProc binaryPatterTestCode "binary_test" (ErlNum 42)
 
 testProc :: String -> String -> MVar ErlTerm -> Process ()
 testProc modsrc fn res = do

@@ -1,5 +1,6 @@
 {-# LANGUAGE TemplateHaskell, DataKinds, DeriveGeneric, StandaloneDeriving,
              DeriveDataTypeable, FlexibleInstances, ScopedTypeVariables #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 -- | Main entry point to the application.
 module Main where
@@ -15,6 +16,7 @@ import Network.Transport.TCP
 
 import Control.Exception (Exception(..), throw, throwIO, SomeException)
 
+import Control.Concurrent.MVar
 import Control.Monad.State (evalStateT)
 
 import Language.Erlang.Core
@@ -42,3 +44,14 @@ main = do
       putStrLn "Running boot process..."
       runProcess node bootProc
       putStrLn "Boot process terminated"
+
+bootProc :: Process ()
+bootProc = do
+  mmt <- liftIO $ newMVar newBaseModTable
+  liftIO $ putStrLn "Boot process starting..."
+  liftIO $ putStrLn "Running"
+  pid <- spawnLocal (localEvaluator bootModule mmt ("init", "boot", [ErlList [ErlBinary "-root"]]))
+  mref <- monitor pid
+  a <- expect :: Process ProcessMonitorNotification
+  liftIO $ print $ show a
+  return ()
