@@ -457,6 +457,7 @@ applyELambda eCtx expressions names args =
   in applyFun fun args
 
 applyFun :: ErlFun -> [ErlTerm] -> ErlProcess ErlTerm
+applyFun (ErlCoreFun ectx vars exps) args = applyStdFun (expsToErlFun ectx vars exps) args
 applyFun (ErlStdFun fun) args = applyStdFun fun args
 applyFun (ErlPureFun fun) args = applyPureFun fun args
 
@@ -481,27 +482,6 @@ expsToErlFun eCtx argNames expressions =
           --   BifsCommon.bif_badarg_num
   in
    ErlStdFun fn
-
-findExportedFunction :: String -> ErlArity -> [FunDef] -> Maybe FunDef
-findExportedFunction name arity funs =
-  let
-    test = \(FunDef nm _) ->
-      let (Function ((Atom n), a)) = unann nm
-      in (n == name) && (a == arity)
-  in
-   L.find test funs
-
-findFn :: String -> ErlArity -> [FunDef] -> Maybe ErlTerm
-findFn name arity funs = do
-  (FunDef _ aexp) <- findExportedFunction name arity funs
-  let (Lambda vars exprs) = unann aexp
-  return $ ErlLambda (show $ hash exprs) vars newEvalCtx exprs
-
-findModFn :: S.Module -> String -> ErlArity -> Maybe ErlTerm
-findModFn m name arity =
-  let Module _modName _exports _attributes funs = m
-  in
-   findFn name arity funs
 
 evalModFn :: S.Module -> String -> [ErlTerm] -> ErlProcess ErlTerm
 evalModFn emod fn args = do

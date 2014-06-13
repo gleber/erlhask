@@ -102,20 +102,25 @@ type ErlFunHead = (FunName, ErlArity)
 type ErlFunTable = M.Map ErlFunHead ErlFun
 
 -- TODO: unify both types to store lambdas with Maybe S.Exprs
-data ErlModule = EModule ModName S.Module |
-                 HModule ModName ErlFunTable
+data ErlModule = ErlModule {mod_name :: ModName,
+                            source :: Maybe S.Module,
+                            funs :: ErlFunTable}
                deriving (Generic, Typeable)
 
-modName :: ErlModule -> ModName
-modName (EModule mn _) = mn
-modName (HModule mn _) = mn
-
 instance Show ErlModule where
-  show (EModule modname _exps) = concat ["EModule<", modname, ">"]
-  show (HModule modname _funs) = concat ["HModule<", modname, ">"]
+  show mod = concat ["Module<", mod_name mod, "/",
+                     isModuleInternal mod, "/",
+                     show $ M.size (funs mod), ">"]
+
+isModuleInternal :: ErlModule -> String
+isModuleInternal m = case source m of
+  Just _ -> "file"
+  Nothing -> "internal"
 
 bootModule :: ErlModule
-bootModule = HModule "boot" (M.empty)
+bootModule = ErlModule { mod_name = "boot",
+                         source = Nothing,
+                         funs = M.empty }
 
 data EvalCtx = ECtx VarTable
      deriving (Generic, Eq, Ord) --HACK: Ord is added to simplify
@@ -216,7 +221,8 @@ type ErlGeneric a = Monad m => ErlProcessEvaluator m a
 type ErlStdFun = ([ErlTerm] -> ErlProcess ErlTerm)
 type ErlPureFun = ([ErlTerm] -> ErlGeneric ErlTerm)
 
-data ErlFun = ErlStdFun ErlStdFun |
+data ErlFun = ErlCoreFun EvalCtx [Var] S.Exps |
+              ErlStdFun ErlStdFun |
               ErlPureFun ErlPureFun
 
 newEvalCtx :: EvalCtx

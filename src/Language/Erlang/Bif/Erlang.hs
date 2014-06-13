@@ -277,54 +277,56 @@ erlang_is_integer _ = bif_badarg_num
 
 exportedMod :: ErlModule
 exportedMod =
-  HModule "erlang" (M.fromList [(("display", 1), ErlStdFun erlang_display),
-                                (("!", 2), ErlStdFun erlang_send),
-                                (("self", 0), ErlStdFun erlang_self),
-                                (("error", 1), ErlStdFun erlang_error),
-                                (("throw", 1), ErlStdFun erlang_throw),
-                                (("get_stacktrace", 0), ErlStdFun erlang_get_stacktrace),
-                                (("exit", 1), ErlStdFun erlang_exit),
+  ErlModule { mod_name = "erlang",
+              source = Nothing,
+              funs = M.fromList [(("display", 1), ErlStdFun erlang_display),
+                                 (("!", 2), ErlStdFun erlang_send),
+                                 (("self", 0), ErlStdFun erlang_self),
+                                 (("error", 1), ErlStdFun erlang_error),
+                                 (("throw", 1), ErlStdFun erlang_throw),
+                                 (("get_stacktrace", 0), ErlStdFun erlang_get_stacktrace),
+                                 (("exit", 1), ErlStdFun erlang_exit),
 
-                                -- (("spawn", 1), erlang_spawn) - implemented directly in the ErlEval
-                                -- (("apply", 2), erlang_apply) - implemented directly in the ErlEval
-                                (("process_flag", 2), ErlStdFun erlang_process_flag),
+                                 -- (("spawn", 1), erlang_spawn) - implemented directly in the ErlEval
+                                 -- (("apply", 2), erlang_apply) - implemented directly in the ErlEval
+                                 (("process_flag", 2), ErlStdFun erlang_process_flag),
 
-                                (("register", 2), ErlStdFun erlang_register),
-                                (("whereis", 1), ErlStdFun erlang_whereis),
+                                 (("register", 2), ErlStdFun erlang_register),
+                                 (("whereis", 1), ErlStdFun erlang_whereis),
 
-                                (("link", 1), ErlStdFun erlang_link),
+                                 (("link", 1), ErlStdFun erlang_link),
 
-                                (("==", 2), ErlPureFun erlang_eq),
-                                (("/=", 2), ErlPureFun erlang_neq),
-                                (("=<", 2), ErlPureFun erlang_lte),
-                                (("<", 2), ErlPureFun erlang_lt),
-                                ((">=", 2), ErlPureFun erlang_gte),
-                                ((">", 2), ErlPureFun erlang_gt),
-                                (("=:=", 2), ErlPureFun erlang_eq_ex),
-                                (("=/=", 2), ErlPureFun erlang_neq_ex),
+                                 (("==", 2), ErlPureFun erlang_eq),
+                                 (("/=", 2), ErlPureFun erlang_neq),
+                                 (("=<", 2), ErlPureFun erlang_lte),
+                                 (("<", 2), ErlPureFun erlang_lt),
+                                 ((">=", 2), ErlPureFun erlang_gte),
+                                 ((">", 2), ErlPureFun erlang_gt),
+                                 (("=:=", 2), ErlPureFun erlang_eq_ex),
+                                 (("=/=", 2), ErlPureFun erlang_neq_ex),
 
-                                (("not", 1), ErlPureFun erlang_not),
-                                (("and", 2), ErlPureFun erlang_and),
-                                (("or", 2), ErlPureFun erlang_or),
-                                (("xor", 2), ErlPureFun erlang_xor),
+                                 (("not", 1), ErlPureFun erlang_not),
+                                 (("and", 2), ErlPureFun erlang_and),
+                                 (("or", 2), ErlPureFun erlang_or),
+                                 (("xor", 2), ErlPureFun erlang_xor),
 
-                                (("-", 2), ErlPureFun erlang_minus),
-                                (("+", 2), ErlPureFun erlang_plus),
-                                (("float", 1), ErlPureFun erlang_float),
-                                (("++", 2), ErlPureFun erlang_concat),
+                                 (("-", 2), ErlPureFun erlang_minus),
+                                 (("+", 2), ErlPureFun erlang_plus),
+                                 (("float", 1), ErlPureFun erlang_float),
+                                 (("++", 2), ErlPureFun erlang_concat),
 
-                                (("list_to_binary", 1), ErlPureFun erlang_list_to_binary),
-                                (("binary_to_list", 1), ErlPureFun erlang_binary_to_list),
+                                 (("list_to_binary", 1), ErlPureFun erlang_list_to_binary),
+                                 (("binary_to_list", 1), ErlPureFun erlang_binary_to_list),
 
-                                (("atom_to_list", 1), ErlPureFun erlang_atom_to_list),
-                                (("list_to_atom", 1), ErlPureFun erlang_list_to_atom),
+                                 (("atom_to_list", 1), ErlPureFun erlang_atom_to_list),
+                                 (("list_to_atom", 1), ErlPureFun erlang_list_to_atom),
 
-                                (("list_to_tuple", 1), ErlPureFun erlang_list_to_tuple),
-                                (("tuple_to_list", 1), ErlPureFun erlang_tuple_to_list),
+                                 (("list_to_tuple", 1), ErlPureFun erlang_list_to_tuple),
+                                 (("tuple_to_list", 1), ErlPureFun erlang_tuple_to_list),
 
-                                (("is_float", 1), ErlPureFun erlang_is_float),
-                                (("is_integer", 1), ErlPureFun erlang_is_integer),
-                                (("is_atom", 1), ErlPureFun erlang_is_atom),
-                                (("is_list", 1), ErlPureFun erlang_is_list),
-                                (("is_binary", 1), ErlPureFun erlang_is_binary)
-                               ])
+                                 (("is_float", 1), ErlPureFun erlang_is_float),
+                                 (("is_integer", 1), ErlPureFun erlang_is_integer),
+                                 (("is_atom", 1), ErlPureFun erlang_is_atom),
+                                 (("is_list", 1), ErlPureFun erlang_is_list),
+                                 (("is_binary", 1), ErlPureFun erlang_is_binary)
+                                ] }

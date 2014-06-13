@@ -38,7 +38,7 @@ ensureModule moduleName = do
       Just emodule ->
         return (mt, emodule)
       Nothing -> do
-        Right (emodule, modTable') <- liftIO $ loadEModule mt moduleName
+        Right (emodule, modTable') <- liftIO $ loadCoreModule mt moduleName
         return (modTable', emodule)
   return emodule
 
@@ -54,18 +54,21 @@ safeGetModule moduleName = do
                                  reason = ErlAtom "module_not_found",
                                  stack = s})
 
-loadEModule :: ModTable -> String -> IO (Either String (ErlModule, ModTable))
-loadEModule modTable moduleName = do
-  res <- loadEModule0 moduleName
+loadCoreModule :: ModTable -> String -> IO (Either String (ErlModule, ModTable))
+loadCoreModule modTable moduleName = do
+  res <- loadCoreModule0 moduleName
   case res of
     Left er -> return $ Left er
     Right m -> do
-      let m' = EModule moduleName m
+      let m' = ErlModule { mod_name = moduleName,
+                           source = Just m,
+                           funs = exportedFuns m }
       let modTable' = M.insert moduleName m' modTable
       return $ Right (m', modTable')
 
-loadEModule0 :: String -> IO (Either String S.Module)
-loadEModule0 moduleName = do
+loadCoreModule0 :: String -> IO (Either String S.Module)
+loadCoreModule0 moduleName = do
+  --TODO: replace with full path and leave path search to code server
   fileContent <- readFile ("samples/" ++ moduleName ++ ".core")
   case P.parseModule fileContent of
     Left er ->  do
@@ -73,3 +76,32 @@ loadEModule0 moduleName = do
     Right m -> do
       -- putStrLn $ prettyPrint m
       return $ Right (unann m)
+
+findExportedFunction :: String -> ErlArity -> [FunDef] -> Maybe FunDef
+findExportedFunction name arity funs =
+  let
+    test = \(FunDef nm _) ->
+      let (Function ((Atom n), a)) = unann nm
+      in (n == name) && (a == arity)
+  in
+   L.find test funs
+
+findFn :: String -> ErlArity -> [FunDef] -> Maybe ErlTerm
+findFn name arity funs = do
+  (FunDef _ aexp) <- findExportedFunction name arity funs
+  let (Lambda vars exprs) = unann aexp
+  return $ ErlLambda (show $ hash exprs) vars newEvalCtx exprs
+
+findModFn :: S.Module -> String -> ErlArity -> Maybe ErlTerm
+findModFn m name arity =
+  let Module _modName _exports _attributes funs = m
+  in
+   findFn name arity funs
+
+exportedFuns :: S.Module -> [ErlFun]
+exportedFuns (Module name exports _ defs) =
+  (flip L.map) exports (\(name, arity) ->
+                         let Just fd = findExportedFunction name arity defs
+                             FunDef _ aexp = fd
+                             Lambda exp = unann exp
+                         in
