@@ -19,8 +19,9 @@ random_uniform _ = bif_badarg_num
 
 random :: ErlModule
 random =
-  HModule "random" (
-    M.fromList [(("uniform", 0), ErlStdFun random_uniform)])
+  ErlModule { mod_name = "random",
+              source = Nothing,
+              funs = M.fromList [(("uniform", 0), ErlStdFun random_uniform)] }
 
 modules :: [(String, ErlModule)]
 modules =

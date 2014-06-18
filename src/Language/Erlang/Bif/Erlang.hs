@@ -59,20 +59,19 @@ erlang_whereis _ = bif_badarg_num
 --
 
 erlang_error, erlang_display :: ErlStdFun
-
 erlang_error (arg:[]) = do
-  stack <- ask
-  throwError $ ErlException { exc_type = ExcError, reason = arg, stack = stack }
+  stack <- getStackTrace
+  throwError $ ErlException { exc_type = ExcError, reason = arg, stacktrace = stack }
 erlang_error _ = bif_badarg_num
 
 erlang_exit (arg:[]) = do
-  stack <- ask
-  throwError $ ErlException { exc_type = ExcExit, reason = arg, stack = stack }
+  stack <- getStackTrace
+  throwError $ ErlException { exc_type = ExcExit, reason = arg, stacktrace = stack }
 erlang_exit _ = bif_badarg_num
 
 erlang_throw (arg:[]) = do
-  stack <- ask
-  throwError $ ErlException { exc_type = ExcThrow, reason = arg, stack = stack }
+  stack <- getStackTrace
+  throwError $ ErlException { exc_type = ExcThrow, reason = arg, stacktrace = stack }
 erlang_throw _ = bif_badarg_num
 
 erlang_get_stacktrace [] = do
@@ -81,7 +80,7 @@ erlang_get_stacktrace [] = do
     Nothing ->
       return $ ErlList []
     Just exc' ->
-      return $ stacktraceToTerm (tail $ stack exc')
+      return $ stacktraceToTerm (tail $ stacktrace exc')
 erlang_get_stacktrace _ = bif_badarg_num
 
 --
@@ -287,8 +286,9 @@ exportedMod =
                                  (("get_stacktrace", 0), ErlStdFun erlang_get_stacktrace),
                                  (("exit", 1), ErlStdFun erlang_exit),
 
-                                 -- (("spawn", 1), erlang_spawn) - implemented directly in the ErlEval
-                                 -- (("apply", 2), erlang_apply) - implemented directly in the ErlEval
+                                 -- (("spawn", 1), ErlStdFun erlang_spawn) - implemented directly in the ErlEval
+                                 -- (("apply", 2), ErlStdFun erlang_apply) - ditto
+                                 -- (("spawn_link", 1), ErlStdFun erlang_spawn_link), -- ditto
                                  (("process_flag", 2), ErlStdFun erlang_process_flag),
 
                                  (("register", 2), ErlStdFun erlang_register),

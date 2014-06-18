@@ -5,6 +5,8 @@ FlexibleInstances, RankNTypes, FlexibleContexts, ImpredicativeTypes #-}
 
 module Language.Erlang.Core where
 
+import Debug.HTrace
+
 import Data.Unique
 import Data.Binary
 import qualified Data.ByteString.Lazy as BS
@@ -16,7 +18,7 @@ import Control.Distributed.Process
 import Control.Concurrent.MVar
 
 import Control.Monad.Identity (Identity, runIdentity)
-import Control.Monad.RWS.Strict (RWST, runRWST)
+import Control.Monad.RWS.Strict (RWST, runRWST, ask, asks, local)
 import Control.Monad.Error (ErrorT, Error, runErrorT, throwError, strMsg)
 import qualified Data.Map as M
 import qualified Data.List as L
@@ -139,6 +141,11 @@ data StackFrame = Frame { mfa :: ErlMFA,
 
 instance Binary StackFrame
 
+getStackTrace :: ErlGeneric [StackFrame]
+getStackTrace = do
+  s <- asks stack
+  return $ s
+
 stackToTerm :: StackFrame -> ErlTerm
 stackToTerm Frame { mfa = (mod, fun, arity) } =
   ErlTuple $ [ErlAtom mod,
@@ -169,13 +176,13 @@ excTypeToTerm t =
 excToTerm :: ErlException -> ErlTerm
 excToTerm ErlException { exc_type = t,
                          reason = r,
-                         stack = s } =
+                         stacktrace = s } =
   let t' = excTypeToTerm t
   in ErlTuple [t', r, stacktraceToTerm s]
 
 data ErlException = ErlException { exc_type :: ErlExceptionType,
                                    reason :: ErlTerm,
-                                   stack :: [StackFrame] }
+                                   stacktrace :: [StackFrame] }
                   deriving (Generic, Show, Typeable)
 
 instance Binary ErlException
@@ -183,53 +190,99 @@ instance Binary ErlException
 instance Error ErlException where
   strMsg str = ErlException { exc_type = ExcUnknown,
                               reason = ErlAtom str,
-                              stack = [] }
+                              stacktrace = [] }
 
 
 
 data ErlPState = ErlPState {
-  curr_mod :: ErlModule, -- move to reader
   last_exc :: Maybe ErlException,
   -- either global ModTable in normal evaluator or local ModTable for
   -- safe evaluator
   mod_table :: Either (MVar ModTable) ModTable,
   proc_dict :: ProcDict }
 
-type ErlProcessState m = RWST [StackFrame] [String] ErlPState m
+-- Stack info stored in a reader monad, including stacktrace, current
+-- module and previous module
+data StackInfo = StackInfo { stack :: [StackFrame],
+                             -- currently evaluated module, always set
+                             -- when MFA is applied
+                             curr_mod :: ErlModule,
+                             -- module which was previously evaluated,
+                             -- necessary to switch back this module
+                             -- to curr_mod in erlang:apply/1 and similar
+                             prev_mod :: Maybe ErlModule
+}
+               deriving Show
+
+type ErlProcessState m = RWST StackInfo [String] ErlPState m
 type ErlProcessEvaluator m = ErrorT ErlException (ErlProcessState m)
 type ErlProcess = ErlProcessEvaluator Process
 
+withFrame :: StackFrame -> ErlProcess a -> ErlProcess a
+withFrame frame cont =
+  local (\si -> si { stack =  frame:(stack si) }) cont
+
+withModule :: ErlModule -> ErlProcess a -> ErlProcess a
+withModule mod cont =
+  local (\si -> si { prev_mod = Just (curr_mod si),
+                     curr_mod = mod }) cont
+
+popModule :: ErlProcess a -> ErlProcess a
+popModule cont =
+  local (\si ->
+          let Just pm = prev_mod si
+          in si { prev_mod = Nothing,
+                  curr_mod = pm }) cont
+
+getCurrentModule :: ErlGeneric ErlModule
+getCurrentModule = do
+  cm <- asks curr_mod
+  return cm
+
+getPreviousModule :: ErlProcess ErlModule
+getPreviousModule = do
+  Just pm <- asks prev_mod
+  return pm
+
 runErlProcess :: ErlProcess ErlTerm -> ErlModule -> MVar ModTable -> ProcDict -> Process (Either ErlException ErlTerm)
 runErlProcess p cm mmt pd = do
-  (res, _, _) <- runRWST (runErrorT p) [] (ErlPState { last_exc = Nothing,
-                                                       curr_mod = cm,
-                                                       mod_table = Left mmt,
-                                                       proc_dict = pd })
+  let si = StackInfo { curr_mod = cm,
+                       prev_mod = Nothing,
+                       stack = [] }
+  (res, _, _) <- runRWST (runErrorT p) si (ErlPState { last_exc = Nothing,
+                                                             mod_table = Left mmt,
+                                                             proc_dict = pd })
   return res
 
 type ErlPure = ErlProcessEvaluator Identity
 
 runErlPure :: ModTable -> ErlPure a -> Either ErlException a
 runErlPure mt p =
-  let (res, _, _) = runIdentity $ runRWST (runErrorT p) [] (ErlPState {curr_mod = bootModule,
-                                                                       last_exc = Nothing,
-                                                                       proc_dict = newProcDict,
-                                                                       mod_table = Right mt})
+  let si = StackInfo { curr_mod = bootModule,
+                       prev_mod = Nothing,
+                       stack = [] }
+      (res, _, _) = runIdentity $
+                    runRWST (runErrorT p) si (ErlPState {last_exc = Nothing,
+                                                         proc_dict = newProcDict,
+                                                         mod_table = Right mt})
   in res
 
 type ErlGeneric a = Monad m => ErlProcessEvaluator m a
 type ErlStdFun = ([ErlTerm] -> ErlProcess ErlTerm)
 type ErlPureFun = ([ErlTerm] -> ErlGeneric ErlTerm)
 
-data ErlFun = ErlCoreFun EvalCtx [Var] S.Exps |
-              ErlStdFun ErlStdFun |
-              ErlPureFun ErlPureFun
+data ErlFun = ErlCoreFun [Var] S.Exps | -- Function defined in .core file, equivalent to ErlLambda without context
+              ErlStdFun ErlStdFun | -- Built-in function with side effects
+              ErlPureFun ErlPureFun -- Built-in function without side effects
 
 newEvalCtx :: EvalCtx
 newEvalCtx = ECtx M.empty
 
 newProcDict :: ProcDict
 newProcDict = M.empty
+
+newModTable :: ModTable
+newModTable = M.empty
 
 atom_ok = ErlAtom "ok"
 atom_undefined = ErlAtom "undefined"

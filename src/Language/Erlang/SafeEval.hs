@@ -242,14 +242,11 @@ applyMFA modname fn args = do
 applyFunInMod :: ErlModule -> FunName -> [ErlTerm] -> ErlPure ErlTerm
 applyFunInMod erlmod fn args = do
   let arity = toInteger (length args)
-  case erlmod of
-    EModule _ emodule -> do
-      errorL ["Should call only BIFs in safe eval mode"]
-    HModule modname funs -> do
-      let fun = M.lookup (fn, arity) funs `forceMaybeL` ["Function not found for:", showFunCall modname fn args]
-      applyFun fun args
+  let fun = M.lookup (fn, arity) (funs erlmod) `forceMaybeL` ["Function not found for:", showFunCall (mod_name erlmod) fn args]
+  applyFun fun args
 
 applyFun :: ErlFun -> [ErlTerm] -> ErlPure ErlTerm
+applyFun (ErlCoreFun _ _) args = errorL ["Can't run non-BIFs function in Safe mode."]
 applyFun (ErlStdFun fun) args = errorL ["Can't run non-pure function in Safe mode."]
 applyFun (ErlPureFun fun) args = applyPureFun fun args
 

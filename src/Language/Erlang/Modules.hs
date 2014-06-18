@@ -9,6 +9,7 @@ import Language.CoreErlang.Syntax as S
 import qualified Data.Map as M
 import qualified Data.List as L
 import Data.Char as C
+import Data.Hashable
 
 import Data.Either.Utils
 
@@ -25,6 +26,10 @@ import Control.Concurrent.MVar (readMVar, modifyMVarMasked)
 import Language.Erlang.Core
 import Language.Erlang.Lang
 
+merge :: ErlModule -> ErlModule -> ErlModule
+merge a b =
+  b { funs = M.union (funs a) (funs b) }
+
 getModTable :: ErlProcess ModTable
 getModTable = do
   Left mvar <- gets mod_table
@@ -38,7 +43,7 @@ ensureModule moduleName = do
       Just emodule ->
         return (mt, emodule)
       Nothing -> do
-        Right (emodule, modTable') <- liftIO $ loadCoreModule mt moduleName
+        Right (emodule, modTable') <- liftIO $ addCoreModule mt moduleName
         return (modTable', emodule)
   return emodule
 
@@ -49,22 +54,23 @@ safeGetModule moduleName = do
     Just emodule ->
       return emodule
     Nothing -> do
-      s <- ask
+      s <- getStackTrace
       throwError (ErlException { exc_type = ExcUnknown,
                                  reason = ErlAtom "module_not_found",
-                                 stack = s})
+                                 stacktrace = s})
 
-loadCoreModule :: ModTable -> String -> IO (Either String (ErlModule, ModTable))
-loadCoreModule modTable moduleName = do
-  res <- loadCoreModule0 moduleName
-  case res of
-    Left er -> return $ Left er
-    Right m -> do
-      let m' = ErlModule { mod_name = moduleName,
-                           source = Just m,
-                           funs = exportedFuns m }
-      let modTable' = M.insert moduleName m' modTable
-      return $ Right (m', modTable')
+loadCoreModule :: String -> IO (Either String ErlModule)
+loadCoreModule moduleName = do
+  Right m <- loadCoreModule0 moduleName
+  return $ Right ErlModule { mod_name = moduleName,
+                             source = Just m,
+                             funs = exportedFuns m }
+
+addCoreModule :: ModTable -> String -> IO (Either String (ErlModule, ModTable))
+addCoreModule modTable moduleName = do
+  Right m <- loadCoreModule moduleName
+  let modTable' = M.insert moduleName m modTable
+  return $ Right (m, modTable')
 
 loadCoreModule0 :: String -> IO (Either String S.Module)
 loadCoreModule0 moduleName = do
@@ -98,10 +104,11 @@ findModFn m name arity =
   in
    findFn name arity funs
 
-exportedFuns :: S.Module -> [ErlFun]
+exportedFuns :: S.Module -> ErlFunTable
 exportedFuns (Module name exports _ defs) =
-  (flip L.map) exports (\(name, arity) ->
-                         let Just fd = findExportedFunction name arity defs
-                             FunDef _ aexp = fd
-                             Lambda exp = unann exp
-                         in
+  M.fromList $ (flip L.map) exports (\(Function (Atom name, arity)) ->
+                                      let Just fd = findExportedFunction name arity defs
+                                          FunDef _ aexp = fd
+                                          Lambda argNames exps = unann aexp
+                                      in
+                                       ((name, arity), ErlCoreFun argNames exps))

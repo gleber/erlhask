@@ -29,7 +29,7 @@ import Control.Monad.State (
   modify,
   evalStateT)
 
-import Control.Monad.RWS (gets, local)
+import Control.Monad.RWS (gets, ask)
 
 import Control.Monad (foldM)
 import Control.Monad.Trans.Class (lift)
@@ -75,7 +75,7 @@ evalExps eCtx (Exps aexs) = do
 eval :: EvalCtx -> S.Exp -> ErlProcess ErlTerm
 -- eval _ expr | htrace (show threadId ++ ": eval " ++ show expr) False = undefined
 eval eCtx (Seq a b) = do
-  _ <- evalExps eCtx a
+  evalExps eCtx a
   uevalExps eCtx b
 
 eval _ (Lit l) = return $ literalToTerm l
@@ -87,6 +87,11 @@ eval eCtx (Let (var,val) exps) = do
   let eCtx' = setupFunctionContext eCtx (var,value)
   uevalExps eCtx' exps
 
+eval (ECtx varTable) (Var var) = do
+  case M.lookup var varTable of
+    Just val -> return val
+    Nothing -> dieL ["Missing binding?", var, show $ M.toList varTable]
+
 eval eCtx (ModCall (mod0, arity0) args0) = do
   let uevalExps' = uevalExps eCtx
   emod <- uevalExps' mod0
@@ -94,33 +99,27 @@ eval eCtx (ModCall (mod0, arity0) args0) = do
   args <- mapM uevalExps' args0
   modCall emod arity args
 
-eval (ECtx varTable) (Var var) = do
-  case M.lookup var varTable of
-    Just val -> return val
-    Nothing -> dieL ["Missing binding?", var, show $ M.toList varTable]
-
 eval eCtx (App lambda args) = do
-  cmod <- gets curr_mod
-  case cmod of
-    EModule _ curMod -> do
-      let uevalExps' = uevalExps eCtx
-      lambda' <- uevalExps' lambda
-      args' <- mapM uevalExps' args
-      case lambda' of
-        (ErlFunName name arity) -> do
-          let frame = Frame { mfa = (modName cmod, name, arity),
-                              args = Nothing,
-                              pos = FilePos "" 0 }
-          local (\s -> (frame:s)) $ evalModFn curMod name args'
-        fun@(ErlLambda name argNames _eCtx _exprs) -> do
-          let frame = Frame { mfa = (modName cmod, name, toInteger $ length argNames),
-                              args = Nothing,
-                              pos = FilePos "" 0 }
-          local (\s -> (frame:s)) $ applyFunLambda fun args'
-        _ ->
-          dieL ["Can not apply", show lambda']
+  cmod <- getCurrentModule
+  -- () <- htrace ("Module on App: " ++ (show cmod)) $ return ()
+  let uevalExps' = uevalExps eCtx
+      modName = mod_name cmod
+      Just modSource = source cmod
+  lambda' <- uevalExps' lambda
+  args' <- mapM uevalExps' args
+  case lambda' of
+    (ErlFunName name arity) -> do
+      let frame = Frame { mfa = (modName, name, arity),
+                          args = Nothing,
+                          pos = FilePos "" 0 }
+      withFrame frame $ evalModFn modSource name args'
+    fun@(ErlLambda name argNames _eCtx _exprs) -> do
+      let frame = Frame { mfa = (modName, name, toInteger $ length argNames),
+                          args = Nothing,
+                          pos = FilePos "" 0 }
+      withFrame frame $ applyFunLambda fun args'
     _ ->
-      errorL ["Unable to apply things in ", show cmod]
+      bif_badarg_t --dieL ["Can not apply", show lambda']
 
 eval _ (Fun (Function ((Atom name), arity))) =
   return $ ErlFunName name arity
@@ -160,7 +159,7 @@ eval eCtx (Rec alts (TimeOut time timeoutExps)) = do
           uevalExps eCtx' exprs
 
 eval eCtx (Try body (bodyBind, success) (catchVars, catchBody)) = do
-  cm <- gets curr_mod
+  cm <- getCurrentModule
   pd <- gets proc_dict
   let catcher = (\exc@(ErlException { exc_type = excType, reason = term }) -> do
                     let vars = (L.map (: []) catchVars)
@@ -176,29 +175,11 @@ eval eCtx (Try body (bodyBind, success) (catchVars, catchBody)) = do
   let eCtx' = setupFunctionContext eCtx (bodyBind, val)
   uevalExps eCtx' success
 
--- Catch
---   (Exp
---    (Constr
---     (ModCall
---      (Exp
---       (Constr
---        (Lit
---         (LAtom
---          (Atom \"erlang\")))),Exp
---                 (Constr
---                 (Lit
---                 (LAtom
---                 (Atom \"apply\"))))) [Exp
---                 (Constr
---                 (Var \"F\")),Exp
---                 (Constr
---                 (Lit LNil))])))
-
 eval eCtx (Catch body) = do
   let catcher = (\exc@(ErlException { exc_type = excType, reason = term }) -> do
                     modify $ \ps ->
                       ps { last_exc = Just exc }
-                    let x = ErlTuple $ [term, stacktraceToTerm (stack exc)]
+                    let x = ErlTuple $ [term, stacktraceToTerm (stacktrace exc)]
                     case excType of
                       ExcThrow ->
                         return $ x
@@ -206,113 +187,6 @@ eval eCtx (Catch body) = do
                         return $ ErlTuple $ [excTypeToTerm(excType), x]
                 )
   (uevalExps eCtx body) `catchError` catcher
-
--- ga =
---   Binary [BitString
---           (Exp (Constr (Lit (LInt 1))))
---           [Exp (Constr (Lit (LInt 8))),
---            Exp (Constr (Lit (LInt 1))),
---            Exp (Constr (Lit (LAtom (Atom "integer")))),
---            Exp (Constr (List (LL [Exp (Constr (Lit (LAtom (Atom "unsigned"))))]
---                               (Exp (Constr (List (L [Exp (Constr (Lit (LAtom (Atom "big"))))])))))))],
---           BitString (
---             Exp (
---                Constr (
---                   Lit (
---                      LInt 2)))) [Exp (
---                                     Constr (
---                                        Lit (
---                                           LInt 8))),
---                                  Exp (
---                                    Constr (
---                                       Lit (
---                                          LInt 1))),
---                                  Exp (
---                                    Constr (
---                                       Lit (
---                                          LAtom (
---                                             Atom "integer")))),
---                                  Exp (
---                                    Constr (
---                                       List (
---                                          LL [Exp (
---                                                 Constr (
---                                                    Lit (
---                                                       LAtom (
---                                                          Atom "unsigned"))))] (
---                                             Exp (
---                                                Constr (
---                                                   List (
---                                                      L [Exp (
---                                                            Constr (
---                                                               Lit (
---                                                                  LAtom (
---                                                                     Atom "big"))))])))))))],
---           BitString (
---             Exp (
---                Constr (
---                   Lit (
---                      LInt 3)))) [Exp (
---                                     Constr (
---                                        Lit (
---                                           LInt 8))),
---                                  Exp (
---                                    Constr (
---                                       Lit (
---                                          LInt 1))),
---                                  Exp (
---                                    Constr (
---                                       Lit (
---                                          LAtom (
---                                             Atom "integer")))),
---                                  Exp (
---                                    Constr (
---                                       List (
---                                          LL [Exp (
---                                                 Constr (
---                                                    Lit (
---                                                       LAtom (
---                                                          Atom "unsigned"))))] (
---                                             Exp (
---                                                Constr (
---                                                   List (
---                                                      L [Exp (
---                                                            Constr (
---                                                               Lit (
---                                                                  LAtom (
---                                                                     Atom "big"))))])))))))],
---           BitString (
---             Exp (
---                Constr (
---                   Var "Y"))) [Exp (
---                                  Constr (
---                                     Lit (
---                                        LInt 8))),
---                               Exp (
---                                 Constr (
---                                    Lit (
---                                       LInt 1))),
---                               Exp (
---                                 Constr (
---                                    Lit (
---                                       LAtom (
---                                          Atom "integer")))),
---                               Exp (
---                                 Constr (
---                                    List (
---                                       LL [Exp (
---                                              Constr (
---                                                 Lit (
---                                                    LAtom (
---                                                       Atom "unsigned"))))] (
---                                          Exp (
---                                             Constr (
---                                                List (
---                                                   L [Exp (
---                                                         Constr (
---                                                            Lit (
---                                                               LAtom (
---                                                                  Atom "big"))))])))))))]]
 
 eval eCtx (Binary bs) = do
   bs' <- mapM (evalBitString eCtx) bs
@@ -328,6 +202,10 @@ evalBitString eCtx (BitString e params) = do
   -- htrace ("Bin build params: " ++ (show pars)) $
   let ((ErlNum 1):(ErlNum 8):_) = pars
   return $ runPut $ putWord8 $ fromInteger v
+
+--
+-- RECEIVE
+--
 
 receiveMatches :: EvalCtx -> [S.Alt] -> ErlProcess [Match (ErlTerm, S.Alt)]
 receiveMatches eCtx0 alts = do
@@ -345,6 +223,10 @@ receiveMatches eCtx0 alts = do
              (\(msg :: ErlTerm) -> do
                  return (msg, alt)
              )) :: Match (ErlTerm, S.Alt)) alts
+
+--
+-- CASES AND PATTERNS
+--
 
 matchAlts :: EvalCtx -> [S.Alt] -> ErlSeq -> ErlProcess ErlTerm
 matchAlts _ [] _ = dieL ["No matching clauses"]
@@ -379,7 +261,7 @@ matchPat eCtx (PTuple pat) _ = Nothing
 
 matchPat eCtx (PBinary (p:ps)) (ErlBinary bs) | BS.length bs >= 1 = do
   let BitString pp params = p
-      mt = newBaseModTable
+      mt = newPreloadedModTable
   let Right pars = mapM (runErlPure mt . Safe.uevalExps eCtx) params
   let ((ErlNum 1):(ErlNum 8):_) = htrace ("Bin build params: " ++ (show pars)) $ pars
   -- pp :: Hole
@@ -406,8 +288,8 @@ matchPat eCtx (PAlias (Alias var pat)) term = do
   eCtx' <- matchPat eCtx pat term
   return $ setupFunctionContext eCtx ([var], ErlSeq [term])
 
-matchPat _eCtx pat term = do
-  errorL ["matchPat: Not implemented matching of", show pat, "with", show term]
+matchPat _eCtx _pat _term = do
+  errorL ["matchPat: Not implemented matching of", show _pat, "with", show _term]
 
 matchGuard :: EvalCtx -> S.Guard -> ErlProcess Bool
 matchGuard eCtx (Guard exprs) = do
@@ -417,47 +299,51 @@ matchGuard eCtx (Guard exprs) = do
       return True
     _ -> return False
 
+--
+-- FUNCTIONS AND APPLICATIONS
+--
+-- Function-like things in Erlang:
+-- * Expressions:
+--   * F(A..) = CoreErlang::Apply
+--   * M:F(A..) = CoreErlang::ModCall
+-- * Values
+--   * fun m:f/N = ErlTerm::ErlFunName
+--   * fun (A..) -> ... end. = ErlTerm::ErlLambda
+-- * Modules
+--   * exression-defined function = ErlCoreFun
+--   * sidefull BIF = ErlStdFun
+--   * pure BIF = ErlPureFun
+
 modCall :: ErlTerm -> ErlTerm -> [ErlTerm] -> ErlProcess ErlTerm
 modCall (ErlAtom emod) (ErlAtom fn) args =
   applyMFA emod fn args
 
 modCall emod fn args =
+  --TODO: what about abstract modules?
   dieL ["Wrong type of call", show emod, show fn, show args]
 
 applyMFA :: ModName -> FunName -> [ErlTerm] -> ErlProcess ErlTerm
+-- applyMFA modname fn args | htrace ("applyMFA " ++ modname ++ ":" ++ fn) $ False = undefined
 applyMFA modname fn args = do
   erlmod <- ensureModule modname
-  applyFunInMod erlmod fn args
-
-applyFunInMod :: ErlModule -> FunName -> [ErlTerm] -> ErlProcess ErlTerm
-applyFunInMod erlmod fn args = do
   let arity = (toInteger (length args))
-  let frame = Frame { mfa = (modName erlmod, fn, arity),
+      modName = mod_name erlmod
+      frame = Frame { mfa = (modName, fn, arity),
                       args = Nothing,
                       pos = FilePos "" 0 }
-  case erlmod of
-    EModule _ emodule -> do
-      -- evalModFn :: EvalCtx -> S.Module -> String -> ErlArity -> ErlProcess ErlTerm
-      modify $ \ps ->
-        ps { curr_mod = erlmod }
-      local (\s -> (frame:s)) $ evalModFn emodule fn args
-    HModule modname funs -> do
-      let fun = M.lookup (fn, arity) funs `forceMaybeL` ["Function not found for:", showFunCall modname fn args]
-      local (\s -> (frame:s)) $ applyFun fun args
+      fun = M.lookup (fn, arity) (funs erlmod) `forceMaybeL` ["Function not found for:", showFunCall modName fn args]
+  withModule erlmod $ applyFun fun args
 
 applyFunLambda :: ErlTerm -> [ErlTerm] -> ErlProcess ErlTerm
 applyFunLambda (ErlLambda _name names ctx exprs) args =
-  applyELambda ctx exprs names args
+  let fun = expsToErlFun ctx names exprs
+  in applyFun fun args
 applyFunLambda _ _ =
   errorL ["Wrong type for applyFunLambda call, dummy!"]
 
-applyELambda :: EvalCtx -> S.Exps -> [Var] -> [ErlTerm] -> ErlProcess ErlTerm
-applyELambda eCtx expressions names args =
-  let fun = expsToErlFun eCtx names expressions
-  in applyFun fun args
-
 applyFun :: ErlFun -> [ErlTerm] -> ErlProcess ErlTerm
-applyFun (ErlCoreFun ectx vars exps) args = applyStdFun (expsToErlFun ectx vars exps) args
+applyFun (ErlCoreFun vars exps) args = applyFun fun args
+  where fun = expsToErlFun newEvalCtx vars exps
 applyFun (ErlStdFun fun) args = applyStdFun fun args
 applyFun (ErlPureFun fun) args = applyPureFun fun args
 
@@ -494,20 +380,21 @@ evalModFn emod fn args = do
 
 erlang_apply :: ErlStdFun
 erlang_apply [lambda, ErlList args] = do
+  cmod <- getPreviousModule
+  let Just coreMod = source cmod
+      mn = mod_name cmod
   case lambda of
     (ErlFunName name arity) -> do
-      (EModule mn curMod) <- gets curr_mod
       let frame = Frame { mfa = (mn, name, arity),
                           args = Just $ [lambda, ErlList args],
                           pos = FilePos "" 0 }
-      local (\s -> (frame:s)) $ evalModFn curMod name args
+      popModule $ withFrame frame $ evalModFn coreMod name args
     fun@(ErlLambda name _argNames _eCtx _exprs) -> do
       let arity = (toInteger (length args))
-      (EModule mn curMod) <- gets curr_mod
       let frame = Frame { mfa = (mn, name, arity),
                           args = Just $ [lambda, ErlList args],
                           pos = FilePos "" 0 }
-      local (\s -> (frame:s)) $ applyFunLambda fun args
+      popModule $ withFrame frame $ applyFunLambda fun args
     _ -> do
       liftIO $ putStrLn "erlang:apply badarg type"
       BifsCommon.bif_badarg_t
@@ -516,7 +403,7 @@ erlang_apply _ = bif_badarg_num
 erlang_spawn :: ErlStdFun
 erlang_spawn [lambda] = do
   Left mmt <- gets mod_table
-  cmod <- gets curr_mod
+  cmod <- getPreviousModule
   pid <- lift $ lift $ spawnLocal $ localEvaluator cmod mmt ("erlang", "apply", [lambda, ErlList []])
   return $ ErlPid pid
 erlang_spawn _ = bif_badarg_num
@@ -528,15 +415,33 @@ erlang_spawn_link [lambda] = do
   return $ p
 erlang_spawn_link _ = bif_badarg_num
 
-newBaseModTable :: ModTable
-newBaseModTable =
-  M.adjust adjustErlangModule "erlang" Bifs.newBifsModTable
+preloadedModuleNames :: [ModName]
+preloadedModuleNames = ["erlang", "erl_prim_loader", "init", "otp_ring0",
+                        "prim_file", "prim_inet", "prim_zip", "zlib"]
 
-adjustErlangModule :: ErlModule -> ErlModule
-adjustErlangModule (HModule "erlang" funs) =
-  HModule "erlang" $ adjustErlangModule' funs
-adjustErlangModule _ =
-  errorL ["Wrong module, dummy!"]
+newPreloadedModTable :: ModTable
+newPreloadedModTable = do
+  let e = M.singleton "erlang" erlangEvalMod
+      bifModules = Bifs.newBifsModTable
+      mods = [e, bifModules] :: [ModTable]
+  M.unionsWith merge mods
+
+data Hole
+
+newBaseModTable :: IO ModTable
+newBaseModTable = do
+  cores <- mapM loadCoreModule preloadedModuleNames
+  let Right cores' = sequence cores
+  let mt = M.fromList $ zip preloadedModuleNames cores'
+      e = M.singleton "erlang" erlangEvalMod
+      bifModules = Bifs.newBifsModTable
+  return $ M.unionsWith merge [mt, e, bifModules]
+
+erlangEvalMod :: ErlModule
+erlangEvalMod =
+  ErlModule { mod_name = "erlang",
+              source = Nothing,
+              funs = evalBifs }
 
 evalBifs :: ErlFunTable
 evalBifs =
@@ -545,18 +450,13 @@ evalBifs =
     (("spawn_link", 1), ErlStdFun erlang_spawn_link),
     (("spawn", 1), ErlStdFun erlang_spawn)]
 
-adjustErlangModule' :: ErlFunTable -> ErlFunTable
-adjustErlangModule' funs =
-  M.union evalBifs funs
-
 -- TODO: remote evaluator can not accept MVar, so instead it should
 -- ask boot/kernel/init process for MVar ModTable (does not work,
 -- since local coordinator can not send me a message); so instead I'd
 -- have to send a message to coordinator on remote node, which would
 -- 'spawnLocal' actual process and supply it MVar ModTable
-localEvaluator :: ErlModule -> MVar ModTable -> (ModName, FunName, [ErlTerm]) -> Process ()
-localEvaluator cmod mmt (emod, fn, args) = do
-  let runner = applyMFA emod fn args
+localRunner :: ErlModule -> MVar ModTable -> ErlProcess ErlTerm -> Process ()
+localRunner cmod mmt runner = do
   let ev = do
         r <- runErlProcess runner cmod mmt newProcDict
         case r of
@@ -568,3 +468,8 @@ localEvaluator cmod mmt (emod, fn, args) = do
   catch ev (\(e :: SomeException) -> do
                  liftIO $ print (show e)
                  throw e)
+
+localEvaluator :: ErlModule -> MVar ModTable -> (ModName, FunName, [ErlTerm]) -> Process ()
+localEvaluator cmod mmt (emod, fn, args) = do
+  let runner = applyMFA emod fn args
+  localRunner cmod mmt runner

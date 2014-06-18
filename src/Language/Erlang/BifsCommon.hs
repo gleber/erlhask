@@ -9,10 +9,10 @@ import Control.Monad.RWS (ask)
 
 bif_badarg :: String -> ErlGeneric a
 bif_badarg s = do
-  stack <- ask
+  stack <- getStackTrace
   throwError (ErlException { exc_type = ExcError,
                              reason = ErlAtom s,
-                             stack = stack })
+                             stacktrace = stack })
 
 bif_badarg_num :: ErlGeneric a
 bif_badarg_num = bif_badarg "badarity"

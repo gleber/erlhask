@@ -47,7 +47,8 @@ main = do
 
 bootProc :: Process ()
 bootProc = do
-  mmt <- liftIO $ newMVar newBaseModTable
+  mt <- liftIO $ newBaseModTable
+  mmt <- liftIO $ newMVar mt
   liftIO $ putStrLn "Boot process starting..."
   liftIO $ putStrLn "Running"
   pid <- spawnLocal (localEvaluator bootModule mmt ("init", "boot", [ErlList [ErlBinary "-root"]]))
