@@ -22,13 +22,14 @@ import Control.Monad.State (liftIO)
 import Control.Distributed.Process
 import Control.Distributed.Process.Closure
 import Control.Distributed.Process.Node
-import Network.Transport.TCP
+import Network.Transport.Chan
 
 
 main :: IO ()
 main = defaultMainWithOpts
        [ testCase "rev" testRev
        , testCase "lambda" lambdaTest
+       , testCase "binary" binaryTest
        , testProperty "listRevRevId" propListRevRevId
        ] mempty
 
@@ -51,6 +52,30 @@ end
 lambdaTest :: Assertion
 lambdaTest = testInProc lambdaTestCode "lambda_test" (ErlNum 6)
 
+binaryTestCode = [r|
+module 'binary_test' ['binary_test'/0]
+    attributes []
+'binary_test'/0 =
+    fun () ->
+        let <Y> =
+            0
+        in  let <B> =
+                #{#<1>(8,1,'integer',['unsigned'|['big']]),
+                  #<2>(8,1,'integer',['unsigned'|['big']]),
+                  #<3>(8,1,'integer',['unsigned'|['big']]),
+                  #<Y>(8,1,'integer',['unsigned'|['big']])}#
+            in  let <L> =
+                    call 'erlang':'binary_to_list'
+                        (B)
+                in
+                    call 'lists':'sum'
+                        (L)
+end
+|]
+binaryTest :: Assertion
+binaryTest = testInProc binaryTestCode "binary_test" (ErlNum 6)
+
+
 testProc :: String -> String -> MVar ErlTerm -> Process ()
 testProc modsrc fn res = do
   let Right m = P.parseModule modsrc
@@ -59,16 +84,20 @@ testProc modsrc fn res = do
   mmt <- liftIO $ newMVar mt
   let runner = applyMFA "tested" fn []
   let ev = do
-        Right term <- runErlProcess runner bootModule mmt newProcDict
-        liftIO $ putMVar res term
-        return ()
-  catch ev (\(e :: SomeException) -> do
-                 liftIO $ print (show e)
-                 throw e)
+        r <- runErlProcess runner bootModule mmt newProcDict
+        case r of
+          Right term -> do
+            liftIO $ putMVar res term
+            return ()
+          Left e ->
+            error (show e)
+  ev `catch` \(e :: SomeException) -> do
+    liftIO $ print (show e)
+    throw e
 
 testInProc :: String -> String -> ErlTerm -> Assertion
 testInProc modsrc fn expected = do
-  Right tr <- createTransport "localhost" "8999" defaultTCPParameters
+  tr <- createTransport
   node <- newLocalNode tr initRemoteTable
   res <- newEmptyMVar
   runProcess node (testProc modsrc fn res)

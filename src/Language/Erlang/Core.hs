@@ -7,6 +7,7 @@ module Language.Erlang.Core where
 
 import Data.Unique
 import Data.Binary
+import qualified Data.ByteString.Lazy as BS
 import Data.Typeable
 import GHC.Generics
 
@@ -34,16 +35,19 @@ type FunName = String
 type ErlArity = Integer
 type Key = String
 
-data ErlTerm = ErlList [ErlTerm] |
-               ErlTuple [ErlTerm] |
-               ErlAtom String |
-               ErlNum Integer |
+-- Ordering: number < atom < reference < fun < port < pid < tuple < list < bit string
+data ErlTerm = ErlNum Integer |
                ErlFloat Double |
+               ErlAtom String |
+               ErlRef Unique |
                ErlFunName FunName ErlArity |
                ErlLambda FunName [Var] EvalCtx S.Exps |
+               ErlPort | --FIXME: not yet implemented
                ErlPid ProcessId |
-               ErlRef Unique
-             deriving (Generic, Typeable, Eq)
+               ErlTuple [ErlTerm] |
+               ErlList [ErlTerm] |
+               ErlBinary BS.ByteString
+             deriving (Generic, Typeable, Eq, Ord)
 -- ErlBitstring |
 
 isTimeout :: ErlTerm -> Bool
@@ -86,6 +90,7 @@ instance Show ErlTerm where
   show (ErlLambda name _ _ _) = "#Fun<" ++ name ++ ">"
   show (ErlPid pid) = concat ["<", show pid, ">"]
   show (ErlRef uniq) = concat ["#Ref<", show (hashUnique uniq), ">"]
+  show (ErlBinary bs) = concat ["<<", L.intercalate "," $ L.map show (BS.unpack bs), ">>"]
 
 type VarTable = M.Map String ErlTerm
 type ProcDict = M.Map String ErlTerm
@@ -113,7 +118,8 @@ bootModule :: ErlModule
 bootModule = HModule "boot" (M.empty)
 
 data EvalCtx = ECtx VarTable
-     deriving (Generic, Eq)
+     deriving (Generic, Eq, Ord) --HACK: Ord is added to simplify
+                                 --deriving of Ord for ErlTerm
 instance Binary EvalCtx
 
 data FilePos = FilePos String Integer
