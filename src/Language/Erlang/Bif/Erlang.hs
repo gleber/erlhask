@@ -25,7 +25,6 @@ import Language.Erlang.Core
 import Language.Erlang.BifsCommon
 
 import Control.Concurrent.MVar
-import Data.Global
 import Data.Binary
 import qualified Data.ByteString.Lazy as BS
 

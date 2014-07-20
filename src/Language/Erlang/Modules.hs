@@ -59,29 +59,27 @@ safeGetModule moduleName = do
                                  reason = ErlAtom "module_not_found",
                                  stacktrace = s})
 
+parseCoreModule :: String -> String -> Either String ErlModule
+parseCoreModule moduleName moduleSource = do
+  case P.parseModule moduleSource of
+    Left er ->  do
+      Left $ show er
+    Right m -> do
+      -- putStrLn $ prettyPrint m
+      Right $ ErlModule { mod_name = moduleName,
+                          source = Just (unann m),
+                          funs = exportedFuns (unann m) }
+
 loadCoreModule :: String -> IO (Either String ErlModule)
 loadCoreModule moduleName = do
-  Right m <- loadCoreModule0 moduleName
-  return $ Right ErlModule { mod_name = moduleName,
-                             source = Just m,
-                             funs = exportedFuns m }
+  fileContent <- readFile ("samples/" ++ moduleName ++ ".core")
+  return $ parseCoreModule moduleName fileContent
 
 addCoreModule :: ModTable -> String -> IO (Either String (ErlModule, ModTable))
 addCoreModule modTable moduleName = do
   Right m <- loadCoreModule moduleName
   let modTable' = M.insert moduleName m modTable
   return $ Right (m, modTable')
-
-loadCoreModule0 :: String -> IO (Either String S.Module)
-loadCoreModule0 moduleName = do
-  --TODO: replace with full path and leave path search to code server
-  fileContent <- readFile ("samples/" ++ moduleName ++ ".core")
-  case P.parseModule fileContent of
-    Left er ->  do
-      return $ Left $ show er
-    Right m -> do
-      -- putStrLn $ prettyPrint m
-      return $ Right (unann m)
 
 findExportedFunction :: String -> ErlArity -> [FunDef] -> Maybe FunDef
 findExportedFunction name arity funs =

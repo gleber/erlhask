@@ -261,7 +261,7 @@ matchPat eCtx (PTuple pat) _ = Nothing
 
 matchPat eCtx (PBinary (p:ps)) (ErlBinary bs) | BS.length bs >= 1 = do
   let BitString pp params = p
-      mt = newPreloadedModTable
+      mt = newPureModTable
   let Right pars = mapM (runErlPure mt . Safe.uevalExps eCtx) params
   let ((ErlNum 1):(ErlNum 8):_) = htrace ("Bin build params: " ++ (show pars)) $ pars
   -- pp :: Hole
@@ -419,23 +419,19 @@ preloadedModuleNames :: [ModName]
 preloadedModuleNames = ["erlang", "erl_prim_loader", "init", "otp_ring0",
                         "prim_file", "prim_inet", "prim_zip", "zlib"]
 
-newPreloadedModTable :: ModTable
-newPreloadedModTable = do
+newPureModTable :: ModTable
+newPureModTable = do
   let e = M.singleton "erlang" erlangEvalMod
       bifModules = Bifs.newBifsModTable
-      mods = [e, bifModules] :: [ModTable]
-  M.unionsWith merge mods
-
-data Hole
+  M.unionsWith merge [e, bifModules]
 
 newBaseModTable :: IO ModTable
 newBaseModTable = do
   cores <- mapM loadCoreModule preloadedModuleNames
   let Right cores' = sequence cores
-  let mt = M.fromList $ zip preloadedModuleNames cores'
-      e = M.singleton "erlang" erlangEvalMod
+  let pure = newPureModTable
       bifModules = Bifs.newBifsModTable
-  return $ M.unionsWith merge [mt, e, bifModules]
+  return $ M.unionsWith merge [pure, bifModules]
 
 erlangEvalMod :: ErlModule
 erlangEvalMod =

@@ -14,6 +14,7 @@ import qualified Data.Map as M
 import Control.Concurrent.MVar
 import Language.Erlang.Eval
 import Language.Erlang.Core
+import Language.Erlang.Modules
 import qualified Language.CoreErlang.Parser as P
 import Language.Erlang.Lang
 import Control.Exception (throw, SomeException)
@@ -105,9 +106,9 @@ binaryPatterTest = testInProc binaryPatterTestCode "binary_test" (ErlNum 42)
 
 testProc :: String -> String -> MVar ErlTerm -> Process ()
 testProc modsrc fn res = do
-  let Right m = P.parseModule modsrc
-      m' = EModule "tested" (unann m)
-      mt = M.insert "tested" m' newBaseModTable
+  let Right m = parseCoreModule "tested" modsrc
+      mt0 = newPureModTable
+      mt = M.insert "tested" m mt0
   mmt <- liftIO $ newMVar mt
   let runner = applyMFA "tested" fn []
   let ev = do
