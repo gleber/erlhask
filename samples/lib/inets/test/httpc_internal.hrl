@@ -1,1 +1,0 @@
-../src/http_client/httpc_internal.hrl
