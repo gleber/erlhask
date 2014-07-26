@@ -57,7 +57,9 @@ erlang_whereis _ = bif_badarg_num
 -- ERRORS RAISING AND HANDLING
 --
 
-erlang_error, erlang_display :: ErlStdFun
+erlang_nif_error, erlang_error, erlang_display :: ErlStdFun
+erlang_nif_error = erlang_error
+
 erlang_error (arg:[]) = do
   stack <- getStackTrace
   throwError $ ErlException { exc_type = ExcError, reason = arg, stacktrace = stack }
@@ -253,6 +255,10 @@ erlang_is_atom [ErlAtom _] = return $ atom_true
 erlang_is_atom [_] = return $ atom_false
 erlang_is_atom _ = bif_badarg_num
 
+erlang_is_tuple [ErlTuple _] = return $ atom_true
+erlang_is_tuple [_] = return $ atom_false
+erlang_is_tuple _ = bif_badarg_num
+
 erlang_is_list [ErlList _] = return $ atom_true
 erlang_is_list [_] = return $ atom_false
 erlang_is_list _ = bif_badarg_num
@@ -281,6 +287,7 @@ exportedMod =
                                  (("!", 2), ErlStdFun erlang_send),
                                  (("self", 0), ErlStdFun erlang_self),
                                  (("error", 1), ErlStdFun erlang_error),
+                                 (("nif_error", 1), ErlStdFun erlang_nif_error),
                                  (("throw", 1), ErlStdFun erlang_throw),
                                  (("get_stacktrace", 0), ErlStdFun erlang_get_stacktrace),
                                  (("exit", 1), ErlStdFun erlang_exit),
@@ -326,6 +333,7 @@ exportedMod =
                                  (("is_float", 1), ErlPureFun erlang_is_float),
                                  (("is_integer", 1), ErlPureFun erlang_is_integer),
                                  (("is_atom", 1), ErlPureFun erlang_is_atom),
-                                 (("is_list", 1), ErlPureFun erlang_is_list),
+                                 (("is_tuple", 1), ErlPureFun erlang_is_tuple),
+                                 (("is_tuple", 1), ErlPureFun erlang_is_tuple),
                                  (("is_binary", 1), ErlPureFun erlang_is_binary)
                                 ] }
