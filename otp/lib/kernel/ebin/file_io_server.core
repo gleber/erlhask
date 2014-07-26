@@ -1,0 +1,2731 @@
+module 'file_io_server' ['count_and_find'/3,
+			 'format_error'/1,
+			 'module_info'/0,
+			 'module_info'/1,
+			 'start'/3,
+			 'start_link'/3]
+    attributes []
+'format_error'/1 =
+    %% Line 39
+    fun (_cor0) ->
+	case _cor0 of
+	  <{_X_Line,'file_io_server',Reason}> when 'true' ->
+	      %% Line 40
+	      call 'io_lib':'format'
+		  ([126|[119]], [Reason|[]])
+	  %% Line 41
+	  <{_X_Line,Mod,Reason}> when 'true' ->
+	      %% Line 42
+	      call Mod:'format_error'
+		  (Reason)
+	  %% Line 43
+	  <'invalid_unicode'> when 'true' ->
+	      %% Line 44
+	      call 'io_lib':'format'
+		  ([99|[97|[110|[110|[111|[116|[32|[116|[114|[97|[110|[115|[108|[97|[116|[101|[32|[102|[114|[111|[109|[32|[85|[84|[70|[45|[56]]]]]]]]]]]]]]]]]]]]]]]]]]], [])
+	  %% Line 45
+	  <ErrorId> when 'true' ->
+	      %% Line 46
+	      call 'erl_posix_msg':'message'
+		  (ErrorId)
+	end
+'start'/3 =
+    %% Line 48
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Owner,FileName,ModeList>
+	      when %% Line 49
+		try
+		    let <_cor3> =
+			call 'erlang':'is_pid'
+			    (Owner)
+		    in  ( let <_cor6> =
+			      ( case <> of
+				  ( <>
+					when ( call 'erlang':'is_list'
+						(FileName)
+					    -| ['compiler_generated'] ) ->
+					'true'
+				    -| ['compiler_generated'] )
+				  ( <> when 'true' ->
+					( call 'erlang':'is_binary'
+					      (FileName)
+					  -| ['compiler_generated'] )
+				    -| ['compiler_generated'] )
+				end
+				-| ['compiler_generated'] )
+			  in  let <_cor8> =
+				  ( call 'erlang':'is_list'
+					(ModeList)
+				    -| ['compiler_generated'] )
+			      in  let <_cor9> =
+				      ( call 'erlang':'and'
+					    (( _cor6
+					       -| ['compiler_generated'] ), _cor8)
+					-| ['compiler_generated'] )
+				  in  ( call 'erlang':'and'
+					    (_cor3, _cor9)
+					-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 50
+	      apply 'do_start'/4
+		  ('spawn', Owner, FileName, ModeList)
+	  ( <_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'start',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'start_link'/3 =
+    %% Line 52
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Owner,FileName,ModeList>
+	      when %% Line 53
+		try
+		    let <_cor3> =
+			call 'erlang':'is_pid'
+			    (Owner)
+		    in  ( let <_cor6> =
+			      ( case <> of
+				  ( <>
+					when ( call 'erlang':'is_list'
+						(FileName)
+					    -| ['compiler_generated'] ) ->
+					'true'
+				    -| ['compiler_generated'] )
+				  ( <> when 'true' ->
+					( call 'erlang':'is_binary'
+					      (FileName)
+					  -| ['compiler_generated'] )
+				    -| ['compiler_generated'] )
+				end
+				-| ['compiler_generated'] )
+			  in  let <_cor8> =
+				  ( call 'erlang':'is_list'
+					(ModeList)
+				    -| ['compiler_generated'] )
+			      in  let <_cor9> =
+				      ( call 'erlang':'and'
+					    (( _cor6
+					       -| ['compiler_generated'] ), _cor8)
+					-| ['compiler_generated'] )
+				  in  ( call 'erlang':'and'
+					    (_cor3, _cor9)
+					-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 54
+	      apply 'do_start'/4
+		  ('spawn_link', Owner, FileName, ModeList)
+	  ( <_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'start_link',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'do_start'/4 =
+    %% Line 59
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <Self> =
+	    %% Line 60
+	    call 'erlang':'self'
+		()
+	in  let <Ref> =
+		%% Line 61
+		call 'erlang':'make_ref'
+		    ()
+	    in  let <Utag> =
+		    %% Line 62
+		    call 'erlang':'dt_spread_tag'
+			('true')
+		in  let <_cor10> =
+			%% Line 65
+			( fun () ->
+			      do  %% Line 66
+				  call 'erlang':'dt_restore_tag'
+				      (Utag)
+				  %% Line 68
+				  case apply 'parse_options'/1
+					   (_cor0) of
+				    %% Line 69
+				    <{ReadMode,UnicodeMode,Opts}> when 'true' ->
+					%% Line 70
+					case call 'prim_file':'open'
+						 (_cor1, Opts) of
+					  %% Line 71
+					  <Error = {'error',Reason}> when 'true' ->
+					      do  %% Line 72
+						  call 'erlang':'!'
+						      (Self, {Ref,Error})
+						  %% Line 73
+						  call 'erlang':'exit'
+						      (Reason)
+					  %% Line 74
+					  <{'ok',Handle}> when 'true' ->
+					      let <M> =
+						  %% Line 76
+						  call 'erlang':'monitor'
+						      ('process', _cor2)
+					      in  do  %% Line 77
+						      call 'erlang':'!'
+							  (Self, {Ref,'ok'})
+						      %% Line 78
+						      apply 'server_loop'/1
+							  (%% Line 79
+							   {'state',Handle,_cor2,%% Line 81
+										 M,%% Line 82
+										   #{}#,%% Line 83
+											ReadMode,%% Line 84
+												 UnicodeMode})
+					  ( <_cor8> when 'true' ->
+						primop 'match_fail'
+						    ({'case_clause',_cor8})
+					    -| ['compiler_generated'] )
+					end
+				    %% Line 86
+				    <Error1 = {'error',Reason1}> when 'true' ->
+					do  %% Line 87
+					    call 'erlang':'!'
+						(Self, {Ref,Error1})
+					    %% Line 88
+					    call 'erlang':'exit'
+						(Reason1)
+				    ( <_cor9> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor9})
+				      -| ['compiler_generated'] )
+				  end
+			  -| [{'id',{0,0,'-do_start/4-fun-0-'}}] )
+		    in  let <Pid> =
+			    %% Line 64
+			    call 'erlang':_cor3
+				(_cor10)
+			in  do  %% Line 91
+				call 'erlang':'dt_restore_tag'
+				    (Utag)
+				let <Mref> =
+				    %% Line 92
+				    call 'erlang':'monitor'
+					('process', Pid)
+				in  %% Line 93
+				    receive
+				      %% Line 94
+				      <{_cor17,Error = {'error',_X_Reason}}>
+					  when call 'erlang':'=:='
+						(_cor17,
+						 Ref) ->
+					  do  %% Line 95
+					      call 'erlang':'demonitor'
+						  (Mref, ['flush'])
+					      %% Line 96
+					      Error
+				      %% Line 97
+				      <{_cor18,'ok'}>
+					  when call 'erlang':'=:='
+						(_cor18,
+						 Ref) ->
+					  do  %% Line 98
+					      call 'erlang':'demonitor'
+						  (Mref)
+					      %% Line 99
+					      receive
+						%% Line 100
+						<{'DOWN',_cor19,_cor20,_cor21,Reason}>
+						    when call 'erlang':'=:='
+							  (_cor19,
+							   Mref) ->
+						    %% Line 101
+						    {'error',Reason}
+					      after %% Line 102
+						    0 ->
+						%% Line 103
+						{'ok',Pid}
+				      %% Line 105
+				      <{'DOWN',_cor22,_cor23,_cor24,Reason}>
+					  when call 'erlang':'=:='
+						(_cor22,
+						 Mref) ->
+					  %% Line 106
+					  {'error',Reason}
+				    after 'infinity' ->
+				      'true'
+'parse_options'/1 =
+    %% Line 110
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 111
+	    apply 'expand_encoding'/1
+		(_cor0)
+	in  %% Line 111
+	    apply 'parse_options'/4
+		(_cor1, 'list', 'latin1', [])
+'parse_options'/4 =
+    %% Line 113
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[],'list',Uni,Acc> when 'true' ->
+	      let <_cor4> =
+		  %% Line 114
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  %% Line 114
+		  {'list',Uni,['binary'|_cor4]}
+	  %% Line 115
+	  <[],'binary',Uni,Acc> when 'true' ->
+	      let <_cor5> =
+		  %% Line 116
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  %% Line 116
+		  {'binary',Uni,_cor5}
+	  %% Line 117
+	  <[{'encoding',Encoding}|T],RMode,_cor11,Acc> when 'true' ->
+	      %% Line 118
+	      case apply 'valid_enc'/1
+		       (Encoding) of
+		%% Line 119
+		<{'ok',ExpandedEnc}> when 'true' ->
+		    %% Line 120
+		    apply 'parse_options'/4
+			(T, RMode, ExpandedEnc, Acc)
+		%% Line 121
+		<Error = {'error',_X_Reason}> when 'true' ->
+		    %% Line 122
+		    Error
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 124
+	  <['binary'|T],_cor12,Uni,Acc> when 'true' ->
+	      %% Line 125
+	      apply 'parse_options'/4
+		  (T, 'binary', Uni, ['binary'|Acc])
+	  %% Line 126
+	  <[H|T],R,U,Acc> when 'true' ->
+	      %% Line 127
+	      apply 'parse_options'/4
+		  (T, R, U, [H|Acc])
+	  ( <_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'parse_options',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'expand_encoding'/1 =
+    %% Line 129
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 130
+	      []
+	  %% Line 131
+	  <['latin1'|T]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 132
+		  apply 'expand_encoding'/1
+		      (T)
+	      in  %% Line 132
+		  [{'encoding','latin1'}|_cor1]
+	  %% Line 133
+	  <['unicode'|T]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 134
+		  apply 'expand_encoding'/1
+		      (T)
+	      in  %% Line 134
+		  [{'encoding','unicode'}|_cor2]
+	  %% Line 135
+	  <[H|T]> when 'true' ->
+	      let <_cor3> =
+		  %% Line 136
+		  apply 'expand_encoding'/1
+		      (T)
+	      in  %% Line 136
+		  [H|_cor3]
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'expand_encoding',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'valid_enc'/1 =
+    %% Line 138
+    fun (_cor0) ->
+	case _cor0 of
+	  <'latin1'> when 'true' ->
+	      %% Line 139
+	      {'ok','latin1'}
+	  %% Line 140
+	  <'utf8'> when 'true' ->
+	      %% Line 141
+	      {'ok','unicode'}
+	  %% Line 142
+	  <'unicode'> when 'true' ->
+	      %% Line 143
+	      {'ok','unicode'}
+	  %% Line 144
+	  <'utf16'> when 'true' ->
+	      %% Line 145
+	      {'ok',{'utf16','big'}}
+	  %% Line 146
+	  <{'utf16','big'}> when 'true' ->
+	      %% Line 147
+	      {'ok',{'utf16','big'}}
+	  %% Line 148
+	  <{'utf16','little'}> when 'true' ->
+	      %% Line 149
+	      {'ok',{'utf16','little'}}
+	  %% Line 150
+	  <'utf32'> when 'true' ->
+	      %% Line 151
+	      {'ok',{'utf32','big'}}
+	  %% Line 152
+	  <{'utf32','big'}> when 'true' ->
+	      %% Line 153
+	      {'ok',{'utf32','big'}}
+	  %% Line 154
+	  <{'utf32','little'}> when 'true' ->
+	      %% Line 155
+	      {'ok',{'utf32','little'}}
+	  %% Line 156
+	  <_X_Other> when 'true' ->
+	      %% Line 157
+	      {'error','badarg'}
+	end
+'server_loop'/1 =
+    %% Line 160
+    fun (_cor0) ->
+	case _cor0 of
+	  <State = {'state',_cor10,_cor11,Mref,_cor12,_cor13,_cor14}> when 'true' ->
+	      %% Line 161
+	      receive
+		%% Line 162
+		<{'file_request',From,ReplyAs,Request}>
+		    when call 'erlang':'is_pid'
+			  (From) ->
+		    %% Line 163
+		    case apply 'file_request'/2
+			     (Request, State) of
+		      %% Line 164
+		      <{'reply',Reply,NewState}> when 'true' ->
+			  let <_X_> =
+			      %% Line 165
+			      apply 'file_reply'/3
+				  (From, ReplyAs, Reply)
+			  in  %% Line 166
+			      apply 'server_loop'/1
+				  (NewState)
+		      %% Line 167
+		      <{'error',Reply,NewState}> when 'true' ->
+			  let <_X_> =
+			      %% Line 170
+			      apply 'file_reply'/3
+				  (From, ReplyAs, Reply)
+			  in  %% Line 171
+			      apply 'server_loop'/1
+				  (NewState)
+		      %% Line 172
+		      <{'stop',Reason,Reply,_X_NewState}> when 'true' ->
+			  let <_X_> =
+			      %% Line 173
+			      apply 'file_reply'/3
+				  (From, ReplyAs, Reply)
+			  in  %% Line 174
+			      call 'erlang':'exit'
+				  (Reason)
+		      ( <_cor4> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor4})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 176
+		<{'io_request',From,ReplyAs,Request}>
+		    when call 'erlang':'is_pid'
+			  (From) ->
+		    %% Line 177
+		    case apply 'io_request'/2
+			     (Request, State) of
+		      %% Line 178
+		      <{'reply',Reply,NewState}> when 'true' ->
+			  let <_X_> =
+			      %% Line 179
+			      apply 'io_reply'/3
+				  (From, ReplyAs, Reply)
+			  in  %% Line 180
+			      apply 'server_loop'/1
+				  (NewState)
+		      %% Line 181
+		      <{'error',Reply,NewState}> when 'true' ->
+			  let <_X_> =
+			      %% Line 184
+			      apply 'io_reply'/3
+				  (From, ReplyAs, Reply)
+			  in  %% Line 185
+			      apply 'server_loop'/1
+				  (NewState)
+		      %% Line 186
+		      <{'stop',Reason,Reply,_X_NewState}> when 'true' ->
+			  let <_X_> =
+			      %% Line 187
+			      apply 'io_reply'/3
+				  (From, ReplyAs, Reply)
+			  in  %% Line 188
+			      call 'erlang':'exit'
+				  (Reason)
+		      ( <_cor8> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor8})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 190
+		<{'DOWN',_cor15,_cor16,_cor17,Reason}>
+		    when call 'erlang':'=:='
+			  (_cor15,
+			   Mref) ->
+		    %% Line 191
+		    call 'erlang':'exit'
+			(Reason)
+		%% Line 192
+		<_cor18> when 'true' ->
+		    %% Line 193
+		    apply 'server_loop'/1
+			(State)
+	      after 'infinity' ->
+		'true'
+	  ( <_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9})
+		  -| [{'function_name',{'server_loop',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'file_reply'/3 =
+    %% Line 196
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 197
+	call 'erlang':'!'
+	    (_cor2, {'file_reply',_cor1,_cor0})
+'io_reply'/3 =
+    %% Line 199
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 200
+	call 'erlang':'!'
+	    (_cor2, {'io_reply',_cor1,_cor0})
+'file_request'/2 =
+    %% Line 205
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'advise',Offset,Length,Advise},State = %% Line 206
+						   {'state',Handle,_cor23,_cor24,_cor25,_cor26,_cor27}> when 'true' ->
+	      %% Line 207
+	      case call 'prim_file':'advise'
+		       (Handle, Offset, Length, Advise) of
+		%% Line 208
+		<Reply = {'error',_cor28}> when 'true' ->
+		    %% Line 209
+		    {'stop','normal',Reply,State}
+		%% Line 210
+		<Reply> when 'true' ->
+		    %% Line 211
+		    {'reply',Reply,State}
+	      end
+	  %% Line 213
+	  <{'allocate',Offset,Length},State = %% Line 214
+					      {'state',Handle,_cor29,_cor30,_cor31,_cor32,_cor33}> when 'true' ->
+	      let <Reply> =
+		  %% Line 215
+		  call 'prim_file':'allocate'
+		      (Handle, Offset, Length)
+	      in  %% Line 216
+		  {'reply',Reply,State}
+	  %% Line 217
+	  <{'pread',At,Sz},State = %% Line 218
+				   {'state',Handle,_cor34,_cor35,Buf,ReadMode,_cor36}> when 'true' ->
+	      %% Line 219
+	      case apply 'position'/3
+		       (Handle, At, Buf) of
+		%% Line 220
+		<{'ok',_X_Offs}> when 'true' ->
+		    %% Line 221
+		    case call 'prim_file':'read'
+			     (Handle, Sz) of
+		      %% Line 222
+		      <{'ok',Bin}>
+			  when call 'erlang':'=:='
+				(ReadMode,
+				 'list') ->
+			  let <_cor4> =
+			      %% Line 223
+			      call 'erlang':'binary_to_list'
+				  (Bin)
+			  in  %% Line 223
+			      apply 'std_reply'/2
+				  ({'ok',_cor4}, State)
+		      %% Line 224
+		      <Reply> when 'true' ->
+			  %% Line 225
+			  apply 'std_reply'/2
+			      (Reply, State)
+		    end
+		%% Line 227
+		<Reply> when 'true' ->
+		    %% Line 228
+		    apply 'std_reply'/2
+			(Reply, State)
+	      end
+	  %% Line 230
+	  <{'pwrite',At,Data},State = %% Line 231
+				      {'state',Handle,_cor37,_cor38,Buf,_cor39,_cor40}> when 'true' ->
+	      %% Line 232
+	      case apply 'position'/3
+		       (Handle, At, Buf) of
+		%% Line 233
+		<{'ok',_X_Offs}> when 'true' ->
+		    let <_cor7> =
+			%% Line 234
+			call 'prim_file':'write'
+			    (Handle, Data)
+		    in  %% Line 234
+			apply 'std_reply'/2
+			    (_cor7, State)
+		%% Line 235
+		<Reply> when 'true' ->
+		    %% Line 236
+		    apply 'std_reply'/2
+			(Reply, State)
+	      end
+	  %% Line 238
+	  <'datasync',State = %% Line 239
+			      {'state',Handle,_cor41,_cor42,_cor43,_cor44,_cor45}> when 'true' ->
+	      %% Line 240
+	      case call 'prim_file':'datasync'
+		       (Handle) of
+		%% Line 241
+		<Reply = {'error',_cor46}> when 'true' ->
+		    %% Line 242
+		    {'stop','normal',Reply,State}
+		%% Line 243
+		<Reply> when 'true' ->
+		    %% Line 244
+		    {'reply',Reply,State}
+	      end
+	  %% Line 246
+	  <'sync',State = %% Line 247
+			  {'state',Handle,_cor47,_cor48,_cor49,_cor50,_cor51}> when 'true' ->
+	      %% Line 248
+	      case call 'prim_file':'sync'
+		       (Handle) of
+		%% Line 249
+		<Reply = {'error',_cor52}> when 'true' ->
+		    %% Line 250
+		    {'stop','normal',Reply,State}
+		%% Line 251
+		<Reply> when 'true' ->
+		    %% Line 252
+		    {'reply',Reply,State}
+	      end
+	  %% Line 254
+	  <'close',State = %% Line 255
+			   {'state',Handle,_cor53,_cor54,_cor55,_cor56,_cor57}> when 'true' ->
+	      let <_cor14> =
+		  %% Line 256
+		  call 'prim_file':'close'
+		      (Handle)
+	      in  let <_cor13> =
+		      %% Line 256
+		      call 'erlang':'setelement'
+			  (5, State, #{}#)
+		  in  %% Line 256
+		      {'stop','normal',_cor14,_cor13}
+	  %% Line 257
+	  <{'position',At},State = %% Line 258
+				   {'state',Handle,_cor65,_cor66,Buf,_cor67,_cor68}> when 'true' ->
+	      let <_cor15> =
+		  %% Line 259
+		  apply 'position'/3
+		      (Handle, At, Buf)
+	      in  %% Line 259
+		  apply 'std_reply'/2
+		      (_cor15, State)
+	  %% Line 260
+	  <'truncate',State = %% Line 261
+			      {'state',Handle,_cor69,_cor70,_cor71,_cor72,_cor73}> when 'true' ->
+	      %% Line 262
+	      case call 'prim_file':'truncate'
+		       (Handle) of
+		%% Line 263
+		<Reply = {'error',_X_Reason}> when 'true' ->
+		    let <_cor18> =
+			%% Line 264
+			call 'erlang':'setelement'
+			    (5, State, #{}#)
+		    in  %% Line 264
+			{'stop','normal',Reply,_cor18}
+		%% Line 265
+		<Reply> when 'true' ->
+		    %% Line 266
+		    {'reply',Reply,State}
+	      end
+	  %% Line 268
+	  <Unknown,State = %% Line 269
+			   {'state',_cor81,_cor82,_cor83,_cor84,_cor85,_cor86}> when 'true' ->
+	      let <Reason> = {%% Line 270
+		   'request',%% Line 270
+			     Unknown}
+	      in  %% Line 271
+		  {'error',{'error',Reason},State}
+	  ( <_cor22,_cor21> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor22,_cor21})
+		  -| [{'function_name',{'file_request',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'std_reply'/2 =
+    %% Line 273
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Reply = {'error',_cor10},State> when 'true' ->
+	      %% Line 274
+	      case State of
+		<{'state',_cor11,_cor12,_cor13,_cor14,_cor15,_cor16}> when 'true' ->
+		    let <_cor4> =
+			call 'erlang':'setelement'
+			    (5, State, #{}#)
+		    in  {'error',Reply,_cor4}
+		( <_cor17> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 275
+	  <Reply,State> when 'true' ->
+	      %% Line 276
+	      case State of
+		<{'state',_cor18,_cor19,_cor20,_cor21,_cor22,_cor23}> when 'true' ->
+		    let <_cor7> =
+			call 'erlang':'setelement'
+			    (5, State, #{}#)
+		    in  {'reply',Reply,_cor7}
+		( <_cor24> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	end
+'io_request'/2 =
+    %% Line 282
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'put_chars',Enc,Chars},State = %% Line 283
+					   {'state',_cor16,_cor17,_cor18,#{}#,_cor19,_cor20}> when 'true' ->
+	      %% Line 284
+	      apply 'put_chars'/3
+		  (Chars, Enc, State)
+	  %% Line 285
+	  <{'put_chars',Enc,Chars},State = %% Line 286
+					   {'state',Handle,_cor21,_cor22,Buf,_cor23,_cor24}> when 'true' ->
+	      %% Line 287
+	      case apply 'position'/3
+		       (Handle, 'cur', Buf) of
+		%% Line 288
+		<Reply = {'error',_cor25}> when 'true' ->
+		    let <_cor4> =
+			%% Line 289
+			call 'erlang':'setelement'
+			    (5, State, #{}#)
+		    in  %% Line 289
+			{'stop','normal',Reply,_cor4}
+		%% Line 290
+		<_cor33> when 'true' ->
+		    let <_cor7> =
+			%% Line 291
+			call 'erlang':'setelement'
+			    (5, State, #{}#)
+		    in  %% Line 291
+			apply 'put_chars'/3
+			    (Chars, Enc, _cor7)
+	      end
+	  %% Line 293
+	  <{'put_chars',Enc,Mod,Func,Args},State = %% Line 294
+						   {'state',_cor41,_cor42,_cor43,_cor44,_cor45,_cor46}> when 'true' ->
+	      let <_cor9> =
+		  catch
+		      %% Line 295
+		      call 'erlang':'apply'
+			  (Mod, Func, Args)
+	      in  %% Line 295
+		  case _cor9 of
+		    %% Line 296
+		    <Chars>
+			when let <_cor10> =
+			      call 'erlang':'is_list'
+				  (_cor9)
+			  in  let <_cor11> =
+				  call 'erlang':'is_binary'
+				      (_cor9)
+			      in  call 'erlang':'or'
+				      (_cor10, _cor11) ->
+			%% Line 297
+			apply 'io_request'/2
+			    ({'put_chars',Enc,Chars}, State)
+		    %% Line 298
+		    <_cor47> when 'true' ->
+			%% Line 299
+			{'error',{'error',Func},State}
+		  end
+	  %% Line 303
+	  <{'get_until',Enc,_X_Prompt,Mod,Func,XtraArgs},State = %% Line 304
+								 {'state',_cor48,_cor49,_cor50,_cor51,_cor52,_cor53}> when 'true' ->
+	      %% Line 305
+	      apply 'get_chars'/5
+		  ('io_lib', 'get_until', {Mod,Func,XtraArgs}, Enc, State)
+	  %% Line 306
+	  <{'get_chars',Enc,_X_Prompt,N},State = %% Line 307
+						 {'state',_cor54,_cor55,_cor56,_cor57,_cor58,_cor59}> when 'true' ->
+	      %% Line 308
+	      apply 'get_chars'/3
+		  (N, Enc, State)
+	  %% Line 318
+	  <{'get_line',Enc,_X_Prompt},State = %% Line 319
+					      {'state',_cor60,_cor61,_cor62,_cor63,_cor64,_cor65}> when 'true' ->
+	      %% Line 320
+	      apply 'get_chars'/5
+		  ('io_lib', 'collect_line', [], Enc, State)
+	  %% Line 323
+	  <{'setopts',Opts},State = %% Line 324
+				    {'state',_cor66,_cor67,_cor68,_cor69,_cor70,_cor71}>
+	      when %% Line 324
+		call 'erlang':'is_list'
+		    (Opts) ->
+	      %% Line 325
+	      apply 'setopts'/2
+		  (Opts, State)
+	  %% Line 327
+	  <'getopts',State = %% Line 328
+			     {'state',_cor72,_cor73,_cor74,_cor75,_cor76,_cor77}> when 'true' ->
+	      %% Line 329
+	      apply 'getopts'/1
+		  (State)
+	  %% Line 332
+	  <{'put_chars',Chars},State = {'state',_cor78,_cor79,_cor80,_cor81,_cor82,_cor83}> when 'true' ->
+	      %% Line 333
+	      apply 'io_request'/2
+		  ({'put_chars','latin1',Chars}, State)
+	  %% Line 334
+	  <{'put_chars',Mod,Func,Args},State = {'state',_cor84,_cor85,_cor86,_cor87,_cor88,_cor89}> when 'true' ->
+	      %% Line 335
+	      apply 'io_request'/2
+		  ({'put_chars','latin1',Mod,Func,Args}, State)
+	  %% Line 336
+	  <{'get_until',_X_Prompt,Mod,Func,XtraArgs},State = {'state',_cor90,_cor91,_cor92,_cor93,_cor94,_cor95}> when 'true' ->
+	      %% Line 337
+	      apply 'io_request'/2
+		  ({'get_until','latin1',_X_Prompt,Mod,Func,XtraArgs}, State)
+	  %% Line 338
+	  <{'get_chars',_X_Prompt,N},State = {'state',_cor96,_cor97,_cor98,_cor99,_cor100,_cor101}> when 'true' ->
+	      %% Line 339
+	      apply 'io_request'/2
+		  ({'get_chars','latin1',_X_Prompt,N}, State)
+	  %% Line 340
+	  <{'get_line',_X_Prompt},State = {'state',_cor102,_cor103,_cor104,_cor105,_cor106,_cor107}> when 'true' ->
+	      %% Line 341
+	      apply 'io_request'/2
+		  ({'get_line','latin1',_X_Prompt}, State)
+	  %% Line 343
+	  <{'requests',Requests},State = %% Line 344
+					 {'state',_cor108,_cor109,_cor110,_cor111,_cor112,_cor113}>
+	      when %% Line 344
+		call 'erlang':'is_list'
+		    (Requests) ->
+	      %% Line 345
+	      apply 'io_request_loop'/2
+		  (Requests, {'reply','ok',State})
+	  %% Line 346
+	  <Unknown,State = %% Line 347
+			   {'state',_cor114,_cor115,_cor116,_cor117,_cor118,_cor119}> when 'true' ->
+	      let <Reason> = {%% Line 348
+		   'request',%% Line 348
+			     Unknown}
+	      in  %% Line 349
+		  {'error',{'error',Reason},State}
+	  ( <_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14})
+		  -| [{'function_name',{'io_request',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'io_request_loop'/2 =
+    %% Line 354
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Result> when 'true' ->
+	      %% Line 355
+	      Result
+	  %% Line 356
+	  <[_X_Request|_X_Tail],Result = %% Line 357
+					 {'stop',_X_Reason,_X_Reply,_X_State}> when 'true' ->
+	      %% Line 358
+	      Result
+	  %% Line 359
+	  <[_X_Request|_X_Tail],Result = %% Line 360
+					 {'error',_X_Reply,_X_State}> when 'true' ->
+	      %% Line 361
+	      Result
+	  %% Line 362
+	  <[Request|Tail],%% Line 363
+			  {'reply',_X_Reply,State}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 364
+		  apply 'io_request'/2
+		      (Request, State)
+	      in  %% Line 364
+		  apply 'io_request_loop'/2
+		      (Tail, _cor2)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'io_request_loop',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'put_chars'/3 =
+    %% Line 369
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Chars,'latin1',State = {'state',Handle,_cor9,_cor10,_cor11,_cor12,'latin1'}> when 'true' ->
+	      %% Line 370
+	      case call 'prim_file':'write'
+		       (Handle, Chars) of
+		%% Line 371
+		<Reply = {'error',_cor13}> when 'true' ->
+		    %% Line 372
+		    {'stop','normal',Reply,State}
+		%% Line 373
+		<Reply> when 'true' ->
+		    %% Line 374
+		    {'reply',Reply,State}
+	      end
+	  %% Line 376
+	  <Chars,InEncoding,State = {'state',Handle,_cor14,_cor15,_cor16,_cor17,OutEncoding}> when 'true' ->
+	      %% Line 377
+	      case call 'unicode':'characters_to_binary'
+		       (Chars, InEncoding, OutEncoding) of
+		%% Line 378
+		<Bin>
+		    when call 'erlang':'is_binary'
+			  (Bin) ->
+		    %% Line 379
+		    case call 'prim_file':'write'
+			     (Handle, Bin) of
+		      %% Line 380
+		      <Reply = {'error',_cor18}> when 'true' ->
+			  %% Line 381
+			  {'stop','normal',Reply,State}
+		      %% Line 382
+		      <Reply> when 'true' ->
+			  %% Line 383
+			  {'reply',Reply,State}
+		    end
+		%% Line 385
+		<{'error',_cor19,_cor20}> when 'true' ->
+		    %% Line 386
+		    {'stop','normal',{'error',{'no_translation',InEncoding,OutEncoding}},State}
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'put_chars',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_chars'/3 =
+    %% Line 442
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <0,Enc,State = {'state',_cor90,_cor91,_cor92,_cor93,ReadMode,InEncoding}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 443
+		  apply 'cast'/4
+		      (#{}#, ReadMode, InEncoding, Enc)
+	      in  %% Line 443
+		  {'reply',_cor3,State}
+	  %% Line 444
+	  <N,Enc,State = {'state',_cor94,_cor95,_cor96,Buf,ReadMode,'latin1'}>
+	      when %% Line 445
+		try
+		    let <_cor4> =
+			call 'erlang':'is_integer'
+			    (N)
+		    in  let <_cor5> =
+			    call 'erlang':'>'
+				(N, 0)
+			in  let <_cor6> =
+				call 'erlang':'byte_size'
+				    (Buf)
+			    in  let <_cor7> =
+				    call 'erlang':'=<'
+					(N, _cor6)
+				in  let <_cor8> =
+					call 'erlang':'and'
+					    (_cor5, _cor7)
+				    in  call 'erlang':'and'
+					    (_cor4, _cor8)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 446
+	      case call 'erlang':'split_binary'
+		       (Buf, N) of
+		<{B1,B2}> when 'true' ->
+		    let <_cor13> =
+			%% Line 447
+			apply 'cast'/4
+			    (B1, ReadMode, 'latin1', Enc)
+		    in  let <_cor12> =
+			    %% Line 447
+			    call 'erlang':'setelement'
+				(5, State, B2)
+			in  %% Line 447
+			    {'reply',_cor13,_cor12}
+		( <_cor9> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor9})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 448
+	  <N,Enc,State = {'state',_cor104,_cor105,_cor106,Buf,ReadMode,'latin1'}>
+	      when %% Line 449
+		try
+		    let <_cor14> =
+			call 'erlang':'is_integer'
+			    (N)
+		    in  let <_cor15> =
+			    call 'erlang':'>'
+				(N, 0)
+			in  let <_cor16> =
+				call 'erlang':'byte_size'
+				    (Buf)
+			    in  let <_cor17> =
+				    call 'erlang':'=<'
+					(N, _cor16)
+				in  let <_cor18> =
+					call 'erlang':'and'
+					    (_cor15, _cor17)
+				    in  call 'erlang':'and'
+					    (_cor14, _cor18)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 450
+	      case call 'erlang':'split_binary'
+		       (Buf, N) of
+		<{B1,B2}> when 'true' ->
+		    let <_cor23> =
+			%% Line 451
+			apply 'cast'/4
+			    (B1, ReadMode, 'latin1', Enc)
+		    in  let <_cor22> =
+			    %% Line 451
+			    call 'erlang':'setelement'
+				(5, State, B2)
+			in  %% Line 451
+			    {'reply',_cor23,_cor22}
+		( <_cor19> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor19})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 452
+	  <N,OutEnc,State = {'state',Handle,_cor114,_cor115,Buf,ReadMode,'latin1'}>
+	      when let <_cor24> =
+		    %% Line 453
+		    call 'erlang':'is_integer'
+			(N)
+		in  let <_cor25> =
+			%% Line 453
+			call 'erlang':'>'
+			    (N, 0)
+		    in  %% Line 453
+			call 'erlang':'and'
+			    (_cor24, _cor25) ->
+	      let <BufSize> =
+		  %% Line 454
+		  call 'erlang':'byte_size'
+		      (Buf)
+	      in  let <NeedSize> =
+		      %% Line 455
+		      call 'erlang':'-'
+			  (N, BufSize)
+		  in  let <Size> =
+			  %% Line 456
+			  call 'erlang':'max'
+			      (NeedSize, 8192)
+		      in  %% Line 457
+			  case call 'prim_file':'read'
+				   (Handle, Size) of
+			    %% Line 458
+			    <{'ok',B}> when 'true' ->
+				%% Line 459
+				case <> of
+				  <>
+				      when try
+					    let <_cor30> =
+						call 'erlang':'byte_size'
+						    (B)
+					    in  let <_cor31> =
+						    call 'erlang':'+'
+							(BufSize, _cor30)
+						in  call 'erlang':'<'
+							(_cor31, N)
+					of <Try> ->
+					    Try
+					catch <T,R> ->
+					    'false' ->
+				      let <_cor32> =
+					  %% Line 460
+					  apply 'cat'/5
+					      (Buf, B, ReadMode, 'latin1', OutEnc)
+				      in  %% Line 460
+					  apply 'std_reply'/2
+					      (_cor32, State)
+				  %% Line 461
+				  <> when 'true' ->
+				      %% Line 462
+				      case call 'erlang':'split_binary'
+					       (B, NeedSize) of
+					<{B1,B2}> when 'true' ->
+					    let <_cor37> =
+						%% Line 463
+						apply 'cat'/5
+						    (Buf, B1, ReadMode, 'latin1', OutEnc)
+					    in  let <_cor36> =
+						    %% Line 463
+						    call 'erlang':'setelement'
+							(5, State, B2)
+						in  %% Line 463
+						    {'reply',_cor37,_cor36}
+					( <_cor33> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor33})
+					  -| ['compiler_generated'] )
+				      end
+				end
+			    %% Line 465
+			    <'eof'>
+				when call 'erlang':'=:='
+				      (BufSize,
+				       0) ->
+				%% Line 466
+				{'reply','eof',State}
+			    %% Line 467
+			    <'eof'> when 'true' ->
+				let <_cor38> =
+				    %% Line 468
+				    apply 'cast'/4
+					(Buf, ReadMode, 'latin1', OutEnc)
+				in  %% Line 468
+				    apply 'std_reply'/2
+					(_cor38, State)
+			    %% Line 469
+			    <Error = {'error',Reason}> when 'true' ->
+				let <_cor41> =
+				    %% Line 470
+				    call 'erlang':'setelement'
+					(5, State, #{}#)
+				in  %% Line 470
+				    {'stop',Reason,Error,_cor41}
+			    ( <_cor42> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor42})
+			      -| ['compiler_generated'] )
+			  end
+	  %% Line 472
+	  <N,OutEnc,State = {'state',Handle,_cor130,_cor131,Buf,ReadMode,InEncoding}>
+	      when let <_cor43> =
+		    %% Line 473
+		    call 'erlang':'is_integer'
+			(N)
+		in  let <_cor44> =
+			%% Line 473
+			call 'erlang':'>'
+			    (N, 0)
+		    in  %% Line 473
+			call 'erlang':'and'
+			    (_cor43, _cor44) ->
+	      %% Line 474
+	      try
+		  %% Line 477
+		  case apply 'count_and_find'/3
+			   (Buf, N, InEncoding) of
+		    <{BufCount,SplitPos}> when 'true' ->
+			%% Line 478
+			case <> of
+			  %% Line 479
+			  <>
+			      when call 'erlang':'>='
+				    (BufCount,
+				     N) ->
+			      let <_cor47> =
+				  %% Line 480
+				  case SplitPos of
+				    %% Line 481
+				    <'none'> when 'true' ->
+					{Buf,#{}#}
+				    %% Line 482
+				    <_cor132> when 'true' ->
+					call 'erlang':'split_binary'
+					    (Buf, SplitPos)
+				  end
+			      in  %% Line 480
+				  case _cor47 of
+				    <{B1,B2}> when 'true' ->
+					let <_cor52> =
+					    %% Line 484
+					    apply 'cast'/4
+						(B1, ReadMode, InEncoding, OutEnc)
+					in  let <_cor51> =
+						%% Line 484
+						call 'erlang':'setelement'
+						    (5, State, B2)
+					    in  %% Line 484
+						{'reply',_cor52,_cor51}
+				    ( <_cor48> when 'true' ->
+					  primop 'match_fail'
+					      ({'badmatch',_cor48})
+				      -| ['compiler_generated'] )
+				  end
+			  %% Line 485
+			  <> when 'true' ->
+			      let <_cor53> =
+				  %% Line 487
+				  call 'erlang':'-'
+				      (N, BufCount)
+			      in  let <NeedSize> =
+				      %% Line 487
+				      call 'erlang':'*'
+					  (_cor53, 4)
+				  in  let <Size> =
+					  %% Line 488
+					  call 'erlang':'max'
+					      (NeedSize, 8192)
+				      in  %% Line 489
+					  case call 'prim_file':'read'
+						   (Handle, Size) of
+					    %% Line 490
+					    <{'ok',B}> when 'true' ->
+						let <NewBuf> =
+						    %% Line 491
+						    call 'erlang':'list_to_binary'
+							([Buf|[B|[]]])
+						in  %% Line 492
+						    case apply 'count_and_find'/3
+							     (NewBuf, N, InEncoding) of
+						      <{NewCount,NewSplit}> when 'true' ->
+							  %% Line 493
+							  case <> of
+							    %% Line 494
+							    <>
+								when call 'erlang':'>='
+								      (NewCount,
+								       N) ->
+								let <_cor60> =
+								    %% Line 495
+								    case NewSplit of
+								      %% Line 496
+								      <'none'> when 'true' ->
+									  {NewBuf,#{}#}
+								      %% Line 497
+								      <_cor140> when 'true' ->
+									  call 'erlang':'split_binary'
+									      (NewBuf, NewSplit)
+								    end
+								in  %% Line 495
+								    case _cor60 of
+								      <{B01,B02}> when 'true' ->
+									  let <_cor65> =
+									      %% Line 499
+									      apply 'cast'/4
+										  (B01, ReadMode, InEncoding, OutEnc)
+									  in  let <_cor64> =
+										  %% Line 500
+										  call 'erlang':'setelement'
+										      (5, State, B02)
+									      in  %% Line 499
+										  {'reply',_cor65,_cor64}
+								      ( <_cor61> when 'true' ->
+									    primop 'match_fail'
+										({'badmatch',_cor61})
+									-| ['compiler_generated'] )
+								    end
+							    %% Line 501
+							    <> when 'true' ->
+								let <_cor69> =
+								    %% Line 503
+								    apply 'cast'/4
+									(NewBuf, ReadMode, InEncoding, OutEnc)
+								in  let <_cor68> =
+									%% Line 504
+									call 'erlang':'setelement'
+									    (5, State, #{}#)
+								    in  %% Line 503
+									apply 'std_reply'/2
+									    (_cor69, _cor68)
+							  end
+						      ( <_cor58> when 'true' ->
+							    primop 'match_fail'
+								({'badmatch',_cor58})
+							-| ['compiler_generated'] )
+						    end
+					    %% Line 506
+					    <'eof'>
+						when call 'erlang':'=:='
+						      (BufCount,
+						       0) ->
+						%% Line 507
+						{'reply','eof',State}
+					    %% Line 508
+					    <'eof'> when 'true' ->
+						let <_cor74> =
+						    %% Line 509
+						    apply 'cast'/4
+							(Buf, ReadMode, InEncoding, OutEnc)
+						in  let <_cor73> =
+							%% Line 509
+							call 'erlang':'setelement'
+							    (5, State, #{}#)
+						    in  %% Line 509
+							apply 'std_reply'/2
+							    (_cor74, _cor73)
+					    %% Line 510
+					    <Error = {'error',Reason}> when 'true' ->
+						let <_cor77> =
+						    %% Line 511
+						    call 'erlang':'setelement'
+							(5, State, #{}#)
+						in  %% Line 511
+						    {'stop',Reason,Error,_cor77}
+					    ( <_cor78> when 'true' ->
+						  primop 'match_fail'
+						      ({'case_clause',_cor78})
+					      -| ['compiler_generated'] )
+					  end
+			end
+		    ( <_cor45> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor45})
+		      -| ['compiler_generated'] )
+		  end
+	      of <_cor80> ->
+		  _cor80
+	      catch <_cor83,_cor82,_cor81> ->
+		  case <_cor83,_cor82,_cor81> of
+		    %% Line 515
+		    <'exit',ExError,_cor169> when 'true' ->
+			let <_cor86> =
+			    %% Line 516
+			    call 'erlang':'setelement'
+				(5, State, #{}#)
+			in  %% Line 516
+			    {'stop',ExError,{'error',ExError},_cor86}
+		    ( <_cor83,_cor82,_cor81> when 'true' ->
+			  primop 'raise'
+			      (_cor81, _cor82)
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 519
+	  <_X_N,_cor177,State = {'state',_cor178,_cor179,_cor180,_cor181,_cor182,_cor183}> when 'true' ->
+	      %% Line 520
+	      {'error',{'error','get_chars'},State}
+	  ( <_cor89,_cor88,_cor87> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor89,_cor88,_cor87})
+		  -| [{'function_name',{'get_chars',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_chars'/5 =
+    %% Line 522
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Mod,Func,XtraArg,OutEnc,State = {'state',_cor13,_cor14,_cor15,#{}#,_cor16,_cor17}> when 'true' ->
+	      %% Line 523
+	      apply 'get_chars_empty'/6
+		  (Mod, Func, XtraArg, 'start', OutEnc, State)
+	  %% Line 524
+	  <Mod,Func,XtraArg,OutEnc,State = {'state',_cor18,_cor19,_cor20,Buf,_cor21,_cor22}> when 'true' ->
+	      let <_cor7> =
+		  %% Line 525
+		  call 'erlang':'setelement'
+		      (5, State, #{}#)
+	      in  %% Line 525
+		  apply 'get_chars_apply'/7
+		      (Mod, Func, XtraArg, 'start', OutEnc, _cor7, Buf)
+	  ( <_cor12,_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'get_chars',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_chars_empty'/6 =
+    %% Line 527
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Mod,Func,XtraArg,S,'latin1',State = %% Line 528
+					       {'state',Handle,_cor16,_cor17,_cor18,ReadMode,'latin1'}> when 'true' ->
+	      let <_cor6> =
+		  %% Line 529
+		  apply 'read_size'/1
+		      (ReadMode)
+	      in  %% Line 529
+		  case call 'prim_file':'read'
+			   (Handle, _cor6) of
+		    %% Line 530
+		    <{'ok',Bin}> when 'true' ->
+			%% Line 531
+			apply 'get_chars_apply'/7
+			    (Mod, Func, XtraArg, S, 'latin1', State, Bin)
+		    %% Line 532
+		    <'eof'> when 'true' ->
+			%% Line 533
+			apply 'get_chars_apply'/7
+			    (Mod, Func, XtraArg, S, 'latin1', State, 'eof')
+		    %% Line 534
+		    <Error = {'error',Reason}> when 'true' ->
+			%% Line 535
+			{'stop',Reason,Error,State}
+		    ( <_cor7> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor7})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 537
+	  <Mod,Func,XtraArg,S,OutEnc,State = %% Line 538
+					     {'state',Handle,_cor19,_cor20,_cor21,ReadMode,_cor22}> when 'true' ->
+	      let <_cor8> =
+		  %% Line 539
+		  apply 'read_size'/1
+		      (ReadMode)
+	      in  %% Line 539
+		  case call 'prim_file':'read'
+			   (Handle, _cor8) of
+		    %% Line 540
+		    <{'ok',Bin}> when 'true' ->
+			%% Line 541
+			apply 'get_chars_apply'/7
+			    (Mod, Func, XtraArg, S, OutEnc, State, Bin)
+		    %% Line 542
+		    <'eof'> when 'true' ->
+			%% Line 543
+			apply 'get_chars_apply'/7
+			    (Mod, Func, XtraArg, S, OutEnc, State, 'eof')
+		    %% Line 544
+		    <Error = {'error',Reason}> when 'true' ->
+			%% Line 545
+			{'stop',Reason,Error,State}
+		    ( <_cor9> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor9})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor15,_cor14,_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14,_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'get_chars_empty',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_chars_notempty'/6 =
+    %% Line 547
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Mod,Func,XtraArg,S,OutEnc,State = %% Line 548
+					     {'state',Handle,_cor17,_cor18,B,ReadMode,_cor19}> when 'true' ->
+	      let <_cor6> =
+		  %% Line 549
+		  apply 'read_size'/1
+		      (ReadMode)
+	      in  %% Line 549
+		  case call 'prim_file':'read'
+			   (Handle, _cor6) of
+		    %% Line 550
+		    <{'ok',Bin}> when 'true' ->
+			let <_cor7> =
+			    %% Line 551
+			    call 'erlang':'list_to_binary'
+				([B|[Bin|[]]])
+			in  %% Line 551
+			    apply 'get_chars_apply'/7
+				(Mod, Func, XtraArg, S, OutEnc, State, _cor7)
+		    %% Line 552
+		    <'eof'> when 'true' ->
+			%% Line 553
+			case B of
+			  %% Line 554
+			  <#{}#> when 'true' ->
+			      %% Line 555
+			      apply 'get_chars_apply'/7
+				  (Mod, Func, XtraArg, S, OutEnc, State, 'eof')
+			  %% Line 556
+			  <_cor20> when 'true' ->
+			      let <_cor8> =
+				  %% Line 557
+				  apply 'invalid_unicode_error'/4
+				      (Mod, Func, XtraArg, S)
+			      in  %% Line 557
+				  {'stop','invalid_unicode',_cor8,State}
+			end
+		    %% Line 559
+		    <Error = {'error',Reason}> when 'true' ->
+			%% Line 560
+			{'stop',Reason,Error,State}
+		    ( <_cor10> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor10})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor16,_cor15,_cor14,_cor13,_cor12,_cor11> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15,_cor14,_cor13,_cor12,_cor11})
+		  -| [{'function_name',{'get_chars_notempty',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_chars_apply'/7 =
+    %% Line 564
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Mod,Func,XtraArg,S0,'latin1',State = %% Line 565
+						{'state',_cor62,_cor63,_cor64,_cor65,ReadMode,'latin1'},%% Line 565
+													Data0> when 'true' ->
+	      let <_cor8> =
+		  %% Line 566
+		  case ReadMode of
+		    %% Line 567
+		    <'list'>
+			when call 'erlang':'is_binary'
+			      (Data0) ->
+			call 'erlang':'binary_to_list'
+			    (Data0)
+		    %% Line 568
+		    <_cor66> when 'true' ->
+			Data0
+		  end
+	      in  let <_cor10> =
+		      catch
+			  %% Line 570
+			  call Mod:Func
+			      (S0, _cor8, 'latin1', XtraArg)
+		  in  %% Line 570
+		      case _cor10 of
+			%% Line 571
+			<{'stop',Result,Buf}> when 'true' ->
+			    let <_rec17> =
+				%% Line 572
+				apply 'cast_binary'/1
+				    (Buf)
+			    in  let <_cor14> =
+				    %% Line 572
+				    call 'erlang':'setelement'
+					(5, State, _rec17)
+				in  %% Line 572
+				    {'reply',Result,_cor14}
+			%% Line 573
+			<{'EXIT',Reason}> when 'true' ->
+			    let <_cor15> =
+				%% Line 574
+				apply 'err_func'/3
+				    (Mod, Func, XtraArg)
+			    in  %% Line 574
+				{'stop',Reason,{'error',_cor15},State}
+			%% Line 575
+			<S1> when 'true' ->
+			    %% Line 576
+			    apply 'get_chars_empty'/6
+				(Mod, Func, XtraArg, S1, 'latin1', State)
+		      end
+	  %% Line 578
+	  <Mod,Func,XtraArg,S0,OutEnc,State = %% Line 579
+					      {'state',_cor74,_cor75,_cor76,_cor77,ReadMode,InEnc},%% Line 579
+												   Data0> when 'true' ->
+	      %% Line 580
+	      try
+		  let <Data1,NewBuff> =
+		      %% Line 581
+		      case ReadMode of
+			%% Line 582
+			<'list'>
+			    when call 'erlang':'is_binary'
+				  (Data0) ->
+			    %% Line 583
+			    case call 'unicode':'characters_to_list'
+				     (Data0, InEnc) of
+			      %% Line 584
+			      <{Tag,Decoded,Rest}>
+				  when let <_cor19> =
+					let <_cor17> =
+					    call 'erlang':'=/='
+						(Decoded, [])
+					in  let <_cor18> =
+						call 'erlang':'=:='
+						    (Tag, 'error')
+					    in  call 'erlang':'and'
+						    (_cor17, _cor18)
+				    in  let <_cor22> =
+					    let <_cor20> =
+						call 'erlang':'=/='
+						    (Decoded, [])
+					    in  let <_cor21> =
+						    call 'erlang':'=:='
+							(Tag, 'incomplete')
+						in  call 'erlang':'and'
+							(_cor20, _cor21)
+					in  call 'erlang':'or'
+						(_cor19, _cor22) ->
+				  let <_cor23> =
+				      %% Line 585
+				      call 'erlang':'iolist_to_binary'
+					  (Rest)
+				  in  %% Line 585
+				      <Decoded,_cor23>
+			      %% Line 586
+			      <{'error',[],_cor78}> when 'true' ->
+				  %% Line 587
+				  call 'erlang':'exit'
+				      ('invalid_unicode')
+			      %% Line 588
+			      <{'incomplete',[],R}> when 'true' ->
+				  %% Line 589
+				  <[],R>
+			      %% Line 590
+			      <List>
+				  when call 'erlang':'is_list'
+					(List) ->
+				  %% Line 591
+				  <List,#{}#>
+			      ( <_cor24> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor24})
+				-| ['compiler_generated'] )
+			    end
+			%% Line 593
+			<'binary'>
+			    when call 'erlang':'is_binary'
+				  (Data0) ->
+			    %% Line 594
+			    case call 'unicode':'characters_to_binary'
+				     (Data0, InEnc, OutEnc) of
+			      %% Line 595
+			      <{Tag2,Decoded2,Rest2}>
+				  when let <_cor27> =
+					let <_cor25> =
+					    call 'erlang':'=/='
+						(Decoded2, #{}#)
+					in  let <_cor26> =
+						call 'erlang':'=:='
+						    (Tag2, 'error')
+					    in  call 'erlang':'and'
+						    (_cor25, _cor26)
+				    in  let <_cor30> =
+					    let <_cor28> =
+						call 'erlang':'=/='
+						    (Decoded2, #{}#)
+					    in  let <_cor29> =
+						    call 'erlang':'=:='
+							(Tag2, 'incomplete')
+						in  call 'erlang':'and'
+							(_cor28, _cor29)
+					in  call 'erlang':'or'
+						(_cor27, _cor30) ->
+				  let <_cor31> =
+				      %% Line 596
+				      call 'erlang':'iolist_to_binary'
+					  (Rest2)
+				  in  %% Line 596
+				      <Decoded2,_cor31>
+			      %% Line 597
+			      <{'error',#{}#,_cor79}> when 'true' ->
+				  %% Line 598
+				  call 'erlang':'exit'
+				      ('invalid_unicode')
+			      %% Line 599
+			      <{'incomplete',#{}#,R}> when 'true' ->
+				  %% Line 600
+				  <#{}#,R>
+			      %% Line 601
+			      <Binary>
+				  when call 'erlang':'is_binary'
+					(Binary) ->
+				  %% Line 602
+				  <Binary,#{}#>
+			      ( <_cor32> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor32})
+				-| ['compiler_generated'] )
+			    end
+			%% Line 604
+			<_cor80> when 'true' ->
+			    %% Line 605
+			    <Data0,#{}#>
+		      end
+		  in  let <_cor36> =
+			  catch
+			      %% Line 607
+			      call Mod:Func
+				  (S0, Data1, OutEnc, XtraArg)
+		      in  %% Line 607
+			  case _cor36 of
+			    %% Line 608
+			    <{'stop',Result,Buf}> when 'true' ->
+				let <_cor39> =
+				    %% Line 609
+				    case <> of
+				      %% Line 610
+				      <>
+					  when call 'erlang':'is_binary'
+						(Buf) ->
+					  let <_cor37> =
+					      %% Line 611
+					      call 'unicode':'characters_to_binary'
+						  (Buf, OutEnc, InEnc)
+					  in  %% Line 611
+					      call 'erlang':'list_to_binary'
+						  ([_cor37|[NewBuff|[]]])
+				      %% Line 612
+				      <>
+					  when call 'erlang':'is_list'
+						(Buf) ->
+					  let <_cor38> =
+					      %% Line 613
+					      call 'unicode':'characters_to_binary'
+						  (Buf, 'unicode', InEnc)
+					  in  %% Line 613
+					      call 'erlang':'list_to_binary'
+						  ([_cor38|[NewBuff|[]]])
+				      %% Line 614
+				      <> when 'true' ->
+					  %% Line 615
+					  NewBuff
+				    end
+				in  let <_cor43> =
+					%% Line 609
+					call 'erlang':'setelement'
+					    (5, State, _cor39)
+				    in  %% Line 609
+					{'reply',Result,_cor43}
+			    %% Line 617
+			    <{'EXIT',Reason}> when 'true' ->
+				let <_cor44> =
+				    %% Line 618
+				    apply 'err_func'/3
+					(Mod, Func, XtraArg)
+				in  %% Line 618
+				    {'stop',Reason,{'error',_cor44},State}
+			    %% Line 619
+			    <S1> when 'true' ->
+				let <_cor47> =
+				    %% Line 620
+				    call 'erlang':'setelement'
+					(5, State, NewBuff)
+				in  %% Line 620
+				    apply 'get_chars_notempty'/6
+					(Mod, Func, XtraArg, S1, OutEnc, _cor47)
+			  end
+	      of <_cor49> ->
+		  _cor49
+	      catch <_cor52,_cor51,_cor50> ->
+		  case <_cor52,_cor51,_cor50> of
+		    %% Line 623
+		    <'exit',ExReason,_cor95> when 'true' ->
+			let <_cor53> =
+			    %% Line 624
+			    apply 'invalid_unicode_error'/4
+				(Mod, Func, XtraArg, S0)
+			in  %% Line 624
+			    {'stop',ExReason,_cor53,State}
+		    %% Line 625
+		    <'error',ErrReason,_cor96> when 'true' ->
+			let <_cor54> =
+			    %% Line 626
+			    apply 'err_func'/3
+				(Mod, Func, XtraArg)
+			in  %% Line 626
+			    {'stop',ErrReason,{'error',_cor54},State}
+		    ( <_cor52,_cor51,_cor50> when 'true' ->
+			  primop 'raise'
+			      (_cor50, _cor51)
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor61,_cor60,_cor59,_cor58,_cor57,_cor56,_cor55> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor61,_cor60,_cor59,_cor58,_cor57,_cor56,_cor55})
+		  -| [{'function_name',{'get_chars_apply',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'invalid_unicode_error'/4 =
+    %% Line 631
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 632
+	try
+	    %% Line 633
+	    case _cor1 of
+	      <{'erl_scan','tokens',_X_Args}> when 'true' ->
+		  let <Location> =
+		      %% Line 634
+		      call 'erl_scan':'continuation_location'
+			  (_cor0)
+		  in  %% Line 635
+		      {'error',{Location,'file_io_server','invalid_unicode'},Location}
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+	of <_cor6> ->
+	    _cor6
+	catch <_cor9,_cor8,_cor7> ->
+	    let <_cor10> =
+		%% Line 638
+		apply 'err_func'/3
+		    (_cor3, _cor2, _cor1)
+	    in  %% Line 638
+		{'error',_cor10}
+'err_func'/3 =
+    %% Line 642
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'io_lib','get_until',{_cor6,F,_cor7}> when 'true' ->
+	      %% Line 643
+	      F
+	  %% Line 644
+	  <_cor8,F,_cor9> when 'true' ->
+	      %% Line 645
+	      F
+	end
+'setopts'/2 =
+    %% Line 652
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 656
+	    apply 'expand_encoding'/1
+		(_cor1)
+	in  let <_cor3> =
+		%% Line 654
+		call 'proplists':'substitute_negations'
+		    (%% Line 655
+		     [{'list','binary'}], _cor2)
+	    in  let <Opts> =
+		    %% Line 653
+		    call 'proplists':'unfold'
+			(_cor3)
+		in  %% Line 657
+		    case apply 'check_valid_opts'/1
+			     (Opts) of
+		      %% Line 658
+		      <'true'> when 'true' ->
+			  %% Line 659
+			  apply 'do_setopts'/2
+			      (Opts, _cor0)
+		      %% Line 660
+		      <'false'> when 'true' ->
+			  %% Line 661
+			  {'error',{'error','enotsup'},_cor0}
+		      ( <_cor5> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor5})
+			-| ['compiler_generated'] )
+		    end
+'check_valid_opts'/1 =
+    %% Line 663
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 664
+	      'true'
+	  %% Line 665
+	  <[{'binary',_cor2}|T]> when 'true' ->
+	      %% Line 666
+	      apply 'check_valid_opts'/1
+		  (T)
+	  %% Line 667
+	  <[{'encoding',_X_Enc}|T]> when 'true' ->
+	      %% Line 668
+	      apply 'check_valid_opts'/1
+		  (T)
+	  %% Line 669
+	  <_cor3> when 'true' ->
+	      %% Line 670
+	      'false'
+	end
+'do_setopts'/2 =
+    %% Line 671
+    fun (_cor1,_cor0) ->
+	%% Line 672
+	( case _cor0 of
+	    ( <( {'state',_cor20,_cor21,_cor22,_cor23,_cor24,_rec22}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <_cor4> =
+		      call 'proplists':'get_value'
+			  ('encoding', _cor1, _rec22)
+		  in  case apply 'valid_enc'/1
+			       (_cor4) of
+			%% Line 673
+			<{'ok',NewUnic}> when 'true' ->
+			    %% Line 674
+			    case call 'proplists':'get_value'
+				     ('binary', _cor1) of
+			      %% Line 675
+			      <'true'> when 'true' ->
+				  let <_cor6> =
+				      %% Line 676
+				      call 'erlang':'setelement'
+					  (7, _cor0, NewUnic)
+				  in  let <_cor8> =
+					  %% Line 676
+					  call 'erlang':'setelement'
+					      (6, _cor6, 'binary')
+				      in  %% Line 676
+					  {'reply','ok',_cor8}
+			      %% Line 677
+			      <'false'> when 'true' ->
+				  let <_cor10> =
+				      %% Line 678
+				      call 'erlang':'setelement'
+					  (7, _cor0, NewUnic)
+				  in  let <_cor12> =
+					  %% Line 678
+					  call 'erlang':'setelement'
+					      (6, _cor10, 'list')
+				      in  %% Line 678
+					  {'reply','ok',_cor12}
+			      %% Line 679
+			      <'undefined'> when 'true' ->
+				  let <_cor15> =
+				      %% Line 680
+				      call 'erlang':'setelement'
+					  (7, _cor0, NewUnic)
+				  in  %% Line 680
+				      {'reply','ok',_cor15}
+			      ( <_cor16> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor16})
+				-| ['compiler_generated'] )
+			    end
+			%% Line 682
+			<_cor47> when 'true' ->
+			    %% Line 683
+			    {'error',{'error','badarg'},_cor0}
+		      end
+	      -| ['compiler_generated'] )
+	    ( <_cor25> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'getopts'/1 =
+    %% Line 686
+    fun (_cor0) ->
+	case _cor0 of
+	  <State = {'state',_cor5,_cor6,_cor7,_cor8,RM,Unic}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 687
+		  call 'erlang':'=:='
+		      (RM, 'binary')
+	      in  let <Bin> = {%% Line 687
+		       'binary',_cor1}
+		  in  let <Uni> = {%% Line 688
+			   'encoding',%% Line 688
+				      Unic}
+		      in  %% Line 689
+			  {'reply',[Bin|[Uni|[]]],State}
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'getopts',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'cat'/5 =
+    %% Line 692
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <B1,B2,'binary','latin1','latin1'> when 'true' ->
+	      %% Line 693
+	      call 'erlang':'list_to_binary'
+		  ([B1|[B2|[]]])
+	  %% Line 694
+	  <B1,B2,'binary',InEncoding,OutEncoding> when 'true' ->
+	      %% Line 695
+	      case call 'unicode':'characters_to_binary'
+		       ([B1|[B2|[]]], InEncoding, OutEncoding) of
+		%% Line 696
+		<Good>
+		    when call 'erlang':'is_binary'
+			  (Good) ->
+		    %% Line 697
+		    Good
+		%% Line 698
+		<_cor13> when 'true' ->
+		    %% Line 699
+		    call 'erlang':'exit'
+			({'no_translation',InEncoding,OutEncoding})
+	      end
+	  %% Line 712
+	  <B1,B2,'list','latin1',_cor14> when 'true' ->
+	      let <_cor7> =
+		  %% Line 713
+		  call 'erlang':'binary_to_list'
+		      (B1)
+	      in  let <_cor6> =
+		      %% Line 713
+		      call 'erlang':'binary_to_list'
+			  (B2)
+		  in  %% Line 713
+		      call 'erlang':'++'
+			  (_cor7, _cor6)
+	  ( <_cor12,_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'cat',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'cast'/4 =
+    %% Line 716
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <B,'binary','latin1','latin1'> when 'true' ->
+	      %% Line 717
+	      B
+	  %% Line 718
+	  <B,'binary',InEncoding,OutEncoding> when 'true' ->
+	      %% Line 719
+	      case call 'unicode':'characters_to_binary'
+		       (B, InEncoding, OutEncoding) of
+		%% Line 720
+		<Good>
+		    when call 'erlang':'is_binary'
+			  (Good) ->
+		    %% Line 721
+		    Good
+		%% Line 722
+		<_cor14> when 'true' ->
+		    %% Line 723
+		    call 'erlang':'exit'
+			({'no_translation',InEncoding,OutEncoding})
+	      end
+	  %% Line 725
+	  <B,'list','latin1',_cor15> when 'true' ->
+	      %% Line 726
+	      call 'erlang':'binary_to_list'
+		  (B)
+	  %% Line 727
+	  <B,'list',InEncoding,OutEncoding> when 'true' ->
+	      %% Line 728
+	      try
+		  let <_cor5> =
+		      %% Line 729
+		      call 'unicode':'characters_to_binary'
+			  (B, InEncoding, OutEncoding)
+		  in  %% Line 729
+		      call 'unicode':'characters_to_list'
+			  (_cor5, %% Line 730
+				  OutEncoding)
+	      of <_cor6> ->
+		  _cor6
+	      catch <_cor9,_cor8,_cor7> ->
+		  case <_cor9,_cor8,_cor7> of
+		    %% Line 732
+		    <'error',_cor16,_cor17> when 'true' ->
+			%% Line 733
+			call 'erlang':'exit'
+			    ({'no_translation',InEncoding,OutEncoding})
+		    ( <_cor9,_cor8,_cor7> when 'true' ->
+			  primop 'raise'
+			      (_cor7, _cor8)
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'cast',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'cast_binary'/1 =
+    %% Line 737
+    fun (_cor0) ->
+	case _cor0 of
+	  <Binary>
+	      when call 'erlang':'is_binary'
+		    (_cor0) ->
+	      %% Line 738
+	      Binary
+	  %% Line 739
+	  <List>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      %% Line 740
+	      call 'erlang':'list_to_binary'
+		  (List)
+	  %% Line 741
+	  <_X_EOF> when 'true' ->
+	      %% Line 742
+	      #{}#
+	end
+'read_size'/1 =
+    %% Line 745
+    fun (_cor0) ->
+	case _cor0 of
+	  <'binary'> when 'true' ->
+	      8192
+	  %% Line 747
+	  <'list'> when 'true' ->
+	      %% Line 748
+	      128
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'read_size',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'count_and_find'/3 =
+    %% Line 751
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 752
+	    case _cor0 of
+	      %% Line 753
+	      <'unicode'> when 'true' ->
+		  'utf8'
+	      %% Line 754
+	      <Oth> when 'true' ->
+		  Oth
+	    end
+	in  %% Line 752
+	    apply 'cafu'/6
+		(_cor2, _cor1, 0, 0, 'none', _cor4)
+'cafu'/6 =
+    %% Line 757
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <#{}#,0,Count,ByteCount,_X_SavePos,_cor65> when 'true' ->
+	      %% Line 758
+	      {Count,ByteCount}
+	  %% Line 759
+	  <#{}#,_X_N,Count,_X_ByteCount,SavePos,_cor66> when 'true' ->
+	      %% Line 760
+	      {Count,SavePos}
+	  %% Line 761
+	  <#{#<_cor67>('undefined','undefined','utf8',['unsigned'|['big']]),
+	     #<Rest>('all',8,'binary',['unsigned'|['big']])}#,0,Count,ByteCount,_X_SavePos,'utf8'> when 'true' ->
+	      let <_cor6> =
+		  %% Line 762
+		  call 'erlang':'+'
+		      (Count, 1)
+	      in  %% Line 762
+		  apply 'cafu'/6
+		      (Rest, -1, _cor6, 0, ByteCount, 'utf8')
+	  %% Line 763
+	  <#{#<_cor68>('undefined','undefined','utf8',['unsigned'|['big']]),
+	     #<Rest>('all',8,'binary',['unsigned'|['big']])}#,N,Count,_X_ByteCount,SavePos,'utf8'>
+	      when call 'erlang':'<'
+		    (N,
+		     0) ->
+	      let <_cor8> =
+		  %% Line 764
+		  call 'erlang':'+'
+		      (Count, 1)
+	      in  %% Line 764
+		  apply 'cafu'/6
+		      (Rest, -1, _cor8, 0, SavePos, 'utf8')
+	  %% Line 765
+	  <Whole = #{#<_cor69>('undefined','undefined','utf8',['unsigned'|['big']]),
+		     #<Rest>('all',8,'binary',['unsigned'|['big']])}#,N,Count,ByteCount,SavePos,'utf8'> when 'true' ->
+	      let <_cor11> =
+		  %% Line 766
+		  call 'erlang':'byte_size'
+		      (Whole)
+	      in  let <_cor10> =
+		      %% Line 766
+		      call 'erlang':'byte_size'
+			  (Rest)
+		  in  let <Delta> =
+			  %% Line 766
+			  call 'erlang':'-'
+			      (_cor11, _cor10)
+		      in  let <_cor15> =
+			      %% Line 767
+			      call 'erlang':'-'
+				  (N, 1)
+			  in  let <_cor14> =
+				  %% Line 767
+				  call 'erlang':'+'
+				      (Count, 1)
+			      in  let <_cor13> =
+				      %% Line 767
+				      call 'erlang':'+'
+					  (ByteCount, Delta)
+				  in  %% Line 767
+				      apply 'cafu'/6
+					  (Rest, _cor15, _cor14, _cor13, SavePos, 'utf8')
+	  %% Line 768
+	  <#{#<_cor70>('undefined','undefined','utf16',['unsigned'|['big']]),
+	     #<Rest>('all',8,'binary',['unsigned'|['big']])}#,0,Count,ByteCount,_X_SavePos,{'utf16','big'}> when 'true' ->
+	      let <_cor16> =
+		  %% Line 769
+		  call 'erlang':'+'
+		      (Count, 1)
+	      in  %% Line 769
+		  apply 'cafu'/6
+		      (Rest, -1, _cor16, 0, ByteCount, {'utf16','big'})
+	  %% Line 770
+	  <#{#<_cor71>('undefined','undefined','utf16',['unsigned'|['big']]),
+	     #<Rest>('all',8,'binary',['unsigned'|['big']])}#,N,Count,_X_ByteCount,SavePos,{'utf16','big'}>
+	      when call 'erlang':'<'
+		    (N,
+		     0) ->
+	      let <_cor18> =
+		  %% Line 771
+		  call 'erlang':'+'
+		      (Count, 1)
+	      in  %% Line 771
+		  apply 'cafu'/6
+		      (Rest, -1, _cor18, 0, SavePos, {'utf16','big'})
+	  %% Line 772
+	  <Whole = #{#<_cor72>('undefined','undefined','utf16',['unsigned'|['big']]),
+		     #<Rest>('all',8,'binary',['unsigned'|['big']])}#,N,Count,ByteCount,SavePos,{'utf16','big'}> when 'true' ->
+	      let <_cor21> =
+		  %% Line 773
+		  call 'erlang':'byte_size'
+		      (Whole)
+	      in  let <_cor20> =
+		      %% Line 773
+		      call 'erlang':'byte_size'
+			  (Rest)
+		  in  let <Delta> =
+			  %% Line 773
+			  call 'erlang':'-'
+			      (_cor21, _cor20)
+		      in  let <_cor25> =
+			      %% Line 774
+			      call 'erlang':'-'
+				  (N, 1)
+			  in  let <_cor24> =
+				  %% Line 774
+				  call 'erlang':'+'
+				      (Count, 1)
+			      in  let <_cor23> =
+				      %% Line 774
+				      call 'erlang':'+'
+					  (ByteCount, Delta)
+				  in  %% Line 774
+				      apply 'cafu'/6
+					  (Rest, _cor25, _cor24, _cor23, SavePos, {'utf16','big'})
+	  %% Line 775
+	  <#{#<_cor73>('undefined','undefined','utf16',['unsigned'|['little']]),
+	     #<Rest>('all',8,'binary',['unsigned'|['big']])}#,0,Count,ByteCount,_X_SavePos,{'utf16','little'}> when 'true' ->
+	      let <_cor26> =
+		  %% Line 776
+		  call 'erlang':'+'
+		      (Count, 1)
+	      in  %% Line 776
+		  apply 'cafu'/6
+		      (Rest, -1, _cor26, 0, ByteCount, {'utf16','little'})
+	  %% Line 777
+	  <#{#<_cor74>('undefined','undefined','utf16',['unsigned'|['little']]),
+	     #<Rest>('all',8,'binary',['unsigned'|['big']])}#,N,Count,_X_ByteCount,SavePos,{'utf16','little'}>
+	      when call 'erlang':'<'
+		    (N,
+		     0) ->
+	      let <_cor28> =
+		  %% Line 778
+		  call 'erlang':'+'
+		      (Count, 1)
+	      in  %% Line 778
+		  apply 'cafu'/6
+		      (Rest, -1, _cor28, 0, SavePos, {'utf16','little'})
+	  %% Line 779
+	  <Whole = #{#<_cor75>('undefined','undefined','utf16',['unsigned'|['little']]),
+		     #<Rest>('all',8,'binary',['unsigned'|['big']])}#,N,Count,ByteCount,SavePos,{'utf16','little'}> when 'true' ->
+	      let <_cor31> =
+		  %% Line 780
+		  call 'erlang':'byte_size'
+		      (Whole)
+	      in  let <_cor30> =
+		      %% Line 780
+		      call 'erlang':'byte_size'
+			  (Rest)
+		  in  let <Delta> =
+			  %% Line 780
+			  call 'erlang':'-'
+			      (_cor31, _cor30)
+		      in  let <_cor35> =
+			      %% Line 781
+			      call 'erlang':'-'
+				  (N, 1)
+			  in  let <_cor34> =
+				  %% Line 781
+				  call 'erlang':'+'
+				      (Count, 1)
+			      in  let <_cor33> =
+				      %% Line 781
+				      call 'erlang':'+'
+					  (ByteCount, Delta)
+				  in  %% Line 781
+				      apply 'cafu'/6
+					  (Rest, _cor35, _cor34, _cor33, SavePos, {'utf16','little'})
+	  %% Line 782
+	  <#{#<_cor76>('undefined','undefined','utf32',['unsigned'|['big']]),
+	     #<Rest>('all',8,'binary',['unsigned'|['big']])}#,0,Count,ByteCount,_X_SavePos,{'utf32','big'}> when 'true' ->
+	      let <_cor36> =
+		  %% Line 783
+		  call 'erlang':'+'
+		      (Count, 1)
+	      in  %% Line 783
+		  apply 'cafu'/6
+		      (Rest, -1, _cor36, 0, ByteCount, {'utf32','big'})
+	  %% Line 784
+	  <#{#<_cor77>('undefined','undefined','utf32',['unsigned'|['big']]),
+	     #<Rest>('all',8,'binary',['unsigned'|['big']])}#,N,Count,_X_ByteCount,SavePos,{'utf32','big'}>
+	      when call 'erlang':'<'
+		    (N,
+		     0) ->
+	      let <_cor38> =
+		  %% Line 785
+		  call 'erlang':'+'
+		      (Count, 1)
+	      in  %% Line 785
+		  apply 'cafu'/6
+		      (Rest, -1, _cor38, 0, SavePos, {'utf32','big'})
+	  %% Line 786
+	  <Whole = #{#<_cor78>('undefined','undefined','utf32',['unsigned'|['big']]),
+		     #<Rest>('all',8,'binary',['unsigned'|['big']])}#,N,Count,ByteCount,SavePos,{'utf32','big'}> when 'true' ->
+	      let <_cor41> =
+		  %% Line 787
+		  call 'erlang':'byte_size'
+		      (Whole)
+	      in  let <_cor40> =
+		      %% Line 787
+		      call 'erlang':'byte_size'
+			  (Rest)
+		  in  let <Delta> =
+			  %% Line 787
+			  call 'erlang':'-'
+			      (_cor41, _cor40)
+		      in  let <_cor45> =
+			      %% Line 788
+			      call 'erlang':'-'
+				  (N, 1)
+			  in  let <_cor44> =
+				  %% Line 788
+				  call 'erlang':'+'
+				      (Count, 1)
+			      in  let <_cor43> =
+				      %% Line 788
+				      call 'erlang':'+'
+					  (ByteCount, Delta)
+				  in  %% Line 788
+				      apply 'cafu'/6
+					  (Rest, _cor45, _cor44, _cor43, SavePos, {'utf32','big'})
+	  %% Line 789
+	  <#{#<_cor79>('undefined','undefined','utf32',['unsigned'|['little']]),
+	     #<Rest>('all',8,'binary',['unsigned'|['big']])}#,0,Count,ByteCount,_X_SavePos,{'utf32','little'}> when 'true' ->
+	      let <_cor46> =
+		  %% Line 790
+		  call 'erlang':'+'
+		      (Count, 1)
+	      in  %% Line 790
+		  apply 'cafu'/6
+		      (Rest, -1, _cor46, 0, ByteCount, {'utf32','little'})
+	  %% Line 791
+	  <#{#<_cor80>('undefined','undefined','utf32',['unsigned'|['little']]),
+	     #<Rest>('all',8,'binary',['unsigned'|['big']])}#,N,Count,_X_ByteCount,SavePos,{'utf32','little'}>
+	      when call 'erlang':'<'
+		    (N,
+		     0) ->
+	      let <_cor48> =
+		  %% Line 792
+		  call 'erlang':'+'
+		      (Count, 1)
+	      in  %% Line 792
+		  apply 'cafu'/6
+		      (Rest, -1, _cor48, 0, SavePos, {'utf32','little'})
+	  %% Line 793
+	  <Whole = #{#<_cor81>('undefined','undefined','utf32',['unsigned'|['little']]),
+		     #<Rest>('all',8,'binary',['unsigned'|['big']])}#,N,Count,ByteCount,SavePos,{'utf32','little'}> when 'true' ->
+	      let <_cor51> =
+		  %% Line 794
+		  call 'erlang':'byte_size'
+		      (Whole)
+	      in  let <_cor50> =
+		      %% Line 794
+		      call 'erlang':'byte_size'
+			  (Rest)
+		  in  let <Delta> =
+			  %% Line 794
+			  call 'erlang':'-'
+			      (_cor51, _cor50)
+		      in  let <_cor55> =
+			      %% Line 795
+			      call 'erlang':'-'
+				  (N, 1)
+			  in  let <_cor54> =
+				  %% Line 795
+				  call 'erlang':'+'
+				      (Count, 1)
+			      in  let <_cor53> =
+				      %% Line 795
+				      call 'erlang':'+'
+					  (ByteCount, Delta)
+				  in  %% Line 795
+				      apply 'cafu'/6
+					  (Rest, _cor55, _cor54, _cor53, SavePos, {'utf32','little'})
+	  %% Line 796
+	  <_X_Other,0,Count,ByteCount,_cor82,_cor83> when 'true' ->
+	      %% Line 798
+	      {Count,ByteCount}
+	  %% Line 799
+	  <Other,_X_N,Count,0,SavePos,Enc> when 'true' ->
+	      %% Line 801
+	      case apply 'cbv'/2
+		       (Enc, Other) of
+		%% Line 802
+		<'false'> when 'true' ->
+		    %% Line 803
+		    call 'erlang':'exit'
+			('invalid_unicode')
+		%% Line 804
+		<_cor84> when 'true' ->
+		    %% Line 805
+		    {Count,SavePos}
+	      end
+	  %% Line 807
+	  <Other,_X_N,Count,ByteCount,'none',Enc> when 'true' ->
+	      %% Line 810
+	      case apply 'cbv'/2
+		       (Enc, Other) of
+		%% Line 811
+		<'false'> when 'true' ->
+		    %% Line 812
+		    call 'erlang':'exit'
+			('invalid_unicode')
+		%% Line 813
+		<_cor85> when 'true' ->
+		    %% Line 814
+		    {Count,ByteCount}
+	      end
+	  %% Line 816
+	  <Other,_X_N,Count,_X_ByteCount,SavePos,Enc> when 'true' ->
+	      %% Line 818
+	      case apply 'cbv'/2
+		       (Enc, Other) of
+		%% Line 819
+		<'false'> when 'true' ->
+		    %% Line 820
+		    call 'erlang':'exit'
+			('invalid_unicode')
+		%% Line 821
+		<_cor86> when 'true' ->
+		    %% Line 822
+		    {Count,SavePos}
+	      end
+	end
+'cbv'/2 =
+    %% Line 828
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'utf8',#{#<1>(1,1,'integer',['unsigned'|['big']]),
+		    #<1>(1,1,'integer',['unsigned'|['big']]),
+		    #<0>(1,1,'integer',['unsigned'|['big']]),
+		    #<_cor22>(5,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 829
+	      1
+	  %% Line 830
+	  <'utf8',#{#<1>(1,1,'integer',['unsigned'|['big']]),
+		    #<1>(1,1,'integer',['unsigned'|['big']]),
+		    #<1>(1,1,'integer',['unsigned'|['big']]),
+		    #<0>(1,1,'integer',['unsigned'|['big']]),
+		    #<_cor23>(4,1,'integer',['unsigned'|['big']]),
+		    #<R>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 831
+	      case ( R
+		     -| ['reuse_for_context'] ) of
+		%% Line 832
+		<#{}#> when 'true' ->
+		    %% Line 833
+		    2
+		%% Line 834
+		<#{#<1>(1,1,'integer',['unsigned'|['big']]),
+		   #<0>(1,1,'integer',['unsigned'|['big']]),
+		   #<_cor24>(6,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+		    %% Line 835
+		    1
+		%% Line 836
+		<_cor25> when 'true' ->
+		    %% Line 837
+		    'false'
+	      end
+	  %% Line 839
+	  <'utf8',#{#<1>(1,1,'integer',['unsigned'|['big']]),
+		    #<1>(1,1,'integer',['unsigned'|['big']]),
+		    #<1>(1,1,'integer',['unsigned'|['big']]),
+		    #<1>(1,1,'integer',['unsigned'|['big']]),
+		    #<0>(1,1,'integer',['unsigned'|['big']]),
+		    #<_cor26>(3,1,'integer',['unsigned'|['big']]),
+		    #<R>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 840
+	      case ( R
+		     -| ['reuse_for_context'] ) of
+		%% Line 841
+		<#{}#> when 'true' ->
+		    %% Line 842
+		    3
+		%% Line 843
+		<#{#<1>(1,1,'integer',['unsigned'|['big']]),
+		   #<0>(1,1,'integer',['unsigned'|['big']]),
+		   #<_cor27>(6,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+		    %% Line 844
+		    2
+		%% Line 845
+		<#{#<1>(1,1,'integer',['unsigned'|['big']]),
+		   #<0>(1,1,'integer',['unsigned'|['big']]),
+		   #<_cor28>(6,1,'integer',['unsigned'|['big']]),
+		   #<1>(1,1,'integer',['unsigned'|['big']]),
+		   #<0>(1,1,'integer',['unsigned'|['big']]),
+		   #<_cor29>(6,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+		    %% Line 846
+		    1
+		%% Line 847
+		<_cor30> when 'true' ->
+		    %% Line 848
+		    'false'
+	      end
+	  %% Line 850
+	  <'utf8',_cor31> when 'true' ->
+	      %% Line 851
+	      'false'
+	  %% Line 853
+	  <{'utf16','big'},#{#<A>(8,1,'integer',['unsigned'|['big']])}#>
+	      when let <_cor4> =
+		    call 'erlang':'=<'
+			(A, 215)
+		in  let <_cor5> =
+			call 'erlang':'>='
+			    (A, 224)
+		    in  call 'erlang':'or'
+			    (_cor4, _cor5) ->
+	      %% Line 854
+	      1
+	  %% Line 855
+	  <{'utf16','big'},#{#<54>(6,1,'integer',['unsigned'|['big']]),
+			     #<_cor32>(2,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 856
+	      3
+	  %% Line 857
+	  <{'utf16','big'},#{#<54>(6,1,'integer',['unsigned'|['big']]),
+			     #<_cor33>(10,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 858
+	      2
+	  %% Line 859
+	  <{'utf16','big'},#{#<54>(6,1,'integer',['unsigned'|['big']]),
+			     #<_cor34>(10,1,'integer',['unsigned'|['big']]),
+			     #<55>(6,1,'integer',['unsigned'|['big']]),
+			     #<_cor35>(2,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 860
+	      1
+	  %% Line 861
+	  <{'utf16','big'},_cor36> when 'true' ->
+	      %% Line 862
+	      'false'
+	  %% Line 863
+	  <{'utf16','little'},#{#<_cor37>(8,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 864
+	      1
+	  %% Line 865
+	  <{'utf16','little'},#{#<_cor38>(8,1,'integer',['unsigned'|['big']]),
+				#<54>(6,1,'integer',['unsigned'|['big']]),
+				#<_cor39>(2,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 866
+	      2
+	  %% Line 867
+	  <{'utf16','little'},#{#<_cor40>(8,1,'integer',['unsigned'|['big']]),
+				#<54>(6,1,'integer',['unsigned'|['big']]),
+				#<_cor41>(2,1,'integer',['unsigned'|['big']]),
+				#<_cor42>(8,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 868
+	      1
+	  %% Line 869
+	  <{'utf16','little'},_cor43> when 'true' ->
+	      %% Line 870
+	      'false'
+	  %% Line 873
+	  <{'utf32','big'},#{#<0>(8,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 874
+	      3
+	  %% Line 875
+	  <{'utf32','big'},#{#<0>(8,1,'integer',['unsigned'|['big']]),
+			     #<X>(8,1,'integer',['unsigned'|['big']])}#>
+	      when call 'erlang':'=<'
+		    (X,
+		     16) ->
+	      %% Line 876
+	      2
+	  %% Line 877
+	  <{'utf32','big'},#{#<0>(8,1,'integer',['unsigned'|['big']]),
+			     #<X>(8,1,'integer',['unsigned'|['big']]),
+			     #<Y>(8,1,'integer',['unsigned'|['big']])}#>
+	      when %% Line 878
+		try
+		    let <_cor6> =
+			call 'erlang':'=<'
+			    (X, 16)
+		    in  let <_cor7> =
+			    call 'erlang':'>'
+				(X, 0)
+			in  let <_cor8> =
+				call 'erlang':'=<'
+				    (Y, 215)
+			    in  let <_cor9> =
+				    call 'erlang':'>='
+					(Y, 224)
+				in  let <_cor10> =
+					call 'erlang':'or'
+					    (_cor8, _cor9)
+				    in  let <_cor11> =
+					    call 'erlang':'or'
+						(_cor7, _cor10)
+					in  call 'erlang':'and'
+						(_cor6, _cor11)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 879
+	      1
+	  %% Line 880
+	  <{'utf32','big'},_cor44> when 'true' ->
+	      %% Line 881
+	      'false'
+	  %% Line 882
+	  <{'utf32','little'},#{#<_cor45>(8,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 883
+	      3
+	  %% Line 884
+	  <{'utf32','little'},#{#<_cor46>(8,1,'integer',['unsigned'|['big']]),
+				#<_cor47>(8,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 885
+	      2
+	  %% Line 886
+	  <{'utf32','little'},#{#<X>(8,1,'integer',['unsigned'|['big']]),
+				#<255>(8,1,'integer',['unsigned'|['big']]),
+				#<0>(8,1,'integer',['unsigned'|['big']])}#>
+	      when let <_cor12> =
+		    call 'erlang':'=:='
+			(X, 254)
+		in  let <_cor13> =
+			call 'erlang':'=:='
+			    (X, 255)
+		    in  call 'erlang':'or'
+			    (_cor12, _cor13) ->
+	      %% Line 887
+	      'false'
+	  %% Line 888
+	  <{'utf32','little'},#{#<_cor48>(8,1,'integer',['unsigned'|['big']]),
+				#<Y>(8,1,'integer',['unsigned'|['big']]),
+				#<X>(8,1,'integer',['unsigned'|['big']])}#>
+	      when %% Line 889
+		try
+		    let <_cor14> =
+			call 'erlang':'=<'
+			    (X, 16)
+		    in  let <_cor15> =
+			    call 'erlang':'>'
+				(X, 0)
+			in  let <_cor16> =
+				call 'erlang':'=<'
+				    (Y, 215)
+			    in  let <_cor17> =
+				    call 'erlang':'>='
+					(Y, 224)
+				in  let <_cor18> =
+					call 'erlang':'or'
+					    (_cor16, _cor17)
+				    in  let <_cor19> =
+					    call 'erlang':'or'
+						(_cor15, _cor18)
+					in  call 'erlang':'and'
+						(_cor14, _cor19)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 890
+	      1
+	  %% Line 891
+	  <{'utf32','little'},_cor49> when 'true' ->
+	      %% Line 892
+	      'false'
+	  ( <_cor21,_cor20> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor21,_cor20})
+		  -| [{'function_name',{'cbv',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'position'/3 =
+    %% Line 901
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Handle,'cur',Buf> when 'true' ->
+	      %% Line 902
+	      apply 'position'/3
+		  (Handle, {'cur',0}, Buf)
+	  %% Line 903
+	  <Handle,{'cur',Offs},Buf>
+	      when call 'erlang':'is_binary'
+		    (Buf) ->
+	      let <_cor3> =
+		  %% Line 904
+		  call 'erlang':'byte_size'
+		      (Buf)
+	      in  let <_cor4> =
+		      %% Line 904
+		      call 'erlang':'-'
+			  (Offs, _cor3)
+		  in  %% Line 904
+		      call 'prim_file':'position'
+			  (Handle, {'cur',_cor4})
+	  %% Line 905
+	  <Handle,At,_X_Buf> when 'true' ->
+	      %% Line 906
+	      call 'prim_file':'position'
+		  (Handle, At)
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('file_io_server')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('file_io_server', _cor0)
+end

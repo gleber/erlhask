@@ -1,0 +1,1475 @@
+module 'instrument' ['allocator_descr'/2,
+		     'block_header_size'/1,
+		     'class_descr'/2,
+		     'descr'/1,
+		     'holes'/1,
+		     'mem_limits'/1,
+		     'memory_data'/0,
+		     'memory_status'/1,
+		     'module_info'/0,
+		     'module_info'/1,
+		     'read_memory_data'/1,
+		     'read_memory_status'/1,
+		     'sort'/1,
+		     'store_memory_data'/1,
+		     'store_memory_status'/1,
+		     'sum_blocks'/1,
+		     'type_descr'/2,
+		     'type_no_range'/1]
+    attributes []
+'memory_data'/0 =
+    %% Line 38
+    fun () ->
+	let <_cor0> =
+	    catch
+		%% Line 39
+		call 'erlang':'system_info'
+		    ('allocated')
+	in  %% Line 39
+	    case _cor0 of
+	      %% Line 40
+	      <{'EXIT',{Error,_cor2}}> when 'true' ->
+		  %% Line 41
+		  call 'erlang':'error'
+		      (Error, [])
+	      %% Line 42
+	      <{'EXIT',Error}> when 'true' ->
+		  %% Line 43
+		  call 'erlang':'error'
+		      (Error, [])
+	      %% Line 44
+	      <Res> when 'true' ->
+		  %% Line 45
+		  Res
+	    end
+'store_memory_data'/1 =
+    %% Line 48
+    fun (_cor0) ->
+	let <_cor1> =
+	    catch
+		%% Line 49
+		call 'erlang':'system_info'
+		    ({'allocated',_cor0})
+	in  %% Line 49
+	    case _cor1 of
+	      %% Line 50
+	      <{'EXIT',{Error,_cor4}}> when 'true' ->
+		  %% Line 51
+		  call 'erlang':'error'
+		      (Error, [_cor0|[]])
+	      %% Line 52
+	      <{'EXIT',Error}> when 'true' ->
+		  %% Line 53
+		  call 'erlang':'error'
+		      (Error, [_cor0|[]])
+	      %% Line 54
+	      <Res> when 'true' ->
+		  %% Line 55
+		  Res
+	    end
+'memory_status'/1 =
+    %% Line 58
+    fun (_cor0) ->
+	case _cor0 of
+	  <Type>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      let <_cor1> =
+		  catch
+		      %% Line 59
+		      call 'erlang':'system_info'
+			  ({'allocated','status',Type})
+	      in  %% Line 59
+		  case _cor1 of
+		    %% Line 60
+		    <{'EXIT',{Error,_cor4}}> when 'true' ->
+			%% Line 61
+			call 'erlang':'error'
+			    (Error, [Type|[]])
+		    %% Line 62
+		    <{'EXIT',Error}> when 'true' ->
+			%% Line 63
+			call 'erlang':'error'
+			    (Error, [Type|[]])
+		    %% Line 64
+		    <Res> when 'true' ->
+			%% Line 65
+			Res
+		  end
+	  %% Line 67
+	  <Type> when 'true' ->
+	      %% Line 68
+	      call 'erlang':'error'
+		  ('badarg', [Type|[]])
+	end
+'store_memory_status'/1 =
+    %% Line 70
+    fun (_cor0) ->
+	case _cor0 of
+	  <File>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      let <_cor1> =
+		  catch
+		      %% Line 71
+		      call 'erlang':'system_info'
+			  ({'allocated','status',File})
+	      in  %% Line 71
+		  case _cor1 of
+		    %% Line 72
+		    <{'EXIT',{Error,_cor4}}> when 'true' ->
+			%% Line 73
+			call 'erlang':'error'
+			    (Error, [File|[]])
+		    %% Line 74
+		    <{'EXIT',Error}> when 'true' ->
+			%% Line 75
+			call 'erlang':'error'
+			    (Error, [File|[]])
+		    %% Line 76
+		    <Res> when 'true' ->
+			%% Line 77
+			Res
+		  end
+	  %% Line 79
+	  <File> when 'true' ->
+	      %% Line 80
+	      call 'erlang':'error'
+		  ('badarg', [File|[]])
+	end
+'read_memory_data'/1 =
+    %% Line 82
+    fun (_cor0) ->
+	case _cor0 of
+	  <File>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      %% Line 83
+	      case call 'file':'consult'
+		       (File) of
+		%% Line 84
+		<{'ok',[Hdr|MD]}>
+		    when try
+			  let <_cor1> =
+			      call 'erlang':'is_tuple'
+				  (Hdr)
+			  in  let <_cor2> =
+				  call 'erlang':'element'
+				      (1, Hdr)
+			      in  let <_cor3> =
+				      call 'erlang':'=:='
+					  (_cor2, 'instr_hdr')
+				  in  call 'erlang':'and'
+					  (_cor1, _cor3)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 85
+		    {Hdr,MD}
+		%% Line 86
+		<{'ok',MD = [{T,A,S,'undefined'}|_cor20]}>
+		    when try
+			  let <_cor4> =
+			      call 'erlang':'is_integer'
+				  (T)
+			  in  let <_cor5> =
+				  %% Line 87
+				  call 'erlang':'is_integer'
+				      (A)
+			      in  let <_cor6> =
+				      %% Line 88
+				      call 'erlang':'is_integer'
+					  (S)
+				  in  let <_cor7> =
+					  call 'erlang':'and'
+					      (_cor5, _cor6)
+				      in  call 'erlang':'and'
+					      (_cor4, _cor7)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 89
+		    {{'instr_hdr',1,32},MD}
+		%% Line 90
+		<{'ok',MD = [{T,A,S,{X,Y,Z}}|_cor21]}>
+		    when try
+			  let <_cor8> =
+			      call 'erlang':'is_integer'
+				  (T)
+			  in  let <_cor9> =
+				  %% Line 91
+				  call 'erlang':'is_integer'
+				      (A)
+			      in  let <_cor10> =
+				      %% Line 92
+				      call 'erlang':'is_integer'
+					  (S)
+				  in  let <_cor11> =
+					  %% Line 93
+					  call 'erlang':'is_integer'
+					      (X)
+				      in  let <_cor12> =
+					      %% Line 94
+					      call 'erlang':'is_integer'
+						  (Y)
+					  in  let <_cor13> =
+						  %% Line 95
+						  call 'erlang':'is_integer'
+						      (Z)
+					      in  let <_cor14> =
+						      call 'erlang':'and'
+							  (_cor12, _cor13)
+						  in  let <_cor15> =
+							  call 'erlang':'and'
+							      (_cor11, _cor14)
+						      in  let <_cor16> =
+							      call 'erlang':'and'
+								  (_cor10, _cor15)
+							  in  let <_cor17> =
+								  call 'erlang':'and'
+								      (_cor9, _cor16)
+							      in  call 'erlang':'and'
+								      (_cor8, _cor17)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 96
+		    {{'instr_hdr',1,32},MD}
+		%% Line 97
+		<{'ok',_cor22}> when 'true' ->
+		    %% Line 98
+		    {'error','eio'}
+		%% Line 99
+		<Error> when 'true' ->
+		    %% Line 100
+		    Error
+	      end
+	  %% Line 102
+	  <File> when 'true' ->
+	      %% Line 103
+	      call 'erlang':'error'
+		  ('badarg', [File|[]])
+	end
+'read_memory_status'/1 =
+    %% Line 105
+    fun (_cor0) ->
+	case _cor0 of
+	  <File>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      %% Line 106
+	      case call 'file':'consult'
+		       (File) of
+		%% Line 107
+		<{'ok',[{'instr_vsn',_cor3}|Stat]}> when 'true' ->
+		    %% Line 108
+		    Stat
+		%% Line 109
+		<{'ok',_cor4}> when 'true' ->
+		    %% Line 110
+		    {'error','eio'}
+		%% Line 111
+		<Error> when 'true' ->
+		    %% Line 112
+		    Error
+	      end
+	  %% Line 114
+	  <File> when 'true' ->
+	      %% Line 115
+	      call 'erlang':'error'
+		  ('badarg', [File|[]])
+	end
+'holes'/1 =
+    %% Line 117
+    fun (_cor0) ->
+	case _cor0 of
+	  <{Hdr,MD}>
+	      when try
+		    let <_cor1> =
+			call 'erlang':'is_tuple'
+			    (Hdr)
+		    in  let <_cor2> =
+			    call 'erlang':'element'
+				(1, Hdr)
+			in  let <_cor3> =
+				call 'erlang':'=:='
+				    (_cor2, 'instr_hdr')
+			    in  call 'erlang':'and'
+				    (_cor1, _cor3)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor4> =
+		  %% Line 118
+		  call 'erlang':'element'
+		      (3, Hdr)
+	      in  %% Line 118
+		  apply 'check_holes'/2
+		      (_cor4, MD)
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5})
+		  -| [{'function_name',{'holes',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'check_holes'/2 =
+    %% Line 120
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_ISz,[]> when 'true' ->
+	      %% Line 121
+	      'ok'
+	  %% Line 122
+	  <ISz,[E|L]> when 'true' ->
+	      %% Line 123
+	      apply 'check_holes'/3
+		  (ISz, E, L)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'check_holes',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'check_holes'/3 =
+    %% Line 125
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_X_ISz,_X_E1,[]> when 'true' ->
+	      %% Line 126
+	      call 'io':'format'
+		  ([126|[110]])
+	  %% Line 127
+	  <ISz,E1,[E2|Rest]> when 'true' ->
+	      do  %% Line 128
+		  apply 'check_hole'/3
+		      (ISz, E1, E2)
+		  %% Line 129
+		  apply 'check_holes'/3
+		      (ISz, E2, Rest)
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'check_holes',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'check_hole'/3 =
+    %% Line 131
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <ISz,{_cor9,P1,S1,_cor10},{_cor11,P2,_cor12,_cor13}> when 'true' ->
+	      let <End> =
+		  %% Line 132
+		  call 'erlang':'+'
+		      (P1, S1)
+	      in  let <_cor4> =
+		      %% Line 133
+		      call 'erlang':'+'
+			  (End, ISz)
+		  in  let <Hole> =
+			  %% Line 133
+			  call 'erlang':'-'
+			      (P2, _cor4)
+		      in  %% Line 134
+			  case <> of
+			    %% Line 135
+			    <>
+				when call 'erlang':'=<'
+				      (Hole,
+				       7) ->
+				%% Line 136
+				'ok'
+			    %% Line 137
+			    <> when 'true' ->
+				%% Line 138
+				call 'io':'format'
+				    ([32|[126|[112]]], [Hole|[]])
+			  end
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'check_hole',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'sum_blocks'/1 =
+    %% Line 141
+    fun (_cor0) ->
+	case _cor0 of
+	  <{Hdr,L}>
+	      when try
+		    let <_cor1> =
+			call 'erlang':'is_tuple'
+			    (Hdr)
+		    in  let <_cor2> =
+			    call 'erlang':'element'
+				(1, Hdr)
+			in  let <_cor3> =
+				call 'erlang':'=:='
+				    (_cor2, 'instr_hdr')
+			    in  call 'erlang':'and'
+				    (_cor1, _cor3)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor8> =
+		  %% Line 142
+		  ( fun (_cor5,_cor4) ->
+			case <_cor5,_cor4> of
+			  <{_cor10,_cor11,S,_cor12},Sum> when 'true' ->
+			      call 'erlang':'+'
+				  (S, Sum)
+			  ( <_cor7,_cor6> when 'true' ->
+				( primop 'match_fail'
+				      ({'function_clause',_cor7,_cor6})
+				  -| [{'function_name',{'-sum_blocks/1-fun-0-',2}}] )
+			    -| ['compiler_generated'] )
+			end
+		    -| [{'id',{0,0,'-sum_blocks/1-fun-0-'}}] )
+	      in  %% Line 142
+		  call 'lists':'foldl'
+		      (_cor8, %% Line 143
+			      0, %% Line 144
+				 L)
+	  ( <_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9})
+		  -| [{'function_name',{'sum_blocks',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mem_limits'/1 =
+    %% Line 146
+    fun (_cor0) ->
+	case _cor0 of
+	  <{Hdr,L}>
+	      when try
+		    let <_cor1> =
+			call 'erlang':'is_tuple'
+			    (Hdr)
+		    in  let <_cor2> =
+			    call 'erlang':'element'
+				(1, Hdr)
+			in  let <_cor3> =
+				call 'erlang':'=:='
+				    (_cor2, 'instr_hdr')
+			    in  call 'erlang':'and'
+				    (_cor1, _cor3)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 147
+	      case call 'erlang':'hd'
+		       (L) of
+		<{_cor8,P1,_cor9,_cor10}> when 'true' ->
+		    %% Line 148
+		    case call 'lists':'last'
+			     (L) of
+		      <{_cor11,P2,S2,_cor12}> when 'true' ->
+			  let <_cor6> =
+			      %% Line 149
+			      call 'erlang':'+'
+				  (P2, S2)
+			  in  %% Line 149
+			      {P1,_cor6}
+		      ( <_cor5> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor5})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7})
+		  -| [{'function_name',{'mem_limits',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'sort'/1 =
+    %% Line 151
+    fun (_cor0) ->
+	case _cor0 of
+	  <{Hdr,MD}>
+	      when try
+		    let <_cor1> =
+			call 'erlang':'is_tuple'
+			    (Hdr)
+		    in  let <_cor2> =
+			    call 'erlang':'element'
+				(1, Hdr)
+			in  let <_cor3> =
+				call 'erlang':'=:='
+				    (_cor2, 'instr_hdr')
+			    in  call 'erlang':'and'
+				    (_cor1, _cor3)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor4> =
+		  %% Line 152
+		  call 'lists':'keysort'
+		      (2, MD)
+	      in  %% Line 152
+		  {Hdr,_cor4}
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5})
+		  -| [{'function_name',{'sort',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'descr'/1 =
+    %% Line 154
+    fun (_cor0) ->
+	case _cor0 of
+	  <ID = {Hdr,MD}>
+	      when try
+		    let <_cor1> =
+			call 'erlang':'is_tuple'
+			    (Hdr)
+		    in  let <_cor2> =
+			    call 'erlang':'element'
+				(1, Hdr)
+			in  let <_cor3> =
+				call 'erlang':'=:='
+				    (_cor2, 'instr_hdr')
+			    in  call 'erlang':'and'
+				    (_cor1, _cor3)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor15> =
+		  %% Line 155
+		  ( fun (_cor13) ->
+			case _cor13 of
+			  <{TN,Addr,Sz,{0,N,S}}> when 'true' ->
+			      let <_cor11> =
+				  %% Line 156
+				  apply 'type_descr'/2
+				      (ID, TN)
+			      in  let <_cor7> =
+				      %% Line 160
+				      call 'erlang':'integer_to_list'
+					  (N)
+				  in  let <_cor4> =
+					  %% Line 162
+					  call 'erlang':'integer_to_list'
+					      (S)
+				      in  let <_cor5> =
+					      %% Line 163
+					      call 'erlang':'++'
+						  (_cor4, [62])
+					  in  let <_cor6> =
+						  %% Line 162
+						  [46|_cor5]
+					      in  let <_cor8> =
+						      %% Line 161
+						      call 'erlang':'++'
+							  (_cor7, _cor6)
+						  in  let <_cor9> =
+							  %% Line 160
+							  [60|[48|[46|_cor8]]]
+						      in  let <_cor10> =
+							      %% Line 159
+							      call 'erlang':'list_to_pid'
+								  (_cor9)
+							  in  %% Line 156
+							      {_cor11,%% Line 157
+								      Addr,%% Line 158
+									   Sz,_cor10}
+			  %% Line 164
+			  <{TN,Addr,Sz,'undefined'}> when 'true' ->
+			      let <_cor12> =
+				  %% Line 165
+				  apply 'type_descr'/2
+				      (ID, TN)
+			      in  %% Line 165
+				  {_cor12,%% Line 166
+					  Addr,%% Line 167
+					       Sz,%% Line 168
+						  'undefined'}
+			  ( <_cor14> when 'true' ->
+				( primop 'match_fail'
+				      ({'function_clause',_cor14})
+				  -| [{'function_name',{'-descr/1-fun-0-',1}}] )
+			    -| ['compiler_generated'] )
+			end
+		    -| [{'id',{0,0,'-descr/1-fun-0-'}}] )
+	      in  let <_cor16> =
+		      %% Line 155
+		      call 'lists':'map'
+			  (_cor15, %% Line 170
+				   MD)
+		  in  %% Line 155
+		      {Hdr,_cor16}
+	  ( <_cor17> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor17})
+		  -| [{'function_name',{'descr',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'block_header_size'/1 =
+    %% Line 172
+    fun (_cor0) ->
+	case _cor0 of
+	  <{Hdr,_cor5}>
+	      when try
+		    let <_cor1> =
+			call 'erlang':'is_tuple'
+			    (Hdr)
+		    in  let <_cor2> =
+			    call 'erlang':'element'
+				(1, Hdr)
+			in  let <_cor3> =
+				call 'erlang':'=:='
+				    (_cor2, 'instr_hdr')
+			    in  call 'erlang':'and'
+				    (_cor1, _cor3)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 173
+	      call 'erlang':'element'
+		  (3, Hdr)
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'block_header_size',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'type_descr'/2 =
+    %% Line 175
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Hdr,_cor24},TypeNo>
+	      when try
+		    let <_cor2> =
+			call 'erlang':'is_tuple'
+			    (Hdr)
+		    in  let <_cor3> =
+			    call 'erlang':'element'
+				(1, Hdr)
+			in  let <_cor4> =
+				call 'erlang':'=:='
+				    (_cor3, 'instr_hdr')
+			    in  let <_cor5> =
+				    call 'erlang':'element'
+					(2, Hdr)
+				in  let <_cor6> =
+					call 'erlang':'=:='
+					    (_cor5, 2)
+				    in  let <_cor7> =
+					    %% Line 176
+					    call 'erlang':'is_integer'
+						(TypeNo)
+					in  let <_cor8> =
+						call 'erlang':'and'
+						    (_cor6, _cor7)
+					    in  let <_cor9> =
+						    call 'erlang':'and'
+							(_cor4, _cor8)
+						in  call 'erlang':'and'
+							(_cor2, _cor9)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor12> =
+		  catch
+		      let <_cor10> =
+			  %% Line 177
+			  call 'erlang':'element'
+			      (4, Hdr)
+		      in  let <_cor11> =
+			      %% Line 177
+			      call 'erlang':'element'
+				  (TypeNo, _cor10)
+			  in  %% Line 177
+			      call 'erlang':'element'
+				  (1, _cor11)
+	      in  %% Line 177
+		  case _cor12 of
+		    %% Line 178
+		    <{'EXIT',_cor25}> when 'true' ->
+			'invalid_type'
+		    %% Line 179
+		    <Type> when 'true' ->
+			Type
+		  end
+	  %% Line 181
+	  <{Hdr,_cor26},TypeNo>
+	      when try
+		    let <_cor14> =
+			call 'erlang':'is_tuple'
+			    (Hdr)
+		    in  let <_cor15> =
+			    call 'erlang':'element'
+				(1, Hdr)
+			in  let <_cor16> =
+				call 'erlang':'=:='
+				    (_cor15, 'instr_hdr')
+			    in  let <_cor17> =
+				    call 'erlang':'element'
+					(2, Hdr)
+				in  let <_cor18> =
+					call 'erlang':'=:='
+					    (_cor17, 1)
+				    in  let <_cor19> =
+					    %% Line 182
+					    call 'erlang':'is_integer'
+						(TypeNo)
+					in  let <_cor20> =
+						call 'erlang':'and'
+						    (_cor18, _cor19)
+					    in  let <_cor21> =
+						    call 'erlang':'and'
+							(_cor16, _cor20)
+						in  call 'erlang':'and'
+							(_cor14, _cor21)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 183
+	      apply 'type_string'/1
+		  (TypeNo)
+	  ( <_cor23,_cor22> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor23,_cor22})
+		  -| [{'function_name',{'type_descr',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'allocator_descr'/2 =
+    %% Line 186
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Hdr,_cor24},TypeNo>
+	      when try
+		    let <_cor2> =
+			call 'erlang':'is_tuple'
+			    (Hdr)
+		    in  let <_cor3> =
+			    call 'erlang':'element'
+				(1, Hdr)
+			in  let <_cor4> =
+				call 'erlang':'=:='
+				    (_cor3, 'instr_hdr')
+			    in  let <_cor5> =
+				    call 'erlang':'element'
+					(2, Hdr)
+				in  let <_cor6> =
+					call 'erlang':'=:='
+					    (_cor5, 2)
+				    in  let <_cor7> =
+					    call 'erlang':'is_integer'
+						(TypeNo)
+					in  let <_cor8> =
+						call 'erlang':'and'
+						    (_cor6, _cor7)
+					    in  let <_cor9> =
+						    call 'erlang':'and'
+							(_cor4, _cor8)
+						in  call 'erlang':'and'
+							(_cor2, _cor9)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor12> =
+		  catch
+		      let <_cor10> =
+			  %% Line 187
+			  call 'erlang':'element'
+			      (4, Hdr)
+		      in  let <_cor11> =
+			      %% Line 187
+			      call 'erlang':'element'
+				  (TypeNo, _cor10)
+			  in  %% Line 187
+			      call 'erlang':'element'
+				  (2, _cor11)
+	      in  %% Line 187
+		  case _cor12 of
+		    %% Line 188
+		    <{'EXIT',_cor25}> when 'true' ->
+			'invalid_type'
+		    %% Line 189
+		    <Type> when 'true' ->
+			Type
+		  end
+	  %% Line 191
+	  <{Hdr,_cor26},TypeNo>
+	      when try
+		    let <_cor14> =
+			call 'erlang':'is_tuple'
+			    (Hdr)
+		    in  let <_cor15> =
+			    call 'erlang':'element'
+				(1, Hdr)
+			in  let <_cor16> =
+				call 'erlang':'=:='
+				    (_cor15, 'instr_hdr')
+			    in  let <_cor17> =
+				    call 'erlang':'element'
+					(2, Hdr)
+				in  let <_cor18> =
+					call 'erlang':'=:='
+					    (_cor17, 1)
+				    in  let <_cor19> =
+					    call 'erlang':'is_integer'
+						(TypeNo)
+					in  let <_cor20> =
+						call 'erlang':'and'
+						    (_cor18, _cor19)
+					    in  let <_cor21> =
+						    call 'erlang':'and'
+							(_cor16, _cor20)
+						in  call 'erlang':'and'
+							(_cor14, _cor21)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 192
+	      [117|[110|[107|[110|[111|[119|[110]]]]]]]
+	  ( <_cor23,_cor22> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor23,_cor22})
+		  -| [{'function_name',{'allocator_descr',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'class_descr'/2 =
+    %% Line 194
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Hdr,_cor24},TypeNo>
+	      when try
+		    let <_cor2> =
+			call 'erlang':'is_tuple'
+			    (Hdr)
+		    in  let <_cor3> =
+			    call 'erlang':'element'
+				(1, Hdr)
+			in  let <_cor4> =
+				call 'erlang':'=:='
+				    (_cor3, 'instr_hdr')
+			    in  let <_cor5> =
+				    call 'erlang':'element'
+					(2, Hdr)
+				in  let <_cor6> =
+					call 'erlang':'=:='
+					    (_cor5, 2)
+				    in  let <_cor7> =
+					    call 'erlang':'is_integer'
+						(TypeNo)
+					in  let <_cor8> =
+						call 'erlang':'and'
+						    (_cor6, _cor7)
+					    in  let <_cor9> =
+						    call 'erlang':'and'
+							(_cor4, _cor8)
+						in  call 'erlang':'and'
+							(_cor2, _cor9)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor12> =
+		  catch
+		      let <_cor10> =
+			  %% Line 195
+			  call 'erlang':'element'
+			      (4, Hdr)
+		      in  let <_cor11> =
+			      %% Line 195
+			      call 'erlang':'element'
+				  (TypeNo, _cor10)
+			  in  %% Line 195
+			      call 'erlang':'element'
+				  (3, _cor11)
+	      in  %% Line 195
+		  case _cor12 of
+		    %% Line 196
+		    <{'EXIT',_cor25}> when 'true' ->
+			'invalid_type'
+		    %% Line 197
+		    <Type> when 'true' ->
+			Type
+		  end
+	  %% Line 199
+	  <{Hdr,_cor26},TypeNo>
+	      when try
+		    let <_cor14> =
+			call 'erlang':'is_tuple'
+			    (Hdr)
+		    in  let <_cor15> =
+			    call 'erlang':'element'
+				(1, Hdr)
+			in  let <_cor16> =
+				call 'erlang':'=:='
+				    (_cor15, 'instr_hdr')
+			    in  let <_cor17> =
+				    call 'erlang':'element'
+					(2, Hdr)
+				in  let <_cor18> =
+					call 'erlang':'=:='
+					    (_cor17, 1)
+				    in  let <_cor19> =
+					    call 'erlang':'is_integer'
+						(TypeNo)
+					in  let <_cor20> =
+						call 'erlang':'and'
+						    (_cor18, _cor19)
+					    in  let <_cor21> =
+						    call 'erlang':'and'
+							(_cor16, _cor20)
+						in  call 'erlang':'and'
+							(_cor14, _cor21)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 200
+	      [117|[110|[107|[110|[111|[119|[110]]]]]]]
+	  ( <_cor23,_cor22> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor23,_cor22})
+		  -| [{'function_name',{'class_descr',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'type_no_range'/1 =
+    %% Line 202
+    fun (_cor0) ->
+	case _cor0 of
+	  <{Hdr,_cor17}>
+	      when try
+		    let <_cor1> =
+			call 'erlang':'is_tuple'
+			    (Hdr)
+		    in  let <_cor2> =
+			    call 'erlang':'element'
+				(1, Hdr)
+			in  let <_cor3> =
+				call 'erlang':'=:='
+				    (_cor2, 'instr_hdr')
+			    in  let <_cor4> =
+				    call 'erlang':'element'
+					(2, Hdr)
+				in  let <_cor5> =
+					call 'erlang':'=:='
+					    (_cor4, 2)
+				    in  let <_cor6> =
+					    call 'erlang':'and'
+						(_cor3, _cor5)
+					in  call 'erlang':'and'
+						(_cor1, _cor6)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor7> =
+		  %% Line 203
+		  call 'erlang':'element'
+		      (4, Hdr)
+	      in  let <_cor8> =
+		      %% Line 203
+		      call 'erlang':'tuple_size'
+			  (_cor7)
+		  in  %% Line 203
+		      {1,_cor8}
+	  %% Line 204
+	  <{Hdr,_cor18}>
+	      when try
+		    let <_cor9> =
+			call 'erlang':'is_tuple'
+			    (Hdr)
+		    in  let <_cor10> =
+			    call 'erlang':'element'
+				(1, Hdr)
+			in  let <_cor11> =
+				call 'erlang':'=:='
+				    (_cor10, 'instr_hdr')
+			    in  let <_cor12> =
+				    call 'erlang':'element'
+					(2, Hdr)
+				in  let <_cor13> =
+					call 'erlang':'=:='
+					    (_cor12, 1)
+				    in  let <_cor14> =
+					    call 'erlang':'and'
+						(_cor11, _cor13)
+					in  call 'erlang':'and'
+						(_cor9, _cor14)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 205
+	      {-1,1000}
+	  ( <_cor16> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16})
+		  -| [{'function_name',{'type_no_range',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'type_string'/1 =
+    %% Line 207
+    fun (_cor0) ->
+	case _cor0 of
+	  <-1> when 'true' ->
+	      %% Line 208
+	      [117|[110|[107|[110|[111|[119|[110]]]]]]]
+	  %% Line 209
+	  <1> when 'true' ->
+	      %% Line 210
+	      [97|[116|[111|[109|[32|[116|[101|[120|[116]]]]]]]]]
+	  %% Line 211
+	  <11> when 'true' ->
+	      %% Line 212
+	      [97|[116|[111|[109|[32|[100|[101|[115|[99]]]]]]]]]
+	  %% Line 213
+	  <2> when 'true' ->
+	      %% Line 214
+	      [98|[105|[103|[110|[117|[109|[32|[40|[98|[105|[103|[95|[116|[111|[95|[108|[105|[115|[116|[41]]]]]]]]]]]]]]]]]]]]
+	  %% Line 215
+	  <31> when 'true' ->
+	      %% Line 216
+	      [102|[105|[120|[97|[108|[108|[111|[99]]]]]]]]
+	  %% Line 217
+	  <32> when 'true' ->
+	      %% Line 218
+	      [117|[110|[107|[110|[111|[119|[110|[32|[102|[105|[120|[97|[108|[108|[111|[99|[32|[98|[108|[111|[99|[107]]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 219
+	  <33> when 'true' ->
+	      %% Line 220
+	      [109|[101|[115|[115|[97|[103|[101|[32|[98|[117|[102|[102|[101|[114]]]]]]]]]]]]]]
+	  %% Line 221
+	  <34> when 'true' ->
+	      %% Line 222
+	      [109|[101|[115|[115|[97|[103|[101|[32|[108|[105|[110|[107]]]]]]]]]]]]
+	  %% Line 223
+	  <4> when 'true' ->
+	      %% Line 224
+	      [101|[115|[116|[97|[99|[107]]]]]]
+	  %% Line 225
+	  <40> when 'true' ->
+	      %% Line 226
+	      [100|[98|[32|[116|[97|[98|[108|[101|[32|[118|[101|[99]]]]]]]]]]]]
+	  %% Line 227
+	  <41> when 'true' ->
+	      %% Line 228
+	      [100|[98|[32|[116|[114|[101|[101|[32|[115|[101|[108|[101|[99|[116|[32|[98|[117|[102|[102|[101|[114]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 229
+	  <43> when 'true' ->
+	      %% Line 230
+	      [100|[98|[32|[104|[97|[115|[104|[32|[115|[101|[108|[101|[99|[116|[32|[98|[117|[102|[102|[101|[114]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 231
+	  <44> when 'true' ->
+	      %% Line 232
+	      [100|[98|[32|[104|[97|[115|[104|[32|[115|[101|[108|[101|[99|[116|[32|[108|[105|[115|[116]]]]]]]]]]]]]]]]]]]
+	  %% Line 233
+	  <45> when 'true' ->
+	      %% Line 234
+	      [100|[98|[32|[109|[97|[116|[99|[104|[32|[112|[114|[111|[103|[32|[115|[116|[97|[99|[107]]]]]]]]]]]]]]]]]]]
+	  %% Line 235
+	  <46> when 'true' ->
+	      %% Line 236
+	      [100|[98|[32|[109|[97|[116|[99|[104|[32|[112|[114|[111|[103|[32|[104|[101|[97|[112|[32|[100|[97|[116|[97]]]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 237
+	  <47> when 'true' ->
+	      %% Line 238
+	      [100|[98|[32|[116|[101|[109|[112|[32|[98|[117|[102|[102|[101|[114]]]]]]]]]]]]]]
+	  %% Line 239
+	  <48> when 'true' ->
+	      %% Line 240
+	      [100|[98|[32|[101|[114|[114|[111|[114]]]]]]]]
+	  %% Line 241
+	  <49> when 'true' ->
+	      %% Line 242
+	      [100|[98|[32|[101|[114|[114|[111|[114|[32|[105|[110|[102|[111]]]]]]]]]]]]]
+	  %% Line 243
+	  <50> when 'true' ->
+	      %% Line 244
+	      [100|[98|[32|[116|[114|[97|[110|[115|[32|[116|[97|[98]]]]]]]]]]]]
+	  %% Line 245
+	  <51> when 'true' ->
+	      %% Line 246
+	      [100|[98|[32|[115|[101|[103|[109|[101|[110|[116]]]]]]]]]]
+	  %% Line 247
+	  <52> when 'true' ->
+	      %% Line 248
+	      [100|[98|[32|[116|[101|[114|[109]]]]]]]
+	  %% Line 249
+	  <53> when 'true' ->
+	      %% Line 250
+	      [100|[98|[32|[97|[100|[100|[95|[99|[111|[117|[110|[116|[101|[114]]]]]]]]]]]]]]
+	  %% Line 251
+	  <54> when 'true' ->
+	      %% Line 252
+	      [100|[98|[32|[115|[101|[103|[109|[101|[110|[116|[32|[116|[97|[98|[108|[101]]]]]]]]]]]]]]]]
+	  %% Line 253
+	  <55> when 'true' ->
+	      %% Line 254
+	      [100|[98|[32|[116|[97|[98|[108|[101|[32|[40|[102|[105|[120|[41]]]]]]]]]]]]]]
+	  %% Line 255
+	  <56> when 'true' ->
+	      %% Line 256
+	      [100|[98|[32|[98|[105|[110|[100|[105|[110|[103|[115]]]]]]]]]]]
+	  %% Line 257
+	  <57> when 'true' ->
+	      %% Line 258
+	      [100|[98|[32|[99|[111|[117|[110|[116|[101|[114]]]]]]]]]]
+	  %% Line 259
+	  <58> when 'true' ->
+	      %% Line 260
+	      [100|[98|[32|[116|[114|[97|[99|[101|[32|[118|[101|[99]]]]]]]]]]]]
+	  %% Line 261
+	  <59> when 'true' ->
+	      %% Line 262
+	      [100|[98|[32|[102|[105|[120|[101|[100|[32|[100|[101|[108|[101|[116|[105|[111|[110]]]]]]]]]]]]]]]]]
+	  %% Line 263
+	  <60> when 'true' ->
+	      %% Line 264
+	      [98|[105|[110|[97|[114|[121|[32|[40|[101|[120|[116|[101|[114|[110|[97|[108|[46|[99|[41]]]]]]]]]]]]]]]]]]]
+	  %% Line 265
+	  <61> when 'true' ->
+	      %% Line 266
+	      [98|[105|[110|[97|[114|[121]]]]]]
+	  %% Line 267
+	  <62> when 'true' ->
+	      %% Line 268
+	      [112|[114|[111|[99|[98|[105|[110|[32|[40|[102|[105|[120|[41]]]]]]]]]]]]]
+	  %% Line 269
+	  <70> when 'true' ->
+	      %% Line 270
+	      [100|[114|[105|[118|[101|[114|[32|[97|[108|[108|[111|[99|[32|[40|[105|[111|[46|[99|[41]]]]]]]]]]]]]]]]]]]
+	  %% Line 271
+	  <71> when 'true' ->
+	      %% Line 272
+	      [98|[105|[110|[97|[114|[121|[32|[40|[105|[111|[46|[99|[41]]]]]]]]]]]]]
+	  %% Line 273
+	  <72> when 'true' ->
+	      %% Line 274
+	      [98|[105|[110|[97|[114|[121|[32|[118|[101|[99|[32|[40|[105|[111|[46|[99|[41]]]]]]]]]]]]]]]]]
+	  %% Line 275
+	  <73> when 'true' ->
+	      %% Line 276
+	      [98|[105|[110|[97|[114|[121|[32|[118|[101|[99|[32|[50|[32|[40|[105|[111|[46|[99|[41]]]]]]]]]]]]]]]]]]]
+	  %% Line 277
+	  <74> when 'true' ->
+	      %% Line 278
+	      [105|[111|[32|[118|[101|[99|[32|[40|[105|[111|[46|[99|[41]]]]]]]]]]]]]
+	  %% Line 279
+	  <75> when 'true' ->
+	      %% Line 280
+	      [105|[111|[32|[118|[101|[99|[32|[50|[32|[40|[105|[111|[46|[99|[41]]]]]]]]]]]]]]]
+	  %% Line 281
+	  <76> when 'true' ->
+	      %% Line 282
+	      [116|[101|[109|[112|[32|[105|[111|[32|[98|[117|[102|[102|[101|[114|[32|[40|[105|[111|[46|[99|[41]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 283
+	  <77> when 'true' ->
+	      %% Line 284
+	      [116|[101|[109|[112|[32|[105|[111|[32|[98|[117|[102|[102|[101|[114|[32|[50|[32|[40|[105|[111|[46|[99|[41]]]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 285
+	  <78> when 'true' ->
+	      %% Line 286
+	      [108|[105|[110|[101|[32|[98|[117|[102|[102|[101|[114|[32|[40|[105|[111|[46|[99|[41]]]]]]]]]]]]]]]]]]
+	  %% Line 287
+	  <8> when 'true' ->
+	      %% Line 288
+	      [104|[101|[97|[112]]]]
+	  %% Line 289
+	  <801> when 'true' ->
+	      %% Line 290
+	      [104|[101|[97|[112|[32|[40|[49|[41]]]]]]]]
+	  %% Line 291
+	  <802> when 'true' ->
+	      %% Line 292
+	      [104|[101|[97|[112|[32|[40|[50|[41]]]]]]]]
+	  %% Line 293
+	  <803> when 'true' ->
+	      %% Line 294
+	      [104|[101|[97|[112|[32|[40|[51|[41]]]]]]]]
+	  %% Line 295
+	  <804> when 'true' ->
+	      %% Line 296
+	      [104|[101|[97|[112|[32|[40|[52|[41]]]]]]]]
+	  %% Line 297
+	  <805> when 'true' ->
+	      %% Line 298
+	      [104|[101|[97|[112|[32|[40|[53|[41]]]]]]]]
+	  %% Line 299
+	  <821> when 'true' ->
+	      %% Line 300
+	      [104|[101|[97|[112|[32|[102|[114|[97|[103|[109|[101|[110|[116|[32|[40|[49|[41]]]]]]]]]]]]]]]]]
+	  %% Line 301
+	  <822> when 'true' ->
+	      %% Line 302
+	      [104|[101|[97|[112|[32|[102|[114|[97|[103|[109|[101|[110|[116|[32|[40|[50|[41]]]]]]]]]]]]]]]]]
+	  %% Line 303
+	  <830> when 'true' ->
+	      %% Line 304
+	      [115|[101|[113|[117|[101|[110|[116|[105|[97|[108|[32|[115|[116|[111|[114|[101|[32|[98|[117|[102|[102|[101|[114|[32|[40|[102|[111|[114|[32|[118|[101|[99|[116|[111|[114|[115|[41]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 305
+	  <91> when 'true' ->
+	      %% Line 306
+	      [112|[114|[111|[99|[101|[115|[115|[32|[116|[97|[98|[108|[101]]]]]]]]]]]]]
+	  %% Line 307
+	  <92> when 'true' ->
+	      %% Line 308
+	      [112|[114|[111|[99|[101|[115|[115|[32|[100|[101|[115|[99]]]]]]]]]]]]
+	  %% Line 309
+	  <110> when 'true' ->
+	      %% Line 310
+	      [104|[97|[115|[104|[32|[98|[117|[99|[107|[101|[116|[115]]]]]]]]]]]]
+	  %% Line 311
+	  <111> when 'true' ->
+	      %% Line 312
+	      [104|[97|[115|[104|[32|[116|[97|[98|[108|[101]]]]]]]]]]
+	  %% Line 313
+	  <120> when 'true' ->
+	      %% Line 314
+	      [105|[110|[100|[101|[120|[32|[105|[110|[105|[116]]]]]]]]]]
+	  %% Line 315
+	  <121> when 'true' ->
+	      %% Line 316
+	      [105|[110|[100|[101|[120|[32|[116|[97|[98|[108|[101]]]]]]]]]]]
+	  %% Line 317
+	  <130> when 'true' ->
+	      %% Line 318
+	      [116|[101|[109|[112|[32|[98|[117|[102|[102|[101|[114]]]]]]]]]]]
+	  %% Line 319
+	  <140> when 'true' ->
+	      %% Line 320
+	      [116|[105|[109|[101|[114|[32|[119|[104|[101|[101|[108]]]]]]]]]]]
+	  %% Line 321
+	  <150> when 'true' ->
+	      %% Line 322
+	      [100|[105|[115|[116|[114|[105|[98|[117|[116|[105|[111|[110|[32|[99|[97|[99|[104|[101]]]]]]]]]]]]]]]]]]
+	  %% Line 323
+	  <151> when 'true' ->
+	      %% Line 324
+	      [100|[109|[101|[109]]]]
+	  %% Line 325
+	  <152> when 'true' ->
+	      %% Line 326
+	      [100|[105|[115|[116|[114|[105|[98|[117|[116|[105|[111|[110|[32|[116|[97|[98|[108|[101]]]]]]]]]]]]]]]]]]
+	  %% Line 327
+	  <153> when 'true' ->
+	      %% Line 328
+	      [100|[105|[115|[116|[114|[105|[98|[117|[116|[105|[111|[110|[32|[116|[97|[98|[108|[101|[32|[98|[117|[99|[107|[101|[116|[115]]]]]]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 329
+	  <154> when 'true' ->
+	      %% Line 330
+	      [100|[105|[115|[116|[114|[105|[98|[117|[116|[105|[111|[110|[32|[116|[97|[98|[108|[101|[32|[101|[110|[116|[114|[121]]]]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 331
+	  <155> when 'true' ->
+	      %% Line 332
+	      [110|[111|[100|[101|[32|[116|[97|[98|[108|[101]]]]]]]]]]
+	  %% Line 333
+	  <156> when 'true' ->
+	      %% Line 334
+	      [110|[111|[100|[101|[32|[116|[97|[98|[108|[101|[32|[98|[117|[99|[107|[101|[116|[115]]]]]]]]]]]]]]]]]]
+	  %% Line 335
+	  <157> when 'true' ->
+	      %% Line 336
+	      [110|[111|[100|[101|[32|[116|[97|[98|[108|[101|[32|[101|[110|[116|[114|[121]]]]]]]]]]]]]]]]
+	  %% Line 337
+	  <160> when 'true' ->
+	      %% Line 338
+	      [112|[111|[114|[116|[32|[116|[97|[98|[108|[101]]]]]]]]]]
+	  %% Line 339
+	  <161> when 'true' ->
+	      %% Line 340
+	      [100|[114|[105|[118|[101|[114|[32|[101|[110|[116|[114|[121]]]]]]]]]]]]
+	  %% Line 341
+	  <162> when 'true' ->
+	      %% Line 342
+	      [112|[111|[114|[116|[32|[115|[101|[116|[117|[112]]]]]]]]]]
+	  %% Line 343
+	  <163> when 'true' ->
+	      %% Line 344
+	      [112|[111|[114|[116|[32|[119|[97|[105|[116]]]]]]]]]
+	  %% Line 345
+	  <170> when 'true' ->
+	      %% Line 346
+	      [109|[111|[100|[117|[108|[101]]]]]]
+	  %% Line 347
+	  <171> when 'true' ->
+	      %% Line 348
+	      [102|[117|[110|[100|[101|[102]]]]]]
+	  %% Line 349
+	  <180> when 'true' ->
+	      %% Line 350
+	      [102|[105|[108|[101|[32|[116|[97|[98|[108|[101]]]]]]]]]]
+	  %% Line 351
+	  <181> when 'true' ->
+	      %% Line 352
+	      [100|[114|[105|[118|[101|[114|[32|[116|[97|[98|[108|[101]]]]]]]]]]]]
+	  %% Line 353
+	  <182> when 'true' ->
+	      %% Line 354
+	      [112|[111|[108|[108|[32|[115|[116|[114|[117|[99|[116]]]]]]]]]]]
+	  %% Line 355
+	  <190> when 'true' ->
+	      %% Line 356
+	      [105|[110|[101|[116|[32|[100|[114|[105|[118|[101|[114]]]]]]]]]]]
+	  %% Line 357
+	  <200> when 'true' ->
+	      %% Line 358
+	      [101|[102|[105|[108|[101|[32|[100|[114|[105|[118|[101|[114]]]]]]]]]]]]
+	  %% Line 359
+	  <210> when 'true' ->
+	      %% Line 360
+	      [103|[99|[32|[114|[111|[111|[116|[32|[115|[101|[116]]]]]]]]]]]
+	  %% Line 361
+	  <220> when 'true' ->
+	      %% Line 362
+	      [98|[114|[101|[97|[107|[112|[111|[105|[110|[116|[32|[100|[97|[116|[97]]]]]]]]]]]]]]]
+	  %% Line 363
+	  <230> when 'true' ->
+	      %% Line 364
+	      [97|[115|[121|[110|[99|[32|[113|[117|[101|[117|[101]]]]]]]]]]]
+	  %% Line 365
+	  <231> when 'true' ->
+	      %% Line 366
+	      [97|[115|[121|[110|[99|[32|[40|[101|[120|[105|[116|[41]]]]]]]]]]]]
+	  %% Line 367
+	  <232> when 'true' ->
+	      %% Line 368
+	      [97|[115|[121|[110|[99|[32|[40|[100|[114|[105|[118|[101|[114|[41]]]]]]]]]]]]]]
+	  %% Line 369
+	  <240> when 'true' ->
+	      %% Line 370
+	      [98|[105|[116|[115|[32|[98|[117|[102|[102|[101|[114]]]]]]]]]]]
+	  %% Line 371
+	  <241> when 'true' ->
+	      %% Line 372
+	      [98|[105|[116|[115|[32|[116|[101|[109|[112|[32|[98|[117|[102|[102|[101|[114]]]]]]]]]]]]]]]]
+	  %% Line 373
+	  <250> when 'true' ->
+	      %% Line 374
+	      [109|[111|[100|[117|[108|[101|[115|[32|[40|[108|[111|[97|[100|[101|[114|[41]]]]]]]]]]]]]]]]
+	  %% Line 375
+	  <251> when 'true' ->
+	      %% Line 376
+	      [99|[111|[100|[101|[32|[40|[108|[111|[97|[100|[101|[114|[41]]]]]]]]]]]]]
+	  %% Line 377
+	  <252> when 'true' ->
+	      %% Line 378
+	      [97|[116|[111|[109|[32|[116|[97|[98|[32|[40|[108|[111|[97|[100|[101|[114|[41]]]]]]]]]]]]]]]]]
+	  %% Line 379
+	  <253> when 'true' ->
+	      %% Line 380
+	      [105|[109|[112|[111|[114|[116|[32|[116|[97|[98|[32|[40|[108|[111|[97|[100|[101|[114|[41]]]]]]]]]]]]]]]]]]]
+	  %% Line 381
+	  <254> when 'true' ->
+	      %% Line 382
+	      [101|[120|[112|[111|[114|[116|[32|[116|[97|[98|[32|[40|[108|[111|[97|[100|[101|[114|[41]]]]]]]]]]]]]]]]]]]
+	  %% Line 383
+	  <255> when 'true' ->
+	      %% Line 384
+	      [108|[97|[98|[108|[101|[32|[116|[97|[98|[32|[40|[108|[111|[97|[100|[101|[114|[41]]]]]]]]]]]]]]]]]]
+	  %% Line 385
+	  <256> when 'true' ->
+	      %% Line 386
+	      [103|[101|[110|[32|[111|[112|[32|[40|[108|[111|[97|[100|[101|[114|[41]]]]]]]]]]]]]]]
+	  %% Line 387
+	  <257> when 'true' ->
+	      %% Line 388
+	      [103|[101|[110|[32|[111|[112|[32|[97|[114|[103|[115|[32|[40|[108|[111|[97|[100|[101|[114|[41]]]]]]]]]]]]]]]]]]]]
+	  %% Line 389
+	  <258> when 'true' ->
+	      %% Line 390
+	      [103|[101|[110|[32|[111|[112|[32|[97|[114|[103|[115|[32|[50|[32|[40|[108|[111|[97|[100|[101|[114|[41]]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 391
+	  <259> when 'true' ->
+	      %% Line 392
+	      [103|[101|[110|[32|[111|[112|[32|[97|[114|[103|[115|[32|[51|[32|[40|[108|[111|[97|[100|[101|[114|[41]]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 393
+	  <260> when 'true' ->
+	      %% Line 394
+	      [108|[97|[109|[98|[100|[97|[115|[32|[40|[108|[111|[97|[100|[101|[114|[41]]]]]]]]]]]]]]]]
+	  %% Line 395
+	  <261> when 'true' ->
+	      %% Line 396
+	      [116|[101|[109|[112|[32|[105|[110|[116|[32|[98|[117|[102|[102|[101|[114|[32|[40|[108|[111|[97|[100|[101|[114|[41]]]]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 397
+	  <262> when 'true' ->
+	      %% Line 398
+	      [116|[101|[109|[112|[32|[104|[101|[97|[112|[32|[40|[108|[111|[97|[100|[101|[114|[41]]]]]]]]]]]]]]]]]]
+	  %% Line 399
+	  <280> when 'true' ->
+	      %% Line 400
+	      [100|[105|[115|[116|[32|[99|[116|[114|[108|[32|[109|[115|[103|[32|[98|[117|[102|[102|[101|[114]]]]]]]]]]]]]]]]]]]]
+	  %% Line 401
+	  <281> when 'true' ->
+	      %% Line 402
+	      [100|[105|[115|[116|[95|[98|[117|[102]]]]]]]]
+	  %% Line 403
+	  <290> when 'true' ->
+	      %% Line 404
+	      [99|[97|[108|[108|[32|[116|[114|[97|[99|[101|[32|[98|[117|[102|[102|[101|[114]]]]]]]]]]]]]]]]]
+	  %% Line 405
+	  <300> when 'true' ->
+	      %% Line 406
+	      [98|[105|[102|[32|[116|[105|[109|[101|[114|[32|[114|[101|[99]]]]]]]]]]]]]
+	  %% Line 407
+	  <310> when 'true' ->
+	      %% Line 408
+	      [97|[114|[103|[117|[109|[101|[110|[116|[32|[114|[101|[103|[105|[115|[116|[101|[114|[115]]]]]]]]]]]]]]]]]]
+	  %% Line 409
+	  <320> when 'true' ->
+	      %% Line 410
+	      [99|[111|[109|[112|[114|[101|[115|[115|[101|[100|[32|[98|[105|[110|[97|[114|[121|[32|[116|[101|[109|[112|[32|[98|[117|[102|[102|[101|[114]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 411
+	  <330> when 'true' ->
+	      %% Line 412
+	      [116|[101|[114|[109|[95|[116|[111|[95|[98|[105|[110|[97|[114|[121|[32|[116|[101|[109|[112|[32|[98|[117|[102|[102|[101|[114]]]]]]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 413
+	  <340> when 'true' ->
+	      %% Line 414
+	      [112|[114|[111|[99|[32|[100|[105|[99|[116]]]]]]]]]
+	  %% Line 415
+	  <350> when 'true' ->
+	      %% Line 416
+	      [116|[114|[97|[99|[101|[32|[116|[111|[32|[112|[111|[114|[116|[32|[116|[101|[109|[112|[32|[98|[117|[102|[102|[101|[114]]]]]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 417
+	  <360> when 'true' ->
+	      %% Line 418
+	      [108|[105|[115|[116|[115|[32|[115|[117|[98|[116|[114|[97|[99|[116|[32|[116|[101|[109|[112|[32|[98|[117|[102|[102|[101|[114]]]]]]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 419
+	  <370> when 'true' ->
+	      %% Line 420
+	      [108|[105|[110|[107|[32|[40|[108|[104|[41]]]]]]]]]
+	  %% Line 421
+	  <380> when 'true' ->
+	      %% Line 422
+	      [112|[111|[114|[116|[32|[99|[97|[108|[108|[32|[98|[117|[102|[102|[101|[114]]]]]]]]]]]]]]]]
+	  %% Line 423
+	  <400> when 'true' ->
+	      %% Line 424
+	      [100|[101|[102|[105|[110|[105|[116|[101|[95|[97|[108|[108|[111|[99|[32|[98|[108|[111|[99|[107]]]]]]]]]]]]]]]]]]]]
+	  %% Line 425
+	  <_cor2> when 'true' ->
+	      %% Line 426
+	      'invalid_type'
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('instrument')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('instrument', _cor0)
+end

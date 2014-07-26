@@ -1,0 +1,1238 @@
+module 'xref' ['add_application'/2,
+	       'add_application'/3,
+	       'add_directory'/2,
+	       'add_directory'/3,
+	       'add_module'/2,
+	       'add_module'/3,
+	       'add_release'/2,
+	       'add_release'/3,
+	       'analyse'/2,
+	       'analyse'/3,
+	       'analyze'/2,
+	       'analyze'/3,
+	       'code_change'/3,
+	       'd'/1,
+	       'forget'/1,
+	       'forget'/2,
+	       'format_error'/1,
+	       'get_default'/1,
+	       'get_default'/2,
+	       'get_library_path'/1,
+	       'handle_call'/3,
+	       'handle_cast'/2,
+	       'handle_info'/2,
+	       'info'/1,
+	       'info'/2,
+	       'info'/3,
+	       'init'/1,
+	       'm'/1,
+	       'module_info'/0,
+	       'module_info'/1,
+	       'q'/2,
+	       'q'/3,
+	       'remove_application'/2,
+	       'remove_module'/2,
+	       'remove_release'/2,
+	       'replace_application'/3,
+	       'replace_application'/4,
+	       'replace_module'/3,
+	       'replace_module'/4,
+	       'set_default'/2,
+	       'set_default'/3,
+	       'set_library_path'/2,
+	       'set_library_path'/3,
+	       'start'/1,
+	       'start'/2,
+	       'stop'/1,
+	       'terminate'/2,
+	       'update'/1,
+	       'update'/2,
+	       'variables'/1,
+	       'variables'/2]
+    attributes [%% Line 22
+		'behaviour' =
+		    %% Line 22
+		    ['gen_server']]
+'m'/1 =
+    %% Line 112
+    fun (_cor0) ->
+	case _cor0 of
+	  <Module>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      %% Line 113
+	      case call 'xref_utils':'find_beam'
+		       (Module) of
+		%% Line 114
+		<{'ok',File}> when 'true' ->
+		    let <Fun> =
+			%% Line 115
+			( fun (_cor1) ->
+			      %% Line 116
+			      call 'xref_base':'add_module'
+				  (_cor1, File, {'builtins','true'})
+			  -| [{'id',{0,0,'-m/1-fun-0-'}}] )
+		    in  let <_cor4> =
+			    catch
+				%% Line 118
+				apply 'do_functions_analysis'/1
+				    (Fun)
+			in  %% Line 118
+			    case _cor4 of
+			      %% Line 119
+			      <{'error',_cor15,{'no_debug_info',_cor16}}> when 'true' ->
+				  catch
+				      %% Line 120
+				      apply 'do_modules_analysis'/1
+					  (Fun)
+			      %% Line 121
+			      <Result> when 'true' ->
+				  %% Line 122
+				  Result
+			    end
+		%% Line 124
+		<Error> when 'true' ->
+		    Error
+	      end
+	  %% Line 126
+	  <File> when 'true' ->
+	      %% Line 127
+	      case call 'xref_utils':'split_filename'
+		       (File, [46|[98|[101|[97|[109]]]]]) of
+		%% Line 128
+		<'false'> when 'true' ->
+		    %% Line 129
+		    {'error','xref_base',{'invalid_filename',File}}
+		%% Line 130
+		<{Dir,BaseName}> when 'true' ->
+		    let <BeamFile> =
+			%% Line 131
+			call 'filename':'join'
+			    (Dir, BaseName)
+		    in  let <Fun> =
+			    %% Line 132
+			    ( fun (_cor8) ->
+				  %% Line 133
+				  call 'xref_base':'add_module'
+				      (_cor8, BeamFile, {'builtins','true'})
+			      -| [{'id',{0,0,'-m/1-fun-1-'}}] )
+			in  let <_cor11> =
+				catch
+				    %% Line 135
+				    apply 'do_functions_analysis'/1
+					(Fun)
+			    in  %% Line 135
+				case _cor11 of
+				  %% Line 136
+				  <{'error',_cor17,{'no_debug_info',_cor18}}> when 'true' ->
+				      catch
+					  %% Line 137
+					  apply 'do_modules_analysis'/1
+					      (Fun)
+				  %% Line 138
+				  <Result> when 'true' ->
+				      %% Line 139
+				      Result
+				end
+		( <_cor13> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor13})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'d'/1 =
+    %% Line 144
+    fun (_cor0) ->
+	let <Fun> =
+	    %% Line 145
+	    ( fun (_cor1) ->
+		  %% Line 146
+		  call 'xref_base':'add_directory'
+		      (_cor1, _cor0, {'builtins','true'})
+	      -| [{'id',{0,0,'-d/1-fun-0-'}}] )
+	in  let <Fun1> =
+		%% Line 148
+		( fun (_cor5) ->
+		      %% Line 149
+		      case apply Fun
+			       (_cor5) of
+			%% Line 150
+			<{'ok',[],_X_S}> when 'true' ->
+			    %% Line 151
+			    'no_modules'
+			%% Line 152
+			<Reply> when 'true' ->
+			    %% Line 153
+			    Reply
+		      end
+		  -| [{'id',{0,0,'-d/1-fun-1-'}}] )
+	    in  let <_cor8> =
+		    catch
+			%% Line 156
+			apply 'do_functions_analysis'/1
+			    (Fun1)
+		in  %% Line 156
+		    case _cor8 of
+		      %% Line 157
+		      <'no_modules'> when 'true' ->
+			  catch
+			      %% Line 158
+			      apply 'do_modules_analysis'/1
+				  (Fun)
+		      %% Line 159
+		      <Result> when 'true' ->
+			  %% Line 160
+			  Result
+		    end
+'start'/1 =
+    %% Line 163
+    fun (_cor0) ->
+	case _cor0 of
+	  <Name>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      %% Line 164
+	      apply 'start'/2
+		  (Name, [])
+	  %% Line 165
+	  <Opts0>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      %% Line 166
+	      case apply 'split_args'/1
+		       (Opts0) of
+		<{Args,Opts}> when 'true' ->
+		    %% Line 167
+		    call 'gen_server':'start'
+			('xref', Args, Opts)
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'start',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'start'/2 =
+    %% Line 169
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Name,Opts0>
+	      when call 'erlang':'is_list'
+		    (Opts0) ->
+	      %% Line 170
+	      case apply 'split_args'/1
+		       (Opts0) of
+		<{Args,Opts}> when 'true' ->
+		    %% Line 171
+		    call 'gen_server':'start'
+			({'local',Name}, 'xref', Args, Opts)
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 172
+	  <Name,Opt> when 'true' ->
+	      %% Line 173
+	      apply 'start'/2
+		  (Name, [Opt|[]])
+	end
+'split_args'/1 =
+    %% Line 175
+    fun (_cor0) ->
+	%% Line 176
+	case call 'lists':'keysearch'
+		 ('xref_mode', 1, _cor0) of
+	  %% Line 177
+	  <{'value',Mode}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 178
+		  call 'lists':'keydelete'
+		      ('xref_mode', 1, _cor0)
+	      in  %% Line 178
+		  {[Mode|[]],_cor1}
+	  %% Line 179
+	  <'false'> when 'true' ->
+	      %% Line 180
+	      {[],_cor0}
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'stop'/1 =
+    %% Line 183
+    fun (_cor0) ->
+	%% Line 184
+	call 'gen_server':'call'
+	    (_cor0, 'stop', 'infinity')
+'add_release'/2 =
+    %% Line 186
+    fun (_cor1,_cor0) ->
+	%% Line 187
+	call 'gen_server':'call'
+	    (_cor1, {'add_release',_cor0}, 'infinity')
+'add_release'/3 =
+    %% Line 189
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 190
+	call 'gen_server':'call'
+	    (_cor2, {'add_release',_cor1,_cor0}, 'infinity')
+'add_application'/2 =
+    %% Line 192
+    fun (_cor1,_cor0) ->
+	%% Line 193
+	call 'gen_server':'call'
+	    (_cor1, {'add_application',_cor0}, 'infinity')
+'add_application'/3 =
+    %% Line 195
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 196
+	call 'gen_server':'call'
+	    (_cor2, {'add_application',_cor1,_cor0}, 'infinity')
+'add_module'/2 =
+    %% Line 198
+    fun (_cor1,_cor0) ->
+	%% Line 199
+	call 'gen_server':'call'
+	    (_cor1, {'add_module',_cor0}, 'infinity')
+'add_module'/3 =
+    %% Line 201
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 202
+	call 'gen_server':'call'
+	    (_cor2, {'add_module',_cor1,_cor0}, 'infinity')
+'add_directory'/2 =
+    %% Line 204
+    fun (_cor1,_cor0) ->
+	%% Line 205
+	call 'gen_server':'call'
+	    (_cor1, {'add_directory',_cor0}, 'infinity')
+'add_directory'/3 =
+    %% Line 207
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 208
+	call 'gen_server':'call'
+	    (_cor2, {'add_directory',_cor1,_cor0}, 'infinity')
+'replace_module'/3 =
+    %% Line 210
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 211
+	call 'gen_server':'call'
+	    (_cor2, {'replace_module',_cor1,_cor0}, 'infinity')
+'replace_module'/4 =
+    %% Line 213
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 214
+	call 'gen_server':'call'
+	    (_cor3, {'replace_module',_cor2,_cor1,_cor0}, 'infinity')
+'replace_application'/3 =
+    %% Line 216
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 217
+	call 'gen_server':'call'
+	    (_cor2, {'replace_application',_cor1,_cor0}, 'infinity')
+'replace_application'/4 =
+    %% Line 219
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 220
+	call 'gen_server':'call'
+	    (_cor3, {'replace_application',_cor2,_cor1,_cor0}, 'infinity')
+'remove_module'/2 =
+    %% Line 222
+    fun (_cor1,_cor0) ->
+	%% Line 223
+	call 'gen_server':'call'
+	    (_cor1, {'remove_module',_cor0}, 'infinity')
+'remove_application'/2 =
+    %% Line 225
+    fun (_cor1,_cor0) ->
+	%% Line 226
+	call 'gen_server':'call'
+	    (_cor1, {'remove_application',_cor0}, 'infinity')
+'remove_release'/2 =
+    %% Line 228
+    fun (_cor1,_cor0) ->
+	%% Line 229
+	call 'gen_server':'call'
+	    (_cor1, {'remove_release',_cor0}, 'infinity')
+'get_library_path'/1 =
+    %% Line 231
+    fun (_cor0) ->
+	%% Line 232
+	call 'gen_server':'call'
+	    (_cor0, 'get_library_path', 'infinity')
+'set_library_path'/2 =
+    %% Line 234
+    fun (_cor1,_cor0) ->
+	%% Line 235
+	call 'gen_server':'call'
+	    (_cor1, {'set_library_path',_cor0}, 'infinity')
+'set_library_path'/3 =
+    %% Line 237
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 238
+	call 'gen_server':'call'
+	    (_cor2, {'set_library_path',_cor1,_cor0}, 'infinity')
+'info'/1 =
+    %% Line 240
+    fun (_cor0) ->
+	%% Line 241
+	call 'gen_server':'call'
+	    (_cor0, 'info', 'infinity')
+'info'/2 =
+    %% Line 243
+    fun (_cor1,_cor0) ->
+	%% Line 244
+	call 'gen_server':'call'
+	    (_cor1, {'info',_cor0}, 'infinity')
+'info'/3 =
+    %% Line 246
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 247
+	call 'gen_server':'call'
+	    (_cor2, {'info',_cor1,_cor0}, 'infinity')
+'update'/1 =
+    %% Line 249
+    fun (_cor0) ->
+	%% Line 250
+	call 'gen_server':'call'
+	    (_cor0, 'update', 'infinity')
+'update'/2 =
+    %% Line 252
+    fun (_cor1,_cor0) ->
+	%% Line 253
+	call 'gen_server':'call'
+	    (_cor1, {'update',_cor0}, 'infinity')
+'forget'/1 =
+    %% Line 255
+    fun (_cor0) ->
+	%% Line 256
+	call 'gen_server':'call'
+	    (_cor0, 'forget', 'infinity')
+'forget'/2 =
+    %% Line 258
+    fun (_cor1,_cor0) ->
+	%% Line 259
+	call 'gen_server':'call'
+	    (_cor1, {'forget',_cor0}, 'infinity')
+'variables'/1 =
+    %% Line 261
+    fun (_cor0) ->
+	%% Line 262
+	call 'gen_server':'call'
+	    (_cor0, 'variables', 'infinity')
+'variables'/2 =
+    %% Line 264
+    fun (_cor1,_cor0) ->
+	%% Line 265
+	call 'gen_server':'call'
+	    (_cor1, {'variables',_cor0}, 'infinity')
+'analyse'/2 =
+    %% Line 267
+    fun (_cor1,_cor0) ->
+	%% Line 268
+	call 'gen_server':'call'
+	    (_cor1, {'analyze',_cor0}, 'infinity')
+'analyse'/3 =
+    %% Line 270
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 271
+	call 'gen_server':'call'
+	    (_cor2, {'analyze',_cor1,_cor0}, 'infinity')
+'analyze'/2 =
+    %% Line 273
+    fun (_cor1,_cor0) ->
+	%% Line 274
+	call 'gen_server':'call'
+	    (_cor1, {'analyze',_cor0}, 'infinity')
+'analyze'/3 =
+    %% Line 276
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 277
+	call 'gen_server':'call'
+	    (_cor2, {'analyze',_cor1,_cor0}, 'infinity')
+'q'/2 =
+    %% Line 279
+    fun (_cor1,_cor0) ->
+	%% Line 280
+	call 'gen_server':'call'
+	    (_cor1, {'qry',_cor0}, 'infinity')
+'q'/3 =
+    %% Line 282
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 283
+	call 'gen_server':'call'
+	    (_cor2, {'qry',_cor1,_cor0}, 'infinity')
+'get_default'/1 =
+    %% Line 285
+    fun (_cor0) ->
+	%% Line 286
+	call 'gen_server':'call'
+	    (_cor0, 'get_default', 'infinity')
+'get_default'/2 =
+    %% Line 288
+    fun (_cor1,_cor0) ->
+	%% Line 289
+	call 'gen_server':'call'
+	    (_cor1, {'get_default',_cor0}, 'infinity')
+'set_default'/2 =
+    %% Line 291
+    fun (_cor1,_cor0) ->
+	%% Line 292
+	call 'gen_server':'call'
+	    (_cor1, {'set_default',_cor0}, 'infinity')
+'set_default'/3 =
+    %% Line 294
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 295
+	call 'gen_server':'call'
+	    (_cor2, {'set_default',_cor1,_cor0}, 'infinity')
+'format_error'/1 =
+    %% Line 297
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'error',Module,Error}> when 'true' ->
+	      %% Line 298
+	      call Module:'format_error'
+		  (Error)
+	  %% Line 299
+	  <E> when 'true' ->
+	      %% Line 300
+	      call 'io_lib':'format'
+		  ([126|[116|[112|[126|[110]]]]], [E|[]])
+	end
+'init'/1 =
+    %% Line 313
+    fun (_cor0) ->
+	%% Line 314
+	case call 'xref_base':'new'
+		 (_cor0) of
+	  %% Line 315
+	  <{'ok',S}> when 'true' ->
+	      %% Line 316
+	      {'ok',S}
+	  %% Line 317
+	  <{'error',_X_Module,Reason}> when 'true' ->
+	      %% Line 318
+	      {'stop',Reason}
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'handle_call'/3 =
+    %% Line 330
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'stop',_X_From,State> when 'true' ->
+	      %% Line 331
+	      {'stop','normal','stopped',State}
+	  %% Line 332
+	  <{'add_release',Dir},_X_From,State> when 'true' ->
+	      %% Line 333
+	      case call 'xref_base':'add_release'
+		       (State, Dir) of
+		%% Line 334
+		<{'ok',ReleaseName,NewState}> when 'true' ->
+		    %% Line 335
+		    {'reply',{'ok',ReleaseName},NewState}
+		%% Line 336
+		<Error> when 'true' ->
+		    %% Line 337
+		    {'reply',Error,State}
+	      end
+	  %% Line 339
+	  <{'add_release',Dir,Options},_X_From,State> when 'true' ->
+	      %% Line 340
+	      case call 'xref_base':'add_release'
+		       (State, Dir, Options) of
+		%% Line 341
+		<{'ok',ReleaseName,NewState}> when 'true' ->
+		    %% Line 342
+		    {'reply',{'ok',ReleaseName},NewState}
+		%% Line 343
+		<Error> when 'true' ->
+		    %% Line 344
+		    {'reply',Error,State}
+	      end
+	  %% Line 346
+	  <{'add_application',Dir},_X_From,State> when 'true' ->
+	      %% Line 347
+	      case call 'xref_base':'add_application'
+		       (State, Dir) of
+		%% Line 348
+		<{'ok',AppName,NewState}> when 'true' ->
+		    %% Line 349
+		    {'reply',{'ok',AppName},NewState}
+		%% Line 350
+		<Error> when 'true' ->
+		    %% Line 351
+		    {'reply',Error,State}
+	      end
+	  %% Line 353
+	  <{'add_application',Dir,Options},_X_From,State> when 'true' ->
+	      %% Line 354
+	      case call 'xref_base':'add_application'
+		       (State, Dir, Options) of
+		%% Line 355
+		<{'ok',AppName,NewState}> when 'true' ->
+		    %% Line 356
+		    {'reply',{'ok',AppName},NewState}
+		%% Line 357
+		<Error> when 'true' ->
+		    %% Line 358
+		    {'reply',Error,State}
+	      end
+	  %% Line 360
+	  <{'add_module',File},_X_From,State> when 'true' ->
+	      %% Line 361
+	      case call 'xref_base':'add_module'
+		       (State, File) of
+		%% Line 362
+		<{'ok',Module,NewState}> when 'true' ->
+		    %% Line 363
+		    {'reply',{'ok',Module},NewState}
+		%% Line 364
+		<Error> when 'true' ->
+		    %% Line 365
+		    {'reply',Error,State}
+	      end
+	  %% Line 367
+	  <{'add_module',File,Options},_X_From,State> when 'true' ->
+	      %% Line 368
+	      case call 'xref_base':'add_module'
+		       (State, File, Options) of
+		%% Line 369
+		<{'ok',Module,NewState}> when 'true' ->
+		    %% Line 370
+		    {'reply',{'ok',Module},NewState}
+		%% Line 371
+		<Error> when 'true' ->
+		    %% Line 372
+		    {'reply',Error,State}
+	      end
+	  %% Line 374
+	  <{'replace_application',Appl,Dir},_X_From,State> when 'true' ->
+	      %% Line 375
+	      case call 'xref_base':'replace_application'
+		       (State, Appl, Dir) of
+		%% Line 376
+		<{'ok',AppName,NewState}> when 'true' ->
+		    %% Line 377
+		    {'reply',{'ok',AppName},NewState}
+		%% Line 378
+		<Error> when 'true' ->
+		    %% Line 379
+		    {'reply',Error,State}
+	      end
+	  %% Line 381
+	  <{'replace_application',Appl,Dir,Opts},_X_From,State> when 'true' ->
+	      %% Line 382
+	      case call 'xref_base':'replace_application'
+		       (State, Appl, Dir, Opts) of
+		%% Line 383
+		<{'ok',AppName,NewState}> when 'true' ->
+		    %% Line 384
+		    {'reply',{'ok',AppName},NewState}
+		%% Line 385
+		<Error> when 'true' ->
+		    %% Line 386
+		    {'reply',Error,State}
+	      end
+	  %% Line 388
+	  <{'remove_module',Mod},_X_From,State> when 'true' ->
+	      %% Line 389
+	      case call 'xref_base':'remove_module'
+		       (State, Mod) of
+		%% Line 390
+		<{'ok',NewState}> when 'true' ->
+		    %% Line 391
+		    {'reply','ok',NewState}
+		%% Line 392
+		<Error> when 'true' ->
+		    %% Line 393
+		    {'reply',Error,State}
+	      end
+	  %% Line 395
+	  <{'remove_application',Appl},_X_From,State> when 'true' ->
+	      %% Line 396
+	      case call 'xref_base':'remove_application'
+		       (State, Appl) of
+		%% Line 397
+		<{'ok',NewState}> when 'true' ->
+		    %% Line 398
+		    {'reply','ok',NewState}
+		%% Line 399
+		<Error> when 'true' ->
+		    %% Line 400
+		    {'reply',Error,State}
+	      end
+	  %% Line 402
+	  <{'remove_release',Rel},_X_From,State> when 'true' ->
+	      %% Line 403
+	      case call 'xref_base':'remove_release'
+		       (State, Rel) of
+		%% Line 404
+		<{'ok',NewState}> when 'true' ->
+		    %% Line 405
+		    {'reply','ok',NewState}
+		%% Line 406
+		<Error> when 'true' ->
+		    %% Line 407
+		    {'reply',Error,State}
+	      end
+	  %% Line 409
+	  <{'add_directory',Dir},_X_From,State> when 'true' ->
+	      %% Line 410
+	      case call 'xref_base':'add_directory'
+		       (State, Dir) of
+		%% Line 411
+		<{'ok',Modules,NewState}> when 'true' ->
+		    %% Line 412
+		    {'reply',{'ok',Modules},NewState}
+		%% Line 413
+		<Error> when 'true' ->
+		    %% Line 414
+		    {'reply',Error,State}
+	      end
+	  %% Line 416
+	  <{'add_directory',Dir,Options},_X_From,State> when 'true' ->
+	      %% Line 417
+	      case call 'xref_base':'add_directory'
+		       (State, Dir, Options) of
+		%% Line 418
+		<{'ok',Modules,NewState}> when 'true' ->
+		    %% Line 419
+		    {'reply',{'ok',Modules},NewState}
+		%% Line 420
+		<Error> when 'true' ->
+		    %% Line 421
+		    {'reply',Error,State}
+	      end
+	  %% Line 423
+	  <'get_library_path',_X_From,State> when 'true' ->
+	      let <Path> =
+		  %% Line 424
+		  call 'xref_base':'get_library_path'
+		      (State)
+	      in  %% Line 425
+		  {'reply',Path,State}
+	  %% Line 426
+	  <{'set_library_path',Path},_X_From,State> when 'true' ->
+	      %% Line 427
+	      case call 'xref_base':'set_library_path'
+		       (State, Path) of
+		%% Line 428
+		<{'ok',NewState}> when 'true' ->
+		    %% Line 429
+		    {'reply','ok',NewState}
+		%% Line 430
+		<Error> when 'true' ->
+		    %% Line 431
+		    {'reply',Error,State}
+	      end
+	  %% Line 433
+	  <{'set_library_path',Path,Options},_X_From,State> when 'true' ->
+	      %% Line 434
+	      case call 'xref_base':'set_library_path'
+		       (State, Path, Options) of
+		%% Line 435
+		<{'ok',NewState}> when 'true' ->
+		    %% Line 436
+		    {'reply','ok',NewState}
+		%% Line 437
+		<Error> when 'true' ->
+		    %% Line 438
+		    {'reply',Error,State}
+	      end
+	  %% Line 440
+	  <{'replace_module',Module,File},_X_From,State> when 'true' ->
+	      %% Line 441
+	      case call 'xref_base':'replace_module'
+		       (State, Module, File) of
+		%% Line 442
+		<{'ok',_cor45,NewState}>
+		    when call 'erlang':'=:='
+			  (_cor45,
+			   Module) ->
+		    %% Line 443
+		    {'reply',{'ok',Module},NewState}
+		%% Line 444
+		<Error> when 'true' ->
+		    %% Line 445
+		    {'reply',Error,State}
+	      end
+	  %% Line 447
+	  <{'replace_module',Module,File,Options},_X_From,State> when 'true' ->
+	      %% Line 448
+	      case call 'xref_base':'replace_module'
+		       (State, Module, File, Options) of
+		%% Line 449
+		<{'ok',_cor46,NewState}>
+		    when call 'erlang':'=:='
+			  (_cor46,
+			   Module) ->
+		    %% Line 450
+		    {'reply',{'ok',Module},NewState}
+		%% Line 451
+		<Error> when 'true' ->
+		    %% Line 452
+		    {'reply',Error,State}
+	      end
+	  %% Line 454
+	  <'info',_X_From,State> when 'true' ->
+	      let <_cor21> =
+		  %% Line 455
+		  call 'xref_base':'info'
+		      (State)
+	      in  %% Line 455
+		  {'reply',_cor21,State}
+	  %% Line 456
+	  <{'info',What},_X_From,State> when 'true' ->
+	      let <_cor22> =
+		  %% Line 457
+		  call 'xref_base':'info'
+		      (State, What)
+	      in  %% Line 457
+		  {'reply',_cor22,State}
+	  %% Line 458
+	  <{'info',What,Qual},_X_From,State> when 'true' ->
+	      let <_cor23> =
+		  %% Line 459
+		  call 'xref_base':'info'
+		      (State, What, Qual)
+	      in  %% Line 459
+		  {'reply',_cor23,State}
+	  %% Line 460
+	  <'update',_X_From,State> when 'true' ->
+	      %% Line 461
+	      case call 'xref_base':'update'
+		       (State) of
+		%% Line 462
+		<{'ok',NewState,Modules}> when 'true' ->
+		    %% Line 463
+		    {'reply',{'ok',Modules},NewState}
+		%% Line 464
+		<Error> when 'true' ->
+		    %% Line 465
+		    {'reply',Error,State}
+	      end
+	  %% Line 467
+	  <{'update',Options},_X_From,State> when 'true' ->
+	      %% Line 468
+	      case call 'xref_base':'update'
+		       (State, Options) of
+		%% Line 469
+		<{'ok',NewState,Modules}> when 'true' ->
+		    %% Line 470
+		    {'reply',{'ok',Modules},NewState}
+		%% Line 471
+		<Error> when 'true' ->
+		    %% Line 472
+		    {'reply',Error,State}
+	      end
+	  %% Line 474
+	  <'forget',_X_From,State> when 'true' ->
+	      %% Line 475
+	      case call 'xref_base':'forget'
+		       (State) of
+		<{'ok',NewState}> when 'true' ->
+		    %% Line 476
+		    {'reply','ok',NewState}
+		( <_cor26> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor26})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 477
+	  <{'forget',Variable},_X_From,State> when 'true' ->
+	      %% Line 478
+	      case call 'xref_base':'forget'
+		       (State, Variable) of
+		%% Line 479
+		<{'ok',NewState}> when 'true' ->
+		    %% Line 480
+		    {'reply','ok',NewState}
+		%% Line 481
+		<Error> when 'true' ->
+		    %% Line 482
+		    {'reply',Error,State}
+	      end
+	  %% Line 484
+	  <'variables',_X_From,State> when 'true' ->
+	      %% Line 488
+	      case call 'xref_base':'variables'
+		       (State) of
+		<{Reply,NewState}> when 'true' ->
+		    %% Line 489
+		    {'reply',Reply,NewState}
+		( <_cor28> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor28})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 490
+	  <{'variables',Options},_X_From,State> when 'true' ->
+	      %% Line 491
+	      case call 'xref_base':'variables'
+		       (State, Options) of
+		<{Reply,NewState}> when 'true' ->
+		    %% Line 492
+		    {'reply',Reply,NewState}
+		( <_cor29> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor29})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 493
+	  <{'analyze',What},_X_From,State> when 'true' ->
+	      %% Line 494
+	      case call 'xref_base':'analyze'
+		       (State, What) of
+		<{Reply,NewState}> when 'true' ->
+		    let <_cor31> =
+			%% Line 495
+			apply 'unsetify'/1
+			    (Reply)
+		    in  %% Line 495
+			{'reply',_cor31,NewState}
+		( <_cor30> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor30})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 496
+	  <{'analyze',What,Options},_X_From,State> when 'true' ->
+	      %% Line 497
+	      case call 'xref_base':'analyze'
+		       (State, What, Options) of
+		<{Reply,NewState}> when 'true' ->
+		    let <_cor33> =
+			%% Line 498
+			apply 'unsetify'/1
+			    (Reply)
+		    in  %% Line 498
+			{'reply',_cor33,NewState}
+		( <_cor32> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor32})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 499
+	  <{'qry',Q},_X_From,State> when 'true' ->
+	      %% Line 500
+	      case call 'xref_base':'q'
+		       (State, Q) of
+		<{Reply,NewState}> when 'true' ->
+		    let <_cor35> =
+			%% Line 501
+			apply 'unsetify'/1
+			    (Reply)
+		    in  %% Line 501
+			{'reply',_cor35,NewState}
+		( <_cor34> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor34})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 502
+	  <{'qry',Q,Options},_X_From,State> when 'true' ->
+	      %% Line 503
+	      case call 'xref_base':'q'
+		       (State, Q, Options) of
+		<{Reply,NewState}> when 'true' ->
+		    let <_cor37> =
+			%% Line 504
+			apply 'unsetify'/1
+			    (Reply)
+		    in  %% Line 504
+			{'reply',_cor37,NewState}
+		( <_cor36> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor36})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 505
+	  <'get_default',_X_From,State> when 'true' ->
+	      let <Reply> =
+		  %% Line 506
+		  call 'xref_base':'get_default'
+		      (State)
+	      in  %% Line 507
+		  {'reply',Reply,State}
+	  %% Line 508
+	  <{'get_default',Option},_X_From,State> when 'true' ->
+	      let <Reply> =
+		  %% Line 509
+		  call 'xref_base':'get_default'
+		      (State, Option)
+	      in  %% Line 510
+		  {'reply',Reply,State}
+	  %% Line 511
+	  <{'set_default',OptionValues},_X_From,State> when 'true' ->
+	      %% Line 512
+	      case call 'xref_base':'set_default'
+		       (State, OptionValues) of
+		%% Line 513
+		<{'ok',NewState}> when 'true' ->
+		    %% Line 514
+		    {'reply','ok',NewState}
+		%% Line 515
+		<Error> when 'true' ->
+		    %% Line 516
+		    {'reply',Error,State}
+	      end
+	  %% Line 518
+	  <{'set_default',Option,Value},_X_From,State> when 'true' ->
+	      %% Line 519
+	      case call 'xref_base':'set_default'
+		       (State, Option, Value) of
+		%% Line 520
+		<{'ok',OldValue,NewState}> when 'true' ->
+		    %% Line 521
+		    {'reply',{'ok',OldValue},NewState}
+		%% Line 522
+		<Error> when 'true' ->
+		    %% Line 523
+		    {'reply',Error,State}
+	      end
+	  ( <_cor44,_cor43,_cor42> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor44,_cor43,_cor42})
+		  -| [{'function_name',{'handle_call',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_cast'/2 =
+    %% Line 532
+    fun (_cor1,_cor0) ->
+	{'noreply',_cor0}
+'handle_info'/2 =
+    %% Line 540
+    fun (_cor1,_cor0) ->
+	%% Line 541
+	{'noreply',_cor0}
+'terminate'/2 =
+    %% Line 548
+    fun (_cor1,_cor0) ->
+	%% Line 549
+	'ok'
+'code_change'/3 =
+    %% Line 556
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 557
+	{'ok',_cor1}
+'do_functions_analysis'/1 =
+    %% Line 563
+    fun (_cor0) ->
+	%% Line 564
+	case call 'xref_base':'new'
+		 () of
+	  <{'ok',State}> when 'true' ->
+	      %% Line 565
+	      case call 'xref_base':'set_library_path'
+		       (State, 'code_path') of
+		<{'ok',State1}> when 'true' ->
+		    %% Line 566
+		    case call 'xref_base':'set_default'
+			     (State1, %% Line 567
+				      [{'verbose','false'}|[{'warnings','false'}]]) of
+		      <{'ok',State2}> when 'true' ->
+			  %% Line 568
+			  case apply _cor0
+				   (State2) of
+			    %% Line 569
+			    <{'ok',_cor14,S}> when 'true' ->
+				%% Line 572
+				case apply 'do_analysis'/2
+					 (S, 'undefined_function_calls') of
+				  <{Undef,State4}> when 'true' ->
+				      %% Line 573
+				      case apply 'do_analysis'/2
+					       (State4, 'locals_not_used') of
+					<{Unused,State5}> when 'true' ->
+					    %% Line 574
+					    case apply 'do_analysis'/2
+						     (State5, 'deprecated_function_calls') of
+					      <{Deprecated,_cor15}> when 'true' ->
+						  let <_cor10> =
+						      %% Line 575
+						      call 'sofs':'to_external'
+							  (Deprecated)
+						  in  let <_cor11> =
+							  %% Line 576
+							  call 'sofs':'to_external'
+							      (Undef)
+						      in  let <_cor12> =
+							      %% Line 577
+							      call 'sofs':'to_external'
+								  (Unused)
+							  in  %% Line 575
+							      [{'deprecated',_cor10}|%% Line 576
+										     [{'undefined',_cor11}|%% Line 577
+													   [{'unused',_cor12}|[]]]]
+					      ( <_cor9> when 'true' ->
+						    primop 'match_fail'
+							({'badmatch',_cor9})
+						-| ['compiler_generated'] )
+					    end
+					( <_cor8> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor8})
+					  -| ['compiler_generated'] )
+				      end
+				  ( <_cor7> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor7})
+				    -| ['compiler_generated'] )
+				end
+			    %% Line 570
+			    <Error2> when 'true' ->
+				call 'erlang':'throw'
+				    (Error2)
+			  end
+		      ( <_cor3> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor3})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'do_modules_analysis'/1 =
+    %% Line 579
+    fun (_cor0) ->
+	%% Line 580
+	case call 'xref_base':'new'
+		 ({'xref_mode','modules'}) of
+	  <{'ok',State}> when 'true' ->
+	      %% Line 581
+	      case call 'xref_base':'set_library_path'
+		       (State, 'code_path') of
+		<{'ok',State1}> when 'true' ->
+		    %% Line 582
+		    case call 'xref_base':'set_default'
+			     (State1, %% Line 583
+				      [{'verbose','false'}|[{'warnings','false'}]]) of
+		      <{'ok',State2}> when 'true' ->
+			  %% Line 584
+			  case apply _cor0
+				   (State2) of
+			    %% Line 585
+			    <{'ok',_cor12,S}> when 'true' ->
+				%% Line 588
+				case apply 'do_analysis'/2
+					 (S, 'undefined_functions') of
+				  <{Undef,State4}> when 'true' ->
+				      %% Line 589
+				      case apply 'do_analysis'/2
+					       (State4, 'deprecated_functions') of
+					<{Deprecated,_cor13}> when 'true' ->
+					    let <_cor9> =
+						%% Line 590
+						call 'sofs':'to_external'
+						    (Deprecated)
+					    in  let <_cor10> =
+						    %% Line 591
+						    call 'sofs':'to_external'
+							(Undef)
+						in  %% Line 590
+						    [{'deprecated',_cor9}|%% Line 591
+									  [{'undefined',_cor10}|[]]]
+					( <_cor8> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor8})
+					  -| ['compiler_generated'] )
+				      end
+				  ( <_cor7> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor7})
+				    -| ['compiler_generated'] )
+				end
+			    %% Line 586
+			    <Error2> when 'true' ->
+				call 'erlang':'throw'
+				    (Error2)
+			  end
+		      ( <_cor3> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor3})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'do_analysis'/2 =
+    %% Line 593
+    fun (_cor1,_cor0) ->
+	%% Line 594
+	case call 'xref_base':'analyze'
+		 (_cor1, _cor0) of
+	  %% Line 595
+	  <{{'ok',Reply},NewState}> when 'true' ->
+	      %% Line 596
+	      {Reply,NewState}
+	  %% Line 597
+	  <{Error,_cor5}> when 'true' ->
+	      %% Line 598
+	      call 'erlang':'throw'
+		  (Error)
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'unsetify'/1 =
+    %% Line 601
+    fun (_cor0) ->
+	case _cor0 of
+	  <Reply = {'ok',X}> when 'true' ->
+	      %% Line 602
+	      case call 'sofs':'is_sofs_set'
+		       (X) of
+		%% Line 603
+		<'true'> when 'true' ->
+		    let <_cor1> =
+			call 'sofs':'to_external'
+			    (X)
+		    in  {'ok',_cor1}
+		%% Line 604
+		<'false'> when 'true' ->
+		    Reply
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 606
+	  <Reply> when 'true' ->
+	      %% Line 607
+	      Reply
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('xref')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('xref', _cor0)
+end

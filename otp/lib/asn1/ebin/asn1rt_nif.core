@@ -1,0 +1,250 @@
+module 'asn1rt_nif' ['decode_ber_tlv'/1,
+		     'encode_ber_tlv'/1,
+		     'encode_per_complete'/1,
+		     'module_info'/0,
+		     'module_info'/1]
+    attributes [%% Line 28
+		'on_load' =
+		    %% Line 28
+		    [{'load_nif',0}]]
+'load_nif'/0 =
+    %% Line 32
+    fun () ->
+	let <PrivDir> =
+	    %% Line 34
+	    call 'code':'priv_dir'
+		('asn1')
+	in  let <_cor17> =
+		%% Line 35
+		case call 'erlang':'system_info'
+			 ('build_type') of
+		  %% Line 36
+		  <'opt'> when 'true' ->
+		      [97|[115|[110|[49|[114|[116|[95|[110|[105|[102]]]]]]]]]]
+		  %% Line 38
+		  <Type> when 'true' ->
+		      let <_cor2> =
+			  %% Line 39
+			  call 'erlang':'atom_to_list'
+			      (Type)
+		      in  let <_cor3> =
+			      %% Line 39
+			      [46|_cor2]
+			  in  let <LibTypeName> =
+				  %% Line 39
+				  call 'erlang':'++'
+				      ([97|[115|[110|[49|[114|[116|[95|[110|[105|[102]]]]]]]]]], _cor3)
+			      in  let <_cor6> =
+				      %% Line 44
+				      call 'erlang':'++'
+					  (LibTypeName, [42])
+				  in  let <_cor7> =
+					  %% Line 41
+					  call 'filename':'join'
+					      (%% Line 42
+					       [PrivDir|%% Line 43
+							[[108|[105|[98]]]|%% Line 44
+									  [_cor6|[]]]])
+				      in  let <_cor8> =
+					      %% Line 40
+					      call 'filelib':'wildcard'
+						  (_cor7)
+					  in  let <_cor14> =
+						  %% Line 44
+						  ( case <> of
+						      ( <>
+							    when call 'erlang':'=/='
+								  (_cor8,
+								   []) ->
+							    'true'
+							-| ['compiler_generated'] )
+						      ( <> when 'true' ->
+							    let <_cor9> =
+								%% Line 49
+								call 'erlang':'system_info'
+								    ('system_architecture')
+							    in  let <_cor10> =
+								    %% Line 50
+								    call 'erlang':'++'
+									(LibTypeName, [42])
+								in  let <_cor11> =
+									%% Line 46
+									call 'filename':'join'
+									    (%% Line 47
+									     [PrivDir|%% Line 48
+										      [[108|[105|[98]]]|%% Line 49
+													[_cor9|%% Line 50
+													       [_cor10|[]]]]])
+								    in  let <_cor12> =
+									    %% Line 45
+									    call 'filelib':'wildcard'
+										(_cor11)
+									in  %% Line 50
+									    call 'erlang':'=/='
+										(_cor12, [])
+							-| ['compiler_generated'] )
+						    end
+						    -| ['compiler_generated'] )
+					      in  %% Line 40
+						  case _cor14 of
+						    %% Line 51
+						    <'true'> when 'true' ->
+							LibTypeName
+						    %% Line 52
+						    <'false'> when 'true' ->
+							[97|[115|[110|[49|[114|[116|[95|[110|[105|[102]]]]]]]]]]
+						    ( <_cor15> when 'true' ->
+							  primop 'match_fail'
+							      ({'case_clause',_cor15})
+						      -| ['compiler_generated'] )
+						  end
+		end
+	    in  let <Lib> =
+		    %% Line 55
+		    call 'filename':'join'
+			([PrivDir|[[108|[105|[98]]]|[_cor17|[]]]])
+		in  let <_cor28> =
+			%% Line 56
+			case call 'erlang':'load_nif'
+				 (Lib, 1) of
+			  %% Line 57
+			  <'ok'> when 'true' ->
+			      'ok'
+			  %% Line 58
+			  <Error1 = {'error',{'load_failed',_cor31}}> when 'true' ->
+			      let <_cor20> =
+				  %% Line 61
+				  call 'erlang':'system_info'
+				      ('system_architecture')
+			      in  let <ArchLibDir> =
+				      %% Line 60
+				      call 'filename':'join'
+					  ([PrivDir|[[108|[105|[98]]]|%% Line 61
+								      [_cor20|[]]]])
+				  in  let <_cor22> =
+					  %% Line 63
+					  call 'erlang':'++'
+					      (_cor17, [42])
+				      in  let <_cor23> =
+					      %% Line 63
+					      call 'filename':'join'
+						  ([ArchLibDir|[_cor22|[]]])
+					  in  %% Line 64
+					      case call 'filelib':'wildcard'
+						       (_cor23) of
+						%% Line 65
+						<[]> when 'true' ->
+						    Error1
+						%% Line 66
+						<_cor32> when 'true' ->
+						    let <ArchLib> =
+							%% Line 67
+							call 'filename':'join'
+							    ([ArchLibDir|[_cor17|[]]])
+						    in  %% Line 68
+							call 'erlang':'load_nif'
+							    (ArchLib, 1)
+					      end
+			  %% Line 70
+			  <Error1> when 'true' ->
+			      Error1
+			end
+		    in  %% Line 72
+			case _cor28 of
+			  %% Line 73
+			  <'ok'> when 'true' ->
+			      'ok'
+			  %% Line 74
+			  <{'error',{E,Str}}> when 'true' ->
+			      do  %% Line 75
+				  call 'error_logger':'error_msg'
+				      ([85|[110|[97|[98|[108|[101|[32|[116|[111|[32|[108|[111|[97|[100|[32|[97|[115|[110|[49|[32|[110|[105|[102|[32|[108|[105|[98|[114|[97|[114|[121|[46|[32|[70|[97|[105|[108|[101|[100|[32|[119|[105|[116|[104|[32|[101|[114|[114|[111|[114|[58|[126|[110|[34|[126|[112|[44|[32|[126|[115|[34|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 76
+																																																	  [E|[Str|[]]])
+				  _cor28
+			  ( <_cor30> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor30})
+			    -| ['compiler_generated'] )
+			end
+'decode_ber_tlv'/1 =
+    %% Line 80
+    fun (_cor0) ->
+	%% Line 81
+	case apply 'decode_ber_tlv_raw'/1
+		 (_cor0) of
+	  %% Line 82
+	  <{'error',Reason}> when 'true' ->
+	      %% Line 83
+	      call 'erlang':'exit'
+		  ({'error',{'asn1',Reason}})
+	  %% Line 84
+	  <Other> when 'true' ->
+	      %% Line 85
+	      Other
+	end
+'encode_per_complete'/1 =
+    %% Line 88
+    fun (_cor0) ->
+	%% Line 89
+	case apply 'encode_per_complete_raw'/1
+		 (_cor0) of
+	  %% Line 90
+	  <{'error',Reason}> when 'true' ->
+	      apply 'handle_error'/2
+		  (Reason, _cor0)
+	  %% Line 91
+	  <Other>
+	      when call 'erlang':'is_binary'
+		    (Other) ->
+	      Other
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'handle_error'/2 =
+    %% Line 94
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_cor4> when 'true' ->
+	      %% Line 95
+	      call 'erlang':'exit'
+		  ({'error',{'asn1','enomem'}})
+	  %% Line 96
+	  <49,L> when 'true' ->
+	      %% Line 97
+	      call 'erlang':'exit'
+		  ({'error',{'asn1',L}})
+	  %% Line 98
+	  <ErrL,L> when 'true' ->
+	      %% Line 99
+	      call 'erlang':'exit'
+		  ({'error',{'asn1',ErrL,L}})
+	end
+'encode_per_complete_raw'/1 =
+    %% Line 101
+    fun (_cor0) ->
+	%% Line 102
+	call 'erlang':'nif_error'
+	    ({'nif_not_loaded','module','asn1rt_nif','line',102})
+'decode_ber_tlv_raw'/1 =
+    %% Line 104
+    fun (_cor0) ->
+	%% Line 105
+	call 'erlang':'nif_error'
+	    ({'nif_not_loaded','module','asn1rt_nif','line',105})
+'encode_ber_tlv'/1 =
+    %% Line 107
+    fun (_cor0) ->
+	%% Line 108
+	call 'erlang':'nif_error'
+	    ({'nif_not_loaded','module','asn1rt_nif','line',108})
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('asn1rt_nif')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('asn1rt_nif', _cor0)
+end

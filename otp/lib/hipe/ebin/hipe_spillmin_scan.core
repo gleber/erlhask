@@ -1,0 +1,857 @@
+module 'hipe_spillmin_scan' ['module_info'/0,
+			     'module_info'/1,
+			     'stackalloc'/6]
+    attributes [%% Line 301
+		'type' =
+		    %% Line 301
+		    [{{'record','comp_servers'},[{'typed_record_field',{'record_field',301,{'atom',301,'pp_server'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'range'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'type'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}]]],[]}],
+		%% Line 307
+		'type' =
+		    %% Line 307
+		    [{'comp_option',{'type',307,'union',[{'type',307,'atom',[]}|[{'type',307,'tuple',[{'type',307,'atom',[]}|[{'type',307,'atom',[]}]]}]]},[]}],
+		%% Line 308
+		'type' =
+		    %% Line 308
+		    [{'comp_options',{'type',308,'list',[{'type',308,'comp_option',[]}]},[]}],
+		%% Line 310
+		'type' =
+		    %% Line 310
+		    [{'hipe_architecture',{'type',311,'union',[{'atom',311,'amd64'}|[{'atom',311,'arm'}|[{'atom',311,'powerpc'}|[{'atom',311,'ppc64'}|[{'atom',311,'ultrasparc'}|[{'atom',311,'x86'}]]]]]]},[]}],
+		%% Line 313
+		'type' =
+		    %% Line 313
+		    [{'hipe_map',{'type',313,'list',[{'type',313,'tuple',[{'type',313,'non_neg_integer',[]}|[{'type',314,'union',[{'atom',314,'unknown'}|[{'type',314,'tuple',[{'type',314,'union',[{'atom',314,'reg'}|[{'atom',314,'fp_reg'}|[{'atom',314,'spill'}]]]}|[{'type',315,'non_neg_integer',[]}]]}]]}]]}]},[]}],
+		%% Line 316
+		'type' =
+		    %% Line 316
+		    [{'hipe_temp_map',{'type',316,'tuple','any'},[]}],
+		%% Line 317
+		'type' =
+		    %% Line 317
+		    [{'hipe_spill_map',{'type',317,'list',[{'type',317,'tuple',[{'type',317,'non_neg_integer',[]}|[{'type',317,'tuple',[{'atom',317,'spill'}|[{'type',317,'non_neg_integer',[]}]]}]]}]},[]}],
+		%% Line 28
+		'type' =
+		    %% Line 28
+		    [{'cfg_lbl',{'type',28,'non_neg_integer',[]},[]}],
+		%% Line 34
+		'type' =
+		    %% Line 34
+		    [{{'record','cfg_info'},[{'typed_record_field',{'record_field',34,{'atom',34,'fun'}},{'type',34,'union',[{'atom',34,'undefined'}|[{'type',34,'mfa',[]}]]}}|[{'typed_record_field',{'record_field',35,{'atom',35,'start_label'}},{'type',35,'union',[{'atom',35,'undefined'}|[{'type',35,'cfg_lbl',[]}]]}}|[{'typed_record_field',{'record_field',36,{'atom',36,'is_closure'}},{'type',36,'union',[{'atom',36,'undefined'}|[{'type',36,'boolean',[]}]]}}|[{'typed_record_field',{'record_field',37,{'atom',37,'closure_arity'}},{'type',37,'union',[{'atom',37,'undefined'}|[{'type',37,'arity',[]}]]}}|[{'typed_record_field',{'record_field',38,{'atom',38,'is_leaf'}},{'type',38,'union',[{'atom',38,'undefined'}|[{'type',38,'boolean',[]}]]}}|[{'record_field',39,{'atom',39,'params'}}|[{'record_field',40,{'atom',40,'info'},{'nil',40}}]]]]]]],[]}],
+		%% Line 45
+		'type' =
+		    %% Line 45
+		    [{'cfg_data',{'type',45,'tuple',[{'remote_type',45,[{'atom',45,'dict'}|[{'atom',45,'dict'}|[[]]]]}|[{'type',45,'list',[{'type',45,'cfg_lbl',[]}]}|[{'type',45,'non_neg_integer',[]}]]]},[]}],
+		%% Line 50
+		'type' =
+		    %% Line 50
+		    [{{'record','cfg'},[{'typed_record_field',{'record_field',50,{'atom',50,'table'},{'call',50,{'remote',50,{'atom',50,'gb_trees'},{'atom',50,'empty'}},[]}},{'remote_type',50,[{'atom',50,'gb_trees'}|[{'atom',50,'tree'}|[[]]]]}}|[{'typed_record_field',{'record_field',51,{'atom',51,'info'}},{'type',51,'union',[{'atom',51,'undefined'}|[{'type',51,'record',[{'atom',51,'cfg_info'}]}]]}}|[{'typed_record_field',{'record_field',52,{'atom',52,'data'}},{'type',52,'union',[{'atom',52,'undefined'}|[{'type',52,'cfg_data',[]}]]}}]]],[]}],
+		%% Line 53
+		'type' =
+		    %% Line 53
+		    [{'cfg',{'type',53,'record',[{'atom',53,'cfg'}]},[]}],
+		%% Line 87
+		'spec' =
+		    %% Line 87
+		    [{{'stackalloc',6},[{'type',87,'fun',[{'type',87,'product',[{'type',87,'record',[{'atom',87,'cfg'}]}|[{'type',87,'list',[{'var',87,'_'}]}|[{'type',87,'non_neg_integer',[]}|[{'type',88,'comp_options',[]}|[{'type',88,'module',[]}|[{'type',88,'hipe_temp_map',[]}]]]]]]}|[{'type',89,'tuple',[{'type',89,'hipe_spill_map',[]}|[{'type',89,'non_neg_integer',[]}]]}]]}]}]]
+'stackalloc'/6 =
+    %% Line 91
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <Liveness> =
+	    %% Line 94
+	    apply 'liveness'/2
+		(_cor5, _cor1)
+	in  let <USIntervals> =
+		%% Line 96
+		apply 'calculate_intervals'/5
+		    (_cor5, Liveness, _cor2, _cor1, _cor0)
+	    in  let <Intervals> =
+		    %% Line 99
+		    apply 'sort_on_start'/1
+			(USIntervals)
+		in  %% Line 104
+		    apply 'allocate'/4
+			(Intervals, _cor4, _cor3, _cor1)
+'calculate_intervals'/5 =
+    %% Line 125
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 126
+	    call _cor1:'number_of_temporaries'
+		(_cor4)
+	in  let <Interval> =
+		%% Line 126
+		apply 'empty_interval'/1
+		    (_cor5)
+	    in  let <Worklist> =
+		    %% Line 127
+		    call _cor1:'reverse_postorder'
+			(_cor4)
+		in  %% Line 128
+		    apply 'intervals'/7
+			(Worklist, Interval, 1, _cor4, _cor3, _cor1, _cor0)
+'intervals'/7 =
+    %% Line 145
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[L|ToDO],Intervals,InstructionNr,CFG,Liveness,Target,%% Line 146
+								TempMap> when 'true' ->
+	      let <_cor13> =
+		  %% Line 152
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor10) ->
+				case _cor10 of
+				  <[X|_cor8]> when 'true' ->
+				      %% Line 153
+				      ( case call 'hipe_temp_map':'is_spilled'
+						 (X, TempMap) of
+					  <'true'> when 'true' ->
+					      let <_cor11> =
+						  apply 'lc$^0'/1
+						      (_cor8)
+					      in  ( [X|_cor11]
+						    -| ['compiler_generated'] )
+					  ( <'false'> when 'true' ->
+						apply 'lc$^0'/1
+						    (_cor8)
+					    -| ['compiler_generated'] )
+					  ( <_cor12> when 'true' ->
+						primop 'match_fail'
+						    ({'case_clause',_cor12})
+					    -| ['compiler_generated'] )
+					end
+					-| ['list_comprehension'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor10> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor10})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  let <_cor9> =
+			    apply 'livein'/3
+				(Liveness, L, Target)
+			in  apply 'lc$^0'/1
+				(_cor9)
+		    -| ['list_comprehension'] )
+	      in  let <Intervals2> =
+		      %% Line 154
+		      apply 'add_def_point'/3
+			  (_cor13, InstructionNr, Intervals)
+		  in  let <_cor22> =
+			  %% Line 157
+			  ( letrec
+				'lc$^1'/1 =
+				    fun (_cor19) ->
+					case _cor19 of
+					  <[X2|_cor17]> when 'true' ->
+					      %% Line 158
+					      ( case call 'hipe_temp_map':'is_spilled'
+							 (X2, TempMap) of
+						  <'true'> when 'true' ->
+						      let <_cor20> =
+							  apply 'lc$^1'/1
+							      (_cor17)
+						      in  ( [X2|_cor20]
+							    -| ['compiler_generated'] )
+						  ( <'false'> when 'true' ->
+							apply 'lc$^1'/1
+							    (_cor17)
+						    -| ['compiler_generated'] )
+						  ( <_cor21> when 'true' ->
+							primop 'match_fail'
+							    ({'case_clause',_cor21})
+						    -| ['compiler_generated'] )
+						end
+						-| ['list_comprehension'] )
+					  <[]> when 'true' ->
+					      []
+					  ( <_cor19> when 'true' ->
+						( primop 'match_fail'
+						      ({'function_clause',_cor19})
+						  -| [{'function_name',{'lc$^1',1}}] )
+					    -| ['compiler_generated'] )
+					end
+			    in  let <_cor18> =
+				    apply 'liveout'/3
+					(Liveness, L, Target)
+				in  apply 'lc$^1'/1
+					(_cor18)
+			    -| ['list_comprehension'] )
+		      in  let <_cor24> =
+			      %% Line 163
+			      apply 'bb'/3
+				  (CFG, L, Target)
+			  in  let <Code> =
+				  %% Line 163
+				  call 'hipe_bb':'code'
+				      (_cor24)
+			      in  let <_cor26> =
+				      %% Line 164
+				      call 'erlang':'+'
+					  (InstructionNr, 1)
+				  in  %% Line 164
+				      case apply 'traverse_block'/5
+					       (Code, _cor26, %% Line 165
+							      Intervals2, %% Line 165
+									  Target, %% Line 165
+										  TempMap) of
+					<{Intervals3,NewINr}> when 'true' ->
+					    let <_cor28> =
+						%% Line 168
+						call 'erlang':'+'
+						    (NewINr, 1)
+					    in  let <Intervals4> =
+						    %% Line 168
+						    apply 'add_use_point'/3
+							(_cor22, _cor28, Intervals3)
+						in  let <_cor30> =
+							%% Line 170
+							call 'erlang':'+'
+							    (NewINr, 1)
+						    in  %% Line 170
+							apply 'intervals'/7
+							    (ToDO, Intervals4, _cor30, CFG, Liveness, Target, TempMap)
+					( <_cor27> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor27})
+					  -| ['compiler_generated'] )
+				      end
+	  %% Line 171
+	  <[],Intervals,_cor38,_cor39,_cor40,_cor41,_cor42> when 'true' ->
+	      %% Line 173
+	      apply 'interval_to_list'/1
+		  (Intervals)
+	  ( <_cor37,_cor36,_cor35,_cor34,_cor33,_cor32,_cor31> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor37,_cor36,_cor35,_cor34,_cor33,_cor32,_cor31})
+		  -| [{'function_name',{'intervals',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'traverse_block'/5 =
+    %% Line 188
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[Instruction|Is],InstrNo,Intervals,Target,TempMap> when 'true' ->
+	      let <_cor11> =
+		  %% Line 191
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor8) ->
+				case _cor8 of
+				  <[X|_cor6]> when 'true' ->
+				      %% Line 192
+				      ( case call 'hipe_temp_map':'is_spilled'
+						 (X, TempMap) of
+					  <'true'> when 'true' ->
+					      let <_cor9> =
+						  apply 'lc$^0'/1
+						      (_cor6)
+					      in  ( [X|_cor9]
+						    -| ['compiler_generated'] )
+					  ( <'false'> when 'true' ->
+						apply 'lc$^0'/1
+						    (_cor6)
+					    -| ['compiler_generated'] )
+					  ( <_cor10> when 'true' ->
+						primop 'match_fail'
+						    ({'case_clause',_cor10})
+					    -| ['compiler_generated'] )
+					end
+					-| ['list_comprehension'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor8> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor8})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  let <_cor7> =
+			    apply 'uses'/2
+				(Instruction, Target)
+			in  apply 'lc$^0'/1
+				(_cor7)
+		    -| ['list_comprehension'] )
+	      in  let <_cor19> =
+		      %% Line 195
+		      ( letrec
+			    'lc$^1'/1 =
+				fun (_cor16) ->
+				    case _cor16 of
+				      <[X2|_cor14]> when 'true' ->
+					  %% Line 196
+					  ( case call 'hipe_temp_map':'is_spilled'
+						     (X2, TempMap) of
+					      <'true'> when 'true' ->
+						  let <_cor17> =
+						      apply 'lc$^1'/1
+							  (_cor14)
+						  in  ( [X2|_cor17]
+							-| ['compiler_generated'] )
+					      ( <'false'> when 'true' ->
+						    apply 'lc$^1'/1
+							(_cor14)
+						-| ['compiler_generated'] )
+					      ( <_cor18> when 'true' ->
+						    primop 'match_fail'
+							({'case_clause',_cor18})
+						-| ['compiler_generated'] )
+					    end
+					    -| ['list_comprehension'] )
+				      <[]> when 'true' ->
+					  []
+				      ( <_cor16> when 'true' ->
+					    ( primop 'match_fail'
+						  ({'function_clause',_cor16})
+					      -| [{'function_name',{'lc$^1',1}}] )
+					-| ['compiler_generated'] )
+				    end
+			in  let <_cor15> =
+				apply 'defines'/2
+				    (Instruction, Target)
+			    in  apply 'lc$^1'/1
+				    (_cor15)
+			-| ['list_comprehension'] )
+		  in  let <Intervals1> =
+			  %% Line 199
+			  apply 'add_def_point'/3
+			      (_cor19, InstrNo, Intervals)
+		      in  let <Intervals2> =
+			      %% Line 201
+			      apply 'add_use_point'/3
+				  (_cor11, InstrNo, Intervals1)
+			  in  let <_cor23> =
+				  %% Line 203
+				  call 'erlang':'+'
+				      (InstrNo, 1)
+			      in  %% Line 203
+				  apply 'traverse_block'/5
+				      (Is, _cor23, Intervals2, Target, TempMap)
+	  %% Line 204
+	  <[],InstrNo,Intervals,_cor29,_cor30> when 'true' ->
+	      %% Line 206
+	      {Intervals,InstrNo}
+	  ( <_cor28,_cor27,_cor26,_cor25,_cor24> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor28,_cor27,_cor26,_cor25,_cor24})
+		  -| [{'function_name',{'traverse_block',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'allocate'/4 =
+    %% Line 226
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <AllocatedSlots> =
+	    %% Line 227
+	    apply 'empty_allocation'/0
+		()
+	in  %% Line 228
+	    apply 'allocate'/6
+		(_cor3, _cor2, [], AllocatedSlots, _cor1, _cor0)
+'allocate'/6 =
+    %% Line 240
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[TempInt|TIS],Free,Active,Alloc,SpillIndex,Target> when 'true' ->
+	      let <_cor6> =
+		  %% Line 244
+		  apply 'startpoint'/1
+		      (TempInt)
+	      in  %% Line 243
+		  case %% Line 244
+		       apply 'expire_old_intervals'/4
+			   (Active, _cor6, Free, Target) of
+		    <{NewActive,NewFree}> when 'true' ->
+			let <Temp> =
+			    %% Line 246
+			    apply 'reg'/1
+				(TempInt)
+			in  %% Line 247
+			    case NewFree of
+			      %% Line 248
+			      <[]> when 'true' ->
+				  let <NewSpillIndex> =
+				      %% Line 250
+				      call 'erlang':'+'
+					  (SpillIndex, 1)
+				  in  let <NewAlloc> =
+					  %% Line 251
+					  apply 'spillalloc'/3
+					      (Temp, SpillIndex, Alloc)
+				      in  let <_cor11> =
+					      %% Line 252
+					      apply 'endpoint'/1
+						  (TempInt)
+					  in  let <NewActive2> =
+						  %% Line 252
+						  apply 'add_active'/3
+						      (_cor11, SpillIndex, NewActive)
+					      in  %% Line 253
+						  apply 'allocate'/6
+						      (TIS, NewFree, NewActive2, NewAlloc, NewSpillIndex, Target)
+			      %% Line 254
+			      <[FreeSpillslot|Spillslots]> when 'true' ->
+				  let <_cor14> =
+				      %% Line 257
+				      apply 'endpoint'/1
+					  (TempInt)
+				  in  let <_cor15> =
+					  %% Line 257
+					  apply 'add_active'/3
+					      (_cor14, FreeSpillslot, NewActive)
+				      in  let <_cor13> =
+					      %% Line 258
+					      apply 'spillalloc'/3
+						  (Temp, FreeSpillslot, Alloc)
+					  in  %% Line 256
+					      apply 'allocate'/6
+						  (TIS, Spillslots, _cor15, _cor13, %% Line 259
+										    SpillIndex, %% Line 259
+												Target)
+			      ( <_cor16> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor16})
+				-| ['compiler_generated'] )
+			    end
+		    ( <_cor7> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor7})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 261
+	  <[],_cor24,_cor25,Alloc,SpillIndex,_cor26> when 'true' ->
+	      let <_cor17> =
+		  %% Line 264
+		  call 'lists':'sort'
+		      (Alloc)
+	      in  %% Line 264
+		  {_cor17,SpillIndex}
+	  ( <_cor23,_cor22,_cor21,_cor20,_cor19,_cor18> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor23,_cor22,_cor21,_cor20,_cor19,_cor18})
+		  -| [{'function_name',{'allocate',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'expire_old_intervals'/4 =
+    %% Line 275
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <AllActives = [Act|Acts],CurrentPos,Free,Target> when 'true' ->
+	      let <_cor4> =
+		  %% Line 282
+		  apply 'active_endpoint'/1
+		      (Act)
+	      in  %% Line 282
+		  case <> of
+		    %% Line 283
+		    <>
+			when call 'erlang':'=<'
+			      (_cor4,
+			       CurrentPos) ->
+			let <Spillslot> =
+			    %% Line 284
+			    apply 'active_spillslot'/1
+				(Act)
+			in  let <NewFree> =
+				%% Line 286
+				[Spillslot|Free]
+			    in  %% Line 290
+				apply 'expire_old_intervals'/4
+				    (Acts, CurrentPos, NewFree, Target)
+		    %% Line 291
+		    <> when 'true' ->
+			%% Line 294
+			{AllActives,Free}
+		  end
+	  %% Line 296
+	  <[],_cor12,Free,_cor13> when 'true' ->
+	      %% Line 297
+	      {[],Free}
+	  ( <_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'expire_old_intervals',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'empty_allocation'/0 =
+    %% Line 319
+    fun () ->
+	[]
+'spillalloc'/3 =
+    %% Line 321
+    fun (_cor2,_cor1,_cor0) ->
+	[{_cor2,{'spill',_cor1}}|_cor0]
+'add_active'/3 =
+    %% Line 339
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Endpoint,SpillSlot,[A1 = {P1,_cor7}|Active]>
+	      when call 'erlang':'<'
+		    (P1,
+		     Endpoint) ->
+	      let <_cor3> =
+		  %% Line 340
+		  apply 'add_active'/3
+		      (Endpoint, SpillSlot, Active)
+	      in  %% Line 340
+		  [A1|_cor3]
+	  %% Line 341
+	  <Endpoint,SpillSlot,Active> when 'true' ->
+	      %% Line 342
+	      [{Endpoint,SpillSlot}|Active]
+	end
+'active_spillslot'/1 =
+    %% Line 344
+    fun (_cor0) ->
+	case _cor0 of
+	  <{_cor2,SpillSlot}> when 'true' ->
+	      %% Line 345
+	      SpillSlot
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'active_spillslot',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'active_endpoint'/1 =
+    %% Line 347
+    fun (_cor0) ->
+	case _cor0 of
+	  <{EndPoint,_cor2}> when 'true' ->
+	      %% Line 348
+	      EndPoint
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'active_endpoint',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'endpoint'/1 =
+    %% Line 358
+    fun (_cor0) ->
+	case _cor0 of
+	  <{_X_R,_X_S,Endpoint}> when 'true' ->
+	      %% Line 359
+	      Endpoint
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'endpoint',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'startpoint'/1 =
+    %% Line 361
+    fun (_cor0) ->
+	case _cor0 of
+	  <{_X_R,Startpoint,_X_E}> when 'true' ->
+	      %% Line 362
+	      Startpoint
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'startpoint',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'reg'/1 =
+    %% Line 364
+    fun (_cor0) ->
+	case _cor0 of
+	  <{RegName,_X_S,_X_E}> when 'true' ->
+	      %% Line 365
+	      RegName
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'reg',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'sort_on_start'/1 =
+    %% Line 370
+    fun (_cor0) ->
+	%% Line 371
+	call 'lists':'keysort'
+	    (2, _cor0)
+'empty_interval'/1 =
+    %% Line 458
+    fun (_cor0) ->
+	%% Line 459
+	call 'hipe_vectors':'new'
+	    (_cor0, 'none')
+'interval_to_list'/1 =
+    %% Line 461
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 462
+	    call 'hipe_vectors':'vector_to_list'
+		(_cor0)
+	in  %% Line 462
+	    apply 'add_indices'/2
+		(_cor1, 0)
+'add_indices'/2 =
+    %% Line 464
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{B,E}|Xs],N> when 'true' ->
+	      let <_cor2> =
+		  %% Line 465
+		  call 'erlang':'+'
+		      (N, 1)
+	      in  let <_cor3> =
+		      %% Line 465
+		      apply 'add_indices'/2
+			  (Xs, _cor2)
+		  in  %% Line 465
+		      [{N,B,E}|_cor3]
+	  %% Line 466
+	  <[List|Xs],N>
+	      when call 'erlang':'is_list'
+		    (List) ->
+	      %% Line 467
+	      apply 'flatten'/3
+		  (List, N, Xs)
+	  %% Line 468
+	  <['none'|Xs],N> when 'true' ->
+	      let <_cor4> =
+		  %% Line 469
+		  call 'erlang':'+'
+		      (N, 1)
+	      in  %% Line 469
+		  apply 'add_indices'/2
+		      (Xs, _cor4)
+	  %% Line 470
+	  <[],_X_N> when 'true' ->
+	      []
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'add_indices',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'flatten'/3 =
+    %% Line 472
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[{'none',End}|Rest],N,More> when 'true' ->
+	      let <_cor3> =
+		  %% Line 473
+		  apply 'flatten'/3
+		      (Rest, N, More)
+	      in  %% Line 473
+		  [{N,End,End}|_cor3]
+	  %% Line 474
+	  <[{Beg,'none'}|Rest],N,More> when 'true' ->
+	      let <_cor4> =
+		  %% Line 475
+		  apply 'flatten'/3
+		      (Rest, N, More)
+	      in  %% Line 475
+		  [{N,Beg,Beg}|_cor4]
+	  %% Line 476
+	  <[],N,More> when 'true' ->
+	      let <_cor5> =
+		  %% Line 477
+		  call 'erlang':'+'
+		      (N, 1)
+	      in  %% Line 477
+		  apply 'add_indices'/2
+		      (More, _cor5)
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'flatten',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'add_use_point'/3 =
+    %% Line 479
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Temp|Temps],Pos,Intervals> when 'true' ->
+	      let <_cor4> =
+		  %% Line 482
+		  case call 'hipe_vectors':'get'
+			   (Intervals, Temp) of
+		    %% Line 484
+		    <'none'> when 'true' ->
+			%% Line 486
+			{Pos,Pos}
+		    %% Line 488
+		    <Value> when 'true' ->
+			%% Line 490
+			apply 'extend_interval'/2
+			    (Pos, Value)
+		  end
+	      in  let <Intervals2> =
+		      %% Line 493
+		      call 'hipe_vectors':'set'
+			  (Intervals, Temp, _cor4)
+		  in  %% Line 495
+		      apply 'add_use_point'/3
+			  (Temps, Pos, Intervals2)
+	  %% Line 496
+	  <[],_cor10,I> when 'true' ->
+	      %% Line 498
+	      I
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'add_use_point',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'add_def_point'/3 =
+    %% Line 500
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Temp|Temps],Pos,Intervals> when 'true' ->
+	      let <_cor4> =
+		  %% Line 503
+		  case call 'hipe_vectors':'get'
+			   (Intervals, Temp) of
+		    %% Line 505
+		    <'none'> when 'true' ->
+			%% Line 507
+			{Pos,Pos}
+		    %% Line 509
+		    <Value> when 'true' ->
+			%% Line 511
+			apply 'extend_interval'/2
+			    (Pos, Value)
+		  end
+	      in  let <Intervals2> =
+		      %% Line 514
+		      call 'hipe_vectors':'set'
+			  (Intervals, Temp, _cor4)
+		  in  %% Line 516
+		      apply 'add_def_point'/3
+			  (Temps, Pos, Intervals2)
+	  %% Line 517
+	  <[],_cor10,I> when 'true' ->
+	      %% Line 519
+	      I
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'add_def_point',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'extend_interval'/2 =
+    %% Line 521
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Pos,{Beginning,End}>
+	      when let <_cor2> =
+		    %% Line 522
+		    call 'erlang':'is_integer'
+			(Beginning)
+		in  let <_cor3> =
+			%% Line 522
+			call 'erlang':'is_integer'
+			    (End)
+		    in  %% Line 522
+			call 'erlang':'and'
+			    (_cor2, _cor3) ->
+	      let <NewBeginning> =
+		  %% Line 525
+		  call 'erlang':'min'
+		      (Pos, Beginning)
+	      in  let <NewEnd> =
+		      %% Line 528
+		      call 'erlang':'max'
+			  (Pos, End)
+		  in  %% Line 529
+		      {NewBeginning,NewEnd}
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'extend_interval',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'liveness'/2 =
+    %% Line 540
+    fun (_cor1,_cor0) ->
+	%% Line 541
+	call _cor0:'analyze'
+	    (_cor1)
+'bb'/3 =
+    %% Line 543
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 544
+	call _cor0:'bb'
+	    (_cor2, _cor1)
+'livein'/3 =
+    %% Line 546
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 547
+	    call _cor0:'livein'
+		(_cor2, _cor1)
+	in  %% Line 547
+	    apply 'regnames'/2
+		(_cor3, _cor0)
+'liveout'/3 =
+    %% Line 549
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 550
+	    call _cor0:'liveout'
+		(_cor2, _cor1)
+	in  %% Line 550
+	    apply 'regnames'/2
+		(_cor3, _cor0)
+'uses'/2 =
+    %% Line 552
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 553
+	    call _cor0:'uses'
+		(_cor1)
+	in  %% Line 553
+	    apply 'regnames'/2
+		(_cor2, _cor0)
+'defines'/2 =
+    %% Line 555
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 556
+	    call _cor0:'defines'
+		(_cor1)
+	in  %% Line 556
+	    apply 'regnames'/2
+		(_cor2, _cor0)
+'regnames'/2 =
+    %% Line 558
+    fun (_cor1,_cor0) ->
+	%% Line 559
+	( letrec
+	      'lc$^0'/1 =
+		  fun (_cor4) ->
+		      case _cor4 of
+			<[X|_cor3]> when 'true' ->
+			    let <_cor5> =
+				call _cor0:'reg_nr'
+				    (X)
+			    in  let <_cor6> =
+				    apply 'lc$^0'/1
+					(_cor3)
+				in  ( [_cor5|_cor6]
+				      -| ['compiler_generated'] )
+			<[]> when 'true' ->
+			    []
+			( <_cor4> when 'true' ->
+			      ( primop 'match_fail'
+				    ({'function_clause',_cor4})
+				-| [{'function_name',{'lc$^0',1}}] )
+			  -| ['compiler_generated'] )
+		      end
+	  in  apply 'lc$^0'/1
+		  (_cor1)
+	  -| ['list_comprehension'] )
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_spillmin_scan')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_spillmin_scan', _cor0)
+end

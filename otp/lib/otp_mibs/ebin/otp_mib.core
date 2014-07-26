@@ -1,0 +1,593 @@
+module 'otp_mib' ['appl_table'/1,
+		  'appl_table'/3,
+		  'erl_node_table'/1,
+		  'erl_node_table'/3,
+		  'get_appls'/1,
+		  'get_erl_node'/1,
+		  'load'/1,
+		  'module_info'/0,
+		  'module_info'/1,
+		  'unload'/1,
+		  'update_appl_table'/0,
+		  'update_erl_node_table'/0]
+    attributes []
+'load'/1 =
+    %% Line 70
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 71
+	    call 'code':'priv_dir'
+		('otp_mibs')
+	in  let <MibDir> =
+		%% Line 71
+		call 'erlang':'++'
+		    (_cor1, [47|[109|[105|[98|[115]]]]])
+	    in  let <_cor3> =
+		    %% Line 72
+		    call 'erlang':'++'
+			(MibDir, [47|[79|[84|[80|[45|[77|[73|[66]]]]]]]])
+		in  %% Line 72
+		    call 'snmpa':'load_mibs'
+			(_cor0, [_cor3|[]])
+'unload'/1 =
+    %% Line 80
+    fun (_cor0) ->
+	%% Line 81
+	call 'snmpa':'unload_mibs'
+	    (_cor0, [[79|[84|[80|[45|[77|[73|[66]]]]]]]])
+'erl_node_table'/1 =
+    %% Line 87
+    fun (_cor0) ->
+	case _cor0 of
+	  <'new'> when 'true' ->
+	      let <_cor3> =
+		  %% Line 90
+		  call 'mnesia':'system_info'
+		      ('tables')
+	      in  do  %% Line 90
+		      case call 'lists':'member'
+			       ('erlNodeAlloc', _cor3) of
+			%% Line 91
+			<'true'> when 'true' ->
+			    %% Line 92
+			    case call 'mnesia':'table_info'
+				     ('erlNodeAlloc', 'storage_type') of
+			      %% Line 93
+			      <'unknown'> when 'true' ->
+				  let <_cor4> =
+				      %% Line 94
+				      call 'erlang':'node'
+					  ()
+				  in  %% Line 94
+				      case call 'mnesia':'add_table_copy'
+					       ('erlNodeAlloc', _cor4, 'ram_copies') of
+					<{'atomic','ok'}> when 'true' ->
+					    'ok'
+					( <_cor5> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor5})
+					  -| ['compiler_generated'] )
+				      end
+			      %% Line 95
+			      <_cor18>
+				  when call 'erlang':'=:='
+					(_cor18,
+					 'ram_copies') ->
+				  catch
+				      %% Line 96
+				      apply 'delete_all'/1
+					  ('erlNodeAlloc')
+			      ( <_cor6> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor6})
+				-| ['compiler_generated'] )
+			    end
+			%% Line 98
+			<'false'> when 'true' ->
+			    let <_cor7> =
+				%% Line 99
+				call 'erlang':'node'
+				    ()
+			    in  let <Nodes> =
+				    %% Line 99
+				    [_cor7|[]]
+				in  let <Props> =
+					%% Line 100
+					[{'type','set'}|%% Line 101
+							[{'attributes',['nodeName'|['nodeId']]}|%% Line 102
+												[{'local_content','true'}|%% Line 103
+															  [{'ram_copies',Nodes}|[]]]]]
+				    in  %% Line 104
+					case call 'mnesia':'create_table'
+						 ('erlNodeAlloc', Props) of
+					  <{'atomic','ok'}> when 'true' ->
+					      'ok'
+					  ( <_cor10> when 'true' ->
+						primop 'match_fail'
+						    ({'badmatch',_cor10})
+					    -| ['compiler_generated'] )
+					end
+			( <_cor11> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor11})
+			  -| ['compiler_generated'] )
+		      end
+		      %% Line 106
+		      case call 'mnesia':'dirty_write'
+			       ({'erlNodeAlloc','next_index',1}) of
+			<'ok'> when 'true' ->
+			    let <_cor13> =
+				%% Line 107
+				call 'erlang':'node'
+				    ()
+			    in  let <_cor14> =
+				    %% Line 107
+				    call 'erlang':'nodes'
+					()
+				in  do  %% Line 107
+					apply 'update_node_alloc'/1
+					    ([_cor13|_cor14])
+					let <_cor15> =
+					    %% Line 108
+					    call 'erlang':'make_fun'
+						('otp_mib', 'update_erl_node_table', 0)
+					in  %% Line 108
+					    call 'snmp_shadow_table':'table_func'
+						('new', {'erlNodeTable','integer',['erlNodeId'|['erlNodeName'|['erlNodeMachine'|['erlNodeVersion'|['erlNodeRunQueue'|['erlNodeRunTime'|['erlNodeWallClock'|['erlNodeReductions'|['erlNodeProcesses'|['erlNodeInBytes'|['erlNodeOutBytes']]]]]]]]]]],5000,_cor15})
+			( <_cor12> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor12})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor16> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16})
+		  -| [{'function_name',{'erl_node_table',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'erl_node_table'/3 =
+    %% Line 110
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 111
+	    call 'erlang':'make_fun'
+		('otp_mib', 'update_erl_node_table', 0)
+	in  %% Line 111
+	    call 'snmp_shadow_table':'table_func'
+		(_cor2, _cor1, _cor0, {'erlNodeTable','integer',['erlNodeId'|['erlNodeName'|['erlNodeMachine'|['erlNodeVersion'|['erlNodeRunQueue'|['erlNodeRunTime'|['erlNodeWallClock'|['erlNodeReductions'|['erlNodeProcesses'|['erlNodeInBytes'|['erlNodeOutBytes']]]]]]]]]]],5000,_cor3})
+'appl_table'/1 =
+    %% Line 114
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 115
+	    call 'erlang':'make_fun'
+		('otp_mib', 'update_appl_table', 0)
+	in  %% Line 115
+	    call 'snmp_shadow_table':'table_func'
+		(_cor0, {'applTable',{'integer','integer'},['key'|['applName'|['applDescr'|['applVsn']]]],5000,_cor1})
+'appl_table'/3 =
+    %% Line 116
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 117
+	    call 'erlang':'make_fun'
+		('otp_mib', 'update_appl_table', 0)
+	in  %% Line 117
+	    call 'snmp_shadow_table':'table_func'
+		(_cor2, _cor1, _cor0, {'applTable',{'integer','integer'},['key'|['applName'|['applDescr'|['applVsn']]]],5000,_cor3})
+'update_erl_node_table'/0 =
+    %% Line 123
+    fun () ->
+	do  %% Line 124
+	    apply 'delete_all'/1
+		('erlNodeTable')
+	    let <_cor0> =
+		%% Line 125
+		call 'erlang':'node'
+		    ()
+	    in  let <_cor1> =
+		    %% Line 125
+		    call 'erlang':'nodes'
+			()
+		in  let <Nodes> =
+			%% Line 125
+			[_cor0|_cor1]
+		    in  do  %% Line 126
+			    apply 'update_node_alloc'/1
+				(Nodes)
+			    let <_cor8> =
+				%% Line 128
+				( fun (_cor6) ->
+				      %% Line 129
+				      case call 'mnesia':'dirty_read'
+					       ({'erlNodeAlloc',_cor6}) of
+					<[{_cor9,_cor10,Idx}|[]]> when 'true' ->
+					    let <ErlNode> =
+						%% Line 130
+						call 'rpc':'call'
+						    (_cor6, 'otp_mib', 'get_erl_node', [Idx|[]])
+					    in  let <_cor11> =
+						    %% Line 131
+						    call 'mnesia':'dirty_write'
+							(ErlNode)
+						in  %% Line 131
+						    case _cor11 of
+						      <'ok'> when 'true' ->
+							  ( _cor11
+							    -| ['compiler_generated'] )
+						      ( <_cor5> when 'true' ->
+							    primop 'match_fail'
+								({'badmatch',_cor5})
+							-| ['compiler_generated'] )
+						    end
+					( <_cor3> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor3})
+					  -| ['compiler_generated'] )
+				      end
+				  -| [{'id',{0,0,'-update_erl_node_table/0-fun-0-'}}] )
+			    in  %% Line 127
+				call 'lists':'foreach'
+				    (_cor8, %% Line 132
+					    Nodes)
+'update_appl_table'/0 =
+    %% Line 134
+    fun () ->
+	do  %% Line 135
+	    apply 'delete_all'/1
+		('applTable')
+	    let <_cor0> =
+		%% Line 136
+		call 'erlang':'node'
+		    ()
+	    in  let <_cor1> =
+		    %% Line 136
+		    call 'erlang':'nodes'
+			()
+		in  let <Nodes> =
+			%% Line 136
+			[_cor0|_cor1]
+		    in  do  %% Line 137
+			    apply 'update_node_alloc'/1
+				(Nodes)
+			    let <_cor11> =
+				%% Line 139
+				( fun (_cor9) ->
+				      %% Line 140
+				      case call 'mnesia':'dirty_read'
+					       ({'erlNodeAlloc',_cor9}) of
+					<[{_cor12,_cor13,Idx}|[]]> when 'true' ->
+					    let <Appls> =
+						%% Line 141
+						call 'rpc':'call'
+						    (_cor9, 'otp_mib', 'get_appls', [Idx|[]])
+					    in  let <_cor8> =
+						    %% Line 142
+						    ( fun (_cor6) ->
+							  let <_cor14> =
+							      %% Line 143
+							      call 'mnesia':'dirty_write'
+								  (_cor6)
+							  in  %% Line 143
+							      case _cor14 of
+								<'ok'> when 'true' ->
+								    ( _cor14
+								      -| ['compiler_generated'] )
+								( <_cor5> when 'true' ->
+								      primop 'match_fail'
+									  ({'badmatch',_cor5})
+								  -| ['compiler_generated'] )
+							      end
+						      -| [{'id',{0,0,'-update_appl_table/0-fun-0-'}}] )
+						in  %% Line 142
+						    call 'lists':'foreach'
+							(_cor8, %% Line 144
+								Appls)
+					( <_cor3> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor3})
+					  -| ['compiler_generated'] )
+				      end
+				  -| [{'id',{0,0,'-update_appl_table/0-fun-1-'}}] )
+			    in  %% Line 138
+				call 'lists':'foreach'
+				    (_cor11, %% Line 145
+					     Nodes)
+'get_erl_node'/1 =
+    %% Line 150
+    fun (_cor0) ->
+	let <RunQueue> =
+	    %% Line 151
+	    call 'erlang':'statistics'
+		('run_queue')
+	in  let <_cor2> =
+		%% Line 152
+		call 'erlang':'statistics'
+		    ('runtime')
+	    in  let <RunTime> =
+		    %% Line 152
+		    call 'erlang':'element'
+			(1, _cor2)
+		in  let <_cor4> =
+			%% Line 153
+			call 'erlang':'statistics'
+			    ('wall_clock')
+		    in  let <WallClock> =
+			    %% Line 153
+			    call 'erlang':'element'
+				(1, _cor4)
+			in  let <_cor6> =
+				%% Line 154
+				call 'erlang':'statistics'
+				    ('reductions')
+			    in  let <Reductions> =
+				    %% Line 154
+				    call 'erlang':'element'
+					(1, _cor6)
+				in  let <_cor8> =
+					%% Line 155
+					call 'erlang':'processes'
+					    ()
+				    in  let <Processes> =
+					    %% Line 155
+					    call 'erlang':'length'
+						(_cor8)
+					in  let <IO> =
+						%% Line 156
+						call 'erlang':'statistics'
+						    ('io')
+					    in  let <_cor11> =
+						    %% Line 157
+						    call 'erlang':'element'
+							(1, IO)
+						in  let <InBytes> =
+							%% Line 157
+							call 'erlang':'element'
+							    (2, _cor11)
+						    in  let <_cor13> =
+							    %% Line 158
+							    call 'erlang':'element'
+								(2, IO)
+							in  let <OutBytes> =
+								%% Line 158
+								call 'erlang':'element'
+								    (2, _cor13)
+							    in  let <_cor26> =
+								    %% Line 159
+								    apply 'truncate_int'/2
+									('Integer32', _cor0)
+								in  let <_cor24> =
+									%% Line 160
+									call 'erlang':'node'
+									    ()
+								    in  let <_cor25> =
+									    %% Line 160
+									    call 'erlang':'atom_to_list'
+										(_cor24)
+									in  let <_cor23> =
+										%% Line 162
+										call 'erlang':'system_info'
+										    ('machine')
+									    in  let <_cor22> =
+										    %% Line 161
+										    call 'erlang':'system_info'
+											('version')
+										in  let <_cor21> =
+											%% Line 163
+											apply 'truncate_int'/2
+											    ('Unsigned32', RunQueue)
+										    in  let <_cor20> =
+											    %% Line 164
+											    apply 'truncate_int'/2
+												('Counter64', RunTime)
+											in  let <_cor19> =
+												%% Line 165
+												apply 'truncate_int'/2
+												    ('Counter64', WallClock)
+											    in  let <_cor18> =
+												    %% Line 166
+												    apply 'truncate_int'/2
+													('Counter64', Reductions)
+												in  let <_cor17> =
+													%% Line 167
+													apply 'truncate_int'/2
+													    ('Unsigned32', Processes)
+												    in  let <_cor16> =
+													    %% Line 168
+													    apply 'truncate_int'/2
+														('Counter64', InBytes)
+													in  let <_cor15> =
+														%% Line 169
+														apply 'truncate_int'/2
+														    ('Counter64', OutBytes)
+													    in  %% Line 159
+														{'erlNodeTable',_cor26,_cor25,_cor23,_cor22,_cor21,_cor20,_cor19,_cor18,_cor17,_cor16,_cor15}
+'get_appls'/1 =
+    %% Line 171
+    fun (_cor0) ->
+	let <_cor8> =
+	    %% Line 174
+	    ( fun (_cor5,_cor4) ->
+		  case <_cor5,_cor4> of
+		    <{ApplName,ApplDescr,ApplVsn},ApplId> when 'true' ->
+			let <_cor3> =
+			    %% Line 176
+			    call 'erlang':'atom_to_list'
+				(ApplName)
+			in  let <_cor2> =
+				%% Line 179
+				call 'erlang':'+'
+				    (ApplId, 1)
+			    in  %% Line 175
+				{{'applTable',{_cor0,ApplId},_cor3,%% Line 177
+								   ApplDescr,%% Line 178
+									     ApplVsn},_cor2}
+		    ( <_cor7,_cor6> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor7,_cor6})
+			    -| [{'function_name',{'-get_appls/1-fun-0-',2}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-get_appls/1-fun-0-'}}] )
+	in  let <_cor1> =
+		%% Line 180
+		call 'application':'which_applications'
+		    ()
+	    in  let <_cor9> =
+		    %% Line 173
+		    call 'lists':'mapfoldl'
+			(_cor8, %% Line 180
+				1, _cor1)
+		in  %% Line 172
+		    call 'erlang':'element'
+			(1, _cor9)
+'update_node_alloc'/1 =
+    %% Line 185
+    fun (_cor0) ->
+	case _cor0 of
+	  <[Node|T]> when 'true' ->
+	      do  %% Line 186
+		  case call 'mnesia':'dirty_read'
+			   ({'erlNodeAlloc',Node}) of
+		    %% Line 187
+		    <[]> when 'true' ->
+			%% Line 188
+			case call 'mnesia':'dirty_read'
+				 ({'erlNodeAlloc','next_index'}) of
+			  <[{_cor7,_cor8,Idx}|[]]> when 'true' ->
+			      %% Line 189
+			      case call 'mnesia':'dirty_write'
+				       ({'erlNodeAlloc',Node,%% Line 190
+							     Idx}) of
+				<'ok'> when 'true' ->
+				    let <_cor3> =
+					%% Line 191
+					call 'erlang':'+'
+					    (Idx, 1)
+				    in  %% Line 191
+					case call 'mnesia':'dirty_write'
+						 ({'erlNodeAlloc','next_index',_cor3}) of
+					  <'ok'> when 'true' ->
+					      'ok'
+					  ( <_cor4> when 'true' ->
+						primop 'match_fail'
+						    ({'badmatch',_cor4})
+					    -| ['compiler_generated'] )
+					end
+				( <_cor2> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor2})
+				  -| ['compiler_generated'] )
+			      end
+			  ( <_cor1> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor1})
+			    -| ['compiler_generated'] )
+			end
+		    %% Line 192
+		    <_cor10> when 'true' ->
+			'ok'
+		  end
+		  %% Line 195
+		  apply 'update_node_alloc'/1
+		      (T)
+	  %% Line 196
+	  <[]> when 'true' ->
+	      'ok'
+	  ( <_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6})
+		  -| [{'function_name',{'update_node_alloc',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'delete_all'/1 =
+    %% Line 198
+    fun (_cor0) ->
+	let <_cor1> =
+	    call 'mnesia':'dirty_first'
+		(_cor0)
+	in  apply 'delete_all'/2
+		(_cor1, _cor0)
+'delete_all'/2 =
+    %% Line 199
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'$end_of_table',_X_Name> when 'true' ->
+	      'done'
+	  %% Line 200
+	  <Key,Name> when 'true' ->
+	      let <Next> =
+		  %% Line 201
+		  call 'mnesia':'dirty_next'
+		      (Name, Key)
+	      in  %% Line 202
+		  case call 'mnesia':'dirty_delete'
+			   ({Name,Key}) of
+		    <'ok'> when 'true' ->
+			%% Line 203
+			apply 'delete_all'/2
+			    (Next, Name)
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	end
+'truncate_int'/2 =
+    %% Line 208
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'Counter64',Value>
+	      when call 'erlang':'<'
+		    (Value,
+		     0) ->
+	      0
+	  %% Line 209
+	  <'Counter64',Value> when 'true' ->
+	      call 'erlang':'rem'
+		  (Value, 18446744073709551615)
+	  %% Line 210
+	  <'Unsigned32',Value>
+	      when call 'erlang':'<'
+		    (Value,
+		     0) ->
+	      0
+	  %% Line 211
+	  <'Unsigned32',Value>
+	      when call 'erlang':'>'
+		    (Value,
+		     4294967295) ->
+	      4294967295
+	  %% Line 212
+	  <'Unsigned32',Value> when 'true' ->
+	      Value
+	  %% Line 213
+	  <'Integer32',Value>
+	      when call 'erlang':'<'
+		    (Value,
+		     -2147483648) ->
+	      -2147483648
+	  %% Line 214
+	  <'Integer32',Value>
+	      when call 'erlang':'>'
+		    (Value,
+		     2147483647) ->
+	      2147483647
+	  %% Line 215
+	  <'Integer32',Value> when 'true' ->
+	      Value
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'truncate_int',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('otp_mib')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('otp_mib', _cor0)
+end

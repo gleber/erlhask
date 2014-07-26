@@ -1,0 +1,823 @@
+module 'ssh_channel' ['behaviour_info'/1,
+		      'cache_create'/0,
+		      'cache_delete'/1,
+		      'cache_delete'/2,
+		      'cache_find'/2,
+		      'cache_foldl'/3,
+		      'cache_lookup'/2,
+		      'cache_update'/2,
+		      'call'/2,
+		      'call'/3,
+		      'cast'/2,
+		      'code_change'/3,
+		      'enter_loop'/1,
+		      'handle_call'/3,
+		      'handle_cast'/2,
+		      'handle_info'/2,
+		      'init'/1,
+		      'module_info'/0,
+		      'module_info'/1,
+		      'reply'/2,
+		      'start'/4,
+		      'start'/5,
+		      'start_link'/4,
+		      'start_link'/5,
+		      'terminate'/2]
+    attributes [%% Line 24
+		'type' =
+		    %% Line 24
+		    [{'channel_id',{'type',24,'integer',[]},[]}],
+		%% Line 55
+		'type' =
+		    %% Line 55
+		    [{{'record','ssh_msg_global_request'},[{'record_field',57,{'atom',57,'name'}}|[{'record_field',58,{'atom',58,'want_reply'}}|[{'record_field',59,{'atom',59,'data'}}]]],[]}],
+		%% Line 62
+		'type' =
+		    %% Line 62
+		    [{{'record','ssh_msg_request_success'},[{'record_field',64,{'atom',64,'data'}}],[]}],
+		%% Line 67
+		'type' =
+		    %% Line 67
+		    [{{'record','ssh_msg_request_failure'},[],[]}],
+		%% Line 72
+		'type' =
+		    %% Line 72
+		    [{{'record','ssh_msg_channel_open'},[{'record_field',74,{'atom',74,'channel_type'}}|[{'record_field',75,{'atom',75,'sender_channel'}}|[{'record_field',76,{'atom',76,'initial_window_size'}}|[{'record_field',77,{'atom',77,'maximum_packet_size'}}|[{'record_field',78,{'atom',78,'data'}}]]]]],[]}],
+		%% Line 81
+		'type' =
+		    %% Line 81
+		    [{{'record','ssh_msg_channel_open_confirmation'},[{'record_field',83,{'atom',83,'recipient_channel'}}|[{'record_field',84,{'atom',84,'sender_channel'}}|[{'record_field',85,{'atom',85,'initial_window_size'}}|[{'record_field',86,{'atom',86,'maximum_packet_size'}}|[{'record_field',87,{'atom',87,'data'}}]]]]],[]}],
+		%% Line 101
+		'type' =
+		    %% Line 101
+		    [{{'record','ssh_msg_channel_open_failure'},[{'record_field',103,{'atom',103,'recipient_channel'}}|[{'record_field',104,{'atom',104,'reason'}}|[{'record_field',105,{'atom',105,'description'}}|[{'record_field',106,{'atom',106,'lang'}}]]]],[]}],
+		%% Line 110
+		'type' =
+		    %% Line 110
+		    [{{'record','ssh_msg_channel_window_adjust'},[{'record_field',112,{'atom',112,'recipient_channel'}}|[{'record_field',113,{'atom',113,'bytes_to_add'}}]],[]}],
+		%% Line 116
+		'type' =
+		    %% Line 116
+		    [{{'record','ssh_msg_channel_data'},[{'record_field',118,{'atom',118,'recipient_channel'}}|[{'record_field',119,{'atom',119,'data'}}]],[]}],
+		%% Line 129
+		'type' =
+		    %% Line 129
+		    [{{'record','ssh_msg_channel_extended_data'},[{'record_field',131,{'atom',131,'recipient_channel'}}|[{'record_field',132,{'atom',132,'data_type_code'}}|[{'record_field',133,{'atom',133,'data'}}]]],[]}],
+		%% Line 136
+		'type' =
+		    %% Line 136
+		    [{{'record','ssh_msg_channel_eof'},[{'record_field',138,{'atom',138,'recipient_channel'}}],[]}],
+		%% Line 141
+		'type' =
+		    %% Line 141
+		    [{{'record','ssh_msg_channel_close'},[{'record_field',143,{'atom',143,'recipient_channel'}}],[]}],
+		%% Line 147
+		'type' =
+		    %% Line 147
+		    [{{'record','ssh_msg_channel_request'},[{'record_field',149,{'atom',149,'recipient_channel'}}|[{'record_field',150,{'atom',150,'request_type'}}|[{'record_field',151,{'atom',151,'want_reply'}}|[{'record_field',152,{'atom',152,'data'}}]]]],[]}],
+		%% Line 156
+		'type' =
+		    %% Line 156
+		    [{{'record','ssh_msg_channel_success'},[{'record_field',158,{'atom',158,'recipient_channel'}}],[]}],
+		%% Line 162
+		'type' =
+		    %% Line 162
+		    [{{'record','ssh_msg_channel_failure'},[{'record_field',164,{'atom',164,'recipient_channel'}}],[]}],
+		%% Line 235
+		'type' =
+		    %% Line 235
+		    [{{'record','channel'},[{'record_field',237,{'atom',237,'type'}}|[{'record_field',238,{'atom',238,'sys'}}|[{'record_field',239,{'atom',239,'user'}}|[{'record_field',240,{'atom',240,'flow_control'}}|[{'record_field',242,{'atom',242,'local_id'}}|[{'record_field',244,{'atom',244,'recv_window_size'}}|[{'record_field',245,{'atom',245,'recv_packet_size'}}|[{'record_field',246,{'atom',246,'recv_close'},{'atom',246,'false'}}|[{'record_field',248,{'atom',248,'remote_id'}}|[{'record_field',249,{'atom',249,'send_window_size'}}|[{'record_field',250,{'atom',250,'send_packet_size'}}|[{'record_field',251,{'atom',251,'sent_close'},{'atom',251,'false'}}|[{'record_field',252,{'atom',252,'send_buf'},{'nil',252}}]]]]]]]]]]]]],[]}],
+		%% Line 255
+		'type' =
+		    %% Line 255
+		    [{{'record','connection'},[{'record_field',256,{'atom',256,'requests'},{'nil',256}}|[{'record_field',257,{'atom',257,'channel_cache'}}|[{'record_field',258,{'atom',258,'port_bindings'}}|[{'record_field',259,{'atom',259,'channel_id_seed'}}|[{'record_field',260,{'atom',260,'cli_spec'}}|[{'record_field',261,{'atom',261,'address'}}|[{'record_field',262,{'atom',262,'port'}}|[{'record_field',263,{'atom',263,'options'}}|[{'record_field',264,{'atom',264,'exec'}}|[{'record_field',265,{'atom',265,'system_supervisor'}}|[{'record_field',266,{'atom',266,'sub_system_supervisor'}}|[{'record_field',267,{'atom',267,'connection_supervisor'}}]]]]]]]]]]]],[]}],
+		%% Line 26
+		'callback' =
+		    %% Line 26
+		    [{{'init',1},[{'type',26,'fun',[{'type',26,'product',[{'ann_type',26,[{'var',26,'Args'}|[{'type',26,'term',[]}]]}]}|[{'type',27,'union',[{'type',27,'tuple',[{'atom',27,'ok'}|[{'ann_type',27,[{'var',27,'State'}|[{'type',27,'term',[]}]]}]]}|[{'type',27,'tuple',[{'atom',27,'ok'}|[{'ann_type',27,[{'var',27,'State'}|[{'type',27,'term',[]}]]}|[{'type',27,'union',[{'type',27,'timeout',[]}|[{'atom',27,'hibernate'}]]}]]]}|[{'type',28,'tuple',[{'atom',28,'stop'}|[{'ann_type',28,[{'var',28,'Reason'}|[{'type',28,'term',[]}]]}]]}|[{'atom',28,'ignore'}]]]]}]]}]}],
+		%% Line 29
+		'callback' =
+		    %% Line 29
+		    [{{'handle_call',3},[{'type',29,'fun',[{'type',29,'product',[{'ann_type',29,[{'var',29,'Request'}|[{'type',29,'term',[]}]]}|[{'ann_type',29,[{'var',29,'From'}|[{'type',29,'tuple',[{'type',29,'pid',[]}|[{'ann_type',29,[{'var',29,'Tag'}|[{'type',29,'term',[]}]]}]]}]]}|[{'ann_type',30,[{'var',30,'State'}|[{'type',30,'term',[]}]]}]]]}|[{'type',31,'union',[{'type',31,'tuple',[{'atom',31,'reply'}|[{'ann_type',31,[{'var',31,'Reply'}|[{'type',31,'term',[]}]]}|[{'ann_type',31,[{'var',31,'NewState'}|[{'type',31,'term',[]}]]}]]]}|[{'type',32,'tuple',[{'atom',32,'reply'}|[{'ann_type',32,[{'var',32,'Reply'}|[{'type',32,'term',[]}]]}|[{'ann_type',32,[{'var',32,'NewState'}|[{'type',32,'term',[]}]]}|[{'type',32,'union',[{'type',32,'timeout',[]}|[{'atom',32,'hibernate'}]]}]]]]}|[{'type',33,'tuple',[{'atom',33,'noreply'}|[{'ann_type',33,[{'var',33,'NewState'}|[{'type',33,'term',[]}]]}]]}|[{'type',34,'tuple',[{'atom',34,'noreply'}|[{'ann_type',34,[{'var',34,'NewState'}|[{'type',34,'term',[]}]]}|[{'type',34,'union',[{'type',34,'timeout',[]}|[{'atom',34,'hibernate'}]]}]]]}|[{'type',35,'tuple',[{'atom',35,'stop'}|[{'ann_type',35,[{'var',35,'Reason'}|[{'type',35,'term',[]}]]}|[{'ann_type',35,[{'var',35,'Reply'}|[{'type',35,'term',[]}]]}|[{'ann_type',35,[{'var',35,'NewState'}|[{'type',35,'term',[]}]]}]]]]}|[{'type',36,'tuple',[{'atom',36,'stop'}|[{'ann_type',36,[{'var',36,'Reason'}|[{'type',36,'term',[]}]]}|[{'ann_type',36,[{'var',36,'NewState'}|[{'type',36,'term',[]}]]}]]]}]]]]]]}]]}]}],
+		%% Line 37
+		'callback' =
+		    %% Line 37
+		    [{{'handle_cast',2},[{'type',37,'fun',[{'type',37,'product',[{'ann_type',37,[{'var',37,'Request'}|[{'type',37,'term',[]}]]}|[{'ann_type',37,[{'var',37,'State'}|[{'type',37,'term',[]}]]}]]}|[{'type',38,'union',[{'type',38,'tuple',[{'atom',38,'noreply'}|[{'ann_type',38,[{'var',38,'NewState'}|[{'type',38,'term',[]}]]}]]}|[{'type',39,'tuple',[{'atom',39,'noreply'}|[{'ann_type',39,[{'var',39,'NewState'}|[{'type',39,'term',[]}]]}|[{'type',39,'union',[{'type',39,'timeout',[]}|[{'atom',39,'hibernate'}]]}]]]}|[{'type',40,'tuple',[{'atom',40,'stop'}|[{'ann_type',40,[{'var',40,'Reason'}|[{'type',40,'term',[]}]]}|[{'ann_type',40,[{'var',40,'NewState'}|[{'type',40,'term',[]}]]}]]]}]]]}]]}]}],
+		%% Line 42
+		'callback' =
+		    %% Line 42
+		    [{{'terminate',2},[{'type',42,'fun',[{'type',42,'product',[{'ann_type',42,[{'var',42,'Reason'}|[{'paren_type',42,[{'type',42,'union',[{'atom',42,'normal'}|[{'atom',42,'shutdown'}|[{'type',42,'tuple',[{'atom',42,'shutdown'}|[{'type',42,'term',[]}]]}|[{'type',43,'term',[]}]]]]}]}]]}|[{'ann_type',44,[{'var',44,'State'}|[{'type',44,'term',[]}]]}]]}|[{'type',45,'term',[]}]]}]}],
+		%% Line 46
+		'callback' =
+		    %% Line 46
+		    [{{'code_change',3},[{'type',46,'fun',[{'type',46,'product',[{'ann_type',46,[{'var',46,'OldVsn'}|[{'paren_type',46,[{'type',46,'union',[{'type',46,'term',[]}|[{'type',46,'tuple',[{'atom',46,'down'}|[{'type',46,'term',[]}]]}]]}]}]]}|[{'ann_type',46,[{'var',46,'State'}|[{'type',46,'term',[]}]]}|[{'ann_type',47,[{'var',47,'Extra'}|[{'type',47,'term',[]}]]}]]]}|[{'type',48,'union',[{'type',48,'tuple',[{'atom',48,'ok'}|[{'ann_type',48,[{'var',48,'NewState'}|[{'type',48,'term',[]}]]}]]}|[{'type',48,'tuple',[{'atom',48,'error'}|[{'ann_type',48,[{'var',48,'Reason'}|[{'type',48,'term',[]}]]}]]}]]}]]}]}],
+		%% Line 50
+		'callback' =
+		    %% Line 50
+		    [{{'handle_msg',2},[{'type',50,'fun',[{'type',50,'product',[{'ann_type',50,[{'var',50,'Msg'}|[{'type',50,'term',[]}]]}|[{'ann_type',50,[{'var',50,'State'}|[{'type',50,'term',[]}]]}]]}|[{'type',51,'union',[{'type',51,'tuple',[{'atom',51,'ok'}|[{'ann_type',51,[{'var',51,'State'}|[{'type',51,'term',[]}]]}]]}|[{'type',51,'tuple',[{'atom',51,'stop'}|[{'ann_type',51,[{'var',51,'ChannelId'}|[{'type',51,'integer',[]}]]}|[{'ann_type',51,[{'var',51,'State'}|[{'type',51,'term',[]}]]}]]]}]]}]]}]}],
+		%% Line 53
+		'callback' =
+		    %% Line 53
+		    [{{'handle_ssh_msg',2},[{'type',53,'fun',[{'type',53,'product',[{'type',53,'tuple',[{'atom',53,'ssh_cm'}|[{'ann_type',53,[{'var',53,'ConnectionRef'}|[{'type',53,'term',[]}]]}|[{'ann_type',53,[{'var',53,'SshMsg'}|[{'type',53,'term',[]}]]}]]]}|[{'ann_type',54,[{'var',54,'State'}|[{'type',54,'term',[]}]]}]]}|[{'type',54,'union',[{'type',54,'tuple',[{'atom',54,'ok'}|[{'ann_type',54,[{'var',54,'State'}|[{'type',54,'term',[]}]]}]]}|[{'type',55,'tuple',[{'atom',55,'stop'}|[{'ann_type',55,[{'var',55,'ChannelId'}|[{'type',55,'integer',[]}]]}|[{'ann_type',56,[{'var',56,'State'}|[{'type',56,'term',[]}]]}]]]}]]}]]}]}],
+		%% Line 57
+		'behaviour' =
+		    %% Line 57
+		    ['gen_server'],
+		%% Line 72
+		'type' =
+		    %% Line 72
+		    [{{'record','state'},[{'record_field',73,{'atom',73,'cm'}}|[{'record_field',74,{'atom',74,'channel_cb'}}|[{'record_field',75,{'atom',75,'channel_state'}}|[{'record_field',76,{'atom',76,'channel_id'}}|[{'record_field',77,{'atom',77,'close_sent'},{'atom',77,'false'}}]]]]],[]}]]
+'call'/2 =
+    %% Line 84
+    fun (_cor1,_cor0) ->
+	%% Line 85
+	apply 'call'/3
+	    (_cor1, _cor0, 'infinity')
+'call'/3 =
+    %% Line 87
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 88
+	try
+	    call 'gen_server':'call'
+		(_cor2, _cor1, _cor0)
+	of <_cor3> ->
+	    _cor3
+	catch <_cor7,_cor6,_cor5> ->
+	    case <_cor7,_cor6,_cor5> of
+	      %% Line 92
+	      <'exit',{'noproc',_cor11},_cor12> when 'true' ->
+		  %% Line 93
+		  {'error','closed'}
+	      %% Line 94
+	      <'exit',{'timeout',_cor13},_cor14> when 'true' ->
+		  %% Line 95
+		  {'error','timeout'}
+	      ( <_cor7,_cor6,_cor5> when 'true' ->
+		    primop 'raise'
+			(_cor5, _cor6)
+		-| ['compiler_generated'] )
+	    end
+'cast'/2 =
+    %% Line 99
+    fun (_cor1,_cor0) ->
+	%% Line 100
+	call 'gen_server':'cast'
+	    (_cor1, _cor0)
+'reply'/2 =
+    %% Line 103
+    fun (_cor1,_cor0) ->
+	%% Line 104
+	call 'gen_server':'reply'
+	    (_cor1, _cor0)
+'start'/4 =
+    %% Line 114
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 115
+	apply 'start'/5
+	    (_cor3, _cor2, _cor1, _cor0, 'undefined')
+'start'/5 =
+    %% Line 117
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <Options> =
+	    %% Line 118
+	    [{'channel_cb',_cor2}|%% Line 119
+				  [{'channel_id',_cor3}|%% Line 120
+							[{'init_args',_cor1}|%% Line 121
+									     [{'cm',_cor4}|%% Line 122
+											   [{'exec',_cor0}|[]]]]]]
+	in  %% Line 123
+	    call 'gen_server':'start'
+		('ssh_channel', [Options|[]], [])
+'start_link'/4 =
+    %% Line 125
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 126
+	apply 'start_link'/5
+	    (_cor3, _cor2, _cor1, _cor0, 'undefined')
+'start_link'/5 =
+    %% Line 128
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <Options> =
+	    %% Line 129
+	    [{'channel_cb',_cor2}|%% Line 130
+				  [{'channel_id',_cor3}|%% Line 131
+							[{'init_args',_cor1}|%% Line 132
+									     [{'cm',_cor4}|%% Line 133
+											   [{'exec',_cor0}|[]]]]]]
+	in  %% Line 134
+	    call 'gen_server':'start_link'
+		('ssh_channel', [Options|[]], [])
+'enter_loop'/1 =
+    %% Line 136
+    fun (_cor0) ->
+	%% Line 137
+	call 'gen_server':'enter_loop'
+	    ('ssh_channel', [], _cor0)
+'init'/1 =
+    %% Line 150
+    fun (_cor0) ->
+	case _cor0 of
+	  <[Options|[]]> when 'true' ->
+	      let <Cb> =
+		  %% Line 151
+		  call 'proplists':'get_value'
+		      ('channel_cb', Options)
+	      in  let <ConnectionManager> =
+		      %% Line 152
+		      call 'proplists':'get_value'
+			  ('cm', Options)
+		  in  let <ChannelId> =
+			  %% Line 153
+			  call 'proplists':'get_value'
+			      ('channel_id', Options)
+		      in  do  %% Line 154
+			      call 'erlang':'process_flag'
+				  ('trap_exit', 'true')
+			      let <_cor6> =
+				  %% Line 156
+				  case call 'proplists':'get_value'
+					   ('exec', Options) of
+				    %% Line 157
+				    <'undefined'> when 'true' ->
+					%% Line 158
+					call 'proplists':'get_value'
+					    ('init_args', Options)
+				    %% Line 159
+				    <Exec> when 'true' ->
+					let <_cor4> =
+					    %% Line 160
+					    call 'proplists':'get_value'
+						('init_args', Options)
+					in  %% Line 160
+					    call 'erlang':'++'
+						(_cor4, [Exec|[]])
+				  end
+			      in  %% Line 162
+				  try
+				      call Cb:'init'
+					  (_cor6)
+				  of <_cor8> ->
+				      case _cor8 of
+					%% Line 163
+					<{'ok',ChannelState}> when 'true' ->
+					    let <State> =
+						%% Line 164
+						{'state',ConnectionManager,%% Line 165
+									   Cb,%% Line 167
+									      ChannelState,%% Line 166
+											   ChannelId,'false'}
+					    in  let <_cor10> =
+						    %% Line 168
+						    call 'erlang':'self'
+							()
+						in  do  %% Line 168
+							call 'erlang':'!'
+							    (_cor10, {'ssh_channel_up',ChannelId,ConnectionManager})
+							%% Line 169
+							{'ok',State}
+					%% Line 170
+					<{'ok',ChannelState,Timeout}> when 'true' ->
+					    let <State> =
+						%% Line 171
+						{'state',ConnectionManager,%% Line 172
+									   Cb,%% Line 174
+									      ChannelState,%% Line 173
+											   ChannelId,'false'}
+					    in  let <_cor12> =
+						    %% Line 175
+						    call 'erlang':'self'
+							()
+						in  do  %% Line 175
+							call 'erlang':'!'
+							    (_cor12, {'ssh_channel_up',ChannelId,ConnectionManager})
+							%% Line 176
+							{'ok',State,Timeout}
+					%% Line 177
+					<{'stop',Why}> when 'true' ->
+					    %% Line 178
+					    {'stop',Why}
+					( <_cor13> when 'true' ->
+					      primop 'match_fail'
+						  ({'try_clause',_cor13})
+					  -| ['compiler_generated'] )
+				      end
+				  catch <_cor16,_cor15,_cor14> ->
+				      %% Line 181
+				      {'stop',_cor15}
+	  ( <_cor17> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor17})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_call'/3 =
+    %% Line 193
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Request,From,State = {'state',_cor11,Module,%% Line 194
+						       ChannelState,_cor12,_cor13}> when 'true' ->
+	      %% Line 195
+	      try
+		  call Module:'handle_call'
+		      (Request, From, ChannelState)
+	      of <_cor3> ->
+		  %% Line 197
+		  apply 'handle_cb_result'/2
+		      (_cor3, State)
+	      catch <_cor7,_cor6,_cor5> ->
+		  case <_cor7,_cor6,_cor5> of
+		    %% Line 199
+		    <'error',{'undef',_cor14},_cor15> when 'true' ->
+			%% Line 200
+			{'noreply',State}
+		    ( <_cor7,_cor6,_cor5> when 'true' ->
+			  primop 'raise'
+			      (_cor5, _cor6)
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'handle_call',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_cast'/2 =
+    %% Line 210
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Msg,State = {'state',_cor9,Module,%% Line 211
+					     ChannelState,_cor10,_cor11}> when 'true' ->
+	      %% Line 213
+	      try
+		  call Module:'handle_cast'
+		      (Msg, ChannelState)
+	      of <_cor2> ->
+		  %% Line 215
+		  apply 'handle_cb_result'/2
+		      (_cor2, State)
+	      catch <_cor6,_cor5,_cor4> ->
+		  case <_cor6,_cor5,_cor4> of
+		    %% Line 217
+		    <'error',{'undef',_cor12},_cor13> when 'true' ->
+			%% Line 218
+			{'noreply',State}
+		    ( <_cor6,_cor5,_cor4> when 'true' ->
+			  primop 'raise'
+			      (_cor4, _cor5)
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7})
+		  -| [{'function_name',{'handle_cast',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_info'/2 =
+    %% Line 227
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'ssh_cm',ConnectionManager,{'closed',_X_ChannelId}},State = %% Line 228
+									{'state',_cor36,_cor37,_cor38,_cor39,%% Line 229
+													     'true'}>
+	      when call 'erlang':'=:='
+		    (_cor36,
+		     %% Line 228
+		     ConnectionManager) ->
+	      %% Line 230
+	      {'stop','normal',State}
+	  %% Line 231
+	  <{'ssh_cm',ConnectionManager,{'closed',ChannelId}},State = %% Line 232
+								     {'state',_cor40,_cor41,_cor42,_cor43,%% Line 233
+													  'false'}>
+	      when call 'erlang':'=:='
+		    (_cor40,
+		     %% Line 232
+		     ConnectionManager) ->
+	      do  catch
+		      %% Line 235
+		      call 'ssh_connection':'close'
+			  (ConnectionManager, ChannelId)
+		  let <_cor4> =
+		      %% Line 236
+		      call 'erlang':'setelement'
+			  (6, State, 'true')
+		  in  %% Line 236
+		      {'stop','normal',_cor4}
+	  %% Line 238
+	  <Msg = {'ssh_cm',_cor50,_cor51},State = {'state',ConnectionManager,%% Line 239
+									     Module,%% Line 240
+										    ChannelState0,_cor52,_cor53}> when 'true' ->
+	      %% Line 241
+	      case call Module:'handle_ssh_msg'
+		       (Msg, ChannelState0) of
+		%% Line 242
+		<{'ok',ChannelState}> when 'true' ->
+		    do  %% Line 243
+			apply 'adjust_window'/1
+			    (Msg)
+			let <_cor7> =
+			    %% Line 244
+			    call 'erlang':'setelement'
+				(4, State, ChannelState)
+			in  %% Line 244
+			    {'noreply',_cor7}
+		%% Line 245
+		<{'ok',ChannelState,Timeout}> when 'true' ->
+		    do  %% Line 246
+			apply 'adjust_window'/1
+			    (Msg)
+			let <_cor10> =
+			    %% Line 247
+			    call 'erlang':'setelement'
+				(4, State, ChannelState)
+			in  %% Line 247
+			    {'noreply',_cor10,Timeout}
+		%% Line 248
+		<{'stop',ChannelId,ChannelState}> when 'true' ->
+		    do  %% Line 249
+			call 'ssh_connection':'close'
+			    (ConnectionManager, ChannelId)
+			let <_cor12> =
+			    %% Line 250
+			    call 'erlang':'setelement'
+				(6, State, 'true')
+			in  let <_cor14> =
+				%% Line 251
+				call 'erlang':'setelement'
+				    (4, _cor12, ChannelState)
+			    in  %% Line 250
+				{'stop','normal',_cor14}
+		( <_cor15> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor15})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 254
+	  <Msg,State = {'state',ConnectionManager,Module,%% Line 255
+							 ChannelState0,_cor72,_cor73}> when 'true' ->
+	      %% Line 256
+	      case call Module:'handle_msg'
+		       (Msg, ChannelState0) of
+		%% Line 257
+		<{'ok',ChannelState}> when 'true' ->
+		    let <_cor18> =
+			%% Line 258
+			call 'erlang':'setelement'
+			    (4, State, ChannelState)
+		    in  %% Line 258
+			{'noreply',_cor18}
+		%% Line 259
+		<{'ok',ChannelState,Timeout}> when 'true' ->
+		    let <_cor21> =
+			%% Line 260
+			call 'erlang':'setelement'
+			    (4, State, ChannelState)
+		    in  %% Line 260
+			{'noreply',_cor21,Timeout}
+		%% Line 261
+		<{'stop',Reason,ChannelState}>
+		    when call 'erlang':'is_atom'
+			  (Reason) ->
+		    let <_cor23> =
+			%% Line 262
+			call 'erlang':'setelement'
+			    (6, State, 'true')
+		    in  let <_cor25> =
+			    %% Line 263
+			    call 'erlang':'setelement'
+				(4, _cor23, ChannelState)
+			in  %% Line 262
+			    {'stop',Reason,_cor25}
+		%% Line 264
+		<{'stop',ChannelId,ChannelState}> when 'true' ->
+		    let <_cor27> =
+			%% Line 266
+			case Msg of
+			  %% Line 267
+			  <{'EXIT',_X_Pid,'shutdown'}> when 'true' ->
+			      %% Line 268
+			      'shutdown'
+			  %% Line 269
+			  <_cor92> when 'true' ->
+			      %% Line 270
+			      'normal'
+			end
+		    in  do  catch
+				%% Line 272
+				call 'ssh_connection':'close'
+				    (ConnectionManager, ChannelId)
+			    let <_cor30> =
+				%% Line 273
+				call 'erlang':'setelement'
+				    (6, State, 'true')
+			    in  let <_cor32> =
+				    %% Line 274
+				    call 'erlang':'setelement'
+					(4, _cor30, ChannelState)
+				in  %% Line 273
+				    {'stop',_cor27,_cor32}
+		( <_cor33> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor33})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor35,_cor34> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor35,_cor34})
+		  -| [{'function_name',{'handle_info',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'terminate'/2 =
+    %% Line 284
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Reason,State = {'state',ConnectionManager,_cor7,_cor8,%% Line 285
+								 ChannelId,%% Line 286
+									   'false'}> when 'true' ->
+	      do  catch
+		      %% Line 287
+		      call 'ssh_connection':'close'
+			  (ConnectionManager, ChannelId)
+		  let <_cor4> =
+		      %% Line 288
+		      call 'erlang':'setelement'
+			  (6, State, 'true')
+		  in  %% Line 288
+		      apply 'terminate'/2
+			  (Reason, _cor4)
+	  %% Line 289
+	  <_cor15,{'state',_cor16,Cb,ChannelState,_cor17,_cor18}> when 'true' ->
+	      do  catch
+		      %% Line 290
+		      call Cb:'terminate'
+			  (Cb, ChannelState)
+		  %% Line 291
+		  'ok'
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'terminate',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'code_change'/3 =
+    %% Line 297
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <OldVsn,State = {'state',_cor10,Module,%% Line 298
+						 ChannelState0,_cor11,_cor12},%% Line 298
+									      Extra> when 'true' ->
+	      %% Line 299
+	      case call Module:'code_change'
+		       (OldVsn, ChannelState0, Extra) of
+		<{'ok',ChannelState}> when 'true' ->
+		    let <_cor6> =
+			%% Line 300
+			call 'erlang':'setelement'
+			    (4, State, ChannelState)
+		    in  %% Line 300
+			{'ok',_cor6}
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'code_change',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'cache_create'/0 =
+    %% Line 305
+    fun () ->
+	%% Line 306
+	call 'ets':'new'
+	    ('cm_tab', ['set'|[{'keypos',6}]])
+'cache_lookup'/2 =
+    %% Line 308
+    fun (_cor1,_cor0) ->
+	%% Line 309
+	case call 'ets':'lookup'
+		 (_cor1, _cor0) of
+	  %% Line 310
+	  <[Channel|[]]> when 'true' ->
+	      %% Line 311
+	      Channel
+	  %% Line 312
+	  <[]> when 'true' ->
+	      %% Line 313
+	      'undefined'
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'cache_update'/2 =
+    %% Line 316
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Cache,Entry = {'channel',_cor4,_cor5,_cor6,_cor7,Id,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15}>
+	      when call 'erlang':'=/='
+		    (Id,
+		     'undefined') ->
+	      %% Line 317
+	      call 'ets':'insert'
+		  (Cache, Entry)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'cache_update',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'cache_delete'/2 =
+    %% Line 319
+    fun (_cor1,_cor0) ->
+	%% Line 320
+	call 'ets':'delete'
+	    (_cor1, _cor0)
+'cache_delete'/1 =
+    %% Line 322
+    fun (_cor0) ->
+	%% Line 323
+	call 'ets':'delete'
+	    (_cor0)
+'cache_foldl'/3 =
+    %% Line 325
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 326
+	call 'ets':'foldl'
+	    (_cor2, _cor1, _cor0)
+'cache_find'/2 =
+    %% Line 328
+    fun (_cor1,_cor0) ->
+	%% Line 329
+	case call 'ets':'match_object'
+		 (_cor0, {'channel','undefined','undefined',_cor1,'undefined','undefined','undefined','undefined','false','undefined','undefined','undefined','false',[]}) of
+	  %% Line 330
+	  <[]> when 'true' ->
+	      %% Line 331
+	      'undefined'
+	  %% Line 332
+	  <[Channel|[]]> when 'true' ->
+	      %% Line 333
+	      Channel
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'handle_cb_result'/2 =
+    %% Line 339
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'reply',Reply,ChannelState},State> when 'true' ->
+	      %% Line 340
+	      case State of
+		<{'state',_cor22,_cor23,_cor24,_cor25,_cor26}> when 'true' ->
+		    let <_cor4> =
+			call 'erlang':'setelement'
+			    (4, State, ChannelState)
+		    in  {'reply',Reply,_cor4}
+		( <_cor27> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 341
+	  <{'reply',Reply,ChannelState,Timeout},State> when 'true' ->
+	      %% Line 342
+	      case State of
+		<{'state',_cor28,_cor29,_cor30,_cor31,_cor32}> when 'true' ->
+		    let <_cor7> =
+			call 'erlang':'setelement'
+			    (4, State, ChannelState)
+		    in  {'reply',Reply,_cor7,Timeout}
+		( <_cor33> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 343
+	  <{'noreply',ChannelState},State> when 'true' ->
+	      %% Line 344
+	      case State of
+		<{'state',_cor34,_cor35,_cor36,_cor37,_cor38}> when 'true' ->
+		    let <_cor10> =
+			call 'erlang':'setelement'
+			    (4, State, ChannelState)
+		    in  {'noreply',_cor10}
+		( <_cor39> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 345
+	  <{'noreply',ChannelState,Timeout},State> when 'true' ->
+	      %% Line 346
+	      case State of
+		<{'state',_cor40,_cor41,_cor42,_cor43,_cor44}> when 'true' ->
+		    let <_cor13> =
+			call 'erlang':'setelement'
+			    (4, State, ChannelState)
+		    in  {'noreply',_cor13,Timeout}
+		( <_cor45> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 347
+	  <{'stop',Reason,Reply,ChannelState},State> when 'true' ->
+	      %% Line 348
+	      case State of
+		<{'state',_cor46,_cor47,_cor48,_cor49,_cor50}> when 'true' ->
+		    let <_cor16> =
+			call 'erlang':'setelement'
+			    (4, State, ChannelState)
+		    in  {'stop',Reason,Reply,_cor16}
+		( <_cor51> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 349
+	  <{'stop',Reason,ChannelState},State> when 'true' ->
+	      %% Line 350
+	      case State of
+		<{'state',_cor52,_cor53,_cor54,_cor55,_cor56}> when 'true' ->
+		    let <_cor19> =
+			call 'erlang':'setelement'
+			    (4, State, ChannelState)
+		    in  {'stop',Reason,_cor19}
+		( <_cor57> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor21,_cor20> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor21,_cor20})
+		  -| [{'function_name',{'handle_cb_result',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'adjust_window'/1 =
+    %% Line 352
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'ssh_cm',ConnectionManager,%% Line 353
+				       {'data',ChannelId,_cor3,Data}}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 354
+		  call 'erlang':'size'
+		      (Data)
+	      in  %% Line 354
+		  call 'ssh_connection':'adjust_window'
+		      (ConnectionManager, ChannelId, _cor1)
+	  %% Line 355
+	  <_cor4> when 'true' ->
+	      %% Line 356
+	      'ok'
+	end
+'behaviour_info'/1 =
+    fun (_cor0) ->
+	case _cor0 of
+	  <'callbacks'> when 'true' ->
+	      [{'init',1}|[{'handle_call',3}|[{'handle_cast',2}|[{'terminate',2}|[{'code_change',3}|[{'handle_msg',2}|[{'handle_ssh_msg',2}]]]]]]]
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'behaviour_info',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ssh_channel')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ssh_channel', _cor0)
+end

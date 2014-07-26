@@ -1,0 +1,2329 @@
+module 'beam_block' ['module'/2,
+		     'module_info'/0,
+		     'module_info'/1]
+    attributes []
+'module'/2 =
+    %% Line 28
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Mod,Exp,Attr,Fs0,Lc0},_X_Opt> when 'true' ->
+	      let <_6551> =
+		  %% Line 29
+		  call 'lists':'mapfoldl'
+		      ('function'/2, Lc0, Fs0)
+	      in  %% Line 29
+		  case _6551 of
+		    <{Fs,Lc}> when 'true' ->
+			%% Line 30
+			{'ok',{Mod,Exp,Attr,Fs,Lc}}
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_6551})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'module',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'function'/2 =
+    %% Line 32
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'function',Name,Arity,CLabel,Is0},Lc0> when 'true' ->
+	      %% Line 33
+	      try
+		  let <Is1> =
+		      %% Line 59
+		      apply 'blockify'/2
+			  (Is0, [])
+		  in  let <_2280> =
+			  %% Line 172
+			  call 'lists':'reverse'
+			      (Is1)
+		      in  let <Is2> =
+			      %% Line 172
+			      apply 'embed_lines'/2
+				  (_2280, [])
+			  in  let <Is3> =
+				  %% Line 37
+				  apply 'move_allocates'/1
+				      (Is2)
+			      in  let <Is4> =
+				      %% Line 38
+				      call 'beam_utils':'live_opt'
+					  (Is3)
+				  in  let <Is5> =
+					  %% Line 39
+					  apply 'opt_blocks'/1
+					      (Is4)
+				      in  let <Is6> =
+					      %% Line 40
+					      call 'beam_utils':'delete_live_annos'
+						  (Is5)
+					  in  let <_6656> =
+						  %% Line 43
+						  apply 'bsm_opt'/2
+						      (Is6, _cor0)
+					      in  %% Line 43
+						  case _6656 of
+						    <{Is,Lc}> when 'true' ->
+							%% Line 46
+							{{'function',Name,Arity,CLabel,Is},Lc}
+						    ( <_cor8> when 'true' ->
+							  primop 'match_fail'
+							      ({'badmatch',_6656})
+						      -| ['compiler_generated'] )
+						  end
+	      of <_cor9> ->
+		  _cor9
+	      catch <_cor12,_cor11,_cor10> ->
+		  let <Stack> =
+		      %% Line 49
+		      call 'erlang':'get_stacktrace'
+			  ()
+		  in  do  %% Line 50
+			  call 'io':'fwrite'
+			      ([70|[117|[110|[99|[116|[105|[111|[110|[58|[32|[126|[119|[47|[126|[119|[10]]]]]]]]]]]]]]]], [Name|[Arity|[]]])
+			  %% Line 51
+			  call 'erlang':'raise'
+			      (_cor12, _cor11, Stack)
+	  ( <_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'function',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'blockify'/2 =
+    %% Line 61
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'loop_rec',{'f',Fail},{'x',0}}|[{'loop_rec_end',_X_Lbl}|[{'label',_cor12}|Is]]],Acc>
+	      when call 'erlang':'=:='
+		    (_cor12,
+		     Fail) ->
+	      %% Line 63
+	      apply 'blockify'/2
+		  (Is, _cor0)
+	  %% Line 66
+	  <[I = {'bs_save2',R,Point}|[{'bs_restore2',_cor13,_cor14}|Is]],Acc>
+	      when let <_cor15> =
+		    call 'erlang':'=:='
+			(_cor13, R)
+		in  let <_cor16> =
+			call 'erlang':'=:='
+			    (_cor14, Point)
+		    in  call 'erlang':'and'
+			    (_cor15, _cor16) ->
+	      %% Line 67
+	      apply 'blockify'/2
+		  ([I|Is], _cor0)
+	  %% Line 68
+	  <[I = {'bs_save2',R,Point}|[Test = {'test','is_eq_exact',_cor17,_cor18}|%% Line 69
+										  [{'bs_restore2',_cor19,_cor20}|Is]]],Acc>
+	      when let <_cor21> =
+		    call 'erlang':'=:='
+			(_cor19, R)
+		in  let <_cor22> =
+			call 'erlang':'=:='
+			    (_cor20, Point)
+		    in  call 'erlang':'and'
+			    (_cor21, _cor22) ->
+	      %% Line 70
+	      apply 'blockify'/2
+		  ([I|[Test|Is]], _cor0)
+	  %% Line 73
+	  <[I = {'test','is_atom',{'f',Fail},[Reg|[]]}|Is0 = %% Line 74
+							     [{'select','select_val',_cor23,{'f',_cor24},%% Line 75
+													 [{'atom','false'}|[BrFalse = {'f',_cor25}|%% Line 76
+																		   [AtomTrue = {'atom','true'}|[BrTrue = {'f',_cor26}|[]]]]]}|Is]],Acc = %% Line 77
+																											 [{'block',Bl}|_cor27]>
+	      when let <_cor28> =
+		    call 'erlang':'=:='
+			(_cor23, Reg)
+		in  let <_cor29> =
+			call 'erlang':'=:='
+			    (_cor24, Fail)
+		    in  call 'erlang':'and'
+			    (_cor28, _cor29) ->
+	      let <_5868> =
+		  %% Line 78
+		  apply 'is_last_bool'/2
+		      (Bl, Reg)
+	      in  %% Line 78
+		  case _5868 of
+		    %% Line 79
+		    <'false'> when 'true' ->
+			%% Line 80
+			apply 'blockify'/2
+			    (Is0, [I|_cor0])
+		    %% Line 81
+		    <'true'> when 'true' ->
+			%% Line 85
+			apply 'blockify'/2
+			    (Is, [{'jump',BrTrue}|%% Line 86
+						  [{'test','is_eq_exact',BrFalse,[Reg|[AtomTrue|[]]]}|_cor0]])
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_5868})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 88
+	  <[I = {'test','is_atom',{'f',Fail},[Reg|[]]}|Is0 = %% Line 89
+							     [{'select','select_val',_cor30,{'f',_cor31},%% Line 90
+													 [AtomTrue = {'atom','true'}|[BrTrue = {'f',_cor32}|%% Line 91
+																			    [{'atom','false'}|[BrFalse = {'f',_cor33}|[]]]]]}|Is]],Acc = %% Line 92
+																											 [{'block',Bl}|_cor34]>
+	      when let <_cor35> =
+		    call 'erlang':'=:='
+			(_cor30, Reg)
+		in  let <_cor36> =
+			call 'erlang':'=:='
+			    (_cor31, Fail)
+		    in  call 'erlang':'and'
+			    (_cor35, _cor36) ->
+	      let <_7067> =
+		  %% Line 93
+		  apply 'is_last_bool'/2
+		      (Bl, Reg)
+	      in  %% Line 93
+		  case _7067 of
+		    %% Line 94
+		    <'false'> when 'true' ->
+			%% Line 95
+			apply 'blockify'/2
+			    (Is0, [I|_cor0])
+		    %% Line 96
+		    <'true'> when 'true' ->
+			%% Line 97
+			apply 'blockify'/2
+			    (Is, [{'jump',BrTrue}|%% Line 98
+						  [{'test','is_eq_exact',BrFalse,[Reg|[AtomTrue|[]]]}|_cor0]])
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_7067})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 100
+	  <IsAll = [I|Is0],Acc> when 'true' ->
+	      let <_2987> =
+		  %% Line 446
+		  case I of
+		    <{'bs_put',_cor2,{'bs_put_integer',_cor3,_cor4},_cor5}> when 'true' ->
+			'true'
+		    %% Line 447
+		    <{'bs_put',_cor6,{'bs_put_float',_cor7,_cor8},_cor9}> when 'true' ->
+			'true'
+		    %% Line 448
+		    <_cor10> when 'true' ->
+			'false'
+		  end
+	      in  %% Line 101
+		  case _2987 of
+		    %% Line 102
+		    <'true'> when 'true' ->
+			let <_113> =
+			    %% Line 451
+			    apply 'collect_bs_puts_1'/2
+				(_cor1, [])
+			in  %% Line 103
+			    case _113 of
+			      <{BsPuts0,Is}> when 'true' ->
+				  let <BsPuts> =
+				      %% Line 104
+				      apply 'opt_bs_puts'/1
+					  (BsPuts0)
+				  in  let <_cor6> =
+					  %% Line 105
+					  call 'lists':'reverse'
+					      (BsPuts, _cor0)
+				      in  %% Line 105
+					  apply 'blockify'/2
+					      (Is, _cor6)
+			      ( <_cor4> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_113})
+				-| ['compiler_generated'] )
+			    end
+		    %% Line 106
+		    <'false'> when 'true' ->
+			let <_1654> =
+			    %% Line 107
+			    apply 'collect'/1
+				(I)
+			in  %% Line 107
+			    case _1654 of
+			      %% Line 108
+			      <'error'> when 'true' ->
+				  apply 'blockify'/2
+				      (Is0, [I|_cor0])
+			      %% Line 109
+			      <Instr>
+				  when call 'erlang':'is_tuple'
+					(_1654) ->
+				  let <_1725> =
+				      %% Line 124
+				      apply 'collect_block'/2
+					  (_cor1, [])
+				  in  %% Line 110
+				      case _1725 of
+					<{Block,Is}> when 'true' ->
+					    %% Line 111
+					    apply 'blockify'/2
+						(Is, [{'block',Block}|_cor0])
+					( <_cor7> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_1725})
+					  -| ['compiler_generated'] )
+				      end
+			      ( <_cor8> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_1654})
+				-| ['compiler_generated'] )
+			    end
+		    ( <_cor9> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_2987})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 114
+	  <[],Acc> when 'true' ->
+	      call 'lists':'reverse'
+		  (_cor0)
+	  ( <_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'blockify',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'is_last_bool'/2 =
+    %% Line 116
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'set',[Reg|[]],As,{'bif',N,_cor9}}|[]],_cor10>
+	      when call 'erlang':'=:='
+		    (_cor0,
+		     Reg) ->
+	      let <Ar> =
+		  %% Line 117
+		  call 'erlang':'length'
+		      (As)
+	      in  let <_5861> =
+		      %% Line 118
+		      call 'erl_internal':'new_type_test'
+			  (N, Ar)
+		  in  %% Line 118
+		      ( case _5861 of
+			  ( <( 'true'
+			       -| ['compiler_generated'] )> when 'true' ->
+				'true'
+			    -| ['compiler_generated'] )
+			  ( <( 'false'
+			       -| ['compiler_generated'] )> when 'true' ->
+				let <_6622> =
+				    call 'erl_internal':'comp_op'
+					(N, Ar)
+				in  %% Line 119
+				    ( case _6622 of
+					( <( 'true'
+					     -| ['compiler_generated'] )> when 'true' ->
+					      'true'
+					  -| ['compiler_generated'] )
+					( <( 'false'
+					     -| ['compiler_generated'] )> when 'true' ->
+					      call 'erl_internal':'bool_op'
+						  (N, Ar)
+					  -| ['compiler_generated'] )
+					( <_cor4> when 'true' ->
+					      ( call ( 'erlang'
+						       -| ['compiler_generated'] ):( 'error'
+										     -| ['compiler_generated'] )
+						    (( {( 'badarg'
+							  -| ['compiler_generated'] ),_6622}
+						       -| ['compiler_generated'] ))
+						-| ['compiler_generated'] )
+					  -| ['compiler_generated'] )
+				      end
+				      -| ['compiler_generated'] )
+			    -| ['compiler_generated'] )
+			  ( <_cor3> when 'true' ->
+				( call ( 'erlang'
+					 -| ['compiler_generated'] ):( 'error'
+								       -| ['compiler_generated'] )
+				      (( {( 'badarg'
+					    -| ['compiler_generated'] ),_5861}
+					 -| ['compiler_generated'] ))
+				  -| ['compiler_generated'] )
+			    -| ['compiler_generated'] )
+			end
+			-| ['compiler_generated'] )
+	  %% Line 120
+	  <[_cor11|Is],Reg> when 'true' ->
+	      apply 'is_last_bool'/2
+		  (Is, _cor0)
+	  %% Line 121
+	  <[],_cor12> when 'true' ->
+	      'false'
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'is_last_bool',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'collect_block'/2 =
+    %% Line 126
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'allocate',N,R}|Is0],Acc> when 'true' ->
+	      let <_cor4> =
+		  %% Line 127
+		  fun (_cor2) ->
+		      case _cor2 of
+			<{'init',{'y',_cor10}}> when 'true' ->
+			    'true'
+			%% Line 128
+			<_cor11> when 'true' ->
+			    'false'
+		      end
+	      in  let <_3044> =
+		      %% Line 127
+		      call 'lists':'splitwith'
+			  (_cor4, Is0)
+		  in  %% Line 127
+		      case _3044 of
+			<{Inits,Is}> when 'true' ->
+			    %% Line 130
+			    apply 'collect_block'/2
+				(Is, [{'set',[],[],{'alloc',R,{'nozero',N,0,Inits}}}|_cor0])
+			( <_cor5> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_3044})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 131
+	  <[{'allocate_zero',Ns,R}|[{'test_heap',Nh,_cor12}|Is]],Acc>
+	      when call 'erlang':'=:='
+		    (_cor12,
+		     R) ->
+	      %% Line 132
+	      apply 'collect_block'/2
+		  (Is, [{'set',[],[],{'alloc',R,{'zero',Ns,Nh,[]}}}|_cor0])
+	  %% Line 133
+	  <Is0 = [I|Is],Acc> when 'true' ->
+	      let <_4202> =
+		  %% Line 134
+		  apply 'collect'/1
+		      (I)
+	      in  %% Line 134
+		  case _4202 of
+		    %% Line 135
+		    <'error'> when 'true' ->
+			let <_cor6> =
+			    call 'lists':'reverse'
+				(_cor0)
+			in  {_cor6,_cor1}
+		    %% Line 136
+		    <Instr> when 'true' ->
+			apply 'collect_block'/2
+			    (Is, [_4202|_cor0])
+		  end
+	  ( <_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'collect_block',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'collect'/1 =
+    %% Line 139
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'allocate',N,R}> when 'true' ->
+	      {'set',[],[],{'alloc',R,{'nozero',N,0,[]}}}
+	  %% Line 140
+	  <{'allocate_zero',N,R}> when 'true' ->
+	      {'set',[],[],{'alloc',R,{'zero',N,0,[]}}}
+	  %% Line 141
+	  <{'allocate_heap',Ns,Nh,R}> when 'true' ->
+	      {'set',[],[],{'alloc',R,{'nozero',Ns,Nh,[]}}}
+	  %% Line 142
+	  <{'allocate_heap_zero',Ns,Nh,R}> when 'true' ->
+	      {'set',[],[],{'alloc',R,{'zero',Ns,Nh,[]}}}
+	  %% Line 143
+	  <{'init',D}> when 'true' ->
+	      {'set',[D|[]],[],'init'}
+	  %% Line 144
+	  <{'test_heap',N,R}> when 'true' ->
+	      {'set',[],[],{'alloc',R,{'nozero','nostack',N,[]}}}
+	  %% Line 145
+	  <{'bif',N,F,As,D}> when 'true' ->
+	      {'set',[D|[]],As,{'bif',N,F}}
+	  %% Line 146
+	  <{'gc_bif',N,F,R,As,D}> when 'true' ->
+	      {'set',[D|[]],As,{'alloc',R,{'gc_bif',N,F}}}
+	  %% Line 147
+	  <{'move',S,D}> when 'true' ->
+	      {'set',[D|[]],[S|[]],'move'}
+	  %% Line 148
+	  <{'put_list',S1,S2,D}> when 'true' ->
+	      {'set',[D|[]],[S1|[S2|[]]],'put_list'}
+	  %% Line 149
+	  <{'put_tuple',A,D}> when 'true' ->
+	      {'set',[D|[]],[],{'put_tuple',A}}
+	  %% Line 150
+	  <{'put',S}> when 'true' ->
+	      {'set',[],[S|[]],'put'}
+	  %% Line 151
+	  <{'get_tuple_element',S,I,D}> when 'true' ->
+	      {'set',[D|[]],[S|[]],{'get_tuple_element',I}}
+	  %% Line 152
+	  <{'set_tuple_element',S,D,I}> when 'true' ->
+	      {'set',[],[S|[D|[]]],{'set_tuple_element',I}}
+	  %% Line 153
+	  <{'get_list',S,D1,D2}> when 'true' ->
+	      {'set',[D1|[D2|[]]],[S|[]],'get_list'}
+	  %% Line 154
+	  <'remove_message'> when 'true' ->
+	      {'set',[],[],'remove_message'}
+	  %% Line 155
+	  <{'put_map',F,Op,S,D,R,{'list',Puts}}> when 'true' ->
+	      %% Line 156
+	      {'set',[D|[]],[S|Puts],{'alloc',R,{'put_map',Op,F}}}
+	  %% Line 157
+	  <{'get_map_elements',F,S,{'list',Gets}}> when 'true' ->
+	      %% Line 158
+	      {'set',Gets,[S|[]],{'get_map_elements',F}}
+	  %% Line 159
+	  <{'catch',R,L}> when 'true' ->
+	      {'set',[R|[]],[],{'catch',L}}
+	  %% Line 160
+	  <'fclearerror'> when 'true' ->
+	      {'set',[],[],'fclearerror'}
+	  %% Line 161
+	  <{'fcheckerror',{'f',0}}> when 'true' ->
+	      {'set',[],[],'fcheckerror'}
+	  %% Line 162
+	  <{'fmove',S,D}> when 'true' ->
+	      {'set',[D|[]],[S|[]],'fmove'}
+	  %% Line 163
+	  <{'fconv',S,D}> when 'true' ->
+	      {'set',[D|[]],[S|[]],'fconv'}
+	  %% Line 164
+	  <_cor2> when 'true' ->
+	      'error'
+	end
+'embed_lines'/2 =
+    %% Line 174
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'block',B2}|[Line = {'line',_cor8}|[{'block',B1}|T]]],Acc> when 'true' ->
+	      let <_cor2> =
+		  %% Line 175
+		  [{'set',[],[],Line}|B2]
+	      in  let <_cor3> =
+		      %% Line 175
+		      call 'erlang':'++'
+			  (B1, _cor2)
+		  in  let <B> = {%% Line 175
+			   'block',_cor3}
+		      in  %% Line 176
+			  apply 'embed_lines'/2
+			      ([B|T], _cor0)
+	  %% Line 177
+	  <[{'block',B1}|[Line = {'line',_cor9}|T]],Acc> when 'true' ->
+	      let <B> =
+		  %% Line 178
+		  {'block',[{'set',[],[],Line}|B1]}
+	      in  %% Line 179
+		  apply 'embed_lines'/2
+		      ([B|T], _cor0)
+	  %% Line 180
+	  <[I|Is],Acc> when 'true' ->
+	      %% Line 181
+	      apply 'embed_lines'/2
+		  (Is, [I|_cor0])
+	  %% Line 182
+	  <[],Acc> when 'true' ->
+	      _cor0
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'embed_lines',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'opt_blocks'/1 =
+    %% Line 184
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{'block',Bl0}|Is]> when 'true' ->
+	      %% Line 186
+	      case Bl0 of
+		<[{'%live',_cor6}|Bl]> when 'true' ->
+		    let <_cor2> =
+			%% Line 187
+			apply 'opt_block'/1
+			    (Bl)
+		    in  let <_cor3> =
+			    %% Line 187
+			    apply 'opt_blocks'/1
+				(Is)
+			in  %% Line 187
+			    [{'block',_cor2}|_cor3]
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',Bl0})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 188
+	  <[I|Is]> when 'true' ->
+	      let <_cor4> =
+		  %% Line 189
+		  apply 'opt_blocks'/1
+		      (Is)
+	      in  %% Line 189
+		  [I|_cor4]
+	  %% Line 190
+	  <[]> when 'true' ->
+	      []
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'opt_blocks',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'opt_block'/1 =
+    %% Line 192
+    fun (_cor0) ->
+	let <_cor1> = 'opt'/1
+	in  let <_4523> =
+		%% Line 197
+		apply 'opt'/1
+		    (_cor0)
+	    in  let <Is> =
+		    %% Line 197
+		    case _4523 of
+		      %% Line 198
+		      <_cor5>
+			  when call 'erlang':'=:='
+				(_4523,
+				 _cor0) ->
+			  _cor0
+		      %% Line 199
+		      <Is1> when 'true' ->
+			  apply 'find_fixpoint'/2
+			      (_cor1, _4523)
+		    end
+		in  %% Line 194
+		    apply 'opt_alloc'/1
+			(Is)
+'find_fixpoint'/2 =
+    %% Line 196
+    fun (_cor1,_cor0) ->
+	let <_4523> =
+	    %% Line 197
+	    apply _cor1
+		(_cor0)
+	in  %% Line 197
+	    case _4523 of
+	      %% Line 198
+	      <_cor5>
+		  when call 'erlang':'=:='
+			(_4523,
+			 _cor0) ->
+		  _cor0
+	      %% Line 199
+	      <Is1> when 'true' ->
+		  apply 'find_fixpoint'/2
+		      (_cor1, _4523)
+	    end
+'move_allocates'/1 =
+    %% Line 212
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{'block',Bl0}|Is]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 213
+		  call 'lists':'reverse'
+		      (Bl0)
+	      in  let <Bl> =
+		      %% Line 213
+		      apply 'move_allocates_1'/2
+			  (_cor1, [])
+		  in  let <_cor3> =
+			  %% Line 214
+			  apply 'move_allocates'/1
+			      (Is)
+		      in  %% Line 214
+			  [{'block',Bl}|_cor3]
+	  %% Line 215
+	  <[I|Is]> when 'true' ->
+	      let <_cor4> =
+		  %% Line 216
+		  apply 'move_allocates'/1
+		      (Is)
+	      in  %% Line 216
+		  [I|_cor4]
+	  %% Line 217
+	  <[]> when 'true' ->
+	      []
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'move_allocates',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'move_allocates_1'/2 =
+    %% Line 219
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'set',[],[],Alloc = {'alloc',_cor5,_cor6}}|Is0],Acc0> when 'true' ->
+	      let <_1251> =
+		  %% Line 220
+		  apply 'move_allocates_2'/3
+		      (Alloc, Is0, _cor0)
+	      in  %% Line 220
+		  case _1251 of
+		    <{Is,Acc}> when 'true' ->
+			%% Line 221
+			apply 'move_allocates_1'/2
+			    (Is, Acc)
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_1251})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 222
+	  <[I|Is],Acc> when 'true' ->
+	      %% Line 223
+	      apply 'move_allocates_1'/2
+		  (Is, [I|_cor0])
+	  %% Line 224
+	  <[],Is> when 'true' ->
+	      _cor0
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'move_allocates_1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'move_allocates_2'/3 =
+    %% Line 226
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'alloc',Live,Info},[{'set',[],[],{'alloc',Live0,Info0}}|Is],Acc> when 'true' ->
+	      %% Line 227
+	      case Live0 of
+		<_cor12>
+		    when call 'erlang':'=:='
+			  (Live0,
+			   Live) ->
+		    let <_cor4> =
+			%% Line 228
+			apply 'combine_alloc'/2
+			    (Info0, Info)
+		    in  let <Alloc> = {%% Line 228
+			     'alloc',Live,_cor4}
+			in  %% Line 229
+			    apply 'move_allocates_2'/3
+				(Alloc, Is, _cor0)
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',Live0})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 230
+	  <Alloc0 = {'alloc',Live,Info},Is0 = [I|Is],Acc> when 'true' ->
+	      let <_1556> =
+		  %% Line 231
+		  apply 'alloc_may_pass'/1
+		      (I)
+	      in  %% Line 231
+		  case _1556 of
+		    %% Line 232
+		    <'false'> when 'true' ->
+			%% Line 233
+			{_cor1,[{'set',[],[],_cor2}|_cor0]}
+		    %% Line 234
+		    <'true'> when 'true' ->
+			let <_cor6> =
+			    %% Line 235
+			    apply 'alloc_live_regs'/2
+				(I, Live)
+			in  let <Alloc> = {%% Line 235
+				 'alloc',_cor6,Info}
+			    in  %% Line 236
+				apply 'move_allocates_2'/3
+				    (Alloc, Is, [I|_cor0])
+		    ( <_cor8> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_1556})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 238
+	  <Alloc,[],Acc> when 'true' ->
+	      %% Line 239
+	      {[],[{'set',[],[],_cor2}|_cor0]}
+	  ( <_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'move_allocates_2',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'alloc_may_pass'/1 =
+    %% Line 241
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'set',_cor2,_cor3,{'alloc',_cor4,_cor5}}> when 'true' ->
+	      'false'
+	  %% Line 242
+	  <{'set',_cor6,_cor7,{'set_tuple_element',_cor8}}> when 'true' ->
+	      'false'
+	  %% Line 243
+	  <{'set',_cor9,_cor10,{'get_map_elements',_cor11}}> when 'true' ->
+	      'false'
+	  %% Line 244
+	  <{'set',_cor12,_cor13,'put_list'}> when 'true' ->
+	      'false'
+	  %% Line 245
+	  <{'set',_cor14,_cor15,'put'}> when 'true' ->
+	      'false'
+	  %% Line 246
+	  <{'set',_cor16,_cor17,_cor18}> when 'true' ->
+	      'true'
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'alloc_may_pass',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'combine_alloc'/2 =
+    %% Line 248
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{_cor5,Ns,Nh1,Init},{_cor6,'nostack',Nh2,[]}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 249
+		  call 'beam_utils':'combine_heap_needs'
+		      (Nh1, Nh2)
+	      in  %% Line 249
+		  {'zero',Ns,_cor2,Init}
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'combine_alloc',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'opt'/1 =
+    %% Line 254
+    fun (_cor0) ->
+	case _cor0 of
+	  <[I1 = {'set',[Dst|[]],As,{'bif',Bif,Fail}}|%% Line 255
+						      [I2 = {'set',[_cor14|[]],[_cor15|[]],{'bif','not',_cor16}}|Is]]>
+	      when let <_cor19> =
+		    call 'erlang':'=:='
+			(_cor14, Dst)
+		in  let <_cor17> =
+			call 'erlang':'=:='
+			    (_cor15, Dst)
+		    in  let <_cor18> =
+			    call 'erlang':'=:='
+				(_cor16, Fail)
+			in  let <_cor20> =
+				call 'erlang':'and'
+				    (_cor17, _cor18)
+			    in  call 'erlang':'and'
+				    (_cor19, _cor20) ->
+	      let <_5789> =
+		  %% Line 432
+		  case Bif of
+		    <'=:='> when 'true' ->
+			'=/='
+		    %% Line 433
+		    <'=/='> when 'true' ->
+			'=:='
+		    %% Line 434
+		    <'=='> when 'true' ->
+			'/='
+		    %% Line 435
+		    <'/='> when 'true' ->
+			'=='
+		    %% Line 436
+		    <'>'> when 'true' ->
+			'=<'
+		    %% Line 437
+		    <'<'> when 'true' ->
+			'>='
+		    %% Line 438
+		    <'>='> when 'true' ->
+			'<'
+		    %% Line 439
+		    <'=<'> when 'true' ->
+			'>'
+		    %% Line 440
+		    <_cor2> when 'true' ->
+			'none'
+		  end
+	      in  %% Line 257
+		  case _5789 of
+		    %% Line 258
+		    <'none'> when 'true' ->
+			let <_cor1> =
+			    apply 'opt'/1
+				(Is)
+			in  [I1|[I2|_cor1]]
+		    %% Line 259
+		    <RevBif> when 'true' ->
+			let <_cor2> =
+			    apply 'opt'/1
+				(Is)
+			in  [{'set',[Dst|[]],As,{'bif',_5789,Fail}}|_cor2]
+		  end
+	  %% Line 261
+	  <[{'set',[X|[]],[_cor21|[]],'move'}|Is]>
+	      when call 'erlang':'=:='
+		    (_cor21,
+		     X) ->
+	      apply 'opt'/1
+		  (Is)
+	  %% Line 262
+	  <[Line1 = {'set',_cor22,_cor23,{'line',_cor24}}|%% Line 263
+							  [I1 = {'set',[D1|[]],[{'integer',Idx1}|[Reg|[]]],{'bif','element',{'f',0}}}|%% Line 264
+																      [Line2 = {'set',_cor25,_cor26,{'line',_cor27}}|%% Line 265
+																						     [I2 = {'set',[D2|[]],[{'integer',Idx2}|[_cor28|[]]],{'bif','element',{'f',0}}}|Is]]]]>
+	      when let <_cor29> =
+		    call 'erlang':'=:='
+			(_cor28, Reg)
+		in  let <_cor30> =
+			%% Line 266
+			try
+			    let <_cor4> =
+				call 'erlang':'<'
+				    (Idx1, Idx2)
+			    in  let <_cor5> =
+				    call 'erlang':'=/='
+					(D1, D2)
+				in  let <_cor6> =
+					call 'erlang':'=/='
+					    (D1, Reg)
+				    in  let <_cor7> =
+					    call 'erlang':'=/='
+						(D2, Reg)
+					in  let <_cor8> =
+						call 'erlang':'and'
+						    (_cor6, _cor7)
+					    in  let <_cor9> =
+						    call 'erlang':'and'
+							(_cor5, _cor8)
+						in  call 'erlang':'and'
+							(_cor4, _cor9)
+			of <Try> ->
+			    Try
+			catch <T,R> ->
+			    'false'
+		    in  call 'erlang':'and'
+			    (_cor29, _cor30) ->
+	      %% Line 267
+	      apply 'opt'/1
+		  ([Line2|[I2|[Line1|[I1|Is]]]])
+	  %% Line 268
+	  <[{'set',Ds0,Ss,Op}|Is0]> when 'true' ->
+	      let <_5081> =
+		  %% Line 269
+		  apply 'opt_moves'/2
+		      (Ds0, Is0)
+	      in  %% Line 269
+		  case _5081 of
+		    <{Ds,Is}> when 'true' ->
+			let <_cor11> =
+			    %% Line 270
+			    apply 'opt'/1
+				(Is)
+			in  %% Line 270
+			    [{'set',Ds,Ss,Op}|_cor11]
+		    ( <_cor10> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_5081})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 271
+	  <[I = {'%live',_cor31}|Is]> when 'true' ->
+	      let <_cor12> =
+		  %% Line 272
+		  apply 'opt'/1
+		      (Is)
+	      in  %% Line 272
+		  [I|_cor12]
+	  %% Line 273
+	  <[]> when 'true' ->
+	      []
+	  ( <_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'opt',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'opt_moves'/2 =
+    %% Line 278
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Is0> when 'true' ->
+	      {[],_cor0}
+	  %% Line 279
+	  <Ds = [D0|[]],Is0> when 'true' ->
+	      let <_2534> =
+		  %% Line 312
+		  apply 'opt_move_1'/4
+		      (D0, _cor0, 1024, [])
+	      in  %% Line 280
+		  case _2534 of
+		    %% Line 281
+		    <'not_possible'> when 'true' ->
+			{_cor1,_cor0}
+		    %% Line 282
+		    <{D1,Is}> when 'true' ->
+			{[D1|[]],Is}
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_2534})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 284
+	  <[X0|[Y0|[]]],Is0> when 'true' ->
+	      let <_6203> =
+		  %% Line 312
+		  apply 'opt_move_1'/4
+		      (X0, _cor0, 1024, [])
+	      in  let <_cor4> =
+		      %% Line 285
+		      case _6203 of
+			%% Line 286
+			<'not_possible'> when 'true' ->
+			    {X0,_cor0}
+			%% Line 287
+			<{_cor9,_cor10}>
+			    when call 'erlang':'=:='
+				  (_cor9,
+				   Y0) ->
+			    {X0,_cor0}
+			%% Line 288
+			<XIs1 = {_X_X1,_X_Is1}> when 'true' ->
+			    _6203
+			( <_cor3> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_6203})
+			  -| ['compiler_generated'] )
+		      end
+		  in  %% Line 285
+		      case _cor4 of
+			<{X,Is2}> when 'true' ->
+			    let <_1069> =
+				%% Line 312
+				apply 'opt_move_1'/4
+				    (Y0, Is2, 1024, [])
+			    in  %% Line 290
+				case _1069 of
+				  %% Line 291
+				  <'not_possible'> when 'true' ->
+				      {[X|[Y0|[]]],Is2}
+				  %% Line 292
+				  <{_cor11,_cor12}>
+				      when call 'erlang':'=:='
+					    (_cor11,
+					     X) ->
+				      {[X|[Y0|[]]],Is2}
+				  %% Line 293
+				  <{Y,Is}> when 'true' ->
+				      {[X|[Y|[]]],Is}
+				  ( <_cor6> when 'true' ->
+					primop 'match_fail'
+					    ({'case_clause',_1069})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor5> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor4})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 295
+	  <Ds,Is> when 'true' ->
+	      %% Line 297
+	      {_cor1,_cor0}
+	end
+'opt_move_1'/4 =
+    %% Line 314
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <R,Is = [{'set',_cor14,_cor15,{'alloc',Live,_cor16}}|_cor17],SafeRegs,Acc>
+	      when call 'erlang':'<'
+		    (Live,
+		     _cor1) ->
+	      %% Line 317
+	      apply 'opt_move_1'/4
+		  (_cor3, _cor2, Live, _cor0)
+	  %% Line 318
+	  <R,[{'set',[D = {'x',X}|[]],[_cor18|[]],'move'}|Is],SafeRegs,Acc>
+	      when call 'erlang':'=:='
+		    (_cor18,
+		     _cor3) ->
+	      let <_cor6> =
+		  %% Line 319
+		  ( case <> of
+		      ( <>
+			    when call 'erlang':'<'
+				  (X,
+				   _cor1) ->
+			    call 'beam_utils':'is_killed_block'
+				(_cor3, Is)
+			-| ['compiler_generated'] )
+		      ( <> when 'true' ->
+			    'false'
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	      in  %% Line 319
+		  case _cor6 of
+		    %% Line 320
+		    <'true'> when 'true' ->
+			apply 'opt_move_2'/3
+			    (D, _cor0, Is)
+		    %% Line 321
+		    <'false'> when 'true' ->
+			'not_possible'
+		    ( <_cor7> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor6})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 323
+	  <R,[{'set',[D|[]],[_cor19|[]],'move'}|Is],_X_SafeRegs,Acc>
+	      when call 'erlang':'=:='
+		    (_cor19,
+		     _cor3) ->
+	      let <_6636> =
+		  %% Line 324
+		  call 'beam_utils':'is_killed_block'
+		      (_cor3, Is)
+	      in  %% Line 324
+		  case _6636 of
+		    %% Line 325
+		    <'true'> when 'true' ->
+			apply 'opt_move_2'/3
+			    (D, _cor0, Is)
+		    %% Line 326
+		    <'false'> when 'true' ->
+			'not_possible'
+		    ( <_cor8> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_6636})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 328
+	  <R,[I|Is],SafeRegs,Acc> when 'true' ->
+	      let <_241> =
+		  %% Line 329
+		  apply 'is_transparent'/2
+		      (_cor3, I)
+	      in  %% Line 329
+		  case _241 of
+		    %% Line 330
+		    <'false'> when 'true' ->
+			'not_possible'
+		    %% Line 331
+		    <'true'> when 'true' ->
+			apply 'opt_move_1'/4
+			    (_cor3, Is, _cor1, [I|_cor0])
+		    ( <_cor9> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_241})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'opt_move_1',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'opt_move_2'/3 =
+    %% Line 337
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <D,[I|Is],Acc> when 'true' ->
+	      let <_337> =
+		  %% Line 338
+		  apply 'is_transparent'/2
+		      (_cor2, I)
+	      in  %% Line 338
+		  case _337 of
+		    %% Line 339
+		    <'false'> when 'true' ->
+			'not_possible'
+		    %% Line 340
+		    <'true'> when 'true' ->
+			apply 'opt_move_2'/3
+			    (_cor2, Is, [I|_cor0])
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_337})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 342
+	  <D,[],Acc> when 'true' ->
+	      {_cor2,_cor0}
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'opt_move_2',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'is_transparent'/2 =
+    %% Line 350
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'x',X},{'set',_cor6,_cor7,{'alloc',Live,_cor8}}>
+	      when call 'erlang':'<'
+		    (X,
+		     Live) ->
+	      %% Line 351
+	      'false'
+	  %% Line 352
+	  <R,{'set',Ds,Ss,_X_Op}> when 'true' ->
+	      let <_6185> =
+		  %% Line 353
+		  call 'lists':'member'
+		      (_cor1, Ds)
+	      in  %% Line 353
+		  case _6185 of
+		    %% Line 354
+		    <'true'> when 'true' ->
+			'false'
+		    %% Line 355
+		    <'false'> when 'true' ->
+			let <_cor2> =
+			    call 'lists':'member'
+				(_cor1, Ss)
+			in  call 'erlang':'not'
+				(_cor2)
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_6185})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 357
+	  <_cor9,_cor10> when 'true' ->
+	      'false'
+	end
+'opt_alloc'/1 =
+    %% Line 362
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{'set',[],[],{'alloc',R,{_cor5,Ns,Nh,[]}}}|Is]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 363
+		  apply 'opt_alloc'/4
+		      (Is, Ns, Nh, R)
+	      in  let <_cor2> =
+		      %% Line 363
+		      apply 'opt'/1
+			  (Is)
+		  in  %% Line 363
+		      [{'set',[],[],_cor1}|_cor2]
+	  %% Line 364
+	  <[I|Is]> when 'true' ->
+	      let <_cor3> =
+		  apply 'opt_alloc'/1
+		      (Is)
+	      in  [I|_cor3]
+	  %% Line 365
+	  <[]> when 'true' ->
+	      []
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'opt_alloc',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'opt_alloc'/4 =
+    %% Line 371
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <_X_Is,'nostack',Nh,LivingRegs> when 'true' ->
+	      %% Line 372
+	      {'alloc',_cor0,{'nozero','nostack',_cor1,[]}}
+	  %% Line 373
+	  <Is,Ns,Nh,LivingRegs> when 'true' ->
+	      let <InitRegs> =
+		  %% Line 374
+		  apply 'init_yreg'/2
+		      (_cor3, 0)
+	      in  let <_2793> =
+		      %% Line 404
+		      apply 'count_ones'/2
+			  (InitRegs, 0)
+		  in  %% Line 375
+		      case _2793 of
+			%% Line 376
+			<N>
+			    when try
+				  let <_cor5> =
+				      call 'erlang':'*'
+					  (_2793, 2)
+				  in  call 'erlang':'>'
+					  (_cor5, _cor2)
+			      of <Try> ->
+				  Try
+			      catch <T,R> ->
+				  'false' ->
+			    let <_cor6> =
+				%% Line 382
+				apply 'gen_init'/4
+				    (_cor2, InitRegs, 0, [])
+			    in  %% Line 377
+				{'alloc',_cor0,{'nozero',_cor2,_cor1,_cor6}}
+			%% Line 378
+			<_cor12> when 'true' ->
+			    %% Line 379
+			    {'alloc',_cor0,{'zero',_cor2,_cor1,[]}}
+		      end
+	end
+'gen_init'/4 =
+    %% Line 384
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <SameFs,_X_Regs,_cor13,Acc>
+	      when call 'erlang':'=:='
+		    (_cor1,
+		     _cor3) ->
+	      call 'lists':'reverse'
+		  (_cor0)
+	  %% Line 385
+	  <Fs,Regs,Y,Acc>
+	      when try
+		    let <_cor4> =
+			call 'erlang':'band'
+			    (_cor2, 1)
+		    in  call 'erlang':'=:='
+			    (_cor4, 0)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor6> =
+		  %% Line 386
+		  call 'erlang':'bsr'
+		      (_cor2, 1)
+	      in  let <_cor5> =
+		      %% Line 386
+		      call 'erlang':'+'
+			  (_cor1, 1)
+		  in  %% Line 386
+		      apply 'gen_init'/4
+			  (_cor3, _cor6, _cor5, [{'init',{'y',_cor1}}|_cor0])
+	  %% Line 387
+	  <Fs,Regs,Y,Acc> when 'true' ->
+	      let <_cor8> =
+		  %% Line 388
+		  call 'erlang':'bsr'
+		      (_cor2, 1)
+	      in  let <_cor7> =
+		      %% Line 388
+		      call 'erlang':'+'
+			  (_cor1, 1)
+		  in  %% Line 388
+		      apply 'gen_init'/4
+			  (_cor3, _cor8, _cor7, _cor0)
+	end
+'init_yreg'/2 =
+    %% Line 393
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'set',_cor5,_cor6,{'bif',_cor7,_cor8}}|_cor9],Reg> when 'true' ->
+	      _cor0
+	  %% Line 394
+	  <[{'set',_cor10,_cor11,{'alloc',_cor12,{'gc_bif',_cor13,_cor14}}}|_cor15],Reg> when 'true' ->
+	      _cor0
+	  %% Line 395
+	  <[{'set',_cor16,_cor17,{'alloc',_cor18,{'put_map',_cor19,_cor20}}}|_cor21],Reg> when 'true' ->
+	      _cor0
+	  %% Line 396
+	  <[{'set',Ds,_cor22,_cor23}|Is],Reg> when 'true' ->
+	      let <_cor6> =
+		  %% Line 399
+		  fun (_cor3,_cor2) ->
+		      %% Line 401
+		      case <_cor3,_cor2> of
+			<{'y',Y},_4328> when 'true' ->
+			    let <_6860> =
+				call 'erlang':'bsl'
+				    (1, Y)
+			    in  call 'erlang':'bor'
+				    (_cor2, _6860)
+			%% Line 402
+			<_cor5,_6199> when 'true' ->
+			    _cor2
+		      end
+	      in  let <_cor2> =
+		      %% Line 399
+		      call 'lists':'foldl'
+			  (_cor6, _cor0, Ds)
+		  in  apply 'init_yreg'/2
+			  (Is, _cor2)
+	  %% Line 397
+	  <_X_Is,Reg> when 'true' ->
+	      _cor0
+	end
+'count_ones'/2 =
+    %% Line 405
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <0,Acc> when 'true' ->
+	      _cor0
+	  %% Line 406
+	  <Bits,Acc> when 'true' ->
+	      let <_cor4> =
+		  %% Line 407
+		  call 'erlang':'bsr'
+		      (_cor1, 1)
+	      in  let <_cor2> =
+		      %% Line 407
+		      call 'erlang':'band'
+			  (_cor1, 1)
+		  in  let <_cor3> =
+			  %% Line 407
+			  call 'erlang':'+'
+			      (_cor0, _cor2)
+		      in  %% Line 407
+			  apply 'count_ones'/2
+			      (_cor4, _cor3)
+	end
+'alloc_live_regs'/2 =
+    %% Line 412
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'set',Ds,Ss,_cor8},Regs0> when 'true' ->
+	      let <_cor2> =
+		  %% Line 413
+		  call 'erlang':'bsl'
+		      (1, _cor0)
+	      in  let <_cor3> =
+		      %% Line 413
+		      call 'erlang':'-'
+			  (_cor2, 1)
+		  in  let <_cor4> =
+			  %% Line 413
+			  apply 'x_dead'/2
+			      (Ds, _cor3)
+		      in  let <Rset> =
+			      %% Line 413
+			      apply 'x_live'/2
+				  (Ss, _cor4)
+			  in  %% Line 419
+			      case Rset of
+				<0> when 'true' ->
+				    0
+				%% Line 420
+				<Regs> when 'true' ->
+				    let <_5392> =
+					call 'erlang':'bsr'
+					    (Rset, 1)
+				    in  case _5392 of
+					  <0> when 'true' ->
+					      1
+					  <_1737> when 'true' ->
+					      let <_4219> =
+						  call 'erlang':'bsr'
+						      (_5392, 1)
+					      in  apply 'live_regs_1'/2
+						      (2, _4219)
+					end
+			      end
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'alloc_live_regs',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'live_regs_1'/2 =
+    %% Line 419
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <N,0> when 'true' ->
+	      _cor1
+	  %% Line 420
+	  <N,Regs> when 'true' ->
+	      let <_cor3> =
+		  call 'erlang':'+'
+		      (_cor1, 1)
+	      in  let <_cor2> =
+		      call 'erlang':'bsr'
+			  (_cor0, 1)
+		  in  apply 'live_regs_1'/2
+			  (_cor3, _cor2)
+	end
+'x_dead'/2 =
+    %% Line 422
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'x',N}|Rs],Regs> when 'true' ->
+	      let <_cor2> =
+		  call 'erlang':'bsl'
+		      (1, N)
+	      in  let <_cor3> =
+		      call 'erlang':'bnot'
+			  (_cor2)
+		  in  let <_cor4> =
+			  call 'erlang':'band'
+			      (_cor0, _cor3)
+		      in  apply 'x_dead'/2
+			      (Rs, _cor4)
+	  %% Line 423
+	  <[_cor7|Rs],Regs> when 'true' ->
+	      apply 'x_dead'/2
+		  (Rs, _cor0)
+	  %% Line 424
+	  <[],Regs> when 'true' ->
+	      _cor0
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'x_dead',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'x_live'/2 =
+    %% Line 426
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'x',N}|Rs],Regs> when 'true' ->
+	      let <_cor2> =
+		  call 'erlang':'bsl'
+		      (1, N)
+	      in  let <_cor3> =
+		      call 'erlang':'bor'
+			  (_cor0, _cor2)
+		  in  apply 'x_live'/2
+			  (Rs, _cor3)
+	  %% Line 427
+	  <[_cor6|Rs],Regs> when 'true' ->
+	      apply 'x_live'/2
+		  (Rs, _cor0)
+	  %% Line 428
+	  <[],Regs> when 'true' ->
+	      _cor0
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'x_live',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'collect_bs_puts_1'/2 =
+    %% Line 453
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Is0 = [I|Is],Acc> when 'true' ->
+	      let <_52> =
+		  case I of
+		    <{'bs_put',_cor2,{'bs_put_integer',_cor3,_cor4},_cor5}> when 'true' ->
+			'true'
+		    <{'bs_put',_cor6,{'bs_put_float',_cor7,_cor8},_cor9}> when 'true' ->
+			'true'
+		    <_cor10> when 'true' ->
+			'false'
+		  end
+	      in  %% Line 454
+		  case _52 of
+		    %% Line 455
+		    <'false'> when 'true' ->
+			let <_cor2> =
+			    call 'lists':'reverse'
+				(_cor0)
+			in  {_cor2,_cor1}
+		    %% Line 456
+		    <'true'> when 'true' ->
+			apply 'collect_bs_puts_1'/2
+			    (Is, [I|_cor0])
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_52})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'collect_bs_puts_1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'opt_bs_puts'/1 =
+    %% Line 459
+    fun (_cor0) ->
+	%% Line 460
+	apply 'opt_bs_1'/2
+	    (_cor0, [])
+'opt_bs_1'/2 =
+    %% Line 462
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[I0 = {'bs_put',Fail,%% Line 463
+				{'bs_put_float',1,Flags0},%% Line 463
+							  [{'integer',Sz}|[Src|[]]]}|Is],Acc> when 'true' ->
+	      %% Line 464
+	      try
+		  apply 'eval_put_float'/3
+		      (Src, Sz, Flags0)
+	      of <_cor2> ->
+		  case ( _cor2
+			 -| ['reuse_for_context'] ) of
+		    %% Line 465
+		    <#{#<Int>(Sz,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+			let <Flags> =
+			    %% Line 466
+			    apply 'force_big'/1
+				(Flags0)
+			in  let <I> =
+				%% Line 467
+				{'bs_put',Fail,{'bs_put_integer',1,Flags},%% Line 468
+									  [{'integer',Sz}|[{'integer',Int}|[]]]}
+			    in  %% Line 469
+				apply 'opt_bs_1'/2
+				    ([I|Is], _cor0)
+		    ( <_cor5> when 'true' ->
+			  do  primop 'bs_context_to_binary'
+				  (_cor2)
+			      primop 'match_fail'
+				  ({'try_clause',_cor2})
+		      -| ['compiler_generated'] )
+		  end
+	      catch <_cor8,_cor7,_cor6> ->
+		  case <_cor8,_cor7,_cor6> of
+		    %% Line 471
+		    <'error',_cor18,_cor19> when 'true' ->
+			%% Line 472
+			apply 'opt_bs_1'/2
+			    (Is, [I0|_cor0])
+		    ( <_4947,_3147,_4372> when 'true' ->
+			  primop 'raise'
+			      (_cor6, _cor7)
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 474
+	  <IsAll = [{'bs_put',_cor20,{'bs_put_integer',1,_cor21},[{'integer',8}|[{'integer',_cor22}|[]]]}|_cor23],Acc0> when 'true' ->
+	      let <_2727> =
+		  %% Line 476
+		  apply 'bs_collect_string'/2
+		      (_cor1, _cor0)
+	      in  %% Line 476
+		  case _2727 of
+		    <{Is,Acc}> when 'true' ->
+			%% Line 477
+			apply 'opt_bs_1'/2
+			    (Is, Acc)
+		    ( <_cor9> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_2727})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 478
+	  <[I = {'bs_put',Fail,{'bs_put_integer',1,F},[{'integer',Sz}|[{'integer',N}|[]]]}|Is0],Acc>
+	      when %% Line 479
+		call 'erlang':'>'
+		    (Sz,
+		     8) ->
+	      %% Line 480
+	      case apply 'field_endian'/1
+		       (F) of
+		%% Line 481
+		<'big'> when 'true' ->
+		    let <_2573> =
+			%% Line 484
+			apply 'bs_split_int'/4
+			    (N, Sz, Fail, Is0)
+		    in  %% Line 484
+			case _2573 of
+			  %% Line 485
+			  <'no_split'> when 'true' ->
+			      apply 'opt_bs_1'/2
+				  (Is0, [I|_cor0])
+			  %% Line 486
+			  <Is> when 'true' ->
+			      apply 'opt_bs_1'/2
+				  (_2573, _cor0)
+			end
+		%% Line 488
+		<'little'>
+		    when call 'erlang':'<'
+			  (Sz,
+			   128) ->
+		    let <_5765> =
+			%% Line 491
+			#{#<N>(Sz,1,'integer',['unsigned'|['little']])}#
+		    in  %% Line 491
+			case ( _5765
+			       -| ['reuse_for_context'] ) of
+			  <#{#<Int>(Sz,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+			      let <Flags> =
+				  %% Line 492
+				  apply 'force_big'/1
+				      (F)
+			      in  let <Is> =
+				      %% Line 493
+				      [{'bs_put',Fail,{'bs_put_integer',1,Flags},%% Line 494
+										 [{'integer',Sz}|[{'integer',Int}|[]]]}|Is0]
+				  in  %% Line 495
+				      apply 'opt_bs_1'/2
+					  (Is, _cor0)
+			  ( <_cor11> when 'true' ->
+				do  primop 'bs_context_to_binary'
+					(_5765)
+				    primop 'match_fail'
+					({'badmatch',_5765})
+			    -| ['compiler_generated'] )
+			end
+		%% Line 496
+		<_cor24> when 'true' ->
+		    %% Line 497
+		    apply 'opt_bs_1'/2
+			(Is0, [I|_cor0])
+	      end
+	  %% Line 499
+	  <[{'bs_put',Fail,{Op,U,F},[{'integer',Sz}|[Src|[]]]}|Is],Acc>
+	      when call 'erlang':'>'
+		    (U,
+		     1) ->
+	      let <_cor15> =
+		  %% Line 500
+		  call 'erlang':'*'
+		      (U, Sz)
+	      in  %% Line 500
+		  apply 'opt_bs_1'/2
+		      ([{'bs_put',Fail,{Op,1,F},[{'integer',_cor15}|[Src|[]]]}|Is], _cor0)
+	  %% Line 501
+	  <[I|Is],Acc> when 'true' ->
+	      %% Line 502
+	      apply 'opt_bs_1'/2
+		  (Is, [I|_cor0])
+	  %% Line 503
+	  <[],Acc> when 'true' ->
+	      call 'lists':'reverse'
+		  (_cor0)
+	  ( <_cor17,_cor16> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'opt_bs_1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'eval_put_float'/3 =
+    %% Line 505
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Src,Sz,Flags>
+	      when call 'erlang':'=<'
+		    (_cor1,
+		     256) ->
+	      let <Val> =
+		  %% Line 513
+		  case _cor2 of
+		    <{'integer',I}> when 'true' ->
+			I
+		    %% Line 514
+		    <{'float',F}> when 'true' ->
+			F
+		    ( <_193> when 'true' ->
+			  primop 'match_fail'
+			      ({'function_clause',_cor2})
+		      -| ['compiler_generated'] )
+		  end
+	      in  let <_5504> =
+		      %% Line 507
+		      apply 'field_endian'/1
+			  (_cor0)
+		  in  %% Line 507
+		      case _5504 of
+			%% Line 508
+			<'little'> when 'true' ->
+			    #{#<Val>(_cor1,1,'float',['unsigned'|['little']])}#
+			%% Line 509
+			<'big'> when 'true' ->
+			    #{#<Val>(_cor1,1,'float',['unsigned'|['big']])}#
+			( <_cor4> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_5504})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'eval_put_float',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'bs_collect_string'/2 =
+    %% Line 516
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Is,[{'bs_put',_cor5,{'bs_put_string',Len,{'string',Str}},[]}|Acc]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 517
+		  call 'lists':'reverse'
+		      (Str)
+	      in  %% Line 517
+		  apply 'bs_coll_str_1'/4
+		      (_cor1, Len, _cor2, Acc)
+	  %% Line 518
+	  <Is,Acc> when 'true' ->
+	      %% Line 519
+	      apply 'bs_coll_str_1'/4
+		  (_cor1, 0, [], _cor0)
+	end
+'bs_coll_str_1'/4 =
+    %% Line 521
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[{'bs_put',_cor12,{'bs_put_integer',U,_cor13},[{'integer',Sz}|[{'integer',V}|[]]]}|Is],Len,StrAcc,IsAcc>
+	      when %% Line 522
+		try
+		    let <_cor4> =
+			call 'erlang':'*'
+			    (U, Sz)
+		    in  call 'erlang':'=:='
+			    (_cor4, 8)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <Byte> =
+		  %% Line 523
+		  call 'erlang':'band'
+		      (V, 255)
+	      in  let <_cor6> =
+		      %% Line 524
+		      call 'erlang':'+'
+			  (_cor2, 1)
+		  in  %% Line 524
+		      apply 'bs_coll_str_1'/4
+			  (Is, _cor6, [Byte|_cor1], _cor0)
+	  %% Line 525
+	  <Is,Len,StrAcc,IsAcc> when 'true' ->
+	      let <_cor7> =
+		  %% Line 526
+		  call 'lists':'reverse'
+		      (_cor1)
+	      in  %% Line 526
+		  {_cor3,[{'bs_put',{'f',0},{'bs_put_string',_cor2,{'string',_cor7}},[]}|_cor0]}
+	end
+'field_endian'/1 =
+    %% Line 528
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'field_flags',F}> when 'true' ->
+	      %% Line 530
+	      case F of
+		<[E = 'big'|_cor2]> when 'true' ->
+		    E
+		%% Line 531
+		<[E = 'little'|_cor3]> when 'true' ->
+		    E
+		%% Line 532
+		<[E = 'native'|_cor4]> when 'true' ->
+		    E
+		%% Line 533
+		<[_cor5|Fs]> when 'true' ->
+		    apply 'field_endian_1'/1
+			(Fs)
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'function_clause',F})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'field_endian',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'field_endian_1'/1 =
+    %% Line 530
+    fun (_cor0) ->
+	case _cor0 of
+	  <[E = 'big'|_cor2]> when 'true' ->
+	      E
+	  %% Line 531
+	  <[E = 'little'|_cor3]> when 'true' ->
+	      E
+	  %% Line 532
+	  <[E = 'native'|_cor4]> when 'true' ->
+	      E
+	  %% Line 533
+	  <[_cor5|Fs]> when 'true' ->
+	      apply 'field_endian_1'/1
+		  (Fs)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'field_endian_1',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'force_big'/1 =
+    %% Line 535
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'field_flags',F}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 538
+		  case F of
+		    <Fs = ['big'|_cor3]> when 'true' ->
+			F
+		    %% Line 539
+		    <['little'|Fs]> when 'true' ->
+			['big'|Fs]
+		    %% Line 540
+		    <[_4159|Fs]> when 'true' ->
+			let <_cor1> =
+			    apply 'force_big_1'/1
+				(Fs)
+			in  [_4159|_cor1]
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'function_clause',F})
+		      -| ['compiler_generated'] )
+		  end
+	      in  %% Line 536
+		  {'field_flags',_cor1}
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'force_big',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'force_big_1'/1 =
+    %% Line 538
+    fun (_cor0) ->
+	case _cor0 of
+	  <Fs = ['big'|_cor3]> when 'true' ->
+	      _cor0
+	  %% Line 539
+	  <['little'|Fs]> when 'true' ->
+	      ['big'|Fs]
+	  %% Line 540
+	  <[F|Fs]> when 'true' ->
+	      let <_cor1> =
+		  apply 'force_big_1'/1
+		      (Fs)
+	      in  [F|_cor1]
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'force_big_1',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'bs_split_int'/4 =
+    %% Line 542
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <0,Sz,_cor11,_cor12>
+	      when call 'erlang':'>'
+		    (_cor2,
+		     64) ->
+	      %% Line 545
+	      'no_split'
+	  %% Line 546
+	  <-1,Sz,_cor13,_cor14>
+	      when call 'erlang':'>'
+		    (_cor2,
+		     64) ->
+	      %% Line 549
+	      'no_split'
+	  %% Line 550
+	  <N,Sz,Fail,Acc> when 'true' ->
+	      let <_2396> =
+		  %% Line 551
+		  call 'erlang':'rem'
+		      (_cor2, 8)
+	      in  let <_cor5> =
+		      %% Line 551
+		      case _2396 of
+			%% Line 552
+			<0> when 'true' ->
+			    8
+			%% Line 553
+			<Rem> when 'true' ->
+			    _2396
+		      end
+		  in  %% Line 555
+		      apply 'bs_split_int_1'/5
+			  (_cor3, _cor5, _cor2, _cor1, _cor0)
+	end
+'bs_split_int_1'/5 =
+    %% Line 557
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <-1,_cor19,Sz,Fail,Acc>
+	      when call 'erlang':'>'
+		    (_cor2,
+		     64) ->
+	      let <I> =
+		  %% Line 558
+		  {'bs_put',_cor1,{'bs_put_integer',1,{'field_flags',['big']}},%% Line 559
+									       [{'integer',_cor2}|[{'integer',-1}]]}
+	      in  %% Line 560
+		  [I|_cor0]
+	  %% Line 561
+	  <0,_cor20,Sz,Fail,Acc>
+	      when call 'erlang':'>'
+		    (_cor2,
+		     64) ->
+	      let <I> =
+		  %% Line 562
+		  {'bs_put',_cor1,{'bs_put_integer',1,{'field_flags',['big']}},%% Line 563
+									       [{'integer',_cor2}|[{'integer',0}]]}
+	      in  %% Line 564
+		  [I|_cor0]
+	  %% Line 565
+	  <N,ByteSz,Sz,Fail,Acc>
+	      when call 'erlang':'>'
+		    (_cor2,
+		     0) ->
+	      let <_cor8> =
+		  %% Line 566
+		  call 'erlang':'bsl'
+		      (1, _cor3)
+	      in  let <Mask> =
+		      %% Line 566
+		      call 'erlang':'-'
+			  (_cor8, 1)
+		  in  let <_cor10> =
+			  %% Line 568
+			  call 'erlang':'band'
+			      (_cor4, Mask)
+		      in  let <I> =
+			      %% Line 567
+			      {'bs_put',_cor1,{'bs_put_integer',1,{'field_flags',['big']}},%% Line 568
+											   [{'integer',_cor3}|[{'integer',_cor10}|[]]]}
+			  in  let <_cor13> =
+				  %% Line 569
+				  call 'erlang':'bsr'
+				      (_cor4, _cor3)
+			      in  let <_cor12> =
+				      %% Line 569
+				      call 'erlang':'-'
+					  (_cor2, _cor3)
+				  in  %% Line 569
+				      apply 'bs_split_int_1'/5
+					  (_cor13, 8, _cor12, _cor1, [I|_cor0])
+	  %% Line 570
+	  <_cor21,_cor22,_cor23,_cor24,Acc> when 'true' ->
+	      _cor0
+	end
+'bsm_opt'/2 =
+    %% Line 579
+    fun (_cor1,_cor0) ->
+	let <_5388> =
+	    %% Line 580
+	    apply 'bsm_scan'/4
+		(_cor1, [], _cor0, [])
+	in  %% Line 580
+	    case _5388 of
+	      <{Is1,D0,Lc}> when 'true' ->
+		  let <_cor6> =
+		      %% Line 581
+		      case D0 of
+			%% Line 582
+			<[]> when 'true' ->
+			    Is1
+			%% Line 584
+			<_cor12> when 'true' ->
+			    let <_cor3> =
+				%% Line 585
+				call 'orddict':'from_list'
+				    (D0)
+			    in  let <D> =
+				    %% Line 585
+				    call 'gb_trees':'from_orddict'
+					(_cor3)
+				in  %% Line 586
+				    apply 'bsm_reroute'/4
+					(Is1, D, 'none', [])
+		      end
+		  in  let <Is> =
+			  %% Line 588
+			  call 'beam_clean':'bs_clean_saves'
+			      (_cor6)
+		      in  let <_cor9> =
+			      %% Line 589
+			      apply 'bsm_opt_2'/2
+				  (Is, [])
+			  in  %% Line 589
+			      {_cor9,Lc}
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_5388})
+		-| ['compiler_generated'] )
+	    end
+'bsm_scan'/4 =
+    %% Line 591
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[Lbl = {'label',L}|[R = {'bs_restore2',_cor12,Save}|Is]],D0,Lc,Acc0> when 'true' ->
+	      let <D> =
+		  %% Line 592
+		  [{{L,Save},_cor1}|_cor2]
+	      in  let <Acc> =
+		      %% Line 593
+		      [{'label',_cor1}|[R|[Lbl|_cor0]]]
+		  in  let <_cor6> =
+			  %% Line 594
+			  call 'erlang':'+'
+			      (_cor1, 1)
+		      in  %% Line 594
+			  apply 'bsm_scan'/4
+			      (Is, D, _cor6, Acc)
+	  %% Line 595
+	  <[I|Is],D,Lc,Acc> when 'true' ->
+	      %% Line 596
+	      apply 'bsm_scan'/4
+		  (Is, _cor2, _cor1, [I|_cor0])
+	  %% Line 597
+	  <[],D,Lc,Acc> when 'true' ->
+	      let <_cor7> =
+		  %% Line 598
+		  call 'lists':'reverse'
+		      (_cor0)
+	      in  %% Line 598
+		  {_cor7,_cor2,_cor1}
+	  ( <_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'bsm_scan',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'bsm_reroute'/4 =
+    %% Line 600
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[I = {'bs_save2',Reg,Save}|Is],D,_cor15,Acc> when 'true' ->
+	      %% Line 601
+	      apply 'bsm_reroute'/4
+		  (Is, _cor2, {Reg,Save}, [I|_cor0])
+	  %% Line 602
+	  <[I = {'bs_restore2',Reg,Save}|Is],D,_cor16,Acc> when 'true' ->
+	      %% Line 603
+	      apply 'bsm_reroute'/4
+		  (Is, _cor2, {Reg,Save}, [I|_cor0])
+	  %% Line 604
+	  <[I = {'label',_cor17}|Is],D,S,Acc> when 'true' ->
+	      %% Line 605
+	      apply 'bsm_reroute'/4
+		  (Is, _cor2, _cor1, [I|_cor0])
+	  %% Line 606
+	  <[{'select','select_val',Reg,F0,Lbls0}|Is],D,S = {_cor18,Save},Acc0> when 'true' ->
+	      let <_1635> =
+		  %% Line 607
+		  [F0|Lbls0]
+	      in  let <_1699> =
+		      %% Line 659
+		      apply 'bsm_subst_labels_1'/4
+			  (_1635, Save, _cor2, [])
+		  in  %% Line 607
+		      case _1699 of
+			<[F|Lbls]> when 'true' ->
+			    let <Acc> =
+				%% Line 608
+				[{'select','select_val',Reg,F,Lbls}|_cor0]
+			    in  %% Line 609
+				apply 'bsm_reroute'/4
+				    (Is, _cor2, _cor1, Acc)
+			( <_cor4> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_1699})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 610
+	  <[I = {'test',TestOp,F0,TestArgs}|Is],D,S = {_cor19,Save},Acc0> when 'true' ->
+	      let <F> =
+		  %% Line 611
+		  apply 'bsm_subst_label'/3
+		      (F0, Save, _cor2)
+	      in  let <Acc> =
+		      %% Line 612
+		      [{'test',TestOp,F,TestArgs}|_cor0]
+		  in  let <_498> =
+			  %% Line 655
+			  case <TestOp,F0,TestArgs> of
+			    <'bs_test_tail2',_3413,[_1210|[_cor4|[]]]> when 'true' ->
+				'true'
+			    %% Line 656
+			    <_fol28,_fol29,_fol30> when 'true' ->
+				call 'beam_utils':'is_pure_test'
+				    (I)
+			  end
+		      in  %% Line 613
+			  case _498 of
+			    %% Line 614
+			    <'true'> when 'true' ->
+				%% Line 617
+				apply 'bsm_reroute'/4
+				    (Is, _cor2, _cor1, Acc)
+			    %% Line 618
+			    <'false'> when 'true' ->
+				%% Line 621
+				apply 'bsm_reroute'/4
+				    (Is, _cor2, 'none', Acc)
+			    ( <_cor8> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_498})
+			      -| ['compiler_generated'] )
+			  end
+	  %% Line 623
+	  <[{'test',TestOp,F0,Live,TestArgs,Dst}|Is],D,{_cor20,Save},Acc0> when 'true' ->
+	      let <F> =
+		  %% Line 624
+		  apply 'bsm_subst_label'/3
+		      (F0, Save, _cor2)
+	      in  let <Acc> =
+		      %% Line 625
+		      [{'test',TestOp,F,Live,TestArgs,Dst}|_cor0]
+		  in  %% Line 628
+		      apply 'bsm_reroute'/4
+			  (Is, _cor2, 'none', Acc)
+	  %% Line 629
+	  <[Bl = {'block',[{'set',[],[],{'alloc',_cor21,_cor22}}|[]]}|%% Line 630
+								      [I = {'bs_context_to_binary',_cor23}|Is]],D,S,Acc> when 'true' ->
+	      %% Line 632
+	      apply 'bsm_reroute'/4
+		  ([I|[Bl|Is]], _cor2, _cor1, _cor0)
+	  %% Line 633
+	  <[I|Is],D,_cor24,Acc> when 'true' ->
+	      %% Line 634
+	      apply 'bsm_reroute'/4
+		  (Is, _cor2, 'none', [I|_cor0])
+	  %% Line 635
+	  <[],_cor25,_cor26,Acc> when 'true' ->
+	      call 'lists':'reverse'
+		  (_cor0)
+	  ( <_cor14,_cor13,_cor12,_cor11> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'bsm_reroute',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'bsm_opt_2'/2 =
+    %% Line 637
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'test','bs_test_tail2',F,[Ctx|[Bits|[]]]}|Is],%% Line 638
+							   [{'test','bs_skip_bits2',_cor9,[_cor10|[{'integer',I}|[Unit|[_X_Flags|[]]]]]}|Acc]>
+	      when let <_cor11> =
+		    call 'erlang':'=:='
+			(_cor9, F)
+		in  let <_cor12> =
+			call 'erlang':'=:='
+			    (_cor10, Ctx)
+		    in  call 'erlang':'and'
+			    (_cor11, _cor12) ->
+	      let <_cor2> =
+		  %% Line 639
+		  call 'erlang':'*'
+		      (I, Unit)
+	      in  let <_cor3> =
+		      %% Line 639
+		      call 'erlang':'+'
+			  (Bits, _cor2)
+		  in  %% Line 639
+		      apply 'bsm_opt_2'/2
+			  (Is, [{'test','bs_test_tail2',F,[Ctx|[_cor3|[]]]}|Acc])
+	  %% Line 640
+	  <[{'test','bs_skip_bits2',F,[Ctx|[{'integer',I1}|[Unit1|[_cor13|[]]]]]}|Is],%% Line 641
+										      [{'test','bs_skip_bits2',_cor14,[_cor15|[{'integer',I2}|[Unit2|[Flags|[]]]]]}|Acc]>
+	      when let <_cor16> =
+		    call 'erlang':'=:='
+			(_cor14, F)
+		in  let <_cor17> =
+			call 'erlang':'=:='
+			    (_cor15, Ctx)
+		    in  call 'erlang':'and'
+			    (_cor16, _cor17) ->
+	      let <_cor5> =
+		  %% Line 643
+		  call 'erlang':'*'
+		      (I1, Unit1)
+	      in  let <_cor4> =
+		      %% Line 643
+		      call 'erlang':'*'
+			  (I2, Unit2)
+		  in  let <_cor6> =
+			  %% Line 643
+			  call 'erlang':'+'
+			      (_cor5, _cor4)
+		      in  %% Line 642
+			  apply 'bsm_opt_2'/2
+			      (Is, [{'test','bs_skip_bits2',F,%% Line 643
+							      [Ctx|[{'integer',_cor6}|[1|[Flags|[]]]]]}|Acc])
+	  %% Line 644
+	  <[I|Is],Acc> when 'true' ->
+	      %% Line 645
+	      apply 'bsm_opt_2'/2
+		  (Is, [I|_cor0])
+	  %% Line 646
+	  <[],Acc> when 'true' ->
+	      call 'lists':'reverse'
+		  (_cor0)
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'bsm_opt_2',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'bsm_subst_labels_1'/4 =
+    %% Line 661
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[F|Fs],Save,D,Acc> when 'true' ->
+	      let <_cor4> =
+		  %% Line 662
+		  apply 'bsm_subst_label'/3
+		      (F, _cor2, _cor1)
+	      in  %% Line 662
+		  apply 'bsm_subst_labels_1'/4
+		      (Fs, _cor2, _cor1, [_cor4|_cor0])
+	  %% Line 663
+	  <[],_cor9,_cor10,Acc> when 'true' ->
+	      %% Line 664
+	      call 'lists':'reverse'
+		  (_cor0)
+	  ( <_cor8,_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'bsm_subst_labels_1',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'bsm_subst_label'/3 =
+    %% Line 666
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <F = {'f',Lbl0},Save,D> when 'true' ->
+	      let <_6593> =
+		  %% Line 667
+		  call 'gb_trees':'lookup'
+		      ({Lbl0,_cor1}, _cor0)
+	      in  %% Line 667
+		  case _6593 of
+		    %% Line 668
+		    <{'value',Lbl}> when 'true' ->
+			{'f',Lbl}
+		    %% Line 669
+		    <'none'> when 'true' ->
+			_cor2
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_6593})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 671
+	  <Other,_cor7,_cor8> when 'true' ->
+	      _cor2
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('beam_block')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('beam_block', _cor0)
+end

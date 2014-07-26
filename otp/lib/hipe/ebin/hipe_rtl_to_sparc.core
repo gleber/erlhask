@@ -1,0 +1,2945 @@
+module 'hipe_rtl_to_sparc' ['module_info'/0,
+			    'module_info'/1,
+			    'translate'/1]
+    attributes []
+'translate'/1 =
+    %% Line 27
+    fun (_cor0) ->
+	do  %% Line 28
+	    call 'hipe_gensym':'init'
+		('sparc')
+	    let <_cor1> =
+		%% Line 29
+		call 'hipe_sparc_registers':'first_virtual'
+		    ()
+	    in  do  %% Line 29
+		    call 'hipe_gensym':'set_var'
+			('sparc', _cor1)
+		    let <_cor2> =
+			%% Line 30
+			call 'hipe_gensym':'get_label'
+			    ('rtl')
+		    in  do  %% Line 30
+			    call 'hipe_gensym':'set_label'
+				('sparc', _cor2)
+			    let <Map0> =
+				%% Line 31
+				apply 'vmap_empty'/0
+				    ()
+			    in  let <_cor4> =
+				    %% Line 32
+				    call 'hipe_rtl':'rtl_params'
+					(_cor0)
+				in  %% Line 32
+				    case apply 'conv_formals'/2
+					     (_cor4, Map0) of
+				      <{Formals,Map1}> when 'true' ->
+					  let <OldData> =
+					      %% Line 33
+					      call 'hipe_rtl':'rtl_data'
+						  (_cor0)
+					  in  let <_cor7> =
+						  %% Line 34
+						  call 'hipe_rtl':'rtl_code'
+						      (_cor0)
+					      in  %% Line 34
+						  case apply 'conv_insn_list'/3
+							   (_cor7, Map1, OldData) of
+						    <{Code0,NewData}> when 'true' ->
+							%% Line 35
+							case apply 'split_args'/1
+								 (Formals) of
+							  <{RegFormals,_cor20}> when 'true' ->
+							      let <_cor14> =
+								  %% Line 37
+								  case RegFormals of
+								    %% Line 38
+								    <[]> when 'true' ->
+									Code0
+								    %% Line 39
+								    <_cor21> when 'true' ->
+									let <_cor10> =
+									    call 'hipe_gensym':'get_next_label'
+										('sparc')
+									in  let <_cor11> =
+										call 'hipe_sparc':'mk_label'
+										    (_cor10)
+									    in  let <_cor12> =
+										    %% Line 40
+										    apply 'move_formals'/2
+											(RegFormals, Code0)
+										in  [_cor11|_cor12]
+								  end
+							      in  let <IsClosure> =
+								      %% Line 42
+								      call 'hipe_rtl':'rtl_is_closure'
+									  (_cor0)
+								  in  let <IsLeaf> =
+									  %% Line 43
+									  call 'hipe_rtl':'rtl_is_leaf'
+									      (_cor0)
+								      in  let <_cor18> =
+									      %% Line 44
+									      call 'hipe_rtl':'rtl_fun'
+										  (_cor0)
+									  in  %% Line 44
+									      call 'hipe_sparc':'mk_defun'
+										  (_cor18, %% Line 45
+											   Formals, %% Line 46
+												    IsClosure, %% Line 47
+													       IsLeaf, _cor14, %% Line 49
+															       NewData, %% Line 50
+																	[], %% Line 51
+																	    [])
+							  ( <_cor9> when 'true' ->
+								primop 'match_fail'
+								    ({'badmatch',_cor9})
+							    -| ['compiler_generated'] )
+							end
+						    ( <_cor8> when 'true' ->
+							  primop 'match_fail'
+							      ({'badmatch',_cor8})
+						      -| ['compiler_generated'] )
+						  end
+				      ( <_cor5> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_cor5})
+					-| ['compiler_generated'] )
+				    end
+'conv_insn_list'/3 =
+    %% Line 53
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[H|T],Map,Data> when 'true' ->
+	      %% Line 54
+	      case apply 'conv_insn'/3
+		       (H, Map, Data) of
+		<{NewH,NewMap,NewData1}> when 'true' ->
+		    %% Line 56
+		    case apply 'conv_insn_list'/3
+			     (T, NewMap, NewData1) of
+		      <{NewT,NewData2}> when 'true' ->
+			  let <_cor5> =
+			      %% Line 57
+			      call 'erlang':'++'
+				  (NewH, NewT)
+			  in  %% Line 57
+			      {_cor5,NewData2}
+		      ( <_cor4> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor4})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 58
+	  <[],_cor9,Data> when 'true' ->
+	      %% Line 59
+	      {[],Data}
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'conv_insn_list',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'conv_insn'/3 =
+    %% Line 61
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 62
+	case _cor2 of
+	  %% Line 63
+	  <{'alu',_cor7,_cor8,_cor9,_cor10}> when 'true' ->
+	      apply 'conv_alu'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 64
+	  <{'alub',_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18}> when 'true' ->
+	      apply 'conv_alub'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 65
+	  <{'branch',_cor19,_cor20,_cor21,_cor22,_cor23,_cor24}> when 'true' ->
+	      apply 'conv_branch'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 66
+	  <{'call',_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31}> when 'true' ->
+	      apply 'conv_call'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 67
+	  <{'comment',_cor32}> when 'true' ->
+	      apply 'conv_comment'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 68
+	  <{'enter',_cor33,_cor34,_cor35}> when 'true' ->
+	      apply 'conv_enter'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 69
+	  <{'goto',_cor36}> when 'true' ->
+	      apply 'conv_goto'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 70
+	  <{'label',_cor37}> when 'true' ->
+	      apply 'conv_label'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 71
+	  <{'load',_cor38,_cor39,_cor40,_cor41,_cor42}> when 'true' ->
+	      apply 'conv_load'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 72
+	  <{'load_address',_cor43,_cor44,_cor45}> when 'true' ->
+	      apply 'conv_load_address'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 73
+	  <{'load_atom',_cor46,_cor47}> when 'true' ->
+	      apply 'conv_load_atom'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 74
+	  <{'move',_cor48,_cor49}> when 'true' ->
+	      apply 'conv_move'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 75
+	  <{'return',_cor50}> when 'true' ->
+	      apply 'conv_return'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 76
+	  <{'store',_cor51,_cor52,_cor53,_cor54}> when 'true' ->
+	      apply 'conv_store'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 77
+	  <{'switch',_cor55,_cor56,_cor57}> when 'true' ->
+	      apply 'conv_switch'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 78
+	  <{'fconv',_cor58,_cor59}> when 'true' ->
+	      apply 'conv_fconv'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 79
+	  <{'fmove',_cor60,_cor61}> when 'true' ->
+	      apply 'conv_fmove'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 80
+	  <{'fload',_cor62,_cor63,_cor64}> when 'true' ->
+	      apply 'conv_fload'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 81
+	  <{'fstore',_cor65,_cor66,_cor67}> when 'true' ->
+	      apply 'conv_fstore'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 82
+	  <{'fp',_cor68,_cor69,_cor70,_cor71}> when 'true' ->
+	      apply 'conv_fp_binary'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 83
+	  <{'fp_unop',_cor72,_cor73,_cor74}> when 'true' ->
+	      apply 'conv_fp_unary'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 84
+	  <_cor75> when 'true' ->
+	      call 'erlang':'exit'
+		  ({'hipe_rtl_to_sparc','conv_insn',_cor2})
+	end
+'conv_fconv'/3 =
+    %% Line 87
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 89
+	    call 'hipe_rtl':'fconv_src'
+		(_cor2)
+	in  %% Line 89
+	    case apply 'conv_src'/2
+		     (_cor3, _cor1) of
+	      <{Src,Map1}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 90
+		      call 'hipe_rtl':'fconv_dst'
+			  (_cor2)
+		  in  %% Line 90
+		      case apply 'conv_fpreg'/2
+			       (_cor5, Map1) of
+			<{Dst,Map2}> when 'true' ->
+			    let <I2> =
+				%% Line 91
+				apply 'mk_fconv'/2
+				    (Src, Dst)
+			    in  %% Line 92
+				{I2,Map2,_cor0}
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_fconv'/2 =
+    %% Line 94
+    fun (_cor1,_cor0) ->
+	let <CSP> =
+	    %% Line 95
+	    call 'hipe_sparc':'mk_temp'
+		(14, 'untagged')
+	in  let <Disp> =
+		%% Line 96
+		call 'hipe_sparc':'mk_simm13'
+		    (100)
+	    in  let <_cor4> =
+		    %% Line 97
+		    call 'hipe_sparc':'mk_store'
+			('stw', _cor1, CSP, Disp)
+		in  let <_cor5> =
+			%% Line 98
+			call 'hipe_sparc':'mk_pseudo_fload'
+			    (CSP, Disp, _cor0, 'true')
+		    in  let <_cor6> =
+			    %% Line 99
+			    call 'hipe_sparc':'mk_fp_unary'
+				('fitod', _cor0, _cor0)
+			in  %% Line 97
+			    [_cor4|%% Line 98
+				   [_cor5|%% Line 99
+					  [_cor6|[]]]]
+'conv_fmove'/3 =
+    %% Line 101
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 103
+	    call 'hipe_rtl':'fmove_src'
+		(_cor2)
+	in  %% Line 103
+	    case apply 'conv_fpreg'/2
+		     (_cor3, _cor1) of
+	      <{Src,Map1}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 104
+		      call 'hipe_rtl':'fmove_dst'
+			  (_cor2)
+		  in  %% Line 104
+		      case apply 'conv_fpreg'/2
+			       (_cor5, Map1) of
+			<{Dst,Map2}> when 'true' ->
+			    let <I2> =
+				%% Line 105
+				apply 'mk_fmove'/2
+				    (Src, Dst)
+			    in  %% Line 106
+				{I2,Map2,_cor0}
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_fmove'/2 =
+    %% Line 108
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 109
+	    call 'hipe_sparc':'mk_pseudo_fmove'
+		(_cor1, _cor0)
+	in  %% Line 109
+	    [_cor2|[]]
+'conv_fload'/3 =
+    %% Line 111
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 113
+	    call 'hipe_rtl':'fload_src'
+		(_cor2)
+	in  %% Line 113
+	    case apply 'conv_src'/2
+		     (_cor3, _cor1) of
+	      <{Base1,Map1}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 114
+		      call 'hipe_rtl':'fload_offset'
+			  (_cor2)
+		  in  %% Line 114
+		      case apply 'conv_src'/2
+			       (_cor5, Map1) of
+			<{Base2,Map2}> when 'true' ->
+			    let <_cor7> =
+				%% Line 115
+				call 'hipe_rtl':'fload_dst'
+				    (_cor2)
+			    in  %% Line 115
+				case apply 'conv_fpreg'/2
+					 (_cor7, Map2) of
+				  <{Dst,Map3}> when 'true' ->
+				      let <I2> =
+					  %% Line 116
+					  apply 'mk_fload'/3
+					      (Base1, Base2, Dst)
+				      in  %% Line 117
+					  {I2,Map3,_cor0}
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor8})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_fload'/3 =
+    %% Line 119
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 120
+	case call 'hipe_sparc':'is_temp'
+		 (_cor2) of
+	  %% Line 121
+	  <'true'> when 'true' ->
+	      %% Line 122
+	      case call 'hipe_sparc':'is_temp'
+		       (_cor1) of
+		%% Line 123
+		<'true'> when 'true' ->
+		    %% Line 124
+		    apply 'mk_fload_rr'/3
+			(_cor2, _cor1, _cor0)
+		%% Line 125
+		<_cor9> when 'true' ->
+		    %% Line 126
+		    apply 'mk_fload_ri'/3
+			(_cor2, _cor1, _cor0)
+	      end
+	  %% Line 128
+	  <_cor10> when 'true' ->
+	      %% Line 129
+	      case call 'hipe_sparc':'is_temp'
+		       (_cor1) of
+		%% Line 130
+		<'true'> when 'true' ->
+		    %% Line 131
+		    apply 'mk_fload_ri'/3
+			(_cor1, _cor2, _cor0)
+		%% Line 132
+		<_cor11> when 'true' ->
+		    %% Line 133
+		    apply 'mk_fload_ii'/3
+			(_cor2, _cor1, _cor0)
+	      end
+	end
+'mk_fload_rr'/3 =
+    %% Line 137
+    fun (_cor2,_cor1,_cor0) ->
+	let <Tmp> =
+	    %% Line 138
+	    apply 'new_untagged_temp'/0
+		()
+	in  let <Disp> =
+		%% Line 139
+		call 'hipe_sparc':'mk_simm13'
+		    (0)
+	    in  let <_cor5> =
+		    %% Line 140
+		    call 'hipe_sparc':'mk_alu'
+			('add', _cor2, _cor1, Tmp)
+		in  let <_cor6> =
+			%% Line 141
+			call 'hipe_sparc':'mk_pseudo_fload'
+			    (Tmp, Disp, _cor0, 'false')
+		    in  %% Line 140
+			[_cor5|%% Line 141
+			       [_cor6|[]]]
+'mk_fload_ii'/3 =
+    %% Line 143
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 144
+	    call 'io':'format'
+		([126|[119|[58|[32|[82|[84|[76|[32|[102|[108|[111|[97|[100|[32|[119|[105|[116|[104|[32|[116|[119|[111|[32|[105|[109|[109|[101|[100|[105|[97|[116|[101|[115|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], ['hipe_rtl_to_sparc'])
+	    let <Tmp> =
+		%% Line 145
+		apply 'new_untagged_temp'/0
+		    ()
+	    in  let <_cor4> =
+		    %% Line 146
+		    apply 'mk_fload_ri'/3
+			(Tmp, _cor1, _cor0)
+		in  %% Line 146
+		    apply 'mk_set'/3
+			(_cor2, Tmp, _cor4)
+'mk_fload_ri'/3 =
+    %% Line 148
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 149
+	call 'hipe_sparc':'mk_fload'
+	    (_cor2, _cor1, _cor0, 'new')
+'conv_fstore'/3 =
+    %% Line 151
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 153
+	    call 'hipe_rtl':'fstore_base'
+		(_cor2)
+	in  %% Line 153
+	    case apply 'conv_dst'/2
+		     (_cor3, _cor1) of
+	      <{Base1,Map1}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 154
+		      call 'hipe_rtl':'fstore_offset'
+			  (_cor2)
+		  in  %% Line 154
+		      case apply 'conv_src'/2
+			       (_cor5, Map1) of
+			<{Base2,Map2}> when 'true' ->
+			    let <_cor7> =
+				%% Line 155
+				call 'hipe_rtl':'fstore_src'
+				    (_cor2)
+			    in  %% Line 155
+				case apply 'conv_fpreg'/2
+					 (_cor7, Map2) of
+				  <{Src,Map3}> when 'true' ->
+				      let <I2> =
+					  %% Line 156
+					  apply 'mk_fstore'/3
+					      (Src, Base1, Base2)
+				      in  %% Line 157
+					  {I2,Map3,_cor0}
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor8})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_fstore'/3 =
+    %% Line 159
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 160
+	case call 'hipe_sparc':'is_temp'
+		 (_cor0) of
+	  %% Line 161
+	  <'true'> when 'true' ->
+	      %% Line 162
+	      apply 'mk_fstore_rr'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 163
+	  <_cor7> when 'true' ->
+	      %% Line 164
+	      apply 'mk_fstore_ri'/3
+		  (_cor2, _cor1, _cor0)
+	end
+'mk_fstore_rr'/3 =
+    %% Line 167
+    fun (_cor2,_cor1,_cor0) ->
+	let <Tmp> =
+	    %% Line 168
+	    apply 'new_untagged_temp'/0
+		()
+	in  let <Disp> =
+		%% Line 169
+		call 'hipe_sparc':'mk_simm13'
+		    (0)
+	    in  let <_cor5> =
+		    %% Line 170
+		    call 'hipe_sparc':'mk_alu'
+			('add', _cor1, _cor0, Tmp)
+		in  let <_cor6> =
+			%% Line 171
+			call 'hipe_sparc':'mk_pseudo_fstore'
+			    (_cor2, Tmp, Disp)
+		    in  %% Line 170
+			[_cor5|%% Line 171
+			       [_cor6|[]]]
+'mk_fstore_ri'/3 =
+    %% Line 173
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 174
+	call 'hipe_sparc':'mk_fstore'
+	    (_cor2, _cor1, _cor0, 'new')
+'conv_fp_binary'/3 =
+    %% Line 176
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 177
+	    call 'hipe_rtl':'fp_src1'
+		(_cor2)
+	in  %% Line 177
+	    case apply 'conv_fpreg'/2
+		     (_cor3, _cor1) of
+	      <{Src1,Map1}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 178
+		      call 'hipe_rtl':'fp_src2'
+			  (_cor2)
+		  in  %% Line 178
+		      case apply 'conv_fpreg'/2
+			       (_cor5, Map1) of
+			<{Src2,Map2}> when 'true' ->
+			    let <_cor7> =
+				%% Line 179
+				call 'hipe_rtl':'fp_dst'
+				    (_cor2)
+			    in  %% Line 179
+				case apply 'conv_fpreg'/2
+					 (_cor7, Map2) of
+				  <{Dst,Map3}> when 'true' ->
+				      let <RtlFpOp> =
+					  %% Line 180
+					  call 'hipe_rtl':'fp_op'
+					      (_cor2)
+				      in  let <I2> =
+					      %% Line 181
+					      apply 'mk_fp_binary'/4
+						  (RtlFpOp, Src1, Src2, Dst)
+					  in  %% Line 182
+					      {I2,Map3,_cor0}
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor8})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_fp_binary'/4 =
+    %% Line 184
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 186
+	    case _cor3 of
+	      %% Line 187
+	      <'fadd'> when 'true' ->
+		  'faddd'
+	      %% Line 188
+	      <'fdiv'> when 'true' ->
+		  'fdivd'
+	      %% Line 189
+	      <'fmul'> when 'true' ->
+		  'fmuld'
+	      %% Line 190
+	      <'fsub'> when 'true' ->
+		  'fsubd'
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor4})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor7> =
+		%% Line 192
+		call 'hipe_sparc':'mk_fp_binary'
+		    (_cor5, _cor2, _cor1, _cor0)
+	    in  %% Line 192
+		[_cor7|[]]
+'conv_fp_unary'/3 =
+    %% Line 194
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 195
+	    call 'hipe_rtl':'fp_unop_src'
+		(_cor2)
+	in  %% Line 195
+	    case apply 'conv_fpreg'/2
+		     (_cor3, _cor1) of
+	      <{Src,Map1}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 196
+		      call 'hipe_rtl':'fp_unop_dst'
+			  (_cor2)
+		  in  %% Line 196
+		      case apply 'conv_fpreg'/2
+			       (_cor5, Map1) of
+			<{Dst,Map2}> when 'true' ->
+			    let <RtlFpUnOp> =
+				%% Line 197
+				call 'hipe_rtl':'fp_unop_op'
+				    (_cor2)
+			    in  let <I2> =
+				    %% Line 198
+				    apply 'mk_fp_unary'/3
+					(RtlFpUnOp, Src, Dst)
+				in  %% Line 199
+				    {I2,Map2,_cor0}
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_fp_unary'/3 =
+    %% Line 201
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 203
+	case _cor2 of
+	  %% Line 204
+	  <'fchs'> when 'true' ->
+	      let <_cor6> =
+		  %% Line 206
+		  call 'hipe_sparc':'mk_fp_unary'
+		      ('fnegd', _cor1, _cor0)
+	      in  %% Line 206
+		  [_cor6|[]]
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'conv_alu'/3 =
+    %% Line 208
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 210
+	    call 'hipe_rtl':'alu_dst'
+		(_cor2)
+	in  %% Line 210
+	    case apply 'conv_dst'/2
+		     (_cor3, _cor1) of
+	      <{Dst,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 211
+		      call 'hipe_rtl':'alu_src1'
+			  (_cor2)
+		  in  %% Line 211
+		      case apply 'conv_src'/2
+			       (_cor5, Map0) of
+			<{Src1,Map1}> when 'true' ->
+			    let <_cor7> =
+				%% Line 212
+				call 'hipe_rtl':'alu_src2'
+				    (_cor2)
+			    in  %% Line 212
+				case apply 'conv_src'/2
+					 (_cor7, Map1) of
+				  <{Src2,Map2}> when 'true' ->
+				      let <_cor9> =
+					  %% Line 213
+					  call 'hipe_rtl':'alu_op'
+					      (_cor2)
+				      in  let <AluOp> =
+					      %% Line 213
+					      apply 'conv_aluop'/1
+						  (_cor9)
+					  in  %% Line 214
+					      case apply 'mk_alu'/4
+						       (AluOp, Src1, Src2, Dst) of
+						<{I2,_X_DidCommute}> when 'true' ->
+						    %% Line 215
+						    {I2,Map2,_cor0}
+						( <_cor11> when 'true' ->
+						      primop 'match_fail'
+							  ({'badmatch',_cor11})
+						  -| ['compiler_generated'] )
+					      end
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor8})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_alu'/4 =
+    %% Line 217
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 218
+	case call 'hipe_sparc':'is_temp'
+		 (_cor2) of
+	  %% Line 219
+	  <'true'> when 'true' ->
+	      %% Line 220
+	      case call 'hipe_sparc':'is_temp'
+		       (_cor1) of
+		%% Line 221
+		<'true'> when 'true' ->
+		    let <_cor4> =
+			%% Line 222
+			apply 'mk_alu_rs'/4
+			    (_cor3, _cor2, _cor1, _cor0)
+		    in  %% Line 222
+			{_cor4,%% Line 223
+			       'false'}
+		%% Line 224
+		<_cor14> when 'true' ->
+		    let <_cor5> =
+			%% Line 225
+			apply 'mk_alu_ri'/4
+			    (_cor3, _cor2, _cor1, _cor0)
+		    in  %% Line 225
+			{_cor5,%% Line 226
+			       'false'}
+	      end
+	  %% Line 228
+	  <_cor15> when 'true' ->
+	      %% Line 229
+	      case call 'hipe_sparc':'is_temp'
+		       (_cor1) of
+		%% Line 230
+		<'true'> when 'true' ->
+		    %% Line 231
+		    apply 'mk_alu_ir'/4
+			(_cor3, _cor2, _cor1, _cor0)
+		%% Line 232
+		<_cor16> when 'true' ->
+		    let <_cor7> =
+			%% Line 233
+			apply 'mk_alu_ii'/4
+			    (_cor3, _cor2, _cor1, _cor0)
+		    in  %% Line 233
+			{_cor7,%% Line 234
+			       'false'}
+	      end
+	end
+'mk_alu_ii'/4 =
+    %% Line 238
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 239
+	    call 'io':'format'
+		([126|[119|[58|[32|[65|[76|[85|[32|[119|[105|[116|[104|[32|[116|[119|[111|[32|[105|[109|[109|[101|[100|[105|[97|[116|[101|[115|[32|[40|[126|[119|[32|[126|[119|[32|[126|[119|[32|[126|[119|[41|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 240
+																															      ['hipe_rtl_to_sparc'|[_cor3|[_cor2|[_cor1|[_cor0|[]]]]]])
+	    let <Tmp> =
+		%% Line 241
+		apply 'new_untagged_temp'/0
+		    ()
+	    in  let <_cor5> =
+		    %% Line 242
+		    apply 'mk_alu_ri'/4
+			(_cor3, Tmp, _cor1, _cor0)
+		in  %% Line 242
+		    apply 'mk_set'/3
+			(_cor2, Tmp, _cor5)
+'mk_alu_ir'/4 =
+    %% Line 244
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 245
+	case apply 'xaluop_commutes'/1
+		 (_cor3) of
+	  %% Line 246
+	  <'true'> when 'true' ->
+	      let <_cor4> =
+		  %% Line 247
+		  apply 'mk_alu_ri'/4
+		      (_cor3, _cor1, _cor2, _cor0)
+	      in  %% Line 247
+		  {_cor4,%% Line 248
+			 'true'}
+	  %% Line 249
+	  <_cor13> when 'true' ->
+	      let <Tmp> =
+		  %% Line 250
+		  apply 'new_untagged_temp'/0
+		      ()
+	      in  let <_cor6> =
+		      %% Line 251
+		      apply 'mk_alu_rs'/4
+			  (_cor3, Tmp, _cor1, _cor0)
+		  in  let <_cor7> =
+			  %% Line 251
+			  apply 'mk_set'/3
+			      (_cor2, Tmp, _cor6)
+		      in  %% Line 251
+			  {_cor7,%% Line 252
+				 'false'}
+	end
+'mk_alu_ri'/4 =
+    %% Line 255
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 256
+	case apply 'xaluop_is_shift'/1
+		 (_cor3) of
+	  %% Line 257
+	  <'true'> when 'true' ->
+	      %% Line 258
+	      apply 'mk_shift_ri'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 259
+	  <'false'> when 'true' ->
+	      %% Line 260
+	      apply 'mk_arith_ri'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'mk_shift_ri'/4 =
+    %% Line 263
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <XShiftOp,Src1,Src2,Dst>
+	      when call 'erlang':'is_integer'
+		    (Src2) ->
+	      %% Line 264
+	      case <> of
+		<>
+		    when let <_cor4> =
+			  call 'erlang':'>='
+			      (Src2, 0)
+		      in  let <_cor5> =
+			      call 'erlang':'<'
+				  (Src2, 32)
+			  in  call 'erlang':'and'
+				  (_cor4, _cor5) ->
+		    let <_cor6> =
+			%% Line 265
+			call 'hipe_sparc':'mk_uimm5'
+			    (Src2)
+		    in  %% Line 265
+			apply 'mk_alu_rs'/4
+			    (XShiftOp, Src1, _cor6, Dst)
+		%% Line 266
+		<> when 'true' ->
+		    %% Line 267
+		    call 'erlang':'exit'
+			({'hipe_rtl_to_sparc','mk_shift_ri',Src2})
+	      end
+	  ( <_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'mk_shift_ri',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_arith_ri'/4 =
+    %% Line 270
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <XAluOp,Src1,Src2,Dst>
+	      when call 'erlang':'is_integer'
+		    (Src2) ->
+	      %% Line 271
+	      case <> of
+		<>
+		    when let <_cor5> =
+			  call 'erlang':'=<'
+			      (-4096, Src2)
+		      in  let <_cor6> =
+			      call 'erlang':'<'
+				  (Src2, 4096)
+			  in  call 'erlang':'and'
+				  (_cor5, _cor6) ->
+		    let <_cor7> =
+			%% Line 272
+			call 'hipe_sparc':'mk_simm13'
+			    (Src2)
+		    in  %% Line 272
+			apply 'mk_alu_rs'/4
+			    (XAluOp, Src1, _cor7, Dst)
+		%% Line 273
+		<> when 'true' ->
+		    let <Tmp> =
+			%% Line 274
+			apply 'new_untagged_temp'/0
+			    ()
+		    in  let <_cor9> =
+			    %% Line 275
+			    apply 'mk_alu_rs'/4
+				(XAluOp, Src1, Tmp, Dst)
+			in  %% Line 275
+			    apply 'mk_set'/3
+				(Src2, Tmp, _cor9)
+	      end
+	  ( <_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'mk_arith_ri',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_alu_rs'/4 =
+    %% Line 278
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 279
+	    apply 'xaluop_normalise'/1
+		(_cor3)
+	in  let <_cor5> =
+		%% Line 279
+		call 'hipe_sparc':'mk_alu'
+		    (_cor4, _cor2, _cor1, _cor0)
+	    in  %% Line 279
+		[_cor5|[]]
+'conv_alub'/3 =
+    %% Line 281
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 283
+	    call 'hipe_rtl':'alub_dst'
+		(_cor2)
+	in  %% Line 283
+	    case apply 'conv_dst'/2
+		     (_cor3, _cor1) of
+	      <{Dst,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 284
+		      call 'hipe_rtl':'alub_src1'
+			  (_cor2)
+		  in  %% Line 284
+		      case apply 'conv_src'/2
+			       (_cor5, Map0) of
+			<{Src1,Map1}> when 'true' ->
+			    let <_cor7> =
+				%% Line 285
+				call 'hipe_rtl':'alub_src2'
+				    (_cor2)
+			    in  %% Line 285
+				case apply 'conv_src'/2
+					 (_cor7, Map1) of
+				  <{Src2,Map2}> when 'true' ->
+				      let <_cor9> =
+					  %% Line 286
+					  call 'hipe_rtl':'alub_cond'
+					      (_cor2)
+				      in  let <Cond> =
+					      %% Line 286
+					      apply 'conv_cond'/1
+						  (_cor9)
+					  in  let <RtlAlubOp> =
+						  %% Line 287
+						  call 'hipe_rtl':'alub_op'
+						      (_cor2)
+					      in  let <_cor24> =
+						      %% Line 289
+						      case RtlAlubOp of
+							%% Line 290
+							<'mul'> when 'true' ->
+							    let <_cor13> =
+								%% Line 298
+								case Cond of
+								  %% Line 299
+								  <'vs'> when 'true' ->
+								      'ne'
+								  %% Line 300
+								  <'vc'> when 'true' ->
+								      'eq'
+								  ( <_cor12> when 'true' ->
+									primop 'match_fail'
+									    ({'case_clause',_cor12})
+								    -| ['compiler_generated'] )
+								end
+							    in  let <TmpHi> =
+								    %% Line 302
+								    call 'hipe_sparc':'mk_new_temp'
+									('untagged')
+								in  let <TmpSign> =
+									%% Line 303
+									call 'hipe_sparc':'mk_new_temp'
+									    ('untagged')
+								    in  let <G0> =
+									    %% Line 304
+									    call 'hipe_sparc':'mk_g0'
+										()
+									in  %% Line 305
+									    case apply 'mk_alu'/4
+										     ('smul', Src1, Src2, Dst) of
+									      <{I1,_X_DidCommute}> when 'true' ->
+										  let <_cor19> =
+										      %% Line 307
+										      call 'hipe_sparc':'mk_rdy'
+											  (TmpHi)
+										  in  let <_cor20> =
+											  %% Line 308
+											  call 'hipe_sparc':'mk_uimm5'
+											      (31)
+										      in  let <_cor21> =
+											      %% Line 308
+											      call 'hipe_sparc':'mk_alu'
+												  ('sra', Dst, _cor20, TmpSign)
+											  in  let <_cor22> =
+												  %% Line 309
+												  apply 'conv_alub2'/6
+												      (G0, TmpSign, 'sub', _cor13, TmpHi, _cor2)
+											      in  %% Line 306
+												  call 'erlang':'++'
+												      (I1, %% Line 307
+													   [_cor19|%% Line 308
+														   [_cor21|_cor22]])
+									      ( <_cor18> when 'true' ->
+										    primop 'match_fail'
+											({'badmatch',_cor18})
+										-| ['compiler_generated'] )
+									    end
+							%% Line 310
+							<_cor29> when 'true' ->
+							    %% Line 311
+							    apply 'conv_alub2'/6
+								(Dst, Src1, RtlAlubOp, Cond, Src2, _cor2)
+						      end
+						  in  %% Line 313
+						      {_cor24,Map2,_cor0}
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor8})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'conv_alub2'/6 =
+    %% Line 358
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 359
+	apply 'conv_alub_bp'/6
+	    (_cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+'conv_alub_bp'/6 =
+    %% Line 362
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <TrueLab> =
+	    %% Line 363
+	    call 'hipe_rtl':'alub_true_label'
+		(_cor0)
+	in  let <FalseLab> =
+		%% Line 364
+		call 'hipe_rtl':'alub_false_label'
+		    (_cor0)
+	    in  let <Pred> =
+		    %% Line 365
+		    call 'hipe_rtl':'alub_pred'
+			(_cor0)
+		in  let <_cor9> =
+			%% Line 368
+			apply 'conv_alubop_cc'/1
+			    (_cor3)
+		    in  %% Line 368
+			case apply 'mk_alu'/4
+				 (_cor9, _cor4, _cor1, _cor5) of
+			  <{I2,_X_DidCommute}> when 'true' ->
+			      let <_cor11> =
+				  %% Line 369
+				  apply 'mk_pseudo_bp'/4
+				      (_cor2, TrueLab, FalseLab, Pred)
+			      in  %% Line 369
+				  call 'erlang':'++'
+				      (I2, _cor11)
+			  ( <_cor10> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor10})
+			    -| ['compiler_generated'] )
+			end
+'conv_alubop_cc'/1 =
+    %% Line 371
+    fun (_cor0) ->
+	%% Line 372
+	case _cor0 of
+	  %% Line 373
+	  <'add'> when 'true' ->
+	      'addcc'
+	  %% Line 374
+	  <'sub'> when 'true' ->
+	      'subcc'
+	  %% Line 376
+	  <'or'> when 'true' ->
+	      'orcc'
+	  %% Line 377
+	  <'and'> when 'true' ->
+	      'andcc'
+	  %% Line 378
+	  <'xor'> when 'true' ->
+	      'xorcc'
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'conv_branch'/3 =
+    %% Line 382
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 384
+	    call 'hipe_rtl':'branch_src1'
+		(_cor2)
+	in  %% Line 384
+	    case apply 'conv_src'/2
+		     (_cor3, _cor1) of
+	      <{Src1,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 385
+		      call 'hipe_rtl':'branch_src2'
+			  (_cor2)
+		  in  %% Line 385
+		      case apply 'conv_src'/2
+			       (_cor5, Map0) of
+			<{Src2,Map1}> when 'true' ->
+			    let <_cor7> =
+				%% Line 386
+				call 'hipe_rtl':'branch_cond'
+				    (_cor2)
+			    in  let <Cond> =
+				    %% Line 386
+				    apply 'conv_cond'/1
+					(_cor7)
+				in  let <I2> =
+					%% Line 387
+					apply 'conv_branch2'/4
+					    (Src1, Cond, Src2, _cor2)
+				    in  %% Line 388
+					{I2,Map1,_cor0}
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'conv_branch2'/4 =
+    %% Line 425
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 426
+	apply 'conv_branch_bp'/4
+	    (_cor3, _cor2, _cor1, _cor0)
+'conv_branch_bp'/4 =
+    %% Line 429
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <TrueLab> =
+	    %% Line 430
+	    call 'hipe_rtl':'branch_true_label'
+		(_cor0)
+	in  let <FalseLab> =
+		%% Line 431
+		call 'hipe_rtl':'branch_false_label'
+		    (_cor0)
+	    in  let <Pred> =
+		    %% Line 432
+		    call 'hipe_rtl':'branch_pred'
+			(_cor0)
+		in  let <Dst> =
+			%% Line 435
+			call 'hipe_sparc':'mk_g0'
+			    ()
+		    in  %% Line 437
+			case apply 'mk_alu'/4
+				 ('cmpcc', _cor3, _cor1, Dst) of
+			  <{I1,DidCommute}> when 'true' ->
+			      let <_cor11> =
+				  %% Line 439
+				  case DidCommute of
+				    %% Line 440
+				    <'true'> when 'true' ->
+					apply 'commute_cond'/1
+					    (_cor2)
+				    %% Line 441
+				    <'false'> when 'true' ->
+					_cor2
+				    ( <_cor10> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor10})
+				      -| ['compiler_generated'] )
+				  end
+			      in  let <_cor13> =
+				      %% Line 443
+				      apply 'mk_pseudo_bp'/4
+					  (_cor11, TrueLab, FalseLab, Pred)
+				  in  %% Line 443
+				      call 'erlang':'++'
+					  (I1, _cor13)
+			  ( <_cor9> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor9})
+			    -| ['compiler_generated'] )
+			end
+'conv_call'/3 =
+    %% Line 445
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 446
+	    call 'hipe_rtl':'call_arglist'
+		(_cor2)
+	in  %% Line 446
+	    case apply 'conv_src_list'/2
+		     (_cor3, _cor1) of
+	      <{Args,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 447
+		      call 'hipe_rtl':'call_dstlist'
+			  (_cor2)
+		  in  %% Line 447
+		      case apply 'conv_dst_list'/2
+			       (_cor5, Map0) of
+			<{Dsts,Map1}> when 'true' ->
+			    let <_cor7> =
+				%% Line 448
+				call 'hipe_rtl':'call_fun'
+				    (_cor2)
+			    in  %% Line 448
+				case apply 'conv_fun'/2
+					 (_cor7, Map1) of
+				  <{Fun,Map2}> when 'true' ->
+				      let <ContLab> =
+					  %% Line 449
+					  call 'hipe_rtl':'call_continuation'
+					      (_cor2)
+				      in  let <ExnLab> =
+					      %% Line 450
+					      call 'hipe_rtl':'call_fail'
+						  (_cor2)
+					  in  let <Linkage> =
+						  %% Line 451
+						  call 'hipe_rtl':'call_type'
+						      (_cor2)
+					      in  let <I2> =
+						      %% Line 452
+						      apply 'mk_call'/6
+							  (Dsts, Fun, Args, ContLab, ExnLab, Linkage)
+						  in  %% Line 453
+						      {I2,Map2,_cor0}
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor8})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_call'/6 =
+    %% Line 455
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 456
+	case call 'hipe_sparc':'is_prim'
+		 (_cor4) of
+	  %% Line 457
+	  <'true'> when 'true' ->
+	      %% Line 458
+	      apply 'mk_primop_call'/6
+		  (_cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 459
+	  <'false'> when 'true' ->
+	      %% Line 460
+	      apply 'mk_general_call'/6
+		  (_cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+	  ( <_cor6> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor6})
+	    -| ['compiler_generated'] )
+	end
+'mk_primop_call'/6 =
+    %% Line 463
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_fol113> =
+	    %% Line 464
+	    call 'hipe_sparc':'prim_prim'
+		(_cor4)
+	in  %% Line 467
+	    apply 'mk_general_call'/6
+		(_cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+'mk_general_call'/6 =
+    %% Line 470
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <RealContLab,Tail> =
+	    %% Line 474
+	    case apply 'mk_call_results'/1
+		     (_cor5) of
+	      %% Line 475
+	      <[]> when 'true' ->
+		  %% Line 480
+		  case _cor2 of
+		    %% Line 481
+		    <[]> when 'true' ->
+			let <NewContLab> =
+			    %% Line 482
+			    call 'hipe_gensym':'get_next_label'
+				('sparc')
+			in  let <_cor7> =
+				%% Line 483
+				call 'hipe_sparc':'mk_label'
+				    (NewContLab)
+			    in  %% Line 483
+				<NewContLab,[_cor7|[]]>
+		    %% Line 484
+		    <_cor29> when 'true' ->
+			%% Line 485
+			<_cor2,[]>
+		  end
+	      %% Line 487
+	      <Moves> when 'true' ->
+		  let <NewContLab> =
+		      %% Line 491
+		      call 'hipe_gensym':'get_next_label'
+			  ('sparc')
+		  in  %% Line 492
+		      case _cor2 of
+			%% Line 493
+			<[]> when 'true' ->
+			    let <_cor10> =
+				%% Line 497
+				call 'hipe_sparc':'mk_label'
+				    (NewContLab)
+			    in  %% Line 496
+				<NewContLab,%% Line 497
+					    [_cor10|%% Line 498
+						    Moves]>
+			%% Line 499
+			<_cor30> when 'true' ->
+			    let <_cor11> =
+				%% Line 502
+				call 'hipe_sparc':'mk_label'
+				    (NewContLab)
+			    in  let <_cor12> =
+				    %% Line 504
+				    call 'hipe_sparc':'mk_b_label'
+					(_cor2)
+				in  let <_cor13> =
+					%% Line 503
+					call 'erlang':'++'
+					    (Moves, %% Line 504
+						    [_cor12|[]])
+				    in  %% Line 501
+					<NewContLab,%% Line 502
+						    [_cor11|_cor13]>
+		      end
+	    end
+	in  let <_cor18> =
+		%% Line 507
+		call 'erlang':'length'
+		    (_cor3)
+	    in  let <SDesc> =
+		    %% Line 507
+		    call 'hipe_sparc':'mk_sdesc'
+			(_cor1, 0, _cor18, {})
+		in  let <CallInsn> =
+			%% Line 508
+			call 'hipe_sparc':'mk_pseudo_call'
+			    (_cor4, SDesc, RealContLab, _cor0)
+		    in  %% Line 509
+			case apply 'split_args'/1
+				 (_cor3) of
+			  <{RegArgs,StkArgs}> when 'true' ->
+			      let <_cor22> =
+				  %% Line 510
+				  apply 'move_actuals'/2
+				      (RegArgs, [CallInsn|Tail])
+			      in  %% Line 510
+				  apply 'mk_push_args'/2
+				      (StkArgs, _cor22)
+			  ( <_cor21> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor21})
+			    -| ['compiler_generated'] )
+			end
+'mk_call_results'/1 =
+    %% Line 512
+    fun (_cor0) ->
+	%% Line 513
+	case _cor0 of
+	  %% Line 514
+	  <[]> when 'true' ->
+	      []
+	  %% Line 515
+	  <[Dst|[]]> when 'true' ->
+	      let <RV> =
+		  %% Line 516
+		  call 'hipe_sparc':'mk_rv'
+		      ()
+	      in  let <_cor2> =
+		      %% Line 517
+		      call 'hipe_sparc':'mk_pseudo_move'
+			  (RV, Dst)
+		  in  %% Line 517
+		      [_cor2|[]]
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'mk_push_args'/2 =
+    %% Line 520
+    fun (_cor1,_cor0) ->
+	%% Line 521
+	case call 'erlang':'length'
+		 (_cor1) of
+	  %% Line 522
+	  <0> when 'true' ->
+	      _cor0
+	  %% Line 524
+	  <NrStkArgs> when 'true' ->
+	      let <_cor2> =
+		  %% Line 525
+		  call 'hipe_sparc':'mk_pseudo_call_prepare'
+		      (NrStkArgs)
+	      in  let <_cor3> =
+		      %% Line 526
+		      apply 'word_size'/0
+			  ()
+		  in  let <_cor4> =
+			  %% Line 526
+			  call 'erlang':'*'
+			      (NrStkArgs, _cor3)
+		      in  let <_cor5> =
+			      %% Line 526
+			      apply 'mk_store_args'/3
+				  (_cor1, _cor4, _cor0)
+			  in  %% Line 525
+			      [_cor2|_cor5]
+	end
+'mk_store_args'/3 =
+    %% Line 529
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Arg|Args],PrevOffset,Tail> when 'true' ->
+	      let <_cor3> =
+		  %% Line 530
+		  apply 'word_size'/0
+		      ()
+	      in  let <Offset> =
+		      %% Line 530
+		      call 'erlang':'-'
+			  (PrevOffset, _cor3)
+		  in  let <Src,FixSrc> =
+			  %% Line 532
+			  case call 'hipe_sparc':'is_temp'
+				   (Arg) of
+			    %% Line 533
+			    <'true'> when 'true' ->
+				%% Line 534
+				<Arg,[]>
+			    %% Line 535
+			    <_cor17> when 'true' ->
+				let <Tmp> =
+				    %% Line 536
+				    apply 'new_tagged_temp'/0
+					()
+				in  let <_cor6> =
+					%% Line 537
+					apply 'mk_set'/2
+					    (Arg, Tmp)
+				    in  %% Line 537
+					<Tmp,_cor6>
+			  end
+		      in  let <_cor11> =
+			      %% Line 540
+			      call 'hipe_sparc':'mk_sp'
+				  ()
+			  in  let <_cor10> =
+				  %% Line 540
+				  call 'hipe_sparc':'mk_simm13'
+				      (Offset)
+			      in  let <Store> =
+				      %% Line 540
+				      call 'hipe_sparc':'mk_store'
+					  ('stw', Src, _cor11, _cor10)
+				  in  let <_cor13> =
+					  %% Line 541
+					  call 'erlang':'++'
+					      (FixSrc, [Store|Tail])
+				      in  %% Line 541
+					  apply 'mk_store_args'/3
+					      (Args, Offset, _cor13)
+	  %% Line 542
+	  <[],_cor18,Tail> when 'true' ->
+	      %% Line 543
+	      Tail
+	  ( <_cor16,_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15,_cor14})
+		  -| [{'function_name',{'mk_store_args',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'conv_comment'/3 =
+    %% Line 545
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 546
+	    call 'hipe_rtl':'comment_text'
+		(_cor2)
+	in  let <_cor4> =
+		%% Line 546
+		call 'hipe_sparc':'mk_comment'
+		    (_cor3)
+	    in  let <I2> =
+		    %% Line 546
+		    [_cor4|[]]
+		in  %% Line 547
+		    {I2,_cor1,_cor0}
+'conv_enter'/3 =
+    %% Line 549
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 550
+	    call 'hipe_rtl':'enter_arglist'
+		(_cor2)
+	in  %% Line 550
+	    case apply 'conv_src_list'/2
+		     (_cor3, _cor1) of
+	      <{Args,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 551
+		      call 'hipe_rtl':'enter_fun'
+			  (_cor2)
+		  in  %% Line 551
+		      case apply 'conv_fun'/2
+			       (_cor5, Map0) of
+			<{Fun,Map1}> when 'true' ->
+			    let <_cor7> =
+				%% Line 552
+				call 'hipe_rtl':'enter_type'
+				    (_cor2)
+			    in  let <I2> =
+				    %% Line 552
+				    apply 'mk_enter'/3
+					(Fun, Args, _cor7)
+				in  %% Line 553
+				    {I2,Map1,_cor0}
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_enter'/3 =
+    %% Line 555
+    fun (_cor2,_cor1,_cor0) ->
+	let <Arity> =
+	    %% Line 556
+	    call 'erlang':'length'
+		(_cor1)
+	in  %% Line 557
+	    case apply 'split_args'/1
+		     (_cor1) of
+	      <{RegArgs,StkArgs}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 559
+		      call 'hipe_sparc':'mk_pseudo_tailcall_prepare'
+			  ()
+		  in  let <_cor6> =
+			  %% Line 560
+			  call 'hipe_sparc':'mk_pseudo_tailcall'
+			      (_cor2, Arity, StkArgs, _cor0)
+		      in  %% Line 558
+			  apply 'move_actuals'/2
+			      (RegArgs, %% Line 559
+					[_cor5|%% Line 560
+					       [_cor6|[]]])
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'conv_goto'/3 =
+    %% Line 562
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 563
+	    call 'hipe_rtl':'goto_label'
+		(_cor2)
+	in  let <_cor4> =
+		%% Line 563
+		call 'hipe_sparc':'mk_b_label'
+		    (_cor3)
+	    in  let <I2> =
+		    %% Line 563
+		    [_cor4|[]]
+		in  %% Line 564
+		    {I2,_cor1,_cor0}
+'conv_label'/3 =
+    %% Line 566
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 567
+	    call 'hipe_rtl':'label_name'
+		(_cor2)
+	in  let <_cor4> =
+		%% Line 567
+		call 'hipe_sparc':'mk_label'
+		    (_cor3)
+	    in  let <I2> =
+		    %% Line 567
+		    [_cor4|[]]
+		in  %% Line 568
+		    {I2,_cor1,_cor0}
+'conv_load'/3 =
+    %% Line 570
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 571
+	    call 'hipe_rtl':'load_dst'
+		(_cor2)
+	in  %% Line 571
+	    case apply 'conv_dst'/2
+		     (_cor3, _cor1) of
+	      <{Dst,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 572
+		      call 'hipe_rtl':'load_src'
+			  (_cor2)
+		  in  %% Line 572
+		      case apply 'conv_src'/2
+			       (_cor5, Map0) of
+			<{Base1,Map1}> when 'true' ->
+			    let <_cor7> =
+				%% Line 573
+				call 'hipe_rtl':'load_offset'
+				    (_cor2)
+			    in  %% Line 573
+				case apply 'conv_src'/2
+					 (_cor7, Map1) of
+				  <{Base2,Map2}> when 'true' ->
+				      let <_cor10> =
+					  %% Line 574
+					  call 'hipe_rtl':'load_size'
+					      (_cor2)
+				      in  let <_cor9> =
+					      %% Line 574
+					      call 'hipe_rtl':'load_sign'
+						  (_cor2)
+					  in  let <LdOp> =
+						  %% Line 574
+						  apply 'conv_ldop'/2
+						      (_cor10, _cor9)
+					      in  %% Line 575
+						  case apply 'mk_alu'/4
+							   (LdOp, Base1, Base2, Dst) of
+						    <{I2,_X_DidCommute}> when 'true' ->
+							%% Line 576
+							{I2,Map2,_cor0}
+						    ( <_cor12> when 'true' ->
+							  primop 'match_fail'
+							      ({'badmatch',_cor12})
+						      -| ['compiler_generated'] )
+						  end
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor8})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'conv_ldop'/2 =
+    %% Line 578
+    fun (_cor1,_cor0) ->
+	%% Line 579
+	case _cor1 of
+	  %% Line 580
+	  <'word'> when 'true' ->
+	      'lduw'
+	  %% Line 581
+	  <'int32'> when 'true' ->
+	      'lduw'
+	  %% Line 582
+	  <'int16'> when 'true' ->
+	      %% Line 583
+	      case _cor0 of
+		%% Line 584
+		<'signed'> when 'true' ->
+		    'ldsh'
+		%% Line 585
+		<'unsigned'> when 'true' ->
+		    'lduh'
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 587
+	  <'byte'> when 'true' ->
+	      %% Line 588
+	      case _cor0 of
+		%% Line 589
+		<'signed'> when 'true' ->
+		    'ldsb'
+		%% Line 590
+		<'unsigned'> when 'true' ->
+		    'ldub'
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'conv_load_address'/3 =
+    %% Line 594
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 595
+	    call 'hipe_rtl':'load_address_dst'
+		(_cor2)
+	in  %% Line 595
+	    case apply 'conv_dst'/2
+		     (_cor3, _cor1) of
+	      <{Dst,Map0}> when 'true' ->
+		  let <Addr> =
+		      %% Line 596
+		      call 'hipe_rtl':'load_address_addr'
+			  (_cor2)
+		  in  let <Type> =
+			  %% Line 597
+			  call 'hipe_rtl':'load_address_type'
+			      (_cor2)
+		      in  let <Src> = {%% Line 598
+			       Addr,%% Line 598
+				    Type}
+			  in  let <_cor8> =
+				  %% Line 599
+				  call 'hipe_sparc':'mk_pseudo_set'
+				      (Src, Dst)
+			      in  let <I2> =
+				      %% Line 599
+				      [_cor8|[]]
+				  in  %% Line 600
+				      {I2,Map0,_cor0}
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'conv_load_atom'/3 =
+    %% Line 602
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 603
+	    call 'hipe_rtl':'load_atom_dst'
+		(_cor2)
+	in  %% Line 603
+	    case apply 'conv_dst'/2
+		     (_cor3, _cor1) of
+	      <{Dst,Map0}> when 'true' ->
+		  let <Src> =
+		      %% Line 604
+		      call 'hipe_rtl':'load_atom_atom'
+			  (_cor2)
+		  in  let <_cor6> =
+			  %% Line 605
+			  call 'hipe_sparc':'mk_pseudo_set'
+			      (Src, Dst)
+		      in  let <I2> =
+			      %% Line 605
+			      [_cor6|[]]
+			  in  %% Line 606
+			      {I2,Map0,_cor0}
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'conv_move'/3 =
+    %% Line 608
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 609
+	    call 'hipe_rtl':'move_dst'
+		(_cor2)
+	in  %% Line 609
+	    case apply 'conv_dst'/2
+		     (_cor3, _cor1) of
+	      <{Dst,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 610
+		      call 'hipe_rtl':'move_src'
+			  (_cor2)
+		  in  %% Line 610
+		      case apply 'conv_src'/2
+			       (_cor5, Map0) of
+			<{Src,Map1}> when 'true' ->
+			    let <I2> =
+				%% Line 611
+				apply 'mk_move'/3
+				    (Src, Dst, [])
+			    in  %% Line 612
+				{I2,Map1,_cor0}
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_move'/3 =
+    %% Line 614
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 615
+	case call 'hipe_sparc':'is_temp'
+		 (_cor2) of
+	  %% Line 616
+	  <'true'> when 'true' ->
+	      let <_cor3> =
+		  call 'hipe_sparc':'mk_pseudo_move'
+		      (_cor2, _cor1)
+	      in  [_cor3|_cor0]
+	  %% Line 617
+	  <_cor8> when 'true' ->
+	      apply 'mk_set'/3
+		  (_cor2, _cor1, _cor0)
+	end
+'conv_return'/3 =
+    %% Line 620
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 622
+	    call 'hipe_rtl':'return_varlist'
+		(_cor2)
+	in  %% Line 622
+	    case apply 'conv_src_list'/2
+		     (_cor3, _cor1) of
+	      <{[Arg|[]],Map0}> when 'true' ->
+		  let <_cor6> =
+		      %% Line 623
+		      call 'hipe_sparc':'mk_rv'
+			  ()
+		  in  let <_cor5> =
+			  %% Line 623
+			  call 'hipe_sparc':'mk_pseudo_ret'
+			      ()
+		      in  let <I2> =
+			      %% Line 623
+			      apply 'mk_move'/3
+				  (Arg, _cor6, [_cor5|[]])
+			  in  %% Line 624
+			      {I2,Map0,_cor0}
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'conv_store'/3 =
+    %% Line 626
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 627
+	    call 'hipe_rtl':'store_base'
+		(_cor2)
+	in  %% Line 627
+	    case apply 'conv_dst'/2
+		     (_cor3, _cor1) of
+	      <{Base1,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 628
+		      call 'hipe_rtl':'store_src'
+			  (_cor2)
+		  in  %% Line 628
+		      case apply 'conv_src'/2
+			       (_cor5, Map0) of
+			<{Src,Map1}> when 'true' ->
+			    let <_cor7> =
+				%% Line 629
+				call 'hipe_rtl':'store_offset'
+				    (_cor2)
+			    in  %% Line 629
+				case apply 'conv_src'/2
+					 (_cor7, Map1) of
+				  <{Base2,Map2}> when 'true' ->
+				      let <_cor9> =
+					  %% Line 630
+					  call 'hipe_rtl':'store_size'
+					      (_cor2)
+				      in  let <StOp> =
+					      %% Line 630
+					      apply 'conv_stop'/1
+						  (_cor9)
+					  in  let <I2> =
+						  %% Line 631
+						  apply 'mk_store'/4
+						      (StOp, Src, Base1, Base2)
+					      in  %% Line 632
+						  {I2,Map2,_cor0}
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor8})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'conv_stop'/1 =
+    %% Line 634
+    fun (_cor0) ->
+	%% Line 635
+	case _cor0 of
+	  %% Line 636
+	  <'word'> when 'true' ->
+	      'stw'
+	  %% Line 637
+	  <'int32'> when 'true' ->
+	      'stw'
+	  %% Line 638
+	  <'byte'> when 'true' ->
+	      'stb'
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'mk_store'/4 =
+    %% Line 641
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 642
+	case call 'hipe_sparc':'is_temp'
+		 (_cor2) of
+	  %% Line 643
+	  <'true'> when 'true' ->
+	      %% Line 644
+	      apply 'mk_store2'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 645
+	  <_cor11> when 'true' ->
+	      let <Tmp> =
+		  %% Line 646
+		  apply 'new_untagged_temp'/0
+		      ()
+	      in  let <_cor5> =
+		      %% Line 647
+		      apply 'mk_store2'/4
+			  (_cor3, Tmp, _cor1, _cor0)
+		  in  %% Line 647
+		      apply 'mk_set'/3
+			  (_cor2, Tmp, _cor5)
+	end
+'mk_store2'/4 =
+    %% Line 650
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 651
+	case call 'hipe_sparc':'is_temp'
+		 (_cor0) of
+	  %% Line 652
+	  <'true'> when 'true' ->
+	      %% Line 653
+	      apply 'mk_store_rr'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 654
+	  <_cor9> when 'true' ->
+	      %% Line 655
+	      apply 'mk_store_ri'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	end
+'mk_store_ri'/4 =
+    %% Line 658
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 659
+	call 'hipe_sparc':'mk_store'
+	    (_cor3, _cor2, _cor1, _cor0, 'new', [])
+'mk_store_rr'/4 =
+    %% Line 661
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 662
+	    call 'hipe_sparc':'mk_store'
+		(_cor3, _cor2, _cor1, _cor0)
+	in  %% Line 662
+	    [_cor4|[]]
+'conv_switch'/3 =
+    %% Line 664
+    fun (_cor2,_cor1,_cor0) ->
+	let <Labels> =
+	    %% Line 665
+	    call 'hipe_rtl':'switch_labels'
+		(_cor2)
+	in  let <_cor8> =
+		%% Line 666
+		( letrec
+		      'lc$^0'/1 =
+			  fun (_cor6) ->
+			      case _cor6 of
+				<[L|_cor5]> when 'true' ->
+				    let <_cor7> =
+					apply 'lc$^0'/1
+					    (_cor5)
+				    in  ( [{'label',L}|_cor7]
+					  -| ['compiler_generated'] )
+				<[]> when 'true' ->
+				    []
+				( <_cor6> when 'true' ->
+				      ( primop 'match_fail'
+					    ({'function_clause',_cor6})
+					-| [{'function_name',{'lc$^0',1}}] )
+				  -| ['compiler_generated'] )
+			      end
+		  in  apply 'lc$^0'/1
+			  (Labels)
+		  -| ['list_comprehension'] )
+	    in  let <_cor11> =
+		    %% Line 668
+		    case call 'hipe_rtl':'switch_sort_order'
+			     (_cor2) of
+		      %% Line 669
+		      <[]> when 'true' ->
+			  %% Line 670
+			  call 'hipe_consttab':'insert_block'
+			      (_cor0, 'word', _cor8)
+		      %% Line 671
+		      <SortOrder> when 'true' ->
+			  %% Line 672
+			  call 'hipe_consttab':'insert_sorted_block'
+			      (_cor0, 'word', _cor8, SortOrder)
+		    end
+		in  %% Line 667
+		    case _cor11 of
+		      <{NewData,JTabLab}> when 'true' ->
+			  let <_cor13> =
+			      %% Line 675
+			      call 'hipe_rtl':'switch_src'
+				  (_cor2)
+			  in  %% Line 675
+			      case apply 'conv_dst'/2
+				       (_cor13, _cor1) of
+				<{IndexR,Map1}> when 'true' ->
+				    let <JTabR> =
+					%% Line 676
+					apply 'new_untagged_temp'/0
+					    ()
+				    in  let <OffsetR> =
+					    %% Line 677
+					    apply 'new_untagged_temp'/0
+						()
+					in  let <DestR> =
+						%% Line 678
+						apply 'new_untagged_temp'/0
+						    ()
+					    in  let <_cor18> =
+						    %% Line 680
+						    call 'hipe_sparc':'mk_pseudo_set'
+							({JTabLab,'constant'}, JTabR)
+						in  let <_cor19> =
+							%% Line 682
+							call 'hipe_sparc':'mk_uimm5'
+							    (2)
+						    in  let <_cor20> =
+							    %% Line 682
+							    call 'hipe_sparc':'mk_alu'
+								('sll', IndexR, _cor19, OffsetR)
+							in  let <_cor21> =
+								%% Line 684
+								call 'hipe_sparc':'mk_alu'
+								    ('lduw', JTabR, OffsetR, DestR)
+							    in  let <_cor22> =
+								    %% Line 685
+								    call 'hipe_sparc':'mk_simm13'
+									(0)
+								in  let <_cor23> =
+									%% Line 685
+									call 'hipe_sparc':'mk_jmp'
+									    (DestR, _cor22, Labels)
+								    in  let <I2> =
+									    %% Line 680
+									    [_cor18|%% Line 682
+										    [_cor20|%% Line 684
+											    [_cor21|%% Line 685
+												    [_cor23|[]]]]]
+									in  %% Line 686
+									    {I2,Map1,NewData}
+				( <_cor14> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor14})
+				  -| ['compiler_generated'] )
+			      end
+		      ( <_cor12> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor12})
+			-| ['compiler_generated'] )
+		    end
+'mk_pseudo_bp'/4 =
+    %% Line 690
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 691
+	    call 'hipe_sparc':'mk_pseudo_bp'
+		(_cor3, _cor2, _cor1, _cor0)
+	in  %% Line 691
+	    [_cor4|[]]
+'mk_set'/2 =
+    %% Line 695
+    fun (_cor1,_cor0) ->
+	apply 'mk_set'/3
+	    (_cor1, _cor0, [])
+'mk_set'/3 =
+    %% Line 697
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 698
+	call 'hipe_sparc':'mk_set'
+	    (_cor2, _cor1, _cor0)
+'conv_aluop'/1 =
+    %% Line 702
+    fun (_cor0) ->
+	%% Line 703
+	case _cor0 of
+	  %% Line 704
+	  <'add'> when 'true' ->
+	      'add'
+	  %% Line 705
+	  <'sub'> when 'true' ->
+	      'sub'
+	  %% Line 706
+	  <'mul'> when 'true' ->
+	      'mulx'
+	  %% Line 707
+	  <'or'> when 'true' ->
+	      'or'
+	  %% Line 708
+	  <'and'> when 'true' ->
+	      'and'
+	  %% Line 709
+	  <'xor'> when 'true' ->
+	      'xor'
+	  %% Line 710
+	  <'sll'> when 'true' ->
+	      'sll'
+	  %% Line 711
+	  <'srl'> when 'true' ->
+	      'srl'
+	  %% Line 712
+	  <'sra'> when 'true' ->
+	      'sra'
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'xaluop_commutes'/1 =
+    %% Line 717
+    fun (_cor0) ->
+	%% Line 718
+	case _cor0 of
+	  %% Line 720
+	  <'cmpcc'> when 'true' ->
+	      'true'
+	  %% Line 721
+	  <'add'> when 'true' ->
+	      'true'
+	  %% Line 722
+	  <'addcc'> when 'true' ->
+	      'true'
+	  %% Line 723
+	  <'and'> when 'true' ->
+	      'true'
+	  %% Line 724
+	  <'andcc'> when 'true' ->
+	      'true'
+	  %% Line 725
+	  <'or'> when 'true' ->
+	      'true'
+	  %% Line 726
+	  <'orcc'> when 'true' ->
+	      'true'
+	  %% Line 727
+	  <'xor'> when 'true' ->
+	      'true'
+	  %% Line 728
+	  <'xorcc'> when 'true' ->
+	      'true'
+	  %% Line 729
+	  <'sub'> when 'true' ->
+	      'false'
+	  %% Line 730
+	  <'subcc'> when 'true' ->
+	      'false'
+	  %% Line 731
+	  <'mulx'> when 'true' ->
+	      'true'
+	  %% Line 732
+	  <'smul'> when 'true' ->
+	      'true'
+	  %% Line 733
+	  <'sll'> when 'true' ->
+	      'false'
+	  %% Line 734
+	  <'srl'> when 'true' ->
+	      'false'
+	  %% Line 735
+	  <'sra'> when 'true' ->
+	      'false'
+	  %% Line 739
+	  <'ldsb'> when 'true' ->
+	      'true'
+	  %% Line 740
+	  <'ldsh'> when 'true' ->
+	      'true'
+	  %% Line 742
+	  <'ldub'> when 'true' ->
+	      'true'
+	  %% Line 743
+	  <'lduh'> when 'true' ->
+	      'true'
+	  %% Line 744
+	  <'lduw'> when 'true' ->
+	      'true'
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'xaluop_is_shift'/1 =
+    %% Line 750
+    fun (_cor0) ->
+	%% Line 751
+	case _cor0 of
+	  %% Line 752
+	  <'sll'> when 'true' ->
+	      'true'
+	  %% Line 753
+	  <'srl'> when 'true' ->
+	      'true'
+	  %% Line 754
+	  <'sra'> when 'true' ->
+	      'true'
+	  %% Line 755
+	  <'sllx'> when 'true' ->
+	      'true'
+	  %% Line 756
+	  <'srlx'> when 'true' ->
+	      'true'
+	  %% Line 757
+	  <'srax'> when 'true' ->
+	      'true'
+	  %% Line 758
+	  <_cor3> when 'true' ->
+	      'false'
+	end
+'xaluop_normalise'/1 =
+    %% Line 764
+    fun (_cor0) ->
+	%% Line 765
+	case _cor0 of
+	  %% Line 766
+	  <'cmp'> when 'true' ->
+	      'sub'
+	  %% Line 767
+	  <'cmpcc'> when 'true' ->
+	      'subcc'
+	  %% Line 768
+	  <_cor3> when 'true' ->
+	      _cor0
+	end
+'conv_cond'/1 =
+    %% Line 773
+    fun (_cor0) ->
+	%% Line 774
+	case _cor0 of
+	  %% Line 775
+	  <'eq'> when 'true' ->
+	      'e'
+	  %% Line 776
+	  <'ne'> when 'true' ->
+	      'ne'
+	  %% Line 777
+	  <'gt'> when 'true' ->
+	      'g'
+	  %% Line 778
+	  <'gtu'> when 'true' ->
+	      'gu'
+	  %% Line 779
+	  <'ge'> when 'true' ->
+	      'ge'
+	  %% Line 780
+	  <'geu'> when 'true' ->
+	      'geu'
+	  %% Line 781
+	  <'lt'> when 'true' ->
+	      'l'
+	  %% Line 782
+	  <'ltu'> when 'true' ->
+	      'lu'
+	  %% Line 783
+	  <'le'> when 'true' ->
+	      'le'
+	  %% Line 784
+	  <'leu'> when 'true' ->
+	      'leu'
+	  %% Line 785
+	  <'overflow'> when 'true' ->
+	      'vs'
+	  %% Line 786
+	  <'not_overflow'> when 'true' ->
+	      'vc'
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'commute_cond'/1 =
+    %% Line 791
+    fun (_cor0) ->
+	%% Line 792
+	case _cor0 of
+	  %% Line 793
+	  <'e'> when 'true' ->
+	      'e'
+	  %% Line 794
+	  <'ne'> when 'true' ->
+	      'ne'
+	  %% Line 795
+	  <'g'> when 'true' ->
+	      'l'
+	  %% Line 796
+	  <'ge'> when 'true' ->
+	      'le'
+	  %% Line 797
+	  <'l'> when 'true' ->
+	      'g'
+	  %% Line 798
+	  <'le'> when 'true' ->
+	      'ge'
+	  %% Line 799
+	  <'gu'> when 'true' ->
+	      'lu'
+	  %% Line 800
+	  <'geu'> when 'true' ->
+	      'leu'
+	  %% Line 801
+	  <'lu'> when 'true' ->
+	      'gu'
+	  %% Line 802
+	  <'leu'> when 'true' ->
+	      'geu'
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'split_args'/1 =
+    %% Line 811
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 812
+	    call 'hipe_sparc_registers':'nr_args'
+		()
+	in  %% Line 812
+	    apply 'split_args'/4
+		(0, _cor1, _cor0, [])
+'split_args'/4 =
+    %% Line 814
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <I,N,[Arg|Args],RegArgs>
+	      when call 'erlang':'<'
+		    (I,
+		     N) ->
+	      let <Reg> =
+		  %% Line 815
+		  call 'hipe_sparc_registers':'arg'
+		      (I)
+	      in  let <Temp> =
+		      %% Line 816
+		      call 'hipe_sparc':'mk_temp'
+			  (Reg, 'tagged')
+		  in  let <_cor6> =
+			  %% Line 817
+			  call 'erlang':'+'
+			      (I, 1)
+		      in  %% Line 817
+			  apply 'split_args'/4
+			      (_cor6, N, Args, [{Arg,Temp}|RegArgs])
+	  %% Line 818
+	  <_cor11,_cor12,StkArgs,RegArgs> when 'true' ->
+	      %% Line 819
+	      {RegArgs,StkArgs}
+	end
+'move_actuals'/2 =
+    %% Line 824
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{Src,Dst}|Actuals],Rest> when 'true' ->
+	      let <_cor2> =
+		  %% Line 825
+		  apply 'mk_move'/3
+		      (Src, Dst, Rest)
+	      in  %% Line 825
+		  apply 'move_actuals'/2
+		      (Actuals, _cor2)
+	  %% Line 826
+	  <[],Rest> when 'true' ->
+	      %% Line 827
+	      Rest
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'move_actuals',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'move_formals'/2 =
+    %% Line 832
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{Dst,Src}|Formals],Rest> when 'true' ->
+	      let <_cor2> =
+		  %% Line 833
+		  call 'hipe_sparc':'mk_pseudo_move'
+		      (Src, Dst)
+	      in  %% Line 833
+		  apply 'move_formals'/2
+		      (Formals, [_cor2|Rest])
+	  %% Line 834
+	  <[],Rest> when 'true' ->
+	      %% Line 835
+	      Rest
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'move_formals',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'conv_fun'/2 =
+    %% Line 839
+    fun (_cor1,_cor0) ->
+	%% Line 840
+	case call 'hipe_rtl':'is_var'
+		 (_cor1) of
+	  %% Line 841
+	  <'true'> when 'true' ->
+	      %% Line 842
+	      apply 'conv_dst'/2
+		  (_cor1, _cor0)
+	  %% Line 843
+	  <'false'> when 'true' ->
+	      %% Line 844
+	      case call 'hipe_rtl':'is_reg'
+		       (_cor1) of
+		%% Line 845
+		<'true'> when 'true' ->
+		    %% Line 846
+		    apply 'conv_dst'/2
+			(_cor1, _cor0)
+		%% Line 847
+		<'false'> when 'true' ->
+		    %% Line 848
+		    case <> of
+		      <>
+			  when call 'erlang':'is_atom'
+				(_cor1) ->
+			  let <_cor2> =
+			      %% Line 849
+			      call 'hipe_sparc':'mk_prim'
+				  (_cor1)
+			  in  %% Line 849
+			      {_cor2,_cor0}
+		      %% Line 850
+		      <> when 'true' ->
+			  let <_cor3> =
+			      %% Line 851
+			      apply 'conv_mfa'/1
+				  (_cor1)
+			  in  %% Line 851
+			      {_cor3,_cor0}
+		    end
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'conv_mfa'/1 =
+    %% Line 858
+    fun (_cor0) ->
+	case _cor0 of
+	  <{M,F,A}>
+	      when try
+		    let <_cor1> =
+			call 'erlang':'is_atom'
+			    (M)
+		    in  let <_cor2> =
+			    call 'erlang':'is_atom'
+				(F)
+			in  let <_cor3> =
+				call 'erlang':'is_integer'
+				    (A)
+			    in  let <_cor4> =
+				    call 'erlang':'and'
+					(_cor2, _cor3)
+				in  call 'erlang':'and'
+					(_cor1, _cor4)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 859
+	      call 'hipe_sparc':'mk_mfa'
+		  (M, F, A)
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5})
+		  -| [{'function_name',{'conv_mfa',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'conv_src'/2 =
+    %% Line 864
+    fun (_cor1,_cor0) ->
+	%% Line 865
+	case call 'hipe_rtl':'is_imm'
+		 (_cor1) of
+	  %% Line 866
+	  <'true'> when 'true' ->
+	      let <Value> =
+		  %% Line 867
+		  call 'hipe_rtl':'imm_value'
+		      (_cor1)
+	      in  %% Line 868
+		  case <> of
+		    <>
+			when call 'erlang':'is_integer'
+			      (Value) ->
+			%% Line 869
+			{Value,_cor0}
+		    ( <> when 'true' ->
+			  primop 'match_fail'
+			      ('if_clause')
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 871
+	  <'false'> when 'true' ->
+	      %% Line 872
+	      apply 'conv_dst'/2
+		  (_cor1, _cor0)
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'conv_src_list'/2 =
+    %% Line 875
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[O|Os],Map> when 'true' ->
+	      %% Line 876
+	      case apply 'conv_src'/2
+		       (O, Map) of
+		<{V,Map1}> when 'true' ->
+		    %% Line 877
+		    case apply 'conv_src_list'/2
+			     (Os, Map1) of
+		      <{Vs,Map2}> when 'true' ->
+			  %% Line 878
+			  {[V|Vs],Map2}
+		      ( <_cor3> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor3})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 879
+	  <[],Map> when 'true' ->
+	      %% Line 880
+	      {[],Map}
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'conv_src_list',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'conv_fpreg'/2 =
+    %% Line 884
+    fun (_cor1,_cor0) ->
+	%% Line 885
+	case call 'hipe_rtl':'is_fpreg'
+		 (_cor1) of
+	  <'true'> when 'true' ->
+	      %% Line 886
+	      apply 'conv_dst'/2
+		  (_cor1, _cor0)
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'conv_dst'/2 =
+    %% Line 888
+    fun (_cor1,_cor0) ->
+	let <Name,Type> =
+	    %% Line 890
+	    case call 'hipe_rtl':'is_var'
+		     (_cor1) of
+	      %% Line 891
+	      <'true'> when 'true' ->
+		  let <_cor2> =
+		      %% Line 892
+		      call 'hipe_rtl':'var_index'
+			  (_cor1)
+		  in  <_cor2,%% Line 892
+			     'tagged'>
+	      %% Line 893
+	      <'false'> when 'true' ->
+		  %% Line 894
+		  case call 'hipe_rtl':'is_fpreg'
+			   (_cor1) of
+		    %% Line 895
+		    <'true'> when 'true' ->
+			let <_cor3> =
+			    %% Line 896
+			    call 'hipe_rtl':'fpreg_index'
+				(_cor1)
+			in  <_cor3,%% Line 896
+				   'double'>
+		    %% Line 897
+		    <'false'> when 'true' ->
+			let <_cor4> =
+			    %% Line 898
+			    call 'hipe_rtl':'reg_index'
+				(_cor1)
+			in  <_cor4,%% Line 898
+				   'untagged'>
+		    ( <_cor5> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor5})
+		      -| ['compiler_generated'] )
+		  end
+	      ( <_cor6> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor6})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor10> =
+		%% Line 902
+		case Type of
+		  %% Line 903
+		  <'double'> when 'true' ->
+		      'false'
+		  %% Line 904
+		  <_cor19> when 'true' ->
+		      call 'hipe_sparc_registers':'is_precoloured_gpr'
+			  (Name)
+		end
+	    in  %% Line 906
+		case _cor10 of
+		  %% Line 907
+		  <'true'> when 'true' ->
+		      let <_cor12> =
+			  %% Line 908
+			  call 'hipe_sparc':'mk_temp'
+			      (Name, Type)
+		      in  %% Line 908
+			  {_cor12,_cor0}
+		  %% Line 909
+		  <'false'> when 'true' ->
+		      %% Line 910
+		      case apply 'vmap_lookup'/2
+			       (_cor0, _cor1) of
+			%% Line 911
+			<{'value',NewTemp}> when 'true' ->
+			    %% Line 912
+			    {NewTemp,_cor0}
+			%% Line 913
+			<_cor20> when 'true' ->
+			    let <NewTemp> =
+				%% Line 914
+				call 'hipe_sparc':'mk_new_temp'
+				    (Type)
+			    in  let <_cor14> =
+				    %% Line 915
+				    apply 'vmap_bind'/3
+					(_cor0, _cor1, NewTemp)
+				in  %% Line 915
+				    {NewTemp,_cor14}
+		      end
+		  ( <_cor16> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor16})
+		    -| ['compiler_generated'] )
+		end
+'conv_dst_list'/2 =
+    %% Line 919
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[O|Os],Map> when 'true' ->
+	      %% Line 920
+	      case apply 'conv_dst'/2
+		       (O, Map) of
+		<{Dst,Map1}> when 'true' ->
+		    %% Line 921
+		    case apply 'conv_dst_list'/2
+			     (Os, Map1) of
+		      <{Dsts,Map2}> when 'true' ->
+			  %% Line 922
+			  {[Dst|Dsts],Map2}
+		      ( <_cor3> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor3})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 923
+	  <[],Map> when 'true' ->
+	      %% Line 924
+	      {[],Map}
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'conv_dst_list',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'conv_formals'/2 =
+    %% Line 926
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 927
+	    call 'hipe_sparc_registers':'nr_args'
+		()
+	in  %% Line 927
+	    apply 'conv_formals'/4
+		(_cor2, _cor1, _cor0, [])
+'conv_formals'/4 =
+    %% Line 929
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <N,[O|Os],Map,Res> when 'true' ->
+	      let <_cor5> =
+		  %% Line 931
+		  case call 'hipe_rtl':'is_var'
+			   (O) of
+		    %% Line 932
+		    <'true'> when 'true' ->
+			'tagged'
+		    %% Line 933
+		    <_cor16> when 'true' ->
+			'untagged'
+		  end
+	      in  let <_cor7> =
+		      %% Line 936
+		      case <> of
+			<>
+			    when call 'erlang':'>'
+				  (N,
+				   0) ->
+			    call 'hipe_sparc':'mk_new_temp'
+				(_cor5)
+			%% Line 937
+			<> when 'true' ->
+			    call 'hipe_sparc':'mk_new_nonallocatable_temp'
+				(_cor5)
+		      end
+		  in  let <Map1> =
+			  %% Line 939
+			  apply 'vmap_bind'/3
+			      (Map, O, _cor7)
+		      in  let <_cor10> =
+			      %% Line 940
+			      call 'erlang':'-'
+				  (N, 1)
+			  in  %% Line 940
+			      apply 'conv_formals'/4
+				  (_cor10, Os, Map1, [_cor7|Res])
+	  %% Line 941
+	  <_cor17,[],Map,Res> when 'true' ->
+	      let <_cor11> =
+		  %% Line 942
+		  call 'lists':'reverse'
+		      (Res)
+	      in  %% Line 942
+		  {_cor11,Map}
+	  ( <_cor15,_cor14,_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14,_cor13,_cor12})
+		  -| [{'function_name',{'conv_formals',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'new_untagged_temp'/0 =
+    %% Line 946
+    fun () ->
+	%% Line 947
+	call 'hipe_sparc':'mk_new_temp'
+	    ('untagged')
+'new_tagged_temp'/0 =
+    %% Line 951
+    fun () ->
+	%% Line 952
+	call 'hipe_sparc':'mk_new_temp'
+	    ('tagged')
+'vmap_empty'/0 =
+    %% Line 956
+    fun () ->
+	%% Line 957
+	call 'gb_trees':'empty'
+	    ()
+'vmap_lookup'/2 =
+    %% Line 959
+    fun (_cor1,_cor0) ->
+	%% Line 960
+	call 'gb_trees':'lookup'
+	    (_cor0, _cor1)
+'vmap_bind'/3 =
+    %% Line 962
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 963
+	call 'gb_trees':'insert'
+	    (_cor1, _cor0, _cor2)
+'word_size'/0 =
+    %% Line 965
+    fun () ->
+	%% Line 966
+	call 'hipe_rtl_arch':'word_size'
+	    ()
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_rtl_to_sparc')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_rtl_to_sparc', _cor0)
+end

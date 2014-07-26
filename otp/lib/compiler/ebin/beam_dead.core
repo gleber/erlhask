@@ -1,0 +1,1414 @@
+module 'beam_dead' ['module'/2,
+		    'module_info'/0,
+		    'module_info'/1]
+    attributes []
+'module'/2 =
+    %% Line 133
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Mod,Exp,Attr,Fs0,_cor6},_X_Opts> when 'true' ->
+	      let <_1881> =
+		  %% Line 134
+		  call 'beam_clean':'clean_labels'
+		      (Fs0)
+	      in  %% Line 134
+		  case _1881 of
+		    <{Fs1,Lc1}> when 'true' ->
+			let <_282> =
+			    %% Line 135
+			    call 'lists':'mapfoldl'
+				('function'/2, Lc1, Fs1)
+			in  %% Line 135
+			    case _282 of
+			      <{Fs,Lc}> when 'true' ->
+				  %% Line 137
+				  {'ok',{Mod,Exp,Attr,Fs,Lc}}
+			      ( <_cor3> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_282})
+				-| ['compiler_generated'] )
+			    end
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_1881})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'module',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'function'/2 =
+    %% Line 139
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'function',Name,Arity,CLabel,Is0},Lc0> when 'true' ->
+	      %% Line 140
+	      try
+		  let <Is1> =
+		      %% Line 141
+		      call 'beam_jump':'remove_unused_labels'
+			  (Is0)
+		  in  %% Line 146
+		      case Is1 of
+			<[{'label',L}|FiIs]> when 'true' ->
+			    let <D0> =
+				%% Line 147
+				call 'beam_utils':'empty_label_index'
+				    ()
+			    in  let <D> =
+				    %% Line 148
+				    call 'beam_utils':'index_label'
+					(L, FiIs, D0)
+				in  let <_1693> =
+					%% Line 151
+					apply 'forward'/2
+					    (Is1, _cor0)
+				    in  %% Line 151
+					case _1693 of
+					  <{Is2,Lc}> when 'true' ->
+					      let <Is3> =
+						  %% Line 247
+						  apply 'backward'/3
+						      (Is2, D, [])
+					      in  let <Is> =
+						      %% Line 153
+						      apply 'move_move_into_block'/2
+							  (Is3, [])
+						  in  %% Line 154
+						      {{'function',Name,Arity,CLabel,Is},Lc}
+					  ( <_cor6> when 'true' ->
+						primop 'match_fail'
+						    ({'badmatch',_1693})
+					    -| ['compiler_generated'] )
+					end
+			( <_cor3> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',Is1})
+			  -| ['compiler_generated'] )
+		      end
+	      of <_cor9> ->
+		  _cor9
+	      catch <_cor12,_cor11,_cor10> ->
+		  let <Stack> =
+		      %% Line 157
+		      call 'erlang':'get_stacktrace'
+			  ()
+		  in  do  %% Line 158
+			  call 'io':'fwrite'
+			      ([70|[117|[110|[99|[116|[105|[111|[110|[58|[32|[126|[119|[47|[126|[119|[10]]]]]]]]]]]]]]]], [Name|[Arity|[]]])
+			  %% Line 159
+			  call 'erlang':'raise'
+			      (_cor12, _cor11, Stack)
+	  ( <_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'function',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'move_move_into_block'/2 =
+    %% Line 165
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'block',Bl0}|[{'move',S,D}|Is]],Acc> when 'true' ->
+	      let <Bl> =
+		  %% Line 166
+		  call 'erlang':'++'
+		      (Bl0, [{'set',[D|[]],[S|[]],'move'}|[]])
+	      in  %% Line 167
+		  apply 'move_move_into_block'/2
+		      ([{'block',Bl}|Is], _cor0)
+	  %% Line 168
+	  <[{'move',S,D}|Is],Acc> when 'true' ->
+	      let <Bl> =
+		  %% Line 169
+		  [{'set',[D|[]],[S|[]],'move'}|[]]
+	      in  %% Line 170
+		  apply 'move_move_into_block'/2
+		      ([{'block',Bl}|Is], _cor0)
+	  %% Line 171
+	  <[I|Is],Acc> when 'true' ->
+	      %% Line 172
+	      apply 'move_move_into_block'/2
+		  (Is, [I|_cor0])
+	  %% Line 173
+	  <[],Acc> when 'true' ->
+	      call 'lists':'reverse'
+		  (_cor0)
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'move_move_into_block',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'forward'/2 =
+    %% Line 179
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 180
+	    call 'gb_trees':'empty'
+		()
+	in  %% Line 180
+	    apply 'forward'/4
+		(_cor1, _cor2, _cor0, [])
+'forward'/4 =
+    %% Line 182
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[{'block',[]}|Is],D,Lc,Acc> when 'true' ->
+	      %% Line 184
+	      apply 'forward'/4
+		  (Is, _cor2, _cor1, _cor0)
+	  %% Line 185
+	  <[I = {'select','select_val',Reg,_cor19,List}|Is],D0,Lc,Acc> when 'true' ->
+	      let <D> =
+		  %% Line 186
+		  apply 'update_value_dict'/3
+		      (List, Reg, _cor2)
+	      in  %% Line 187
+		  apply 'forward'/4
+		      (Is, D, _cor1, [I|_cor0])
+	  %% Line 188
+	  <[LblI = {'label',Lbl}|[Blk = {'block',[{'set',[Dst|[]],[Lit|[]],'move'}|BlkIs]}|Is]],D,Lc,Acc> when 'true' ->
+	      let <_2738> =
+		  %% Line 193
+		  call 'gb_trees':'lookup'
+		      ({Lbl,Dst}, _cor2)
+	      in  let <_cor6> =
+		      %% Line 193
+		      case _2738 of
+			%% Line 194
+			<{'value',_cor20}>
+			    when call 'erlang':'=:='
+				  (_cor20,
+				   Lit) ->
+			    {'block',BlkIs}
+			%% Line 195
+			<_cor21> when 'true' ->
+			    Blk
+		      end
+		  in  %% Line 197
+		      apply 'forward'/4
+			  ([_cor6|Is], _cor2, _cor1, [LblI|_cor0])
+	  %% Line 198
+	  <[LblI = {'label',Lbl}|Is0 = [{'move',Lit,Dst}|Is1]],D,Lc,Acc> when 'true' ->
+	      let <_3945> =
+		  %% Line 203
+		  call 'gb_trees':'lookup'
+		      ({Lbl,Dst}, _cor2)
+	      in  let <_cor9> =
+		      %% Line 203
+		      case _3945 of
+			%% Line 204
+			<{'value',_cor22}>
+			    when call 'erlang':'=:='
+				  (_cor22,
+				   Lit) ->
+			    Is1
+			%% Line 205
+			<_cor23> when 'true' ->
+			    Is0
+		      end
+		  in  %% Line 207
+		      apply 'forward'/4
+			  (_cor9, _cor2, _cor1, [LblI|_cor0])
+	  %% Line 208
+	  <[I = {'test','is_eq_exact',_cor24,[Dst|[Src|[]]]}|%% Line 209
+							     [{'block',[{'set',[_cor25|[]],[_cor26|[]],'move'}|Bl]}|Is]],D,Lc,Acc>
+	      when let <_cor27> =
+		    call 'erlang':'=:='
+			(_cor25, Dst)
+		in  let <_cor28> =
+			call 'erlang':'=:='
+			    (_cor26, Src)
+		    in  call 'erlang':'and'
+			    (_cor27, _cor28) ->
+	      %% Line 210
+	      apply 'forward'/4
+		  ([I|[{'block',Bl}|Is]], _cor2, _cor1, _cor0)
+	  %% Line 211
+	  <[I = {'test','is_nil',_cor29,[Dst|[]]}|%% Line 212
+						  [{'block',[{'set',[_cor30|[]],['nil'],'move'}|Bl]}|Is]],D,Lc,Acc>
+	      when call 'erlang':'=:='
+		    (_cor30,
+		     Dst) ->
+	      %% Line 213
+	      apply 'forward'/4
+		  ([I|[{'block',Bl}|Is]], _cor2, _cor1, _cor0)
+	  %% Line 214
+	  <[I = {'test','is_eq_exact',_cor31,[Dst|[Src|[]]]}|[{'move',_cor32,_cor33}|Is]],D,Lc,Acc>
+	      when let <_cor34> =
+		    call 'erlang':'=:='
+			(_cor32, Src)
+		in  let <_cor35> =
+			call 'erlang':'=:='
+			    (_cor33, Dst)
+		    in  call 'erlang':'and'
+			    (_cor34, _cor35) ->
+	      %% Line 215
+	      apply 'forward'/4
+		  ([I|Is], _cor2, _cor1, _cor0)
+	  %% Line 216
+	  <[I = {'test','is_nil',_cor36,[Dst|[]]}|[{'move','nil',_cor37}|Is]],D,Lc,Acc>
+	      when call 'erlang':'=:='
+		    (_cor37,
+		     Dst) ->
+	      %% Line 217
+	      apply 'forward'/4
+		  ([I|Is], _cor2, _cor1, _cor0)
+	  %% Line 218
+	  <[I = {'test','is_eq_exact',_cor38,_cor39}|Is],D,Lc,Acc> when 'true' ->
+	      %% Line 219
+	      case Is of
+		%% Line 220
+		<[{'label',_cor40}|_cor41]> when 'true' ->
+		    apply 'forward'/4
+			(Is, _cor2, _cor1, [I|_cor0])
+		%% Line 221
+		<_cor42> when 'true' ->
+		    let <_cor11> =
+			call 'erlang':'+'
+			    (_cor1, 1)
+		    in  apply 'forward'/4
+			    (Is, _cor2, _cor11, [{'label',_cor1}|[I|_cor0]])
+	      end
+	  %% Line 223
+	  <[I = {'test','is_ne_exact',_cor43,_cor44}|Is],D,Lc,Acc> when 'true' ->
+	      %% Line 224
+	      case Is of
+		%% Line 225
+		<[{'label',_cor45}|_cor46]> when 'true' ->
+		    apply 'forward'/4
+			(Is, _cor2, _cor1, [I|_cor0])
+		%% Line 226
+		<_cor47> when 'true' ->
+		    let <_cor13> =
+			call 'erlang':'+'
+			    (_cor1, 1)
+		    in  apply 'forward'/4
+			    (Is, _cor2, _cor13, [{'label',_cor1}|[I|_cor0]])
+	      end
+	  %% Line 228
+	  <[I|Is],D,Lc,Acc> when 'true' ->
+	      %% Line 229
+	      apply 'forward'/4
+		  (Is, _cor2, _cor1, [I|_cor0])
+	  %% Line 230
+	  <[],_cor48,Lc,Acc> when 'true' ->
+	      {_cor0,_cor1}
+	  ( <_cor18,_cor17,_cor16,_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'forward',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'update_value_dict'/3 =
+    %% Line 232
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Lit|[{'f',Lbl}|T]],Reg,D0> when 'true' ->
+	      let <Key> = {Lbl,_cor1}
+	      in  let <_3158> =
+		      %% Line 234
+		      call 'gb_trees':'lookup'
+			  (Key, _cor0)
+		  in  let <_cor5> =
+			  %% Line 234
+			  case _3158 of
+			    %% Line 235
+			    <'none'> when 'true' ->
+				call 'gb_trees':'insert'
+				    (Key, Lit, _cor0)
+			    %% Line 236
+			    <{'value','inconsistent'}> when 'true' ->
+				_cor0
+			    %% Line 237
+			    <{'value',_cor10}> when 'true' ->
+				call 'gb_trees':'update'
+				    (Key, 'inconsistent', _cor0)
+			    ( <_cor4> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_3158})
+			      -| ['compiler_generated'] )
+			  end
+		      in  %% Line 239
+			  apply 'update_value_dict'/3
+			      (T, _cor1, _cor5)
+	  %% Line 240
+	  <[],_cor11,D> when 'true' ->
+	      _cor0
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'update_value_dict',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'backward'/3 =
+    %% Line 249
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[I = {'test','is_eq_exact',Fail,[Dst|[{'integer',Arity}|[]]]}|Is0 = %% Line 250
+									       [{'bif','tuple_size',_cor52,[Reg|[]],_cor53}|Is]],D,Acc>
+	      when let <_cor54> =
+		    call 'erlang':'=:='
+			(_cor52, Fail)
+		in  let <_cor55> =
+			call 'erlang':'=:='
+			    (_cor53, Dst)
+		    in  call 'erlang':'and'
+			    (_cor54, _cor55) ->
+	      let <_1026> =
+		  %% Line 259
+		  call 'beam_utils':'is_killed'
+		      (Dst, _cor0, _cor1)
+	      in  let <_cor6> =
+		      %% Line 259
+		      ( case _1026 of
+			  ( <( 'true'
+			       -| ['compiler_generated'] )> when 'true' ->
+				let <_cor4> =
+				    call 'erlang':'bsr'
+					(Arity, 32)
+				in  call 'erlang':'=:='
+					(_cor4, 0)
+			    -| ['compiler_generated'] )
+			  ( <( 'false'
+			       -| ['compiler_generated'] )> when 'true' ->
+				'false'
+			    -| ['compiler_generated'] )
+			  ( <_cor3> when 'true' ->
+				( call ( 'erlang'
+					 -| ['compiler_generated'] ):( 'error'
+								       -| ['compiler_generated'] )
+				      (( {( 'badarg'
+					    -| ['compiler_generated'] ),_1026}
+					 -| ['compiler_generated'] ))
+				  -| ['compiler_generated'] )
+			    -| ['compiler_generated'] )
+			end
+			-| ['compiler_generated'] )
+		  in  %% Line 259
+		      case _cor6 of
+			%% Line 260
+			<'false'> when 'true' ->
+			    %% Line 266
+			    apply 'backward'/3
+				(Is0, _cor1, [I|_cor0])
+			%% Line 267
+			<'true'> when 'true' ->
+			    %% Line 269
+			    apply 'backward'/3
+				([{'test','test_arity',Fail,[Reg|[Arity|[]]]}|%% Line 270
+									      [{'test','is_tuple',Fail,[Reg|[]]}|Is]], _cor1, _cor0)
+			( <_cor7> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 272
+	  <[L = {'label',Lbl}|Is],D,Acc> when 'true' ->
+	      let <_cor8> =
+		  %% Line 273
+		  call 'beam_utils':'index_label'
+		      (Lbl, _cor0, _cor1)
+	      in  %% Line 273
+		  apply 'backward'/3
+		      (Is, _cor8, [L|_cor0])
+	  %% Line 274
+	  <[{'select','select_val',Reg,{'f',Fail0},List0}|Is],D,Acc> when 'true' ->
+	      let <List> =
+		  %% Line 275
+		  apply 'shortcut_select_list'/4
+		      (List0, Reg, _cor1, [])
+	      in  let <_116> =
+		      %% Line 376
+		      call 'beam_utils':'code_at'
+			  (Fail0, _cor1)
+		  in  let <Fail1> =
+			  %% Line 376
+			  case _116 of
+			    %% Line 377
+			    <[{'jump',{'f',To}}|_cor5]> when 'true' ->
+				apply 'shortcut_label'/2
+				    (To, _cor1)
+			    %% Line 378
+			    <_cor6> when 'true' ->
+				Fail0
+			  end
+		      in  let <_cor3> =
+			      %% Line 497
+			      call 'beam_utils':'code_at'
+				  (Fail1, _cor1)
+			  in  let <Fail> =
+				  %% Line 497
+				  apply 'shortcut_bs_test_1'/4
+				      (_cor3, Is, Fail1, _cor1)
+			      in  let <Sel> =
+				      %% Line 278
+				      {'select','select_val',Reg,{'f',Fail},List}
+				  in  %% Line 279
+				      apply 'backward'/3
+					  (Is, _cor1, [Sel|_cor0])
+	  %% Line 280
+	  <[{'jump',{'f',To0}}|[Move0 = {'move',Src,Reg}|Is]],D,Acc> when 'true' ->
+	      let <To,Move> =
+		  %% Line 281
+		  case Src of
+		    %% Line 282
+		    <{'atom',Val0}> when 'true' ->
+			let <To1> =
+			    %% Line 283
+			    apply 'shortcut_select_label'/4
+				(To0, Reg, Val0, _cor1)
+			in  let <_3499> =
+				%% Line 284
+				apply 'shortcut_boolean_label'/4
+				    (To1, Reg, Val0, _cor1)
+			    in  %% Line 284
+				case _3499 of
+				  <{To2,Val}> when 'true' ->
+				      %% Line 285
+				      <To2,{'move',{'atom',Val},Reg}>
+				  ( <_cor14> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_3499})
+				    -| ['compiler_generated'] )
+				end
+		    %% Line 286
+		    <_cor56> when 'true' ->
+			let <_116> =
+			    %% Line 376
+			    call 'beam_utils':'code_at'
+				(To0, _cor1)
+			in  let <_cor15> =
+				%% Line 376
+				case _116 of
+				  %% Line 377
+				  <[{'jump',{'f',To}}|_cor5]> when 'true' ->
+				      apply 'shortcut_label'/2
+					  (To, _cor1)
+				  %% Line 378
+				  <_cor6> when 'true' ->
+				      To0
+				end
+			    in  <_cor15,Move0>
+		  end
+	      in  let <Jump> = {%% Line 289
+		       'jump',%% Line 289
+			      {'f',To}}
+		  in  let <_1483> =
+			  %% Line 290
+			  call 'beam_utils':'is_killed_at'
+			      (Reg, To, _cor1)
+		      in  %% Line 290
+			  case _1483 of
+			    %% Line 291
+			    <'false'> when 'true' ->
+				apply 'backward'/3
+				    ([Move|Is], _cor1, [Jump|_cor0])
+			    %% Line 292
+			    <'true'> when 'true' ->
+				apply 'backward'/3
+				    ([Jump|Is], _cor1, _cor0)
+			    ( <_cor20> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_1483})
+			      -| ['compiler_generated'] )
+			  end
+	  %% Line 294
+	  <[J = {'jump',{'f',To}}|Is0 = [{'bif',Op,_cor57,Ops,Reg}|Is]],D,Acc> when 'true' ->
+	      %% Line 295
+	      try
+		  apply 'replace_comp_op'/5
+		      (To, Reg, Op, Ops, _cor1)
+	      of <_cor21> ->
+		  let <_cor22> =
+		      %% Line 296
+		      call 'erlang':'++'
+			  (_cor21, _cor0)
+		  in  %% Line 296
+		      apply 'backward'/3
+			  (Is, _cor1, _cor22)
+	      catch <_cor26,_cor25,_cor24> ->
+		  case <_cor26,_cor25,_cor24> of
+		    %% Line 298
+		    <'throw','not_possible',_cor58> when 'true' ->
+			apply 'backward'/3
+			    (Is0, _cor1, [J|_cor0])
+		    ( <_3508,_3235,_1849> when 'true' ->
+			  primop 'raise'
+			      (_cor24, _cor25)
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 300
+	  <[{'test','bs_start_match2',{'f',To0},Live,Info = [Src|_cor59],Dst}|Is],D,Acc> when 'true' ->
+	      let <To> =
+		  %% Line 301
+		  apply 'shortcut_bs_start_match'/3
+		      (To0, Src, _cor1)
+	      in  let <I> =
+		      %% Line 302
+		      {'test','bs_start_match2',{'f',To},Live,Info,Dst}
+		  in  %% Line 303
+		      apply 'backward'/3
+			  (Is, _cor1, [I|_cor0])
+	  %% Line 304
+	  <[{'test','is_eq_exact',{'f',To0},Ops = [Reg|[{'atom',Val}|[]]]}|Is],D,Acc> when 'true' ->
+	      let <To1> =
+		  %% Line 305
+		  apply 'shortcut_bs_test'/3
+		      (To0, Is, _cor1)
+	      in  let <To> =
+		      %% Line 306
+		      apply 'shortcut_fail_label'/4
+			  (To1, Reg, Val, _cor1)
+		  in  let <I> =
+			  %% Line 307
+			  apply 'combine_eqs'/4
+			      (To, Ops, _cor1, _cor0)
+		      in  %% Line 308
+			  apply 'backward'/3
+			      (Is, _cor1, [I|_cor0])
+	  %% Line 309
+	  <[{'test',Op,{'f',To0},Ops0}|Is],D,Acc> when 'true' ->
+	      let <To1> =
+		  %% Line 310
+		  apply 'shortcut_bs_test'/3
+		      (To0, Is, _cor1)
+	      in  let <_116> =
+		      %% Line 376
+		      call 'beam_utils':'code_at'
+			  (To1, _cor1)
+		  in  let <To2> =
+			  %% Line 376
+			  case _116 of
+			    %% Line 377
+			    <[{'jump',{'f',To}}|_cor5]> when 'true' ->
+				apply 'shortcut_label'/2
+				    (To, _cor1)
+			    %% Line 378
+			    <_cor6> when 'true' ->
+				To1
+			  end
+		      in  let <_3383> =
+			      %% Line 318
+			      call 'beam_utils':'code_at'
+				  (To2, _cor1)
+			  in  let <_cor36> =
+				  %% Line 318
+				  case _3383 of
+				    %% Line 319
+				    <[{'test',_cor60,{'f',To3},Ops}|_cor61]>
+					when call 'erlang':'=:='
+					      (_cor60,
+					       Op) ->
+					let <_2893> =
+					    %% Line 320
+					    apply 'equal_ops'/2
+						(Ops0, Ops)
+					in  %% Line 320
+					    case _2893 of
+					      %% Line 321
+					      <'true'> when 'true' ->
+						  To3
+					      %% Line 322
+					      <'false'> when 'true' ->
+						  To2
+					      ( <_cor34> when 'true' ->
+						    primop 'match_fail'
+							({'case_clause',_2893})
+						-| ['compiler_generated'] )
+					    end
+				    %% Line 324
+				    <_X_Code> when 'true' ->
+					To2
+				  end
+			      in  let <_cor39> =
+				      %% Line 327
+				      case Op of
+					%% Line 328
+					<'is_eq_exact'> when 'true' ->
+					    apply 'combine_eqs'/4
+						(_cor36, Ops0, _cor1, _cor0)
+					%% Line 329
+					<_cor62> when 'true' ->
+					    {'test',Op,{'f',_cor36},Ops0}
+				      end
+				  in  %% Line 331
+				      apply 'backward'/3
+					  (Is, _cor1, [_cor39|_cor0])
+	  %% Line 332
+	  <[{'test',Op,{'f',To0},Live,Ops0,Dst}|Is],D,Acc> when 'true' ->
+	      let <To1> =
+		  %% Line 333
+		  apply 'shortcut_bs_test'/3
+		      (To0, Is, _cor1)
+	      in  let <_116> =
+		      %% Line 376
+		      call 'beam_utils':'code_at'
+			  (To1, _cor1)
+		  in  let <To2> =
+			  %% Line 376
+			  case _116 of
+			    %% Line 377
+			    <[{'jump',{'f',To}}|_cor5]> when 'true' ->
+				apply 'shortcut_label'/2
+				    (To, _cor1)
+			    %% Line 378
+			    <_cor6> when 'true' ->
+				To1
+			  end
+		      in  let <_2949> =
+			      %% Line 341
+			      call 'beam_utils':'code_at'
+				  (To2, _cor1)
+			  in  let <_cor45> =
+				  %% Line 341
+				  case _2949 of
+				    %% Line 342
+				    <[{'test',_cor63,{'f',To3},_cor64,Ops,_cor65}|_cor66]>
+					when call 'erlang':'=:='
+					      (_cor63,
+					       Op) ->
+					let <_1513> =
+					    %% Line 343
+					    apply 'equal_ops'/2
+						(Ops0, Ops)
+					in  %% Line 343
+					    case _1513 of
+					      %% Line 344
+					      <'true'> when 'true' ->
+						  To3
+					      %% Line 345
+					      <'false'> when 'true' ->
+						  To2
+					      ( <_cor43> when 'true' ->
+						    primop 'match_fail'
+							({'case_clause',_1513})
+						-| ['compiler_generated'] )
+					    end
+				    %% Line 347
+				    <_X_Code> when 'true' ->
+					To2
+				  end
+			      in  let <I> =
+				      %% Line 350
+				      {'test',Op,{'f',_cor45},Live,Ops0,Dst}
+				  in  %% Line 351
+				      apply 'backward'/3
+					  (Is, _cor1, [I|_cor0])
+	  %% Line 352
+	  <[I = {'kill',_cor67}|Is],D,Acc = [{'line',_cor68}|[Exit|_cor69]]> when 'true' ->
+	      let <_2064> =
+		  %% Line 353
+		  call 'beam_jump':'is_exit_instruction'
+		      (Exit)
+	      in  %% Line 353
+		  case _2064 of
+		    %% Line 354
+		    <'false'> when 'true' ->
+			apply 'backward'/3
+			    (Is, _cor1, [I|_cor0])
+		    %% Line 355
+		    <'true'> when 'true' ->
+			apply 'backward'/3
+			    (Is, _cor1, _cor0)
+		    ( <_cor48> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_2064})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 357
+	  <[I|Is],D,Acc> when 'true' ->
+	      %% Line 358
+	      apply 'backward'/3
+		  (Is, _cor1, [I|_cor0])
+	  %% Line 359
+	  <[],_X_D,Acc> when 'true' ->
+	      _cor0
+	  ( <_cor51,_cor50,_cor49> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'backward',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'equal_ops'/2 =
+    %% Line 361
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'field_flags',FlA0}|T0],[{'field_flags',FlB0}|T1]> when 'true' ->
+	      let <FlA> =
+		  %% Line 362
+		  call 'lists':'keydelete'
+		      ('anno', 1, FlA0)
+	      in  let <FlB> =
+		      %% Line 363
+		      call 'lists':'keydelete'
+			  ('anno', 1, FlB0)
+		  in  %% Line 364
+		      ( case <> of
+			  ( <>
+				when call 'erlang':'=:='
+				      (FlA,
+				       FlB) ->
+				apply 'equal_ops'/2
+				    (T0, T1)
+			    -| ['compiler_generated'] )
+			  ( <> when 'true' ->
+				'false'
+			    -| ['compiler_generated'] )
+			end
+			-| ['compiler_generated'] )
+	  %% Line 365
+	  <[Op|T0],[_cor8|T1]>
+	      when call 'erlang':'=:='
+		    (_cor8,
+		     Op) ->
+	      %% Line 366
+	      apply 'equal_ops'/2
+		  (T0, T1)
+	  %% Line 367
+	  <[],[]> when 'true' ->
+	      'true'
+	  %% Line 368
+	  <_cor9,_cor10> when 'true' ->
+	      'false'
+	end
+'shortcut_select_list'/4 =
+    %% Line 370
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[Lit = {_cor9,Val}|[{'f',To0}|T]],Reg,D,Acc> when 'true' ->
+	      let <To> =
+		  %% Line 371
+		  apply 'shortcut_select_label'/4
+		      (To0, _cor2, Val, _cor1)
+	      in  %% Line 372
+		  apply 'shortcut_select_list'/4
+		      (T, _cor2, _cor1, [{'f',To}|[Lit|_cor0]])
+	  %% Line 373
+	  <[],_cor10,_cor11,Acc> when 'true' ->
+	      call 'lists':'reverse'
+		  (_cor0)
+	  ( <_cor8,_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'shortcut_select_list',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'shortcut_label'/2 =
+    %% Line 375
+    fun (_cor1,_cor0) ->
+	%% Line 376
+	case call 'beam_utils':'code_at'
+		 (_cor1, _cor0) of
+	  %% Line 377
+	  <[{'jump',{'f',To}}|_cor5]> when 'true' ->
+	      apply 'shortcut_label'/2
+		  (To, _cor0)
+	  %% Line 378
+	  <_cor6> when 'true' ->
+	      _cor1
+	end
+'shortcut_select_label'/4 =
+    %% Line 381
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 382
+	case call 'beam_utils':'code_at'
+		 (_cor3, _cor0) of
+	  %% Line 383
+	  <[{'jump',{'f',To}}|_cor12]> when 'true' ->
+	      %% Line 384
+	      apply 'shortcut_select_label'/4
+		  (To, _cor2, _cor1, _cor0)
+	  %% Line 385
+	  <[{'test','is_atom',_cor13,[_cor14|[]]}|[{'select','select_val',_cor15,{'f',Fail},Map}|_cor16]]>
+	      when let <_cor17> =
+		    call 'erlang':'=:='
+			(_cor14, _cor2)
+		in  let <_cor18> =
+			call 'erlang':'=:='
+			    (_cor15, _cor2)
+		    in  call 'erlang':'and'
+			    (_cor17, _cor18) ->
+	      let <To> =
+		  %% Line 386
+		  apply 'find_select_val'/3
+		      (Map, _cor1, Fail)
+	      in  %% Line 387
+		  apply 'shortcut_select_label'/4
+		      (To, _cor2, _cor1, _cor0)
+	  %% Line 388
+	  <[{'test','is_eq_exact',{'f',_cor19},[_cor20|[{'atom',_cor21}|[]]]}|[{'label',To}|_cor22]]>
+	      when let <_cor25> =
+		    call 'erlang':'=:='
+			(_cor20, _cor2)
+		in  let <_cor23> =
+			call 'erlang':'=:='
+			    (_cor21, _cor1)
+		    in  let <_cor24> =
+			    call 'erlang':'is_atom'
+				(_cor1)
+			in  let <_cor26> =
+				call 'erlang':'and'
+				    (_cor23, _cor24)
+			    in  call 'erlang':'and'
+				    (_cor25, _cor26) ->
+	      %% Line 389
+	      apply 'shortcut_select_label'/4
+		  (To, _cor2, _cor1, _cor0)
+	  %% Line 390
+	  <[{'test','is_eq_exact',{'f',_cor27},[_cor28|[{'atom',_cor29}|[]]]}|[{'jump',{'f',To}}|_cor30]]>
+	      when let <_cor33> =
+		    call 'erlang':'=:='
+			(_cor28, _cor2)
+		in  let <_cor31> =
+			call 'erlang':'=:='
+			    (_cor29, _cor1)
+		    in  let <_cor32> =
+			    call 'erlang':'is_atom'
+				(_cor1)
+			in  let <_cor34> =
+				call 'erlang':'and'
+				    (_cor31, _cor32)
+			    in  call 'erlang':'and'
+				    (_cor33, _cor34) ->
+	      %% Line 391
+	      apply 'shortcut_select_label'/4
+		  (To, _cor2, _cor1, _cor0)
+	  %% Line 392
+	  <[{'test','is_eq_exact',{'f',To},[_cor35|[{'atom',AnotherVal}|[]]]}|_cor36]>
+	      when let <_cor37> =
+		    call 'erlang':'=:='
+			(_cor35, _cor2)
+		in  let <_cor5> =
+			%% Line 393
+			call 'erlang':'is_atom'
+			    (_cor1)
+		    in  let <_cor6> =
+			    %% Line 393
+			    call 'erlang':'=/='
+				(_cor1, AnotherVal)
+			in  let <_cor38> =
+				%% Line 393
+				call 'erlang':'and'
+				    (_cor5, _cor6)
+			    in  call 'erlang':'and'
+				    (_cor37, _cor38) ->
+	      %% Line 394
+	      apply 'shortcut_select_label'/4
+		  (To, _cor2, _cor1, _cor0)
+	  %% Line 395
+	  <[{'test','is_ne_exact',{'f',To},[_cor39|[{'atom',_cor40}|[]]]}|_cor41]>
+	      when let <_cor44> =
+		    call 'erlang':'=:='
+			(_cor39, _cor2)
+		in  let <_cor42> =
+			call 'erlang':'=:='
+			    (_cor40, _cor1)
+		    in  let <_cor43> =
+			    call 'erlang':'is_atom'
+				(_cor1)
+			in  let <_cor45> =
+				call 'erlang':'and'
+				    (_cor42, _cor43)
+			    in  call 'erlang':'and'
+				    (_cor44, _cor45) ->
+	      %% Line 396
+	      apply 'shortcut_select_label'/4
+		  (To, _cor2, _cor1, _cor0)
+	  %% Line 397
+	  <[{'test','is_ne_exact',{'f',_cor46},[_cor47|[{'atom',_cor48}|[]]]}|[{'label',To}|_cor49]]>
+	      when let <_cor50> =
+		    call 'erlang':'=:='
+			(_cor47, _cor2)
+		in  let <_cor51> =
+			call 'erlang':'is_atom'
+			    (_cor1)
+		    in  call 'erlang':'and'
+			    (_cor50, _cor51) ->
+	      %% Line 398
+	      apply 'shortcut_select_label'/4
+		  (To, _cor2, _cor1, _cor0)
+	  %% Line 399
+	  <[{'test','is_tuple',{'f',To},[_cor52|[]]}|_cor53]>
+	      when let <_cor54> =
+		    call 'erlang':'=:='
+			(_cor52, _cor2)
+		in  let <_cor55> =
+			call 'erlang':'is_atom'
+			    (_cor1)
+		    in  call 'erlang':'and'
+			    (_cor54, _cor55) ->
+	      %% Line 400
+	      apply 'shortcut_select_label'/4
+		  (To, _cor2, _cor1, _cor0)
+	  %% Line 401
+	  <_cor56> when 'true' ->
+	      _cor3
+	end
+'shortcut_fail_label'/4 =
+    %% Line 405
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 406
+	case call 'beam_utils':'code_at'
+		 (_cor3, _cor0) of
+	  %% Line 407
+	  <[{'jump',{'f',To}}|_cor9]> when 'true' ->
+	      %% Line 408
+	      apply 'shortcut_fail_label'/4
+		  (To, _cor2, _cor1, _cor0)
+	  %% Line 409
+	  <[{'test','is_eq_exact',{'f',To},[_cor10|[{'atom',_cor11}|[]]]}|_cor12]>
+	      when let <_cor15> =
+		    call 'erlang':'=:='
+			(_cor10, _cor2)
+		in  let <_cor13> =
+			call 'erlang':'=:='
+			    (_cor11, _cor1)
+		    in  let <_cor14> =
+			    call 'erlang':'is_atom'
+				(_cor1)
+			in  let <_cor16> =
+				call 'erlang':'and'
+				    (_cor13, _cor14)
+			    in  call 'erlang':'and'
+				    (_cor15, _cor16) ->
+	      %% Line 410
+	      apply 'shortcut_fail_label'/4
+		  (To, _cor2, _cor1, _cor0)
+	  %% Line 411
+	  <_cor17> when 'true' ->
+	      _cor3
+	end
+'shortcut_boolean_label'/4 =
+    %% Line 415
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <To0,Reg,Bool0,D>
+	      when call 'erlang':'is_boolean'
+		    (_cor1) ->
+	      %% Line 416
+	      case call 'beam_utils':'code_at'
+		       (_cor3, _cor0) of
+		%% Line 417
+		<[{'line',_cor11}|[{'bif','not',_cor12,[_cor13|[]],_cor14}|[{'jump',{'f',To}}|_cor15]]]>
+		    when let <_cor16> =
+			  call 'erlang':'=:='
+			      (_cor13, _cor2)
+		      in  let <_cor17> =
+			      call 'erlang':'=:='
+				  (_cor14, _cor2)
+			  in  call 'erlang':'and'
+				  (_cor16, _cor17) ->
+		    let <Bool> =
+			%% Line 418
+			call 'erlang':'not'
+			    (_cor1)
+		    in  let <_cor5> =
+			    %% Line 419
+			    apply 'shortcut_select_label'/4
+				(To, _cor2, Bool, _cor0)
+			in  %% Line 419
+			    {_cor5,Bool}
+		%% Line 420
+		<_cor18> when 'true' ->
+		    %% Line 421
+		    {_cor3,_cor1}
+	      end
+	  %% Line 423
+	  <To,_cor19,Bool,_cor20> when 'true' ->
+	      {_cor3,_cor1}
+	end
+'find_select_val'/3 =
+    %% Line 425
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[{_cor6,Val}|[{'f',To}|_cor7]],_cor8,_cor9>
+	      when call 'erlang':'=:='
+		    (_cor1,
+		     Val) ->
+	      To
+	  %% Line 426
+	  <[{_cor10,_cor11}|[{'f',_cor12}|T]],Val,Fail> when 'true' ->
+	      %% Line 427
+	      apply 'find_select_val'/3
+		  (T, _cor1, _cor0)
+	  %% Line 428
+	  <[],_cor13,Fail> when 'true' ->
+	      _cor0
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'find_select_val',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'replace_comp_op'/5 =
+    %% Line 430
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <False> =
+	    %% Line 431
+	    apply 'comp_op_find_shortcut'/4
+		(_cor4, _cor3, 'false', _cor0)
+	in  let <True> =
+		%% Line 432
+		apply 'comp_op_find_shortcut'/4
+		    (_cor4, _cor3, 'true', _cor0)
+	    in  let <_cor7> =
+		    %% Line 447
+		    try
+			%% Line 448
+			call 'beam_utils':'bif_to_test'
+			    (_cor2, _cor1, {'f',False})
+		    of <_191> ->
+			_191
+		    catch <_cor6,_cor5,_3053> ->
+			case <_cor6,_cor5,_3053> of
+			  %% Line 450
+			  <'error',_cor10,_cor11> when 'true' ->
+			      %% Line 453
+			      call 'erlang':'throw'
+				  ('not_possible')
+			  ( <_995,_1937,_1777> when 'true' ->
+				primop 'raise'
+				    (_3053, _cor5)
+			    -| ['compiler_generated'] )
+			end
+		in  %% Line 433
+		    [_cor7|[{'jump',{'f',True}}|[]]]
+'comp_op_find_shortcut'/4 =
+    %% Line 435
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_909> =
+	    %% Line 436
+	    apply 'shortcut_select_label'/4
+		(_cor3, _cor2, _cor1, _cor0)
+	in  %% Line 436
+	    case _909 of
+	      %% Line 437
+	      <_cor10>
+		  when call 'erlang':'=:='
+			(_909,
+			 _cor3) ->
+		  %% Line 453
+		  call 'erlang':'throw'
+		      ('not_possible')
+	      %% Line 439
+	      <To> when 'true' ->
+		  let <_83> =
+		      %% Line 440
+		      call 'beam_utils':'is_killed_at'
+			  (_cor2, _909, _cor0)
+		  in  %% Line 440
+		      case _83 of
+			%% Line 441
+			<'false'> when 'true' ->
+			    %% Line 453
+			    call 'erlang':'throw'
+				('not_possible')
+			%% Line 442
+			<'true'> when 'true' ->
+			    _909
+			( <_cor4> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_83})
+			  -| ['compiler_generated'] )
+		      end
+	    end
+'combine_eqs'/4 =
+    %% Line 470
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <To,Ops = [Reg|[Lit1 = {Type,_cor12}|[]]],D,[{'label',L1}|_cor13]>
+	      when let <_cor4> =
+		    %% Line 471
+		    call 'erlang':'=:='
+			(Type, 'atom')
+		in  let <_cor5> =
+			%% Line 471
+			call 'erlang':'=:='
+			    (Type, 'integer')
+		    in  %% Line 471
+			call 'erlang':'or'
+			    (_cor4, _cor5) ->
+	      %% Line 472
+	      case call 'beam_utils':'code_at'
+		       (_cor3, _cor1) of
+		%% Line 473
+		<[{'test','is_eq_exact',{'f',F2},[_cor14|[Lit2 = {_cor15,_cor16}|[]]]}|%% Line 474
+										       [{'label',L2}|_cor17]]>
+		    when let <_cor20> =
+			  call 'erlang':'=:='
+			      (_cor14, Reg)
+		      in  let <_cor18> =
+			      call 'erlang':'=:='
+				  (_cor15, Type)
+			  in  let <_cor19> =
+				  %% Line 474
+				  call 'erlang':'=/='
+				      (Lit1, Lit2)
+			      in  let <_cor21> =
+				      call 'erlang':'and'
+					  (_cor18, _cor19)
+				  in  call 'erlang':'and'
+					  (_cor20, _cor21) ->
+		    %% Line 475
+		    {'select','select_val',Reg,{'f',F2},[Lit1|[{'f',L1}|[Lit2|[{'f',L2}|[]]]]]}
+		%% Line 476
+		<[{'select','select_val',_cor22,{'f',F2},List0 = [{_cor23,_cor24}|_cor25]}|_cor26]>
+		    when let <_cor27> =
+			  call 'erlang':'=:='
+			      (_cor22, Reg)
+		      in  let <_cor28> =
+			      call 'erlang':'=:='
+				  (_cor23, Type)
+			  in  call 'erlang':'and'
+				  (_cor27, _cor28) ->
+		    let <List> =
+			%% Line 477
+			apply 'remove_from_list'/2
+			    (Lit1, List0)
+		    in  %% Line 478
+			{'select','select_val',Reg,{'f',F2},[Lit1|[{'f',L1}|List]]}
+		%% Line 479
+		<_X_Is> when 'true' ->
+		    %% Line 480
+		    {'test','is_eq_exact',{'f',_cor3},_cor2}
+	      end
+	  %% Line 482
+	  <To,Ops,_X_D,_X_Acc> when 'true' ->
+	      %% Line 483
+	      {'test','is_eq_exact',{'f',_cor3},_cor2}
+	end
+'remove_from_list'/2 =
+    %% Line 485
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Lit,[_cor5|[{'f',_cor6}|T]]>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     _cor1) ->
+	      T
+	  %% Line 487
+	  <Lit,[Val|[Fail = {'f',_cor7}|T]]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 488
+		  apply 'remove_from_list'/2
+		      (_cor1, T)
+	      in  %% Line 488
+		  [Val|[Fail|_cor2]]
+	  %% Line 489
+	  <_cor8,[]> when 'true' ->
+	      []
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'remove_from_list',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'shortcut_bs_test'/3 =
+    %% Line 496
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 497
+	    call 'beam_utils':'code_at'
+		(_cor2, _cor0)
+	in  %% Line 497
+	    apply 'shortcut_bs_test_1'/4
+		(_cor3, _cor1, _cor2, _cor0)
+'shortcut_bs_test_1'/4 =
+    %% Line 499
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[{'bs_restore2',Reg,SavePoint}|Is],PrevIs,To,D> when 'true' ->
+	      %% Line 500
+	      apply 'shortcut_bs_test_2'/5
+		  (Is, {Reg,SavePoint}, _cor2, _cor1, _cor0)
+	  %% Line 501
+	  <[_cor8|_cor9],_cor10,To,_cor11> when 'true' ->
+	      _cor1
+	  ( <_cor7,_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'shortcut_bs_test_1',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'shortcut_bs_test_2'/5 =
+    %% Line 503
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[{'label',_cor12}|Is],Save,PrevIs,To,D> when 'true' ->
+	      %% Line 504
+	      apply 'shortcut_bs_test_2'/5
+		  (Is, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 505
+	  <[{'test','bs_test_tail2',{'f',To},[_cor13|[TailBits|[]]]}|_cor14],RP = %% Line 506
+										  {Reg,_X_Point},PrevIs,To0,D> when 'true' ->
+	      let <_2550> =
+		  %% Line 507
+		  apply 'count_bits_matched'/3
+		      (_cor2, _cor3, 0)
+	      in  %% Line 507
+		  case _2550 of
+		    %% Line 508
+		    <Bits>
+			when call 'erlang':'>'
+			      (_2550,
+			       TailBits) ->
+			let <_1003> =
+			    %% Line 516
+			    apply 'shortcut_bs_pos_used'/3
+				(To, Reg, _cor0)
+			in  %% Line 516
+			    case _1003 of
+			      %% Line 517
+			      <'false'> when 'true' ->
+				  To
+			      %% Line 518
+			      <'true'> when 'true' ->
+				  _cor1
+			      ( <_cor5> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_1003})
+				-| ['compiler_generated'] )
+			    end
+		    %% Line 520
+		    <_X_Bits> when 'true' ->
+			_cor1
+		  end
+	  %% Line 523
+	  <[_cor15|_cor16],_cor17,_cor18,To,_cor19> when 'true' ->
+	      _cor1
+	  ( <_cor11,_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'shortcut_bs_test_2',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'count_bits_matched'/3 =
+    %% Line 525
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[{'test',_cor10,_cor11,_cor12,[_cor13|[Sz|[U|[{'field_flags',_cor14}|[]]]]],_cor15}|Is],SavePoint,Bits> when 'true' ->
+	      %% Line 526
+	      case Sz of
+		%% Line 527
+		<{'integer',N}> when 'true' ->
+		    let <_cor3> =
+			call 'erlang':'*'
+			    (N, U)
+		    in  let <_cor4> =
+			    call 'erlang':'+'
+				(_cor0, _cor3)
+			in  apply 'count_bits_matched'/3
+				(Is, _cor1, _cor4)
+		%% Line 528
+		<_cor16> when 'true' ->
+		    apply 'count_bits_matched'/3
+			(Is, _cor1, _cor0)
+	      end
+	  %% Line 530
+	  <[{'test','bs_match_string',_cor17,[_cor18|[Bits|[_cor19|[]]]]}|Is],SavePoint,Bits0> when 'true' ->
+	      let <_cor6> =
+		  %% Line 531
+		  call 'erlang':'+'
+		      (_cor0, Bits)
+	      in  %% Line 531
+		  apply 'count_bits_matched'/3
+		      (Is, _cor1, _cor6)
+	  %% Line 532
+	  <[{'test',_cor20,_cor21,_cor22}|Is],SavePoint,Bits> when 'true' ->
+	      %% Line 533
+	      apply 'count_bits_matched'/3
+		  (Is, _cor1, _cor0)
+	  %% Line 534
+	  <[{'bs_save2',Reg,SavePoint}|_cor23],{_cor24,_cor25},Bits>
+	      when let <_cor26> =
+		    call 'erlang':'=:='
+			(_cor24, Reg)
+		in  let <_cor27> =
+			call 'erlang':'=:='
+			    (_cor25, SavePoint)
+		    in  call 'erlang':'and'
+			    (_cor26, _cor27) ->
+	      _cor0
+	  %% Line 537
+	  <[_cor28|_cor29],_cor30,Bits> when 'true' ->
+	      _cor0
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'count_bits_matched',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'shortcut_bs_pos_used'/3 =
+    %% Line 539
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 540
+	    call 'beam_utils':'code_at'
+		(_cor2, _cor0)
+	in  %% Line 542
+	    case <_cor3,_cor1,_cor0> of
+	      <[{'bs_context_to_binary',Reg}|_cor7],_cor8,_cor9>
+		  when call 'erlang':'=:='
+			(_cor1,
+			 Reg) ->
+		  %% Line 543
+		  'false'
+	      %% Line 544
+	      <Is,Reg,D> when 'true' ->
+		  let <_127> =
+		      %% Line 545
+		      call 'beam_utils':'is_killed'
+			  (_cor1, _cor3, _cor0)
+		  in  %% Line 545
+		      call 'erlang':'not'
+			  (_127)
+	    end
+'shortcut_bs_start_match'/3 =
+    %% Line 552
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 553
+	    call 'beam_utils':'code_at'
+		(_cor2, _cor0)
+	in  %% Line 555
+	    case <_cor3,_cor1,_cor2> of
+	      <[{'bs_context_to_binary',Reg}|Is],_cor6,To>
+		  when call 'erlang':'=:='
+			(_cor1,
+			 Reg) ->
+		  %% Line 556
+		  apply 'shortcut_bs_start_match_2'/3
+		      (Is, Reg, _cor2)
+	      %% Line 557
+	      <_cor7,_cor8,To> when 'true' ->
+		  _cor2
+	    end
+'shortcut_bs_start_match_2'/3 =
+    %% Line 559
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[{'jump',{'f',To}}|_cor6],_cor7,_cor8> when 'true' ->
+	      To
+	  %% Line 561
+	  <[{'test','bs_start_match2',{'f',To},_cor9,[Reg|_cor10],_cor11}|_cor12],_cor13,_cor14>
+	      when call 'erlang':'=:='
+		    (_cor1,
+		     Reg) ->
+	      To
+	  %% Line 563
+	  <_X_Is,_X_Reg,To> when 'true' ->
+	      _cor0
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('beam_dead')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('beam_dead', _cor0)
+end

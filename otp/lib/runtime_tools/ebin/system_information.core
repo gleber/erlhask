@@ -1,0 +1,2235 @@
+module 'system_information' ['application'/1,
+			     'application'/2,
+			     'applications'/0,
+			     'applications'/1,
+			     'code_change'/3,
+			     'environment'/0,
+			     'environment'/1,
+			     'from_file'/1,
+			     'handle_call'/3,
+			     'handle_cast'/2,
+			     'handle_info'/2,
+			     'init'/1,
+			     'load_report'/0,
+			     'load_report'/2,
+			     'module'/1,
+			     'module'/2,
+			     'module_info'/0,
+			     'module_info'/1,
+			     'modules'/1,
+			     'report'/0,
+			     'sanity_check'/0,
+			     'start'/0,
+			     'stop'/0,
+			     'terminate'/2,
+			     'to_file'/1]
+    attributes [%% Line 27
+		'behaviour' =
+		    %% Line 27
+		    ['gen_server'],
+		%% Line 61
+		'type' =
+		    %% Line 61
+		    [{{'record','state'},[{'record_field',62,{'atom',62,'report'}}],[]}],
+		%% Line 93
+		'spec' =
+		    %% Line 93
+		    [{{'to_file',1},[{'type',93,'bounded_fun',[{'type',93,'fun',[{'type',93,'product',[{'var',93,'FileName'}]}|[{'type',93,'union',[{'atom',93,'ok'}|[{'type',93,'tuple',[{'atom',93,'error'}|[{'var',93,'Reason'}]]}]]}]]}|[[{'type',94,'constraint',[{'atom',94,'is_subtype'}|[[{'var',94,'FileName'}|[{'remote_type',94,[{'atom',94,'file'}|[{'atom',94,'name_all'}|[[]]]]}]]]]}|[{'type',95,'constraint',[{'atom',95,'is_subtype'}|[[{'var',95,'Reason'}|[{'type',95,'union',[{'remote_type',95,[{'atom',95,'file'}|[{'atom',95,'posix'}|[[]]]]}|[{'atom',95,'badarg'}|[{'atom',95,'terminated'}|[{'atom',95,'system_limit'}]]]]}]]]]}]]]]}]}],
+		%% Line 140
+		'spec' =
+		    %% Line 140
+		    [{{'sanity_check',0},[{'type',140,'bounded_fun',[{'type',140,'fun',[{'type',140,'product',[]}|[{'type',140,'union',[{'atom',140,'ok'}|[{'type',140,'tuple',[{'atom',140,'failed'}|[{'var',140,'Failures'}]]}]]}]]}|[[{'type',141,'constraint',[{'atom',141,'is_subtype'}|[[{'var',141,'Application'}|[{'type',141,'atom',[]}]]]]}|[{'type',142,'constraint',[{'atom',142,'is_subtype'}|[[{'var',142,'ApplicationVersion'}|[{'type',142,'string',[]}]]]]}|[{'type',143,'constraint',[{'atom',143,'is_subtype'}|[[{'var',143,'MissingRuntimeDependencies'}|[{'type',143,'tuple',[{'atom',143,'missing_runtime_dependencies'}|[{'var',144,'ApplicationVersion'}|[{'type',145,'list',[{'var',145,'ApplicationVersion'}]}]]]}]]]]}|[{'type',146,'constraint',[{'atom',146,'is_subtype'}|[[{'var',146,'InvalidApplicationVersion'}|[{'type',146,'tuple',[{'atom',146,'invalid_application_version'}|[{'var',147,'ApplicationVersion'}]]}]]]]}|[{'type',148,'constraint',[{'atom',148,'is_subtype'}|[[{'var',148,'InvalidAppFile'}|[{'type',148,'tuple',[{'atom',148,'invalid_app_file'}|[{'var',148,'Application'}]]}]]]]}|[{'type',149,'constraint',[{'atom',149,'is_subtype'}|[[{'var',149,'Failure'}|[{'type',149,'union',[{'var',149,'MissingRuntimeDependencies'}|[{'var',150,'InvalidApplicationVersion'}|[{'var',151,'InvalidAppFile'}]]]}]]]]}|[{'type',152,'constraint',[{'atom',152,'is_subtype'}|[[{'var',152,'Failures'}|[{'type',152,'list',[{'var',152,'Failure'}]}]]]]}]]]]]]]]]}]}]]
+'start'/0 =
+    %% Line 69
+    fun () ->
+	%% Line 70
+	call 'gen_server':'start'
+	    ({'local','system_information'}, 'system_information', [], [])
+'stop'/0 =
+    %% Line 72
+    fun () ->
+	%% Line 73
+	call 'gen_server':'call'
+	    ('system_information', 'stop')
+'load_report'/0 =
+    %% Line 75
+    fun () ->
+	let <_cor0> =
+	    apply 'report'/0
+		()
+	in  apply 'load_report'/2
+		('data', _cor0)
+'load_report'/2 =
+    %% Line 77
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'file',File> when 'true' ->
+	      let <_cor2> =
+		  apply 'from_file'/1
+		      (File)
+	      in  apply 'load_report'/2
+		      ('data', _cor2)
+	  %% Line 78
+	  <'data',Report> when 'true' ->
+	      do  %% Line 79
+		  apply 'start'/0
+		      ()
+		  %% Line 79
+		  call 'gen_server':'call'
+		      ('system_information', {'load_report',Report})
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'load_report',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'report'/0 =
+    %% Line 81
+    fun () ->
+	let <_cor0> =
+	    %% Line 82
+	    call 'init':'get_arguments'
+		()
+	in  let <_cor1> =
+		%% Line 83
+		call 'code':'get_path'
+		    ()
+	    in  let <_cor2> =
+		    %% Line 84
+		    apply 'code'/0
+			()
+		in  let <_cor3> =
+			%% Line 85
+			apply 'erlang_system_info'/0
+			    ()
+		    in  let <_cor4> =
+			    %% Line 86
+			    call 'erlang':'system_info'
+				('compile_info')
+			in  let <_cor5> =
+				%% Line 87
+				apply 'get_dynamic_libraries'/0
+				    ()
+			    in  let <_cor6> =
+				    %% Line 88
+				    apply 'os_getenv_erts_specific'/0
+					()
+				in  let <_cor13> =
+					%% Line 89
+					( letrec
+					      'lc$^0'/1 =
+						  fun (_cor10) ->
+						      case _cor10 of
+							<[Env|_cor8]> when 'true' ->
+							    let <_cor11> =
+								apply 'split_env'/1
+								    (Env)
+							    in  let <_cor12> =
+								    apply 'lc$^0'/1
+									(_cor8)
+								in  ( [_cor11|_cor12]
+								      -| ['compiler_generated'] )
+							<[]> when 'true' ->
+							    []
+							( <_cor10> when 'true' ->
+							      ( primop 'match_fail'
+								    ({'function_clause',_cor10})
+								-| [{'function_name',{'lc$^0',1}}] )
+							  -| ['compiler_generated'] )
+						      end
+					  in  let <_cor9> =
+						  call 'os':'getenv'
+						      ()
+					      in  apply 'lc$^0'/1
+						      (_cor9)
+					  -| ['list_comprehension'] )
+				    in  let <_cor14> =
+					    %% Line 90
+					    apply 'sanity_check'/0
+						()
+					in  [%% Line 82
+					     {'init_arguments',_cor0}|%% Line 83
+								      [{'code_paths',_cor1}|%% Line 84
+											    [{'code',_cor2}|%% Line 85
+													    [{'system_info',_cor3}|%% Line 86
+																   [{'erts_compile_info',_cor4}|%% Line 87
+																				[{'beam_dynamic_libraries',_cor5}|%% Line 88
+																								  [{'environment_erts',_cor6}|%% Line 89
+																											      [{'environment',_cor13}|%% Line 90
+																														      [{'sanity_check',_cor14}|%% Line 91
+																																	       []]]]]]]]]]
+'to_file'/1 =
+    %% Line 97
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 99
+	    call 'io_lib':'format'
+		([123|[115|[121|[115|[116|[101|[109|[95|[105|[110|[102|[111|[114|[109|[97|[116|[105|[111|[110|[95|[118|[101|[114|[115|[105|[111|[110|[44|[32|[126|[112|[125|[46|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [[49|[46|[48]]]])
+	in  let <_cor2> =
+		%% Line 103
+		apply 'report'/0
+		    ()
+	    in  let <_cor3> =
+		    %% Line 102
+		    call 'io_lib':'format'
+			([123|[115|[121|[115|[116|[101|[109|[95|[105|[110|[102|[111|[114|[109|[97|[116|[105|[111|[110|[44|[32|[126|[112|[125|[46|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]], [_cor2|%% Line 104
+																							      []])
+		in  let <_cor4> =
+			%% Line 98
+			call 'erlang':'iolist_to_binary'
+			    ([_cor1|%% Line 102
+				    [_cor3|%% Line 105
+					   []]])
+		    in  %% Line 98
+			call 'file':'write_file'
+			    (_cor0, _cor4)
+'from_file'/1 =
+    %% Line 107
+    fun (_cor0) ->
+	%% Line 108
+	case call 'file':'consult'
+		 (_cor0) of
+	  %% Line 109
+	  <{'ok',Data}> when 'true' ->
+	      %% Line 110
+	      case apply 'get_value'/2
+		       (['system_information_version'], Data) of
+		%% Line 111
+		<[49|[46|[48]]]> when 'true' ->
+		    %% Line 112
+		    apply 'get_value'/2
+			(['system_information'], Data)
+		%% Line 113
+		<Vsn> when 'true' ->
+		    %% Line 114
+		    call 'erlang':'error'
+			({'unknown_version',Vsn})
+	      end
+	  %% Line 116
+	  <_cor4> when 'true' ->
+	      %% Line 117
+	      call 'erlang':'error'
+		  ('bad_report_file')
+	end
+'applications'/0 =
+    %% Line 120
+    fun () ->
+	apply 'applications'/1
+	    ([])
+'applications'/1 =
+    %% Line 121
+    fun (_cor0) ->
+	case _cor0 of
+	  <Opts>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      %% Line 122
+	      call 'gen_server':'call'
+		  ('system_information', {'applications',Opts})
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'applications',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'application'/1 =
+    %% Line 124
+    fun (_cor0) ->
+	case _cor0 of
+	  <App>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      apply 'application'/2
+		  (App, [])
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'application',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'application'/2 =
+    %% Line 125
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <App,Opts>
+	      when let <_cor2> =
+		    call 'erlang':'is_atom'
+			(App)
+		in  let <_cor3> =
+			call 'erlang':'is_list'
+			    (Opts)
+		    in  call 'erlang':'and'
+			    (_cor2, _cor3) ->
+	      %% Line 126
+	      call 'gen_server':'call'
+		  ('system_information', {'application',App,Opts})
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'application',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'environment'/0 =
+    %% Line 128
+    fun () ->
+	apply 'environment'/1
+	    ([])
+'environment'/1 =
+    %% Line 129
+    fun (_cor0) ->
+	case _cor0 of
+	  <Opts>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      %% Line 130
+	      call 'gen_server':'call'
+		  ('system_information', {'environment',Opts})
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'environment',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'module'/1 =
+    %% Line 132
+    fun (_cor0) ->
+	case _cor0 of
+	  <M>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      apply 'module'/2
+		  (M, [])
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'module',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'module'/2 =
+    %% Line 133
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <M,Opts>
+	      when let <_cor2> =
+		    call 'erlang':'is_atom'
+			(M)
+		in  let <_cor3> =
+			call 'erlang':'is_list'
+			    (Opts)
+		    in  call 'erlang':'and'
+			    (_cor2, _cor3) ->
+	      %% Line 134
+	      call 'gen_server':'call'
+		  ('system_information', {'module',M,Opts})
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'module',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'modules'/1 =
+    %% Line 136
+    fun (_cor0) ->
+	case _cor0 of
+	  <Opt>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      %% Line 137
+	      call 'gen_server':'call'
+		  ('system_information', {'modules',Opt})
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'modules',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'sanity_check'/0 =
+    %% Line 154
+    fun () ->
+	%% Line 155
+	case apply 'check_runtime_dependencies'/0
+		 () of
+	  %% Line 156
+	  <[]> when 'true' ->
+	      'ok'
+	  %% Line 157
+	  <Issues> when 'true' ->
+	      {'failed',Issues}
+	end
+'init'/1 =
+    %% Line 164
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 165
+	      {'ok',{'state','undefined'}}
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_call'/3 =
+    %% Line 167
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'stop',_X_From,S> when 'true' ->
+	      %% Line 168
+	      {'stop','normal','ok',S}
+	  %% Line 170
+	  <{'load_report',Report},_X_From,S> when 'true' ->
+	      let <Version> =
+		  %% Line 171
+		  apply 'get_value'/2
+		      (['system_info'|['system_version']], Report)
+	      in  do  %% Line 172
+		      call 'io':'format'
+			  ([76|[111|[97|[100|[101|[100|[32|[114|[101|[112|[111|[114|[116|[32|[102|[114|[111|[109|[32|[115|[121|[115|[116|[101|[109|[32|[118|[101|[114|[115|[105|[111|[110|[58|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Version|[]])
+		      %% Line 173
+		      case S of
+			<{'state',_rec1}> when 'true' ->
+			    let <_cor6> = {'state',Report}
+			    in  {'reply','ok',_cor6}
+			( <_cor29> when 'true' ->
+			      ( call ( 'erlang'
+				       -| ['compiler_generated'] ):( 'error'
+								     -| ['compiler_generated'] )
+				    (( {'badrecord','state'}
+				       -| ['compiler_generated'] ))
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 175
+	  <_X_Req,_X_From,S = {'state','undefined'}> when 'true' ->
+	      %% Line 176
+	      {'reply',{'error','report_not_loaded'},S}
+	  %% Line 178
+	  <{'applications',Opts},_X_From,S = {'state',Report}> when 'true' ->
+	      let <_cor7> =
+		  %% Line 179
+		  apply 'get_value'/2
+		      (['code'], Report)
+	      in  %% Line 179
+		  case apply 'print_applications'/2
+			   (_cor7, Opts) of
+		    <'ok'> when 'true' ->
+			%% Line 180
+			{'reply','ok',S}
+		    ( <_cor8> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor8})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 182
+	  <{'application',App,Opts},_X_From,S = {'state',Report}> when 'true' ->
+	      let <_cor14> =
+		  %% Line 183
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor12) ->
+				case _cor12 of
+				  <[{'application',AppInfo}|_cor10]> when 'true' ->
+				      let <_cor13> =
+					  apply 'lc$^0'/1
+					      (_cor10)
+				      in  ( [AppInfo|_cor13]
+					    -| ['compiler_generated'] )
+				  ( <[_cor9|_cor10]> when 'true' ->
+					apply 'lc$^0'/1
+					    (_cor10)
+				    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor12> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor12})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  let <_cor11> =
+			    apply 'get_value'/2
+				(['code'], Report)
+			in  apply 'lc$^0'/1
+				(_cor11)
+		    -| ['list_comprehension'] )
+	      in  let <Data> =
+		      %% Line 183
+		      apply 'get_value'/2
+			  ([App|[]], _cor14)
+		  in  %% Line 184
+		      case apply 'print_application'/2
+			       ({App,Data}, Opts) of
+			<'ok'> when 'true' ->
+			    %% Line 185
+			    {'reply','ok',S}
+			( <_cor16> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor16})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 188
+	  <{'environment',Opts},_X_From,S = {'state',Report}> when 'true' ->
+	      let <_cor18> =
+		  %% Line 189
+		  case call 'proplists':'get_bool'
+			   ('full', Opts) of
+		    %% Line 190
+		    <'true'> when 'true' ->
+			['environment']
+		    %% Line 191
+		    <'false'> when 'true' ->
+			['environment_erts']
+		    ( <_cor17> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor17})
+		      -| ['compiler_generated'] )
+		  end
+	      in  let <_cor20> =
+		      %% Line 193
+		      apply 'get_value'/2
+			  (_cor18, Report)
+		  in  %% Line 193
+		      case apply 'print_environments'/2
+			       (_cor20, Opts) of
+			<'ok'> when 'true' ->
+			    %% Line 194
+			    {'reply','ok',S}
+			( <_cor21> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor21})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 197
+	  <{'module',M,Opts},_X_From,S = {'state',Report}> when 'true' ->
+	      let <_cor22> =
+		  %% Line 198
+		  apply 'get_value'/2
+		      (['code'], Report)
+	      in  let <Mods> =
+		      %% Line 198
+		      apply 'find_modules_from_code'/2
+			  (M, _cor22)
+		  in  do  %% Line 199
+			  apply 'print_modules_from_code'/3
+			      (M, Mods, Opts)
+			  %% Line 200
+			  {'reply','ok',S}
+	  %% Line 202
+	  <{'modules','native'},_X_From,S = {'state',Report}> when 'true' ->
+	      let <_cor24> =
+		  %% Line 203
+		  apply 'get_value'/2
+		      (['code'], Report)
+	      in  let <Codes> =
+		      %% Line 203
+		      apply 'get_native_modules_from_code'/1
+			  (_cor24)
+		  in  do  %% Line 204
+			  call 'io':'format'
+			      ([126|[112|[126|[110]]]], [Codes|[]])
+			  %% Line 205
+			  {'reply','ok',S}
+	  %% Line 208
+	  <_X_Request,_X_From,State> when 'true' ->
+	      %% Line 209
+	      {'reply','ok',State}
+	end
+'handle_cast'/2 =
+    %% Line 211
+    fun (_cor1,_cor0) ->
+	%% Line 212
+	{'noreply',_cor0}
+'handle_info'/2 =
+    %% Line 214
+    fun (_cor1,_cor0) ->
+	%% Line 215
+	{'noreply',_cor0}
+'terminate'/2 =
+    %% Line 217
+    fun (_cor1,_cor0) ->
+	%% Line 218
+	'ok'
+'code_change'/3 =
+    %% Line 220
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 221
+	{'ok',_cor1}
+'get_value'/2 =
+    %% Line 229
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Data> when 'true' ->
+	      Data
+	  %% Line 230
+	  <[K|Ks],Data> when 'true' ->
+	      let <_cor2> =
+		  %% Line 231
+		  call 'proplists':'get_value'
+		      (K, Data, [])
+	      in  %% Line 231
+		  apply 'get_value'/2
+		      (Ks, _cor2)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'get_value',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'find_modules_from_code'/2 =
+    %% Line 233
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <M,[{'code',Info}|Codes]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 234
+		  apply 'get_value'/2
+		      (['modules'], Info)
+	      in  %% Line 234
+		  case apply 'find_modules'/2
+			   (M, _cor2) of
+		    %% Line 235
+		    <[]> when 'true' ->
+			apply 'find_modules_from_code'/2
+			    (M, Codes)
+		    %% Line 236
+		    <Mods> when 'true' ->
+			let <Path> =
+			    %% Line 237
+			    apply 'get_value'/2
+				(['path'], Info)
+			in  let <_cor4> =
+				%% Line 238
+				apply 'find_modules_from_code'/2
+				    (M, Codes)
+			    in  %% Line 238
+				[{Path,Mods}|_cor4]
+		  end
+	  %% Line 240
+	  <M,[{'application',{App,Info}}|Codes]> when 'true' ->
+	      let <_cor6> =
+		  %% Line 241
+		  apply 'get_value'/2
+		      (['modules'], Info)
+	      in  %% Line 241
+		  case apply 'find_modules'/2
+			   (M, _cor6) of
+		    %% Line 242
+		    <[]> when 'true' ->
+			apply 'find_modules_from_code'/2
+			    (M, Codes)
+		    %% Line 243
+		    <Mods> when 'true' ->
+			let <Path> =
+			    %% Line 244
+			    apply 'get_value'/2
+				(['path'], Info)
+			in  let <Vsn> =
+				%% Line 245
+				apply 'get_value'/2
+				    (['vsn'], Info)
+			    in  let <_cor9> =
+				    %% Line 246
+				    apply 'find_modules_from_code'/2
+					(M, Codes)
+				in  %% Line 246
+				    [{App,Vsn,Path,Mods}|_cor9]
+		  end
+	  %% Line 248
+	  <_cor13,[]> when 'true' ->
+	      []
+	  ( <_cor12,_cor11> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11})
+		  -| [{'function_name',{'find_modules_from_code',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'find_modules'/2 =
+    %% Line 250
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <M,[Info = {_cor5,_cor6}|Ms]>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     M) ->
+	      let <_cor2> =
+		  apply 'find_modules'/2
+		      (M, Ms)
+	      in  [Info|_cor2]
+	  %% Line 251
+	  <M,[_cor7|Ms]> when 'true' ->
+	      apply 'find_modules'/2
+		  (M, Ms)
+	  %% Line 252
+	  <_cor8,[]> when 'true' ->
+	      []
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'find_modules',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_native_modules_from_code'/1 =
+    %% Line 254
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{'application',{App,Info}}|Cs]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 255
+		  apply 'get_value'/2
+		      (['modules'], Info)
+	      in  %% Line 255
+		  case apply 'get_native_modules'/1
+			   (_cor1) of
+		    %% Line 256
+		    <[]> when 'true' ->
+			apply 'get_native_modules_from_code'/1
+			    (Cs)
+		    %% Line 257
+		    <Mods> when 'true' ->
+			let <Path> =
+			    %% Line 258
+			    apply 'get_value'/2
+				(['path'], Info)
+			in  let <Vsn> =
+				%% Line 259
+				apply 'get_value'/2
+				    (['vsn'], Info)
+			    in  let <_cor4> =
+				    %% Line 260
+				    apply 'get_native_modules_from_code'/1
+					(Cs)
+				in  %% Line 260
+				    [{App,Vsn,Path,Mods}|_cor4]
+		  end
+	  %% Line 262
+	  <[{'code',Info}|Cs]> when 'true' ->
+	      let <_cor6> =
+		  %% Line 263
+		  apply 'get_value'/2
+		      (['modules'], Info)
+	      in  %% Line 263
+		  case apply 'get_native_modules'/1
+			   (_cor6) of
+		    %% Line 264
+		    <[]> when 'true' ->
+			apply 'get_native_modules_from_code'/1
+			    (Cs)
+		    %% Line 265
+		    <Mods> when 'true' ->
+			let <Path> =
+			    %% Line 266
+			    apply 'get_value'/2
+				(['path'], Info)
+			in  let <_cor8> =
+				%% Line 267
+				apply 'get_native_modules_from_code'/1
+				    (Cs)
+			    in  %% Line 267
+				[{Path,Mods}|_cor8]
+		  end
+	  %% Line 269
+	  <[]> when 'true' ->
+	      []
+	  ( <_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10})
+		  -| [{'function_name',{'get_native_modules_from_code',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_native_modules'/1 =
+    %% Line 271
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      []
+	  %% Line 272
+	  <[{Mod,Info}|Ms]> when 'true' ->
+	      %% Line 273
+	      case call 'proplists':'get_value'
+		       ('native', Info) of
+		%% Line 274
+		<'false'> when 'true' ->
+		    apply 'get_native_modules'/1
+			(Ms)
+		%% Line 275
+		<_cor4> when 'true' ->
+		    let <_cor1> =
+			apply 'get_native_modules'/1
+			    (Ms)
+		    in  [Mod|_cor1]
+	      end
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'get_native_modules',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'print_applications'/2 =
+    %% Line 281
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'application',App}|Apps],Opts> when 'true' ->
+	      do  %% Line 282
+		  apply 'print_application'/2
+		      (App, Opts)
+		  %% Line 283
+		  apply 'print_applications'/2
+		      (Apps, Opts)
+	  %% Line 284
+	  <[{'code',_cor4}|Apps],Opts> when 'true' ->
+	      %% Line 285
+	      apply 'print_applications'/2
+		  (Apps, Opts)
+	  %% Line 286
+	  <[],_cor5> when 'true' ->
+	      %% Line 287
+	      'ok'
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'print_applications',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'print_application'/2 =
+    %% Line 289
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{App,Info},Opts> when 'true' ->
+	      let <Vsn> =
+		  %% Line 290
+		  apply 'get_value'/2
+		      (['vsn'], Info)
+	      in  do  %% Line 291
+		      call 'io':'format'
+			  ([32|[42|[32|[126|[119|[45|[126|[115|[126|[110]]]]]]]]]], [App|[Vsn|[]]])
+		      %% Line 292
+		      case call 'proplists':'get_bool'
+			       ('full', Opts) of
+			%% Line 293
+			<'true'> when 'true' ->
+			    do  %% Line 294
+				( letrec
+				      'lc$^0'/1 =
+					  fun (_cor6) ->
+					      case _cor6 of
+						<[%% Line 296
+						  Minfo|_cor4]> when 'true' ->
+						    do  %% Line 295
+							apply 'print_module'/1
+							    (Minfo)
+							%% Line 296
+							apply 'lc$^0'/1
+							    (_cor4)
+						<[]> when 'true' ->
+						    []
+						( <_cor6> when 'true' ->
+						      ( primop 'match_fail'
+							    ({'function_clause',_cor6})
+							-| [{'function_name',{'lc$^0',1}}] )
+						  -| ['compiler_generated'] )
+					      end
+				  in  let <_cor5> =
+					  %% Line 296
+					  apply 'get_value'/2
+					      (['modules'], Info)
+				      in  apply 'lc$^0'/1
+					      (_cor5)
+				  -| ['list_comprehension'] )
+				%% Line 297
+				'ok'
+			%% Line 298
+			<'false'> when 'true' ->
+			    %% Line 299
+			    'ok'
+			( <_cor11> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor11})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12})
+		  -| [{'function_name',{'print_application',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'print_environments'/2 =
+    %% Line 302
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[Env|Envs],Opts> when 'true' ->
+	      do  %% Line 303
+		  apply 'print_environment'/2
+		      (Env, Opts)
+		  %% Line 304
+		  apply 'print_environments'/2
+		      (Envs, Opts)
+	  %% Line 305
+	  <[],_cor4> when 'true' ->
+	      %% Line 306
+	      'ok'
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'print_environments',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'print_environment'/2 =
+    %% Line 308
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{_X_Key,'false'},_cor4> when 'true' ->
+	      'ok'
+	  %% Line 309
+	  <{Key,Value},_cor5> when 'true' ->
+	      %% Line 310
+	      call 'io':'format'
+		  ([32|[45|[32|[126|[115|[32|[61|[32|[126|[116|[115|[126|[110]]]]]]]]]]]]], [Key|[Value|[]]])
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'print_environment',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'print_modules_from_code'/3 =
+    %% Line 312
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <M,[Info|Ms],Opts> when 'true' ->
+	      do  %% Line 313
+		  apply 'print_module_from_code'/2
+		      (M, Info)
+		  %% Line 314
+		  case call 'proplists':'get_bool'
+			   ('full', Opts) of
+		    %% Line 315
+		    <'true'> when 'true' ->
+			apply 'print_modules_from_code'/3
+			    (M, Ms, Opts)
+		    %% Line 316
+		    <'false'> when 'true' ->
+			'ok'
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 318
+	  <_cor7,[],_cor8> when 'true' ->
+	      %% Line 319
+	      'ok'
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'print_modules_from_code',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'print_module_from_code'/2 =
+    %% Line 321
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <M,{Path,[{_cor12,ModInfo}|[]]}>
+	      when call 'erlang':'=:='
+		    (_cor12,
+		     M) ->
+	      do  %% Line 322
+		  call 'io':'format'
+		      ([32|[102|[114|[111|[109|[32|[112|[97|[116|[104|[32|[34|[126|[116|[115|[34|[32|[40|[110|[111|[32|[97|[112|[112|[108|[105|[99|[97|[116|[105|[111|[110|[41|[58|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Path|[]])
+		  let <_cor2> =
+		      %% Line 323
+		      apply 'get_value'/2
+			  (['compiler'], ModInfo)
+		  in  do  %% Line 323
+			  call 'io':'format'
+			      ([32|[32|[32|[32|[32|[45|[32|[99|[111|[109|[112|[105|[108|[101|[114|[58|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]], [_cor2|[]])
+			  let <_cor3> =
+			      %% Line 324
+			      apply 'get_value'/2
+				  (['md5'], ModInfo)
+			  in  do  %% Line 324
+				  call 'io':'format'
+				      ([32|[32|[32|[32|[32|[45|[32|[32|[32|[32|[32|[32|[109|[100|[53|[58|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]], [_cor3|[]])
+				  let <_cor4> =
+				      %% Line 325
+				      apply 'get_value'/2
+					  (['native'], ModInfo)
+				  in  do  %% Line 325
+					  call 'io':'format'
+					      ([32|[32|[32|[32|[32|[45|[32|[32|[32|[110|[97|[116|[105|[118|[101|[58|[32|[126|[119|[126|[110]]]]]]]]]]]]]]]]]]]]], [_cor4|[]])
+					  let <_cor5> =
+					      %% Line 326
+					      apply 'get_value'/2
+						  (['loaded'], ModInfo)
+					  in  do  %% Line 326
+						  call 'io':'format'
+						      ([32|[32|[32|[32|[32|[45|[32|[32|[32|[108|[111|[97|[100|[101|[100|[58|[32|[126|[119|[126|[110]]]]]]]]]]]]]]]]]]]]], [_cor5|[]])
+						  %% Line 327
+						  'ok'
+	  %% Line 328
+	  <M,{App,Vsn,Path,[{_cor13,ModInfo}|[]]}>
+	      when call 'erlang':'=:='
+		    (_cor13,
+		     M) ->
+	      do  %% Line 329
+		  call 'io':'format'
+		      ([32|[102|[114|[111|[109|[32|[112|[97|[116|[104|[32|[34|[126|[116|[115|[34|[32|[40|[126|[119|[45|[126|[115|[41|[58|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]], [Path|[App|[Vsn|[]]]])
+		  let <_cor6> =
+		      %% Line 330
+		      apply 'get_value'/2
+			  (['compiler'], ModInfo)
+		  in  do  %% Line 330
+			  call 'io':'format'
+			      ([32|[32|[32|[32|[32|[45|[32|[99|[111|[109|[112|[105|[108|[101|[114|[58|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]], [_cor6|[]])
+			  let <_cor7> =
+			      %% Line 331
+			      apply 'get_value'/2
+				  (['md5'], ModInfo)
+			  in  do  %% Line 331
+				  call 'io':'format'
+				      ([32|[32|[32|[32|[32|[45|[32|[32|[32|[32|[32|[32|[109|[100|[53|[58|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]], [_cor7|[]])
+				  let <_cor8> =
+				      %% Line 332
+				      apply 'get_value'/2
+					  (['native'], ModInfo)
+				  in  do  %% Line 332
+					  call 'io':'format'
+					      ([32|[32|[32|[32|[32|[45|[32|[32|[32|[110|[97|[116|[105|[118|[101|[58|[32|[126|[119|[126|[110]]]]]]]]]]]]]]]]]]]]], [_cor8|[]])
+					  let <_cor9> =
+					      %% Line 333
+					      apply 'get_value'/2
+						  (['loaded'], ModInfo)
+					  in  do  %% Line 333
+						  call 'io':'format'
+						      ([32|[32|[32|[32|[32|[45|[32|[32|[32|[108|[111|[97|[100|[101|[100|[58|[32|[126|[119|[126|[110]]]]]]]]]]]]]]]]]]]]], [_cor9|[]])
+						  %% Line 334
+						  'ok'
+	  ( <_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10})
+		  -| [{'function_name',{'print_module_from_code',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'print_module'/1 =
+    %% Line 336
+    fun (_cor0) ->
+	case _cor0 of
+	  <{Mod,ModInfo}> when 'true' ->
+	      do  %% Line 337
+		  call 'io':'format'
+		      ([32|[32|[32|[45|[32|[126|[119|[58|[126|[110]]]]]]]]]], [Mod|[]])
+		  let <_cor1> =
+		      %% Line 338
+		      apply 'get_value'/2
+			  (['compiler'], ModInfo)
+		  in  do  %% Line 338
+			  call 'io':'format'
+			      ([32|[32|[32|[32|[32|[45|[32|[99|[111|[109|[112|[105|[108|[101|[114|[58|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]], [_cor1|[]])
+			  let <_cor2> =
+			      %% Line 339
+			      apply 'get_value'/2
+				  (['md5'], ModInfo)
+			  in  do  %% Line 339
+				  call 'io':'format'
+				      ([32|[32|[32|[32|[32|[45|[32|[32|[32|[32|[32|[32|[109|[100|[53|[58|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]], [_cor2|[]])
+				  let <_cor3> =
+				      %% Line 340
+				      apply 'get_value'/2
+					  (['native'], ModInfo)
+				  in  do  %% Line 340
+					  call 'io':'format'
+					      ([32|[32|[32|[32|[32|[45|[32|[32|[32|[110|[97|[116|[105|[118|[101|[58|[32|[126|[119|[126|[110]]]]]]]]]]]]]]]]]]]]], [_cor3|[]])
+					  let <_cor4> =
+					      %% Line 341
+					      apply 'get_value'/2
+						  (['loaded'], ModInfo)
+					  in  do  %% Line 341
+						  call 'io':'format'
+						      ([32|[32|[32|[32|[32|[45|[32|[32|[32|[108|[111|[97|[100|[101|[100|[58|[32|[126|[119|[126|[110]]]]]]]]]]]]]]]]]]]]], [_cor4|[]])
+						  %% Line 342
+						  'ok'
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5})
+		  -| [{'function_name',{'print_module',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'erlang_system_info'/0 =
+    %% Line 348
+    fun () ->
+	%% Line 349
+	apply 'erlang_system_info'/1
+	    (['allocator'|['check_io'|['otp_release'|['port_limit'|['process_limit'|['smp_support'|['system_version'|['system_architecture'|['threads'|['thread_pool_size'|[{'wordsize','internal'}|[{'wordsize','external'}|[{'cpu_topology','defined'}|[{'cpu_topology','detected'}|['scheduler_bind_type'|['scheduler_bindings'|['compat_rel'|['schedulers_state'|['build_type'|['logical_processors'|['logical_processors_online'|['logical_processors_available'|['driver_version'|['emu_args'|['ethread_info'|['beam_jump_table'|['taints']]]]]]]]]]]]]]]]]]]]]]]]]]])
+'erlang_system_info'/1 =
+    %% Line 380
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      []
+	  %% Line 381
+	  <[Type|Types]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 382
+		  call 'erlang':'system_info'
+		      (Type)
+	      in  let <_cor2> =
+		      %% Line 382
+		      apply 'erlang_system_info'/1
+			  (Types)
+		  in  %% Line 382
+		      [{Type,_cor1}|_cor2]
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'erlang_system_info',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'os_getenv_erts_specific'/0 =
+    %% Line 387
+    fun () ->
+	%% Line 388
+	apply 'os_getenv_erts_specific'/1
+	    ([[66|[73|[78|[68|[73|[82]]]]]]|[[68|[73|[65|[76|[89|[90|[69|[82|[95|[69|[77|[85|[76|[65|[84|[79|[82]]]]]]]]]]]]]]]]]|[[67|[69|[82|[76|[95|[68|[69|[84|[65|[67|[72|[69|[68|[95|[80|[82|[79|[71]]]]]]]]]]]]]]]]]]|[[69|[77|[85]]]|[[69|[82|[76|[95|[67|[79|[78|[83|[79|[76|[69|[95|[77|[79|[68|[69]]]]]]]]]]]]]]]]|[[69|[82|[76|[95|[67|[82|[65|[83|[72|[95|[68|[85|[77|[80]]]]]]]]]]]]]]|[[69|[82|[76|[95|[67|[82|[65|[83|[72|[95|[68|[85|[77|[80|[95|[78|[73|[67|[69]]]]]]]]]]]]]]]]]]]|[[69|[82|[76|[95|[67|[82|[65|[83|[72|[95|[68|[85|[77|[80|[95|[83|[69|[67|[79|[78|[68|[83]]]]]]]]]]]]]]]]]]]]]]|[[69|[82|[76|[95|[69|[80|[77|[68|[95|[80|[79|[82|[84]]]]]]]]]]]]]|[[69|[82|[76|[95|[69|[77|[85|[76|[65|[84|[79|[82|[95|[68|[76|[76]]]]]]]]]]]]]]]]|[[69|[82|[76|[95|[70|[85|[76|[76|[83|[87|[69|[69|[80|[95|[65|[70|[84|[69|[82]]]]]]]]]]]]]]]]]]]|[[69|[82|[76|[95|[76|[73|[66|[83]]]]]]]]|[[69|[82|[76|[95|[77|[65|[76|[76|[79|[67|[95|[76|[73|[66]]]]]]]]]]]]]]|[[69|[82|[76|[95|[77|[65|[88|[95|[80|[79|[82|[84|[83]]]]]]]]]]]]]|[[69|[82|[76|[95|[77|[65|[88|[95|[69|[84|[83|[95|[84|[65|[66|[76|[69|[83]]]]]]]]]]]]]]]]]]|[[69|[82|[76|[95|[78|[79|[95|[86|[70|[79|[82|[75]]]]]]]]]]]]|[[69|[82|[76|[95|[78|[79|[95|[75|[69|[82|[78|[69|[76|[95|[80|[79|[76|[76]]]]]]]]]]]]]]]]]]|[[69|[82|[76|[95|[84|[72|[82|[69|[65|[68|[95|[80|[79|[79|[76|[95|[83|[73|[90|[69]]]]]]]]]]]]]]]]]]]]|[[69|[82|[76|[67|[95|[69|[77|[85|[76|[65|[84|[79|[82]]]]]]]]]]]]]|[[69|[83|[67|[82|[73|[80|[84|[95|[69|[77|[85|[76|[65|[84|[79|[82]]]]]]]]]]]]]]]]|[[72|[79|[77|[69]]]]|[[72|[79|[77|[69|[68|[82|[73|[86|[69]]]]]]]]]|[[72|[79|[77|[69|[80|[65|[84|[72]]]]]]]]|[[76|[65|[78|[71]]]]|[[76|[67|[95|[65|[76|[76]]]]]]|[[76|[67|[95|[67|[84|[89|[80|[69]]]]]]]]|[[80|[65|[84|[72]]]]|[[80|[82|[79|[71|[78|[65|[77|[69]]]]]]]]|[[82|[69|[76|[68|[73|[82]]]]]]|[[82|[79|[79|[84|[68|[73|[82]]]]]]]|[[84|[69|[82|[77]]]]|[[67|[79|[77|[83|[80|[69|[67]]]]]]]|[[72|[69|[65|[82|[84|[95|[67|[79|[77|[77|[65|[78|[68]]]]]]]]]]]]]|[[82|[85|[78|[95|[69|[82|[76|[95|[76|[79|[71|[95|[65|[76|[73|[86|[69|[95|[77|[73|[78|[85|[84|[69|[83]]]]]]]]]]]]]]]]]]]]]]]]]|[[82|[85|[78|[95|[69|[82|[76|[95|[76|[79|[71|[95|[65|[67|[84|[73|[86|[73|[84|[89|[95|[77|[73|[78|[85|[84|[69|[83]]]]]]]]]]]]]]]]]]]]]]]]]]]]|[[82|[85|[78|[95|[69|[82|[76|[95|[76|[79|[71|[95|[65|[76|[73|[86|[69|[95|[70|[79|[82|[77|[65|[84]]]]]]]]]]]]]]]]]]]]]]]]|[[82|[85|[78|[95|[69|[82|[76|[95|[76|[79|[71|[95|[65|[76|[73|[86|[69|[95|[73|[78|[95|[85|[84|[67]]]]]]]]]]]]]]]]]]]]]]]]|[[82|[85|[78|[95|[69|[82|[76|[95|[76|[79|[71|[95|[71|[69|[78|[69|[82|[65|[84|[73|[79|[78|[83]]]]]]]]]]]]]]]]]]]]]]]|[[82|[85|[78|[95|[69|[82|[76|[95|[76|[79|[71|[95|[77|[65|[88|[83|[73|[90|[69]]]]]]]]]]]]]]]]]]]|[[82|[85|[78|[95|[69|[82|[76|[95|[68|[73|[83|[65|[66|[76|[69|[95|[70|[76|[79|[87|[67|[78|[84|[82|[76]]]]]]]]]]]]]]]]]]]]]]]]]|[[67|[65|[76|[76|[69|[82|[95|[68|[82|[86|[95|[85|[83|[69|[95|[79|[85|[84|[80|[85|[84|[86]]]]]]]]]]]]]]]]]]]]]]|[[69|[82|[76|[95|[73|[78|[69|[84|[95|[71|[69|[84|[72|[79|[83|[84|[95|[68|[69|[66|[85|[71]]]]]]]]]]]]]]]]]]]]]]|[[69|[82|[76|[95|[69|[70|[73|[76|[69|[95|[84|[72|[82|[69|[65|[68|[95|[83|[72|[79|[82|[84|[95|[67|[73|[82|[67|[85|[73|[84]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|[[69|[82|[76|[95|[87|[73|[78|[68|[79|[87|[95|[84|[73|[84|[76|[69]]]]]]]]]]]]]]]]|[[69|[82|[76|[95|[65|[66|[79|[82|[84|[95|[79|[78|[95|[70|[65|[73|[76|[85|[82|[69]]]]]]]]]]]]]]]]]]]]|[[84|[84|[89|[83|[76|[95|[68|[69|[66|[85|[71|[95|[76|[79|[71]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+'os_getenv_erts_specific'/1 =
+    %% Line 444
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      []
+	  %% Line 445
+	  <[Key|Keys]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 446
+		  call 'os':'getenv'
+		      (Key)
+	      in  let <_cor2> =
+		      %% Line 446
+		      apply 'os_getenv_erts_specific'/1
+			  (Keys)
+		  in  %% Line 446
+		      [{Key,_cor1}|_cor2]
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'os_getenv_erts_specific',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'split_env'/1 =
+    %% Line 448
+    fun (_cor0) ->
+	%% Line 449
+	apply 'split_env'/2
+	    (_cor0, [])
+'split_env'/2 =
+    %% Line 451
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[61|Vs],Key> when 'true' ->
+	      let <_cor2> =
+		  call 'lists':'reverse'
+		      (Key)
+	      in  {_cor2,Vs}
+	  %% Line 452
+	  <[I|Vs],Key> when 'true' ->
+	      apply 'split_env'/2
+		  (Vs, [I|Key])
+	  %% Line 453
+	  <[],KV> when 'true' ->
+	      call 'lists':'reverse'
+		  (KV)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'split_env',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'code'/0 =
+    %% Line 457
+    fun () ->
+	let <_cor0> =
+	    %% Line 459
+	    call 'code':'get_path'
+		()
+	in  %% Line 459
+	    apply 'get_code_from_paths'/1
+		(_cor0)
+'get_code_from_paths'/1 =
+    %% Line 461
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      []
+	  %% Line 462
+	  <[Path|Paths]> when 'true' ->
+	      %% Line 463
+	      case apply 'is_application_path'/1
+		       (Path) of
+		%% Line 464
+		<'true'> when 'true' ->
+		    let <_cor1> =
+			%% Line 465
+			apply 'get_application_from_path'/1
+			    (Path)
+		    in  let <_cor2> =
+			    %% Line 465
+			    apply 'get_code_from_paths'/1
+				(Paths)
+			in  %% Line 465
+			    [{'application',_cor1}|_cor2]
+		%% Line 466
+		<'false'> when 'true' ->
+		    let <_cor3> =
+			%% Line 469
+			apply 'get_modules_from_path'/1
+			    (Path)
+		    in  let <_cor4> =
+			    %% Line 470
+			    apply 'get_code_from_paths'/1
+				(Paths)
+			in  %% Line 467
+			    [{'code',[%% Line 468
+				      {'path',Path}|%% Line 469
+						    [{'modules',_cor3}|%% Line 470
+								       []]]}|_cor4]
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6})
+		  -| [{'function_name',{'get_code_from_paths',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'is_application_path'/1 =
+    %% Line 473
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 474
+	    call 'filename':'join'
+		(_cor0, [42|[46|[97|[112|[112]]]]])
+	in  %% Line 474
+	    case call 'filelib':'wildcard'
+		     (_cor1) of
+	      %% Line 475
+	      <[]> when 'true' ->
+		  'false'
+	      %% Line 476
+	      <_cor4> when 'true' ->
+		  'true'
+	    end
+'get_application_from_path'/1 =
+    %% Line 479
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 480
+	    call 'filename':'join'
+		(_cor0, [42|[46|[97|[112|[112]]]]])
+	in  %% Line 480
+	    case call 'filelib':'wildcard'
+		     (_cor1) of
+	      <[Appfile|_cor9]> when 'true' ->
+		  %% Line 481
+		  case call 'file':'consult'
+			   (Appfile) of
+		    %% Line 482
+		    <{'ok',[{'application',App,Info}|[]]}> when 'true' ->
+			let <_cor3> =
+			    %% Line 484
+			    call 'proplists':'get_value'
+				('description', Info, [])
+			in  let <_cor4> =
+				%% Line 485
+				call 'proplists':'get_value'
+				    ('vsn', Info, [])
+			    in  let <_cor5> =
+				    %% Line 488
+				    call 'proplists':'get_value'
+					('runtime_dependencies', Info, [])
+				in  let <_cor6> =
+					%% Line 489
+					apply 'get_modules_from_path'/1
+					    (_cor0)
+				    in  %% Line 483
+					{App,[%% Line 484
+					      {'description',_cor3}|%% Line 485
+								    [{'vsn',_cor4}|%% Line 486
+										   [{'path',_cor0}|%% Line 487
+												   [{'runtime_dependencies',_cor5}|%% Line 489
+																   [{'modules',_cor6}|%% Line 490
+																		      []]]]]]}
+		    ( <_cor7> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor7})
+		      -| ['compiler_generated'] )
+		  end
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor2})
+		-| ['compiler_generated'] )
+	    end
+'get_modules_from_path'/1 =
+    %% Line 493
+    fun (_cor0) ->
+	%% Line 494
+	( letrec
+	      'lc$^0'/1 =
+		  fun (_cor5) ->
+		      case _cor5 of
+			<[%% Line 507
+			  Beam|_cor2]> when 'true' ->
+			    %% Line 496
+			    case call 'beam_lib':'md5'
+				     (Beam) of
+			      <{'ok',{Mod,Md5}}> when 'true' ->
+				  let <_cor8> =
+				      %% Line 497
+				      case call 'code':'is_loaded'
+					       (Mod) of
+					%% Line 498
+					<'false'> when 'true' ->
+					    'false'
+					%% Line 499
+					<_cor15> when 'true' ->
+					    'true'
+				      end
+				  in  let <_cor10> =
+					  %% Line 503
+					  apply 'beam_is_native_compiled'/1
+					      (Beam)
+				      in  let <_cor11> =
+					      %% Line 504
+					      apply 'get_compiler_version'/1
+						  (Beam)
+					  in  let <_cor12> =
+						  %% Line 505
+						  apply 'hexstring'/1
+						      (Md5)
+					      in  let <_cor13> =
+						      %% Line 507
+						      apply 'lc$^0'/1
+							  (_cor2)
+						  in  ( [%% Line 501
+							 {Mod,[%% Line 502
+							       {'loaded',_cor8}|%% Line 503
+										[{'native',_cor10}|%% Line 504
+												   [{'compiler',_cor11}|%% Line 505
+															[{'md5',_cor12}|%% Line 506
+																	[]]]]]}|_cor13]
+							-| ['compiler_generated'] )
+			      ( <_cor6> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor6})
+				-| ['compiler_generated'] )
+			    end
+			<[]> when 'true' ->
+			    []
+			( <_cor5> when 'true' ->
+			      ( primop 'match_fail'
+				    ({'function_clause',_cor5})
+				-| [{'function_name',{'lc$^0',1}}] )
+			  -| ['compiler_generated'] )
+		      end
+	  in  let <_cor3> =
+		  %% Line 507
+		  call 'filename':'join'
+		      (_cor0, [42|[46|[98|[101|[97|[109]]]]]])
+	      in  let <_cor4> =
+		      %% Line 507
+		      call 'filelib':'wildcard'
+			  (_cor3)
+		  in  apply 'lc$^0'/1
+			  (_cor4)
+	  -| ['list_comprehension'] )
+'hexstring'/1 =
+    %% Line 510
+    fun (_cor0) ->
+	case _cor0 of
+	  <Bin>
+	      when call 'erlang':'is_binary'
+		    (_cor0) ->
+	      let <_cor5> =
+		  %% Line 511
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor2) ->
+				case ( _cor2
+				       -| ['reuse_for_context'] ) of
+				  <#{#<V>(8,1,'integer',['unsigned'|['big']]),
+				     #<_cor1>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+				      let <_cor3> =
+					  call 'io_lib':'format'
+					      ([126|[50|[46|[49|[54|[46|[48|[98]]]]]]]], [V|[]])
+				      in  let <_cor4> =
+					      apply 'lc$^0'/1
+						  (_cor1)
+					  in  ( [_cor3|_cor4]
+						-| ['compiler_generated'] )
+				  <#{#<_cor1>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+				      []
+				  ( <_cor2> when 'true' ->
+					do  primop 'bs_context_to_binary'
+						(_cor2)
+					    ( primop 'match_fail'
+						  ({'function_clause',_cor2})
+					      -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (Bin)
+		    -| ['list_comprehension'] )
+	      in  %% Line 511
+		  call 'lists':'flatten'
+		      (_cor5)
+	  ( <_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6})
+		  -| [{'function_name',{'hexstring',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_compiler_version'/1 =
+    %% Line 515
+    fun (_cor0) ->
+	%% Line 516
+	case call 'beam_lib':'chunks'
+		 (_cor0, ['compile_info']) of
+	  %% Line 517
+	  <{'ok',{_cor3,[{'compile_info',Info}|[]]}}> when 'true' ->
+	      %% Line 518
+	      call 'proplists':'get_value'
+		  ('version', Info)
+	  %% Line 519
+	  <_cor4> when 'true' ->
+	      'undefined'
+	end
+'beam_is_native_compiled'/1 =
+    %% Line 524
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 525
+	    call 'beam_lib':'info'
+		(_cor0)
+	in  let <Chunks> =
+		%% Line 525
+		apply 'get_value'/2
+		    (['chunks'], _cor1)
+	    in  %% Line 526
+		case apply 'check_known_hipe_chunks'/1
+			 (Chunks) of
+		  %% Line 527
+		  <[]> when 'true' ->
+		      'false'
+		  %% Line 528
+		  <[Arch|[]]> when 'true' ->
+		      {'true',Arch}
+		  %% Line 529
+		  <Archs> when 'true' ->
+		      {'true',Archs}
+		end
+'check_known_hipe_chunks'/1 =
+    %% Line 533
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{Tag,_cor4,_cor5}|Cs]> when 'true' ->
+	      %% Line 534
+	      case apply 'is_chunk_tag_hipe_arch'/1
+		       (Tag) of
+		%% Line 535
+		<'false'> when 'true' ->
+		    apply 'check_known_hipe_chunks'/1
+			(Cs)
+		%% Line 536
+		<{'true',Arch}> when 'true' ->
+		    let <_cor1> =
+			apply 'check_known_hipe_chunks'/1
+			    (Cs)
+		    in  [Arch|_cor1]
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 538
+	  <[]> when 'true' ->
+	      []
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'check_known_hipe_chunks',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'is_chunk_tag_hipe_arch'/1 =
+    %% Line 550
+    fun (_cor0) ->
+	%% Line 551
+	case _cor0 of
+	  %% Line 552
+	  <[72|[65|[54|[52]]]]> when 'true' ->
+	      {'true','amd64'}
+	  %% Line 553
+	  <[72|[65|[82|[77]]]]> when 'true' ->
+	      {'true','arm'}
+	  %% Line 554
+	  <[72|[80|[80|[67]]]]> when 'true' ->
+	      {'true','powerpc'}
+	  %% Line 555
+	  <[72|[80|[54|[52]]]]> when 'true' ->
+	      {'true','ppc64'}
+	  %% Line 556
+	  <[72|[83|[56|[80]]]]> when 'true' ->
+	      {'true','ultrasparc'}
+	  %% Line 559
+	  <_cor3> when 'true' ->
+	      'false'
+	end
+'get_dynamic_libraries'/0 =
+    %% Line 563
+    fun () ->
+	let <_cor0> =
+	    %% Line 564
+	    call 'os':'getenv'
+		([66|[73|[78|[68|[73|[82]]]]]])
+	in  let <_cor1> =
+		%% Line 564
+		apply 'get_beam_name'/0
+		    ()
+	    in  let <Beam> =
+		    %% Line 564
+		    call 'filename':'join'
+			([_cor0|[_cor1|[]]])
+		in  %% Line 565
+		    case call 'os':'type'
+			     () of
+		      %% Line 566
+		      <{'unix','darwin'}> when 'true' ->
+			  let <_cor3> =
+			      call 'erlang':'++'
+				  ([111|[116|[111|[111|[108|[32|[45|[76|[32]]]]]]]]], Beam)
+			  in  call 'os':'cmd'
+				  (_cor3)
+		      %% Line 567
+		      <_cor6> when 'true' ->
+			  let <_cor4> =
+			      [108|[100|[100|[32|Beam]]]]
+			  in  call 'os':'cmd'
+				  (_cor4)
+		    end
+'get_beam_name'/0 =
+    %% Line 570
+    fun () ->
+	let <_cor2> =
+	    %% Line 571
+	    case call 'erlang':'system_info'
+		     ('build_type') of
+	      %% Line 572
+	      <'opt'> when 'true' ->
+		  []
+	      %% Line 573
+	      <TypeName> when 'true' ->
+		  let <_cor0> =
+		      call 'erlang':'atom_to_list'
+			  (TypeName)
+		  in  [46|_cor0]
+	    end
+	in  let <_cor5> =
+		%% Line 575
+		case call 'erlang':'system_info'
+			 ('smp_support') of
+		  %% Line 576
+		  <'false'> when 'true' ->
+		      []
+		  %% Line 577
+		  <'true'> when 'true' ->
+		      [46|[115|[109|[112]]]]
+		  ( <_cor4> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor4})
+		    -| ['compiler_generated'] )
+		end
+	    in  let <_cor8> =
+		    %% Line 579
+		    case call 'os':'getenv'
+			     ([69|[77|[85]]]) of
+		      %% Line 580
+		      <'false'> when 'true' ->
+			  [98|[101|[97|[109]]]]
+		      %% Line 581
+		      <Value> when 'true' ->
+			  Value
+		    end
+		in  let <_cor10> =
+			%% Line 583
+			call 'erlang':'++'
+			    (_cor2, _cor5)
+		    in  %% Line 583
+			call 'erlang':'++'
+			    (_cor8, _cor10)
+'vsnstr2vsn'/1 =
+    %% Line 587
+    fun (_cor0) ->
+	let <_cor4> =
+	    %% Line 588
+	    ( fun (_cor2) ->
+		  %% Line 589
+		  call 'erlang':'list_to_integer'
+		      (_cor2)
+	      -| [{'id',{0,0,'-vsnstr2vsn/1-fun-0-'}}] )
+	in  let <_cor1> =
+		%% Line 591
+		call 'string':'tokens'
+		    (_cor0, [46])
+	    in  let <_cor5> =
+		    %% Line 588
+		    call 'lists':'map'
+			(_cor4, _cor1)
+		in  %% Line 588
+		    call 'erlang':'list_to_tuple'
+			(_cor5)
+'rtdepstrs2rtdeps'/1 =
+    %% Line 593
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 594
+	      []
+	  %% Line 595
+	  <[RTDep|RTDeps]> when 'true' ->
+	      %% Line 596
+	      case call 'string':'tokens'
+		       (RTDep, [45]) of
+		<[AppStr|[VsnStr|[]]]> when 'true' ->
+		    let <_cor3> =
+			%% Line 597
+			call 'erlang':'list_to_atom'
+			    (AppStr)
+		    in  let <_cor2> =
+			    %% Line 597
+			    apply 'vsnstr2vsn'/1
+				(VsnStr)
+			in  let <_cor4> =
+				%% Line 597
+				apply 'rtdepstrs2rtdeps'/1
+				    (RTDeps)
+			    in  %% Line 597
+				[{_cor3,_cor2}|_cor4]
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5})
+		  -| [{'function_name',{'rtdepstrs2rtdeps',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'build_app_table'/2 =
+    %% Line 599
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],AppTab> when 'true' ->
+	      %% Line 600
+	      AppTab
+	  %% Line 601
+	  <[App|Apps],AppTab0> when 'true' ->
+	      let <_cor14> =
+		  %% Line 602
+		  try
+		      let <_cor2> =
+			  %% Line 607
+			  call 'erlang':'atom_to_list'
+			      (App)
+		      in  let <_cor3> =
+			      %% Line 607
+			      call 'erlang':'++'
+				  (_cor2, [46|[97|[112|[112]]]])
+			  in  let <AppFile> =
+				  %% Line 607
+				  call 'code':'where_is_file'
+				      (_cor3)
+			      in  %% Line 608
+				  case call 'file':'consult'
+					   (AppFile) of
+				    <{'ok',[{'application',_cor18,Info}|[]]}>
+					when call 'erlang':'=:='
+					      (_cor18,
+					       App) ->
+					let <VsnStr> =
+					    %% Line 609
+					    call 'proplists':'get_value'
+						('vsn', Info)
+					in  let <Vsn> =
+						%% Line 610
+						apply 'vsnstr2vsn'/1
+						    (VsnStr)
+					    in  let <RTDepStrs> =
+						    %% Line 611
+						    call 'proplists':'get_value'
+							('runtime_dependencies', %% Line 612
+										 Info, %% Line 612
+										       [])
+						in  let <RTDeps> =
+							%% Line 613
+							apply 'rtdepstrs2rtdeps'/1
+							    (RTDepStrs)
+						    in  %% Line 614
+							call 'gb_trees':'insert'
+							    (App, {Vsn,RTDeps}, AppTab0)
+				    ( <_cor5> when 'true' ->
+					  primop 'match_fail'
+					      ({'badmatch',_cor5})
+				      -| ['compiler_generated'] )
+				  end
+		  of <_cor10> ->
+		      _cor10
+		  catch <_cor13,_cor12,_cor11> ->
+		      %% Line 617
+		      AppTab0
+	      in  %% Line 619
+		  apply 'build_app_table'/2
+		      (Apps, _cor14)
+	  ( <_cor17,_cor16> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor17,_cor16})
+		  -| [{'function_name',{'build_app_table',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'meets_min_req'/2 =
+    %% Line 621
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Vsn,_cor6>
+	      when call 'erlang':'=:='
+		    (_cor6,
+		     Vsn) ->
+	      %% Line 622
+	      'true'
+	  %% Line 623
+	  <{X},VsnReq> when 'true' ->
+	      %% Line 624
+	      apply 'meets_min_req'/2
+		  ({X,0,0}, VsnReq)
+	  %% Line 625
+	  <{X,Y},VsnReq> when 'true' ->
+	      %% Line 626
+	      apply 'meets_min_req'/2
+		  ({X,Y,0}, VsnReq)
+	  %% Line 627
+	  <Vsn,{X}> when 'true' ->
+	      %% Line 628
+	      apply 'meets_min_req'/2
+		  (Vsn, {X,0,0})
+	  %% Line 629
+	  <Vsn,{X,Y}> when 'true' ->
+	      %% Line 630
+	      apply 'meets_min_req'/2
+		  (Vsn, {X,Y,0})
+	  %% Line 631
+	  <{X,_X_Y,_X_Z},{XReq,_X_YReq,_X_ZReq}>
+	      when call 'erlang':'>'
+		    (X,
+		     XReq) ->
+	      %% Line 632
+	      'true'
+	  %% Line 633
+	  <{X,Y,_X_Z},{_cor7,YReq,_X_ZReq}>
+	      when let <_cor8> =
+		    call 'erlang':'=:='
+			(_cor7, X)
+		in  let <_cor9> =
+			call 'erlang':'>'
+			    (Y, YReq)
+		    in  call 'erlang':'and'
+			    (_cor8, _cor9) ->
+	      %% Line 634
+	      'true'
+	  %% Line 635
+	  <{X,Y,Z},{_cor10,_cor11,ZReq}>
+	      when let <_cor14> =
+		    call 'erlang':'=:='
+			(_cor10, X)
+		in  let <_cor12> =
+			call 'erlang':'=:='
+			    (_cor11, Y)
+		    in  let <_cor13> =
+			    call 'erlang':'>'
+				(Z, ZReq)
+			in  let <_cor15> =
+				call 'erlang':'and'
+				    (_cor12, _cor13)
+			    in  call 'erlang':'and'
+				    (_cor14, _cor15) ->
+	      %% Line 636
+	      'true'
+	  %% Line 637
+	  <{_X_X,_X_Y,_X_Z},{_X_XReq,_X_YReq,_X_ZReq}> when 'true' ->
+	      %% Line 638
+	      'false'
+	  %% Line 639
+	  <Vsn,VsnReq> when 'true' ->
+	      let <_cor3> =
+		  %% Line 640
+		  apply 'mk_gp_vsn_list'/1
+		      (Vsn)
+	      in  let <_cor2> =
+		      %% Line 640
+		      apply 'mk_gp_vsn_list'/1
+			  (VsnReq)
+		  in  %% Line 640
+		      apply 'gp_meets_min_req'/2
+			  (_cor3, _cor2)
+	end
+'gp_meets_min_req'/2 =
+    %% Line 642
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[X|[Y|[Z|_X_Vs]]],[_cor4|[_cor5|[_cor6|[]]]]>
+	      when let <_cor9> =
+		    call 'erlang':'=:='
+			(_cor4, X)
+		in  let <_cor7> =
+			call 'erlang':'=:='
+			    (_cor5, Y)
+		    in  let <_cor8> =
+			    call 'erlang':'=:='
+				(_cor6, Z)
+			in  let <_cor10> =
+				call 'erlang':'and'
+				    (_cor7, _cor8)
+			    in  call 'erlang':'and'
+				    (_cor9, _cor10) ->
+	      %% Line 643
+	      'true'
+	  %% Line 644
+	  <[X|[Y|[Z|_X_Vs]]],[XReq|[YReq|[ZReq|[]]]]> when 'true' ->
+	      %% Line 645
+	      apply 'meets_min_req'/2
+		  ({X,Y,Z}, {XReq,YReq,ZReq})
+	  %% Line 646
+	  <[X|[Y|[Z|Vs]]],[_cor11|[_cor12|[_cor13|VReqs]]]>
+	      when let <_cor16> =
+		    call 'erlang':'=:='
+			(_cor11, X)
+		in  let <_cor14> =
+			call 'erlang':'=:='
+			    (_cor12, Y)
+		    in  let <_cor15> =
+			    call 'erlang':'=:='
+				(_cor13, Z)
+			in  let <_cor17> =
+				call 'erlang':'and'
+				    (_cor14, _cor15)
+			    in  call 'erlang':'and'
+				    (_cor16, _cor17) ->
+	      %% Line 647
+	      apply 'gp_meets_min_req_tail'/2
+		  (Vs, VReqs)
+	  %% Line 648
+	  <_X_Vsn,_X_VReq> when 'true' ->
+	      %% Line 651
+	      'false'
+	end
+'gp_meets_min_req_tail'/2 =
+    %% Line 653
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[V|Vs],[_cor4|VReqs]>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     V) ->
+	      %% Line 654
+	      apply 'gp_meets_min_req_tail'/2
+		  (Vs, VReqs)
+	  %% Line 655
+	  <[],[]> when 'true' ->
+	      %% Line 656
+	      'true'
+	  %% Line 657
+	  <[_X_V|_X_Vs],[]> when 'true' ->
+	      %% Line 658
+	      'true'
+	  %% Line 659
+	  <[V|_X_Vs],[VReq|[]]>
+	      when call 'erlang':'>'
+		    (V,
+		     VReq) ->
+	      %% Line 660
+	      'true'
+	  %% Line 661
+	  <_X_Vs,_X_VReqs> when 'true' ->
+	      %% Line 664
+	      'false'
+	end
+'mk_gp_vsn_list'/1 =
+    %% Line 666
+    fun (_cor0) ->
+	%% Line 667
+	case call 'erlang':'tuple_to_list'
+		 (_cor0) of
+	  <[X|[Y|[Z|Tail]]]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 668
+		  apply 'remove_trailing_zeroes'/1
+		      (Tail)
+	      in  %% Line 668
+		  [X|[Y|[Z|_cor2]]]
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'remove_trailing_zeroes'/1 =
+    %% Line 670
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 671
+	      []
+	  %% Line 672
+	  <[0|Vs]> when 'true' ->
+	      %% Line 673
+	      case apply 'remove_trailing_zeroes'/1
+		       (Vs) of
+		%% Line 674
+		<[]> when 'true' ->
+		    []
+		%% Line 675
+		<NewVs> when 'true' ->
+		    [0|NewVs]
+	      end
+	  %% Line 677
+	  <[V|Vs]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 678
+		  apply 'remove_trailing_zeroes'/1
+		      (Vs)
+	      in  %% Line 678
+		  [V|_cor2]
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'remove_trailing_zeroes',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_app_vsn_str'/1 =
+    %% Line 680
+    fun (_cor0) ->
+	case _cor0 of
+	  <{App,Vsn}> when 'true' ->
+	      %% Line 681
+	      apply 'mk_app_vsn_str'/2
+		  (App, Vsn)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'mk_app_vsn_str',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_app_vsn_str'/2 =
+    %% Line 683
+    fun (_cor1,_cor0) ->
+	let <VsnList> =
+	    %% Line 684
+	    call 'erlang':'tuple_to_list'
+		(_cor0)
+	in  let <_cor3> =
+		%% Line 685
+		call 'erlang':'atom_to_list'
+		    (_cor1)
+	    in  let <_cor4> =
+		    %% Line 687
+		    call 'erlang':'hd'
+			(VsnList)
+		in  let <_cor5> =
+			%% Line 687
+			call 'erlang':'integer_to_list'
+			    (_cor4)
+		    in  let <_cor10> =
+			    %% Line 688
+			    ( fun (_cor8) ->
+				  let <_cor7> =
+				      %% Line 689
+				      call 'erlang':'integer_to_list'
+					  (_cor8)
+				  in  %% Line 689
+				      [46|[_cor7|[]]]
+			      -| [{'id',{0,0,'-mk_app_vsn_str/2-fun-0-'}}] )
+			in  let <_cor6> =
+				%% Line 690
+				call 'erlang':'tl'
+				    (VsnList)
+			    in  let <_cor11> =
+				    %% Line 688
+				    call 'lists':'map'
+					(_cor10, _cor6)
+				in  %% Line 685
+				    call 'lists':'flatten'
+					([_cor3|%% Line 686
+						[45|%% Line 687
+						    [_cor5|%% Line 688
+							   [_cor11|%% Line 690
+								   []]]]])
+'otp_17_0_vsns_orddict'/0 =
+    %% Line 692
+    fun () ->
+	%% Line 693
+	[{'asn1',{3,0}}|[{'common_test',{1,8}}|[{'compiler',{5,0}}|[{'cosEvent',{2,1,15}}|[{'cosEventDomain',{1,1,14}}|[{'cosFileTransfer',{1,1,16}}|[{'cosNotification',{1,1,21}}|[{'cosProperty',{1,1,17}}|[{'cosTime',{1,1,14}}|[{'cosTransactions',{1,2,14}}|[{'crypto',{3,3}}|[{'debugger',{4,0}}|[{'dialyzer',{2,7}}|[{'diameter',{1,6}}|[{'edoc',{0,7,13}}|[{'eldap',{1,0,3}}|[{'erl_docgen',{0,3,5}}|[{'erl_interface',{3,7,16}}|[{'erts',{6,0}}|[{'et',{1,5}}|[{'eunit',{2,2,7}}|[{'gs',{1,5,16}}|[{'hipe',{3,10,3}}|[{'ic',{4,3,5}}|[{'inets',{5,10}}|[{'jinterface',{1,5,9}}|[{'kernel',{3,0}}|[{'megaco',{3,17,1}}|[{'mnesia',{4,12}}|[{'observer',{2,0}}|[{'odbc',{2,10,20}}|[{'orber',{3,6,27}}|[{'os_mon',{2,2,15}}|[{'ose',{1,0}}|[{'otp_mibs',{1,0,9}}|[{'parsetools',{2,0,11}}|[{'percept',{0,8,9}}|[{'public_key',{0,22}}|[{'reltool',{0,6,5}}|[{'runtime_tools',{1,8,14}}|[{'sasl',{2,4}}|[{'snmp',{4,25,1}}|[{'ssh',{3,0,1}}|[{'ssl',{5,3,4}}|[{'stdlib',{2,0}}|[{'syntax_tools',{1,6,14}}|[{'test_server',{3,7}}|[{'tools',{2,6,14}}|[{'typer',{0,9,6}}|[{'webtool',{0,8,10}}|[{'wx',{1,2}}|[{'xmerl',{1,3,7}}]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+'otp_17_0_vsns_tab'/0 =
+    %% Line 746
+    fun () ->
+	let <_cor0> =
+	    %% Line 747
+	    apply 'otp_17_0_vsns_orddict'/0
+		()
+	in  %% Line 747
+	    call 'gb_trees':'from_orddict'
+		(_cor0)
+'check_runtime_dependency'/2 =
+    %% Line 749
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{App,DepVsn},AppTab> when 'true' ->
+	      %% Line 750
+	      case call 'gb_trees':'lookup'
+		       (App, AppTab) of
+		%% Line 751
+		<'none'> when 'true' ->
+		    %% Line 752
+		    'false'
+		%% Line 753
+		<{'value',{Vsn,_cor5}}> when 'true' ->
+		    %% Line 754
+		    apply 'meets_min_req'/2
+			(Vsn, DepVsn)
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'check_runtime_dependency',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'check_runtime_dependencies'/3 =
+    %% Line 757
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 758
+	case call 'gb_trees':'lookup'
+		 (_cor2, _cor1) of
+	  %% Line 759
+	  <'none'> when 'true' ->
+	      %% Line 760
+	      [{'invalid_app_file',_cor2}|[]]
+	  %% Line 761
+	  <{'value',{Vsn,RTDeps}}> when 'true' ->
+	      let <_cor9> =
+		  %% Line 763
+		  ( fun (_cor6,_cor5) ->
+			%% Line 764
+			case apply 'check_runtime_dependency'/2
+				 (_cor6, _cor1) of
+			  %% Line 765
+			  <'true'> when 'true' ->
+			      _cor5
+			  %% Line 767
+			  <'false'> when 'true' ->
+			      let <_cor3> =
+				  %% Line 768
+				  apply 'mk_app_vsn_str'/1
+				      (_cor6)
+			      in  %% Line 768
+				  [_cor3|_cor5]
+			  ( <_cor4> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor4})
+			    -| ['compiler_generated'] )
+			end
+		    -| [{'id',{0,0,'-check_runtime_dependencies/3-fun-0-'}}] )
+	      in  let <_cor12> =
+		      %% Line 762
+		      case call 'lists':'foldl'
+			       (_cor9, %% Line 771
+				       [], %% Line 772
+					   RTDeps) of
+			%% Line 773
+			<[]> when 'true' ->
+			    %% Line 774
+			    []
+			%% Line 775
+			<MissingDeps> when 'true' ->
+			    let <_cor10> =
+				%% Line 777
+				apply 'mk_app_vsn_str'/2
+				    (_cor2, Vsn)
+			    in  %% Line 776
+				[{'missing_runtime_dependencies',_cor10,%% Line 778
+									MissingDeps}|%% Line 778
+										     []]
+		      end
+		  in  %% Line 780
+		      case call 'gb_trees':'lookup'
+			       (_cor2, _cor0) of
+			%% Line 781
+			<'none'> when 'true' ->
+			    _cor12
+			%% Line 783
+			<{'value',MinVsn}> when 'true' ->
+			    %% Line 784
+			    case apply 'meets_min_req'/2
+				     (Vsn, MinVsn) of
+			      %% Line 785
+			      <'true'> when 'true' ->
+				  _cor12
+			      %% Line 787
+			      <'false'> when 'true' ->
+				  let <_cor14> =
+				      %% Line 789
+				      apply 'mk_app_vsn_str'/2
+					  (_cor2, Vsn)
+				  in  %% Line 788
+				      [{'invalid_application_version',_cor14}|_cor12]
+			      ( <_cor15> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor15})
+				-| ['compiler_generated'] )
+			    end
+			( <_cor16> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor16})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor17> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor17})
+	    -| ['compiler_generated'] )
+	end
+'app_file_to_app'/1 =
+    %% Line 794
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 795
+	    call 'filename':'basename'
+		(_cor0, [46|[97|[112|[112]]]])
+	in  %% Line 795
+	    call 'erlang':'list_to_atom'
+		(_cor1)
+'get_apps'/0 =
+    %% Line 797
+    fun () ->
+	let <_cor0> =
+	    %% Line 798
+	    call 'code':'get_path'
+		()
+	in  %% Line 798
+	    apply 'get_apps'/2
+		(_cor0, [])
+'get_apps'/2 =
+    %% Line 800
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Apps> when 'true' ->
+	      %% Line 801
+	      call 'lists':'usort'
+		  (Apps)
+	  %% Line 802
+	  <[Path|Paths],Apps> when 'true' ->
+	      let <_cor2> =
+		  %% Line 803
+		  call 'filename':'join'
+		      (Path, [42|[46|[97|[112|[112]]]]])
+	      in  %% Line 803
+		  case call 'filelib':'wildcard'
+			   (_cor2) of
+		    %% Line 804
+		    <[]> when 'true' ->
+			%% Line 806
+			apply 'get_apps'/2
+			    (Paths, Apps)
+		    %% Line 807
+		    <[AppFile|[]]> when 'true' ->
+			let <_cor3> =
+			    %% Line 808
+			    apply 'app_file_to_app'/1
+				(AppFile)
+			in  %% Line 808
+			    apply 'get_apps'/2
+				(Paths, [_cor3|Apps])
+		    %% Line 809
+		    <AppFiles = [_X_AppFile|_cor11]> when 'true' ->
+			let <_cor6> =
+			    %% Line 812
+			    ( fun (_cor4) ->
+				  %% Line 813
+				  apply 'app_file_to_app'/1
+				      (_cor4)
+			      -| [{'id',{0,0,'-get_apps/2-fun-0-'}}] )
+			in  let <_cor7> =
+				%% Line 812
+				call 'lists':'map'
+				    (_cor6, %% Line 814
+					    AppFiles)
+			    in  %% Line 814
+				call 'erlang':'++'
+				    (_cor7, Apps)
+		    ( <_cor8> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor8})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9})
+		  -| [{'function_name',{'get_apps',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'check_runtime_dependencies'/0 =
+    %% Line 817
+    fun () ->
+	let <OtpMinVsnTab> =
+	    %% Line 818
+	    apply 'otp_17_0_vsns_tab'/0
+		()
+	in  let <Apps> =
+		%% Line 819
+		apply 'get_apps'/0
+		    ()
+	    in  let <_cor2> =
+		    %% Line 820
+		    call 'gb_trees':'empty'
+			()
+		in  let <AppTab> =
+			%% Line 820
+			apply 'build_app_table'/2
+			    (Apps, _cor2)
+		    in  let <_cor9> =
+			    %% Line 821
+			    ( fun (_cor6,_cor5) ->
+				  %% Line 822
+				  case apply 'check_runtime_dependencies'/3
+					   (_cor6, %% Line 823
+						   AppTab, %% Line 824
+							   OtpMinVsnTab) of
+				    %% Line 825
+				    <[]> when 'true' ->
+					_cor5
+				    %% Line 826
+				    <Issues> when 'true' ->
+					call 'erlang':'++'
+					    (Issues, _cor5)
+				  end
+			      -| [{'id',{0,0,'-check_runtime_dependencies/0-fun-0-'}}] )
+			in  %% Line 821
+			    call 'lists':'foldl'
+				(_cor9, %% Line 829
+					[], %% Line 830
+					    Apps)
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('system_information')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('system_information', _cor0)
+end

@@ -1,0 +1,322 @@
+module 'beam_peep' ['module'/2,
+		    'module_info'/0,
+		    'module_info'/1]
+    attributes []
+'module'/2 =
+    %% Line 26
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Mod,Exp,Attr,Fs0,_cor12},_X_Opts> when 'true' ->
+	      let <_678> =
+		  %% Line 28
+		  call 'beam_clean':'clean_labels'
+		      (Fs0)
+	      in  %% Line 28
+		  case _678 of
+		    <{Fs1,Lc}> when 'true' ->
+			let <_cor8> =
+			    %% Line 31
+			    ( letrec
+				  'lc$^0'/1 =
+				      fun (_cor5) ->
+					  case _cor5 of
+					    <[F|_cor4]> when 'true' ->
+						let <_cor6> =
+						    apply 'function'/1
+							(F)
+						in  let <_cor7> =
+							apply 'lc$^0'/1
+							    (_cor4)
+						    in  ( [_cor6|_cor7]
+							  -| ['compiler_generated'] )
+					    <[]> when 'true' ->
+						[]
+					    ( <_1016> when 'true' ->
+						  ( primop 'match_fail'
+							({'function_clause',_cor5})
+						    -| [{'function_name',{'lc$^0',1}}] )
+					      -| ['compiler_generated'] )
+					  end
+			      in  apply 'lc$^0'/1
+				      (Fs1)
+			      -| ['list_comprehension'] )
+			in  %% Line 32
+			    {'ok',{Mod,Exp,Attr,_cor8,Lc}}
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_678})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'module',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'function'/1 =
+    %% Line 34
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'function',Name,Arity,CLabel,Is0}> when 'true' ->
+	      %% Line 35
+	      try
+		  let <Is1> =
+		      %% Line 36
+		      apply 'peep'/1
+			  (Is0)
+		  in  let <Is> =
+			  %% Line 37
+			  call 'beam_jump':'remove_unused_labels'
+			      (Is1)
+		      in  %% Line 38
+			  {'function',Name,Arity,CLabel,Is}
+	      of <_cor3> ->
+		  _cor3
+	      catch <_cor6,_cor5,_cor4> ->
+		  let <Stack> =
+		      %% Line 41
+		      call 'erlang':'get_stacktrace'
+			  ()
+		  in  do  %% Line 42
+			  call 'io':'fwrite'
+			      ([70|[117|[110|[99|[116|[105|[111|[110|[58|[32|[126|[119|[47|[126|[119|[10]]]]]]]]]]]]]]]], [Name|[Arity|[]]])
+			  %% Line 43
+			  call 'erlang':'raise'
+			      (_cor6, _cor5, Stack)
+	  ( <_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'function',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'peep'/1 =
+    %% Line 80
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 81
+	    call 'gb_sets':'empty'
+		()
+	in  %% Line 81
+	    apply 'peep'/3
+		(_cor0, _cor1, [])
+'peep'/3 =
+    %% Line 83
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[I = {'bif','tuple_size',_cor18,Ops = [_cor19|[]],Dst}|Is],SeenTests0,Acc> when 'true' ->
+	      let <SeenTests1> =
+		  %% Line 85
+		  call 'gb_sets':'add'
+		      ({'is_tuple',Ops}, _cor1)
+	      in  let <_1417> =
+		      %% Line 140
+		      call 'gb_sets':'to_list'
+			  (SeenTests1)
+		  in  let <_cor3> =
+			  %% Line 140
+			  apply 'kill_seen_1'/2
+			      (_1417, Dst)
+		      in  let <SeenTests> =
+			      %% Line 140
+			      call 'gb_sets':'from_ordset'
+				  (_cor3)
+			  in  %% Line 88
+			      apply 'peep'/3
+				  (Is, SeenTests, [I|_cor0])
+	  %% Line 89
+	  <[I = {'bif',_cor20,_cor21,_cor22,Dst}|Is],SeenTests0,Acc> when 'true' ->
+	      let <_1224> =
+		  %% Line 140
+		  call 'gb_sets':'to_list'
+		      (_cor1)
+	      in  let <_cor3> =
+		      %% Line 140
+		      apply 'kill_seen_1'/2
+			  (_1224, Dst)
+		  in  let <SeenTests> =
+			  %% Line 140
+			  call 'gb_sets':'from_ordset'
+			      (_cor3)
+		      in  %% Line 92
+			  apply 'peep'/3
+			      (Is, SeenTests, [I|_cor0])
+	  %% Line 93
+	  <[I = {'gc_bif',_cor23,_cor24,_cor25,_cor26,Dst}|Is],SeenTests0,Acc> when 'true' ->
+	      let <_1124> =
+		  %% Line 140
+		  call 'gb_sets':'to_list'
+		      (_cor1)
+	      in  let <_cor3> =
+		      %% Line 140
+		      apply 'kill_seen_1'/2
+			  (_1124, Dst)
+		  in  let <SeenTests> =
+			  %% Line 140
+			  call 'gb_sets':'from_ordset'
+			      (_cor3)
+		      in  %% Line 96
+			  apply 'peep'/3
+			      (Is, SeenTests, [I|_cor0])
+	  %% Line 97
+	  <Is = [{'test','is_boolean',{'f',Fail},Ops}|_cor27],SeenTests,%% Line 98
+									[{'test','is_atom',{'f',_cor28},_cor29}|Acc]>
+	      when let <_cor30> =
+		    call 'erlang':'=:='
+			(_cor28, Fail)
+		in  let <_cor31> =
+			call 'erlang':'=:='
+			    (_cor29, Ops)
+		    in  call 'erlang':'and'
+			    (_cor30, _cor31) ->
+	      %% Line 102
+	      apply 'peep'/3
+		  (_cor2, _cor1, Acc)
+	  %% Line 103
+	  <[I = {'test',Op,_cor32,Ops}|Is],SeenTests0,Acc> when 'true' ->
+	      let <_322> =
+		  %% Line 104
+		  call 'beam_utils':'is_pure_test'
+		      (I)
+	      in  %% Line 104
+		  case _322 of
+		    %% Line 105
+		    <'false'> when 'true' ->
+			let <_cor7> =
+			    %% Line 109
+			    call 'gb_sets':'empty'
+				()
+			in  %% Line 109
+			    apply 'peep'/3
+				(Is, _cor7, [I|_cor0])
+		    %% Line 110
+		    <'true'> when 'true' ->
+			let <Test> = {Op,Ops}
+			in  let <_159> =
+				%% Line 112
+				call 'gb_sets':'is_element'
+				    (Test, _cor1)
+			    in  %% Line 112
+				case _159 of
+				  %% Line 113
+				  <'true'> when 'true' ->
+				      %% Line 116
+				      apply 'peep'/3
+					  (Is, _cor1, _cor0)
+				  %% Line 117
+				  <'false'> when 'true' ->
+				      let <SeenTests> =
+					  %% Line 119
+					  call 'gb_sets':'insert'
+					      (Test, _cor1)
+				      in  %% Line 120
+					  apply 'peep'/3
+					      (Is, SeenTests, [I|_cor0])
+				  ( <_cor10> when 'true' ->
+					primop 'match_fail'
+					    ({'case_clause',_159})
+				    -| ['compiler_generated'] )
+				end
+		    ( <_cor11> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_322})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 123
+	  <[{'select','select_val',Src,Fail,%% Line 124
+					    [{'atom','false'}|[{'f',L}|[{'atom','true'}|[{'f',_cor33}|[]]]]]}|Is = %% Line 125
+														   [{'label',_cor34}|_cor35]],SeenTests,Acc>
+	      when let <_cor36> =
+		    call 'erlang':'=:='
+			(_cor33, L)
+		in  let <_cor37> =
+			call 'erlang':'=:='
+			    (_cor34, L)
+		    in  call 'erlang':'and'
+			    (_cor36, _cor37) ->
+	      let <I> =
+		  %% Line 126
+		  {'test','is_boolean',Fail,[Src|[]]}
+	      in  %% Line 127
+		  apply 'peep'/3
+		      ([I|Is], _cor1, _cor0)
+	  %% Line 128
+	  <[{'select','select_val',Src,Fail,%% Line 129
+					    [{'atom','true'}|[{'f',L}|[{'atom','false'}|[{'f',_cor38}|[]]]]]}|Is = %% Line 130
+														   [{'label',_cor39}|_cor40]],SeenTests,Acc>
+	      when let <_cor41> =
+		    call 'erlang':'=:='
+			(_cor38, L)
+		in  let <_cor42> =
+			call 'erlang':'=:='
+			    (_cor39, L)
+		    in  call 'erlang':'and'
+			    (_cor41, _cor42) ->
+	      let <I> =
+		  %% Line 131
+		  {'test','is_boolean',Fail,[Src|[]]}
+	      in  %% Line 132
+		  apply 'peep'/3
+		      ([I|Is], _cor1, _cor0)
+	  %% Line 133
+	  <[I|Is],_cor43,Acc> when 'true' ->
+	      let <_cor14> =
+		  %% Line 136
+		  call 'gb_sets':'empty'
+		      ()
+	      in  %% Line 136
+		  apply 'peep'/3
+		      (Is, _cor14, [I|_cor0])
+	  %% Line 137
+	  <[],_cor44,Acc> when 'true' ->
+	      call 'lists':'reverse'
+		  (_cor0)
+	  ( <_cor17,_cor16,_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'peep',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'kill_seen_1'/2 =
+    %% Line 142
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[Test = {_cor6,Ops}|T],Dst> when 'true' ->
+	      let <_522> =
+		  %% Line 143
+		  call 'lists':'member'
+		      (_cor0, Ops)
+	      in  %% Line 143
+		  case _522 of
+		    %% Line 144
+		    <'true'> when 'true' ->
+			apply 'kill_seen_1'/2
+			    (T, _cor0)
+		    %% Line 145
+		    <'false'> when 'true' ->
+			let <_cor2> =
+			    apply 'kill_seen_1'/2
+				(T, _cor0)
+			in  [Test|_cor2]
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_522})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 147
+	  <[],_cor7> when 'true' ->
+	      []
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'kill_seen_1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('beam_peep')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('beam_peep', _cor0)
+end

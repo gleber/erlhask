@@ -1,0 +1,219 @@
+module 'dbg_debugged' ['eval'/3,
+		       'module_info'/0,
+		       'module_info'/1]
+    attributes []
+'eval'/3 =
+    %% Line 33
+    fun (_cor2,_cor1,_cor0) ->
+	let <SaveStacktrace> =
+	    %% Line 34
+	    call 'erlang':'get_stacktrace'
+		()
+	in  let <Meta> =
+		%% Line 35
+		call 'dbg_ieval':'eval'
+		    (_cor2, _cor1, _cor0)
+	    in  let <Mref> =
+		    %% Line 36
+		    call 'erlang':'monitor'
+			('process', Meta)
+		in  %% Line 37
+		    apply 'msg_loop'/3
+			(Meta, Mref, SaveStacktrace)
+'msg_loop'/3 =
+    %% Line 43
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 44
+	receive
+	  %% Line 47
+	  <{'sys',_cor19,{'ready',Val}}>
+	      when call 'erlang':'=:='
+		    (_cor19,
+		     _cor2) ->
+	      do  %% Line 48
+		  call 'erlang':'demonitor'
+		      (_cor1, ['flush'])
+		  %% Line 51
+		  try
+		      call 'erlang':'raise'
+			  ('throw', 'stack', _cor0)
+		  of <_cor3> ->
+		      _cor3
+		  catch <_cor6,_cor5,_cor4> ->
+		      case <_cor6,_cor5,_cor4> of
+			%% Line 53
+			<'throw','stack',_cor20> when 'true' ->
+			    %% Line 54
+			    case Val of
+			      %% Line 55
+			      <{'dbg_apply',M,F,A}> when 'true' ->
+				  %% Line 56
+				  call 'erlang':'apply'
+				      (M, F, A)
+			      %% Line 57
+			      <_cor21> when 'true' ->
+				  %% Line 58
+				  Val
+			    end
+			( <_cor6,_cor5,_cor4> when 'true' ->
+			      primop 'raise'
+				  (_cor4, _cor5)
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 63
+	  <{'sys',_cor22,{'exception',{Class,Reason,Stacktrace}}}>
+	      when call 'erlang':'=:='
+		    (_cor22,
+		     _cor2) ->
+	      do  %% Line 64
+		  call 'erlang':'demonitor'
+		      (_cor1, ['flush'])
+		  let <_cor8> =
+		      %% Line 67
+		      call 'erlang':'raise'
+			  (Class, Reason, Stacktrace)
+		  in  %% Line 67
+		      call 'erlang':'error'
+			  (_cor8, %% Line 68
+				  [Class|[Reason|[Stacktrace|[]]]])
+	  %% Line 72
+	  <{'sys',_cor23,{'receive',Msg}}>
+	      when call 'erlang':'=:='
+		    (_cor23,
+		     _cor2) ->
+	      do  %% Line 73
+		  receive
+		    <_cor24>
+			when call 'erlang':'=:='
+			      (_cor24,
+			       Msg) ->
+			let <_cor9> =
+			    call 'erlang':'self'
+				()
+			in  call 'erlang':'!'
+				(_cor2, {_cor9,'rec_acked'})
+		  after 'infinity' ->
+		    'ok'
+		  %% Line 74
+		  apply 'msg_loop'/3
+		      (_cor2, _cor1, _cor0)
+	  %% Line 77
+	  <{'sys',_cor25,{'command',Command}}>
+	      when call 'erlang':'=:='
+		    (_cor25,
+		     _cor2) ->
+	      let <Reply> =
+		  %% Line 78
+		  apply 'handle_command'/1
+		      (Command)
+	      in  let <_cor11> =
+		      %% Line 79
+		      call 'erlang':'self'
+			  ()
+		  in  do  %% Line 79
+			  call 'erlang':'!'
+			      (_cor2, {'sys',_cor11,Reply})
+			  %% Line 80
+			  apply 'msg_loop'/3
+			      (_cor2, _cor1, _cor0)
+	  %% Line 84
+	  <{'DOWN',_cor26,_cor27,_cor28,Reason}>
+	      when call 'erlang':'=:='
+		    (_cor26,
+		     _cor1) ->
+	      %% Line 87
+	      try
+		  call 'erlang':'raise'
+		      ('throw', 'stack', _cor0)
+	      of <_cor12> ->
+		  _cor12
+	      catch <_cor15,_cor14,_cor13> ->
+		  case <_cor15,_cor14,_cor13> of
+		    %% Line 89
+		    <'throw','stack',_cor29> when 'true' ->
+			%% Line 90
+			{'interpreter_terminated',Reason}
+		    ( <_cor15,_cor14,_cor13> when 'true' ->
+			  primop 'raise'
+			      (_cor13, _cor14)
+		      -| ['compiler_generated'] )
+		  end
+	after 'infinity' ->
+	  'true'
+'handle_command'/1 =
+    %% Line 94
+    fun (_cor0) ->
+	%% Line 95
+	try
+	    %% Line 96
+	    apply 'reply'/1
+		(_cor0)
+	of <_cor1> ->
+	    _cor1
+	catch <_cor4,_cor3,_cor2> ->
+	    let <_cor5> =
+		%% Line 98
+		call 'erlang':'get_stacktrace'
+		    ()
+	    in  let <Stacktrace> =
+		    %% Line 98
+		    apply 'stacktrace_f'/1
+			(_cor5)
+		in  %% Line 99
+		    {'exception',{_cor4,_cor3,Stacktrace}}
+'reply'/1 =
+    %% Line 102
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'apply',M,F,As}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 103
+		  call 'erlang':'apply'
+		      (M, F, As)
+	      in  %% Line 103
+		  {'value',_cor1}
+	  %% Line 104
+	  <{'eval',Expr,Bs}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 106
+		  call 'lists':'sort'
+		      (Bs)
+	      in  %% Line 106
+		  call 'erl_eval':'expr'
+		      (Expr, _cor2)
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'reply',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'stacktrace_f'/1 =
+    %% Line 110
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      []
+	  %% Line 111
+	  <[{'dbg_debugged',_cor3,_cor4,_cor5}|_cor6]> when 'true' ->
+	      []
+	  %% Line 112
+	  <[F|S]> when 'true' ->
+	      let <_cor1> =
+		  apply 'stacktrace_f'/1
+		      (S)
+	      in  [F|_cor1]
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'stacktrace_f',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('dbg_debugged')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('dbg_debugged', _cor0)
+end

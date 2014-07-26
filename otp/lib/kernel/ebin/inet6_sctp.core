@@ -1,0 +1,155 @@
+module 'inet6_sctp' ['close'/1,
+		     'connect'/5,
+		     'getaddr'/1,
+		     'getaddr'/2,
+		     'getserv'/1,
+		     'listen'/2,
+		     'module_info'/0,
+		     'module_info'/1,
+		     'open'/1,
+		     'peeloff'/2,
+		     'recv'/2,
+		     'send'/4,
+		     'sendmsg'/3,
+		     'translate_ip'/1]
+    attributes []
+'getserv'/1 =
+    %% Line 40
+    fun (_cor0) ->
+	case _cor0 of
+	  <Port>
+	      when call 'erlang':'is_integer'
+		    (_cor0) ->
+	      {'ok',Port}
+	  %% Line 41
+	  <Name>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      %% Line 42
+	      call 'inet':'getservbyname'
+		  (Name, 'sctp')
+	  %% Line 43
+	  <_cor2> when 'true' ->
+	      %% Line 44
+	      {'error','einval'}
+	end
+'getaddr'/1 =
+    %% Line 46
+    fun (_cor0) ->
+	%% Line 47
+	call 'inet':'getaddr'
+	    (_cor0, 'inet6')
+'getaddr'/2 =
+    %% Line 48
+    fun (_cor1,_cor0) ->
+	%% Line 49
+	call 'inet':'getaddr_tm'
+	    (_cor1, 'inet6', _cor0)
+'translate_ip'/1 =
+    %% Line 51
+    fun (_cor0) ->
+	%% Line 52
+	call 'inet':'translate_ip'
+	    (_cor0, 'inet6')
+'open'/1 =
+    %% Line 56
+    fun (_cor0) ->
+	%% Line 57
+	case call 'inet':'sctp_options'
+		 (_cor0, 'inet6_sctp') of
+	  %% Line 58
+	  <{'ok',{'sctp_opts',Addr,Port,Fd,Type,SOs}}> when 'true' ->
+	      %% Line 59
+	      call 'inet':'open'
+		  (Fd, Addr, Port, SOs, 'sctp', 'inet6', Type, 'inet6_sctp')
+	  %% Line 60
+	  <Error> when 'true' ->
+	      Error
+	end
+'close'/1 =
+    %% Line 63
+    fun (_cor0) ->
+	%% Line 64
+	call 'prim_inet':'close'
+	    (_cor0)
+'listen'/2 =
+    %% Line 66
+    fun (_cor1,_cor0) ->
+	%% Line 67
+	call 'prim_inet':'listen'
+	    (_cor1, _cor0)
+'peeloff'/2 =
+    %% Line 69
+    fun (_cor1,_cor0) ->
+	%% Line 70
+	case call 'prim_inet':'peeloff'
+		 (_cor1, _cor0) of
+	  %% Line 71
+	  <Result = {'ok',NewS}> when 'true' ->
+	      do  %% Line 72
+		  call 'inet_db':'register_socket'
+		      (NewS, 'inet6_sctp')
+		  %% Line 73
+		  Result
+	  %% Line 74
+	  <Error> when 'true' ->
+	      Error
+	end
+'connect'/5 =
+    %% Line 77
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 78
+	call 'inet_sctp':'connect'
+	    (_cor4, _cor3, _cor2, _cor1, _cor0)
+'sendmsg'/3 =
+    %% Line 80
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 81
+	call 'prim_inet':'sendmsg'
+	    (_cor2, _cor1, _cor0)
+'send'/4 =
+    %% Line 83
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 84
+	case call 'prim_inet':'getopts'
+		 (_cor3, %% Line 86
+			 [{'sctp_default_send_param',{'sctp_sndrcvinfo','undefined','undefined','undefined','undefined','undefined','undefined','undefined','undefined',_cor2}}|[]]) of
+	  %% Line 87
+	  <{'ok',%% Line 88
+		 [{'sctp_default_send_param',%% Line 89
+					     {'sctp_sndrcvinfo',_cor9,_cor10,%% Line 90
+									     Flags,%% Line 90
+										   PPID,%% Line 90
+											Context,%% Line 90
+												TTL,_cor11,_cor12,_cor13}}|%% Line 90
+															   []]}> when 'true' ->
+	      %% Line 91
+	      call 'prim_inet':'sendmsg'
+		  (_cor3, %% Line 93
+			  {'sctp_sndrcvinfo',_cor1,'undefined',%% Line 94
+							       Flags,%% Line 94
+								     PPID,%% Line 94
+									  Context,%% Line 94
+										  TTL,'undefined','undefined',_cor2}, _cor0)
+	  %% Line 97
+	  <_cor14> when 'true' ->
+	      %% Line 98
+	      call 'prim_inet':'sendmsg'
+		  (_cor3, %% Line 99
+			  {'sctp_sndrcvinfo',_cor1,'undefined','undefined','undefined','undefined','undefined','undefined','undefined',_cor2}, _cor0)
+	end
+'recv'/2 =
+    %% Line 102
+    fun (_cor1,_cor0) ->
+	%% Line 103
+	call 'prim_inet':'recvfrom'
+	    (_cor1, 0, _cor0)
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('inet6_sctp')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('inet6_sctp', _cor0)
+end

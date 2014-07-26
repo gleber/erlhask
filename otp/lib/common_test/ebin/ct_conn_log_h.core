@@ -1,0 +1,936 @@
+module 'ct_conn_log_h' ['handle_call'/2,
+			'handle_event'/2,
+			'handle_info'/2,
+			'init'/1,
+			'module_info'/0,
+			'module_info'/1,
+			'terminate'/2]
+    attributes []
+'init'/1 =
+    %% Line 39
+    fun (_cor0) ->
+	case _cor0 of
+	  <{GL,ConnLogs}> when 'true' ->
+	      %% Line 40
+	      apply 'open_files'/3
+		  (GL, ConnLogs, {'state',[],GL})
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'open_files'/3 =
+    %% Line 42
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <GL,[{ConnMod,{LogType,LogFiles}}|T],State = {'state',Logs,_cor13}> when 'true' ->
+	      %% Line 43
+	      case apply 'do_open_files'/2
+		       (LogFiles, []) of
+		%% Line 44
+		<{'ok',Fds}> when 'true' ->
+		    let <ConnInfo> =
+			%% Line 45
+			call 'proplists':'get_value'
+			    (GL, Logs, [])
+		    in  let <_cor4> =
+			    %% Line 47
+			    call 'proplists':'delete'
+				(GL, Logs)
+			in  let <Logs1> =
+				%% Line 46
+				[{GL,[{ConnMod,{LogType,Fds}}|ConnInfo]}|_cor4]
+			    in  let <_cor8> =
+				    %% Line 48
+				    call 'erlang':'setelement'
+					(2, State, Logs1)
+				in  %% Line 48
+				    apply 'open_files'/3
+					(GL, T, _cor8)
+		%% Line 49
+		<Error> when 'true' ->
+		    %% Line 50
+		    Error
+	      end
+	  %% Line 52
+	  <_X_GL,[],State> when 'true' ->
+	      %% Line 53
+	      {'ok',State}
+	  ( <_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'open_files',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'do_open_files'/2 =
+    %% Line 55
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{Tag,File}|LogFiles],Acc> when 'true' ->
+	      %% Line 56
+	      case call 'file':'open'
+		       (File, ['write'|['append'|[{'encoding','utf8'}]]]) of
+		%% Line 57
+		<{'ok',Fd}> when 'true' ->
+		    %% Line 58
+		    apply 'do_open_files'/2
+			(LogFiles, [{Tag,Fd}|Acc])
+		%% Line 59
+		<{'error',Reason}> when 'true' ->
+		    %% Line 60
+		    {'error',{'could_not_open_log',File,Reason}}
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 62
+	  <[],Acc> when 'true' ->
+	      let <_cor3> =
+		  %% Line 63
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  %% Line 63
+		  {'ok',_cor3}
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'do_open_files',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_event'/2 =
+    %% Line 65
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'info_report',_cor15,{From,'update',{GL,ConnLogs}}},%% Line 66
+								State>
+	      when %% Line 66
+		try
+		    let <_cor3> =
+			call 'erlang':'node'
+			    (GL)
+		    in  let <_cor2> =
+			    call 'erlang':'node'
+				()
+			in  call 'erlang':'=='
+				(_cor3, _cor2)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <Result> =
+		  %% Line 67
+		  apply 'open_files'/3
+		      (GL, ConnLogs, State)
+	      in  do  %% Line 68
+		      call 'erlang':'!'
+			  (From, {'updated',GL})
+		      %% Line 69
+		      Result
+	  %% Line 70
+	  <{_X_Type,GL,_X_Msg},State>
+	      when try
+		    let <_cor6> =
+			call 'erlang':'node'
+			    (GL)
+		    in  let <_cor5> =
+			    call 'erlang':'node'
+				()
+			in  call 'erlang':'/='
+				(_cor6, _cor5)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 71
+	      {'ok',State}
+	  %% Line 72
+	  <{_X_Type,GL,{Pid,{'ct_connection',Mod,Action,ConnName},Report}},%% Line 73
+									   State> when 'true' ->
+	      let <Info> =
+		  %% Line 74
+		  apply 'conn_info'/2
+		      (Pid, {'conn_log',%% Line 83
+					'true',%% Line 84
+					       'undefined',ConnName,%% Line 86
+								    'undefined',%% Line 87
+										'undefined',Action,Mod})
+	      in  let <_cor8> =
+		      %% Line 75
+		      call 'erlang':'now'
+			  ()
+		  in  do  %% Line 75
+			  apply 'write_report'/5
+			      (_cor8, Info, Report, GL, State)
+			  %% Line 76
+			  {'ok',State}
+	  %% Line 77
+	  <{_X_Type,GL,{Pid,Info = {'conn_log',_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22},Report}},State> when 'true' ->
+	      let <_cor10> =
+		  %% Line 78
+		  call 'erlang':'now'
+		      ()
+	      in  let <_cor9> =
+		      %% Line 78
+		      apply 'conn_info'/2
+			  (Pid, Info)
+		  in  do  %% Line 78
+			  apply 'write_report'/5
+			      (_cor10, _cor9, Report, GL, State)
+			  %% Line 79
+			  {'ok',State}
+	  %% Line 80
+	  <{'error_report',GL,{Pid,_cor23,[{'ct_connection',ConnName}|R]}},State> when 'true' ->
+	      let <_cor12> =
+		  %% Line 82
+		  call 'erlang':'now'
+		      ()
+	      in  let <_cor11> =
+		      %% Line 82
+		      apply 'conn_info'/2
+			  (Pid, {'conn_log',%% Line 83
+					    'true',%% Line 84
+						   'undefined',ConnName,%% Line 86
+									'undefined',%% Line 87
+										    'undefined',%% Line 88
+												'undefined',%% Line 89
+													    'undefined'})
+		  in  do  %% Line 82
+			  apply 'write_error'/5
+			      (_cor12, _cor11, R, GL, State)
+			  %% Line 83
+			  {'ok',State}
+	  %% Line 84
+	  <_X_What,State> when 'true' ->
+	      %% Line 85
+	      {'ok',State}
+	end
+'handle_info'/2 =
+    %% Line 87
+    fun (_cor1,_cor0) ->
+	%% Line 88
+	{'ok',_cor0}
+'handle_call'/2 =
+    %% Line 90
+    fun (_cor1,_cor0) ->
+	%% Line 91
+	{'ok',{'error','bad_query'},_cor0}
+'terminate'/2 =
+    %% Line 93
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_cor15,{'state',Logs,_cor16}> when 'true' ->
+	      let <_cor12> =
+		  %% Line 95
+		  ( fun (_cor10) ->
+			case _cor10 of
+			  <{_X_GL,ConnLogs}> when 'true' ->
+			      %% Line 96
+			      ( letrec
+				    'lc$^0'/1 =
+					fun (_cor6) ->
+					    case _cor6 of
+					      <[{_cor17,{_cor18,Fds}}|_cor3]> when 'true' ->
+						  ( letrec
+							'lc$^1'/1 =
+							    fun (_cor7) ->
+								case _cor7 of
+								  <[{_cor19,Fd}|_cor5]> when 'true' ->
+								      let <_cor8> =
+									  call 'file':'close'
+									      (Fd)
+								      in  let <_cor9> =
+									      apply 'lc$^1'/1
+										  (_cor5)
+									  in  ( [_cor8|_cor9]
+										-| ['compiler_generated'] )
+								  ( <[_cor4|_cor5]> when 'true' ->
+									apply 'lc$^1'/1
+									    (_cor5)
+								    -| ['compiler_generated'] )
+								  <[]> when 'true' ->
+								      apply 'lc$^0'/1
+									  (_cor3)
+								  ( <_cor7> when 'true' ->
+									( primop 'match_fail'
+									      ({'function_clause',_cor7})
+									  -| [{'function_name',{'lc$^1',1}}] )
+								    -| ['compiler_generated'] )
+								end
+						    in  apply 'lc$^1'/1
+							    (Fds)
+						    -| ['list_comprehension'] )
+					      ( <[_cor2|_cor3]> when 'true' ->
+						    apply 'lc$^0'/1
+							(_cor3)
+						-| ['compiler_generated'] )
+					      <[]> when 'true' ->
+						  []
+					      ( <_cor6> when 'true' ->
+						    ( primop 'match_fail'
+							  ({'function_clause',_cor6})
+						      -| [{'function_name',{'lc$^0',1}}] )
+						-| ['compiler_generated'] )
+					    end
+				in  apply 'lc$^0'/1
+					(ConnLogs)
+				-| ['list_comprehension'] )
+			  ( <_cor11> when 'true' ->
+				( primop 'match_fail'
+				      ({'function_clause',_cor11})
+				  -| [{'function_name',{'-terminate/2-fun-0-',1}}] )
+			    -| ['compiler_generated'] )
+			end
+		    -| [{'id',{0,0,'-terminate/2-fun-0-'}}] )
+	      in  do  %% Line 94
+		      call 'lists':'foreach'
+			  (_cor12, %% Line 97
+				   Logs)
+		      %% Line 98
+		      'ok'
+	  ( <_cor14,_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14,_cor13})
+		  -| [{'function_name',{'terminate',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'write_report'/5 =
+    %% Line 103
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <_X_Time,Info = {'conn_log','false',_cor16,_cor17,_cor18,_cor19,_cor20,ConnMod},Data,GL,State> when 'true' ->
+	      %% Line 104
+	      case apply 'get_log'/3
+		       (Info, GL, State) of
+		<{LogType,Fd}> when 'true' ->
+		    let <_cor6> =
+			%% Line 105
+			apply 'format_data'/3
+			    (ConnMod, LogType, Data)
+		    in  %% Line 105
+			call 'io':'format'
+			    (Fd, [126|[110|[126|[116|[115]]]]], [_cor6|[]])
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 107
+	  <Time,Info = {'conn_log',_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,ConnMod},Data,GL,State> when 'true' ->
+	      %% Line 108
+	      case apply 'get_log'/3
+		       (Info, GL, State) of
+		<{LogType,Fd}> when 'true' ->
+		    let <_cor8> =
+			%% Line 109
+			apply 'format_head'/3
+			    (ConnMod, LogType, Time)
+		    in  let <_cor9> =
+			    %% Line 110
+			    apply 'format_title'/2
+				(LogType, Info)
+			in  let <_cor10> =
+				%% Line 111
+				apply 'format_data'/3
+				    (ConnMod, LogType, Data)
+			    in  %% Line 109
+				call 'io':'format'
+				    (Fd, [126|[110|[126|[116|[115|[126|[116|[115|[126|[116|[115]]]]]]]]]]], [_cor8|%% Line 110
+														   [_cor9|%% Line 111
+															  [_cor10|[]]]])
+		( <_cor7> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor7})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor15,_cor14,_cor13,_cor12,_cor11> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14,_cor13,_cor12,_cor11})
+		  -| [{'function_name',{'write_report',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'write_error'/5 =
+    %% Line 113
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Time,Info = {'conn_log',_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,ConnMod},Report,GL,State> when 'true' ->
+	      %% Line 114
+	      case apply 'get_log'/3
+		       (Info, GL, State) of
+		%% Line 115
+		<{'html',_cor20}> when 'true' ->
+		    %% Line 118
+		    'ok'
+		%% Line 119
+		<{LogType,Fd}> when 'true' ->
+		    let <_cor5> =
+			%% Line 121
+			apply 'format_head'/4
+			    (ConnMod, LogType, Time, [32|[69|[82|[82|[79|[82]]]]]])
+		    in  let <_cor6> =
+			    %% Line 122
+			    apply 'format_title'/2
+				(LogType, Info)
+			in  let <_cor7> =
+				%% Line 123
+				apply 'format_error'/2
+				    (LogType, Report)
+			    in  %% Line 120
+				call 'io':'format'
+				    (Fd, [126|[110|[126|[116|[115|[126|[116|[115|[126|[116|[115]]]]]]]]]]], %% Line 121
+													    [_cor5|%% Line 122
+														   [_cor6|%% Line 123
+															  [_cor7|[]]]])
+		( <_cor8> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor8})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor13,_cor12,_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'write_error',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_log'/3 =
+    %% Line 126
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 127
+	( case _cor0 of
+	    ( <( {'state',_rec1,_cor15}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  case call 'proplists':'get_value'
+			   (_cor1, _rec1) of
+		    %% Line 128
+		    <'undefined'> when 'true' ->
+			%% Line 129
+			{'html',_cor15}
+		    %% Line 130
+		    <ConnLogs> when 'true' ->
+			%% Line 131
+			( case _cor2 of
+			    ( <( {'conn_log',_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_rec3}
+				 -| ['compiler_generated'] )> when 'true' ->
+				  case call 'proplists':'get_value'
+					   (_rec3, ConnLogs) of
+				    %% Line 132
+				    <{'html',_cor26}> when 'true' ->
+					%% Line 133
+					{'html',_cor1}
+				    %% Line 134
+				    <{LogType,Fds}> when 'true' ->
+					let <_cor9> =
+					    %% Line 135
+					    apply 'get_fd'/2
+						(_cor2, Fds)
+					in  %% Line 135
+					    {LogType,_cor9}
+				    %% Line 136
+				    <'undefined'> when 'true' ->
+					%% Line 137
+					{'html',_cor1}
+				    ( <_cor10> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor10})
+				      -| ['compiler_generated'] )
+				  end
+			      -| ['compiler_generated'] )
+			    ( <_cor25> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','conn_log'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor16> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'get_fd'/2 =
+    %% Line 141
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'conn_log',_cor5,_cor6,'undefined',_cor7,_cor8,_cor9,_cor10},Fds> when 'true' ->
+	      %% Line 142
+	      call 'proplists':'get_value'
+		  ('default', Fds)
+	  %% Line 143
+	  <{'conn_log',_cor11,_cor12,ConnName,_cor13,_cor14,_cor15,_cor16},Fds> when 'true' ->
+	      %% Line 144
+	      case call 'proplists':'get_value'
+		       (ConnName, Fds) of
+		%% Line 145
+		<'undefined'> when 'true' ->
+		    %% Line 146
+		    call 'proplists':'get_value'
+			('default', Fds)
+		%% Line 147
+		<Fd> when 'true' ->
+		    %% Line 148
+		    Fd
+	      end
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'get_fd',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'format_head'/3 =
+    %% Line 153
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 154
+	apply 'format_head'/4
+	    (_cor2, _cor1, _cor0, [])
+'format_head'/4 =
+    %% Line 156
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <ConnMod,'raw',Time,Text> when 'true' ->
+	      let <_cor4> =
+		  %% Line 157
+		  apply 'now_to_time'/1
+		      (Time)
+	      in  %% Line 157
+		  call 'io_lib':'format'
+		      ([126|[110|[126|[119|[44|[32|[126|[119|[126|[116|[115|[44|[32]]]]]]]]]]]]], [_cor4|[ConnMod|[Text|[]]]])
+	  %% Line 158
+	  <ConnMod,_cor12,Time,Text> when 'true' ->
+	      let <_cor5> =
+		  %% Line 159
+		  apply 'now_to_time'/1
+		      (Time)
+	      in  let <_cor6> =
+		      %% Line 159
+		      apply 'pretty_head'/3
+			  (_cor5, ConnMod, Text)
+		  in  let <Head> =
+			  %% Line 159
+			  apply 'pad_char_end'/3
+			      (80, _cor6, 61)
+		      in  %% Line 160
+			  call 'io_lib':'format'
+			      ([126|[110|[126|[116|[115]]]]], [Head|[]])
+	end
+'format_title'/2 =
+    %% Line 162
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'raw',Info = {'conn_log',_cor8,Client,_cor9,_cor10,_cor11,_cor12,_cor13}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 163
+		  apply 'actionstr'/1
+		      (Info)
+	      in  let <_cor3> =
+		      %% Line 163
+		      apply 'serverstr'/1
+			  (Info)
+		  in  %% Line 163
+		      call 'io_lib':'format'
+			  ([67|[108|[105|[101|[110|[116|[32|[126|[119|[32|[126|[115|[32|[126|[116|[115]]]]]]]]]]]]]]]], [Client|[_cor2|[_cor3|[]]]])
+	  %% Line 164
+	  <_cor14,Info> when 'true' ->
+	      let <_cor4> =
+		  %% Line 165
+		  apply 'pretty_title'/1
+		      (Info)
+	      in  let <Title> =
+		      %% Line 165
+		      apply 'pad_char_end'/3
+			  (80, _cor4, 61)
+		  in  %% Line 166
+		      call 'io_lib':'format'
+			  ([126|[110|[126|[116|[115]]]]], [Title|[]])
+	end
+'format_data'/3 =
+    %% Line 168
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_cor8,_cor9,NoData>
+	      when let <_cor3> =
+		    call 'erlang':'=:='
+			(NoData, [])
+		in  let <_cor4> =
+			call 'erlang':'=:='
+			    (NoData, #{}#)
+		    in  call 'erlang':'or'
+			    (_cor3, _cor4) ->
+	      %% Line 169
+	      []
+	  %% Line 170
+	  <ConnMod,LogType,Data> when 'true' ->
+	      %% Line 171
+	      call ConnMod:'format_data'
+		  (LogType, Data)
+	end
+'format_error'/2 =
+    %% Line 173
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'raw',Report> when 'true' ->
+	      %% Line 174
+	      call 'io_lib':'format'
+		  ([126|[110|[126|[112|[126|[110]]]]]], [Report|[]])
+	  %% Line 175
+	  <'pretty',Report> when 'true' ->
+	      %% Line 176
+	      ( letrec
+		    'lc$^0'/1 =
+			fun (_cor4) ->
+			    case _cor4 of
+			      <[{K,V}|_cor3]> when 'true' ->
+				  let <_cor5> =
+				      call 'io_lib':'format'
+					  ([126|[110|[32|[32|[32|[32|[126|[112|[58|[32|[126|[112]]]]]]]]]]]], [K|[V|[]]])
+				  in  let <_cor6> =
+					  apply 'lc$^0'/1
+					      (_cor3)
+				      in  ( [_cor5|_cor6]
+					    -| ['compiler_generated'] )
+			      ( <[_cor2|_cor3]> when 'true' ->
+				    apply 'lc$^0'/1
+					(_cor3)
+				-| ['compiler_generated'] )
+			      <[]> when 'true' ->
+				  []
+			      ( <_cor4> when 'true' ->
+				    ( primop 'match_fail'
+					  ({'function_clause',_cor4})
+				      -| [{'function_name',{'lc$^0',1}}] )
+				-| ['compiler_generated'] )
+			    end
+		in  apply 'lc$^0'/1
+			(Report)
+		-| ['list_comprehension'] )
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7})
+		  -| [{'function_name',{'format_error',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'conn_info'/2 =
+    %% Line 181
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <LoggingProc,ConnInfo = {'conn_log',_cor7,'undefined',_cor8,_cor9,_cor10,_cor11,_cor12}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 182
+		  call 'erlang':'setelement'
+		      (3, ConnInfo, LoggingProc)
+	      in  %% Line 182
+		  apply 'conn_info'/1
+		      (_cor4)
+	  %% Line 183
+	  <_cor21,ConnInfo> when 'true' ->
+	      %% Line 184
+	      apply 'conn_info'/1
+		  (ConnInfo)
+	end
+'conn_info'/1 =
+    %% Line 186
+    fun (_cor0) ->
+	case _cor0 of
+	  <ConnInfo = {'conn_log',_cor6,Client,_cor7,_cor8,_cor9,_cor10,'undefined'}> when 'true' ->
+	      %% Line 187
+	      case call 'ets':'lookup'
+		       ('ct_connections', Client) of
+		%% Line 188
+		<[{'conn',_cor11,_cor12,Address,Callback}|[]]> when 'true' ->
+		    let <_cor2> =
+			%% Line 189
+			call 'erlang':'setelement'
+			    (8, ConnInfo, Callback)
+		    in  %% Line 189
+			call 'erlang':'setelement'
+			    (5, _cor2, Address)
+		%% Line 190
+		<[]> when 'true' ->
+		    %% Line 191
+		    ConnInfo
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 193
+	  <ConnInfo> when 'true' ->
+	      %% Line 194
+	      ConnInfo
+	end
+'now_to_time'/1 =
+    %% Line 197
+    fun (_cor0) ->
+	case _cor0 of
+	  <Now = {_cor3,_cor4,MicroS}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 198
+		  call 'calendar':'now_to_local_time'
+		      (Now)
+	      in  %% Line 198
+		  {_cor1,MicroS}
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'now_to_time',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'pretty_head'/3 =
+    %% Line 200
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{{{Y,Mo,D},{H,Mi,S}},MicroS},ConnMod,Text0> when 'true' ->
+	      let <_cor3> =
+		  %% Line 201
+		  call 'erlang':'atom_to_list'
+		      (ConnMod)
+	      in  let <_cor4> =
+		      %% Line 201
+		      call 'erlang':'++'
+			  (_cor3, Text0)
+		  in  let <Text> =
+			  %% Line 201
+			  call 'string':'to_upper'
+			      (_cor4)
+		      in  let <_cor6> =
+			      %% Line 203
+			      apply 't'/1
+				  (D)
+			  in  let <_cor7> =
+				  %% Line 203
+				  apply 'month'/1
+				      (Mo)
+			      in  let <_cor8> =
+				      %% Line 203
+				      apply 't'/1
+					  (H)
+				  in  let <_cor9> =
+					  %% Line 203
+					  apply 't'/1
+					      (Mi)
+				      in  let <_cor10> =
+					      %% Line 203
+					      apply 't'/1
+						  (S)
+					  in  let <_cor11> =
+						  %% Line 204
+						  apply 'micro2milli'/1
+						      (MicroS)
+					      in  %% Line 202
+						  call 'io_lib':'format'
+						      ([61|[32|[126|[115|[32|[61|[61|[61|[61|[32|[126|[115|[45|[126|[115|[45|[126|[119|[58|[58|[126|[115|[58|[126|[115|[58|[126|[115|[44|[126|[115|[32]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 203
+																													[Text|[_cor6|[_cor7|[Y|[_cor8|[_cor9|[_cor10|%% Line 204
+																																		     [_cor11|[]]]]]]]]])
+	  ( <_cor14,_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14,_cor13,_cor12})
+		  -| [{'function_name',{'pretty_head',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'pretty_title'/1 =
+    %% Line 206
+    fun (_cor0) ->
+	case _cor0 of
+	  <Info = {'conn_log',_cor4,Client,_cor5,_cor6,_cor7,_cor8,_cor9}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 208
+		  apply 'actionstr'/1
+		      (Info)
+	      in  let <_cor2> =
+		      %% Line 208
+		      apply 'serverstr'/1
+			  (Info)
+		  in  %% Line 207
+		      call 'io_lib':'format'
+			  ([61|[32|[67|[108|[105|[101|[110|[116|[32|[126|[119|[32|[126|[115|[32|[126|[116|[115|[32]]]]]]]]]]]]]]]]]]], %% Line 208
+																       [Client|[_cor1|[_cor2|[]]]])
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'pretty_title',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'actionstr'/1 =
+    %% Line 210
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'conn_log',_cor2,_cor3,_cor4,_cor5,_cor6,'send',_cor7}> when 'true' ->
+	      [45|[45|[45|[45|[45|[62]]]]]]
+	  %% Line 211
+	  <{'conn_log',_cor8,_cor9,_cor10,_cor11,_cor12,'cmd',_cor13}> when 'true' ->
+	      [45|[45|[45|[45|[45|[62]]]]]]
+	  %% Line 212
+	  <{'conn_log',_cor14,_cor15,_cor16,_cor17,_cor18,'recv',_cor19}> when 'true' ->
+	      [60|[45|[45|[45|[45|[45]]]]]]
+	  %% Line 213
+	  <{'conn_log',_cor20,_cor21,_cor22,_cor23,_cor24,'open',_cor25}> when 'true' ->
+	      [111|[112|[101|[110|[101|[100|[32|[115|[101|[115|[115|[105|[111|[110|[32|[116|[111]]]]]]]]]]]]]]]]]
+	  %% Line 214
+	  <{'conn_log',_cor26,_cor27,_cor28,_cor29,_cor30,'close',_cor31}> when 'true' ->
+	      [99|[108|[111|[115|[101|[100|[32|[115|[101|[115|[115|[105|[111|[110|[32|[116|[111]]]]]]]]]]]]]]]]]
+	  %% Line 215
+	  <_cor32> when 'true' ->
+	      [60|[45|[45|[45|[45|[62]]]]]]
+	end
+'serverstr'/1 =
+    %% Line 217
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'conn_log',_cor2,_cor3,'undefined',{'undefined',_cor4},_cor5,_cor6,_cor7}> when 'true' ->
+	      %% Line 218
+	      call 'io_lib':'format'
+		  ([115|[101|[114|[118|[101|[114]]]]]], [])
+	  %% Line 219
+	  <{'conn_log',_cor8,_cor9,'undefined',Address,_cor10,_cor11,_cor12}> when 'true' ->
+	      %% Line 220
+	      call 'io_lib':'format'
+		  ([126|[112]], [Address|[]])
+	  %% Line 221
+	  <{'conn_log',_cor13,_cor14,Alias,{'undefined',_cor15},_cor16,_cor17,_cor18}> when 'true' ->
+	      %% Line 222
+	      call 'io_lib':'format'
+		  ([126|[119]], [Alias|[]])
+	  %% Line 223
+	  <{'conn_log',_cor19,_cor20,Alias,Address,_cor21,_cor22,_cor23}> when 'true' ->
+	      %% Line 224
+	      call 'io_lib':'format'
+		  ([126|[119|[40|[126|[112|[41]]]]]], [Alias|[Address|[]]])
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'serverstr',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'month'/1 =
+    %% Line 226
+    fun (_cor0) ->
+	case _cor0 of
+	  <1> when 'true' ->
+	      [74|[97|[110]]]
+	  %% Line 227
+	  <2> when 'true' ->
+	      [70|[101|[98]]]
+	  %% Line 228
+	  <3> when 'true' ->
+	      [77|[97|[114]]]
+	  %% Line 229
+	  <4> when 'true' ->
+	      [65|[112|[114]]]
+	  %% Line 230
+	  <5> when 'true' ->
+	      [77|[97|[121]]]
+	  %% Line 231
+	  <6> when 'true' ->
+	      [74|[117|[110]]]
+	  %% Line 232
+	  <7> when 'true' ->
+	      [74|[117|[108]]]
+	  %% Line 233
+	  <8> when 'true' ->
+	      [65|[117|[103]]]
+	  %% Line 234
+	  <9> when 'true' ->
+	      [83|[101|[112]]]
+	  %% Line 235
+	  <10> when 'true' ->
+	      [79|[99|[116]]]
+	  %% Line 236
+	  <11> when 'true' ->
+	      [78|[111|[118]]]
+	  %% Line 237
+	  <12> when 'true' ->
+	      [68|[101|[99]]]
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'month',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'micro2milli'/1 =
+    %% Line 239
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 240
+	    call 'erlang':'div'
+		(_cor0, 1000)
+	in  let <_cor2> =
+		%% Line 240
+		call 'erlang':'integer_to_list'
+		    (_cor1)
+	    in  %% Line 240
+		apply 'pad0'/2
+		    (3, _cor2)
+'t'/1 =
+    %% Line 242
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 243
+	    call 'erlang':'integer_to_list'
+		(_cor0)
+	in  %% Line 243
+	    apply 'pad0'/2
+		(2, _cor1)
+'pad0'/2 =
+    %% Line 245
+    fun (_cor1,_cor0) ->
+	let <M> =
+	    %% Line 246
+	    call 'erlang':'length'
+		(_cor0)
+	in  let <_cor3> =
+		%% Line 247
+		call 'erlang':'-'
+		    (_cor1, M)
+	    in  let <_cor4> =
+		    %% Line 247
+		    call 'lists':'duplicate'
+			(_cor3, 48)
+		in  %% Line 247
+		    call 'erlang':'++'
+			(_cor4, _cor0)
+'pad_char_end'/3 =
+    %% Line 249
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 250
+	    call 'lists':'flatten'
+		(_cor1)
+	in  %% Line 250
+	    case call 'erlang':'length'
+		     (_cor3) of
+	      %% Line 251
+	      <M>
+		  when call 'erlang':'<'
+			(M,
+			 _cor2) ->
+		  let <_cor4> =
+		      call 'erlang':'-'
+			  (_cor2, M)
+		  in  let <_cor5> =
+			  call 'lists':'duplicate'
+			      (_cor4, _cor0)
+		      in  call 'erlang':'++'
+			      (_cor1, _cor5)
+	      %% Line 252
+	      <_cor10> when 'true' ->
+		  _cor1
+	    end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ct_conn_log_h')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ct_conn_log_h', _cor0)
+end

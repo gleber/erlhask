@@ -1,0 +1,217 @@
+module 'hipe_amd64_ra_ls' ['module_info'/0,
+			   'module_info'/1,
+			   'ra'/3,
+			   'regalloc'/7]
+    attributes [%% Line 301
+		'type' =
+		    %% Line 301
+		    [{{'record','comp_servers'},[{'typed_record_field',{'record_field',301,{'atom',301,'pp_server'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'range'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'type'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}]]],[]}],
+		%% Line 307
+		'type' =
+		    %% Line 307
+		    [{'comp_option',{'type',307,'union',[{'type',307,'atom',[]}|[{'type',307,'tuple',[{'type',307,'atom',[]}|[{'type',307,'atom',[]}]]}]]},[]}],
+		%% Line 308
+		'type' =
+		    %% Line 308
+		    [{'comp_options',{'type',308,'list',[{'type',308,'comp_option',[]}]},[]}],
+		%% Line 310
+		'type' =
+		    %% Line 310
+		    [{'hipe_architecture',{'type',311,'union',[{'atom',311,'amd64'}|[{'atom',311,'arm'}|[{'atom',311,'powerpc'}|[{'atom',311,'ppc64'}|[{'atom',311,'ultrasparc'}|[{'atom',311,'x86'}]]]]]]},[]}],
+		%% Line 313
+		'type' =
+		    %% Line 313
+		    [{'hipe_map',{'type',313,'list',[{'type',313,'tuple',[{'type',313,'non_neg_integer',[]}|[{'type',314,'union',[{'atom',314,'unknown'}|[{'type',314,'tuple',[{'type',314,'union',[{'atom',314,'reg'}|[{'atom',314,'fp_reg'}|[{'atom',314,'spill'}]]]}|[{'type',315,'non_neg_integer',[]}]]}]]}]]}]},[]}],
+		%% Line 316
+		'type' =
+		    %% Line 316
+		    [{'hipe_temp_map',{'type',316,'tuple','any'},[]}],
+		%% Line 317
+		'type' =
+		    %% Line 317
+		    [{'hipe_spill_map',{'type',317,'list',[{'type',317,'tuple',[{'type',317,'non_neg_integer',[]}|[{'type',317,'tuple',[{'atom',317,'spill'}|[{'type',317,'non_neg_integer',[]}]]}]]}]},[]}]]
+'ra'/3 =
+    %% Line 41
+    fun (_cor2,_cor1,_cor0) ->
+	let <CFG> =
+	    %% Line 43
+	    call 'hipe_x86_cfg':'init'
+		(_cor2)
+	in  let <SpillLimit> =
+		%% Line 45
+		call 'hipe_amd64_specific':'number_of_temporaries'
+		    (%% Line 46
+		     CFG)
+	    in  do  %% Line 47
+		    case call 'erlang':'get'
+			     ('bbs_counter') of
+		      <'undefined'> when 'true' ->
+			  'ok'
+		      <_cor14> when 'true' ->
+			  let <_cor7> =
+			      call 'hipe_x86_cfg':'labels'
+				  (CFG)
+			  in  let <_cor8> =
+				  call 'erlang':'length'
+				      (_cor7)
+			      in  let <_cor6> =
+				      call 'erlang':'get'
+					  ('bbs_counter')
+				  in  let <_cor9> =
+					  call 'erlang':'+'
+					      (_cor8, _cor6)
+				      in  call 'erlang':'put'
+					      ('bbs_counter', _cor9)
+		    end
+		    %% Line 48
+		    apply 'alloc'/4
+			(_cor2, _cor1, SpillLimit, _cor0)
+'alloc'/4 =
+    %% Line 51
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 52
+	    case call 'erlang':'get'
+		     ('ra_iteration_counter') of
+	      <'undefined'> when 'true' ->
+		  'ok'
+	      <_cor31> when 'true' ->
+		  let <_cor4> =
+		      call 'erlang':'get'
+			  ('ra_iteration_counter')
+		  in  let <_cor5> =
+			  call 'erlang':'+'
+			      (1, _cor4)
+		      in  call 'erlang':'put'
+			      ('ra_iteration_counter', _cor5)
+	    end
+	    let <CFG> =
+		%% Line 54
+		call 'hipe_x86_cfg':'init'
+		    (_cor3)
+	    in  let <_cor11> =
+		    %% Line 58
+		    call 'hipe_amd64_registers':'allocatable'
+			()
+		in  let <_cor9> =
+			%% Line 59
+			call 'hipe_amd64_registers':'temp1'
+			    ()
+		    in  let <_cor10> =
+			    %% Line 60
+			    call 'hipe_amd64_registers':'temp0'
+				()
+			in  let <_cor12> =
+				%% Line 58
+				call 'erlang':'--'
+				    (_cor11, %% Line 59
+					     [_cor9|%% Line 60
+						    [_cor10|[]]])
+			    in  let <_cor8> =
+				    %% Line 61
+				    call 'hipe_x86_cfg':'start_label'
+					(CFG)
+				in  %% Line 55
+				    case %% Line 56
+					 apply 'regalloc'/7
+					     (%% Line 57
+					      CFG, _cor12, %% Line 61
+							   [_cor8|[]], _cor2, _cor1, _cor0, %% Line 63
+											    'hipe_amd64_specific') of
+				      <{Coloring,NewSpillIndex}> when 'true' ->
+					  %% Line 64
+					  case %% Line 65
+					       call 'hipe_amd64_ra_postconditions':'check_and_rewrite'
+						   (_cor3, %% Line 66
+							   Coloring, %% Line 66
+								     'linearscan') of
+					    <{NewDefun,_X_DidSpill}> when 'true' ->
+						let <TempMap> =
+						    %% Line 68
+						    call 'hipe_temp_map':'cols2tuple'
+							(Coloring, 'hipe_amd64_specific')
+						in  %% Line 69
+						    case %% Line 70
+							 call 'hipe_spillmin':'stackalloc'
+							     (CFG, [], _cor2, _cor0, %% Line 71
+										     'hipe_amd64_specific', %% Line 71
+													    TempMap) of
+						      <{TempMap2,NewSpillIndex2}> when 'true' ->
+							  let <_cor17> =
+							      %% Line 73
+							      call 'hipe_temp_map':'to_substlist'
+								  (TempMap)
+							  in  let <Coloring2> =
+								  %% Line 73
+								  call 'hipe_spillmin':'mapmerge'
+								      (_cor17, TempMap2)
+							      in  do  %% Line 74
+								      case call 'proplists':'get_bool'
+									       ('verbose_spills', _cor0) of
+									%% Line 75
+									<'true'> when 'true' ->
+									    let <_cor19> =
+										%% Line 76
+										call 'erlang':'-'
+										    (NewSpillIndex2, _cor2)
+									    in  %% Line 76
+										call 'io':'format'
+										    ([60|[72|[105|[80|[69|[32|[40|[118|[32|[51|[46|[49|[49|[41|[62|[32|[83|[116|[97|[99|[107|[32|[115|[108|[111|[116|[32|[115|[105|[122|[101|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [_cor19|[]])
+									%% Line 77
+									<'false'> when 'true' ->
+									    'ok'
+									( <_cor23> when 'true' ->
+									      primop 'match_fail'
+										  ({'case_clause',_cor23})
+									  -| ['compiler_generated'] )
+								      end
+								      do  %% Line 80
+									  case call 'proplists':'get_bool'
+										   ('count_spills', _cor0) of
+									    <'true'> when 'true' ->
+										let <_cor24> =
+										    call 'erlang':'get'
+											('spilledtemps')
+										in  let <_cor25> =
+											call 'erlang':'+'
+											    (_cor24, NewSpillIndex)
+										    in  call 'erlang':'put'
+											    ('spilledtemps', _cor25)
+									    <'false'> when 'true' ->
+										'ok'
+									    ( <_cor26> when 'true' ->
+										  primop 'match_fail'
+										      ({'case_clause',_cor26})
+									      -| ['compiler_generated'] )
+									  end
+									  %% Line 81
+									  {NewDefun,Coloring2}
+						      ( <_cor16> when 'true' ->
+							    primop 'match_fail'
+								({'badmatch',_cor16})
+							-| ['compiler_generated'] )
+						    end
+					    ( <_cor14> when 'true' ->
+						  primop 'match_fail'
+						      ({'badmatch',_cor14})
+					      -| ['compiler_generated'] )
+					  end
+				      ( <_cor13> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_cor13})
+					-| ['compiler_generated'] )
+				    end
+'regalloc'/7 =
+    %% Line 83
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 84
+	call 'hipe_ls_regalloc':'regalloc'
+	    (_cor6, _cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_amd64_ra_ls')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_amd64_ra_ls', _cor0)
+end

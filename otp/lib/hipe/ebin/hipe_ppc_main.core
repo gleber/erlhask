@@ -1,0 +1,110 @@
+module 'hipe_ppc_main' ['module_info'/0,
+			'module_info'/1,
+			'rtl_to_ppc'/3]
+    attributes []
+'rtl_to_ppc'/3 =
+    %% Line 24
+    fun (_cor2,_cor1,_cor0) ->
+	let <PPC1> =
+	    %% Line 25
+	    call 'hipe_rtl_to_ppc':'translate'
+		(_cor1)
+	in  let <PPC2> =
+		%% Line 26
+		call 'hipe_ppc_ra':'ra'
+		    (PPC1, _cor0)
+	    in  let <PPC3> =
+		    %% Line 27
+		    call 'hipe_ppc_frame':'frame'
+			(PPC2)
+		in  let <PPC4> =
+			%% Line 28
+			call 'hipe_ppc_finalise':'finalise'
+			    (PPC3)
+		    in  do  %% Line 29
+			    apply 'ppc_pp'/3
+				(PPC4, _cor2, _cor0)
+			    %% Line 30
+			    {'native','powerpc',{'unprofiled',PPC4}}
+'ppc_pp'/3 =
+    %% Line 32
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 33
+	case call 'proplists':'get_value'
+		 ('pp_native', _cor0) of
+	  %% Line 34
+	  <'true'> when 'true' ->
+	      %% Line 35
+	      call 'hipe_ppc_pp':'pp'
+		  (_cor2)
+	  %% Line 36
+	  <{'only',Lst}>
+	      when call 'erlang':'is_list'
+		    (Lst) ->
+	      %% Line 37
+	      case call 'lists':'member'
+		       (_cor1, Lst) of
+		%% Line 38
+		<'true'> when 'true' ->
+		    %% Line 39
+		    call 'hipe_ppc_pp':'pp'
+			(_cor2)
+		%% Line 40
+		<'false'> when 'true' ->
+		    %% Line 41
+		    'ok'
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 43
+	  <{'only',_cor10}>
+	      when call 'erlang':'=:='
+		    (_cor10,
+		     _cor1) ->
+	      %% Line 44
+	      call 'hipe_ppc_pp':'pp'
+		  (_cor2)
+	  %% Line 45
+	  <{'file',FileName}> when 'true' ->
+	      %% Line 46
+	      case call 'file':'open'
+		       (FileName, ['write'|['append']]) of
+		<{'ok',File}> when 'true' ->
+		    do  %% Line 47
+			call 'hipe_ppc_pp':'pp'
+			    (File, _cor2)
+			let <_cor11> =
+			    %% Line 48
+			    call 'file':'close'
+				(File)
+			in  %% Line 48
+			    case _cor11 of
+			      <'ok'> when 'true' ->
+				  ( _cor11
+				    -| ['compiler_generated'] )
+			      ( <_cor5> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor5})
+				-| ['compiler_generated'] )
+			    end
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 49
+	  <_cor12> when 'true' ->
+	      %% Line 50
+	      'ok'
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_ppc_main')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_ppc_main', _cor0)
+end

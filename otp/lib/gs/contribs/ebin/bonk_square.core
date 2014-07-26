@@ -1,0 +1,372 @@
+module 'bonk_square' ['alarm'/3,
+		      'init'/5,
+		      'module_info'/0,
+		      'module_info'/1,
+		      'start'/1]
+    attributes []
+'start'/1 =
+    %% Line 26
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 27
+	    call 'erlang':'self'
+		()
+	in  let <_cor2> =
+		%% Line 28
+		call 'random':'uniform'
+		    (10000)
+	    in  let <_cor3> =
+		    %% Line 29
+		    call 'random':'uniform'
+			(10000)
+		in  let <_cor4> =
+			%% Line 30
+			call 'random':'uniform'
+			    (10000)
+		    in  %% Line 27
+			call 'erlang':'spawn_link'
+			    ('bonk_square', 'init', [_cor0|[_cor1|%% Line 28
+								  [_cor2|%% Line 29
+									 [_cor3|%% Line 30
+										[_cor4|[]]]]]])
+'init'/5 =
+    %% Line 32
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 33
+	    call 'random':'seed'
+		(_cor2, _cor1, _cor0)
+	    %% Line 34
+	    apply 'idle'/2
+		(_cor4, _cor3)
+'idle'/2 =
+    %% Line 37
+    fun (_cor1,_cor0) ->
+	%% Line 38
+	receive
+	  %% Line 39
+	  <'start'> when 'true' ->
+	      let <_cor3> =
+		  %% Line 41
+		  apply 'sleep_time'/1
+		      (1)
+	      in  let <_cor4> =
+		      %% Line 41
+		      apply 'alarm'/2
+			  (_cor3, 'wake_up')
+		  in  %% Line 41
+		      apply 'sleep'/4
+			  (1, _cor1, _cor0, _cor4)
+	  %% Line 42
+	  <'quit'> when 'true' ->
+	      %% Line 43
+	      call 'erlang':'exit'
+		  ('normal')
+	  %% Line 44
+	  <_X_Other> when 'true' ->
+	      %% Line 45
+	      apply 'idle'/2
+		  (_cor1, _cor0)
+	after 'infinity' ->
+	  'true'
+'sleep'/4 =
+    %% Line 49
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 50
+	receive
+	  %% Line 51
+	  <'stop'> when 'true' ->
+	      do  %% Line 52
+		  call 'erlang':'!'
+		      (_cor0, 'quit')
+		  %% Line 53
+		  apply 'idle'/2
+		      (_cor2, _cor1)
+	  %% Line 54
+	  <'quit'> when 'true' ->
+	      do  %% Line 55
+		  call 'erlang':'!'
+		      (_cor0, 'quit')
+		  %% Line 56
+		  call 'erlang':'exit'
+		      ('normal')
+	  %% Line 57
+	  <{'new_level',NewLevel}> when 'true' ->
+	      %% Line 58
+	      apply 'sleep'/4
+		  (NewLevel, _cor2, _cor1, _cor0)
+	  %% Line 59
+	  <{_cor9,'wake_up'}>
+	      when call 'erlang':'=:='
+		    (_cor9,
+		     _cor0) ->
+	      do  %% Line 60
+		  apply 'show_me'/2
+		      (_cor1, _cor2)
+		  let <_cor4> =
+		      %% Line 61
+		      apply 'alarm'/2
+			  (2500, 'missed')
+		  in  %% Line 61
+		      apply 'show'/4
+			  (_cor3, _cor2, _cor1, _cor4)
+	  %% Line 62
+	  <_X_Other> when 'true' ->
+	      %% Line 63
+	      apply 'sleep'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	after 'infinity' ->
+	  'true'
+'show'/4 =
+    %% Line 67
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 68
+	receive
+	  %% Line 69
+	  <'stop'> when 'true' ->
+	      do  %% Line 70
+		  call 'erlang':'!'
+		      (_cor0, 'quit')
+		  %% Line 71
+		  apply 'idle'/2
+		      (_cor2, _cor1)
+	  %% Line 72
+	  <'quit'> when 'true' ->
+	      do  %% Line 73
+		  call 'erlang':'!'
+		      (_cor0, 'quit')
+		  %% Line 74
+		  call 'erlang':'exit'
+		      ('normal')
+	  %% Line 75
+	  <{'new_level',NewLevel}> when 'true' ->
+	      %% Line 76
+	      apply 'show'/4
+		  (NewLevel, _cor2, _cor1, _cor0)
+	  %% Line 77
+	  <'sleep'> when 'true' ->
+	      do  %% Line 78
+		  call 'erlang':'!'
+		      (_cor0, 'quit')
+		  let <_cor4> =
+		      %% Line 79
+		      apply 'sleep_time'/1
+			  (_cor3)
+		  in  let <_cor5> =
+			  %% Line 79
+			  apply 'alarm'/2
+			      (_cor4, 'wake_up')
+		      in  %% Line 79
+			  apply 'sleep'/4
+			      (_cor3, _cor2, _cor1, _cor5)
+	  %% Line 80
+	  <'bonk'> when 'true' ->
+	      do  %% Line 81
+		  apply 'bonk_me'/2
+		      (_cor1, _cor2)
+		  do  %% Line 82
+		      call 'erlang':'!'
+			  (_cor0, 'quit')
+		      let <_cor6> =
+			  %% Line 83
+			  apply 'alarm'/2
+			      (1500, 'hide')
+		      in  %% Line 83
+			  apply 'bbmed'/4
+			      (_cor3, _cor2, _cor1, _cor6)
+	  %% Line 84
+	  <'bomb'> when 'true' ->
+	      do  %% Line 85
+		  apply 'bomb_me'/2
+		      (_cor1, _cor2)
+		  do  %% Line 86
+		      call 'erlang':'!'
+			  (_cor0, 'quit')
+		      let <_cor7> =
+			  %% Line 87
+			  apply 'alarm'/2
+			      (1000, 'hide')
+		      in  %% Line 87
+			  apply 'bbmed'/4
+			      (_cor3, _cor2, _cor1, _cor7)
+	  %% Line 88
+	  <{_cor13,'missed'}>
+	      when call 'erlang':'=:='
+		    (_cor13,
+		     _cor0) ->
+	      do  %% Line 89
+		  apply 'missed_me'/2
+		      (_cor1, _cor2)
+		  let <_cor8> =
+		      %% Line 90
+		      apply 'alarm'/2
+			  (1500, 'hide')
+		  in  %% Line 90
+		      apply 'bbmed'/4
+			  (_cor3, _cor2, _cor1, _cor8)
+	  %% Line 91
+	  <_X_Other> when 'true' ->
+	      %% Line 92
+	      apply 'show'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	after 'infinity' ->
+	  'true'
+'bbmed'/4 =
+    %% Line 96
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 97
+	receive
+	  %% Line 98
+	  <'stop'> when 'true' ->
+	      do  %% Line 99
+		  call 'erlang':'!'
+		      (_cor0, 'quit')
+		  %% Line 100
+		  apply 'idle'/2
+		      (_cor2, _cor1)
+	  %% Line 101
+	  <'quit'> when 'true' ->
+	      do  %% Line 102
+		  call 'erlang':'!'
+		      (_cor0, 'quit')
+		  %% Line 103
+		  call 'erlang':'exit'
+		      ('normal')
+	  %% Line 104
+	  <{'new_level',NewLevel}> when 'true' ->
+	      %% Line 105
+	      apply 'bbmed'/4
+		  (NewLevel, _cor2, _cor1, _cor0)
+	  %% Line 106
+	  <{_cor10,'hide'}>
+	      when call 'erlang':'=:='
+		    (_cor10,
+		     _cor0) ->
+	      do  %% Line 107
+		  apply 'hide_me'/2
+		      (_cor1, _cor2)
+		  let <_cor4> =
+		      %% Line 108
+		      apply 'sleep_time'/1
+			  (_cor3)
+		  in  let <_cor5> =
+			  %% Line 108
+			  apply 'alarm'/2
+			      (_cor4, 'wake_up')
+		      in  %% Line 108
+			  apply 'sleep'/4
+			      (_cor3, _cor2, _cor1, _cor5)
+	  %% Line 109
+	  <_X_Other> when 'true' ->
+	      %% Line 110
+	      apply 'bbmed'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	after 'infinity' ->
+	  'true'
+'show_me'/2 =
+    %% Line 114
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 115
+	    call 'erlang':'self'
+		()
+	in  %% Line 115
+	    call 'erlang':'!'
+		(_cor1, {'show',_cor2,_cor0})
+'hide_me'/2 =
+    %% Line 117
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 118
+	    call 'erlang':'self'
+		()
+	in  %% Line 118
+	    call 'erlang':'!'
+		(_cor1, {'hide',_cor2,_cor0})
+'bonk_me'/2 =
+    %% Line 120
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 121
+	    call 'erlang':'self'
+		()
+	in  %% Line 121
+	    call 'erlang':'!'
+		(_cor1, {'bonked',_cor2,_cor0})
+'bomb_me'/2 =
+    %% Line 123
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 124
+	    call 'erlang':'self'
+		()
+	in  %% Line 124
+	    call 'erlang':'!'
+		(_cor1, {'bombed',_cor2,_cor0})
+'missed_me'/2 =
+    %% Line 126
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 127
+	    call 'erlang':'self'
+		()
+	in  %% Line 127
+	    call 'erlang':'!'
+		(_cor1, {'missed',_cor2,_cor0})
+'sleep_time'/1 =
+    %% Line 132
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 133
+	    call 'erlang':'+'
+		(_cor0, 1)
+	in  let <_cor2> =
+		%% Line 133
+		call 'erlang':'div'
+		    (19000, _cor1)
+	    in  let <_cor3> =
+		    %% Line 133
+		    call 'erlang':'*'
+			(_cor2, 2)
+		in  let <_cor4> =
+			%% Line 133
+			call 'erlang':'+'
+			    (_cor3, 1500)
+		    in  %% Line 133
+			call 'random':'uniform'
+			    (_cor4)
+'alarm'/2 =
+    %% Line 137
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 138
+	    call 'erlang':'self'
+		()
+	in  %% Line 138
+	    call 'erlang':'spawn'
+		('bonk_square', 'alarm', [_cor1|[_cor0|[_cor2|[]]]])
+'alarm'/3 =
+    %% Line 140
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 141
+	receive
+	  %% Line 142
+	  <'quit'> when 'true' ->
+	      call 'erlang':'exit'
+		  ('normal')
+	after _cor2 ->
+	  let <_cor3> =
+	      %% Line 144
+	      call 'erlang':'self'
+		  ()
+	  in  %% Line 144
+	      call 'erlang':'!'
+		  (_cor0, {_cor3,_cor1})
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('bonk_square')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('bonk_square', _cor0)
+end

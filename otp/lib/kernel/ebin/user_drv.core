@@ -1,0 +1,1819 @@
+module 'user_drv' ['interfaces'/1,
+		   'module_info'/0,
+		   'module_info'/1,
+		   'server'/2,
+		   'server'/3,
+		   'start'/0,
+		   'start'/1,
+		   'start'/2,
+		   'start'/3]
+    attributes [%% Line 45
+		'spec' =
+		    %% Line 45
+		    [{{'start',0},[{'type',45,'fun',[{'type',45,'product',[]}|[{'type',45,'pid',[]}]]}]}],
+		%% Line 68
+		'spec' =
+		    %% Line 68
+		    [{{'interfaces',1},[{'type',68,'fun',[{'type',68,'product',[{'type',68,'pid',[]}]}|[{'type',68,'list',[{'type',68,'tuple',[{'atom',68,'current_group'}|[{'type',68,'pid',[]}]]}]}]]}]}]]
+'start'/0 =
+    %% Line 47
+    fun () ->
+	%% Line 48
+	call 'erlang':'spawn'
+	    ('user_drv', 'server', ['tty_sl -c -e'|[{'shell','start',['init']}]])
+'start'/1 =
+    %% Line 50
+    fun (_cor0) ->
+	case _cor0 of
+	  <[Pname|[]]> when 'true' ->
+	      %% Line 51
+	      call 'erlang':'spawn'
+		  ('user_drv', 'server', [Pname|[{'shell','start',['init']}]])
+	  %% Line 52
+	  <[Pname|Args]> when 'true' ->
+	      %% Line 53
+	      call 'erlang':'spawn'
+		  ('user_drv', 'server', [Pname|Args])
+	  %% Line 54
+	  <Pname> when 'true' ->
+	      %% Line 55
+	      call 'erlang':'spawn'
+		  ('user_drv', 'server', [Pname|[{'shell','start',['init']}]])
+	end
+'start'/2 =
+    %% Line 57
+    fun (_cor1,_cor0) ->
+	%% Line 58
+	call 'erlang':'spawn'
+	    ('user_drv', 'server', [_cor1|[_cor0|[]]])
+'start'/3 =
+    %% Line 60
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 61
+	call 'erlang':'spawn'
+	    ('user_drv', 'server', [_cor2|[_cor1|[_cor0|[]]]])
+'interfaces'/1 =
+    %% Line 70
+    fun (_cor0) ->
+	%% Line 71
+	case call 'erlang':'process_info'
+		 (_cor0, 'dictionary') of
+	  %% Line 72
+	  <{'dictionary',Dict}> when 'true' ->
+	      %% Line 73
+	      case call 'lists':'keysearch'
+		       ('current_group', 1, Dict) of
+		%% Line 74
+		<{'value',Gr = {_cor4,Group}}>
+		    when call 'erlang':'is_pid'
+			  (Group) ->
+		    %% Line 75
+		    [Gr|[]]
+		%% Line 76
+		<_cor5> when 'true' ->
+		    %% Line 77
+		    []
+	      end
+	  %% Line 79
+	  <_cor6> when 'true' ->
+	      %% Line 80
+	      []
+	end
+'server'/2 =
+    %% Line 89
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Pid,Shell>
+	      when call 'erlang':'is_pid'
+		    (Pid) ->
+	      %% Line 90
+	      apply 'server1'/3
+		  (Pid, Pid, Shell)
+	  %% Line 91
+	  <Pname,Shell> when 'true' ->
+	      do  %% Line 92
+		  call 'erlang':'process_flag'
+		      ('trap_exit', 'true')
+		  let <_cor2> =
+		      catch
+			  %% Line 93
+			  call 'erlang':'open_port'
+			      ({'spawn',Pname}, ['eof'])
+		  in  %% Line 93
+		      case _cor2 of
+			%% Line 94
+			<{'EXIT',_cor6}> when 'true' ->
+			    %% Line 96
+			    call 'user':'start'
+				()
+			%% Line 97
+			<Port> when 'true' ->
+			    %% Line 98
+			    apply 'server1'/3
+				(Port, Port, Shell)
+		      end
+	end
+'server'/3 =
+    %% Line 101
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 102
+	    call 'erlang':'process_flag'
+		('trap_exit', 'true')
+	    let <_cor3> =
+		catch
+		    %% Line 103
+		    call 'erlang':'open_port'
+			({'spawn',_cor2}, ['eof'])
+	    in  %% Line 103
+		case _cor3 of
+		  %% Line 104
+		  <{'EXIT',_cor9}> when 'true' ->
+		      %% Line 105
+		      call 'user':'start'
+			  ()
+		  %% Line 106
+		  <Iport> when 'true' ->
+		      let <Oport> =
+			  %% Line 107
+			  call 'erlang':'open_port'
+			      ({'spawn',_cor1}, ['eof'])
+		      in  %% Line 108
+			  apply 'server1'/3
+			      (Iport, Oport, _cor0)
+		end
+'server1'/3 =
+    %% Line 111
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 112
+	    call 'erlang':'put'
+		('eof', 'false')
+	    let <User> =
+		%% Line 114
+		apply 'start_user'/0
+		    ()
+	    in  let <_cor4> =
+		    %% Line 115
+		    apply 'gr_new'/0
+			()
+		in  let <Gr1> =
+			%% Line 115
+			apply 'gr_add_cur'/3
+			    (_cor4, User, {})
+		    in  let <Curr,Shell1> =
+			    %% Line 118
+			    case call 'init':'get_argument'
+				     ('remsh') of
+			      %% Line 119
+			      <{'ok',[[Node|[]]|[]]}> when 'true' ->
+				  let <ANode> =
+				      %% Line 120
+				      call 'erlang':'list_to_atom'
+					  (Node)
+				  in  let <RShell> =
+					  %% Line 121
+					  {ANode,'shell','start',[]}
+				      in  let <_cor9> =
+					      %% Line 122
+					      call 'erlang':'self'
+						  ()
+					  in  let <_cor8> =
+						  %% Line 122
+						  apply 'rem_sh_opts'/1
+						      (ANode)
+					      in  let <RGr> =
+						      %% Line 122
+						      call 'group':'start'
+							  (_cor9, RShell, _cor8)
+						  in  %% Line 123
+						      <RGr,RShell>
+			      %% Line 124
+			      <E>
+				  when let <_cor11> =
+					call 'erlang':'=:='
+					    (E, 'error')
+				    in  let <_cor12> =
+					    call 'erlang':'=:='
+						(E, {'ok',[[]]})
+					in  call 'erlang':'or'
+						(_cor11, _cor12) ->
+				  let <_cor13> =
+				      %% Line 125
+				      call 'erlang':'self'
+					  ()
+				  in  let <_cor14> =
+					  %% Line 125
+					  call 'group':'start'
+					      (_cor13, _cor0)
+				      in  <_cor14,_cor0>
+			      ( <_cor15> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor15})
+				-| ['compiler_generated'] )
+			    end
+			in  do  %% Line 128
+				call 'erlang':'put'
+				    ('current_group', Curr)
+				let <Gr> =
+				    %% Line 129
+				    apply 'gr_add_cur'/3
+					(Gr1, Curr, Shell1)
+				in  let <_cor19> =
+					%% Line 133
+					call 'erlang':'system_info'
+					    ('system_version')
+				    in  let <_cor20> =
+					    %% Line 132
+					    call 'io_lib':'format'
+						([126|[116|[115|[10]]]], %% Line 133
+									 [_cor19|[]])
+					in  let <_cor21> =
+						%% Line 132
+						apply 'flatten'/1
+						    (_cor20)
+					    in  do  %% Line 131
+						    apply 'io_request'/3
+							({'put_chars','unicode',_cor21}, _cor2, _cor1)
+						    %% Line 136
+						    apply 'server_loop'/5
+							(_cor2, _cor1, Curr, User, Gr)
+'rem_sh_opts'/1 =
+    %% Line 138
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 139
+	    ( fun (_cor1) ->
+		  call 'rpc':'call'
+		      (_cor0, 'edlin_expand', 'expand', [_cor1|[]])
+	      -| [{'id',{0,0,'-rem_sh_opts/1-fun-0-'}}] )
+	in  %% Line 139
+	    [{'expand_fun',_cor3}|[]]
+'start_user'/0 =
+    %% Line 145
+    fun () ->
+	do  %% Line 146
+	    case call 'erlang':'whereis'
+		     ('user_drv') of
+	      %% Line 147
+	      <'undefined'> when 'true' ->
+		  let <_cor0> =
+		      %% Line 148
+		      call 'erlang':'self'
+			  ()
+		  in  %% Line 148
+		      call 'erlang':'register'
+			  ('user_drv', _cor0)
+	      %% Line 149
+	      <_cor5> when 'true' ->
+		  'ok'
+	    end
+	    %% Line 152
+	    case call 'erlang':'whereis'
+		     ('user') of
+	      %% Line 153
+	      <'undefined'> when 'true' ->
+		  let <_cor2> =
+		      %% Line 154
+		      call 'erlang':'self'
+			  ()
+		  in  let <User> =
+			  %% Line 154
+			  call 'group':'start'
+			      (_cor2, {})
+		      in  do  %% Line 155
+			      call 'erlang':'register'
+				  ('user', User)
+			      %% Line 156
+			      User
+	      %% Line 157
+	      <User> when 'true' ->
+		  %% Line 158
+		  User
+	    end
+'server_loop'/4 =
+    %% Line 161
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <Curr> =
+	    %% Line 162
+	    apply 'gr_cur_pid'/1
+		(_cor0)
+	in  do  %% Line 163
+		call 'erlang':'put'
+		    ('current_group', Curr)
+		%% Line 164
+		apply 'server_loop'/5
+		    (_cor3, _cor2, Curr, _cor1, _cor0)
+'server_loop'/5 =
+    %% Line 166
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 167
+	receive
+	  %% Line 168
+	  <{_cor31,{'data',Bs}}>
+	      when call 'erlang':'=:='
+		    (_cor31,
+		     _cor4) ->
+	      let <BsBin> =
+		  %% Line 169
+		  call 'erlang':'list_to_binary'
+		      (Bs)
+	      in  let <Unicode> =
+		      %% Line 170
+		      call 'unicode':'characters_to_list'
+			  (BsBin, 'utf8')
+		  in  %% Line 171
+		      apply 'port_bytes'/6
+			  (Unicode, _cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 172
+	  <{_cor32,'eof'}>
+	      when call 'erlang':'=:='
+		    (_cor32,
+		     _cor4) ->
+	      let <_cor7> =
+		  %% Line 173
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 173
+		      call 'erlang':'!'
+			  (_cor2, {_cor7,'eof'})
+		      %% Line 174
+		      apply 'server_loop'/5
+			  (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 175
+	  <{_cor33,Req}>
+	      when call 'erlang':'=:='
+		    (_cor33,
+		     _cor1) ->
+	      do  %% Line 176
+		  apply 'io_request'/3
+		      (Req, _cor4, _cor3)
+		  %% Line 177
+		  apply 'server_loop'/5
+		      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 178
+	  <{_cor34,'tty_geometry'}>
+	      when call 'erlang':'=:='
+		    (_cor34,
+		     _cor2) ->
+	      let <_cor9> =
+		  %% Line 179
+		  call 'erlang':'self'
+		      ()
+	      in  let <_cor8> =
+		      %% Line 179
+		      apply 'get_tty_geometry'/1
+			  (_cor4)
+		  in  do  %% Line 179
+			  call 'erlang':'!'
+			      (_cor2, {_cor9,'tty_geometry',_cor8})
+			  %% Line 180
+			  apply 'server_loop'/5
+			      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 181
+	  <{_cor35,'get_unicode_state'}>
+	      when call 'erlang':'=:='
+		    (_cor35,
+		     _cor2) ->
+	      let <_cor11> =
+		  %% Line 182
+		  call 'erlang':'self'
+		      ()
+	      in  let <_cor10> =
+		      %% Line 182
+		      apply 'get_unicode_state'/1
+			  (_cor4)
+		  in  do  %% Line 182
+			  call 'erlang':'!'
+			      (_cor2, {_cor11,'get_unicode_state',_cor10})
+			  %% Line 183
+			  apply 'server_loop'/5
+			      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 184
+	  <{_cor36,'set_unicode_state',Bool}>
+	      when call 'erlang':'=:='
+		    (_cor36,
+		     _cor2) ->
+	      let <_cor13> =
+		  %% Line 185
+		  call 'erlang':'self'
+		      ()
+	      in  let <_cor12> =
+		      %% Line 185
+		      apply 'set_unicode_state'/2
+			  (_cor4, Bool)
+		  in  do  %% Line 185
+			  call 'erlang':'!'
+			      (_cor2, {_cor13,'set_unicode_state',_cor12})
+			  %% Line 186
+			  apply 'server_loop'/5
+			      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 187
+	  <{_cor37,Req}>
+	      when call 'erlang':'=:='
+		    (_cor37,
+		     _cor2) ->
+	      do  %% Line 188
+		  apply 'io_request'/3
+		      (Req, _cor4, _cor3)
+		  %% Line 189
+		  apply 'server_loop'/5
+		      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 190
+	  <{'EXIT',_cor38,_X_R}>
+	      when call 'erlang':'=:='
+		    (_cor38,
+		     _cor4) ->
+	      %% Line 191
+	      apply 'server_loop'/5
+		  (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 192
+	  <{'EXIT',_cor39,_X_R}>
+	      when call 'erlang':'=:='
+		    (_cor39,
+		     _cor3) ->
+	      %% Line 193
+	      apply 'server_loop'/5
+		  (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 194
+	  <{'EXIT',_cor40,_X_R}>
+	      when call 'erlang':'=:='
+		    (_cor40,
+		     _cor1) ->
+	      let <NewU> =
+		  %% Line 195
+		  apply 'start_user'/0
+		      ()
+	      in  let <_cor15> =
+		      %% Line 196
+		      apply 'gr_set_num'/4
+			  (_cor0, 1, NewU, {})
+		  in  %% Line 196
+		      apply 'server_loop'/5
+			  (_cor4, _cor3, _cor2, NewU, _cor15)
+	  %% Line 197
+	  <{'EXIT',Pid,R}> when 'true' ->
+	      %% Line 198
+	      case apply 'gr_cur_pid'/1
+		       (_cor0) of
+		%% Line 199
+		<_cor41>
+		    when let <_cor42> =
+			  call 'erlang':'=:='
+			      (_cor41, Pid)
+		      in  let <_cor16> =
+			      call 'erlang':'=/='
+				  (R, 'die')
+			  in  let <_cor17> =
+				  %% Line 200
+				  call 'erlang':'=/='
+				      (R, 'terminated')
+			      in  let <_cor43> =
+				      call 'erlang':'and'
+					  (_cor16, _cor17)
+				  in  call 'erlang':'and'
+					  (_cor42, _cor43) ->
+		    do  %% Line 201
+			case <> of
+			  <>
+			      when call 'erlang':'=/='
+				    (R,
+				     'normal') ->
+			      %% Line 202
+			      apply 'io_requests'/3
+				  ([{'put_chars','unicode',[42|[42|[42|[32|[69|[82|[82|[79|[82|[58|[32]]]]]]]]]]]}], _cor4, _cor3)
+			  %% Line 203
+			  <> when 'true' ->
+			      %% Line 204
+			      apply 'io_requests'/3
+				  ([{'put_chars','unicode',[42|[42|[42|[32]]]]}], _cor4, _cor3)
+			end
+			do  %% Line 206
+			    apply 'io_requests'/3
+				([{'put_chars','unicode',[83|[104|[101|[108|[108|[32|[112|[114|[111|[99|[101|[115|[115|[32|[116|[101|[114|[109|[105|[110|[97|[116|[101|[100|[33|[32]]]]]]]]]]]]]]]]]]]]]]]]]]}], _cor4, _cor3)
+			    let <Gr1> =
+				%% Line 207
+				apply 'gr_del_pid'/2
+				    (_cor0, Pid)
+			    in  %% Line 208
+				case apply 'gr_get_info'/2
+					 (_cor0, Pid) of
+				  %% Line 209
+				  <{Ix,{'shell','start',Params}}> when 'true' ->
+				      do  %% Line 210
+					  apply 'io_requests'/3
+					      ([{'put_chars','unicode',[42|[42|[42|[10]]]]}], _cor4, _cor3)
+					  let <_cor19> =
+					      %% Line 212
+					      call 'erlang':'self'
+						  ()
+					  in  let <Pid1> =
+						  %% Line 212
+						  call 'group':'start'
+						      (_cor19, {'shell','start',Params})
+					      in  let <_cor21> =
+						      %% Line 213
+						      apply 'gr_set_num'/4
+							  (Gr1, Ix, Pid1, %% Line 214
+									  {'shell','start',Params})
+						  in  %% Line 213
+						      case apply 'gr_set_cur'/2
+							       (_cor21, %% Line 214
+									Ix) of
+							<{'ok',Gr2}> when 'true' ->
+							    do  %% Line 215
+								call 'erlang':'put'
+								    ('current_group', Pid1)
+								%% Line 216
+								apply 'server_loop'/5
+								    (_cor4, _cor3, Pid1, _cor1, Gr2)
+							( <_cor22> when 'true' ->
+							      primop 'match_fail'
+								  ({'badmatch',_cor22})
+							  -| ['compiler_generated'] )
+						      end
+				  %% Line 217
+				  <_cor44> when 'true' ->
+				      do  %% Line 218
+					  apply 'io_requests'/3
+					      ([{'put_chars','unicode',[40|[94|[71|[32|[116|[111|[32|[115|[116|[97|[114|[116|[32|[110|[101|[119|[32|[106|[111|[98|[41|[32|[42|[42|[42|[10]]]]]]]]]]]]]]]]]]]]]]]]]]}], _cor4, _cor3)
+					  %% Line 220
+					  apply 'server_loop'/5
+					      (_cor4, _cor3, _cor2, _cor1, Gr1)
+				end
+		%% Line 222
+		<_cor45> when 'true' ->
+		    let <_cor24> =
+			%% Line 223
+			apply 'gr_del_pid'/2
+			    (_cor0, Pid)
+		    in  %% Line 223
+			apply 'server_loop'/5
+			    (_cor4, _cor3, _cor2, _cor1, _cor24)
+	      end
+	  %% Line 225
+	  <_X_X> when 'true' ->
+	      %% Line 227
+	      apply 'server_loop'/5
+		  (_cor4, _cor3, _cor2, _cor1, _cor0)
+	after 'infinity' ->
+	  'true'
+'port_bytes'/6 =
+    %% Line 235
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[7|_X_Bs],Iport,Oport,_X_Curr,User,Gr> when 'true' ->
+	      %% Line 236
+	      apply 'handle_escape'/4
+		  (Iport, Oport, User, Gr)
+	  %% Line 238
+	  <[3|_X_Bs],Iport,Oport,Curr,User,Gr> when 'true' ->
+	      %% Line 239
+	      apply 'interrupt_shell'/5
+		  (Iport, Oport, Curr, User, Gr)
+	  %% Line 241
+	  <[B|[]],Iport,Oport,Curr,User,Gr> when 'true' ->
+	      let <_cor6> =
+		  %% Line 242
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 242
+		      call 'erlang':'!'
+			  (Curr, {_cor6,{'data',[B|[]]}})
+		      %% Line 243
+		      apply 'server_loop'/5
+			  (Iport, Oport, Curr, User, Gr)
+	  %% Line 244
+	  <Bs,Iport,Oport,Curr,User,Gr> when 'true' ->
+	      %% Line 245
+	      case apply 'member'/2
+		       (7, Bs) of
+		%% Line 246
+		<'true'> when 'true' ->
+		    %% Line 247
+		    apply 'handle_escape'/4
+			(Iport, Oport, User, Gr)
+		%% Line 248
+		<'false'> when 'true' ->
+		    let <_cor7> =
+			%% Line 249
+			call 'erlang':'self'
+			    ()
+		    in  do  %% Line 249
+			    call 'erlang':'!'
+				(Curr, {_cor7,{'data',Bs}})
+			    %% Line 250
+			    apply 'server_loop'/5
+				(Iport, Oport, Curr, User, Gr)
+		( <_cor8> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor8})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'interrupt_shell'/5 =
+    %% Line 253
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 254
+	    case apply 'gr_get_info'/2
+		     (_cor0, _cor2) of
+	      %% Line 255
+	      <'undefined'> when 'true' ->
+		  'ok'
+	      %% Line 257
+	      <_cor11> when 'true' ->
+		  %% Line 258
+		  call 'erlang':'exit'
+		      (_cor2, 'interrupt')
+	    end
+	    %% Line 260
+	    apply 'server_loop'/5
+		(_cor4, _cor3, _cor2, _cor1, _cor0)
+'handle_escape'/4 =
+    %% Line 262
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 263
+	case call 'application':'get_env'
+		 ('stdlib', 'shell_esc') of
+	  %% Line 264
+	  <{'ok','abort'}> when 'true' ->
+	      let <Pid> =
+		  %% Line 265
+		  apply 'gr_cur_pid'/1
+		      (_cor0)
+	      in  do  %% Line 266
+		      call 'erlang':'exit'
+			  (Pid, 'die')
+		      let <_cor6> =
+			  %% Line 268
+			  case apply 'gr_get_info'/2
+				   (_cor0, Pid) of
+			    %% Line 269
+			    <{_X_Ix,{}}> when 'true' ->
+				_cor0
+			    %% Line 271
+			    <_cor17> when 'true' ->
+				%% Line 272
+				receive
+				  <{'EXIT',_cor18,_cor19}>
+				      when call 'erlang':'=:='
+					    (_cor18,
+					     Pid) ->
+				      %% Line 273
+				      apply 'gr_del_pid'/2
+					  (_cor0, Pid)
+				after %% Line 274
+				      1000 ->
+				  _cor0
+			  end
+		      in  let <_cor8> =
+			      %% Line 278
+			      call 'erlang':'self'
+				  ()
+			  in  let <Pid1> =
+				  %% Line 278
+				  call 'group':'start'
+				      (_cor8, {'shell','start',[]})
+			      in  do  %% Line 279
+				      apply 'io_request'/3
+					  ({'put_chars','unicode',[10]}, _cor3, _cor2)
+				      let <_cor10> =
+					  %% Line 281
+					  apply 'gr_add_cur'/3
+					      (_cor6, Pid1, {'shell','start',[]})
+				      in  %% Line 280
+					  apply 'server_loop'/4
+					      (_cor3, _cor2, _cor1, _cor10)
+	  %% Line 283
+	  <_cor20> when 'true' ->
+	      do  %% Line 284
+		  apply 'io_request'/3
+		      ({'put_chars','unicode',[10|[85|[115|[101|[114|[32|[115|[119|[105|[116|[99|[104|[32|[99|[111|[109|[109|[97|[110|[100|[10]]]]]]]]]]]]]]]]]]]]]}, _cor3, _cor2)
+		  let <_cor11> =
+		      %% Line 285
+		      apply 'switch_loop'/3
+			  (_cor3, _cor2, _cor0)
+		  in  %% Line 285
+		      apply 'server_loop'/4
+			  (_cor3, _cor2, _cor1, _cor11)
+	end
+'switch_loop'/3 =
+    %% Line 288
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 289
+	    call 'edlin':'start'
+		([32|[45|[45|[62|[32]]]]])
+	in  let <Line> =
+		%% Line 289
+		apply 'get_line'/3
+		    (_cor3, _cor2, _cor1)
+	    in  let <_cor5> =
+		    %% Line 290
+		    call 'erl_scan':'string'
+			(Line)
+		in  %% Line 290
+		    apply 'switch_cmd'/4
+			(_cor5, _cor2, _cor1, _cor0)
+'switch_cmd'/4 =
+    %% Line 292
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <{'ok',[{'atom',_cor42,'c'}|[{'integer',_cor43,I}|[]]],_cor44},Iport,Oport,Gr0> when 'true' ->
+	      %% Line 293
+	      case apply 'gr_set_cur'/2
+		       (Gr0, I) of
+		%% Line 294
+		<{'ok',Gr}> when 'true' ->
+		    Gr
+		%% Line 295
+		<'undefined'> when 'true' ->
+		    apply 'unknown_group'/3
+			(Iport, Oport, Gr0)
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 297
+	  <{'ok',[{'atom',_cor45,'c'}|[]],_cor46},Iport,Oport,Gr> when 'true' ->
+	      let <_cor5> =
+		  %% Line 298
+		  apply 'gr_cur_pid'/1
+		      (Gr)
+	      in  %% Line 298
+		  case apply 'gr_get_info'/2
+			   (Gr, _cor5) of
+		    %% Line 299
+		    <'undefined'> when 'true' ->
+			%% Line 300
+			apply 'unknown_group'/3
+			    (Iport, Oport, Gr)
+		    %% Line 301
+		    <_cor47> when 'true' ->
+			%% Line 302
+			Gr
+		  end
+	  %% Line 304
+	  <{'ok',[{'atom',_cor48,'i'}|[{'integer',_cor49,I}|[]]],_cor50},Iport,Oport,Gr> when 'true' ->
+	      %% Line 305
+	      case apply 'gr_get_num'/2
+		       (Gr, I) of
+		%% Line 306
+		<{'pid',Pid}> when 'true' ->
+		    do  %% Line 307
+			call 'erlang':'exit'
+			    (Pid, 'interrupt')
+			%% Line 308
+			apply 'switch_loop'/3
+			    (Iport, Oport, Gr)
+		%% Line 309
+		<'undefined'> when 'true' ->
+		    %% Line 310
+		    apply 'unknown_group'/3
+			(Iport, Oport, Gr)
+		( <_cor7> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor7})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 312
+	  <{'ok',[{'atom',_cor51,'i'}|[]],_cor52},Iport,Oport,Gr> when 'true' ->
+	      let <Pid> =
+		  %% Line 313
+		  apply 'gr_cur_pid'/1
+		      (Gr)
+	      in  %% Line 314
+		  case apply 'gr_get_info'/2
+			   (Gr, Pid) of
+		    %% Line 315
+		    <'undefined'> when 'true' ->
+			%% Line 316
+			apply 'unknown_group'/3
+			    (Iport, Oport, Gr)
+		    %% Line 317
+		    <_cor53> when 'true' ->
+			do  %% Line 318
+			    call 'erlang':'exit'
+				(Pid, 'interrupt')
+			    %% Line 319
+			    apply 'switch_loop'/3
+				(Iport, Oport, Gr)
+		  end
+	  %% Line 321
+	  <{'ok',[{'atom',_cor54,'k'}|[{'integer',_cor55,I}|[]]],_cor56},Iport,Oport,Gr> when 'true' ->
+	      %% Line 322
+	      case apply 'gr_get_num'/2
+		       (Gr, I) of
+		%% Line 323
+		<{'pid',Pid}> when 'true' ->
+		    do  %% Line 324
+			call 'erlang':'exit'
+			    (Pid, 'die')
+			%% Line 325
+			case apply 'gr_get_info'/2
+				 (Gr, Pid) of
+			  %% Line 326
+			  <{_X_Ix,{}}> when 'true' ->
+			      %% Line 327
+			      apply 'switch_loop'/3
+				  (Iport, Oport, Gr)
+			  %% Line 328
+			  <_cor57> when 'true' ->
+			      let <_cor10> =
+				  %% Line 330
+				  receive
+				    <{'EXIT',_cor58,_cor59}>
+					when call 'erlang':'=:='
+					      (_cor58,
+					       Pid) ->
+					%% Line 331
+					apply 'gr_del_pid'/2
+					    (Gr, Pid)
+				  after %% Line 332
+					1000 ->
+				    %% Line 333
+				    Gr
+			      in  %% Line 335
+				  apply 'switch_loop'/3
+				      (Iport, Oport, _cor10)
+			end
+		%% Line 337
+		<'undefined'> when 'true' ->
+		    %% Line 338
+		    apply 'unknown_group'/3
+			(Iport, Oport, Gr)
+		( <_cor13> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor13})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 340
+	  <{'ok',[{'atom',_cor60,'k'}|[]],_cor61},Iport,Oport,Gr> when 'true' ->
+	      let <Pid> =
+		  %% Line 341
+		  apply 'gr_cur_pid'/1
+		      (Gr)
+	      in  %% Line 343
+		  case apply 'gr_get_info'/2
+			   (Gr, Pid) of
+		    %% Line 344
+		    <'undefined'> when 'true' ->
+			%% Line 345
+			apply 'unknown_group'/3
+			    (Iport, Oport, Gr)
+		    %% Line 346
+		    <{_X_Ix,{}}> when 'true' ->
+			%% Line 347
+			apply 'switch_loop'/3
+			    (Iport, Oport, Gr)
+		    %% Line 348
+		    <_cor62> when 'true' ->
+			do  %% Line 349
+			    call 'erlang':'exit'
+				(Pid, 'die')
+			    let <_cor16> =
+				%% Line 351
+				receive
+				  <{'EXIT',_cor63,_cor64}>
+				      when call 'erlang':'=:='
+					    (_cor63,
+					     Pid) ->
+				      %% Line 352
+				      apply 'gr_del_pid'/2
+					  (Gr, Pid)
+				after %% Line 353
+				      1000 ->
+				  %% Line 354
+				  Gr
+			    in  %% Line 356
+				apply 'switch_loop'/3
+				    (Iport, Oport, _cor16)
+		  end
+	  %% Line 358
+	  <{'ok',[{'atom',_cor65,'j'}|[]],_cor66},Iport,Oport,Gr> when 'true' ->
+	      let <_cor19> =
+		  %% Line 359
+		  apply 'gr_list'/1
+		      (Gr)
+	      in  do  %% Line 359
+		      apply 'io_requests'/3
+			  (_cor19, Iport, Oport)
+		      %% Line 360
+		      apply 'switch_loop'/3
+			  (Iport, Oport, Gr)
+	  %% Line 361
+	  <{'ok',[{'atom',_cor67,'s'}|[{'atom',_cor68,Shell}|[]]],_cor69},Iport,Oport,Gr0> when 'true' ->
+	      let <_cor20> =
+		  %% Line 362
+		  call 'erlang':'self'
+		      ()
+	      in  let <Pid> =
+		      %% Line 362
+		      call 'group':'start'
+			  (_cor20, {Shell,'start',[]})
+		  in  let <Gr> =
+			  %% Line 363
+			  apply 'gr_add_cur'/3
+			      (Gr0, Pid, {Shell,'start',[]})
+		      in  %% Line 364
+			  apply 'switch_loop'/3
+			      (Iport, Oport, Gr)
+	  %% Line 365
+	  <{'ok',[{'atom',_cor70,'s'}|[]],_cor71},Iport,Oport,Gr0> when 'true' ->
+	      let <_cor23> =
+		  %% Line 366
+		  call 'erlang':'self'
+		      ()
+	      in  let <Pid> =
+		      %% Line 366
+		      call 'group':'start'
+			  (_cor23, {'shell','start',[]})
+		  in  let <Gr> =
+			  %% Line 367
+			  apply 'gr_add_cur'/3
+			      (Gr0, Pid, {'shell','start',[]})
+		      in  %% Line 368
+			  apply 'switch_loop'/3
+			      (Iport, Oport, Gr)
+	  %% Line 369
+	  <{'ok',[{'atom',_cor72,'r'}|[]],_cor73},Iport,Oport,Gr0> when 'true' ->
+	      %% Line 370
+	      case call 'erlang':'is_alive'
+		       () of
+		%% Line 371
+		<'true'> when 'true' ->
+		    let <Node> =
+			%% Line 372
+			call 'pool':'get_node'
+			    ()
+		    in  let <_cor27> =
+			    %% Line 373
+			    call 'erlang':'self'
+				()
+			in  let <Pid> =
+				%% Line 373
+				call 'group':'start'
+				    (_cor27, {Node,'shell','start',[]})
+			    in  let <Gr> =
+				    %% Line 374
+				    apply 'gr_add_cur'/3
+					(Gr0, Pid, {Node,'shell','start',[]})
+				in  %% Line 375
+				    apply 'switch_loop'/3
+					(Iport, Oport, Gr)
+		%% Line 376
+		<'false'> when 'true' ->
+		    do  %% Line 377
+			apply 'io_request'/3
+			    ({'put_chars','unicode',[78|[111|[116|[32|[97|[108|[105|[118|[101|[10]]]]]]]]]]}, Iport, Oport)
+			%% Line 378
+			apply 'switch_loop'/3
+			    (Iport, Oport, Gr0)
+		( <_cor30> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor30})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 380
+	  <{'ok',[{'atom',_cor74,'r'}|[{'atom',_cor75,Node}|[]]],_cor76},Iport,Oport,Gr0> when 'true' ->
+	      let <_cor31> =
+		  %% Line 381
+		  call 'erlang':'self'
+		      ()
+	      in  let <Pid> =
+		      %% Line 381
+		      call 'group':'start'
+			  (_cor31, {Node,'shell','start',[]})
+		  in  let <Gr> =
+			  %% Line 382
+			  apply 'gr_add_cur'/3
+			      (Gr0, Pid, {Node,'shell','start',[]})
+		      in  %% Line 383
+			  apply 'switch_loop'/3
+			      (Iport, Oport, Gr)
+	  %% Line 384
+	  <{'ok',[{'atom',_cor77,'r'}|[{'atom',_cor78,Node}|[{'atom',_cor79,Shell}|[]]]],_cor80},%% Line 385
+												 Iport,%% Line 385
+												       Oport,%% Line 385
+													     Gr0> when 'true' ->
+	      let <_cor34> =
+		  %% Line 386
+		  call 'erlang':'self'
+		      ()
+	      in  let <Pid> =
+		      %% Line 386
+		      call 'group':'start'
+			  (_cor34, {Node,Shell,'start',[]})
+		  in  let <Gr> =
+			  %% Line 387
+			  apply 'gr_add_cur'/3
+			      (Gr0, Pid, {Node,Shell,'start',[]})
+		      in  %% Line 388
+			  apply 'switch_loop'/3
+			      (Iport, Oport, Gr)
+	  %% Line 389
+	  <{'ok',[{'atom',_cor81,'q'}|[]],_cor82},Iport,Oport,Gr> when 'true' ->
+	      %% Line 390
+	      case call 'erlang':'system_info'
+		       ('break_ignored') of
+		%% Line 391
+		<'true'> when 'true' ->
+		    do  %% Line 392
+			apply 'io_request'/3
+			    ({'put_chars','unicode',[85|[110|[107|[110|[111|[119|[110|[32|[99|[111|[109|[109|[97|[110|[100|[10]]]]]]]]]]]]]]]]}, Iport, Oport)
+			%% Line 393
+			apply 'switch_loop'/3
+			    (Iport, Oport, Gr)
+		%% Line 394
+		<'false'> when 'true' ->
+		    %% Line 395
+		    call 'erlang':'halt'
+			()
+		( <_cor37> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor37})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 397
+	  <{'ok',[{'atom',_cor83,'h'}|[]],_cor84},Iport,Oport,Gr> when 'true' ->
+	      do  %% Line 398
+		  apply 'list_commands'/2
+		      (Iport, Oport)
+		  %% Line 399
+		  apply 'switch_loop'/3
+		      (Iport, Oport, Gr)
+	  %% Line 400
+	  <{'ok',[{'?',_cor85}|[]],_cor86},Iport,Oport,Gr> when 'true' ->
+	      do  %% Line 401
+		  apply 'list_commands'/2
+		      (Iport, Oport)
+		  %% Line 402
+		  apply 'switch_loop'/3
+		      (Iport, Oport, Gr)
+	  %% Line 403
+	  <{'ok',[],_cor87},Iport,Oport,Gr> when 'true' ->
+	      %% Line 404
+	      apply 'switch_loop'/3
+		  (Iport, Oport, Gr)
+	  %% Line 405
+	  <{'ok',_X_Ts,_cor88},Iport,Oport,Gr> when 'true' ->
+	      do  %% Line 406
+		  apply 'io_request'/3
+		      ({'put_chars','unicode',[85|[110|[107|[110|[111|[119|[110|[32|[99|[111|[109|[109|[97|[110|[100|[10]]]]]]]]]]]]]]]]}, Iport, Oport)
+		  %% Line 407
+		  apply 'switch_loop'/3
+		      (Iport, Oport, Gr)
+	  %% Line 408
+	  <_X_Ts,Iport,Oport,Gr> when 'true' ->
+	      do  %% Line 409
+		  apply 'io_request'/3
+		      ({'put_chars','unicode',[73|[108|[108|[101|[103|[97|[108|[32|[105|[110|[112|[117|[116|[10]]]]]]]]]]]]]]}, Iport, Oport)
+		  %% Line 410
+		  apply 'switch_loop'/3
+		      (Iport, Oport, Gr)
+	end
+'unknown_group'/3 =
+    %% Line 412
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 413
+	    apply 'io_request'/3
+		({'put_chars','unicode',[85|[110|[107|[110|[111|[119|[110|[32|[106|[111|[98|[10]]]]]]]]]]]]}, _cor2, _cor1)
+	    %% Line 414
+	    apply 'switch_loop'/3
+		(_cor2, _cor1, _cor0)
+'list_commands'/2 =
+    %% Line 416
+    fun (_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 417
+	    case call 'erlang':'system_info'
+		     ('break_ignored') of
+	      %% Line 418
+	      <'true'> when 'true' ->
+		  %% Line 419
+		  []
+	      %% Line 420
+	      <'false'> when 'true' ->
+		  %% Line 421
+		  [{'put_chars','unicode',[32|[32|[113|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[45|[32|[113|[117|[105|[116|[32|[101|[114|[108|[97|[110|[103|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}]
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor2})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor5> =
+		%% Line 429
+		call 'erlang':'++'
+		    (_cor3, %% Line 430
+			    [{'put_chars','unicode',[32|[32|[63|[32|[124|[32|[104|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[45|[32|[116|[104|[105|[115|[32|[109|[101|[115|[115|[97|[103|[101|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}])
+	    in  let <_cor6> =
+		    %% Line 428
+		    call 'erlang':'++'
+			([{'put_chars','unicode',[32|[32|[99|[32|[91|[110|[110|[93|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[45|[32|[99|[111|[110|[110|[101|[99|[116|[32|[116|[111|[32|[106|[111|[98|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'put_chars','unicode',[32|[32|[105|[32|[91|[110|[110|[93|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[45|[32|[105|[110|[116|[101|[114|[114|[117|[112|[116|[32|[106|[111|[98|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'put_chars','unicode',[32|[32|[107|[32|[91|[110|[110|[93|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[45|[32|[107|[105|[108|[108|[32|[106|[111|[98|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'put_chars','unicode',[32|[32|[106|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[45|[32|[108|[105|[115|[116|[32|[97|[108|[108|[32|[106|[111|[98|[115|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'put_chars','unicode',[32|[32|[115|[32|[91|[115|[104|[101|[108|[108|[93|[32|[32|[32|[32|[32|[32|[32|[32|[32|[45|[32|[115|[116|[97|[114|[116|[32|[108|[111|[99|[97|[108|[32|[115|[104|[101|[108|[108|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'put_chars','unicode',[32|[32|[114|[32|[91|[110|[111|[100|[101|[32|[91|[115|[104|[101|[108|[108|[93|[93|[32|[32|[45|[32|[115|[116|[97|[114|[116|[32|[114|[101|[109|[111|[116|[101|[32|[115|[104|[101|[108|[108|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}]]]]]], _cor5)
+		in  %% Line 423
+		    apply 'io_requests'/3
+			(_cor6, _cor1, _cor0)
+'get_line'/3 =
+    %% Line 433
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'done',Line,_X_Rest,Rs},Iport,Oport> when 'true' ->
+	      do  %% Line 434
+		  apply 'io_requests'/3
+		      (Rs, Iport, Oport)
+		  %% Line 435
+		  Line
+	  %% Line 436
+	  <{'undefined',_X_Char,Cs,Cont,Rs},Iport,Oport> when 'true' ->
+	      do  %% Line 437
+		  apply 'io_requests'/3
+		      (Rs, Iport, Oport)
+		  do  %% Line 438
+		      apply 'io_request'/3
+			  ('beep', Iport, Oport)
+		      let <_cor3> =
+			  %% Line 439
+			  call 'edlin':'edit_line'
+			      (Cs, Cont)
+		      in  %% Line 439
+			  apply 'get_line'/3
+			      (_cor3, Iport, Oport)
+	  %% Line 440
+	  <{What,Cont0,Rs},Iport,Oport> when 'true' ->
+	      do  %% Line 441
+		  apply 'io_requests'/3
+		      (Rs, Iport, Oport)
+		  %% Line 442
+		  receive
+		    %% Line 443
+		    <{_cor10,{'data',Cs}}>
+			when call 'erlang':'=:='
+			      (_cor10,
+			       Iport) ->
+			let <_cor5> =
+			    %% Line 444
+			    call 'edlin':'edit_line'
+				(Cs, Cont0)
+			in  %% Line 444
+			    apply 'get_line'/3
+				(_cor5, Iport, Oport)
+		    %% Line 445
+		    <{_cor11,'eof'}>
+			when call 'erlang':'=:='
+			      (_cor11,
+			       Iport) ->
+			let <_cor6> =
+			    %% Line 446
+			    call 'edlin':'edit_line'
+				('eof', Cont0)
+			in  %% Line 446
+			    apply 'get_line'/3
+				(_cor6, Iport, Oport)
+		  after %% Line 448
+			apply 'get_line_timeout'/1
+			    (What) ->
+		    let <_cor4> =
+			%% Line 449
+			call 'edlin':'edit_line'
+			    ([], Cont0)
+		    in  %% Line 449
+			apply 'get_line'/3
+			    (_cor4, Iport, Oport)
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'get_line',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_line_timeout'/1 =
+    %% Line 452
+    fun (_cor0) ->
+	case _cor0 of
+	  <'blink'> when 'true' ->
+	      1000
+	  %% Line 453
+	  <'more_chars'> when 'true' ->
+	      'infinity'
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'get_line_timeout',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_tty_geometry'/1 =
+    %% Line 457
+    fun (_cor0) ->
+	let <_cor1> =
+	    catch
+		%% Line 458
+		call 'erlang':'port_control'
+		    (_cor0, 100, [])
+	in  %% Line 458
+	    case _cor1 of
+	      %% Line 459
+	      <List>
+		  when try
+			let <_cor2> =
+			    call 'erlang':'length'
+				(_cor1)
+			in  call 'erlang':'=:='
+				(_cor2, 8)
+		    of <Try> ->
+			Try
+		    catch <T,R> ->
+			'false' ->
+		  %% Line 460
+		  case call 'erlang':'list_to_binary'
+			   (List) of
+		    <#{#<W>(32,1,'integer',['unsigned'|['native']]),
+		       #<H>(32,1,'integer',['unsigned'|['native']])}#> when 'true' ->
+			%% Line 461
+			{W,H}
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	      %% Line 462
+	      <_cor6> when 'true' ->
+		  %% Line 463
+		  'error'
+	    end
+'get_unicode_state'/1 =
+    %% Line 465
+    fun (_cor0) ->
+	let <_cor1> =
+	    catch
+		%% Line 466
+		call 'erlang':'port_control'
+		    (_cor0, 101, [])
+	in  %% Line 466
+	    case _cor1 of
+	      %% Line 467
+	      <[Int|[]]>
+		  when call 'erlang':'>'
+			(Int,
+			 0) ->
+		  %% Line 468
+		  'true'
+	      %% Line 469
+	      <[Int|[]]>
+		  when call 'erlang':'=:='
+			(Int,
+			 0) ->
+		  %% Line 470
+		  'false'
+	      %% Line 471
+	      <_cor4> when 'true' ->
+		  %% Line 472
+		  'error'
+	    end
+'set_unicode_state'/2 =
+    %% Line 475
+    fun (_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 476
+	    case _cor0 of
+	      %% Line 477
+	      <'true'> when 'true' ->
+		  [1]
+	      %% Line 478
+	      <'false'> when 'true' ->
+		  [0]
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor2})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor5> =
+		catch
+		    %% Line 480
+		    call 'erlang':'port_control'
+			(_cor1, 102, _cor3)
+	    in  %% Line 480
+		case _cor5 of
+		  %% Line 481
+		  <[Int|[]]>
+		      when call 'erlang':'>'
+			    (Int,
+			     0) ->
+		      %% Line 482
+		      {'unicode','utf8'}
+		  %% Line 483
+		  <[Int|[]]>
+		      when call 'erlang':'=:='
+			    (Int,
+			     0) ->
+		      %% Line 484
+		      {'unicode','false'}
+		  %% Line 485
+		  <_cor9> when 'true' ->
+		      %% Line 486
+		      'error'
+		end
+'io_request'/3 =
+    %% Line 493
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 494
+	try
+	    apply 'io_command'/1
+		(_cor2)
+	of <_cor3> ->
+	    let <_cor4> =
+		%% Line 496
+		call 'erlang':'self'
+		    ()
+	    in  do  %% Line 496
+		    call 'erlang':'!'
+			(_cor0, {_cor4,_cor3})
+		    %% Line 497
+		    'ok'
+	catch <_cor8,_cor7,_cor6> ->
+	    case <_cor8,_cor7,_cor6> of
+	      %% Line 499
+	      <'throw',{'requests',Rs},_cor12> when 'true' ->
+		  %% Line 500
+		  apply 'io_requests'/3
+		      (Rs, _cor1, _cor0)
+	      %% Line 501
+	      <'throw',_cor13,_cor14> when 'true' ->
+		  %% Line 502
+		  'ok'
+	      ( <_cor8,_cor7,_cor6> when 'true' ->
+		    primop 'raise'
+			(_cor6, _cor7)
+		-| ['compiler_generated'] )
+	    end
+'io_requests'/3 =
+    %% Line 505
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[R|Rs],Iport,Oport> when 'true' ->
+	      do  %% Line 506
+		  apply 'io_request'/3
+		      (R, Iport, Oport)
+		  %% Line 507
+		  apply 'io_requests'/3
+		      (Rs, Iport, Oport)
+	  %% Line 508
+	  <[],_X_Iport,_X_Oport> when 'true' ->
+	      %% Line 509
+	      'ok'
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'io_requests',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'put_int16'/2 =
+    %% Line 511
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 512
+	    call 'erlang':'bsr'
+		(_cor1, 8)
+	in  let <_cor3> =
+		%% Line 512
+		call 'erlang':'band'
+		    (_cor2, 255)
+	    in  let <_cor4> =
+		    %% Line 512
+		    call 'erlang':'band'
+			(_cor1, 255)
+		in  %% Line 512
+		    [_cor3|[_cor4|_cor0]]
+'io_command'/1 =
+    %% Line 514
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'put_chars','unicode',Cs}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 515
+		  call 'unicode':'characters_to_binary'
+		      (Cs, 'utf8')
+	      in  %% Line 515
+		  {'command',[0|_cor1]}
+	  %% Line 516
+	  <{'move_rel',N}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 517
+		  apply 'put_int16'/2
+		      (N, [])
+	      in  %% Line 517
+		  {'command',[1|_cor2]}
+	  %% Line 518
+	  <{'insert_chars','unicode',Cs}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 519
+		  call 'unicode':'characters_to_binary'
+		      (Cs, 'utf8')
+	      in  %% Line 519
+		  {'command',[2|_cor3]}
+	  %% Line 520
+	  <{'delete_chars',N}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 521
+		  apply 'put_int16'/2
+		      (N, [])
+	      in  %% Line 521
+		  {'command',[3|_cor4]}
+	  %% Line 522
+	  <'beep'> when 'true' ->
+	      %% Line 523
+	      {'command',[4]}
+	  %% Line 524
+	  <Else> when 'true' ->
+	      %% Line 525
+	      call 'erlang':'throw'
+		  (Else)
+	end
+'gr_new'/0 =
+    %% Line 540
+    fun () ->
+	%% Line 541
+	{0,0,'none',[]}
+'gr_get_num'/2 =
+    %% Line 543
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{_X_Next,_X_CurI,_X_CurP,Gs},I> when 'true' ->
+	      %% Line 544
+	      apply 'gr_get_num1'/2
+		  (Gs, I)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'gr_get_num',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'gr_get_num1'/2 =
+    %% Line 546
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{I,_X_Pid,{}}|_X_Gs],_cor4>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     I) ->
+	      %% Line 547
+	      'undefined'
+	  %% Line 548
+	  <[{I,Pid,_X_S}|_X_Gs],_cor5>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     I) ->
+	      %% Line 549
+	      {'pid',Pid}
+	  %% Line 550
+	  <[_X_G|Gs],I> when 'true' ->
+	      %% Line 551
+	      apply 'gr_get_num1'/2
+		  (Gs, I)
+	  %% Line 552
+	  <[],_X_I> when 'true' ->
+	      %% Line 553
+	      'undefined'
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'gr_get_num1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'gr_get_info'/2 =
+    %% Line 555
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{_X_Next,_X_CurI,_X_CurP,Gs},Pid> when 'true' ->
+	      %% Line 556
+	      apply 'gr_get_info1'/2
+		  (Gs, Pid)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'gr_get_info',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'gr_get_info1'/2 =
+    %% Line 558
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{I,Pid,S}|_X_Gs],_cor4>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     Pid) ->
+	      %% Line 559
+	      {I,S}
+	  %% Line 560
+	  <[_X_G|Gs],I> when 'true' ->
+	      %% Line 561
+	      apply 'gr_get_info1'/2
+		  (Gs, I)
+	  %% Line 562
+	  <[],_X_I> when 'true' ->
+	      %% Line 563
+	      'undefined'
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'gr_get_info1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'gr_add_cur'/3 =
+    %% Line 565
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{Next,_X_CurI,_X_CurP,Gs},Pid,Shell> when 'true' ->
+	      let <_cor4> =
+		  %% Line 566
+		  call 'erlang':'+'
+		      (Next, 1)
+	      in  let <_cor3> =
+		      %% Line 566
+		      apply 'append'/2
+			  (Gs, [{Next,Pid,Shell}|[]])
+		  in  %% Line 566
+		      {_cor4,Next,Pid,_cor3}
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'gr_add_cur',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'gr_set_cur'/2 =
+    %% Line 568
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Next,_X_CurI,_X_CurP,Gs},I> when 'true' ->
+	      %% Line 569
+	      case apply 'gr_get_num1'/2
+		       (Gs, I) of
+		%% Line 570
+		<{'pid',Pid}> when 'true' ->
+		    {'ok',{Next,I,Pid,Gs}}
+		%% Line 571
+		<'undefined'> when 'true' ->
+		    'undefined'
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'gr_set_cur',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'gr_set_num'/4 =
+    %% Line 574
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <{Next,CurI,CurP,Gs},I,Pid,Shell> when 'true' ->
+	      let <_cor4> =
+		  %% Line 575
+		  apply 'gr_set_num1'/4
+		      (Gs, I, Pid, Shell)
+	      in  %% Line 575
+		  {Next,CurI,CurP,_cor4}
+	  ( <_cor8,_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'gr_set_num',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'gr_set_num1'/4 =
+    %% Line 577
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[{I,_X_Pid,_X_Shell}|Gs],_cor9,NewPid,NewShell>
+	      when call 'erlang':'=:='
+		    (_cor9,
+		     I) ->
+	      %% Line 578
+	      [{I,NewPid,NewShell}|Gs]
+	  %% Line 579
+	  <[{I,Pid,Shell}|Gs],NewI,NewPid,NewShell>
+	      when call 'erlang':'>'
+		    (NewI,
+		     I) ->
+	      let <_cor4> =
+		  %% Line 580
+		  apply 'gr_set_num1'/4
+		      (Gs, NewI, NewPid, NewShell)
+	      in  %% Line 580
+		  [{I,Pid,Shell}|_cor4]
+	  %% Line 581
+	  <Gs,NewI,NewPid,NewShell> when 'true' ->
+	      %% Line 582
+	      [{NewI,NewPid,NewShell}|Gs]
+	end
+'gr_del_pid'/2 =
+    %% Line 584
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Next,CurI,CurP,Gs},Pid> when 'true' ->
+	      let <_cor2> =
+		  %% Line 585
+		  apply 'gr_del_pid1'/2
+		      (Gs, Pid)
+	      in  %% Line 585
+		  {Next,CurI,CurP,_cor2}
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'gr_del_pid',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'gr_del_pid1'/2 =
+    %% Line 587
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{_X_I,Pid,_X_S}|Gs],_cor5>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     Pid) ->
+	      %% Line 588
+	      Gs
+	  %% Line 589
+	  <[G|Gs],Pid> when 'true' ->
+	      let <_cor2> =
+		  %% Line 590
+		  apply 'gr_del_pid1'/2
+		      (Gs, Pid)
+	      in  %% Line 590
+		  [G|_cor2]
+	  %% Line 591
+	  <[],_X_Pid> when 'true' ->
+	      %% Line 592
+	      []
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'gr_del_pid1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'gr_cur_pid'/1 =
+    %% Line 594
+    fun (_cor0) ->
+	case _cor0 of
+	  <{_X_Next,_X_CurI,CurP,_X_Gs}> when 'true' ->
+	      %% Line 595
+	      CurP
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'gr_cur_pid',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'gr_list'/1 =
+    %% Line 597
+    fun (_cor0) ->
+	case _cor0 of
+	  <{_X_Next,CurI,_X_CurP,Gs}> when 'true' ->
+	      %% Line 598
+	      apply 'gr_list'/3
+		  (Gs, CurI, [])
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'gr_list',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'gr_list'/3 =
+    %% Line 600
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[{_X_I,_X_Pid,{}}|Gs],Cur,Jobs> when 'true' ->
+	      %% Line 601
+	      apply 'gr_list'/3
+		  (Gs, Cur, Jobs)
+	  %% Line 602
+	  <[{Cur,_X_Pid,Shell}|Gs],_cor10,Jobs>
+	      when call 'erlang':'=:='
+		    (_cor10,
+		     Cur) ->
+	      let <_cor3> =
+		  %% Line 603
+		  call 'io_lib':'format'
+		      ([126|[52|[119|[42|[32|[126|[119|[10]]]]]]]], [Cur|[Shell|[]]])
+	      in  let <_cor4> =
+		      %% Line 603
+		      apply 'flatten'/1
+			  (_cor3)
+		  in  %% Line 603
+		      apply 'gr_list'/3
+			  (Gs, Cur, [{'put_chars','unicode',_cor4}|Jobs])
+	  %% Line 604
+	  <[{I,_X_Pid,Shell}|Gs],Cur,Jobs> when 'true' ->
+	      let <_cor5> =
+		  %% Line 605
+		  call 'io_lib':'format'
+		      ([126|[52|[119|[32|[32|[126|[119|[10]]]]]]]], [I|[Shell|[]]])
+	      in  let <_cor6> =
+		      %% Line 605
+		      apply 'flatten'/1
+			  (_cor5)
+		  in  %% Line 605
+		      apply 'gr_list'/3
+			  (Gs, Cur, [{'put_chars','unicode',_cor6}|Jobs])
+	  %% Line 606
+	  <[],_X_Cur,Jobs> when 'true' ->
+	      %% Line 607
+	      call 'lists':'reverse'
+		  (Jobs)
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'gr_list',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'append'/2 =
+    %% Line 609
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[H|T],X> when 'true' ->
+	      let <_cor2> =
+		  %% Line 610
+		  apply 'append'/2
+		      (T, X)
+	      in  %% Line 610
+		  [H|_cor2]
+	  %% Line 611
+	  <[],X> when 'true' ->
+	      %% Line 612
+	      X
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'append',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'member'/2 =
+    %% Line 614
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <X,[_cor4|_X_Rest]>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     X) ->
+	      'true'
+	  %% Line 615
+	  <X,[_X_H|Rest]> when 'true' ->
+	      %% Line 616
+	      apply 'member'/2
+		  (X, Rest)
+	  %% Line 617
+	  <_X_X,[]> when 'true' ->
+	      'false'
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'member',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'flatten'/1 =
+    %% Line 619
+    fun (_cor0) ->
+	%% Line 620
+	apply 'flatten'/3
+	    (_cor0, [], [])
+'flatten'/3 =
+    %% Line 622
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[H|T],Cont,Tail>
+	      when call 'erlang':'is_list'
+		    (H) ->
+	      %% Line 623
+	      apply 'flatten'/3
+		  (H, [T|Cont], Tail)
+	  %% Line 624
+	  <[H|T],Cont,Tail> when 'true' ->
+	      let <_cor3> =
+		  %% Line 625
+		  apply 'flatten'/3
+		      (T, Cont, Tail)
+	      in  %% Line 625
+		  [H|_cor3]
+	  %% Line 626
+	  <[],[H|Cont],Tail> when 'true' ->
+	      %% Line 627
+	      apply 'flatten'/3
+		  (H, Cont, Tail)
+	  %% Line 628
+	  <[],[],Tail> when 'true' ->
+	      %% Line 629
+	      Tail
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'flatten',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('user_drv')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('user_drv', _cor0)
+end

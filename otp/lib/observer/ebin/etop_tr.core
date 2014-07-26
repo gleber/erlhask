@@ -1,0 +1,378 @@
+module 'etop_tr' ['module_info'/0,
+		  'module_info'/1,
+		  'reader'/1,
+		  'setup_tracer'/1,
+		  'stop_tracer'/1]
+    attributes [%% Line 20
+		'author' =
+		    %% Line 20
+		    ['siri@erix.ericsson.se']]
+'setup_tracer'/1 =
+    %% Line 28
+    fun (_cor0) ->
+	let <TraceNode> =
+	    %% Line 29
+	    call 'etop':'getopt'
+		('node', _cor0)
+	in  let <RHost> =
+		%% Line 30
+		call 'rpc':'call'
+		    (TraceNode, 'net_adm', 'localhost', [])
+	    in  let <Store> =
+		    %% Line 31
+		    call 'ets':'new'
+			('etop_tr', ['set'|['public']])
+		in  do  %% Line 34
+			case call 'erlang':'whereis'
+				 ('dbg') of
+			  %% Line 35
+			  <'undefined'> when 'true' ->
+			      %% Line 36
+			      case call 'rpc':'call'
+				       (TraceNode, 'erlang', 'whereis', ['dbg']) of
+				%% Line 37
+				<'undefined'> when 'true' ->
+				    'ok'
+				%% Line 38
+				<Pid> when 'true' ->
+				    %% Line 39
+				    call 'erlang':'exit'
+					(Pid, 'kill')
+			      end
+			  %% Line 41
+			  <Pid> when 'true' ->
+			      %% Line 42
+			      call 'erlang':'exit'
+				  (Pid, 'kill')
+			end
+			let <_cor6> =
+			    %% Line 45
+			    call 'etop':'getopt'
+				('port', _cor0)
+			in  let <_cor7> =
+				%% Line 45
+				call 'dbg':'trace_port'
+				    ('ip', {_cor6,5000})
+			    in  do  %% Line 45
+				    call 'dbg':'tracer'
+					(TraceNode, 'port', _cor7)
+				    do  %% Line 46
+					call 'dbg':'p'
+					    ('all', ['running'|['timestamp']])
+					let <T> =
+					    %% Line 47
+					    call 'dbg':'get_tracer'
+						(TraceNode)
+					in  %% Line 48
+					    case _cor0 of
+					      <{'opts',_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30}> when 'true' ->
+						  let <_cor10> =
+						      call 'erlang':'setelement'
+							  (16, _cor0, Store)
+						  in  let <_cor11> =
+							  call 'erlang':'setelement'
+							      (15, _cor10, T)
+						      in  call 'erlang':'setelement'
+							      (14, _cor11, RHost)
+					      ( <_cor31> when 'true' ->
+						    ( call ( 'erlang'
+							     -| ['compiler_generated'] ):( 'error'
+											   -| ['compiler_generated'] )
+							  (( {'badrecord','opts'}
+							     -| ['compiler_generated'] ))
+						      -| ['compiler_generated'] )
+						-| ['compiler_generated'] )
+					    end
+'stop_tracer'/1 =
+    %% Line 50
+    fun (_cor0) ->
+	do  %% Line 51
+	    call 'dbg':'p'
+		('all', 'clear')
+	    do  %% Line 52
+		call 'dbg':'stop'
+		    ()
+		%% Line 53
+		'ok'
+'reader'/1 =
+    %% Line 57
+    fun (_cor0) ->
+	let <Host> =
+	    %% Line 58
+	    call 'etop':'getopt'
+		('host', _cor0)
+	in  let <Port> =
+		%% Line 59
+		call 'etop':'getopt'
+		    ('port', _cor0)
+	    in  %% Line 61
+		case call 'gen_tcp':'connect'
+			 (Host, Port, [{'active','false'}]) of
+		  <{'ok',Sock}> when 'true' ->
+		      let <_cor5> =
+			  %% Line 62
+			  ( fun () ->
+				let <_cor4> =
+				    call 'etop':'getopt'
+					('store', _cor0)
+				in  apply 'reader_init'/3
+					(Sock, _cor4, [])
+			    -| [{'id',{0,0,'-reader/1-fun-0-'}}] )
+		      in  %% Line 62
+			  call 'erlang':'spawn_link'
+			      (_cor5)
+		  ( <_cor3> when 'true' ->
+			primop 'match_fail'
+			    ({'badmatch',_cor3})
+		    -| ['compiler_generated'] )
+		end
+'reader_init'/3 =
+    %% Line 67
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 68
+	    call 'erlang':'process_flag'
+		('priority', 'high')
+	    %% Line 69
+	    apply 'reader'/3
+		(_cor2, _cor1, _cor0)
+'reader'/3 =
+    %% Line 71
+    fun (_cor2,_cor1,_cor0) ->
+	let <Data> =
+	    %% Line 72
+	    apply 'get_data'/1
+		(_cor2)
+	in  let <New> =
+		%% Line 73
+		apply 'handle_data'/3
+		    (_cor0, Data, _cor1)
+	    in  %% Line 74
+		apply 'reader'/3
+		    (_cor2, _cor1, New)
+'handle_data'/3 =
+    %% Line 76
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Last,{_cor9,Pid,'in',_cor10,Time},_cor11> when 'true' ->
+	      %% Line 77
+	      [{Pid,Time}|Last]
+	  %% Line 78
+	  <[],{_cor12,_cor13,'out',_cor14,_cor15},_X_Store> when 'true' ->
+	      %% Line 80
+	      []
+	  %% Line 81
+	  <Last,G = {_cor16,Pid,'out',_cor17,Time2},Store> when 'true' ->
+	      %% Line 82
+	      case call 'lists':'keytake'
+		       (Pid, 1, Last) of
+		%% Line 83
+		<{_cor18,{_cor19,Time1},New}> when 'true' ->
+		    let <Elapsed> =
+			%% Line 84
+			apply 'elapsed'/2
+			    (Time1, Time2)
+		    in  do  %% Line 85
+			    case call 'ets':'member'
+				     (Store, Pid) of
+			      %% Line 86
+			      <'true'> when 'true' ->
+				  call 'ets':'update_counter'
+				      (Store, Pid, Elapsed)
+			      %% Line 87
+			      <'false'> when 'true' ->
+				  call 'ets':'insert'
+				      (Store, {Pid,Elapsed})
+			      ( <_cor4> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor4})
+				-| ['compiler_generated'] )
+			    end
+			    %% Line 89
+			    New
+		%% Line 90
+		<'false'> when 'true' ->
+		    do  %% Line 91
+			call 'io':'format'
+			    ([69|[114|[108|[97|[110|[103|[32|[116|[111|[112|[32|[103|[111|[116|[32|[103|[97|[114|[98|[97|[103|[101|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]], [G|[]])
+			%% Line 92
+			Last
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 94
+	  <_X_W,{'drop',D},_cor20> when 'true' ->
+	      do  %% Line 95
+		  call 'io':'format'
+		      ([69|[114|[108|[97|[110|[103|[32|[116|[111|[112|[32|[100|[114|[111|[112|[112|[101|[100|[32|[100|[97|[116|[97|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]], [D|[]])
+		  %% Line 96
+		  []
+	  %% Line 97
+	  <Last,G,_cor21> when 'true' ->
+	      do  %% Line 98
+		  call 'io':'format'
+		      ([69|[114|[108|[97|[110|[103|[32|[116|[111|[112|[32|[103|[111|[116|[32|[103|[97|[114|[98|[97|[103|[101|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]], [G|[]])
+		  %% Line 99
+		  Last
+	end
+'elapsed'/2 =
+    %% Line 101
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Me1,S1,Mi1},{Me2,S2,Mi2}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 102
+		  call 'erlang':'-'
+		      (Me2, Me1)
+	      in  let <Me> =
+		      %% Line 102
+		      call 'erlang':'*'
+			  (_cor2, 1000000)
+		  in  let <_cor4> =
+			  %% Line 103
+			  call 'erlang':'-'
+			      (S2, S1)
+		      in  let <_cor5> =
+			      %% Line 103
+			      call 'erlang':'+'
+				  (_cor4, Me)
+			  in  let <S> =
+				  %% Line 103
+				  call 'erlang':'*'
+				      (_cor5, 1000000)
+			      in  let <_cor7> =
+				      %% Line 104
+				      call 'erlang':'-'
+					  (Mi2, Mi1)
+				  in  %% Line 104
+				      call 'erlang':'+'
+					  (_cor7, S)
+	  ( <_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8})
+		  -| [{'function_name',{'elapsed',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_data'/1 =
+    %% Line 108
+    fun (_cor0) ->
+	%% Line 109
+	case apply 'my_ip_read'/2
+		 (_cor0, 5) of
+	  <[Op|BESiz]> when 'true' ->
+	      let <Siz> =
+		  %% Line 110
+		  apply 'get_be'/1
+		      (BESiz)
+	      in  %% Line 111
+		  case Op of
+		    %% Line 112
+		    <0> when 'true' ->
+			let <_cor3> =
+			    %% Line 113
+			    apply 'my_ip_read'/2
+				(_cor0, Siz)
+			in  let <B> =
+				%% Line 113
+				call 'erlang':'list_to_binary'
+				    (_cor3)
+			    in  %% Line 114
+				call 'erlang':'binary_to_term'
+				    (B)
+		    %% Line 115
+		    <1> when 'true' ->
+			%% Line 116
+			{'drop',Siz}
+		    %% Line 117
+		    <Else> when 'true' ->
+			%% Line 118
+			call 'erlang':'exit'
+			    ({'bad trace tag',Else})
+		  end
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'get_be'/1 =
+    %% Line 121
+    fun (_cor0) ->
+	case _cor0 of
+	  <[A|[B|[C|[D|[]]]]]> when 'true' ->
+	      let <_cor3> =
+		  %% Line 122
+		  call 'erlang':'*'
+		      (A, 16777216)
+	      in  let <_cor2> =
+		      %% Line 122
+		      call 'erlang':'*'
+			  (B, 65536)
+		  in  let <_cor4> =
+			  %% Line 122
+			  call 'erlang':'+'
+			      (_cor3, _cor2)
+		      in  let <_cor1> =
+			      %% Line 122
+			      call 'erlang':'*'
+				  (C, 256)
+			  in  let <_cor5> =
+				  %% Line 122
+				  call 'erlang':'+'
+				      (_cor4, _cor1)
+			      in  %% Line 122
+				  call 'erlang':'+'
+				      (_cor5, D)
+	  ( <_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6})
+		  -| [{'function_name',{'get_be',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'my_ip_read'/2 =
+    %% Line 124
+    fun (_cor1,_cor0) ->
+	%% Line 125
+	case call 'gen_tcp':'recv'
+		 (_cor1, _cor0) of
+	  %% Line 126
+	  <{'ok',Data}> when 'true' ->
+	      %% Line 127
+	      case call 'erlang':'length'
+		       (Data) of
+		%% Line 128
+		<_cor8>
+		    when call 'erlang':'=:='
+			  (_cor8,
+			   _cor0) ->
+		    %% Line 129
+		    Data
+		%% Line 130
+		<X> when 'true' ->
+		    let <_cor2> =
+			%% Line 131
+			call 'erlang':'-'
+			    (_cor0, X)
+		    in  let <_cor3> =
+			    %% Line 131
+			    apply 'my_ip_read'/2
+				(_cor1, _cor2)
+			in  %% Line 131
+			    call 'erlang':'++'
+				(Data, _cor3)
+	      end
+	  %% Line 133
+	  <_X_Else> when 'true' ->
+	      %% Line 134
+	      call 'erlang':'exit'
+		  ('eof')
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('etop_tr')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('etop_tr', _cor0)
+end

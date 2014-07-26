@@ -1,0 +1,126 @@
+module 'sasl_report_file_h' ['handle_call'/2,
+			     'handle_event'/2,
+			     'handle_info'/2,
+			     'init'/1,
+			     'module_info'/0,
+			     'module_info'/1,
+			     'terminate'/2]
+    attributes []
+'init'/1 =
+    %% Line 31
+    fun (_cor0) ->
+	case _cor0 of
+	  <{File,Type}> when 'true' ->
+	      do  %% Line 32
+		  call 'erlang':'process_flag'
+		      ('trap_exit', 'true')
+		  %% Line 33
+		  case call 'file':'open'
+			   (File, ['write']) of
+		    %% Line 34
+		    <{'ok',Fd}> when 'true' ->
+			%% Line 35
+			{'ok',{Fd,File,Type}}
+		    %% Line 36
+		    <What> when 'true' ->
+			%% Line 37
+			What
+		  end
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_event'/2 =
+    %% Line 40
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{_X_Type,GL,_X_Msg},State>
+	      when try
+		    let <_cor3> =
+			call 'erlang':'node'
+			    (GL)
+		    in  let <_cor2> =
+			    call 'erlang':'node'
+				()
+			in  call 'erlang':'/='
+				(_cor3, _cor2)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 41
+	      {'ok',State}
+	  %% Line 42
+	  <Event,{Fd,File,Type}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 43
+		  apply 'tag_event'/1
+		      (Event)
+	      in  let <_X_> =
+		      %% Line 43
+		      ( call 'sasl_report':'write_report'
+			    (Fd, Type, _cor4)
+			-| ['result_not_wanted'] )
+		  in  %% Line 44
+		      {'ok',{Fd,File,Type}}
+	  %% Line 45
+	  <_cor8,State> when 'true' ->
+	      %% Line 46
+	      {'ok',State}
+	end
+'handle_info'/2 =
+    %% Line 48
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'EXIT',Fd,_X_Reason},{_cor4,_X_File,_X_Type}>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     Fd) ->
+	      %% Line 49
+	      'remove_handler'
+	  %% Line 50
+	  <_cor5,State> when 'true' ->
+	      %% Line 51
+	      {'ok',State}
+	end
+'handle_call'/2 =
+    %% Line 53
+    fun (_cor1,_cor0) ->
+	{'error','bad_query'}
+'terminate'/2 =
+    %% Line 55
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_cor5,{Fd,_X_File,_X_Type}> when 'true' ->
+	      do  %% Line 56
+		  ( call 'file':'close'
+			(Fd)
+		    -| ['result_not_wanted'] )
+		  %% Line 57
+		  []
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'terminate',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'tag_event'/1 =
+    %% Line 59
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 60
+	    call 'calendar':'local_time'
+		()
+	in  %% Line 60
+	    {_cor1,_cor0}
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('sasl_report_file_h')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('sasl_report_file_h', _cor0)
+end

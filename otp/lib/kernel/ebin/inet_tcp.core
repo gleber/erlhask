@@ -1,0 +1,372 @@
+module 'inet_tcp' ['accept'/1,
+		   'accept'/2,
+		   'close'/1,
+		   'connect'/3,
+		   'connect'/4,
+		   'controlling_process'/2,
+		   'fdopen'/2,
+		   'getaddr'/1,
+		   'getaddr'/2,
+		   'getaddrs'/1,
+		   'getaddrs'/2,
+		   'getserv'/1,
+		   'listen'/2,
+		   'module_info'/0,
+		   'module_info'/1,
+		   'recv'/2,
+		   'recv'/3,
+		   'send'/2,
+		   'send'/3,
+		   'shutdown'/2,
+		   'unrecv'/2]
+    attributes []
+'getserv'/1 =
+    %% Line 35
+    fun (_cor0) ->
+	case _cor0 of
+	  <Port>
+	      when call 'erlang':'is_integer'
+		    (_cor0) ->
+	      {'ok',Port}
+	  %% Line 36
+	  <Name>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      call 'inet':'getservbyname'
+		  (Name, 'tcp')
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'getserv',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'getaddr'/1 =
+    %% Line 39
+    fun (_cor0) ->
+	call 'inet':'getaddr'
+	    (_cor0, 'inet')
+'getaddr'/2 =
+    %% Line 40
+    fun (_cor1,_cor0) ->
+	call 'inet':'getaddr_tm'
+	    (_cor1, 'inet', _cor0)
+'getaddrs'/1 =
+    %% Line 43
+    fun (_cor0) ->
+	call 'inet':'getaddrs'
+	    (_cor0, 'inet')
+'getaddrs'/2 =
+    %% Line 44
+    fun (_cor1,_cor0) ->
+	call 'inet':'getaddrs_tm'
+	    (_cor1, 'inet', _cor0)
+'send'/3 =
+    %% Line 49
+    fun (_cor2,_cor1,_cor0) ->
+	call 'prim_inet':'send'
+	    (_cor2, _cor1, _cor0)
+'send'/2 =
+    %% Line 50
+    fun (_cor1,_cor0) ->
+	call 'prim_inet':'send'
+	    (_cor1, _cor0, [])
+'recv'/2 =
+    %% Line 55
+    fun (_cor1,_cor0) ->
+	call 'prim_inet':'recv'
+	    (_cor1, _cor0)
+'recv'/3 =
+    %% Line 56
+    fun (_cor2,_cor1,_cor0) ->
+	call 'prim_inet':'recv'
+	    (_cor2, _cor1, _cor0)
+'unrecv'/2 =
+    %% Line 58
+    fun (_cor1,_cor0) ->
+	call 'prim_inet':'unrecv'
+	    (_cor1, _cor0)
+'shutdown'/2 =
+    %% Line 63
+    fun (_cor1,_cor0) ->
+	%% Line 64
+	call 'prim_inet':'shutdown'
+	    (_cor1, _cor0)
+'close'/1 =
+    %% Line 69
+    fun (_cor0) ->
+	%% Line 70
+	call 'inet':'tcp_close'
+	    (_cor0)
+'controlling_process'/2 =
+    %% Line 75
+    fun (_cor1,_cor0) ->
+	%% Line 76
+	call 'inet':'tcp_controlling_process'
+	    (_cor1, _cor0)
+'connect'/3 =
+    %% Line 81
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 82
+	apply 'do_connect'/4
+	    (_cor2, _cor1, _cor0, 'infinity')
+'connect'/4 =
+    %% Line 84
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Address,Port,Opts,'infinity'> when 'true' ->
+	      %% Line 85
+	      apply 'do_connect'/4
+		  (Address, Port, Opts, 'infinity')
+	  %% Line 86
+	  <Address,Port,Opts,Timeout>
+	      when let <_cor4> =
+		    call 'erlang':'is_integer'
+			(Timeout)
+		in  let <_cor5> =
+			%% Line 87
+			call 'erlang':'>='
+			    (Timeout, 0)
+		    in  call 'erlang':'and'
+			    (_cor4, _cor5) ->
+	      %% Line 88
+	      apply 'do_connect'/4
+		  (Address, Port, Opts, Timeout)
+	  ( <_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'connect',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'do_connect'/4 =
+    %% Line 90
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <{A,B,C,D},Port,Opts,Time>
+	      when try
+		    let <_cor5> =
+			call 'erlang':'bor'
+			    (A, B)
+		    in  let <_cor6> =
+			    call 'erlang':'bor'
+				(_cor5, C)
+			in  let <_cor7> =
+				call 'erlang':'bor'
+				    (_cor6, D)
+			    in  let <_cor8> =
+				    call 'erlang':'band'
+					(_cor7, -256)
+				in  let <_cor9> =
+					call 'erlang':'=:='
+					    (_cor8, 0)
+				    in  let <_cor11> =
+					    call 'erlang':'band'
+						(Port, -65536)
+					in  let <_cor12> =
+						call 'erlang':'=:='
+						    (_cor11, 0)
+					    in  call 'erlang':'and'
+						    (_cor9, _cor12)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 91
+	      case call 'inet':'connect_options'
+		       (Opts, 'inet') of
+		%% Line 92
+		<{'error',Reason}> when 'true' ->
+		    call 'erlang':'exit'
+			(Reason)
+		%% Line 93
+		<{'ok',{'connect_opts',BAddr = %% Line 94
+					       {Ab,Bb,Cb,Db},%% Line 95
+							     BPort,Fd,%% Line 96
+								      SockOpts}}>
+		    when %% Line 97
+		      try
+			  let <_cor14> =
+			      call 'erlang':'bor'
+				  (Ab, Bb)
+			  in  let <_cor15> =
+				  call 'erlang':'bor'
+				      (_cor14, Cb)
+			      in  let <_cor16> =
+				      call 'erlang':'bor'
+					  (_cor15, Db)
+				  in  let <_cor17> =
+					  call 'erlang':'band'
+					      (_cor16, -256)
+				      in  let <_cor18> =
+					      call 'erlang':'=:='
+						  (_cor17, 0)
+					  in  let <_cor20> =
+						  call 'erlang':'band'
+						      (BPort, -65536)
+					      in  let <_cor21> =
+						      call 'erlang':'=:='
+							  (_cor20, 0)
+						  in  call 'erlang':'and'
+							  (_cor18, _cor21)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 98
+		    case call 'inet':'open'
+			     (Fd, BAddr, BPort, SockOpts, 'tcp', 'inet', 'stream', 'inet_tcp') of
+		      %% Line 99
+		      <{'ok',S}> when 'true' ->
+			  %% Line 100
+			  case call 'prim_inet':'connect'
+				   (S, {A,B,C,D}, Port, Time) of
+			    %% Line 101
+			    <'ok'> when 'true' ->
+				{'ok',S}
+			    %% Line 102
+			    <Error> when 'true' ->
+				do  call 'prim_inet':'close'
+					(S)
+				    Error
+			  end
+		      %% Line 104
+		      <Error> when 'true' ->
+			  Error
+		    end
+		%% Line 106
+		<{'ok',_cor29}> when 'true' ->
+		    call 'erlang':'exit'
+			('badarg')
+		( <_cor24> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor24})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor28,_cor27,_cor26,_cor25> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor28,_cor27,_cor26,_cor25})
+		  -| [{'function_name',{'do_connect',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'listen'/2 =
+    %% Line 112
+    fun (_cor1,_cor0) ->
+	%% Line 113
+	case call 'inet':'listen_options'
+		 ([{'port',_cor1}|_cor0], 'inet') of
+	  %% Line 114
+	  <{'error',Reason}> when 'true' ->
+	      call 'erlang':'exit'
+		  (Reason)
+	  %% Line 115
+	  <{'ok',R = {'listen_opts',BAddr = %% Line 116
+					    {A,B,C,D},%% Line 117
+						      BPort,_cor18,Fd,%% Line 118
+								      SockOpts}}>
+	      when %% Line 119
+		try
+		    let <_cor3> =
+			call 'erlang':'bor'
+			    (A, B)
+		    in  let <_cor4> =
+			    call 'erlang':'bor'
+				(_cor3, C)
+			in  let <_cor5> =
+				call 'erlang':'bor'
+				    (_cor4, D)
+			    in  let <_cor6> =
+				    call 'erlang':'band'
+					(_cor5, -256)
+				in  let <_cor7> =
+					call 'erlang':'=:='
+					    (_cor6, 0)
+				    in  let <_cor9> =
+					    call 'erlang':'band'
+						(BPort, -65536)
+					in  let <_cor10> =
+						call 'erlang':'=:='
+						    (_cor9, 0)
+					    in  call 'erlang':'and'
+						    (_cor7, _cor10)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 120
+	      case call 'inet':'open'
+		       (Fd, BAddr, BPort, SockOpts, 'tcp', 'inet', 'stream', 'inet_tcp') of
+		%% Line 121
+		<{'ok',S}> when 'true' ->
+		    %% Line 122
+		    case call 'prim_inet':'listen'
+			     (S, _cor18) of
+		      %% Line 123
+		      <'ok'> when 'true' ->
+			  {'ok',S}
+		      %% Line 124
+		      <Error> when 'true' ->
+			  do  call 'prim_inet':'close'
+				  (S)
+			      Error
+		    end
+		%% Line 126
+		<Error> when 'true' ->
+		    Error
+	      end
+	  %% Line 128
+	  <{'ok',_cor24}> when 'true' ->
+	      call 'erlang':'exit'
+		  ('badarg')
+	  ( <_cor15> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor15})
+	    -| ['compiler_generated'] )
+	end
+'accept'/1 =
+    %% Line 134
+    fun (_cor0) ->
+	%% Line 135
+	case call 'prim_inet':'accept'
+		 (_cor0) of
+	  %% Line 136
+	  <{'ok',S}> when 'true' ->
+	      do  %% Line 137
+		  call 'inet_db':'register_socket'
+		      (S, 'inet_tcp')
+		  %% Line 138
+		  {'ok',S}
+	  %% Line 139
+	  <Error> when 'true' ->
+	      Error
+	end
+'accept'/2 =
+    %% Line 142
+    fun (_cor1,_cor0) ->
+	%% Line 143
+	case call 'prim_inet':'accept'
+		 (_cor1, _cor0) of
+	  %% Line 144
+	  <{'ok',S}> when 'true' ->
+	      do  %% Line 145
+		  call 'inet_db':'register_socket'
+		      (S, 'inet_tcp')
+		  %% Line 146
+		  {'ok',S}
+	  %% Line 147
+	  <Error> when 'true' ->
+	      Error
+	end
+'fdopen'/2 =
+    %% Line 152
+    fun (_cor1,_cor0) ->
+	%% Line 153
+	call 'inet':'fdopen'
+	    (_cor1, _cor0, 'tcp', 'inet', 'stream', 'inet_tcp')
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('inet_tcp')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('inet_tcp', _cor0)
+end

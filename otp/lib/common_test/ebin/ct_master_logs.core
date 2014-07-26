@@ -1,0 +1,1676 @@
+module 'ct_master_logs' ['log'/3,
+			 'make_all_runs_index'/0,
+			 'module_info'/0,
+			 'module_info'/1,
+			 'nodedir'/2,
+			 'start'/2,
+			 'stop'/0]
+    attributes []
+'start'/2 =
+    %% Line 44
+    fun (_cor1,_cor0) ->
+	let <Self> =
+	    %% Line 45
+	    call 'erlang':'self'
+		()
+	in  let <_cor3> =
+		%% Line 46
+		( fun () ->
+		      apply 'init'/3
+			  (Self, _cor1, _cor0)
+		  -| [{'id',{0,0,'-start/2-fun-0-'}}] )
+	    in  let <Pid> =
+		    %% Line 46
+		    call 'erlang':'spawn_link'
+			(_cor3)
+		in  let <MRef> =
+			%% Line 47
+			call 'erlang':'monitor'
+			    ('process', Pid)
+		    in  %% Line 48
+			receive
+			  %% Line 49
+			  <{'started',_cor8,Result}>
+			      when call 'erlang':'=:='
+				    (_cor8,
+				     Pid) ->
+			      do  %% Line 50
+				  call 'erlang':'demonitor'
+				      (MRef, ['flush'])
+				  %% Line 51
+				  {Pid,Result}
+			  %% Line 52
+			  <{'DOWN',_cor9,'process',_cor10,Reason}>
+			      when call 'erlang':'=:='
+				    (_cor9,
+				     MRef) ->
+			      %% Line 53
+			      call 'erlang':'exit'
+				  ({'could_not_start_process','ct_master_logs',Reason})
+			after 'infinity' ->
+			  'true'
+'log'/3 =
+    %% Line 56
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor7> =
+	    %% Line 57
+	    call 'erlang':'self'
+		()
+	in  let <_cor5> =
+		%% Line 57
+		apply 'int_header'/0
+		    ()
+	    in  let <_cor3> =
+		    %% Line 57
+		    call 'erlang':'now'
+			()
+		in  let <_cor4> =
+			%% Line 57
+			apply 'log_timestamp'/1
+			    (_cor3)
+		    in  let <_cor6> =
+			    %% Line 59
+			    apply 'int_footer'/0
+				()
+			in  do  %% Line 57
+				apply 'cast'/1
+				    ({'log',_cor7,[{_cor5,[_cor4|[_cor2|[]]]}|%% Line 58
+									      [{_cor1,_cor0}|%% Line 59
+											     [{_cor6,[]}|[]]]]})
+				%% Line 60
+				'ok'
+'make_all_runs_index'/0 =
+    %% Line 62
+    fun () ->
+	%% Line 63
+	apply 'call'/1
+	    ('make_all_runs_index')
+'nodedir'/2 =
+    %% Line 65
+    fun (_cor1,_cor0) ->
+	%% Line 66
+	apply 'call'/1
+	    ({'nodedir',_cor1,_cor0})
+'stop'/0 =
+    %% Line 68
+    fun () ->
+	do  %% Line 69
+	    case call 'erlang':'whereis'
+		     ('ct_master_logs') of
+	      %% Line 70
+	      <Pid>
+		  when call 'erlang':'is_pid'
+			(Pid) ->
+		  let <MRef> =
+		      %% Line 71
+		      call 'erlang':'monitor'
+			  ('process', Pid)
+		  in  do  %% Line 72
+			  call 'erlang':'!'
+			      ('ct_master_logs', 'stop')
+			  %% Line 73
+			  receive
+			    %% Line 74
+			    <{'DOWN',_cor2,'process',_cor3,_cor4}>
+				when call 'erlang':'=:='
+				      (_cor2,
+				       MRef) ->
+				'ok'
+			  after 'infinity' ->
+			    'ok'
+	      %% Line 77
+	      <'undefined'> when 'true' ->
+		  'ok'
+	      ( <_cor1> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor1})
+		-| ['compiler_generated'] )
+	    end
+	    %% Line 80
+	    'ok'
+'init'/3 =
+    %% Line 86
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 87
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 87
+		call 'erlang':'register'
+		    ('ct_master_logs', _cor3)
+		let <Time> =
+		    %% Line 88
+		    call 'calendar':'local_time'
+			()
+		in  let <RunDir> =
+			%% Line 89
+			apply 'make_dirname'/1
+			    (Time)
+		    in  let <RunDirAbs> =
+			    %% Line 90
+			    call 'filename':'join'
+				(_cor1, RunDir)
+			in  do  %% Line 91
+				call 'file':'make_dir'
+				    (RunDirAbs)
+				let <_cor7> =
+				    %% Line 92
+				    call 'erlang':'node'
+					()
+				in  do  %% Line 92
+					apply 'write_details_file'/2
+					    (RunDirAbs, {_cor7,_cor0})
+					do  %% Line 94
+					    case apply 'basic_html'/0
+						     () of
+					      %% Line 95
+					      <'true'> when 'true' ->
+						  %% Line 96
+						  call 'erlang':'put'
+						      ('basic_html', 'true')
+					      %% Line 97
+					      <BasicHtml> when 'true' ->
+						  do  %% Line 98
+						      call 'erlang':'put'
+							  ('basic_html', BasicHtml)
+						      let <CTPath> =
+							  %% Line 101
+							  call 'code':'lib_dir'
+							      ('common_test')
+						      in  let <_cor16> =
+							      %% Line 103
+							      ( letrec
+								    'lc$^0'/1 =
+									fun (_cor12) ->
+									    case _cor12 of
+									      <[%% Line 104
+										F|_cor11]> when 'true' ->
+										  let <_cor13> =
+										      call 'filename':'join'
+											  (CTPath, [112|[114|[105|[118]]]])
+										  in  let <_cor14> =
+											  call 'filename':'join'
+											      (_cor13, F)
+										      in  let <_cor15> =
+											      %% Line 104
+											      apply 'lc$^0'/1
+												  (_cor11)
+											  in  ( [_cor14|_cor15]
+												-| ['compiler_generated'] )
+									      <[]> when 'true' ->
+										  []
+									      ( <_cor12> when 'true' ->
+										    ( primop 'match_fail'
+											  ({'function_clause',_cor12})
+										      -| [{'function_name',{'lc$^0',1}}] )
+										-| ['compiler_generated'] )
+									    end
+								in  apply 'lc$^0'/1
+									([[99|[116|[95|[100|[101|[102|[97|[117|[108|[116|[46|[99|[115|[115]]]]]]]]]]]]]]|[[106|[113|[117|[101|[114|[121|[45|[108|[97|[116|[101|[115|[116|[46|[106|[115]]]]]]]]]]]]]]]]|[[106|[113|[117|[101|[114|[121|[46|[116|[97|[98|[108|[101|[115|[111|[114|[116|[101|[114|[46|[109|[105|[110|[46|[106|[115]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+								-| ['list_comprehension'] )
+							  in  let <_cor23> =
+								  %% Line 105
+								  ( letrec
+									'lc$^1'/1 =
+									    fun (_cor20) ->
+										case _cor20 of
+										  <[F|_cor19]> when 'true' ->
+										      let <_cor21> =
+											  call 'filename':'join'
+											      (_cor1, F)
+										      in  let <_cor22> =
+											      apply 'lc$^1'/1
+												  (_cor19)
+											  in  ( [_cor21|_cor22]
+												-| ['compiler_generated'] )
+										  <[]> when 'true' ->
+										      []
+										  ( <_cor20> when 'true' ->
+											( primop 'match_fail'
+											      ({'function_clause',_cor20})
+											  -| [{'function_name',{'lc$^1',1}}] )
+										    -| ['compiler_generated'] )
+										end
+								    in  apply 'lc$^1'/1
+									    ([[99|[116|[95|[100|[101|[102|[97|[117|[108|[116|[46|[99|[115|[115]]]]]]]]]]]]]]|[[106|[113|[117|[101|[114|[121|[45|[108|[97|[116|[101|[115|[116|[46|[106|[115]]]]]]]]]]]]]]]]|[[106|[113|[117|[101|[114|[121|[46|[116|[97|[98|[108|[101|[115|[111|[114|[116|[101|[114|[46|[109|[105|[110|[46|[106|[115]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+								    -| ['list_comprehension'] )
+							      in  let <_cor30> =
+								      %% Line 106
+								      ( letrec
+									    'lc$^2'/1 =
+										fun (_cor27) ->
+										    case _cor27 of
+										      <[F|_cor26]> when 'true' ->
+											  let <_cor28> =
+											      call 'filename':'join'
+												  (RunDirAbs, F)
+											  in  let <_cor29> =
+												  apply 'lc$^2'/1
+												      (_cor26)
+											      in  ( [_cor28|_cor29]
+												    -| ['compiler_generated'] )
+										      <[]> when 'true' ->
+											  []
+										      ( <_cor27> when 'true' ->
+											    ( primop 'match_fail'
+												  ({'function_clause',_cor27})
+											      -| [{'function_name',{'lc$^2',1}}] )
+											-| ['compiler_generated'] )
+										    end
+									in  apply 'lc$^2'/1
+										([[99|[116|[95|[100|[101|[102|[97|[117|[108|[116|[46|[99|[115|[115]]]]]]]]]]]]]]|[[106|[113|[117|[101|[114|[121|[45|[108|[97|[116|[101|[115|[116|[46|[106|[115]]]]]]]]]]]]]]]]|[[106|[113|[117|[101|[114|[121|[46|[116|[97|[98|[108|[101|[115|[111|[114|[116|[101|[114|[46|[109|[105|[110|[46|[106|[115]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+									-| ['list_comprehension'] )
+								  in  %% Line 107
+								      case apply 'copy_priv_files'/2
+									       (_cor16, _cor23) of
+									%% Line 108
+									<{'error',Src1,Dest1,Reason1}> when 'true' ->
+									    do  %% Line 109
+										call 'io':'format'
+										    ('user', [69|[82|[82|[79|[82|[33|[32|[80|[114|[105|[118|[32|[102|[105|[108|[101|[32|[126|[112|[32|[99|[111|[117|[108|[100|[32|[110|[111|[116|[32|[98|[101|[32|[99|[111|[112|[105|[101|[100|[32|[116|[111|[32|[126|[112|[46|[32|[82|[101|[97|[115|[111|[110|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 112
+																																																				       [Src1|[Dest1|[Reason1|[]]]])
+										%% Line 113
+										call 'erlang':'exit'
+										    ({'priv_file_error',Dest1})
+									%% Line 114
+									<'ok'> when 'true' ->
+									    %% Line 115
+									    case apply 'copy_priv_files'/2
+										     (_cor16, _cor30) of
+									      %% Line 116
+									      <{'error',Src2,Dest2,Reason2}> when 'true' ->
+										  do  %% Line 117
+										      call 'io':'format'
+											  ('user', [69|[82|[82|[79|[82|[33|[32|[80|[114|[105|[118|[32|[102|[105|[108|[101|[32|[126|[112|[32|[99|[111|[117|[108|[100|[32|[110|[111|[116|[32|[98|[101|[32|[99|[111|[112|[105|[101|[100|[32|[116|[111|[32|[126|[112|[46|[32|[82|[101|[97|[115|[111|[110|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 120
+																																																					     [Src2|[Dest2|[Reason2|[]]]])
+										      %% Line 121
+										      call 'erlang':'exit'
+											  ({'priv_file_error',Dest2})
+									      %% Line 122
+									      <'ok'> when 'true' ->
+										  'ok'
+									      ( <_cor36> when 'true' ->
+										    primop 'match_fail'
+											({'case_clause',_cor36})
+										-| ['compiler_generated'] )
+									    end
+									( <_cor37> when 'true' ->
+									      primop 'match_fail'
+										  ({'case_clause',_cor37})
+									  -| ['compiler_generated'] )
+								      end
+					    end
+					    do  %% Line 128
+						apply 'make_all_runs_index'/1
+						    (_cor1)
+						let <CtLogFd> =
+						    %% Line 129
+						    apply 'open_ct_master_log'/1
+							(RunDirAbs)
+						in  let <_cor43> =
+							%% Line 131
+							( fun (_cor41) ->
+							      let <_cor40> =
+								  %% Line 132
+								  call 'erlang':'atom_to_list'
+								      (_cor41)
+							      in  %% Line 132
+								  call 'erlang':'++'
+								      (_cor40, [32])
+							  -| [{'id',{0,0,'-init/3-fun-0-'}}] )
+						    in  let <_cor44> =
+							    %% Line 131
+							    call 'lists':'map'
+								(_cor43, _cor0)
+							in  let <NodeStr> =
+								%% Line 131
+								call 'lists':'flatten'
+								    (_cor44)
+							    in  let <_cor48> =
+								    %% Line 135
+								    apply 'int_header'/0
+									()
+								in  let <_cor46> =
+									%% Line 135
+									call 'erlang':'now'
+									    ()
+								    in  let <_cor47> =
+									    %% Line 135
+									    apply 'log_timestamp'/1
+										(_cor46)
+									in  do  %% Line 135
+										call 'io':'format'
+										    (CtLogFd, _cor48, [_cor47|[[84|[101|[115|[116|[32|[78|[111|[100|[101|[115|[10]]]]]]]]]]]]])
+										do  %% Line 136
+										    call 'io':'format'
+											(CtLogFd, [126|[116|[115|[10]]]], [NodeStr|[]])
+										    let <_cor49> =
+											%% Line 137
+											apply 'int_footer'/0
+											    ()
+										    in  do  %% Line 137
+											    call 'io':'put_chars'
+												(CtLogFd, [_cor49|[[10]]])
+											    let <NodeDirIxFd> =
+												%% Line 139
+												apply 'open_nodedir_index'/2
+												    (RunDirAbs, Time)
+											    in  let <_cor51> =
+												    %% Line 140
+												    call 'erlang':'self'
+													()
+												in  do  %% Line 140
+													call 'erlang':'!'
+													    (_cor2, {'started',_cor51,{Time,RunDirAbs}})
+													let <_cor54> =
+													    %% Line 147
+													    ( fun (_cor52) ->
+														  %% Line 148
+														  {_cor52,[]}
+													      -| [{'id',{0,0,'-init/3-fun-1-'}}] )
+													in  let <_cor55> =
+														%% Line 147
+														call 'lists':'map'
+														    (_cor54, _cor0)
+													    in  %% Line 141
+														apply 'loop'/1
+														    ({'state',CtLogFd,%% Line 142
+																      Time,_cor1,%% Line 144
+																		 RunDirAbs,%% Line 145
+																			   NodeDirIxFd,_cor0,_cor55})
+'copy_priv_files'/2 =
+    %% Line 151
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[SrcF|SrcFs],[DestF|DestFs]> when 'true' ->
+	      %% Line 152
+	      case call 'file':'copy'
+		       (SrcF, DestF) of
+		%% Line 153
+		<{'error',Reason}> when 'true' ->
+		    %% Line 154
+		    {'error',SrcF,DestF,Reason}
+		%% Line 155
+		<_cor5> when 'true' ->
+		    %% Line 156
+		    apply 'copy_priv_files'/2
+			(SrcFs, DestFs)
+	      end
+	  %% Line 158
+	  <[],[]> when 'true' ->
+	      %% Line 159
+	      'ok'
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'copy_priv_files',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'loop'/1 =
+    %% Line 161
+    fun (_cor0) ->
+	%% Line 162
+	receive
+	  %% Line 163
+	  <{'log',_X_From,List}> when 'true' ->
+	      %% Line 164
+	      ( case _cor0 of
+		  ( <( {'state',_rec0,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <Fun> =
+			    %% Line 166
+			    ( fun (_cor7) ->
+				  case _cor7 of
+				    <{Str,Args}> when 'true' ->
+					let <_cor5> =
+					    catch
+						let <_cor4> =
+						    %% Line 167
+						    call 'erlang':'++'
+							(Str, [10])
+						in  %% Line 167
+						    call 'io':'format'
+							(_rec0, _cor4, Args)
+					in  %% Line 167
+					    case _cor5 of
+					      %% Line 168
+					      <{'EXIT',Reason}> when 'true' ->
+						  do  %% Line 169
+						      call 'io':'format'
+							  (_rec0, %% Line 170
+								  [76|[111|[103|[103|[105|[110|[103|[32|[102|[97|[105|[108|[115|[33|[32|[83|[116|[114|[58|[32|[126|[112|[44|[32|[65|[114|[103|[115|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 171
+																																  [Str|[Args|[]]])
+						      %% Line 172
+						      call 'erlang':'exit'
+							  ({'logging_failed',Reason})
+					      %% Line 174
+					      <_cor37> when 'true' ->
+						  %% Line 175
+						  'ok'
+					    end
+				    ( <_cor8> when 'true' ->
+					  ( primop 'match_fail'
+						({'function_clause',_cor8})
+					    -| [{'function_name',{'-loop/1-fun-0-',1}}] )
+				      -| ['compiler_generated'] )
+				  end
+			      -| [{'id',{0,0,'-loop/1-fun-0-'}}] )
+			in  do  %% Line 178
+				call 'lists':'foreach'
+				    (Fun, List)
+				%% Line 179
+				apply 'loop'/1
+				    (_cor0)
+		    -| ['compiler_generated'] )
+		  ( <_cor36> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 180
+	  <{'make_all_runs_index',From}> when 'true' ->
+	      %% Line 181
+	      ( case _cor0 of
+		  ( <( {'state',_cor38,_cor39,_rec1,_cor40,_cor41,_cor42,_cor43}
+		       -| ['compiler_generated'] )> when 'true' ->
+			do  apply 'make_all_runs_index'/1
+				(_rec1)
+			    do  %% Line 182
+				apply 'return'/2
+				    (From, _rec1)
+				%% Line 183
+				apply 'loop'/1
+				    (_cor0)
+		    -| ['compiler_generated'] )
+		  ( <_cor44> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 184
+	  <{{'nodedir',Node,RunDir},From}> when 'true' ->
+	      %% Line 185
+	      ( case _cor0 of
+		  ( <( {'state',_cor52,_cor53,_cor54,_cor55,_rec3,_cor56,_cor57}
+		       -| ['compiler_generated'] )> when 'true' ->
+			do  apply 'print_nodedir'/3
+				(Node, RunDir, _rec3)
+			    do  %% Line 186
+				apply 'return'/2
+				    (From, 'ok')
+				%% Line 187
+				apply 'loop'/1
+				    (_cor0)
+		    -| ['compiler_generated'] )
+		  ( <_cor58> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 188
+	  <'stop'> when 'true' ->
+	      %% Line 189
+	      ( case _cor0 of
+		  ( <( {'state',_cor59,_cor60,_rec4,_cor61,_cor62,_cor63,_cor64}
+		       -| ['compiler_generated'] )> when 'true' ->
+			do  apply 'make_all_runs_index'/1
+				(_rec4)
+			    let <_cor21> =
+				%% Line 191
+				apply 'int_header'/0
+				    ()
+			    in  let <_cor20> =
+				    %% Line 191
+				    apply 'int_footer'/0
+					()
+				in  let <_cor22> =
+					%% Line 191
+					call 'erlang':'++'
+					    (_cor21, _cor20)
+				    in  let <_cor18> =
+					    %% Line 192
+					    call 'erlang':'now'
+						()
+					in  let <_cor19> =
+						%% Line 192
+						apply 'log_timestamp'/1
+						    (_cor18)
+					    in  do  %% Line 190
+						    call 'io':'format'
+							(_cor59, _cor22, %% Line 192
+									 [_cor19|[[70|[105|[110|[105|[115|[104|[101|[100|[33]]]]]]]]]]])
+						    do  %% Line 193
+							apply 'close_ct_master_log'/1
+							    (_cor59)
+							do  %% Line 194
+							    apply 'close_nodedir_index'/1
+								(_cor62)
+							    %% Line 195
+							    'ok'
+		    -| ['compiler_generated'] )
+		  ( <_cor65> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	after 'infinity' ->
+	  'true'
+'open_ct_master_log'/1 =
+    %% Line 202
+    fun (_cor0) ->
+	let <FullName> =
+	    %% Line 203
+	    call 'filename':'join'
+		(_cor0, [99|[116|[95|[109|[97|[115|[116|[101|[114|[95|[108|[111|[103|[46|[104|[116|[109|[108]]]]]]]]]]]]]]]]]])
+	in  %% Line 204
+	    case call 'file':'open'
+		     (FullName, ['write'|[{'encoding','utf8'}]]) of
+	      <{'ok',Fd}> when 'true' ->
+		  let <_cor3> =
+		      %% Line 205
+		      apply 'header'/2
+			  ([67|[111|[109|[109|[111|[110|[32|[84|[101|[115|[116|[32|[77|[97|[115|[116|[101|[114|[32|[76|[111|[103]]]]]]]]]]]]]]]]]]]]]], {[],[1|[2]],[]})
+		  in  do  %% Line 205
+			  call 'io':'put_chars'
+			      (Fd, _cor3)
+			  let <_cor4> =
+			      %% Line 207
+			      apply 'config_table'/1
+				  ([])
+			  in  do  %% Line 207
+				  call 'io':'put_chars'
+				      (Fd, _cor4)
+				  do  %% Line 208
+				      call 'io':'put_chars'
+					  (Fd, %% Line 209
+					       [60|[115|[116|[121|[108|[101|[62|[10|[100|[105|[118|[46|[99|[116|[95|[105|[110|[116|[101|[114|[110|[97|[108|[32|[123|[32|[98|[97|[99|[107|[103|[114|[111|[117|[110|[100|[58|[108|[105|[103|[104|[116|[103|[114|[101|[121|[59|[32|[99|[111|[108|[111|[114|[58|[98|[108|[97|[99|[107|[32|[125|[10|[100|[105|[118|[46|[100|[101|[102|[97|[117|[108|[116|[32|[32|[32|[32|[32|[123|[32|[98|[97|[99|[107|[103|[114|[111|[117|[110|[100|[58|[108|[105|[103|[104|[116|[103|[114|[101|[101|[110|[59|[32|[99|[111|[108|[111|[114|[58|[98|[108|[97|[99|[107|[32|[125|[10|[60|[47|[115|[116|[121|[108|[101|[62|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+				      let <_cor5> =
+					  %% Line 214
+					  apply 'xhtml'/2
+					      ([60|[98|[114|[62|[60|[104|[50|[62|[80|[114|[111|[103|[114|[101|[115|[115|[32|[76|[111|[103|[60|[47|[104|[50|[62|[10|[60|[112|[114|[101|[62|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 215
+																											       [60|[98|[114|[32|[47|[62|[60|[104|[50|[62|[80|[114|[111|[103|[114|[101|[115|[115|[32|[76|[111|[103|[60|[47|[104|[50|[62|[10|[60|[112|[114|[101|[62|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+				      in  do  %% Line 213
+					      call 'io':'put_chars'
+						  (Fd, _cor5)
+					      %% Line 216
+					      Fd
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor2})
+		-| ['compiler_generated'] )
+	    end
+'close_ct_master_log'/1 =
+    %% Line 218
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 219
+	    apply 'footer'/0
+		()
+	in  do  %% Line 219
+		call 'io':'put_chars'
+		    (_cor0, [[60|[47|[112|[114|[101|[62]]]]]]|[_cor1|[]]])
+		%% Line 220
+		call 'file':'close'
+		    (_cor0)
+'config_table'/1 =
+    %% Line 222
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 223
+	    apply 'config_table_header'/0
+		()
+	in  let <_cor2> =
+		%% Line 223
+		apply 'config_table1'/1
+		    (_cor0)
+	    in  %% Line 223
+		[_cor1|_cor2]
+'config_table_header'/0 =
+    %% Line 225
+    fun () ->
+	let <_cor0> =
+	    %% Line 227
+	    apply 'xhtml'/2
+		([[60|[116|[97|[98|[108|[101|[32|[98|[111|[114|[100|[101|[114|[61|[34|[51|[34|[32|[99|[101|[108|[108|[112|[97|[100|[100|[105|[110|[103|[61|[34|[53|[34|[32|[98|[103|[99|[111|[108|[111|[114|[61|[34]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|[[108|[105|[103|[104|[116|[98|[108|[117|[101]]]]]]]]]|[[34|[10]]]]], %% Line 229
+																																								    [[60|[116|[97|[98|[108|[101|[32|[105|[100|[61|[34]]]]]]]]]]]|[[83|[111|[114|[116|[97|[98|[108|[101|[84|[97|[98|[108|[101]]]]]]]]]]]]]|[[34|[62|[10]]]|[[60|[116|[104|[101|[97|[100|[62|[10]]]]]]]]]]]])
+	in  let <_cor1> =
+		%% Line 232
+		apply 'xhtml'/2
+		    ([], [60|[47|[116|[104|[101|[97|[100|[62|[10|[60|[116|[98|[111|[100|[121|[62|[10]]]]]]]]]]]]]]]]])
+	    in  %% Line 226
+		[[60|[104|[50|[62|[67|[111|[110|[102|[105|[103|[117|[114|[97|[116|[105|[111|[110|[60|[47|[104|[50|[62|[10]]]]]]]]]]]]]]]]]]]]]]]|%% Line 227
+																		 [_cor0|%% Line 231
+																			[[60|[116|[114|[62|[60|[116|[104|[62|[75|[101|[121|[60|[47|[116|[104|[62|[60|[116|[104|[62|[86|[97|[108|[117|[101|[60|[47|[116|[104|[62|[60|[47|[116|[114|[62|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|%% Line 232
+																																											      [_cor1|[]]]]]
+'config_table1'/1 =
+    %% Line 234
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 235
+	      [[60|[47|[116|[98|[111|[100|[121|[62|[10|[60|[47|[116|[97|[98|[108|[101|[62|[10]]]]]]]]]]]]]]]]]]]
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'config_table1',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'int_header'/0 =
+    %% Line 237
+    fun () ->
+	%% Line 238
+	[60|[100|[105|[118|[32|[99|[108|[97|[115|[115|[61|[34|[99|[116|[95|[105|[110|[116|[101|[114|[110|[97|[108|[34|[62|[60|[98|[62|[42|[42|[42|[32|[67|[84|[32|[77|[65|[83|[84|[69|[82|[32|[126|[115|[32|[42|[42|[42|[32|[126|[116|[115|[60|[47|[98|[62]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+'int_footer'/0 =
+    %% Line 239
+    fun () ->
+	%% Line 240
+	[60|[47|[100|[105|[118|[62]]]]]]
+'open_nodedir_index'/2 =
+    %% Line 245
+    fun (_cor1,_cor0) ->
+	let <FullName> =
+	    %% Line 246
+	    call 'filename':'join'
+		(_cor1, [105|[110|[100|[101|[120|[46|[104|[116|[109|[108]]]]]]]]]])
+	in  %% Line 247
+	    case call 'file':'open'
+		     (FullName, ['write'|[{'encoding','utf8'}]]) of
+	      <{'ok',Fd}> when 'true' ->
+		  let <_cor4> =
+		      %% Line 248
+		      apply 'nodedir_index_header'/1
+			  (_cor0)
+		  in  do  %% Line 248
+			  call 'io':'put_chars'
+			      (Fd, _cor4)
+			  %% Line 249
+			  Fd
+	      ( <_cor3> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor3})
+		-| ['compiler_generated'] )
+	    end
+'print_nodedir'/3 =
+    %% Line 251
+    fun (_cor2,_cor1,_cor0) ->
+	let <Index> =
+	    %% Line 252
+	    call 'filename':'join'
+		(_cor1, [105|[110|[100|[101|[120|[46|[104|[116|[109|[108]]]]]]]]]])
+	in  let <_cor4> =
+		%% Line 255
+		call 'erlang':'atom_to_list'
+		    (_cor2)
+	    in  let <_cor5> =
+		    %% Line 256
+		    call 'ct_logs':'uri'
+			(Index)
+		in  do  %% Line 253
+			call 'io':'put_chars'
+			    (_cor0, %% Line 254
+				    [[60|[116|[114|[62|[10|[60|[116|[100|[32|[97|[108|[105|[103|[110|[61|[99|[101|[110|[116|[101|[114|[62]]]]]]]]]]]]]]]]]]]]]]|%% Line 255
+																				[_cor4|[[60|[47|[116|[100|[62|[10]]]]]]|%% Line 256
+																									[[60|[116|[100|[32|[97|[108|[105|[103|[110|[61|[108|[101|[102|[116|[62|[60|[97|[32|[104|[114|[101|[102|[61|[34]]]]]]]]]]]]]]]]]]]]]]]]|[_cor5|[[34|[62]]|[Index|%% Line 257
+																																													[[60|[47|[97|[62|[60|[47|[116|[100|[62|[10]]]]]]]]]]|[[60|[47|[116|[114|[62|[10]]]]]]]]]]]]]]])
+			%% Line 259
+			'ok'
+'close_nodedir_index'/1 =
+    %% Line 261
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 262
+	    apply 'index_footer'/0
+		()
+	in  do  %% Line 262
+		call 'io':'put_chars'
+		    (_cor0, _cor1)
+		%% Line 263
+		call 'file':'close'
+		    (_cor0)
+'nodedir_index_header'/1 =
+    %% Line 265
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 266
+	    apply 'format_time'/1
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 266
+		call 'erlang':'++'
+		    ([76|[111|[103|[32|[70|[105|[108|[101|[115|[32]]]]]]]]]], _cor1)
+	    in  let <_cor3> =
+		    %% Line 266
+		    apply 'header'/2
+			(_cor2, {[],[1|[2]],[]})
+		in  let <_cor4> =
+			%% Line 269
+			apply 'xhtml'/2
+			    ([[60|[116|[97|[98|[108|[101|[32|[98|[111|[114|[100|[101|[114|[61|[34|[51|[34|[32|[99|[101|[108|[108|[112|[97|[100|[100|[105|[110|[103|[61|[34|[53|[34|[32|[98|[103|[99|[111|[108|[111|[114|[61|[34]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|[[108|[105|[103|[104|[116|[98|[108|[117|[101]]]]]]]]]|[[34|[62|[10]]]]]], %% Line 271
+																																										     [[60|[116|[97|[98|[108|[101|[32|[105|[100|[61|[34]]]]]]]]]]]|[[83|[111|[114|[116|[97|[98|[108|[101|[84|[97|[98|[108|[101]]]]]]]]]]]]]|[[34|[62|[10]]]|[[60|[116|[104|[101|[97|[100|[62|[10|[60|[116|[114|[62|[10]]]]]]]]]]]]]]]]])
+		    in  let <_cor5> =
+			    %% Line 275
+			    apply 'xhtml'/2
+				([], [60|[47|[116|[114|[62|[10|[60|[47|[116|[104|[101|[97|[100|[62|[10|[60|[116|[98|[111|[100|[121|[62|[10]]]]]]]]]]]]]]]]]]]]]]])
+			in  %% Line 266
+			    [_cor3|%% Line 267
+				   [[60|[99|[101|[110|[116|[101|[114|[62|[10]]]]]]]]]|%% Line 268
+										      [[60|[112|[62|[60|[97|[32|[104|[114|[101|[102|[61|[34]]]]]]]]]]]]|[[99|[116|[95|[109|[97|[115|[116|[101|[114|[95|[108|[111|[103|[46|[104|[116|[109|[108]]]]]]]]]]]]]]]]]]|[[34|[62|[67|[111|[109|[109|[111|[110|[32|[84|[101|[115|[116|[32|[77|[97|[115|[116|[101|[114|[32|[76|[111|[103|[60|[47|[97|[62|[60|[47|[112|[62]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|%% Line 269
+																																																						[_cor4|%% Line 273
+																																																						       [[60|[116|[104|[62|[60|[98|[62|[78|[111|[100|[101|[60|[47|[98|[62|[60|[47|[116|[104|[62|[10]]]]]]]]]]]]]]]]]]]]]|%% Line 274
+																																																																					[[60|[116|[104|[62|[60|[98|[62|[76|[111|[103|[60|[47|[98|[62|[60|[47|[116|[104|[62|[10]]]]]]]]]]]]]]]]]]]]|%% Line 275
+																																																																																		   [_cor5|[]]]]]]]]]]
+'make_all_runs_index'/1 =
+    %% Line 280
+    fun (_cor0) ->
+	let <FullName> =
+	    %% Line 281
+	    call 'filename':'join'
+		(_cor0, [109|[97|[115|[116|[101|[114|[95|[114|[117|[110|[115|[46|[104|[116|[109|[108]]]]]]]]]]]]]]]])
+	in  let <_cor2> =
+		%% Line 282
+		apply 'logdir_prefix'/0
+		    ()
+	    in  let <_cor3> =
+		    %% Line 282
+		    call 'erlang':'++'
+			(_cor2, [42|[46|[42]]])
+		in  let <Match> =
+			%% Line 282
+			call 'filename':'join'
+			    (_cor0, _cor3)
+		    in  let <Dirs> =
+			    %% Line 283
+			    call 'filelib':'wildcard'
+				(Match)
+			in  let <_cor6> =
+				catch
+				    %% Line 284
+				    apply 'sort_all_runs'/1
+					(Dirs)
+			    in  let <Header> =
+				    %% Line 285
+				    apply 'all_runs_header'/0
+					()
+				in  let <_cor14> =
+					%% Line 286
+					( letrec
+					      'lc$^0'/1 =
+						  fun (_cor11) ->
+						      case _cor11 of
+							<[Dir|_cor10]> when 'true' ->
+							    let <_cor12> =
+								apply 'runentry'/1
+								    (Dir)
+							    in  let <_cor13> =
+								    apply 'lc$^0'/1
+									(_cor10)
+								in  ( [_cor12|_cor13]
+								      -| ['compiler_generated'] )
+							<[]> when 'true' ->
+							    []
+							( <_cor11> when 'true' ->
+							      ( primop 'match_fail'
+								    ({'function_clause',_cor11})
+								-| [{'function_name',{'lc$^0',1}}] )
+							  -| ['compiler_generated'] )
+						      end
+					  in  apply 'lc$^0'/1
+						  (_cor6)
+					  -| ['list_comprehension'] )
+				    in  let <_cor16> =
+					    %% Line 289
+					    apply 'index_footer'/0
+						()
+					in  let <_cor17> =
+						%% Line 289
+						call 'erlang':'++'
+						    (_cor14, _cor16)
+					    in  let <_cor18> =
+						    %% Line 289
+						    call 'erlang':'++'
+							(Header, _cor17)
+						in  let <_cor19> =
+							%% Line 288
+							call 'unicode':'characters_to_binary'
+							    (_cor18)
+						    in  %% Line 287
+							call 'file':'write_file'
+							    (FullName, _cor19)
+'sort_all_runs'/1 =
+    %% Line 292
+    fun (_cor0) ->
+	let <_cor5> =
+	    %% Line 296
+	    ( fun (_cor3) ->
+		  let <_cor1> =
+		      %% Line 297
+		      call 'string':'tokens'
+			  (_cor3, [46|[95]])
+		  in  %% Line 297
+		      case call 'lists':'reverse'
+			       (_cor1) of
+			%% Line 298
+			<[SS|[MM|[HH|[Date|_cor13]]]]> when 'true' ->
+			    %% Line 299
+			    {{Date,HH,MM,SS},_cor3}
+			%% Line 300
+			<_X_Other> when 'true' ->
+			    %% Line 301
+			    call 'erlang':'throw'
+				(_cor0)
+		      end
+	      -| [{'id',{0,0,'-sort_all_runs/1-fun-0-'}}] )
+	in  let <KeyList> =
+		%% Line 296
+		call 'lists':'map'
+		    (_cor5, _cor0)
+	    in  let <_cor10> =
+		    %% Line 304
+		    ( fun (_cor8) ->
+			  case _cor8 of
+			    <{_cor14,Dir}> when 'true' ->
+				%% Line 305
+				Dir
+			    ( <_cor9> when 'true' ->
+				  ( primop 'match_fail'
+					({'function_clause',_cor9})
+				    -| [{'function_name',{'-sort_all_runs/1-fun-1-',1}}] )
+			      -| ['compiler_generated'] )
+			  end
+		      -| [{'id',{0,0,'-sort_all_runs/1-fun-1-'}}] )
+		in  let <_cor7> =
+			%% Line 306
+			call 'lists':'keysort'
+			    (1, KeyList)
+		    in  let <_cor11> =
+			    %% Line 304
+			    call 'lists':'map'
+				(_cor10, _cor7)
+			in  %% Line 304
+			    call 'lists':'reverse'
+				(_cor11)
+'runentry'/1 =
+    %% Line 308
+    fun (_cor0) ->
+	let <MasterStr,NodesStr> =
+	    %% Line 310
+	    case apply 'read_details_file'/1
+		     (_cor0) of
+	      %% Line 311
+	      <{Master,Nodes}>
+		  when call 'erlang':'is_list'
+			(Nodes) ->
+		  let <_cor1> =
+		      %% Line 312
+		      call 'erlang':'atom_to_list'
+			  (Master)
+		  in  %% Line 312
+		      case call 'string':'tokens'
+			       (_cor1, [64]) of
+			<[_cor22|[Host|[]]]> when 'true' ->
+			    let <_cor6> =
+				%% Line 314
+				( fun (_cor4) ->
+				      let <_cor3> =
+					  %% Line 315
+					  call 'erlang':'atom_to_list'
+					      (_cor4)
+				      in  %% Line 315
+					  call 'erlang':'++'
+					      (_cor3, [44|[32]])
+				  -| [{'id',{0,0,'-runentry/1-fun-0-'}}] )
+			    in  let <_cor7> =
+				    %% Line 314
+				    call 'lists':'map'
+					(_cor6, %% Line 316
+						Nodes)
+				in  %% Line 317
+				    case call 'lists':'reverse'
+					     (_cor7) of
+				      %% Line 318
+				      <[N|NListR]> when 'true' ->
+					  let <_cor9> =
+					      %% Line 319
+					      call 'erlang':'length'
+						  (N)
+					  in  let <_cor10> =
+						  %% Line 319
+						  call 'erlang':'-'
+						      (_cor9, 2)
+					      in  let <N1> =
+						      %% Line 319
+						      call 'string':'sub_string'
+							  (N, 1, _cor10)
+						  in  let <_cor12> =
+							  %% Line 320
+							  call 'lists':'reverse'
+							      ([N1|NListR])
+						      in  let <_cor13> =
+							      %% Line 320
+							      call 'lists':'flatten'
+								  (_cor12)
+							  in  %% Line 320
+							      <Host,_cor13>
+				      %% Line 321
+				      <[]> when 'true' ->
+					  %% Line 322
+					  <Host,[]>
+				      ( <_cor14> when 'true' ->
+					    primop 'match_fail'
+						({'case_clause',_cor14})
+					-| ['compiler_generated'] )
+				    end
+			( <_cor2> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor2})
+			  -| ['compiler_generated'] )
+		      end
+	      %% Line 324
+	      <_X_Error> when 'true' ->
+		  %% Line 325
+		  <[117|[110|[107|[110|[111|[119|[110]]]]]]],[]>
+	    end
+	in  let <Index> =
+		%% Line 327
+		call 'filename':'join'
+		    (_cor0, [105|[110|[100|[101|[120|[46|[104|[116|[109|[108]]]]]]]]]])
+	    in  let <_cor19> =
+		    %% Line 329
+		    call 'ct_logs':'uri'
+			(Index)
+		in  let <_cor20> =
+			%% Line 330
+			apply 'timestamp'/1
+			    (_cor0)
+		    in  %% Line 328
+			[[60|[116|[114|[62|[10|[60|[116|[100|[32|[97|[108|[105|[103|[110|[61|[99|[101|[110|[116|[101|[114|[62|[60|[97|[32|[104|[114|[101|[102|[61|[34]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|%% Line 329
+																								     [_cor19|[[34|[62]]|%% Line 330
+																											[_cor20|[[60|[47|[97|[62|[60|[47|[116|[100|[62|[10]]]]]]]]]]|%% Line 331
+																																		     [[60|[116|[100|[32|[97|[108|[105|[103|[110|[61|[99|[101|[110|[116|[101|[114|[62]]]]]]]]]]]]]]]]]|[MasterStr|[[60|[47|[116|[100|[62|[10]]]]]]|%% Line 332
+																																																				  [[60|[116|[100|[32|[97|[108|[105|[103|[110|[61|[99|[101|[110|[116|[101|[114|[62]]]]]]]]]]]]]]]]]|[NodesStr|[[60|[47|[116|[100|[62|[10]]]]]]|[[60|[47|[116|[114|[62|[10]]]]]]]]]]]]]]]]]]
+'all_runs_header'/0 =
+    %% Line 335
+    fun () ->
+	let <_cor0> =
+	    %% Line 336
+	    apply 'header'/2
+		([77|[97|[115|[116|[101|[114|[32|[84|[101|[115|[116|[32|[82|[117|[110|[115]]]]]]]]]]]]]]]], {[1],[2|[3]],[]})
+	in  let <_cor1> =
+		%% Line 338
+		apply 'xhtml'/2
+		    ([[60|[116|[97|[98|[108|[101|[32|[98|[111|[114|[100|[101|[114|[61|[34|[51|[34|[32|[99|[101|[108|[108|[112|[97|[100|[100|[105|[110|[103|[61|[34|[53|[34|[32|[98|[103|[99|[111|[108|[111|[114|[61|[34]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|[[108|[105|[103|[104|[116|[98|[108|[117|[101]]]]]]]]]|[[34|[62|[10]]]]]], %% Line 340
+																																									     [[60|[116|[97|[98|[108|[101|[32|[105|[100|[61|[34]]]]]]]]]]]|[[83|[111|[114|[116|[97|[98|[108|[101|[84|[97|[98|[108|[101]]]]]]]]]]]]]|[[34|[62|[10]]]|[[60|[116|[104|[101|[97|[100|[62|[10|[60|[116|[114|[62|[10]]]]]]]]]]]]]]]]])
+	    in  let <_cor2> =
+		    %% Line 345
+		    apply 'xhtml'/2
+			([], [60|[47|[116|[114|[62|[60|[47|[116|[104|[101|[97|[100|[62|[10|[60|[116|[98|[111|[100|[121|[62|[10]]]]]]]]]]]]]]]]]]]]]])
+		in  %% Line 336
+		    [_cor0|%% Line 337
+			   [[60|[99|[101|[110|[116|[101|[114|[62|[10]]]]]]]]]|%% Line 338
+									      [_cor1|%% Line 342
+										     [[60|[116|[104|[62|[60|[98|[62|[72|[105|[115|[116|[111|[114|[121|[60|[47|[98|[62|[60|[47|[116|[104|[62|[10|[60|[116|[104|[62|[60|[98|[62|[77|[97|[115|[116|[101|[114|[32|[72|[111|[115|[116|[60|[47|[98|[62|[60|[47|[116|[104|[62|[10|[60|[116|[104|[62|[60|[98|[62|[84|[101|[115|[116|[32|[78|[111|[100|[101|[115|[60|[47|[98|[62|[60|[47|[116|[104|[62|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|%% Line 345
+																																																																 [_cor2|[]]]]]]
+'timestamp'/1 =
+    %% Line 347
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 348
+	    call 'string':'tokens'
+		(_cor0, [46|[45|[95]]])
+	in  %% Line 348
+	    case call 'lists':'reverse'
+		     (_cor1) of
+	      <[S|[Min|[H|[D|[M|[Y|_cor11]]]]]]> when 'true' ->
+		  let <_cor8> =
+		      %% Line 349
+		      ( letrec
+			    'lc$^0'/1 =
+				fun (_cor5) ->
+				    case _cor5 of
+				      <[N|_cor4]> when 'true' ->
+					  let <_cor6> =
+					      call 'erlang':'list_to_integer'
+						  (N)
+					  in  let <_cor7> =
+						  apply 'lc$^0'/1
+						      (_cor4)
+					      in  ( [_cor6|_cor7]
+						    -| ['compiler_generated'] )
+				      <[]> when 'true' ->
+					  []
+				      ( <_cor5> when 'true' ->
+					    ( primop 'match_fail'
+						  ({'function_clause',_cor5})
+					      -| [{'function_name',{'lc$^0',1}}] )
+					-| ['compiler_generated'] )
+				    end
+			in  apply 'lc$^0'/1
+				([S|[Min|[H|[D|[M|[Y|[]]]]]]])
+			-| ['list_comprehension'] )
+		  in  %% Line 349
+		      case _cor8 of
+			<[S1|[Min1|[H1|[D1|[M1|[Y1|[]]]]]]]> when 'true' ->
+			    %% Line 350
+			    apply 'format_time'/1
+				({{Y1,M1,D1},{H1,Min1,S1}})
+			( <_cor9> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor9})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor2})
+		-| ['compiler_generated'] )
+	    end
+'write_details_file'/2 =
+    %% Line 352
+    fun (_cor1,_cor0) ->
+	let <FullName> =
+	    %% Line 353
+	    call 'filename':'join'
+		(_cor1, [100|[101|[116|[97|[105|[108|[115|[46|[105|[110|[102|[111]]]]]]]]]]]])
+	in  let <_cor3> =
+		%% Line 354
+		call 'erlang':'term_to_binary'
+		    (_cor0)
+	    in  %% Line 354
+		apply 'force_write_file'/2
+		    (FullName, _cor3)
+'read_details_file'/1 =
+    %% Line 356
+    fun (_cor0) ->
+	let <FullName> =
+	    %% Line 357
+	    call 'filename':'join'
+		(_cor0, [100|[101|[116|[97|[105|[108|[115|[46|[105|[110|[102|[111]]]]]]]]]]]])
+	in  %% Line 358
+	    case call 'file':'read_file'
+		     (FullName) of
+	      %% Line 359
+	      <{'ok',Bin}> when 'true' ->
+		  %% Line 360
+		  call 'erlang':'binary_to_term'
+		      (Bin)
+	      %% Line 361
+	      <Error> when 'true' ->
+		  %% Line 362
+		  Error
+	    end
+'header'/2 =
+    %% Line 369
+    fun (_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 370
+	    ( fun () ->
+		  []
+	      -| [{'id',{0,0,'-header/2-fun-0-'}}] )
+	in  let <_cor3> =
+		%% Line 371
+		( fun () ->
+		      let <_cor2> =
+			  apply 'locate_priv_file'/1
+			      ([99|[116|[95|[100|[101|[102|[97|[117|[108|[116|[46|[99|[115|[115]]]]]]]]]]]]]])
+		      in  apply 'make_relative'/1
+			      (_cor2)
+		  -| [{'id',{0,0,'-header/2-fun-1-'}}] )
+	    in  let <CSSFile> =
+		    %% Line 370
+		    apply 'xhtml'/2
+			(_cor4, _cor3)
+		in  let <_cor8> =
+			%% Line 373
+			( fun () ->
+			      []
+			  -| [{'id',{0,0,'-header/2-fun-2-'}}] )
+		    in  let <_cor7> =
+			    %% Line 374
+			    ( fun () ->
+				  let <_cor6> =
+				      apply 'locate_priv_file'/1
+					  ([106|[113|[117|[101|[114|[121|[45|[108|[97|[116|[101|[115|[116|[46|[106|[115]]]]]]]]]]]]]]]])
+				  in  apply 'make_relative'/1
+					  (_cor6)
+			      -| [{'id',{0,0,'-header/2-fun-3-'}}] )
+			in  let <JQueryFile> =
+				%% Line 373
+				apply 'xhtml'/2
+				    (_cor8, _cor7)
+			    in  let <_cor12> =
+				    %% Line 376
+				    ( fun () ->
+					  []
+				      -| [{'id',{0,0,'-header/2-fun-4-'}}] )
+				in  let <_cor11> =
+					%% Line 377
+					( fun () ->
+					      let <_cor10> =
+						  apply 'locate_priv_file'/1
+						      ([106|[113|[117|[101|[114|[121|[46|[116|[97|[98|[108|[101|[115|[111|[114|[116|[101|[114|[46|[109|[105|[110|[46|[106|[115]]]]]]]]]]]]]]]]]]]]]]]]])
+					      in  apply 'make_relative'/1
+						      (_cor10)
+					  -| [{'id',{0,0,'-header/2-fun-5-'}}] )
+				    in  let <TableSorterFile> =
+					    %% Line 376
+					    apply 'xhtml'/2
+						(_cor12, _cor11)
+					in  let <_cor14> =
+						%% Line 379
+						apply 'xhtml'/2
+						    ([[60|[33|[68|[79|[67|[84|[89|[80|[69|[32|[72|[84|[77|[76|[32|[80|[85|[66|[76|[73|[67|[32|[34|[45|[47|[47|[87|[51|[67|[47|[47|[68|[84|[68|[32|[72|[84|[77|[76|[32|[51|[46|[50|[32|[70|[105|[110|[97|[108|[47|[47|[69|[78|[34|[62|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|[[60|[104|[116|[109|[108|[62|[10]]]]]]]]], %% Line 381
+																																															    [[60|[33|[68|[79|[67|[84|[89|[80|[69|[32|[104|[116|[109|[108|[32|[80|[85|[66|[76|[73|[67|[32|[34|[45|[47|[47|[87|[51|[67|[47|[47|[68|[84|[68|[32|[88|[72|[84|[77|[76|[32|[49|[46|[48|[32|[84|[114|[97|[110|[115|[105|[116|[105|[111|[110|[97|[108|[47|[47|[69|[78|[34|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|[[34|[104|[116|[116|[112|[58|[47|[47|[119|[119|[119|[46|[119|[51|[46|[111|[114|[103|[47|[84|[82|[47|[120|[104|[116|[109|[108|[49|[47|[68|[84|[68|[47|[120|[104|[116|[109|[108|[49|[45|[116|[114|[97|[110|[115|[105|[116|[105|[111|[110|[97|[108|[46|[100|[116|[100|[34|[62|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|[[60|[104|[116|[109|[108|[32|[120|[109|[108|[110|[115|[61|[34|[104|[116|[116|[112|[58|[47|[47|[119|[119|[119|[46|[119|[51|[46|[111|[114|[103|[47|[49|[57|[57|[57|[47|[120|[104|[116|[109|[108|[34|[32|[120|[109|[108|[58|[108|[97|[110|[103|[61|[34|[101|[110|[34|[32|[108|[97|[110|[103|[61|[34|[101|[110|[34|[62|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+					    in  let <_cor18> =
+						    %% Line 386
+						    call 'erlang':'++'
+							(_cor1, [60|[47|[116|[105|[116|[108|[101|[62|[10]]]]]]]]])
+						in  let <_cor19> =
+							%% Line 386
+							call 'erlang':'++'
+							    ([60|[116|[105|[116|[108|[101|[62]]]]]]], _cor18)
+						    in  let <_cor20> =
+							    %% Line 390
+							    call 'ct_logs':'uri'
+								(CSSFile)
+							in  let <_cor21> =
+								%% Line 389
+								apply 'xhtml'/2
+								    ([], %% Line 390
+									 [[60|[108|[105|[110|[107|[32|[114|[101|[108|[61|[34|[115|[116|[121|[108|[101|[115|[104|[101|[101|[116|[34|[32|[104|[114|[101|[102|[61|[34]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|[_cor20|%% Line 391
+																															[[34|[32|[116|[121|[112|[101|[61|[34|[116|[101|[120|[116|[47|[99|[115|[115|[34|[62]]]]]]]]]]]]]]]]]]]]])
+							    in  let <_cor22> =
+								    %% Line 392
+								    apply 'xhtml'/2
+									([], %% Line 393
+									     [[60|[115|[99|[114|[105|[112|[116|[32|[116|[121|[112|[101|[61|[34|[116|[101|[120|[116|[47|[106|[97|[118|[97|[115|[99|[114|[105|[112|[116|[34|[32|[115|[114|[99|[61|[34]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|[JQueryFile|%% Line 394
+																																				    [[34|[62|[60|[47|[115|[99|[114|[105|[112|[116|[62|[10]]]]]]]]]]]]]]])
+								in  let <_cor23> =
+									%% Line 395
+									apply 'xhtml'/2
+									    ([], %% Line 396
+										 [[60|[115|[99|[114|[105|[112|[116|[32|[116|[121|[112|[101|[61|[34|[116|[101|[120|[116|[47|[106|[97|[118|[97|[115|[99|[114|[105|[112|[116|[34|[32|[115|[114|[99|[61|[34]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|[TableSorterFile|%% Line 397
+																																					     [[34|[62|[60|[47|[115|[99|[114|[105|[112|[116|[62|[10]]]]]]]]]]]]]]])
+								    in  let <_cor25> =
+									    %% Line 398
+									    ( fun () ->
+										  []
+									      -| [{'id',{0,0,'-header/2-fun-6-'}}] )
+									in  let <_cor24> =
+										%% Line 399
+										( fun () ->
+										      call 'ct_logs':'insert_javascript'
+											  ({'tablesorter',%% Line 400
+													  [83|[111|[114|[116|[97|[98|[108|[101|[84|[97|[98|[108|[101]]]]]]]]]]]]],_cor0})
+										  -| [{'id',{0,0,'-header/2-fun-7-'}}] )
+									    in  let <_cor26> =
+										    %% Line 398
+										    apply 'xhtml'/2
+											(_cor25, _cor24)
+										in  let <_cor27> =
+											%% Line 403
+											apply 'body_tag'/0
+											    ()
+										    in  let <_cor28> =
+											    %% Line 405
+											    call 'erlang':'++'
+												(_cor1, [60|[47|[104|[49|[62|[10]]]]]])
+											in  let <_cor29> =
+												%% Line 405
+												[60|[104|[49|[62|_cor28]]]]
+											    in  %% Line 379
+												[_cor14|%% Line 384
+													[[60|[33|[45|[45|[32|[97|[117|[116|[111|[103|[101|[110|[101|[114|[97|[116|[101|[100|[32|[98|[121|[32|[39|[99|[116|[95|[109|[97|[115|[116|[101|[114|[95|[108|[111|[103|[115|[39|[32|[45|[45|[62|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|%% Line 385
+																																										      [[60|[104|[101|[97|[100|[62|[10]]]]]]]|%% Line 386
+																																															     [_cor19|%% Line 387
+																																																     [[60|[109|[101|[116|[97|[32|[104|[116|[116|[112|[45|[101|[113|[117|[105|[118|[61|[34|[99|[97|[99|[104|[101|[45|[99|[111|[110|[116|[114|[111|[108|[34|[32|[99|[111|[110|[116|[101|[110|[116|[61|[34|[110|[111|[45|[99|[97|[99|[104|[101|[34|[62|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|%% Line 388
+																																																																																					     [[60|[109|[101|[116|[97|[32|[104|[116|[116|[112|[45|[101|[113|[117|[105|[118|[61|[34|[99|[111|[110|[116|[101|[110|[116|[45|[116|[121|[112|[101|[34|[32|[99|[111|[110|[116|[101|[110|[116|[61|[34|[116|[101|[120|[116|[47|[104|[116|[109|[108|[59|[32|[99|[104|[97|[114|[115|[101|[116|[61|[117|[116|[102|[45|[56|[34|[62|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|%% Line 389
+																																																																																																																																					      [_cor21|%% Line 392
+																																																																																																																																						      [_cor22|%% Line 395
+																																																																																																																																							      [_cor23|%% Line 398
+																																																																																																																																								      [_cor26|%% Line 402
+																																																																																																																																									      [[60|[47|[104|[101|[97|[100|[62|[10]]]]]]]]|%% Line 403
+																																																																																																																																															  [_cor27|%% Line 404
+																																																																																																																																																  [[60|[99|[101|[110|[116|[101|[114|[62|[10]]]]]]]]]|%% Line 405
+																																																																																																																																																						     [_cor29|%% Line 406
+																																																																																																																																																							     [[60|[47|[99|[101|[110|[116|[101|[114|[62|[10]]]]]]]]]]]]]]]]]]]]]]]]]
+'index_footer'/0 =
+    %% Line 408
+    fun () ->
+	let <_cor0> =
+	    %% Line 410
+	    apply 'footer'/0
+		()
+	in  %% Line 409
+	    [[60|[47|[116|[98|[111|[100|[121|[62|[10|[60|[47|[116|[97|[98|[108|[101|[62|[10|[60|[47|[99|[101|[110|[116|[101|[114|[62|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]|_cor0]
+'footer'/0 =
+    %% Line 412
+    fun () ->
+	let <_cor0> =
+	    %% Line 414
+	    apply 'xhtml'/2
+		([60|[98|[114|[62|[60|[104|[114|[62|[10]]]]]]]]], [60|[98|[114|[32|[47|[62|[10]]]]]]])
+	in  let <_cor1> =
+		%% Line 415
+		apply 'xhtml'/2
+		    ([60|[112|[62|[60|[102|[111|[110|[116|[32|[115|[105|[122|[101|[61|[34|[45|[49|[34|[62|[10]]]]]]]]]]]]]]]]]]]], [60|[100|[105|[118|[32|[99|[108|[97|[115|[115|[61|[34|[99|[111|[112|[121|[114|[105|[103|[104|[116|[34|[62]]]]]]]]]]]]]]]]]]]]]]])
+	    in  let <_cor2> =
+		    %% Line 416
+		    apply 'year'/0
+			()
+		in  let <_cor3> =
+			%% Line 418
+			apply 'xhtml'/2
+			    ([60|[98|[114|[62|[10]]]]], [60|[98|[114|[32|[47|[62|[10]]]]]]])
+		    in  let <_cor4> =
+			    %% Line 419
+			    apply 'current_time'/0
+				()
+			in  let <_cor5> =
+				%% Line 420
+				apply 'xhtml'/2
+				    ([60|[98|[114|[62|[10]]]]], [60|[98|[114|[32|[47|[62|[10]]]]]]])
+			    in  let <_cor6> =
+				    %% Line 421
+				    apply 'xhtml'/2
+					([60|[47|[102|[111|[110|[116|[62|[60|[47|[112|[62|[10]]]]]]]]]]]], [60|[47|[100|[105|[118|[62|[10]]]]]]])
+				in  %% Line 413
+				    [[60|[99|[101|[110|[116|[101|[114|[62|[10]]]]]]]]]|%% Line 414
+										       [_cor0|%% Line 415
+											      [_cor1|%% Line 416
+												     [[67|[111|[112|[121|[114|[105|[103|[104|[116|[32|[38|[99|[111|[112|[121|[59|[32]]]]]]]]]]]]]]]]]|[_cor2|%% Line 417
+																									     [[32|[60|[97|[32|[104|[114|[101|[102|[61|[34|[104|[116|[116|[112|[58|[47|[47|[119|[119|[119|[46|[101|[114|[108|[97|[110|[103|[46|[111|[114|[103|[34|[62|[79|[112|[101|[110|[32|[84|[101|[108|[101|[99|[111|[109|[32|[80|[108|[97|[116|[102|[111|[114|[109|[60|[47|[97|[62]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|%% Line 418
+																																																																		 [_cor3|%% Line 419
+																																																																			[[85|[112|[100|[97|[116|[101|[100|[58|[32|[60|[33|[100|[97|[116|[101|[62]]]]]]]]]]]]]]]]|[_cor4|[[60|[33|[47|[100|[97|[116|[101|[62]]]]]]]]|%% Line 420
+																																																																																				    [_cor5|%% Line 421
+																																																																																					   [_cor6|%% Line 422
+																																																																																						  [[60|[47|[99|[101|[110|[116|[101|[114|[62|[10|[60|[47|[98|[111|[100|[121|[62|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+'body_tag'/0 =
+    %% Line 425
+    fun () ->
+	%% Line 426
+	apply 'xhtml'/2
+	    ([60|[98|[111|[100|[121|[32|[98|[103|[99|[111|[108|[111|[114|[61|[34|[35|[70|[70|[70|[70|[70|[70|[34|[32|[116|[101|[120|[116|[61|[34|[35|[48|[48|[48|[48|[48|[48|[34|[32|[108|[105|[110|[107|[61|[34|[35|[48|[48|[48|[48|[70|[70|[34|[32|[118|[108|[105|[110|[107|[61|[34|[35|[56|[48|[48|[48|[56|[48|[34|[32|[97|[108|[105|[110|[107|[61|[34|[35|[70|[70|[48|[48|[48|[48|[34|[62|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 428
+																																																											  [60|[98|[111|[100|[121|[62|[10]]]]]]])
+'current_time'/0 =
+    %% Line 430
+    fun () ->
+	let <_cor0> =
+	    %% Line 431
+	    call 'calendar':'local_time'
+		()
+	in  %% Line 431
+	    apply 'format_time'/1
+		(_cor0)
+'format_time'/1 =
+    %% Line 433
+    fun (_cor0) ->
+	case _cor0 of
+	  <{{Y,Mon,D},{H,Min,S}}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 434
+		  call 'calendar':'day_of_the_week'
+		      (Y, Mon, D)
+	      in  let <Weekday> =
+		      %% Line 434
+		      apply 'weekday'/1
+			  (_cor1)
+		  in  let <_cor3> =
+			  %% Line 436
+			  apply 'month'/1
+			      (Mon)
+		      in  let <_cor4> =
+			      %% Line 435
+			      call 'io_lib':'format'
+				  ([126|[115|[32|[126|[115|[32|[126|[50|[46|[50|[46|[48|[119|[32|[126|[119|[32|[126|[50|[46|[50|[46|[48|[119|[58|[126|[50|[46|[50|[46|[48|[119|[58|[126|[50|[46|[50|[46|[48|[119]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 436
+																															  [Weekday|[_cor3|[D|[Y|[H|[Min|[S|[]]]]]]]])
+			  in  %% Line 435
+			      call 'lists':'flatten'
+				  (_cor4)
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5})
+		  -| [{'function_name',{'format_time',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'weekday'/1 =
+    %% Line 438
+    fun (_cor0) ->
+	case _cor0 of
+	  <1> when 'true' ->
+	      [77|[111|[110]]]
+	  %% Line 439
+	  <2> when 'true' ->
+	      [84|[117|[101]]]
+	  %% Line 440
+	  <3> when 'true' ->
+	      [87|[101|[100]]]
+	  %% Line 441
+	  <4> when 'true' ->
+	      [84|[104|[117]]]
+	  %% Line 442
+	  <5> when 'true' ->
+	      [70|[114|[105]]]
+	  %% Line 443
+	  <6> when 'true' ->
+	      [83|[97|[116]]]
+	  %% Line 444
+	  <7> when 'true' ->
+	      [83|[117|[110]]]
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'weekday',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'month'/1 =
+    %% Line 446
+    fun (_cor0) ->
+	case _cor0 of
+	  <1> when 'true' ->
+	      [74|[97|[110]]]
+	  %% Line 447
+	  <2> when 'true' ->
+	      [70|[101|[98]]]
+	  %% Line 448
+	  <3> when 'true' ->
+	      [77|[97|[114]]]
+	  %% Line 449
+	  <4> when 'true' ->
+	      [65|[112|[114]]]
+	  %% Line 450
+	  <5> when 'true' ->
+	      [77|[97|[121]]]
+	  %% Line 451
+	  <6> when 'true' ->
+	      [74|[117|[110]]]
+	  %% Line 452
+	  <7> when 'true' ->
+	      [74|[117|[108]]]
+	  %% Line 453
+	  <8> when 'true' ->
+	      [65|[117|[103]]]
+	  %% Line 454
+	  <9> when 'true' ->
+	      [83|[101|[112]]]
+	  %% Line 455
+	  <10> when 'true' ->
+	      [79|[99|[116]]]
+	  %% Line 456
+	  <11> when 'true' ->
+	      [78|[111|[118]]]
+	  %% Line 457
+	  <12> when 'true' ->
+	      [68|[101|[99]]]
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'month',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'year'/0 =
+    %% Line 459
+    fun () ->
+	%% Line 460
+	case call 'erlang':'date'
+		 () of
+	  <{Y,_cor1,_cor2}> when 'true' ->
+	      %% Line 461
+	      call 'erlang':'integer_to_list'
+		  (Y)
+	  ( <_cor0> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor0})
+	    -| ['compiler_generated'] )
+	end
+'make_dirname'/1 =
+    %% Line 464
+    fun (_cor0) ->
+	case _cor0 of
+	  <{{YY,MM,DD},{H,M,S}}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 465
+		  apply 'logdir_prefix'/0
+		      ()
+	      in  let <_cor2> =
+		      %% Line 465
+		      call 'erlang':'++'
+			  (_cor1, [46|[126|[119|[45|[126|[50|[46|[50|[46|[48|[119|[45|[126|[50|[46|[50|[46|[48|[119|[95|[126|[50|[46|[50|[46|[48|[119|[46|[126|[50|[46|[50|[46|[48|[119|[46|[126|[50|[46|[50|[46|[48|[119]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+		  in  %% Line 465
+		      call 'io_lib':'format'
+			  (_cor2, %% Line 466
+				  [YY|[MM|[DD|[H|[M|[S|[]]]]]]])
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'make_dirname',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'logdir_prefix'/0 =
+    %% Line 468
+    fun () ->
+	%% Line 469
+	[99|[116|[95|[109|[97|[115|[116|[101|[114|[95|[114|[117|[110]]]]]]]]]]]]]
+'log_timestamp'/1 =
+    %% Line 471
+    fun (_cor0) ->
+	do  %% Line 472
+	    call 'erlang':'put'
+		('log_timestamp', _cor0)
+	    %% Line 473
+	    case call 'calendar':'now_to_local_time'
+		     (_cor0) of
+	      <{_cor4,{H,M,S}}> when 'true' ->
+		  let <_cor2> =
+		      %% Line 474
+		      call 'io_lib':'format'
+			  ([126|[50|[46|[50|[46|[48|[119|[58|[126|[50|[46|[50|[46|[48|[119|[58|[126|[50|[46|[50|[46|[48|[119]]]]]]]]]]]]]]]]]]]]]]], %% Line 475
+																		     [H|[M|[S|[]]]])
+		  in  %% Line 474
+		      call 'lists':'flatten'
+			  (_cor2)
+	      ( <_cor1> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor1})
+		-| ['compiler_generated'] )
+	    end
+'basic_html'/0 =
+    %% Line 477
+    fun () ->
+	%% Line 478
+	case call 'application':'get_env'
+		 ('common_test_master', 'basic_html') of
+	  %% Line 479
+	  <{'ok','true'}> when 'true' ->
+	      %% Line 480
+	      'true'
+	  %% Line 481
+	  <_cor1> when 'true' ->
+	      %% Line 482
+	      'false'
+	end
+'xhtml'/2 =
+    %% Line 485
+    fun (_cor1,_cor0) ->
+	%% Line 486
+	call 'ct_logs':'xhtml'
+	    (_cor1, _cor0)
+'locate_priv_file'/1 =
+    %% Line 488
+    fun (_cor0) ->
+	%% Line 489
+	call 'ct_logs':'locate_priv_file'
+	    (_cor0)
+'make_relative'/1 =
+    %% Line 491
+    fun (_cor0) ->
+	%% Line 492
+	call 'ct_logs':'make_relative'
+	    (_cor0)
+'force_write_file'/2 =
+    %% Line 494
+    fun (_cor1,_cor0) ->
+	do  %% Line 495
+	    apply 'force_delete'/1
+		(_cor1)
+	    %% Line 496
+	    call 'file':'write_file'
+		(_cor1, _cor0)
+'force_delete'/1 =
+    %% Line 498
+    fun (_cor0) ->
+	%% Line 499
+	case call 'file':'delete'
+		 (_cor0) of
+	  %% Line 500
+	  <{'error','eacces'}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 501
+		  call 'erlang':'++'
+		      (_cor0, [46|[111|[108|[100|[46]]]]])
+	      in  %% Line 501
+		  apply 'force_rename'/3
+		      (_cor0, _cor1, 0)
+	  %% Line 502
+	  <Other> when 'true' ->
+	      %% Line 503
+	      Other
+	end
+'force_rename'/3 =
+    %% Line 506
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 507
+	    call 'erlang':'integer_to_list'
+		(_cor0)
+	in  let <Dest> =
+		%% Line 507
+		[_cor1|_cor3]
+	    in  %% Line 508
+		case call 'file':'read_file_info'
+			 (Dest) of
+		  %% Line 509
+		  <{'ok',_cor10}> when 'true' ->
+		      let <_cor5> =
+			  %% Line 510
+			  call 'erlang':'+'
+			      (_cor0, 1)
+		      in  %% Line 510
+			  apply 'force_rename'/3
+			      (_cor2, _cor1, _cor5)
+		  %% Line 511
+		  <{'error',_cor11}> when 'true' ->
+		      %% Line 512
+		      call 'file':'rename'
+			  (_cor2, Dest)
+		  ( <_cor6> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor6})
+		    -| ['compiler_generated'] )
+		end
+'call'/1 =
+    %% Line 515
+    fun (_cor0) ->
+	%% Line 516
+	case call 'erlang':'whereis'
+		 ('ct_master_logs') of
+	  %% Line 517
+	  <'undefined'> when 'true' ->
+	      %% Line 518
+	      {'error','does_not_exist'}
+	  %% Line 519
+	  <Pid> when 'true' ->
+	      let <MRef> =
+		  %% Line 520
+		  call 'erlang':'monitor'
+		      ('process', Pid)
+	      in  let <Ref> =
+		      %% Line 521
+		      call 'erlang':'make_ref'
+			  ()
+		  in  let <_cor3> =
+			  %% Line 522
+			  call 'erlang':'self'
+			      ()
+		      in  do  %% Line 522
+			      call 'erlang':'!'
+				  ('ct_master_logs', {_cor0,{_cor3,Ref}})
+			      %% Line 523
+			      receive
+				%% Line 524
+				<{_cor6,Result}>
+				    when call 'erlang':'=:='
+					  (_cor6,
+					   Ref) ->
+				    do  %% Line 525
+					call 'erlang':'demonitor'
+					    (MRef, ['flush'])
+					%% Line 526
+					Result
+				%% Line 527
+				<{'DOWN',_cor7,'process',_cor8,Reason}>
+				    when call 'erlang':'=:='
+					  (_cor7,
+					   MRef) ->
+				    %% Line 528
+				    {'error',{'process_down','ct_master_logs',Reason}}
+			      after 'infinity' ->
+				'true'
+	end
+'return'/2 =
+    %% Line 532
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{To,Ref},Result> when 'true' ->
+	      %% Line 533
+	      call 'erlang':'!'
+		  (To, {Ref,Result})
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'return',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'cast'/1 =
+    %% Line 535
+    fun (_cor0) ->
+	%% Line 536
+	case call 'erlang':'whereis'
+		 ('ct_master_logs') of
+	  %% Line 537
+	  <'undefined'> when 'true' ->
+	      %% Line 538
+	      {'error','does_not_exist'}
+	  %% Line 539
+	  <_X_Pid> when 'true' ->
+	      %% Line 540
+	      call 'erlang':'!'
+		  ('ct_master_logs', _cor0)
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ct_master_logs')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ct_master_logs', _cor0)
+end

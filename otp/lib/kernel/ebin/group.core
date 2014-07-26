@@ -1,0 +1,2452 @@
+module 'group' ['interfaces'/1,
+		'module_info'/0,
+		'module_info'/1,
+		'server'/3,
+		'start'/2,
+		'start'/3]
+    attributes []
+'start'/2 =
+    %% Line 26
+    fun (_cor1,_cor0) ->
+	%% Line 27
+	apply 'start'/3
+	    (_cor1, _cor0, [])
+'start'/3 =
+    %% Line 29
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 30
+	call 'erlang':'spawn_link'
+	    ('group', 'server', [_cor2|[_cor1|[_cor0|[]]]])
+'server'/3 =
+    %% Line 32
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 33
+	    call 'erlang':'process_flag'
+		('trap_exit', 'true')
+	    do  %% Line 34
+		call 'edlin':'init'
+		    ()
+		let <_cor3> =
+		    %% Line 35
+		    call 'proplists':'get_value'
+			('line_buffer', _cor0, [])
+		in  do  %% Line 35
+			call 'erlang':'put'
+			    ('line_buffer', _cor3)
+			do  %% Line 36
+			    call 'erlang':'put'
+				('read_mode', 'list')
+			    do  %% Line 37
+				call 'erlang':'put'
+				    ('user_drv', _cor2)
+				let <_cor6> =
+				    %% Line 40
+				    ( fun (_cor4) ->
+					  call 'edlin_expand':'expand'
+					      (_cor4)
+				      -| [{'id',{0,0,'-server/3-fun-0-'}}] )
+				in  let <_cor7> =
+					%% Line 39
+					call 'proplists':'get_value'
+					    ('expand_fun', _cor0, _cor6)
+				    in  do  %% Line 38
+					    call 'erlang':'put'
+						('expand_fun', _cor7)
+					    let <_cor8> =
+						%% Line 41
+						call 'proplists':'get_value'
+						    ('echo', _cor0, 'true')
+					    in  do  %% Line 41
+						    call 'erlang':'put'
+							('echo', _cor8)
+						    do  %% Line 43
+							apply 'start_shell'/1
+							    (_cor1)
+							let <_cor9> =
+							    %% Line 44
+							    call 'erlang':'get'
+								('shell')
+							in  %% Line 44
+							    apply 'server_loop'/3
+								(_cor2, _cor9, [])
+'interfaces'/1 =
+    %% Line 49
+    fun (_cor0) ->
+	%% Line 50
+	case call 'erlang':'process_info'
+		 (_cor0, 'dictionary') of
+	  %% Line 51
+	  <{'dictionary',Dict}> when 'true' ->
+	      %% Line 52
+	      apply 'get_pids'/3
+		  (Dict, [], 'false')
+	  %% Line 53
+	  <_cor3> when 'true' ->
+	      %% Line 54
+	      []
+	end
+'get_pids'/3 =
+    %% Line 57
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Drv = {'user_drv',_cor6}|Rest],Found,_cor7> when 'true' ->
+	      %% Line 58
+	      apply 'get_pids'/3
+		  (Rest, [Drv|Found], 'true')
+	  %% Line 59
+	  <[Sh = {'shell',_cor8}|Rest],Found,Active> when 'true' ->
+	      %% Line 60
+	      apply 'get_pids'/3
+		  (Rest, [Sh|Found], Active)
+	  %% Line 61
+	  <[_cor9|Rest],Found,Active> when 'true' ->
+	      %% Line 62
+	      apply 'get_pids'/3
+		  (Rest, Found, Active)
+	  %% Line 63
+	  <[],Found,'true'> when 'true' ->
+	      %% Line 64
+	      Found
+	  %% Line 65
+	  <[],_X_Found,'false'> when 'true' ->
+	      %% Line 66
+	      []
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'get_pids',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'start_shell'/1 =
+    %% Line 72
+    fun (_cor0) ->
+	case _cor0 of
+	  <{Mod,Func,Args}> when 'true' ->
+	      %% Line 73
+	      apply 'start_shell1'/3
+		  (Mod, Func, Args)
+	  %% Line 74
+	  <{Node,Mod,Func,Args}> when 'true' ->
+	      %% Line 75
+	      apply 'start_shell1'/3
+		  ('net', 'call', [Node|[Mod|[Func|[Args|[]]]]])
+	  %% Line 76
+	  <Shell>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      %% Line 77
+	      apply 'start_shell1'/3
+		  (Shell, 'start', [])
+	  %% Line 78
+	  <Shell>
+	      when call 'erlang':'is_function'
+		    (_cor0) ->
+	      %% Line 79
+	      apply 'start_shell1'/1
+		  (Shell)
+	  %% Line 80
+	  <Shell>
+	      when call 'erlang':'is_pid'
+		    (_cor0) ->
+	      let <_cor1> =
+		  %% Line 81
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 81
+		      call 'erlang':'group_leader'
+			  (_cor1, Shell)
+		      do  %% Line 82
+			  call 'erlang':'link'
+			      (Shell)
+			  %% Line 83
+			  call 'erlang':'put'
+			      ('shell', Shell)
+	  %% Line 84
+	  <_X_Shell> when 'true' ->
+	      %% Line 85
+	      'ok'
+	end
+'start_shell1'/3 =
+    %% Line 87
+    fun (_cor2,_cor1,_cor0) ->
+	let <G> =
+	    %% Line 88
+	    call 'erlang':'group_leader'
+		()
+	in  let <_cor5> =
+		%% Line 89
+		call 'erlang':'self'
+		    ()
+	    in  let <_cor4> =
+		    %% Line 89
+		    call 'erlang':'self'
+			()
+		in  do  %% Line 89
+			call 'erlang':'group_leader'
+			    (_cor5, _cor4)
+			let <_cor6> =
+			    catch
+				%% Line 90
+				call 'erlang':'apply'
+				    (_cor2, _cor1, _cor0)
+			in  %% Line 90
+			    case _cor6 of
+			      %% Line 91
+			      <Shell>
+				  when call 'erlang':'is_pid'
+					(_cor6) ->
+				  let <_cor7> =
+				      %% Line 92
+				      call 'erlang':'self'
+					  ()
+				  in  do  %% Line 92
+					  call 'erlang':'group_leader'
+					      (G, _cor7)
+					  do  %% Line 93
+					      call 'erlang':'link'
+						  (Shell)
+					      %% Line 94
+					      call 'erlang':'put'
+						  ('shell', Shell)
+			      %% Line 95
+			      <Error> when 'true' ->
+				  %% Line 96
+				  call 'erlang':'exit'
+				      (Error)
+			    end
+'start_shell1'/1 =
+    %% Line 99
+    fun (_cor0) ->
+	let <G> =
+	    %% Line 100
+	    call 'erlang':'group_leader'
+		()
+	in  let <_cor3> =
+		%% Line 101
+		call 'erlang':'self'
+		    ()
+	    in  let <_cor2> =
+		    %% Line 101
+		    call 'erlang':'self'
+			()
+		in  do  %% Line 101
+			call 'erlang':'group_leader'
+			    (_cor3, _cor2)
+			let <_cor4> =
+			    catch
+				%% Line 102
+				apply _cor0
+				    ()
+			in  %% Line 102
+			    case _cor4 of
+			      %% Line 103
+			      <Shell>
+				  when call 'erlang':'is_pid'
+					(_cor4) ->
+				  let <_cor5> =
+				      %% Line 104
+				      call 'erlang':'self'
+					  ()
+				  in  do  %% Line 104
+					  call 'erlang':'group_leader'
+					      (G, _cor5)
+					  do  %% Line 105
+					      call 'erlang':'link'
+						  (Shell)
+					      %% Line 106
+					      call 'erlang':'put'
+						  ('shell', Shell)
+			      %% Line 107
+			      <Error> when 'true' ->
+				  %% Line 108
+				  call 'erlang':'exit'
+				      (Error)
+			    end
+'server_loop'/3 =
+    %% Line 111
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 112
+	receive
+	  %% Line 113
+	  <{'io_request',From,ReplyAs,Req}>
+	      when call 'erlang':'is_pid'
+		    (From) ->
+	      let <Buf> =
+		  %% Line 114
+		  apply 'io_request'/5
+		      (Req, From, ReplyAs, _cor2, _cor0)
+	      in  %% Line 115
+		  apply 'server_loop'/3
+		      (_cor2, _cor1, Buf)
+	  %% Line 116
+	  <{'driver_id',ReplyTo}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 117
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 117
+		      call 'erlang':'!'
+			  (ReplyTo, {_cor4,'driver_id',_cor2})
+		      %% Line 118
+		      apply 'server_loop'/3
+			  (_cor2, _cor1, _cor0)
+	  %% Line 119
+	  <{_cor16,'echo',Bool}>
+	      when call 'erlang':'=:='
+		    (_cor16,
+		     _cor2) ->
+	      do  %% Line 120
+		  call 'erlang':'put'
+		      ('echo', Bool)
+		  %% Line 121
+		  apply 'server_loop'/3
+		      (_cor2, _cor1, _cor0)
+	  %% Line 122
+	  <{'EXIT',_cor17,'interrupt'}>
+	      when call 'erlang':'=:='
+		    (_cor17,
+		     _cor2) ->
+	      do  %% Line 124
+		  apply 'exit_shell'/1
+		      ('interrupt')
+		  %% Line 125
+		  apply 'server_loop'/3
+		      (_cor2, _cor1, _cor0)
+	  %% Line 126
+	  <{'EXIT',_cor18,R}>
+	      when call 'erlang':'=:='
+		    (_cor18,
+		     _cor2) ->
+	      %% Line 127
+	      call 'erlang':'exit'
+		  (R)
+	  %% Line 128
+	  <{'EXIT',_cor19,R}>
+	      when call 'erlang':'=:='
+		    (_cor19,
+		     _cor1) ->
+	      %% Line 129
+	      call 'erlang':'exit'
+		  (R)
+	  %% Line 133
+	  <NotDrvTuple>
+	      when try
+		    ( case <> of
+			( <>
+			      when call 'erlang':'is_tuple'
+				    (NotDrvTuple) ->
+			      let <_cor8> =
+				  %% Line 134
+				  call 'erlang':'tuple_size'
+				      (NotDrvTuple)
+			      in  %% Line 134
+				  ( case <> of
+				      ( <>
+					    when call 'erlang':'=/='
+						  (_cor8,
+						   2) ->
+					    'true'
+					-| ['compiler_generated'] )
+				      ( <> when 'true' ->
+					    let <_cor9> =
+						%% Line 135
+						call 'erlang':'element'
+						    (1, NotDrvTuple)
+					    in  %% Line 135
+						call 'erlang':'=/='
+						    (_cor9, _cor2)
+					-| ['compiler_generated'] )
+				    end
+				    -| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+			( <> when 'true' ->
+			      'true'
+			  -| ['compiler_generated'] )
+		      end
+		      -| ['compiler_generated'] )
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 137
+	      apply 'server_loop'/3
+		  (_cor2, _cor1, _cor0)
+	after 'infinity' ->
+	  'true'
+'exit_shell'/1 =
+    %% Line 140
+    fun (_cor0) ->
+	%% Line 141
+	case call 'erlang':'get'
+		 ('shell') of
+	  %% Line 142
+	  <'undefined'> when 'true' ->
+	      'true'
+	  %% Line 143
+	  <Pid> when 'true' ->
+	      call 'erlang':'exit'
+		  (Pid, _cor0)
+	end
+'get_tty_geometry'/1 =
+    %% Line 146
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 147
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 147
+		call 'erlang':'!'
+		    (_cor0, {_cor1,'tty_geometry'})
+		%% Line 148
+		receive
+		  %% Line 149
+		  <{_cor3,'tty_geometry',Geometry}>
+		      when call 'erlang':'=:='
+			    (_cor3,
+			     _cor0) ->
+		      %% Line 150
+		      Geometry
+		after %% Line 151
+		      2000 ->
+		  %% Line 152
+		  'timeout'
+'get_unicode_state'/1 =
+    %% Line 154
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 155
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 155
+		call 'erlang':'!'
+		    (_cor0, {_cor1,'get_unicode_state'})
+		%% Line 156
+		receive
+		  %% Line 157
+		  <{_cor3,'get_unicode_state',UniState}>
+		      when call 'erlang':'=:='
+			    (_cor3,
+			     _cor0) ->
+		      %% Line 158
+		      UniState
+		  %% Line 159
+		  <{_cor4,'get_unicode_state','error'}>
+		      when call 'erlang':'=:='
+			    (_cor4,
+			     _cor0) ->
+		      %% Line 160
+		      {'error','internal'}
+		after %% Line 161
+		      2000 ->
+		  %% Line 162
+		  {'error','timeout'}
+'set_unicode_state'/2 =
+    %% Line 164
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 165
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 165
+		call 'erlang':'!'
+		    (_cor1, {_cor2,'set_unicode_state',_cor0})
+		%% Line 166
+		receive
+		  %% Line 167
+		  <{_cor5,'set_unicode_state',_X_OldUniState}>
+		      when call 'erlang':'=:='
+			    (_cor5,
+			     _cor1) ->
+		      %% Line 168
+		      'ok'
+		after %% Line 169
+		      2000 ->
+		  %% Line 170
+		  'timeout'
+'io_request'/5 =
+    %% Line 174
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 175
+	case apply 'io_request'/3
+		 (_cor4, _cor1, _cor0) of
+	  %% Line 176
+	  <{'ok',Reply,Buf}> when 'true' ->
+	      do  %% Line 177
+		  apply 'io_reply'/3
+		      (_cor3, _cor2, Reply)
+		  %% Line 178
+		  Buf
+	  %% Line 179
+	  <{'error',Reply,Buf}> when 'true' ->
+	      do  %% Line 180
+		  apply 'io_reply'/3
+		      (_cor3, _cor2, Reply)
+		  %% Line 181
+		  Buf
+	  %% Line 182
+	  <{'exit',R}> when 'true' ->
+	      do  %% Line 186
+		  apply 'exit_shell'/1
+		      ('kill')
+		  %% Line 187
+		  call 'erlang':'exit'
+		      (R)
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'io_request'/3 =
+    %% Line 199
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'put_chars','unicode',Chars},Drv,Buf> when 'true' ->
+	      let <_cor3> =
+		  catch
+		      %% Line 200
+		      call 'unicode':'characters_to_binary'
+			  (Chars, 'utf8')
+	      in  %% Line 200
+		  case _cor3 of
+		    %% Line 201
+		    <Binary>
+			when call 'erlang':'is_binary'
+			      (_cor3) ->
+			do  %% Line 202
+			    apply 'send_drv'/2
+				(Drv, {'put_chars','unicode',Binary})
+			    %% Line 203
+			    {'ok','ok',Buf}
+		    %% Line 204
+		    <_cor22> when 'true' ->
+			%% Line 205
+			{'error',{'error',{'put_chars','unicode',Chars}},Buf}
+		  end
+	  %% Line 207
+	  <{'put_chars','unicode',M,F,As},Drv,Buf> when 'true' ->
+	      let <_cor5> =
+		  catch
+		      %% Line 208
+		      call 'erlang':'apply'
+			  (M, F, As)
+	      in  %% Line 208
+		  case _cor5 of
+		    %% Line 209
+		    <Binary>
+			when call 'erlang':'is_binary'
+			      (_cor5) ->
+			do  %% Line 210
+			    apply 'send_drv'/2
+				(Drv, {'put_chars','unicode',Binary})
+			    %% Line 211
+			    {'ok','ok',Buf}
+		    %% Line 212
+		    <Chars> when 'true' ->
+			let <_cor6> =
+			    catch
+				%% Line 213
+				call 'unicode':'characters_to_binary'
+				    (Chars, 'utf8')
+			in  %% Line 213
+			    case _cor6 of
+			      %% Line 214
+			      <B>
+				  when call 'erlang':'is_binary'
+					(_cor6) ->
+				  do  %% Line 215
+				      apply 'send_drv'/2
+					  (Drv, {'put_chars','unicode',B})
+				      %% Line 216
+				      {'ok','ok',Buf}
+			      %% Line 217
+			      <_cor23> when 'true' ->
+				  %% Line 218
+				  {'error',{'error',F},Buf}
+			    end
+		  end
+	  %% Line 221
+	  <{'put_chars','latin1',Binary},Drv,Buf>
+	      when call 'erlang':'is_binary'
+		    (Binary) ->
+	      let <_cor9> =
+		  %% Line 222
+		  call 'unicode':'characters_to_binary'
+		      (Binary, 'latin1')
+	      in  do  %% Line 222
+		      apply 'send_drv'/2
+			  (Drv, {'put_chars','unicode',_cor9})
+		      %% Line 223
+		      {'ok','ok',Buf}
+	  %% Line 224
+	  <{'put_chars','latin1',Chars},Drv,Buf> when 'true' ->
+	      let <_cor10> =
+		  catch
+		      %% Line 225
+		      call 'unicode':'characters_to_binary'
+			  (Chars, 'latin1')
+	      in  %% Line 225
+		  case _cor10 of
+		    %% Line 226
+		    <Binary>
+			when call 'erlang':'is_binary'
+			      (_cor10) ->
+			do  %% Line 227
+			    apply 'send_drv'/2
+				(Drv, {'put_chars','unicode',Binary})
+			    %% Line 228
+			    {'ok','ok',Buf}
+		    %% Line 229
+		    <_cor24> when 'true' ->
+			%% Line 230
+			{'error',{'error',{'put_chars','latin1',Chars}},Buf}
+		  end
+	  %% Line 232
+	  <{'put_chars','latin1',M,F,As},Drv,Buf> when 'true' ->
+	      let <_cor12> =
+		  catch
+		      %% Line 233
+		      call 'erlang':'apply'
+			  (M, F, As)
+	      in  %% Line 233
+		  case _cor12 of
+		    %% Line 234
+		    <Binary>
+			when call 'erlang':'is_binary'
+			      (_cor12) ->
+			let <_cor13> =
+			    %% Line 235
+			    call 'unicode':'characters_to_binary'
+				(Binary, 'latin1')
+			in  do  %% Line 235
+				apply 'send_drv'/2
+				    (Drv, {'put_chars','unicode',_cor13})
+				%% Line 236
+				{'ok','ok',Buf}
+		    %% Line 237
+		    <Chars> when 'true' ->
+			let <_cor14> =
+			    catch
+				%% Line 238
+				call 'unicode':'characters_to_binary'
+				    (Chars, 'latin1')
+			in  %% Line 238
+			    case _cor14 of
+			      %% Line 239
+			      <B>
+				  when call 'erlang':'is_binary'
+					(_cor14) ->
+				  do  %% Line 240
+				      apply 'send_drv'/2
+					  (Drv, {'put_chars','unicode',B})
+				      %% Line 241
+				      {'ok','ok',Buf}
+			      %% Line 242
+			      <_cor25> when 'true' ->
+				  %% Line 243
+				  {'error',{'error',F},Buf}
+			    end
+		  end
+	  %% Line 247
+	  <{'get_chars',Encoding,Prompt,N},Drv,Buf> when 'true' ->
+	      %% Line 248
+	      apply 'get_chars'/7
+		  (Prompt, 'io_lib', 'collect_chars', N, Drv, Buf, Encoding)
+	  %% Line 249
+	  <{'get_line',Encoding,Prompt},Drv,Buf> when 'true' ->
+	      %% Line 250
+	      apply 'get_chars'/7
+		  (Prompt, 'io_lib', 'collect_line', [], Drv, Buf, Encoding)
+	  %% Line 251
+	  <{'get_until',Encoding,Prompt,M,F,As},Drv,Buf> when 'true' ->
+	      %% Line 252
+	      apply 'get_chars'/7
+		  (Prompt, 'io_lib', 'get_until', {M,F,As}, Drv, Buf, Encoding)
+	  %% Line 253
+	  <{'get_password',_X_Encoding},Drv,Buf> when 'true' ->
+	      %% Line 254
+	      apply 'get_password_chars'/2
+		  (Drv, Buf)
+	  %% Line 255
+	  <{'setopts',Opts},Drv,Buf>
+	      when call 'erlang':'is_list'
+		    (Opts) ->
+	      %% Line 256
+	      apply 'setopts'/3
+		  (Opts, Drv, Buf)
+	  %% Line 257
+	  <'getopts',Drv,Buf> when 'true' ->
+	      %% Line 258
+	      apply 'getopts'/2
+		  (Drv, Buf)
+	  %% Line 259
+	  <{'requests',Reqs},Drv,Buf> when 'true' ->
+	      %% Line 260
+	      apply 'io_requests'/3
+		  (Reqs, {'ok','ok',Buf}, Drv)
+	  %% Line 263
+	  <{'get_geometry','columns'},Drv,Buf> when 'true' ->
+	      %% Line 264
+	      case apply 'get_tty_geometry'/1
+		       (Drv) of
+		%% Line 265
+		<{W,_X_H}> when 'true' ->
+		    %% Line 266
+		    {'ok',W,Buf}
+		%% Line 267
+		<_cor26> when 'true' ->
+		    %% Line 268
+		    {'error',{'error','enotsup'},Buf}
+	      end
+	  %% Line 270
+	  <{'get_geometry','rows'},Drv,Buf> when 'true' ->
+	      %% Line 271
+	      case apply 'get_tty_geometry'/1
+		       (Drv) of
+		%% Line 272
+		<{_X_W,H}> when 'true' ->
+		    %% Line 273
+		    {'ok',H,Buf}
+		%% Line 274
+		<_cor27> when 'true' ->
+		    %% Line 275
+		    {'error',{'error','enotsup'},Buf}
+	      end
+	  %% Line 279
+	  <{'put_chars',Chars},Drv,Buf> when 'true' ->
+	      %% Line 280
+	      apply 'io_request'/3
+		  ({'put_chars','latin1',Chars}, Drv, Buf)
+	  %% Line 281
+	  <{'put_chars',M,F,As},Drv,Buf> when 'true' ->
+	      %% Line 282
+	      apply 'io_request'/3
+		  ({'put_chars','latin1',M,F,As}, Drv, Buf)
+	  %% Line 283
+	  <{'get_chars',Prompt,N},Drv,Buf> when 'true' ->
+	      %% Line 284
+	      apply 'io_request'/3
+		  ({'get_chars','latin1',Prompt,N}, Drv, Buf)
+	  %% Line 285
+	  <{'get_line',Prompt},Drv,Buf> when 'true' ->
+	      %% Line 286
+	      apply 'io_request'/3
+		  ({'get_line','latin1',Prompt}, Drv, Buf)
+	  %% Line 287
+	  <{'get_until',Prompt,M,F,As},Drv,Buf> when 'true' ->
+	      %% Line 288
+	      apply 'io_request'/3
+		  ({'get_until','latin1',Prompt,M,F,As}, Drv, Buf)
+	  %% Line 289
+	  <'get_password',Drv,Buf> when 'true' ->
+	      %% Line 290
+	      apply 'io_request'/3
+		  ({'get_password','latin1'}, Drv, Buf)
+	  %% Line 294
+	  <_cor28,_X_Drv,Buf> when 'true' ->
+	      %% Line 295
+	      {'error',{'error','request'},Buf}
+	end
+'io_requests'/3 =
+    %% Line 300
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[R|Rs],{'ok','ok',Buf},Drv> when 'true' ->
+	      let <_cor3> =
+		  %% Line 301
+		  apply 'io_request'/3
+		      (R, Drv, Buf)
+	      in  %% Line 301
+		  apply 'io_requests'/3
+		      (Rs, _cor3, Drv)
+	  %% Line 302
+	  <[_cor7|_cor8],Error,_X_Drv> when 'true' ->
+	      %% Line 303
+	      Error
+	  %% Line 304
+	  <[],Stat,_cor9> when 'true' ->
+	      %% Line 305
+	      Stat
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'io_requests',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'io_reply'/3 =
+    %% Line 311
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 312
+	    call 'erlang':'!'
+		(_cor2, {'io_reply',_cor1,_cor0})
+	    %% Line 313
+	    'ok'
+'send_drv'/2 =
+    %% Line 318
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 319
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 319
+		call 'erlang':'!'
+		    (_cor1, {_cor2,_cor0})
+		%% Line 320
+		'ok'
+'send_drv_reqs'/2 =
+    %% Line 322
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_Drv,[]> when 'true' ->
+	      'ok'
+	  %% Line 323
+	  <Drv,Rs> when 'true' ->
+	      %% Line 324
+	      apply 'send_drv'/2
+		  (Drv, {'requests',Rs})
+	end
+'expand_encoding'/1 =
+    %% Line 326
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 327
+	      []
+	  %% Line 328
+	  <['latin1'|T]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 329
+		  apply 'expand_encoding'/1
+		      (T)
+	      in  %% Line 329
+		  [{'encoding','latin1'}|_cor1]
+	  %% Line 330
+	  <['unicode'|T]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 331
+		  apply 'expand_encoding'/1
+		      (T)
+	      in  %% Line 331
+		  [{'encoding','unicode'}|_cor2]
+	  %% Line 332
+	  <[H|T]> when 'true' ->
+	      let <_cor3> =
+		  %% Line 333
+		  apply 'expand_encoding'/1
+		      (T)
+	      in  %% Line 333
+		  [H|_cor3]
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'expand_encoding',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'setopts'/3 =
+    %% Line 335
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 339
+	    apply 'expand_encoding'/1
+		(_cor2)
+	in  let <_cor4> =
+		%% Line 337
+		call 'proplists':'substitute_negations'
+		    (%% Line 338
+		     [{'list','binary'}], _cor3)
+	    in  let <Opts> =
+		    %% Line 336
+		    call 'proplists':'unfold'
+			(_cor4)
+		in  %% Line 340
+		    case apply 'check_valid_opts'/1
+			     (Opts) of
+		      %% Line 341
+		      <'true'> when 'true' ->
+			  %% Line 342
+			  apply 'do_setopts'/3
+			      (Opts, _cor1, _cor0)
+		      %% Line 343
+		      <'false'> when 'true' ->
+			  %% Line 344
+			  {'error',{'error','enotsup'},_cor0}
+		      ( <_cor6> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor6})
+			-| ['compiler_generated'] )
+		    end
+'check_valid_opts'/1 =
+    %% Line 346
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 347
+	      'true'
+	  %% Line 348
+	  <[{'binary',_cor6}|T]> when 'true' ->
+	      %% Line 349
+	      apply 'check_valid_opts'/1
+		  (T)
+	  %% Line 350
+	  <[{'encoding',Valid}|T]>
+	      when let <_cor1> =
+		    call 'erlang':'=:='
+			(Valid, 'unicode')
+		in  let <_cor2> =
+			call 'erlang':'=:='
+			    (Valid, 'utf8')
+		    in  let <_cor3> =
+			    call 'erlang':'=:='
+				(Valid, 'latin1')
+			in  let <_cor4> =
+				call 'erlang':'or'
+				    (_cor2, _cor3)
+			    in  call 'erlang':'or'
+				    (_cor1, _cor4) ->
+	      %% Line 351
+	      apply 'check_valid_opts'/1
+		  (T)
+	  %% Line 352
+	  <[{'echo',_cor7}|T]> when 'true' ->
+	      %% Line 353
+	      apply 'check_valid_opts'/1
+		  (T)
+	  %% Line 354
+	  <[{'expand_fun',_cor8}|T]> when 'true' ->
+	      %% Line 355
+	      apply 'check_valid_opts'/1
+		  (T)
+	  %% Line 356
+	  <_cor9> when 'true' ->
+	      %% Line 357
+	      'false'
+	end
+'do_setopts'/3 =
+    %% Line 359
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 360
+	    call 'erlang':'get'
+		('expand_fun')
+	in  let <_cor4> =
+		%% Line 360
+		call 'proplists':'get_value'
+		    ('expand_fun', _cor2, _cor3)
+	    in  do  %% Line 360
+		    call 'erlang':'put'
+			('expand_fun', _cor4)
+		    let <_cor5> =
+			%% Line 361
+			call 'erlang':'get'
+			    ('echo')
+		    in  let <_cor6> =
+			    %% Line 361
+			    call 'proplists':'get_value'
+				('echo', _cor2, _cor5)
+			in  do  %% Line 361
+				call 'erlang':'put'
+				    ('echo', _cor6)
+				do  %% Line 362
+				    case call 'proplists':'get_value'
+					     ('encoding', _cor2) of
+				      %% Line 363
+				      <Valid>
+					  when let <_cor7> =
+						call 'erlang':'=:='
+						    (Valid, 'unicode')
+					    in  let <_cor8> =
+						    call 'erlang':'=:='
+							(Valid, 'utf8')
+						in  call 'erlang':'or'
+							(_cor7, _cor8) ->
+					  %% Line 364
+					  apply 'set_unicode_state'/2
+					      (_cor1, 'true')
+				      %% Line 365
+				      <'latin1'> when 'true' ->
+					  %% Line 366
+					  apply 'set_unicode_state'/2
+					      (_cor1, 'false')
+				      %% Line 367
+				      <_cor16> when 'true' ->
+					  'ok'
+				    end
+				    let <_cor11> =
+					%% Line 370
+					case call 'erlang':'get'
+						 ('read_mode') of
+					  %% Line 371
+					  <'binary'> when 'true' ->
+					      'true'
+					  %% Line 372
+					  <_cor17> when 'true' ->
+					      'false'
+					end
+				    in  %% Line 370
+					case call 'proplists':'get_value'
+						 ('binary', _cor2, _cor11) of
+					  %% Line 374
+					  <'true'> when 'true' ->
+					      do  %% Line 375
+						  call 'erlang':'put'
+						      ('read_mode', 'binary')
+						  %% Line 376
+						  {'ok','ok',_cor0}
+					  %% Line 377
+					  <'false'> when 'true' ->
+					      do  %% Line 378
+						  call 'erlang':'put'
+						      ('read_mode', 'list')
+						  %% Line 379
+						  {'ok','ok',_cor0}
+					  %% Line 380
+					  <_cor18> when 'true' ->
+					      %% Line 381
+					      {'ok','ok',_cor0}
+					end
+'getopts'/2 =
+    %% Line 384
+    fun (_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 385
+	    case call 'erlang':'get'
+		     ('expand_fun') of
+	      %% Line 386
+	      <Func>
+		  when call 'erlang':'is_function'
+			(Func) ->
+		  %% Line 387
+		  Func
+	      %% Line 388
+	      <_cor18> when 'true' ->
+		  %% Line 389
+		  'false'
+	    end
+	in  let <Exp> = {%% Line 385
+		 'expand_fun',_cor3}
+	    in  let <_cor8> =
+		    %% Line 391
+		    case call 'erlang':'get'
+			     ('echo') of
+		      %% Line 392
+		      <Bool>
+			  when let <_cor5> =
+				call 'erlang':'=:='
+				    (Bool, 'true')
+			    in  let <_cor6> =
+				    call 'erlang':'=:='
+					(Bool, 'false')
+				in  call 'erlang':'or'
+					(_cor5, _cor6) ->
+			  %% Line 393
+			  Bool
+		      %% Line 394
+		      <_cor19> when 'true' ->
+			  %% Line 395
+			  'false'
+		    end
+		in  let <Echo> = {%% Line 391
+			 'echo',_cor8}
+		    in  let <_cor11> =
+			    %% Line 397
+			    case call 'erlang':'get'
+				     ('read_mode') of
+			      %% Line 398
+			      <'binary'> when 'true' ->
+				  %% Line 399
+				  'true'
+			      %% Line 400
+			      <_cor20> when 'true' ->
+				  %% Line 401
+				  'false'
+			    end
+			in  let <Bin> = {%% Line 397
+				 'binary',_cor11}
+			    in  let <_cor14> =
+				    %% Line 403
+				    case apply 'get_unicode_state'/1
+					     (_cor1) of
+				      %% Line 404
+				      <'true'> when 'true' ->
+					  'unicode'
+				      %% Line 405
+				      <_cor21> when 'true' ->
+					  'latin1'
+				    end
+				in  let <Uni> = {%% Line 403
+					 'encoding',_cor14}
+				    in  %% Line 407
+					{'ok',[Exp|[Echo|[Bin|[Uni|[]]]]],_cor0}
+'get_password_chars'/2 =
+    %% Line 418
+    fun (_cor1,_cor0) ->
+	%% Line 419
+	case apply 'get_password_line'/2
+		 (_cor0, _cor1) of
+	  %% Line 420
+	  <{'done',Line,Buf1}> when 'true' ->
+	      %% Line 421
+	      {'ok',Line,Buf1}
+	  %% Line 422
+	  <'interrupted'> when 'true' ->
+	      %% Line 423
+	      {'error',{'error','interrupted'},[]}
+	  %% Line 424
+	  <'terminated'> when 'true' ->
+	      %% Line 425
+	      {'exit','terminated'}
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'get_chars'/7 =
+    %% Line 428
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <Pbs> =
+	    %% Line 429
+	    apply 'prompt_bytes'/2
+		(_cor6, _cor0)
+	in  %% Line 430
+	    apply 'get_chars_loop'/8
+		(Pbs, _cor5, _cor4, _cor3, _cor2, _cor1, 'start', _cor0)
+'get_chars_loop'/8 =
+    %% Line 432
+    fun (_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor9> =
+	    %% Line 433
+	    case call 'erlang':'get'
+		     ('echo') of
+	      %% Line 434
+	      <'true'> when 'true' ->
+		  %% Line 435
+		  apply 'get_line'/4
+		      (_cor2, _cor7, _cor3, _cor0)
+	      %% Line 436
+	      <'false'> when 'true' ->
+		  %% Line 439
+		  apply 'get_line_echo_off'/3
+		      (_cor2, _cor7, _cor3)
+	      ( <_cor8> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor8})
+		-| ['compiler_generated'] )
+	    end
+	in  %% Line 441
+	    case _cor9 of
+	      %% Line 442
+	      <{'done',Line,Buf1}> when 'true' ->
+		  %% Line 443
+		  apply 'get_chars_apply'/9
+		      (_cor7, _cor6, _cor5, _cor4, _cor3, Buf1, _cor1, Line, _cor0)
+	      %% Line 444
+	      <'interrupted'> when 'true' ->
+		  %% Line 445
+		  {'error',{'error','interrupted'},[]}
+	      %% Line 446
+	      <'terminated'> when 'true' ->
+		  %% Line 447
+		  {'exit','terminated'}
+	      ( <_cor11> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor11})
+		-| ['compiler_generated'] )
+	    end
+'get_chars_apply'/9 =
+    %% Line 450
+    fun (_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor11> =
+	    catch
+		let <_cor9> =
+		    %% Line 451
+		    call 'erlang':'get'
+			('read_mode')
+		in  let <_cor10> =
+			%% Line 451
+			apply 'cast'/3
+			    (_cor1, _cor9, _cor0)
+		    in  %% Line 451
+			call _cor7:_cor6
+			    (_cor2, _cor10, _cor0, _cor5)
+	in  %% Line 451
+	    case _cor11 of
+	      %% Line 452
+	      <{'stop',Result,Rest}> when 'true' ->
+		  let <_cor12> =
+		      %% Line 453
+		      apply 'append'/3
+			  (Rest, _cor3, _cor0)
+		  in  %% Line 453
+		      {'ok',Result,_cor12}
+	      %% Line 454
+	      <{'EXIT',_cor24}> when 'true' ->
+		  let <_cor13> =
+		      %% Line 455
+		      apply 'err_func'/3
+			  (_cor7, _cor6, _cor5)
+		  in  %% Line 455
+		      {'error',{'error',_cor13},[]}
+	      %% Line 456
+	      <State1> when 'true' ->
+		  %% Line 457
+		  apply 'get_chars_loop'/8
+		      (_cor8, _cor7, _cor6, _cor5, _cor4, _cor3, State1, _cor0)
+	    end
+'err_func'/3 =
+    %% Line 461
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'io_lib','get_until',{_cor6,F,_cor7}> when 'true' ->
+	      %% Line 462
+	      F
+	  %% Line 463
+	  <_cor8,F,_cor9> when 'true' ->
+	      %% Line 464
+	      F
+	end
+'get_line'/4 =
+    %% Line 473
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 474
+	case call 'edlin':'start'
+		 (_cor2) of
+	  <{'more_chars',Cont,Rs}> when 'true' ->
+	      do  %% Line 475
+		  apply 'send_drv_reqs'/2
+		      (_cor1, Rs)
+		  let <_cor7> =
+		      %% Line 476
+		      call 'edlin':'edit_line'
+			  (_cor3, Cont)
+		  in  let <_cor5> =
+			  %% Line 476
+			  call 'erlang':'get'
+			      ('line_buffer')
+		      in  let <_cor6> =
+			      %% Line 476
+			      apply 'new_stack'/1
+				  (_cor5)
+			  in  %% Line 476
+			      apply 'get_line1'/4
+				  (_cor7, _cor1, _cor6, _cor0)
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'get_line1'/4 =
+    %% Line 479
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <{'done',Line,Rest,Rs},Drv,Ls,_X_Encoding> when 'true' ->
+	      do  %% Line 480
+		  apply 'send_drv_reqs'/2
+		      (Drv, Rs)
+		  let <_cor4> =
+		      %% Line 481
+		      apply 'get_lines'/1
+			  (Ls)
+		  in  do  %% Line 481
+			  apply 'save_line_buffer'/2
+			      (Line, _cor4)
+			  %% Line 482
+			  {'done',Line,Rest}
+	  %% Line 483
+	  <{'undefined',{_X_A,Mode,Char},Cs,Cont,Rs},Drv,Ls0,Encoding>
+	      when %% Line 485
+		try
+		    let <_cor5> =
+			call 'erlang':'=:='
+			    (Mode, 'none')
+		    in  let <_cor6> =
+			    call 'erlang':'=:='
+				(Char, 16)
+			in  let <_cor7> =
+				call 'erlang':'and'
+				    (_cor5, _cor6)
+			    in  let <_cor8> =
+				    call 'erlang':'=:='
+					(Mode, 'meta_left_sq_bracket')
+				in  let <_cor9> =
+					call 'erlang':'=:='
+					    (Char, 65)
+				    in  let <_cor10> =
+					    call 'erlang':'and'
+						(_cor8, _cor9)
+					in  call 'erlang':'or'
+						(_cor7, _cor10)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      do  %% Line 486
+		  apply 'send_drv_reqs'/2
+		      (Drv, Rs)
+		  let <_cor11> =
+		      %% Line 487
+		      call 'edlin':'current_line'
+			  (Cont)
+		  in  let <_cor12> =
+			  %% Line 487
+			  apply 'save_line'/2
+			      (Ls0, _cor11)
+		      in  %% Line 487
+			  case apply 'up_stack'/1
+				   (_cor12) of
+			    %% Line 488
+			    <{'none',_X_Ls}> when 'true' ->
+				do  %% Line 489
+				    apply 'send_drv'/2
+					(Drv, 'beep')
+				    let <_cor13> =
+					%% Line 490
+					call 'edlin':'edit_line'
+					    (Cs, Cont)
+				    in  %% Line 490
+					apply 'get_line1'/4
+					    (_cor13, Drv, Ls0, Encoding)
+			    %% Line 491
+			    <{Lcs,Ls}> when 'true' ->
+				let <_cor14> =
+				    %% Line 492
+				    call 'edlin':'erase_line'
+					(Cont)
+				in  do  %% Line 492
+					apply 'send_drv_reqs'/2
+					    (Drv, _cor14)
+					let <_cor15> =
+					    %% Line 493
+					    call 'edlin':'prompt'
+						(Cont)
+					in  %% Line 493
+					    case call 'edlin':'start'
+						     (_cor15) of
+					      <{'more_chars',Ncont,Nrs}> when 'true' ->
+						  do  %% Line 494
+						      apply 'send_drv_reqs'/2
+							  (Drv, Nrs)
+						      let <_cor17> =
+							  %% Line 495
+							  call 'erlang':'length'
+							      (Lcs)
+						      in  let <_cor18> =
+							      %% Line 495
+							      call 'erlang':'-'
+								  (_cor17, 1)
+							  in  let <_cor19> =
+								  %% Line 495
+								  call 'lists':'sublist'
+								      (Lcs, 1, _cor18)
+							      in  let <_cor20> =
+								      %% Line 495
+								      call 'edlin':'edit_line1'
+									  (_cor19, %% Line 496
+										   Ncont)
+								  in  %% Line 495
+								      apply 'get_line1'/4
+									  (_cor20, %% Line 497
+										   Drv, %% Line 498
+											Ls, %% Line 498
+											    Encoding)
+					      ( <_cor16> when 'true' ->
+						    primop 'match_fail'
+							({'badmatch',_cor16})
+						-| ['compiler_generated'] )
+					    end
+			    ( <_cor21> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor21})
+			      -| ['compiler_generated'] )
+			  end
+	  %% Line 500
+	  <{'undefined',{_X_A,Mode,Char},Cs,Cont,Rs},Drv,Ls0,Encoding>
+	      when %% Line 502
+		try
+		    let <_cor22> =
+			call 'erlang':'=:='
+			    (Mode, 'none')
+		    in  let <_cor23> =
+			    call 'erlang':'=:='
+				(Char, 14)
+			in  let <_cor24> =
+				call 'erlang':'and'
+				    (_cor22, _cor23)
+			    in  let <_cor25> =
+				    call 'erlang':'=:='
+					(Mode, 'meta_left_sq_bracket')
+				in  let <_cor26> =
+					call 'erlang':'=:='
+					    (Char, 66)
+				    in  let <_cor27> =
+					    call 'erlang':'and'
+						(_cor25, _cor26)
+					in  call 'erlang':'or'
+						(_cor24, _cor27)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      do  %% Line 503
+		  apply 'send_drv_reqs'/2
+		      (Drv, Rs)
+		  let <_cor28> =
+		      %% Line 504
+		      call 'edlin':'current_line'
+			  (Cont)
+		  in  let <_cor29> =
+			  %% Line 504
+			  apply 'save_line'/2
+			      (Ls0, _cor28)
+		      in  %% Line 504
+			  case apply 'down_stack'/1
+				   (_cor29) of
+			    %% Line 505
+			    <{'none',_X_Ls}> when 'true' ->
+				do  %% Line 506
+				    apply 'send_drv'/2
+					(Drv, 'beep')
+				    let <_cor30> =
+					%% Line 507
+					call 'edlin':'edit_line'
+					    (Cs, Cont)
+				    in  %% Line 507
+					apply 'get_line1'/4
+					    (_cor30, Drv, Ls0, Encoding)
+			    %% Line 508
+			    <{Lcs,Ls}> when 'true' ->
+				let <_cor31> =
+				    %% Line 509
+				    call 'edlin':'erase_line'
+					(Cont)
+				in  do  %% Line 509
+					apply 'send_drv_reqs'/2
+					    (Drv, _cor31)
+					let <_cor32> =
+					    %% Line 510
+					    call 'edlin':'prompt'
+						(Cont)
+					in  %% Line 510
+					    case call 'edlin':'start'
+						     (_cor32) of
+					      <{'more_chars',Ncont,Nrs}> when 'true' ->
+						  do  %% Line 511
+						      apply 'send_drv_reqs'/2
+							  (Drv, Nrs)
+						      let <_cor34> =
+							  %% Line 512
+							  call 'erlang':'length'
+							      (Lcs)
+						      in  let <_cor35> =
+							      %% Line 512
+							      call 'erlang':'-'
+								  (_cor34, 1)
+							  in  let <_cor36> =
+								  %% Line 512
+								  call 'lists':'sublist'
+								      (Lcs, 1, _cor35)
+							      in  let <_cor37> =
+								      %% Line 512
+								      call 'edlin':'edit_line1'
+									  (_cor36, %% Line 513
+										   Ncont)
+								  in  %% Line 512
+								      apply 'get_line1'/4
+									  (_cor37, %% Line 514
+										   Drv, %% Line 515
+											Ls, %% Line 515
+											    Encoding)
+					      ( <_cor33> when 'true' ->
+						    primop 'match_fail'
+							({'badmatch',_cor33})
+						-| ['compiler_generated'] )
+					    end
+			    ( <_cor38> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor38})
+			      -| ['compiler_generated'] )
+			  end
+	  %% Line 527
+	  <{'undefined',{_X_A,Mode,Char},Cs,Cont,Rs},Drv,Ls,Encoding>
+	      when let <_cor39> =
+		    %% Line 528
+		    call 'erlang':'=:='
+			(Mode, 'none')
+		in  let <_cor40> =
+			%% Line 528
+			call 'erlang':'=:='
+			    (Char, 18)
+		    in  %% Line 528
+			call 'erlang':'and'
+			    (_cor39, _cor40) ->
+	      do  %% Line 529
+		  apply 'send_drv_reqs'/2
+		      (Drv, Rs)
+		  let <_cor41> =
+		      %% Line 532
+		      call 'edlin':'erase_line'
+			  (Cont)
+		  in  do  %% Line 532
+			  apply 'send_drv_reqs'/2
+			      (Drv, _cor41)
+			  let <_cor42> =
+			      %% Line 533
+			      call 'edlin':'prompt'
+				  (Cont)
+			  in  do  %% Line 533
+				  call 'erlang':'put'
+				      ('search_quit_prompt', _cor42)
+				  let <Pbs> =
+				      %% Line 534
+				      apply 'prompt_bytes'/2
+					  ([40|[115|[101|[97|[114|[99|[104|[41|[96|[39|[58|[32]]]]]]]]]]]], Encoding)
+				  in  %% Line 535
+				      case call 'edlin':'start'
+					       (Pbs, 'search') of
+					<{'more_chars',Ncont,Nrs}> when 'true' ->
+					    do  %% Line 536
+						apply 'send_drv_reqs'/2
+						    (Drv, Nrs)
+						let <_cor45> =
+						    %% Line 537
+						    call 'edlin':'edit_line1'
+							(Cs, Ncont)
+						in  %% Line 537
+						    apply 'get_line1'/4
+							(_cor45, Drv, Ls, Encoding)
+					( <_cor44> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor44})
+					  -| ['compiler_generated'] )
+				      end
+	  %% Line 538
+	  <{'expand',Before,Cs0,Cont,Rs},Drv,Ls0,Encoding> when 'true' ->
+	      do  %% Line 539
+		  apply 'send_drv_reqs'/2
+		      (Drv, Rs)
+		  let <ExpandFun> =
+		      %% Line 540
+		      call 'erlang':'get'
+			  ('expand_fun')
+		  in  %% Line 541
+		      case apply ExpandFun
+			       (Before) of
+			<{Found,Add,Matches}> when 'true' ->
+			    do  %% Line 542
+				case Found of
+				  %% Line 543
+				  <'no'> when 'true' ->
+				      apply 'send_drv'/2
+					  (Drv, 'beep')
+				  %% Line 544
+				  <'yes'> when 'true' ->
+				      'ok'
+				  ( <_cor48> when 'true' ->
+					primop 'match_fail'
+					    ({'case_clause',_cor48})
+				    -| ['compiler_generated'] )
+				end
+				let <Cs1> =
+				    %% Line 546
+				    apply 'append'/3
+					(Add, Cs0, Encoding)
+				in  let <_cor53> =
+					%% Line 547
+					case Matches of
+					  %% Line 548
+					  <[]> when 'true' ->
+					      Cs1
+					  %% Line 549
+					  <_cor86> when 'true' ->
+					      let <MatchStr> =
+						  call 'edlin_expand':'format_matches'
+						      (Matches)
+					      in  let <_cor51> =
+						      %% Line 550
+						      call 'unicode':'characters_to_binary'
+							  (MatchStr, 'unicode')
+						  in  do  %% Line 550
+							  apply 'send_drv'/2
+							      (Drv, {'put_chars','unicode',_cor51})
+							  %% Line 551
+							  [12|Cs1]
+					end
+				    in  let <_cor55> =
+					    %% Line 553
+					    call 'edlin':'edit_line'
+						(_cor53, Cont)
+					in  %% Line 553
+					    apply 'get_line1'/4
+						(_cor55, Drv, Ls0, Encoding)
+			( <_cor47> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor47})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 554
+	  <{'undefined',_X_Char,Cs,Cont,Rs},Drv,Ls,Encoding> when 'true' ->
+	      do  %% Line 555
+		  apply 'send_drv_reqs'/2
+		      (Drv, Rs)
+		  do  %% Line 556
+		      apply 'send_drv'/2
+			  (Drv, 'beep')
+		      let <_cor56> =
+			  %% Line 557
+			  call 'edlin':'edit_line'
+			      (Cs, Cont)
+		      in  %% Line 557
+			  apply 'get_line1'/4
+			      (_cor56, Drv, Ls, Encoding)
+	  %% Line 560
+	  <{_X_What,Cont = {'line',_X_Prompt,_X_Chars,'search_found'},Rs},Drv,Ls0,Encoding> when 'true' ->
+	      let <Line> =
+		  %% Line 561
+		  call 'edlin':'current_line'
+		      (Cont)
+	      in  let <_cor58> =
+		      %% Line 563
+		      apply 'get_lines'/1
+			  (Ls0)
+		  in  let <_cor59> =
+			  %% Line 563
+			  apply 'new_stack'/1
+			      (_cor58)
+		      in  let <Ls> =
+			      %% Line 563
+			      apply 'save_line'/2
+				  (_cor59, Line)
+			  in  %% Line 564
+			      apply 'get_line1'/4
+				  ({'done',Line,[],Rs}, Drv, Ls, Encoding)
+	  %% Line 567
+	  <{What,Cont = {'line',_X_Prompt,_X_Chars,'search_quit'},Rs},Drv,Ls,Encoding> when 'true' ->
+	      let <Line> =
+		  %% Line 568
+		  call 'edlin':'current_chars'
+		      (Cont)
+	      in  %% Line 570
+		  case call 'erlang':'get'
+			   ('search_quit_prompt') of
+		    %% Line 571
+		    <'undefined'> when 'true' ->
+			let <_cor62> =
+			    %% Line 572
+			    apply 'get_lines'/1
+				(Ls)
+			in  let <_cor63> =
+				%% Line 572
+				apply 'new_stack'/1
+				    (_cor62)
+			    in  let <LsFallback> =
+				    %% Line 572
+				    apply 'save_line'/2
+					(_cor63, Line)
+				in  %% Line 573
+				    apply 'get_line1'/4
+					({'done',[10],Line,Rs}, Drv, LsFallback, Encoding)
+		    %% Line 574
+		    <Prompt> when 'true' ->
+			let <_cor65> =
+			    %% Line 575
+			    call 'lists':'reverse'
+				(Line)
+			in  let <NCont> =
+				%% Line 575
+				{'line',Prompt,{_cor65,[]},'none'}
+			    in  do  %% Line 576
+				    apply 'send_drv_reqs'/2
+					(Drv, Rs)
+				    let <_cor67> =
+					%% Line 577
+					call 'edlin':'erase_line'
+					    (Cont)
+				    in  do  %% Line 577
+					    apply 'send_drv_reqs'/2
+						(Drv, _cor67)
+					    let <_cor68> =
+						%% Line 578
+						call 'edlin':'redraw_line'
+						    (NCont)
+					    in  do  %% Line 578
+						    apply 'send_drv_reqs'/2
+							(Drv, _cor68)
+						    let <_cor69> =
+							%% Line 579
+							apply 'pad_stack'/1
+							    (Ls)
+						    in  %% Line 579
+							apply 'get_line1'/4
+							    ({What,NCont,[]}, Drv, _cor69, Encoding)
+		  end
+	  %% Line 582
+	  <{What,{'line',Prompt,{RevCmd0,_X_Aft},'search'},Rs},%% Line 583
+							       Drv,%% Line 583
+								   Ls0,%% Line 583
+								       Encoding> when 'true' ->
+	      do  %% Line 584
+		  apply 'send_drv_reqs'/2
+		      (Drv, Rs)
+		  let <Search,Ls1,RevCmd> =
+		      %% Line 587
+		      case RevCmd0 of
+			%% Line 588
+			<[19|RevCmd1]> when 'true' ->
+			    %% Line 589
+			    ( <( 'search_down_stack'/2
+				 -| [{'id',{0,0,'-get_line1/4-fun-0-'}}] ),Ls0,RevCmd1>
+			      -| [{'id',{0,0,'-get_line1/4-fun-0-'}}] )
+			%% Line 590
+			<[18|RevCmd1]> when 'true' ->
+			    %% Line 591
+			    ( <( 'search_up_stack'/2
+				 -| [{'id',{0,0,'-get_line1/4-fun-1-'}}] ),Ls0,RevCmd1>
+			      -| [{'id',{0,0,'-get_line1/4-fun-1-'}}] )
+			%% Line 592
+			<_cor87> when 'true' ->
+			    let <_cor71> =
+				%% Line 593
+				apply 'get_lines'/1
+				    (Ls0)
+			    in  let <_cor72> =
+				    %% Line 593
+				    apply 'new_stack'/1
+					(_cor71)
+				in  %% Line 593
+				    ( <( 'search_up_stack'/2
+					 -| [{'id',{0,0,'-get_line1/4-fun-2-'}}] ),_cor72,RevCmd0>
+				      -| [{'id',{0,0,'-get_line1/4-fun-2-'}}] )
+		      end
+		  in  let <Cmd> =
+			  %% Line 595
+			  call 'lists':'reverse'
+			      (RevCmd)
+		      in  let <Ls,NewStack> =
+			      %% Line 596
+			      case apply Search
+				       (Ls1, Cmd) of
+				%% Line 597
+				<{'none',Ls2}> when 'true' ->
+				    do  %% Line 598
+					apply 'send_drv'/2
+					    (Drv, 'beep')
+					%% Line 599
+					<Ls2,{RevCmd,[39|[58|[32]]]}>
+				%% Line 600
+				<{Line,Ls2}> when 'true' ->
+				    do  %% Line 601
+					apply 'send_drv_reqs'/2
+					    (Drv, [{'put_chars',Encoding,Line}|[]])
+					let <_cor77> =
+					    %% Line 602
+					    [39|[58|[32|Line]]]
+					in  %% Line 602
+					    <Ls2,{RevCmd,_cor77}>
+				( <_cor78> when 'true' ->
+				      primop 'match_fail'
+					  ({'case_clause',_cor78})
+				  -| ['compiler_generated'] )
+			      end
+			  in  let <Cont> =
+				  %% Line 604
+				  {'line',Prompt,NewStack,'search'}
+			      in  %% Line 605
+				  apply 'more_data'/5
+				      (What, Cont, Drv, Ls, Encoding)
+	  %% Line 606
+	  <{What,Cont0,Rs},Drv,Ls,Encoding> when 'true' ->
+	      do  %% Line 607
+		  apply 'send_drv_reqs'/2
+		      (Drv, Rs)
+		  %% Line 608
+		  apply 'more_data'/5
+		      (What, Cont0, Drv, Ls, Encoding)
+	  ( <_cor85,_cor84,_cor83,_cor82> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor85,_cor84,_cor83,_cor82})
+		  -| [{'function_name',{'get_line1',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'more_data'/5 =
+    %% Line 610
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 611
+	receive
+	  %% Line 612
+	  <{_cor16,{'data',Cs}}>
+	      when call 'erlang':'=:='
+		    (_cor16,
+		     _cor2) ->
+	      let <_cor6> =
+		  %% Line 613
+		  call 'edlin':'edit_line'
+		      (Cs, _cor3)
+	      in  %% Line 613
+		  apply 'get_line1'/4
+		      (_cor6, _cor2, _cor1, _cor0)
+	  %% Line 614
+	  <{_cor17,'eof'}>
+	      when call 'erlang':'=:='
+		    (_cor17,
+		     _cor2) ->
+	      let <_cor7> =
+		  %% Line 615
+		  call 'edlin':'edit_line'
+		      ('eof', _cor3)
+	      in  %% Line 615
+		  apply 'get_line1'/4
+		      (_cor7, _cor2, _cor1, _cor0)
+	  %% Line 616
+	  <{'io_request',From,ReplyAs,Req}>
+	      when call 'erlang':'is_pid'
+		    (From) ->
+	      %% Line 617
+	      case call 'edlin':'edit_line'
+		       ([], _cor3) of
+		<{'more_chars',Cont,_X_More}> when 'true' ->
+		    let <_cor9> =
+			%% Line 618
+			call 'edlin':'erase_line'
+			    (Cont)
+		    in  do  %% Line 618
+			    apply 'send_drv_reqs'/2
+				(_cor2, _cor9)
+			    do  %% Line 619
+				apply 'io_request'/5
+				    (Req, From, ReplyAs, _cor2, [])
+				let <_cor10> =
+				    %% Line 620
+				    call 'edlin':'redraw_line'
+					(Cont)
+				in  do  %% Line 620
+					apply 'send_drv_reqs'/2
+					    (_cor2, _cor10)
+					%% Line 621
+					apply 'get_line1'/4
+					    ({'more_chars',Cont,[]}, _cor2, _cor1, _cor0)
+		( <_cor8> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor8})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 622
+	  <{'EXIT',_cor18,'interrupt'}>
+	      when call 'erlang':'=:='
+		    (_cor18,
+		     _cor2) ->
+	      %% Line 623
+	      'interrupted'
+	  %% Line 624
+	  <{'EXIT',_cor19,_cor20}>
+	      when call 'erlang':'=:='
+		    (_cor19,
+		     _cor2) ->
+	      %% Line 625
+	      'terminated'
+	after %% Line 627
+	      apply 'get_line_timeout'/1
+		  (_cor4) ->
+	  let <_cor5> =
+	      %% Line 628
+	      call 'edlin':'edit_line'
+		  ([], _cor3)
+	  in  %% Line 628
+	      apply 'get_line1'/4
+		  (_cor5, _cor2, _cor1, _cor0)
+'get_line_echo_off'/3 =
+    %% Line 631
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 632
+	    apply 'send_drv_reqs'/2
+		(_cor0, [{'put_chars','unicode',_cor1}|[]])
+	    let <_cor3> =
+		%% Line 633
+		apply 'edit_line'/2
+		    (_cor2, [])
+	    in  %% Line 633
+		apply 'get_line_echo_off1'/2
+		    (_cor3, _cor0)
+'get_line_echo_off1'/2 =
+    %% Line 635
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Chars,[]},Drv> when 'true' ->
+	      %% Line 636
+	      receive
+		%% Line 637
+		<{_cor9,{'data',Cs}}>
+		    when call 'erlang':'=:='
+			  (_cor9,
+			   Drv) ->
+		    let <_cor2> =
+			%% Line 638
+			apply 'edit_line'/2
+			    (Cs, Chars)
+		    in  %% Line 638
+			apply 'get_line_echo_off1'/2
+			    (_cor2, Drv)
+		%% Line 639
+		<{_cor10,'eof'}>
+		    when call 'erlang':'=:='
+			  (_cor10,
+			   Drv) ->
+		    let <_cor3> =
+			%% Line 640
+			apply 'edit_line'/2
+			    ('eof', Chars)
+		    in  %% Line 640
+			apply 'get_line_echo_off1'/2
+			    (_cor3, Drv)
+		%% Line 641
+		<{'io_request',From,ReplyAs,Req}>
+		    when call 'erlang':'is_pid'
+			  (From) ->
+		    do  %% Line 642
+			apply 'io_request'/5
+			    (Req, From, ReplyAs, Drv, [])
+			%% Line 643
+			apply 'get_line_echo_off1'/2
+			    ({Chars,[]}, Drv)
+		%% Line 644
+		<{'EXIT',_cor11,'interrupt'}>
+		    when call 'erlang':'=:='
+			  (_cor11,
+			   Drv) ->
+		    %% Line 645
+		    'interrupted'
+		%% Line 646
+		<{'EXIT',_cor12,_cor13}>
+		    when call 'erlang':'=:='
+			  (_cor12,
+			   Drv) ->
+		    %% Line 647
+		    'terminated'
+	      after 'infinity' ->
+		'true'
+	  %% Line 649
+	  <{Chars,Rest},_X_Drv> when 'true' ->
+	      let <_cor6> =
+		  %% Line 650
+		  call 'lists':'reverse'
+		      (Chars)
+	      in  let <_cor5> =
+		      %% Line 650
+		      case Rest of
+			<'done'> when 'true' ->
+			    []
+			<_cor14> when 'true' ->
+			    Rest
+		      end
+		  in  %% Line 650
+		      {'done',_cor6,_cor5}
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7})
+		  -| [{'function_name',{'get_line_echo_off1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'edit_line'/2 =
+    %% Line 661
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'eof',Chars> when 'true' ->
+	      %% Line 662
+	      {Chars,'done'}
+	  %% Line 663
+	  <[],Chars> when 'true' ->
+	      %% Line 664
+	      {Chars,[]}
+	  %% Line 665
+	  <[13|[10|Cs]],Chars> when 'true' ->
+	      let <_cor2> =
+		  %% Line 666
+		  apply 'remainder_after_nl'/1
+		      (Cs)
+	      in  %% Line 666
+		  {[10|Chars],_cor2}
+	  %% Line 667
+	  <[NL|Cs],Chars>
+	      when let <_cor3> =
+		    call 'erlang':'=:='
+			(NL, 13)
+		in  let <_cor4> =
+			call 'erlang':'=:='
+			    (NL, 10)
+		    in  call 'erlang':'or'
+			    (_cor3, _cor4) ->
+	      let <_cor5> =
+		  %% Line 668
+		  apply 'remainder_after_nl'/1
+		      (Cs)
+	      in  %% Line 668
+		  {[10|Chars],_cor5}
+	  %% Line 669
+	  <[Erase|Cs],[]>
+	      when let <_cor6> =
+		    call 'erlang':'=:='
+			(Erase, 127)
+		in  let <_cor7> =
+			call 'erlang':'=:='
+			    (Erase, 8)
+		    in  call 'erlang':'or'
+			    (_cor6, _cor7) ->
+	      %% Line 670
+	      apply 'edit_line'/2
+		  (Cs, [])
+	  %% Line 671
+	  <[Erase|Cs],[_cor12|Chars]>
+	      when let <_cor8> =
+		    call 'erlang':'=:='
+			(Erase, 127)
+		in  let <_cor9> =
+			call 'erlang':'=:='
+			    (Erase, 8)
+		    in  call 'erlang':'or'
+			    (_cor8, _cor9) ->
+	      %% Line 672
+	      apply 'edit_line'/2
+		  (Cs, Chars)
+	  %% Line 673
+	  <[Char|Cs],Chars> when 'true' ->
+	      %% Line 674
+	      apply 'edit_line'/2
+		  (Cs, [Char|Chars])
+	  ( <_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10})
+		  -| [{'function_name',{'edit_line',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'remainder_after_nl'/1 =
+    %% Line 676
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      'done'
+	  %% Line 677
+	  <Cs> when 'true' ->
+	      Cs
+	end
+'get_line_timeout'/1 =
+    %% Line 681
+    fun (_cor0) ->
+	case _cor0 of
+	  <'blink'> when 'true' ->
+	      1000
+	  %% Line 682
+	  <'more_chars'> when 'true' ->
+	      'infinity'
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'get_line_timeout',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'new_stack'/1 =
+    %% Line 684
+    fun (_cor0) ->
+	{'stack',_cor0,{},[]}
+'up_stack'/1 =
+    %% Line 686
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'stack',[L|U],{},D}> when 'true' ->
+	      %% Line 687
+	      {L,{'stack',U,L,D}}
+	  %% Line 688
+	  <{'stack',[],{},D}> when 'true' ->
+	      %% Line 689
+	      {'none',{'stack',[],{},D}}
+	  %% Line 690
+	  <{'stack',U,C,D}> when 'true' ->
+	      %% Line 691
+	      apply 'up_stack'/1
+		  ({'stack',U,{},[C|D]})
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'up_stack',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'down_stack'/1 =
+    %% Line 693
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'stack',U,{},[L|D]}> when 'true' ->
+	      %% Line 694
+	      {L,{'stack',U,L,D}}
+	  %% Line 695
+	  <{'stack',U,{},[]}> when 'true' ->
+	      %% Line 696
+	      {'none',{'stack',U,{},[]}}
+	  %% Line 697
+	  <{'stack',U,C,D}> when 'true' ->
+	      %% Line 698
+	      apply 'down_stack'/1
+		  ({'stack',[C|U],{},D})
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'down_stack',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'save_line'/2 =
+    %% Line 700
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'stack',U,{},[]},Line> when 'true' ->
+	      %% Line 701
+	      {'stack',U,{},[Line|[]]}
+	  %% Line 702
+	  <{'stack',U,_X_L,D},Line> when 'true' ->
+	      %% Line 703
+	      {'stack',U,Line,D}
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'save_line',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_lines'/1 =
+    %% Line 705
+    fun (_cor0) ->
+	apply 'get_all_lines'/1
+	    (_cor0)
+'get_all_lines'/1 =
+    %% Line 730
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'stack',U,{},[]}> when 'true' ->
+	      %% Line 731
+	      U
+	  %% Line 732
+	  <{'stack',U,{},D}> when 'true' ->
+	      %% Line 733
+	      case call 'lists':'reverse'
+		       (D, U) of
+		%% Line 734
+		<[[10]|Lines]> when 'true' ->
+		    Lines
+		%% Line 735
+		<Lines> when 'true' ->
+		    Lines
+	      end
+	  %% Line 737
+	  <{'stack',U,L,D}> when 'true' ->
+	      %% Line 738
+	      apply 'get_all_lines'/1
+		  ({'stack',U,{},[L|D]})
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'get_all_lines',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'pad_stack'/1 =
+    %% Line 743
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'stack',U,L,D}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 744
+		  call 'erlang':'++'
+		      (D, [[10]])
+	      in  %% Line 744
+		  {'stack',U,L,_cor1}
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'pad_stack',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'save_line_buffer'/2 =
+    %% Line 746
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[10],Lines> when 'true' ->
+	      %% Line 747
+	      apply 'save_line_buffer'/1
+		  (Lines)
+	  %% Line 748
+	  <Line,Lines = [_cor4|_X_Lines]>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     Line) ->
+	      %% Line 749
+	      apply 'save_line_buffer'/1
+		  (Lines)
+	  %% Line 750
+	  <Line,Lines> when 'true' ->
+	      %% Line 751
+	      apply 'save_line_buffer'/1
+		  ([Line|Lines])
+	end
+'save_line_buffer'/1 =
+    %% Line 753
+    fun (_cor0) ->
+	%% Line 754
+	call 'erlang':'put'
+	    ('line_buffer', _cor0)
+'search_up_stack'/2 =
+    %% Line 756
+    fun (_cor1,_cor0) ->
+	%% Line 757
+	case apply 'up_stack'/1
+		 (_cor1) of
+	  %% Line 758
+	  <{'none',NewStack}> when 'true' ->
+	      {'none',NewStack}
+	  %% Line 759
+	  <{L,NewStack}> when 'true' ->
+	      %% Line 760
+	      case call 'string':'str'
+		       (L, _cor0) of
+		%% Line 761
+		<0> when 'true' ->
+		    apply 'search_up_stack'/2
+			(NewStack, _cor0)
+		%% Line 762
+		<_cor7> when 'true' ->
+		    let <_cor2> =
+			call 'string':'strip'
+			    (L, 'right', 10)
+		    in  {_cor2,NewStack}
+	      end
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'search_down_stack'/2 =
+    %% Line 766
+    fun (_cor1,_cor0) ->
+	%% Line 767
+	case apply 'down_stack'/1
+		 (_cor1) of
+	  %% Line 768
+	  <{'none',NewStack}> when 'true' ->
+	      {'none',NewStack}
+	  %% Line 769
+	  <{L,NewStack}> when 'true' ->
+	      %% Line 770
+	      case call 'string':'str'
+		       (L, _cor0) of
+		%% Line 771
+		<0> when 'true' ->
+		    apply 'search_down_stack'/2
+			(NewStack, _cor0)
+		%% Line 772
+		<_cor7> when 'true' ->
+		    let <_cor2> =
+			call 'string':'strip'
+			    (L, 'right', 10)
+		    in  {_cor2,NewStack}
+	      end
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'get_password_line'/2 =
+    %% Line 779
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 780
+	    apply 'edit_password'/2
+		(_cor1, [])
+	in  %% Line 780
+	    apply 'get_password1'/2
+		(_cor2, _cor0)
+'get_password1'/2 =
+    %% Line 782
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Chars,[]},Drv> when 'true' ->
+	      %% Line 783
+	      receive
+		%% Line 784
+		<{_cor8,{'data',Cs}}>
+		    when call 'erlang':'=:='
+			  (_cor8,
+			   Drv) ->
+		    let <_cor2> =
+			%% Line 785
+			apply 'edit_password'/2
+			    (Cs, Chars)
+		    in  %% Line 785
+			apply 'get_password1'/2
+			    (_cor2, Drv)
+		%% Line 786
+		<{'io_request',From,ReplyAs,Req}>
+		    when call 'erlang':'is_pid'
+			  (From) ->
+		    do  %% Line 788
+			apply 'io_request'/5
+			    (Req, From, ReplyAs, Drv, [])
+			%% Line 792
+			apply 'get_password1'/2
+			    ({Chars,[]}, Drv)
+		%% Line 793
+		<{'EXIT',_cor9,'interrupt'}>
+		    when call 'erlang':'=:='
+			  (_cor9,
+			   Drv) ->
+		    %% Line 794
+		    'interrupted'
+		%% Line 795
+		<{'EXIT',_cor10,_cor11}>
+		    when call 'erlang':'=:='
+			  (_cor10,
+			   Drv) ->
+		    %% Line 796
+		    'terminated'
+	      after 'infinity' ->
+		'true'
+	  %% Line 798
+	  <{Chars,Rest},Drv> when 'true' ->
+	      do  %% Line 799
+		  apply 'send_drv_reqs'/2
+		      (Drv, [{'put_chars','unicode',[10]}])
+		  let <_cor5> =
+		      %% Line 800
+		      call 'lists':'reverse'
+			  (Chars)
+		  in  let <_cor4> =
+			  %% Line 800
+			  case Rest of
+			    <'done'> when 'true' ->
+				[]
+			    <_cor12> when 'true' ->
+				Rest
+			  end
+		      in  %% Line 800
+			  {'done',_cor5,_cor4}
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'get_password1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'edit_password'/2 =
+    %% Line 802
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Chars> when 'true' ->
+	      %% Line 803
+	      {Chars,[]}
+	  %% Line 804
+	  <[13],Chars> when 'true' ->
+	      %% Line 805
+	      {Chars,'done'}
+	  %% Line 806
+	  <[13|Cs],Chars> when 'true' ->
+	      %% Line 807
+	      {Chars,Cs}
+	  %% Line 808
+	  <[127|Cs],[]> when 'true' ->
+	      %% Line 809
+	      apply 'edit_password'/2
+		  (Cs, [])
+	  %% Line 810
+	  <[127|Cs],[_cor4|Chars]> when 'true' ->
+	      %% Line 811
+	      apply 'edit_password'/2
+		  (Cs, Chars)
+	  %% Line 812
+	  <[Char|Cs],Chars> when 'true' ->
+	      %% Line 813
+	      apply 'edit_password'/2
+		  (Cs, [Char|Chars])
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'edit_password',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'prompt_bytes'/2 =
+    %% Line 817
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 818
+	    call 'io_lib':'format_prompt'
+		(_cor1, _cor0)
+	in  %% Line 818
+	    call 'lists':'flatten'
+		(_cor2)
+'cast'/3 =
+    %% Line 820
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <L,'binary','latin1'>
+	      when call 'erlang':'is_list'
+		    (L) ->
+	      %% Line 821
+	      call 'erlang':'list_to_binary'
+		  (L)
+	  %% Line 822
+	  <L,'list','latin1'>
+	      when call 'erlang':'is_list'
+		    (L) ->
+	      let <_cor3> =
+		  %% Line 823
+		  call 'erlang':'list_to_binary'
+		      (L)
+	      in  %% Line 823
+		  call 'erlang':'binary_to_list'
+		      (_cor3)
+	  %% Line 824
+	  <L,'binary','unicode'>
+	      when call 'erlang':'is_list'
+		    (L) ->
+	      %% Line 825
+	      call 'unicode':'characters_to_binary'
+		  (L, 'utf8')
+	  %% Line 826
+	  <Other,_cor7,_cor8> when 'true' ->
+	      %% Line 827
+	      Other
+	end
+'append'/3 =
+    %% Line 829
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <B,L,'latin1'>
+	      when call 'erlang':'is_binary'
+		    (B) ->
+	      let <_cor3> =
+		  %% Line 830
+		  call 'erlang':'binary_to_list'
+		      (B)
+	      in  %% Line 830
+		  call 'erlang':'++'
+		      (_cor3, L)
+	  %% Line 831
+	  <B,L,'unicode'>
+	      when call 'erlang':'is_binary'
+		    (B) ->
+	      let <_cor4> =
+		  %% Line 832
+		  call 'unicode':'characters_to_list'
+		      (B, 'utf8')
+	      in  %% Line 832
+		  call 'erlang':'++'
+		      (_cor4, L)
+	  %% Line 833
+	  <L1,L2,_cor8>
+	      when call 'erlang':'is_list'
+		    (L1) ->
+	      %% Line 834
+	      call 'erlang':'++'
+		  (L1, L2)
+	  %% Line 835
+	  <_X_Eof,L,_cor9> when 'true' ->
+	      %% Line 836
+	      L
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('group')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('group', _cor0)
+end

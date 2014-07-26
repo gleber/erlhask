@@ -1,0 +1,1301 @@
+module 'othello_board' ['init'/0,
+			'module_info'/0,
+			'module_info'/1,
+			'start'/0,
+			'stop'/0]
+    attributes []
+'start'/0 =
+    %% Line 53
+    fun () ->
+	%% Line 54
+	call 'erlang':'spawn'
+	    ('othello_board', 'init', [])
+'stop'/0 =
+    %% Line 56
+    fun () ->
+	%% Line 57
+	'ok'
+'setup_path'/0 =
+    %% Line 65
+    fun () ->
+	let <GsPrivDir> =
+	    %% Line 66
+	    call 'code':'priv_dir'
+		('gs')
+	in  let <Path> =
+		%% Line 67
+		call 'filename':'join'
+		    (GsPrivDir, [46|[46|[47|[99|[111|[110|[116|[114|[105|[98|[115|[47|[111|[116|[104|[101|[108|[108|[111|[47|[112|[114|[105|[118]]]]]]]]]]]]]]]]]]]]]]]])
+	    in  %% Line 68
+		call 'erlang':'put'
+		    ('path', Path)
+'path'/0 =
+    %% Line 70
+    fun () ->
+	call 'erlang':'get'
+	    ('path')
+'init'/0 =
+    %% Line 80
+    fun () ->
+	do  %% Line 81
+	    call 'erlang':'process_flag'
+		('trap_exit', 'true')
+	    do  %% Line 82
+		apply 'setup_path'/0
+		    ()
+		let <S> =
+		    %% Line 83
+		    call 'gs':'start'
+			()
+		in  do  %% Line 84
+			call 'erlang':'put'
+			    ('windowroot', S)
+			let <Shell> =
+			    %% Line 91
+			    call 'gs':'create'
+				('window', S, [{'title',[79|[116|[104|[101|[108|[108|[111]]]]]]]}|[{'width',496}|[{'height',636}]]])
+			in  do  %% Line 97
+				apply 'setup_buttons'/5
+				    (Shell, 0, 0, 496, 40)
+				do  %% Line 98
+				    apply 'setup_status_box'/5
+					(Shell, 0, 40, 496, 100)
+				    do  %% Line 99
+					apply 'setup_board'/5
+					    (Shell, 0, 140, 496, 496)
+					let <GamePid> =
+					    %% Line 101
+					    call 'othello':'new_game'
+						('white', 'black', 1, 'first_time')
+					in  do  %% Line 107
+						apply 'write_options'/2
+						    ({'white','black',1}, {'change','this','at','later','stage','ponto'})
+						do  %% Line 109
+						    call 'gs':'config'
+							(Shell, {'map','true'})
+						    %% Line 111
+						    apply 'loop'/5
+							('computer', GamePid, Shell, {'change','this','at','later','stage','ponto'}, {'white','black',1})
+'loop'/5 =
+    %% Line 118
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 119
+	receive
+	  %% Line 120
+	  <{'gs',ButtId,'click',_X_ButtId1,[Button|[]]}> when 'true' ->
+	      let <GamePid1> =
+		  %% Line 121
+		  apply 'but_pressed'/7
+		      (Button, ButtId, _cor4, _cor3, _cor2, _cor1, _cor0)
+	      in  %% Line 123
+		  apply 'loop'/5
+		      (_cor4, GamePid1, _cor2, _cor1, _cor0)
+	  %% Line 125
+	  <{'gs',_cor12,'click',_cor13,[MenuItem|[_X_MenuIndex|[]]]}> when 'true' ->
+	      let <Ops> =
+		  %% Line 126
+		  apply 'menu_selected'/5
+		      (MenuItem, _cor4, _cor3, _cor1, _cor0)
+	      in  %% Line 127
+		  apply 'loop'/5
+		      (_cor4, _cor3, _cor2, _cor1, Ops)
+	  %% Line 129
+	  <{'EXIT',_cor14,_cor15}>
+	      when call 'erlang':'=:='
+		    (_cor14,
+		     _cor3) ->
+	      %% Line 130
+	      apply 'loop'/5
+		  (_cor4, 'null', _cor2, _cor1, _cor0)
+	  %% Line 132
+	  <{'EXIT',_cor16,_cor17}> when 'true' ->
+	      %% Line 133
+	      apply 'loop'/5
+		  (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 135
+	  <GameMsg> when 'true' ->
+	      %% Line 136
+	      apply 'game_msg'/6
+		  (GameMsg, _cor4, _cor3, _cor2, _cor1, _cor0)
+	after 'infinity' ->
+	  'true'
+'but_pressed'/7 =
+    %% Line 139
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[81|[117|[105|[116]]]],_X_ButtId,_X_User,_X_GamePid,_X_Shell,_X_Wids,_X_Op> when 'true' ->
+	      do  %% Line 140
+		  apply 'stop'/0
+		      ()
+		  %% Line 141
+		  call 'erlang':'exit'
+		      ('quit')
+	  %% Line 142
+	  <[82|[117|[108|[101|[115]]]]],_X_ButtId,_X_User,GamePid,_X_Shell,_X_Wids,_X_Op> when 'true' ->
+	      do  %% Line 143
+		  call 'io':'format'
+		      ([78|[111|[32|[114|[117|[108|[101|[115|[44|[32|[100|[111|[32|[97|[115|[32|[121|[111|[117|[32|[119|[105|[115|[104|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]], [])
+		  %% Line 144
+		  GamePid
+	  %% Line 145
+	  <[72|[101|[108|[112]]]],_X_ButtId,_X_User,GamePid,_X_Shell,_X_Wids,_X_Op> when 'true' ->
+	      do  %% Line 146
+		  call 'io':'format'
+		      ([79|[116|[104|[101|[108|[108|[111|[32|[103|[97|[109|[101|[126|[110]]]]]]]]]]]]]], [])
+		  do  %% Line 147
+		      call 'io':'format'
+			  ([45|[45|[45|[45|[45|[45|[45|[45|[45|[45|[45|[45|[126|[110]]]]]]]]]]]]]], [])
+		      do  %% Line 148
+			  call 'io':'format'
+			      ([32|[32|[80|[117|[116|[32|[109|[97|[114|[107|[101|[114|[115|[32|[98|[121|[32|[99|[108|[105|[99|[107|[105|[110|[103|[32|[105|[110|[32|[115|[113|[117|[97|[114|[101|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [])
+			  do  %% Line 149
+			      call 'io':'format'
+				  ([32|[32|[67|[104|[97|[110|[103|[101|[32|[108|[101|[118|[101|[108|[32|[98|[121|[32|[99|[108|[105|[99|[107|[105|[110|[103|[32|[111|[110|[32|[105|[116|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [])
+			      do  %% Line 150
+				  call 'io':'format'
+				      ([32|[32|[67|[104|[97|[110|[103|[101|[32|[99|[111|[108|[111|[117|[114|[32|[98|[121|[32|[99|[108|[105|[99|[107|[105|[110|[103|[32|[111|[110|[32|[105|[116|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [])
+				  do  %% Line 151
+				      call 'io':'format'
+					  ([126|[110]], [])
+				      %% Line 152
+				      GamePid
+	  %% Line 153
+	  <[78|[101|[119|[103|[97|[109|[101]]]]]]],_X_ButtId,_X_User,GamePid,_X_Shell,Wids,Options> when 'true' ->
+	      %% Line 154
+	      apply 'new_game'/3
+		  (GamePid, Wids, Options)
+	  %% Line 155
+	  <[],ButtId,User,GamePid,_X_Shell,_X_Wids,_X_Op>
+	      when let <_cor7> =
+		    %% Line 156
+		    call 'erlang':'is_pid'
+			(GamePid)
+		in  let <_cor8> =
+			%% Line 156
+			call 'erlang':'=:='
+			    (User, 'player')
+		    in  %% Line 156
+			call 'erlang':'and'
+			    (_cor7, _cor8) ->
+	      %% Line 157
+	      case call 'erlang':'atom_to_list'
+		       (ButtId) of
+		<[C|[R|[]]]> when 'true' ->
+		    let <_cor14> =
+			%% Line 158
+			call 'erlang':'self'
+			    ()
+		    in  let <_cor12> =
+			    %% Line 158
+			    call 'erlang':'-'
+				(C, 96)
+			in  let <_cor10> =
+				%% Line 158
+				call 'erlang':'-'
+				    (R, 48)
+			    in  let <_cor11> =
+				    %% Line 158
+				    apply 'translate'/1
+					(_cor10)
+				in  let <_cor13> =
+					%% Line 158
+					call 'othello_adt':'pos'
+					    (_cor12, _cor11)
+				    in  do  %% Line 158
+					    call 'erlang':'!'
+						(GamePid, {_cor14,'position',_cor13})
+					    %% Line 159
+					    GamePid
+		( <_cor9> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor9})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 160
+	  <[],ButtId,_X_User,GamePid,_X_Shell,_X_Wids,_X_Op> when 'true' ->
+	      %% Line 161
+	      case call 'erlang':'atom_to_list'
+		       (ButtId) of
+		<[C|[R|[]]]> when 'true' ->
+		    let <_cor18> =
+			%% Line 162
+			call 'erlang':'-'
+			    (C, 96)
+		    in  let <_cor16> =
+			    %% Line 162
+			    call 'erlang':'-'
+				(R, 48)
+			in  let <_cor17> =
+				%% Line 162
+				apply 'translate'/1
+				    (_cor16)
+			    in  let <_cor19> =
+				    %% Line 162
+				    call 'othello_adt':'pos'
+					(_cor18, _cor17)
+				in  do  %% Line 162
+					apply 'beep'/1
+					    (_cor19)
+					%% Line 163
+					GamePid
+		( <_cor15> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor15})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 164
+	  <Button,ButtId,_X_User,GamePid,_X_Shell,_X_Wids,_X_Op> when 'true' ->
+	      do  %% Line 165
+		  call 'io':'format'
+		      ('Not implemented button pressed ~p, ~p!!!~n', [ButtId|[Button|[]]])
+		  %% Line 166
+		  GamePid
+	end
+'menu_selected'/5 =
+    %% Line 168
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[66|[108|[97|[99|[107]]]]],_X_User,_X_GamePid,Wids,Options> when 'true' ->
+	      let <Op0> =
+		  %% Line 169
+		  call 'erlang':'setelement'
+		      (1, Options, 'white')
+	      in  let <Op1> =
+		      %% Line 170
+		      call 'erlang':'setelement'
+			  (2, Op0, 'white')
+		  in  do  %% Line 171
+			  apply 'write_options'/2
+			      (Op1, Wids)
+			  %% Line 172
+			  Op1
+	  %% Line 173
+	  <[87|[104|[105|[116|[101]]]]],_X_User,_X_GamePid,Wids,Options> when 'true' ->
+	      let <Op0> =
+		  %% Line 174
+		  call 'erlang':'setelement'
+		      (1, Options, 'black')
+	      in  let <Op1> =
+		      %% Line 175
+		      call 'erlang':'setelement'
+			  (2, Op0, 'black')
+		  in  do  %% Line 176
+			  apply 'write_options'/2
+			      (Op1, Wids)
+			  %% Line 177
+			  Op1
+	  %% Line 178
+	  <[66|[108|[97|[99|[107|[32|[40|[98|[101|[103|[105|[110|[41]]]]]]]]]]]]],_X_User,_X_GamePid,Wids,Options> when 'true' ->
+	      let <Op0> =
+		  %% Line 179
+		  call 'erlang':'setelement'
+		      (1, Options, 'white')
+	      in  let <Op1> =
+		      %% Line 180
+		      call 'erlang':'setelement'
+			  (2, Op0, 'black')
+		  in  do  %% Line 181
+			  apply 'write_options'/2
+			      (Op1, Wids)
+			  %% Line 182
+			  Op1
+	  %% Line 183
+	  <[87|[104|[105|[116|[101|[32|[40|[98|[101|[103|[105|[110|[41]]]]]]]]]]]]],_X_User,_X_GamePid,Wids,Options> when 'true' ->
+	      let <Op0> =
+		  %% Line 184
+		  call 'erlang':'setelement'
+		      (1, Options, 'black')
+	      in  let <Op1> =
+		      %% Line 185
+		      call 'erlang':'setelement'
+			  (2, Op0, 'white')
+		  in  do  %% Line 186
+			  apply 'write_options'/2
+			      (Op1, Wids)
+			  %% Line 187
+			  Op1
+	  %% Line 188
+	  <[66|[101|[103|[105|[110|[110|[101|[114]]]]]]]],_X_User,_X_GamePid,Wids,Options> when 'true' ->
+	      let <Op1> =
+		  %% Line 189
+		  call 'erlang':'setelement'
+		      (3, Options, 1)
+	      in  do  %% Line 190
+		      apply 'write_options'/2
+			  (Op1, Wids)
+		      %% Line 191
+		      Op1
+	  %% Line 192
+	  <[73|[110|[116|[101|[114|[109|[101|[100|[105|[97|[116|[101]]]]]]]]]]]],_X_User,_X_GamePid,Wids,Options> when 'true' ->
+	      let <Op1> =
+		  %% Line 193
+		  call 'erlang':'setelement'
+		      (3, Options, 2)
+	      in  do  %% Line 194
+		      apply 'write_options'/2
+			  (Op1, Wids)
+		      %% Line 195
+		      Op1
+	  %% Line 196
+	  <[65|[100|[118|[97|[110|[99|[101|[100]]]]]]]],_X_User,_X_GamePid,Wids,Options> when 'true' ->
+	      let <Op1> =
+		  %% Line 197
+		  call 'erlang':'setelement'
+		      (3, Options, 3)
+	      in  do  %% Line 198
+		      apply 'write_options'/2
+			  (Op1, Wids)
+		      %% Line 199
+		      Op1
+	  %% Line 200
+	  <[69|[120|[112|[101|[114|[116]]]]]],_X_User,_X_GamePid,Wids,Options> when 'true' ->
+	      let <Op1> =
+		  %% Line 201
+		  call 'erlang':'setelement'
+		      (3, Options, 4)
+	      in  do  %% Line 202
+		      apply 'write_options'/2
+			  (Op1, Wids)
+		      %% Line 203
+		      Op1
+	  %% Line 204
+	  <What,_X_User,_X_GamePid,_X_Wids,Options> when 'true' ->
+	      do  %% Line 205
+		  call 'io':'format'
+		      ('Menu item not implemented <~s>~n', [What|[]])
+		  %% Line 206
+		  Options
+	end
+'game_msg'/6 =
+    %% Line 208
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 209
+	case _cor5 of
+	  %% Line 210
+	  <{_cor17,'new_mark',Pos,Colour}>
+	      when call 'erlang':'=:='
+		    (_cor17,
+		     _cor3) ->
+	      do  %% Line 211
+		  apply 'new_mark'/2
+		      (Pos, Colour)
+		  %% Line 212
+		  apply 'loop'/5
+		      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 214
+	  <{_cor18,'illegal_draw',Draw}>
+	      when call 'erlang':'=:='
+		    (_cor18,
+		     _cor3) ->
+	      do  %% Line 215
+		  apply 'beep'/1
+		      (Draw)
+		  %% Line 216
+		  apply 'loop'/5
+		      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 218
+	  <{_cor19,'player',Computer,_cor20}>
+	      when let <_cor21> =
+		    call 'erlang':'=:='
+			(_cor19, _cor3)
+		in  let <_cor22> =
+			call 'erlang':'=:='
+			    (_cor20, Computer)
+		    in  call 'erlang':'and'
+			    (_cor21, _cor22) ->
+	      let <_cor6> =
+		  %% Line 219
+		  call 'erlang':'element'
+		      (1, _cor1)
+	      in  do  %% Line 219
+		      apply 'show_player'/2
+			  (_cor6, Computer)
+		      do  %% Line 220
+			  apply 'cursor'/1
+			      ([119|[97|[116|[99|[104]]]]])
+			  let <_cor7> =
+			      %% Line 221
+			      call 'erlang':'self'
+				  ()
+			  in  do  %% Line 221
+				  call 'erlang':'!'
+				      (_cor3, {_cor7,'go_on_play'})
+				  %% Line 222
+				  apply 'loop'/5
+				      ('computer', _cor3, _cor2, _cor1, _cor0)
+	  %% Line 224
+	  <{_cor23,'player',_X_Computer,Player}>
+	      when call 'erlang':'=:='
+		    (_cor23,
+		     _cor3) ->
+	      let <_cor8> =
+		  %% Line 225
+		  call 'erlang':'element'
+		      (1, _cor1)
+	      in  do  %% Line 225
+		      apply 'show_player'/2
+			  (_cor8, Player)
+		      do  %% Line 226
+			  apply 'cursor'/1
+			      ([116|[111|[112|[95|[108|[101|[102|[116|[95|[97|[114|[114|[111|[119]]]]]]]]]]]]]])
+			  let <_cor9> =
+			      %% Line 227
+			      call 'erlang':'self'
+				  ()
+			  in  do  %% Line 227
+				  call 'erlang':'!'
+				      (_cor3, {_cor9,'go_on_play'})
+				  %% Line 228
+				  apply 'loop'/5
+				      ('player', _cor3, _cor2, _cor1, _cor0)
+	  %% Line 230
+	  <{_cor24,'omit_draw',Player}>
+	      when call 'erlang':'=:='
+		    (_cor24,
+		     _cor3) ->
+	      do  %% Line 231
+		  apply 'omit_draw'/2
+		      (_cor3, Player)
+		  %% Line 232
+		  apply 'loop'/5
+		      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 234
+	  <{_cor25,'score',WhiteRes,BlackRes}>
+	      when call 'erlang':'=:='
+		    (_cor25,
+		     _cor3) ->
+	      do  %% Line 235
+		  apply 'write_score'/3
+		      (_cor1, WhiteRes, BlackRes)
+		  %% Line 236
+		  apply 'loop'/5
+		      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 238
+	  <{_cor26,'draw',Draw}>
+	      when call 'erlang':'=:='
+		    (_cor26,
+		     _cor3) ->
+	      do  %% Line 239
+		  apply 'write_draw'/2
+		      (_cor1, Draw)
+		  %% Line 240
+		  apply 'loop'/5
+		      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 242
+	  <{_cor27,'game_over',WhiteRes,BlackRes}>
+	      when call 'erlang':'=:='
+		    (_cor27,
+		     _cor3) ->
+	      do  %% Line 243
+		  apply 'game_over'/2
+		      (WhiteRes, BlackRes)
+		  %% Line 244
+		  apply 'loop'/5
+		      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 246
+	  <What> when 'true' ->
+	      do  %% Line 247
+		  call 'io':'format'
+		      ('game_msg received: ~w~n', [What|[]])
+		  %% Line 248
+		  apply 'loop'/5
+		      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	end
+'new_game'/3 =
+    %% Line 252
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <GamePid,Wids,Options>
+	      when call 'erlang':'is_pid'
+		    (GamePid) ->
+	      do  %% Line 253
+		  call 'erlang':'exit'
+		      (GamePid, 'kill')
+		  %% Line 254
+		  apply 'new_game'/2
+		      (Wids, Options)
+	  %% Line 255
+	  <_cor6,Wids,Options> when 'true' ->
+	      %% Line 256
+	      apply 'new_game'/2
+		  (Wids, Options)
+	end
+'new_game'/2 =
+    %% Line 258
+    fun (_cor1,_cor0) ->
+	do  %% Line 259
+	    apply 'label'/2
+		([], 'lastdraw')
+	    let <Computer> =
+		%% Line 260
+		call 'erlang':'element'
+		    (1, _cor0)
+	    in  let <Start> =
+		    %% Line 261
+		    call 'erlang':'element'
+			(2, _cor0)
+		in  let <Depth> =
+			%% Line 262
+			call 'erlang':'element'
+			    (3, _cor0)
+		    in  %% Line 263
+			call 'othello':'new_game'
+			    (Computer, Start, Depth, 'restart')
+'new_mark'/2 =
+    %% Line 265
+    fun (_cor1,_cor0) ->
+	let <Col> =
+	    %% Line 266
+	    call 'othello_adt':'col'
+		(_cor1)
+	in  let <Row> =
+		%% Line 267
+		call 'othello_adt':'row'
+		    (_cor1)
+	    in  let <_cor4> =
+		    %% Line 268
+		    call 'erlang':'+'
+			(Col, 96)
+		in  let <_cor5> =
+			%% Line 268
+			apply 'translate'/1
+			    (Row)
+		    in  let <_cor6> =
+			    %% Line 268
+			    call 'erlang':'+'
+				(_cor5, 48)
+			in  let <Name> =
+				%% Line 268
+				[_cor4|[_cor6|[]]]
+			    in  let <Button> =
+				    %% Line 269
+				    call 'erlang':'get'
+					(Name)
+				in  %% Line 270
+				    apply 'butbit'/2
+					(Button, _cor0)
+'beep'/1 =
+    %% Line 272
+    fun (_cor0) ->
+	let <Col> =
+	    %% Line 273
+	    call 'othello_adt':'col'
+		(_cor0)
+	in  let <Row> =
+		%% Line 274
+		call 'othello_adt':'row'
+		    (_cor0)
+	    in  let <_cor3> =
+		    %% Line 275
+		    call 'erlang':'+'
+			(Col, 96)
+		in  let <_cor4> =
+			%% Line 275
+			apply 'translate'/1
+			    (Row)
+		    in  let <_cor5> =
+			    %% Line 275
+			    call 'erlang':'+'
+				(_cor4, 48)
+			in  let <Name> =
+				%% Line 275
+				[_cor3|[_cor5|[]]]
+			    in  let <Button> =
+				    %% Line 276
+				    call 'erlang':'get'
+					(Name)
+				in  %% Line 277
+				    apply 'bell'/1
+					(Button)
+'show_player'/2 =
+    %% Line 279
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_Status,'white'> when 'true' ->
+	      %% Line 280
+	      apply 'label'/2
+		  ([87|[104|[105|[116|[101|[32|[116|[111|[32|[100|[114|[97|[119]]]]]]]]]]]]], 'todraw')
+	  %% Line 281
+	  <_X_Status,'black'> when 'true' ->
+	      %% Line 282
+	      apply 'label'/2
+		  ([66|[108|[97|[99|[107|[32|[116|[111|[32|[100|[114|[97|[119]]]]]]]]]]]]], 'todraw')
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'show_player',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'write_score'/3 =
+    %% Line 284
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 285
+	    call 'erlang':'integer_to_list'
+		(_cor0)
+	in  do  %% Line 285
+		apply 'label'/2
+		    (_cor3, 'bscore')
+		let <_cor4> =
+		    %% Line 286
+		    call 'erlang':'integer_to_list'
+			(_cor1)
+		in  %% Line 286
+		    apply 'label'/2
+			(_cor4, 'wscore')
+'write_draw'/2 =
+    %% Line 288
+    fun (_cor1,_cor0) ->
+	let <Col> =
+	    %% Line 289
+	    call 'othello_adt':'col'
+		(_cor0)
+	in  let <Row> =
+		%% Line 290
+		call 'othello_adt':'row'
+		    (_cor0)
+	    in  let <_cor4> =
+		    %% Line 291
+		    call 'io_lib':'format'
+			('{~w,~w}', [Col|[Row|[]]])
+		in  let <_cor5> =
+			%% Line 291
+			call 'lists':'flatten'
+			    (_cor4)
+		    in  %% Line 291
+			apply 'label'/2
+			    (_cor5, 'lastdraw')
+'write_options'/2 =
+    %% Line 293
+    fun (_cor1,_cor0) ->
+	do  %% Line 294
+	    apply 'write_colour'/2
+		(_cor1, _cor0)
+	    %% Line 295
+	    apply 'write_level'/2
+		(_cor1, _cor0)
+'write_colour'/2 =
+    %% Line 297
+    fun (_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 298
+	    call 'erlang':'element'
+		(1, _cor1)
+	in  let <_cor2> =
+		%% Line 298
+		call 'erlang':'element'
+		    (2, _cor1)
+	    in  %% Line 298
+		apply 'write_colour'/3
+		    (_cor3, _cor2, _cor0)
+'write_colour'/3 =
+    %% Line 300
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'black','white',_X_Wids> when 'true' ->
+	      apply 'label'/2
+		  ([87|[104|[105|[116|[101|[32|[40|[98|[101|[103|[105|[110|[41]]]]]]]]]]]]], 'colour')
+	  %% Line 301
+	  <'black','black',_X_Wids> when 'true' ->
+	      apply 'label'/2
+		  ([87|[104|[105|[116|[101]]]]], 'colour')
+	  %% Line 302
+	  <'white','black',_X_Wids> when 'true' ->
+	      apply 'label'/2
+		  ([66|[108|[97|[99|[107|[32|[40|[98|[101|[103|[105|[110|[41]]]]]]]]]]]]], 'colour')
+	  %% Line 303
+	  <'white','white',_X_Wids> when 'true' ->
+	      apply 'label'/2
+		  ([66|[108|[97|[99|[107]]]]], 'colour')
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'write_colour',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'write_level'/2 =
+    %% Line 305
+    fun (_cor1,_cor0) ->
+	%% Line 306
+	case call 'erlang':'element'
+		 (3, _cor1) of
+	  %% Line 307
+	  <1> when 'true' ->
+	      apply 'label'/2
+		  ([66|[101|[103|[105|[110|[110|[101|[114]]]]]]]], 'level')
+	  %% Line 308
+	  <2> when 'true' ->
+	      apply 'label'/2
+		  ([73|[110|[116|[101|[114|[109|[101|[100|[105|[97|[116|[101]]]]]]]]]]]], 'level')
+	  %% Line 309
+	  <3> when 'true' ->
+	      apply 'label'/2
+		  ([65|[100|[118|[97|[110|[99|[101|[100]]]]]]]], 'level')
+	  %% Line 310
+	  <4> when 'true' ->
+	      apply 'label'/2
+		  ([69|[120|[112|[101|[114|[116]]]]]], 'level')
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'cursor'/1 =
+    %% Line 313
+    fun (_cor0) ->
+	%% Line 314
+	'done'
+'translate'/1 =
+    %% Line 325
+    fun (_cor0) ->
+	case _cor0 of
+	  <1> when 'true' ->
+	      8
+	  %% Line 326
+	  <2> when 'true' ->
+	      7
+	  %% Line 327
+	  <3> when 'true' ->
+	      6
+	  %% Line 328
+	  <4> when 'true' ->
+	      5
+	  %% Line 329
+	  <5> when 'true' ->
+	      4
+	  %% Line 330
+	  <6> when 'true' ->
+	      3
+	  %% Line 331
+	  <7> when 'true' ->
+	      2
+	  %% Line 332
+	  <8> when 'true' ->
+	      1
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'translate',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'bitmap'/1 =
+    %% Line 334
+    fun (_cor0) ->
+	case _cor0 of
+	  <'grey'> when 'true' ->
+	      apply 'bitmap_path'/1
+		  ([115|[113|[117|[97|[114|[101|[46|[98|[109]]]]]]]]])
+	  %% Line 335
+	  <'black'> when 'true' ->
+	      apply 'bitmap_path'/1
+		  ([109|[97|[114|[107|[101|[114|[46|[98|[109]]]]]]]]])
+	  %% Line 336
+	  <'white'> when 'true' ->
+	      apply 'bitmap_path'/1
+		  ([109|[97|[114|[107|[101|[114|[46|[98|[109]]]]]]]]])
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'bitmap',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'bitmap_path'/1 =
+    %% Line 338
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 339
+	    apply 'path'/0
+		()
+	in  %% Line 339
+	    call 'filename':'join'
+		(_cor1, _cor0)
+'xy_position'/1 =
+    %% Line 341
+    fun (_cor0) ->
+	case _cor0 of
+	  <[[Letter|[Digit|[]]]|[_cor9|[_cor10|[]]]]> when 'true' ->
+	      let <LettPos> =
+		  %% Line 342
+		  call 'erlang':'-'
+		      (Letter, 97)
+	      in  let <X> =
+		      %% Line 343
+		      call 'erlang':'*'
+			  (LettPos, 60)
+		  in  let <_cor3> =
+			  %% Line 344
+			  call 'erlang':'list_to_integer'
+			      ([Digit|[]])
+		      in  let <_cor4> =
+			      %% Line 344
+			      call 'erlang':'-'
+				  (8, _cor3)
+			  in  let <Y> =
+				  %% Line 344
+				  call 'erlang':'*'
+				      (_cor4, 60)
+			      in  let <_cor7> =
+				      %% Line 345
+				      call 'erlang':'+'
+					  (X, 6)
+				  in  let <_cor6> =
+					  %% Line 345
+					  call 'erlang':'+'
+					      (Y, 6)
+				      in  %% Line 345
+					  {_cor7,_cor6}
+	  %% Line 346
+	  <X> when 'true' ->
+	      %% Line 347
+	      call 'io':'format'
+		  ([120|[121|[95|[112|[111|[115|[105|[116|[105|[111|[110|[58|[32|[126|[119|[126|[110]]]]]]]]]]]]]]]]], [{'error',X}|[]])
+	end
+'board'/0 =
+    %% Line 350
+    fun () ->
+	%% Line 351
+	[[[97|[49]]|['grey'|['nil']]]|[[[98|[49]]|['grey'|['nil']]]|[[[99|[49]]|['grey'|['nil']]]|[[[100|[49]]|['grey'|['nil']]]|[[[101|[49]]|['grey'|['nil']]]|[[[102|[49]]|['grey'|['nil']]]|[[[103|[49]]|['grey'|['nil']]]|[[[104|[49]]|['grey'|['nil']]]|[[[97|[50]]|['grey'|['nil']]]|[[[98|[50]]|['grey'|['nil']]]|[[[99|[50]]|['grey'|['nil']]]|[[[100|[50]]|['grey'|['nil']]]|[[[101|[50]]|['grey'|['nil']]]|[[[102|[50]]|['grey'|['nil']]]|[[[103|[50]]|['grey'|['nil']]]|[[[104|[50]]|['grey'|['nil']]]|[[[97|[51]]|['grey'|['nil']]]|[[[98|[51]]|['grey'|['nil']]]|[[[99|[51]]|['grey'|['nil']]]|[[[100|[51]]|['grey'|['nil']]]|[[[101|[51]]|['grey'|['nil']]]|[[[102|[51]]|['grey'|['nil']]]|[[[103|[51]]|['grey'|['nil']]]|[[[104|[51]]|['grey'|['nil']]]|[[[97|[52]]|['grey'|['nil']]]|[[[98|[52]]|['grey'|['nil']]]|[[[99|[52]]|['grey'|['nil']]]|[[[100|[52]]|['white'|['nil']]]|[[[101|[52]]|['black'|['nil']]]|[[[102|[52]]|['grey'|['nil']]]|[[[103|[52]]|['grey'|['nil']]]|[[[104|[52]]|['grey'|['nil']]]|[[[97|[53]]|['grey'|['nil']]]|[[[98|[53]]|['grey'|['nil']]]|[[[99|[53]]|['grey'|['nil']]]|[[[100|[53]]|['black'|['nil']]]|[[[101|[53]]|['white'|['nil']]]|[[[102|[53]]|['grey'|['nil']]]|[[[103|[53]]|['grey'|['nil']]]|[[[104|[53]]|['grey'|['nil']]]|[[[97|[54]]|['grey'|['nil']]]|[[[98|[54]]|['grey'|['nil']]]|[[[99|[54]]|['grey'|['nil']]]|[[[100|[54]]|['grey'|['nil']]]|[[[101|[54]]|['grey'|['nil']]]|[[[102|[54]]|['grey'|['nil']]]|[[[103|[54]]|['grey'|['nil']]]|[[[104|[54]]|['grey'|['nil']]]|[[[97|[55]]|['grey'|['nil']]]|[[[98|[55]]|['grey'|['nil']]]|[[[99|[55]]|['grey'|['nil']]]|[[[100|[55]]|['grey'|['nil']]]|[[[101|[55]]|['grey'|['nil']]]|[[[102|[55]]|['grey'|['nil']]]|[[[103|[55]]|['grey'|['nil']]]|[[[104|[55]]|['grey'|['nil']]]|[[[97|[56]]|['grey'|['nil']]]|[[[98|[56]]|['grey'|['nil']]]|[[[99|[56]]|['grey'|['nil']]]|[[[100|[56]]|['grey'|['nil']]]|[[[101|[56]]|['grey'|['nil']]]|[[[102|[56]]|['grey'|['nil']]]|[[[103|[56]]|['grey'|['nil']]]|[[[104|[56]]|['grey'|['nil']]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+'omit_draw'/2 =
+    %% Line 424
+    fun (_cor1,_cor0) ->
+	let <Root> =
+	    %% Line 428
+	    call 'erlang':'get'
+		('windowroot')
+	in  let <Box> =
+		%% Line 429
+		call 'gs':'create'
+		    ('window', Root, [{'title',[79|[77|[73|[84]]]]}|[{'width',200}|[{'height',100}]]])
+	    in  let <_cor6> =
+		    %% Line 431
+		    call 'io_lib':'format'
+			('~w has to omit draw !', [_cor0|[]])
+		in  let <_cor7> =
+			%% Line 431
+			call 'lists':'flatten'
+			    (_cor6)
+		    in  do  %% Line 431
+			    apply 'mk_label_c'/4
+				(_cor7, %% Line 432
+					Box, 200, %% Line 432
+						  10)
+			    do  %% Line 434
+				apply 'mk_button_c'/6
+				    ([79|[107]], Box, 200, 60, 80, 30)
+				do  %% Line 436
+				    call 'gs':'config'
+					(Box, {'map','true'})
+				    %% Line 438
+				    receive
+				      %% Line 439
+				      <{'gs',_cor12,'click',_cor13,[[79|[107]]]}> when 'true' ->
+					  do  %% Line 440
+					      call 'gs':'destroy'
+						  (Box)
+					      let <_cor9> =
+						  %% Line 441
+						  call 'erlang':'self'
+						      ()
+					      in  %% Line 441
+						  call 'erlang':'!'
+						      (_cor1, {_cor9,'continue'})
+				    after 'infinity' ->
+				      'true'
+'game_over'/2 =
+    %% Line 444
+    fun (_cor1,_cor0) ->
+	let <Root> =
+	    %% Line 449
+	    call 'erlang':'get'
+		('windowroot')
+	in  let <Box> =
+		%% Line 450
+		call 'gs':'create'
+		    ('window', Root, [{'title',[71|[65|[77|[69|[32|[79|[86|[69|[82]]]]]]]]]}|[{'width',200}|[{'height',160}]]])
+	    in  do  %% Line 453
+		    apply 'mk_label_c'/4
+			([71|[65|[77|[69|[32|[79|[86|[69|[82]]]]]]]]], Box, 200, 10)
+		    let <_cor6> =
+			%% Line 455
+			call 'io_lib':'format'
+			    ('White score: ~w', [_cor1|[]])
+		    in  let <_cor7> =
+			    %% Line 455
+			    call 'lists':'flatten'
+				(_cor6)
+			in  do  %% Line 455
+				apply 'mk_label_c'/4
+				    (_cor7, %% Line 456
+					    Box, 200, %% Line 456
+						      40)
+				let <_cor8> =
+				    %% Line 457
+				    call 'io_lib':'format'
+					('Black score: ~w', [_cor0|[]])
+				in  let <_cor9> =
+					%% Line 457
+					call 'lists':'flatten'
+					    (_cor8)
+				    in  do  %% Line 457
+					    apply 'mk_label_c'/4
+						(_cor9, %% Line 458
+							Box, 200, %% Line 458
+								  70)
+					    do  %% Line 460
+						apply 'mk_button_c'/6
+						    ([79|[107]], Box, 200, 120, 80, 30)
+						do  %% Line 462
+						    call 'gs':'config'
+							(Box, {'map','true'})
+						    %% Line 464
+						    receive
+						      %% Line 465
+						      <{'gs',_cor13,'click',_cor14,[[79|[107]]]}> when 'true' ->
+							  %% Line 466
+							  call 'gs':'destroy'
+							      (Box)
+						    after 'infinity' ->
+						      'true'
+'bell'/1 =
+    %% Line 475
+    fun (_cor0) ->
+	_cor0
+'label'/2 =
+    %% Line 479
+    fun (_cor1,_cor0) ->
+	%% Line 480
+	call 'gs':'config'
+	    (_cor0, [{'label',{'text',_cor1}}|[]])
+'mk_label_c'/4 =
+    %% Line 483
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 484
+	    call 'erlang':'length'
+		(_cor3)
+	in  let <W> =
+		%% Line 484
+		call 'erlang':'*'
+		    (8, _cor4)
+	    in  let <_cor6> =
+		    %% Line 485
+		    call 'erlang':'-'
+			(_cor1, W)
+		in  let <_cor7> =
+			%% Line 485
+			call 'erlang':'/'
+			    (_cor6, 2)
+		    in  let <X> =
+			    %% Line 485
+			    call 'erlang':'trunc'
+				(_cor7)
+			in  %% Line 486
+			    call 'gs':'create'
+				('label', _cor2, [{'width',W}|[{'height',20}|[{'x',X}|[{'y',_cor0}|%% Line 487
+												   [{'label',{'text',_cor3}}|[]]]]]])
+'setup_buttons'/5 =
+    %% Line 492
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <ButBox> =
+	    %% Line 493
+	    call 'gs':'create'
+		('frame', _cor4, [{'x',_cor3}|[{'y',_cor2}|[{'bg','white'}|%% Line 494
+									   [{'width',_cor1}|[{'height',_cor0}|[]]]]]])
+	in  let <C> =
+		%% Line 495
+		call 'gs':'create'
+		    ('canvas', ButBox, [{'x',_cor3}|[{'y',_cor2}|[{'width',_cor1}|[{'height',_cor0}|%% Line 496
+												    [{'bg','white'}]]]]])
+	    in  let <_cor7> =
+		    %% Line 497
+		    call 'erlang':'-'
+			(_cor0, 1)
+		in  let <_cor8> =
+			%% Line 497
+			call 'erlang':'-'
+			    (_cor0, 1)
+		    in  do  %% Line 497
+			    call 'gs':'create'
+				('line', C, [{'coords',[{0,_cor7}|[{_cor1,_cor8}|[]]]}|[]])
+			    do  %% Line 500
+				apply 'mk_button'/6
+				    ([81|[117|[105|[116]]]], ButBox, 10, 10, 70, 20)
+				do  %% Line 501
+				    apply 'mk_button'/6
+					([82|[117|[108|[101|[115]]]]], ButBox, 80, 10, 70, 20)
+				    do  %% Line 502
+					apply 'mk_button'/6
+					    ([78|[101|[119|[103|[97|[109|[101]]]]]]], ButBox, 150, 10, 70, 20)
+					do  %% Line 503
+					    apply 'mk_button'/6
+						([72|[101|[108|[112]]]], ButBox, 220, 10, 70, 20)
+					    %% Line 506
+					    'done'
+'setup_status_box'/5 =
+    %% Line 518
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <F> =
+	    %% Line 519
+	    call 'gs':'create'
+		('frame', _cor4, [{'x',_cor3}|[{'y',_cor2}|%% Line 520
+							   [{'width',_cor1}|[{'height',_cor0}|[{'bg','white'}]]]]])
+	in  let <C> =
+		%% Line 521
+		call 'gs':'create'
+		    ('canvas', F, [{'x',0}|[{'y',0}|[{'width',_cor1}|[{'height',_cor0}|[{'bg','white'}]]]]])
+	    in  let <_cor7> =
+		    %% Line 522
+		    call 'erlang':'-'
+			(_cor0, 1)
+		in  let <_cor8> =
+			%% Line 522
+			call 'erlang':'-'
+			    (_cor0, 1)
+		    in  do  %% Line 522
+			    call 'gs':'create'
+				('line', C, [{'coords',[{0,_cor7}|[{_cor1,_cor8}|[]]]}|[]])
+			    do  %% Line 525
+				call 'gs':'create'
+				    ('label', F, [{'align','w'}|[{'x',10}|[{'y',5}|[{'width',100}|[{'label',{'text',[66|[108|[97|[99|[107|[32|[115|[99|[111|[114|[101|[58]]]]]]]]]]]]}}|[{'bg','white'}]]]]]])
+				do  %% Line 527
+				    call 'gs':'create'
+					('label', 'bscore', F, [{'align','w'}|[{'x',110}|[{'y',5}|[{'width',40}|[{'label',{'text',[50]}}|[{'bg','white'}]]]]]])
+				    do  %% Line 529
+					call 'gs':'create'
+					    ('label', F, [{'align','w'}|[{'x',10}|[{'y',35}|[{'width',100}|[{'label',{'text',[87|[104|[105|[116|[101|[32|[115|[99|[111|[114|[101|[58]]]]]]]]]]]]}}|[{'bg','white'}]]]]]])
+					do  %% Line 531
+					    call 'gs':'create'
+						('label', 'wscore', F, [{'align','w'}|[{'x',110}|[{'y',35}|[{'width',40}|[{'label',{'text',[50]}}|[{'bg','white'}]]]]]])
+					    do  %% Line 533
+						call 'gs':'create'
+						    ('label', F, [{'align','w'}|[{'x',10}|[{'y',65}|[{'width',100}|[{'label',{'text',[76|[97|[115|[116|[32|[100|[114|[97|[119|[58]]]]]]]]]]}}|[{'bg','white'}]]]]]])
+						do  %% Line 535
+						    call 'gs':'create'
+							('label', 'lastdraw', F, [{'align','w'}|[{'x',110}|[{'y',65}|[{'width',40}|[{'label',{'text',[]}}|[{'bg','white'}]]]]]])
+						    let <_cor9> =
+							%% Line 540
+							call 'erlang':'/'
+							    (_cor1, 2)
+						    in  let <_cor10> =
+							    %% Line 540
+							    call 'erlang':'trunc'
+								(_cor9)
+							in  let <X2> =
+								%% Line 540
+								call 'erlang':'+'
+								    (_cor10, 10)
+							    in  do  %% Line 541
+								    call 'gs':'create'
+									('label', 'todraw', F, [{'align','w'}|[{'x',X2}|[{'y',5}|[{'width',100}|[{'label',{'text',[66|[108|[97|[99|[107|[32|[116|[111|[32|[100|[114|[97|[119|[58]]]]]]]]]]]]]]}}|[{'bg','white'}]]]]]])
+								    do  %% Line 544
+									call 'gs':'create'
+									    ('label', F, [{'align','w'}|[{'x',X2}|[{'y',35}|[{'width',80}|[{'label',{'text',[76|[101|[118|[101|[108|[58]]]]]]}}|[{'bg','white'}]]]]]])
+									let <_cor12> =
+									    %% Line 546
+									    call 'erlang':'+'
+										(X2, 80)
+									in  do  %% Line 546
+										apply 'setup_level_menu'/3
+										    (F, _cor12, 35)
+										do  %% Line 550
+										    call 'gs':'create'
+											('label', F, [{'align','w'}|[{'x',X2}|[{'y',65}|[{'width',80}|[{'label',{'text',[67|[111|[108|[111|[117|[114|[58]]]]]]]}}|[{'bg','white'}]]]]]])
+										    let <_cor13> =
+											%% Line 552
+											call 'erlang':'+'
+											    (X2, 80)
+										    in  do  %% Line 552
+											    apply 'setup_col_menu'/3
+												(F, _cor13, 65)
+											    %% Line 557
+											    'done'
+'setup_col_menu'/3 =
+    %% Line 560
+    fun (_cor2,_cor1,_cor0) ->
+	let <MB> =
+	    %% Line 561
+	    call 'gs':'create'
+		('menubutton', 'colour', _cor2, %% Line 562
+						[{'x',_cor1}|[{'y',_cor0}|[{'bw',3}|[{'align','w'}|[{'bg','white'}|[{'relief','raised'}|[{'activefg','white'}|[{'activebg','black'}|[{'label',{'text',[67|[111|[108|[111|[117|[114|[115]]]]]]]}}]]]]]]]]])
+	in  let <M> =
+		%% Line 569
+		call 'gs':'create'
+		    ('menu', MB, [])
+	    in  do  %% Line 570
+		    call 'gs':'create'
+			('menuitem', M, [{'label',{'text',[66|[108|[97|[99|[107|[32|[40|[98|[101|[103|[105|[110|[41]]]]]]]]]]]]]}}])
+		    do  %% Line 571
+			call 'gs':'create'
+			    ('menuitem', M, [{'label',{'text',[66|[108|[97|[99|[107]]]]]}}])
+			do  %% Line 572
+			    call 'gs':'create'
+				('menuitem', M, [{'label',{'text',[87|[104|[105|[116|[101|[32|[40|[98|[101|[103|[105|[110|[41]]]]]]]]]]]]]}}])
+			    do  %% Line 573
+				call 'gs':'create'
+				    ('menuitem', M, [{'label',{'text',[87|[104|[105|[116|[101]]]]]}}])
+				%% Line 574
+				'done'
+'setup_level_menu'/3 =
+    %% Line 576
+    fun (_cor2,_cor1,_cor0) ->
+	let <MB> =
+	    %% Line 577
+	    call 'gs':'create'
+		('menubutton', 'level', _cor2, %% Line 578
+					       [{'x',_cor1}|[{'y',_cor0}|%% Line 580
+									 [{'relief','raised'}|[{'activefg','white'}|[{'activebg','black'}|[{'align','w'}|[{'bg','white'}|[{'label',{'text',[67|[111|[108|[111|[117|[114|[115]]]]]]]}}]]]]]]]])
+	in  let <M> =
+		%% Line 585
+		call 'gs':'create'
+		    ('menu', MB, [])
+	    in  do  %% Line 586
+		    call 'gs':'create'
+			('menuitem', M, [{'label',{'text',[66|[101|[103|[105|[110|[110|[101|[114]]]]]]]]}}])
+		    do  %% Line 587
+			call 'gs':'create'
+			    ('menuitem', M, [{'label',{'text',[73|[110|[116|[101|[114|[109|[101|[100|[105|[97|[116|[101]]]]]]]]]]]]}}])
+			do  %% Line 588
+			    call 'gs':'create'
+				('menuitem', M, [{'label',{'text',[65|[100|[118|[97|[110|[99|[101|[100]]]]]]]]}}])
+			    do  %% Line 589
+				call 'gs':'create'
+				    ('menuitem', M, [{'label',{'text',[69|[120|[112|[101|[114|[116]]]]]]}}])
+				%% Line 590
+				'done'
+'setup_board'/5 =
+    %% Line 593
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <F> =
+	    %% Line 594
+	    call 'gs':'create'
+		('frame', _cor4, [{'x',_cor3}|[{'y',_cor2}|%% Line 595
+							   [{'width',_cor1}|[{'height',_cor0}|[{'bg','white'}]]]]])
+	in  %% Line 596
+	    apply 'display_board'/1
+		(F)
+'mk_button'/6 =
+    %% Line 599
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 600
+	call 'gs':'create'
+	    ('button', _cor4, [{'width',_cor1}|[{'height',_cor0}|[{'x',_cor3}|[{'y',_cor2}|%% Line 601
+											   [{'label',{'text',_cor5}}|[{'bg','white'}|[{'activefg','white'}|[{'activebg','black'}]]]]]]]])
+'mk_button_c'/6 =
+    %% Line 605
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor6> =
+	    %% Line 606
+	    call 'erlang':'-'
+		(_cor3, _cor1)
+	in  let <_cor7> =
+		%% Line 606
+		call 'erlang':'/'
+		    (_cor6, 2)
+	    in  let <X> =
+		    %% Line 606
+		    call 'erlang':'trunc'
+			(_cor7)
+		in  %% Line 607
+		    call 'gs':'create'
+			('button', _cor4, [{'width',_cor1}|[{'height',_cor0}|[{'x',X}|[{'y',_cor2}|%% Line 608
+												   [{'label',{'text',_cor5}}|[{'bg','white'}]]]]]])
+'butbit'/2 =
+    %% Line 611
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 613
+	    apply 'bitmap'/1
+		(_cor0)
+	in  let <_cor3> =
+		%% Line 616
+		apply 'bitmap'/1
+		    (_cor0)
+	    in  do  %% Line 612
+		    call 'gs':'config'
+			(_cor1, [%% Line 613
+				 {'label',{'image',_cor2}}|%% Line 614
+							   [{'fg',_cor0}|%% Line 615
+									 [{'activefg',_cor0}|%% Line 616
+											     [{'label',{'image',_cor3}}|[]]]]])
+		    _cor1
+'mk_board_butt'/5 =
+    %% Line 619
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 620
+	    call 'erlang':'list_to_atom'
+		(_cor3)
+	in  let <B> =
+		%% Line 620
+		call 'gs':'create'
+		    ('button', _cor5, _cor4, %% Line 621
+					     [{'x',_cor2}|[{'y',_cor1}|[{'width',60}|[{'height',60}|[{'padx',5}|[{'pady',5}|[{'relief','flat'}|[{'bg','forestgreen'}|[{'activebg','forestgreen'}]]]]]]]]])
+	    in  do  %% Line 625
+		    apply 'butbit'/2
+			(B, _cor0)
+		    %% Line 626
+		    B
+'display_board'/1 =
+    %% Line 630
+    fun (_cor0) ->
+	let <Board> =
+	    %% Line 631
+	    apply 'board'/0
+		()
+	in  %% Line 632
+	    apply 'display_board'/3
+		(_cor0, Board, 1)
+'display_board'/3 =
+    %% Line 634
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_cor10,_cor11,65> when 'true' ->
+	      'true'
+	  %% Line 635
+	  <Top,[H|T],Place> when 'true' ->
+	      %% Line 636
+	      case H of
+		<[Name|[Colour|[_cor12|[]]]]> when 'true' ->
+		    %% Line 637
+		    case apply 'xy_position'/1
+			     (H) of
+		      <{X,Y}> when 'true' ->
+			  let <Button> =
+			      %% Line 638
+			      apply 'mk_board_butt'/5
+				  (Top, Name, X, Y, Colour)
+			  in  do  %% Line 640
+				  call 'erlang':'put'
+				      (Name, Button)
+				  let <_cor6> =
+				      %% Line 646
+				      call 'erlang':'+'
+					  (Place, 1)
+				  in  %% Line 646
+				      apply 'display_board'/3
+					  (Top, T, _cor6)
+		      ( <_cor4> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor4})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'display_board',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('othello_board')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('othello_board', _cor0)
+end

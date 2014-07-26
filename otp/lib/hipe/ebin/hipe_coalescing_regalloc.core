@@ -1,0 +1,1893 @@
+module 'hipe_coalescing_regalloc' ['module_info'/0,
+				   'module_info'/1,
+				   'regalloc'/5]
+    attributes [%% Line 301
+		'type' =
+		    %% Line 301
+		    [{{'record','comp_servers'},[{'typed_record_field',{'record_field',301,{'atom',301,'pp_server'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'range'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'type'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}]]],[]}],
+		%% Line 307
+		'type' =
+		    %% Line 307
+		    [{'comp_option',{'type',307,'union',[{'type',307,'atom',[]}|[{'type',307,'tuple',[{'type',307,'atom',[]}|[{'type',307,'atom',[]}]]}]]},[]}],
+		%% Line 308
+		'type' =
+		    %% Line 308
+		    [{'comp_options',{'type',308,'list',[{'type',308,'comp_option',[]}]},[]}],
+		%% Line 310
+		'type' =
+		    %% Line 310
+		    [{'hipe_architecture',{'type',311,'union',[{'atom',311,'amd64'}|[{'atom',311,'arm'}|[{'atom',311,'powerpc'}|[{'atom',311,'ppc64'}|[{'atom',311,'ultrasparc'}|[{'atom',311,'x86'}]]]]]]},[]}],
+		%% Line 313
+		'type' =
+		    %% Line 313
+		    [{'hipe_map',{'type',313,'list',[{'type',313,'tuple',[{'type',313,'non_neg_integer',[]}|[{'type',314,'union',[{'atom',314,'unknown'}|[{'type',314,'tuple',[{'type',314,'union',[{'atom',314,'reg'}|[{'atom',314,'fp_reg'}|[{'atom',314,'spill'}]]]}|[{'type',315,'non_neg_integer',[]}]]}]]}]]}]},[]}],
+		%% Line 316
+		'type' =
+		    %% Line 316
+		    [{'hipe_temp_map',{'type',316,'tuple','any'},[]}],
+		%% Line 317
+		'type' =
+		    %% Line 317
+		    [{'hipe_spill_map',{'type',317,'list',[{'type',317,'tuple',[{'type',317,'non_neg_integer',[]}|[{'type',317,'tuple',[{'atom',317,'spill'}|[{'type',317,'non_neg_integer',[]}]]}]]}]},[]}]]
+'regalloc'/5 =
+    %% Line 56
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <IG> =
+	    %% Line 59
+	    call 'hipe_ig':'build'
+		(_cor4, _cor1)
+	in  let <Num_Temps> =
+		%% Line 63
+		call _cor1:'number_of_temporaries'
+		    (_cor4)
+	    in  let <Allocatable> =
+		    %% Line 65
+		    call _cor1:'allocatable'
+			()
+		in  let <K> =
+			%% Line 66
+			call 'erlang':'length'
+			    (Allocatable)
+		    in  let <All_colors> =
+			    %% Line 67
+			    apply 'colset_from_list'/1
+				(Allocatable)
+			in  let <Move_sets> =
+				%% Line 71
+				call 'hipe_moves':'new'
+				    (IG)
+			    in  let <Worklists> =
+				    %% Line 74
+				    call 'hipe_reg_worklists':'new'
+					(IG, _cor1, _cor4, Move_sets, K, Num_Temps)
+				in  let <Alias> =
+					%% Line 75
+					apply 'initAlias'/1
+					    (Num_Temps)
+				    in  %% Line 78
+					case %% Line 79
+					     apply 'do_coloring'/7
+						 (IG, Worklists, Move_sets, Alias, K, _cor2, _cor1) of
+					  <{_X_IG0,Worklists0,_X_Moves0,Alias0}> when 'true' ->
+					      let <Node_sets> =
+						  %% Line 82
+						  call 'hipe_node_sets':'new'
+						      ()
+					      in  let <_cor16> =
+						      %% Line 86
+						      call _cor1:'all_precoloured'
+							  ()
+						  in  let <_cor15> =
+							  %% Line 87
+							  apply 'initColor'/1
+							      (Num_Temps)
+						      in  %% Line 85
+							  case %% Line 86
+							       apply 'defaultColoring'/4
+								   (_cor16, _cor15, %% Line 87
+										    Node_sets, _cor1) of
+							    <{Color0,Node_sets1}> when 'true' ->
+								let <_cor18> =
+								    %% Line 91
+								    call 'hipe_reg_worklists':'stack'
+									(Worklists0)
+								in  %% Line 90
+								    case %% Line 91
+									 apply 'assignColors'/6
+									     (_cor18, Node_sets1, Color0, %% Line 92
+													  Alias0, %% Line 92
+														  All_colors, _cor1) of
+								      <{Color1,Node_sets2}> when 'true' ->
+									  %% Line 96
+									  apply 'build_namelist'/4
+									      (Node_sets2, _cor3, Alias0, Color1)
+								      ( <_cor19> when 'true' ->
+									    primop 'match_fail'
+										({'badmatch',_cor19})
+									-| ['compiler_generated'] )
+								    end
+							    ( <_cor17> when 'true' ->
+								  primop 'match_fail'
+								      ({'badmatch',_cor17})
+							      -| ['compiler_generated'] )
+							  end
+					  ( <_cor13> when 'true' ->
+						primop 'match_fail'
+						    ({'badmatch',_cor13})
+					    -| ['compiler_generated'] )
+					end
+'do_coloring'/7 =
+    %% Line 122
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor7> =
+	    %% Line 123
+	    call 'hipe_reg_worklists':'is_empty_simplify'
+		(_cor5)
+	in  let <Simplify> =
+		%% Line 123
+		call 'erlang':'not'
+		    (_cor7)
+	    in  let <_cor9> =
+		    %% Line 124
+		    call 'hipe_moves':'is_empty_worklist'
+			(_cor4)
+		in  let <Coalesce> =
+			%% Line 124
+			call 'erlang':'not'
+			    (_cor9)
+		    in  let <_cor11> =
+			    %% Line 125
+			    call 'hipe_reg_worklists':'is_empty_freeze'
+				(_cor5)
+			in  let <Freeze> =
+				%% Line 125
+				call 'erlang':'not'
+				    (_cor11)
+			    in  let <_cor13> =
+				    %% Line 126
+				    call 'hipe_reg_worklists':'is_empty_spill'
+					(_cor5)
+				in  let <Spill> =
+					%% Line 126
+					call 'erlang':'not'
+					    (_cor13)
+				    in  %% Line 127
+					case <> of
+					  <>
+					      when Simplify ->
+					      let <_cor15> =
+						  %% Line 129
+						  call 'hipe_reg_worklists':'simplify'
+						      (_cor5)
+					      in  %% Line 128
+						  case %% Line 129
+						       apply 'simplify'/5
+							   (_cor15, _cor6, _cor5, _cor4, _cor2) of
+						    <{IG0,Worklists0,Moves0}> when 'true' ->
+							%% Line 134
+							apply 'do_coloring'/7
+							    (IG0, Worklists0, Moves0, _cor3, _cor2, _cor1, _cor0)
+						    ( <_cor16> when 'true' ->
+							  primop 'match_fail'
+							      ({'badmatch',_cor16})
+						      -| ['compiler_generated'] )
+						  end
+					  %% Line 135
+					  <>
+					      when Coalesce ->
+					      %% Line 136
+					      case %% Line 137
+						   apply 'coalesce'/6
+						       (_cor4, _cor6, _cor5, _cor3, _cor2, _cor0) of
+						<{Moves0,IG0,Worklists0,Alias0}> when 'true' ->
+						    %% Line 138
+						    apply 'do_coloring'/7
+							(IG0, Worklists0, Moves0, Alias0, _cor2, _cor1, _cor0)
+						( <_cor17> when 'true' ->
+						      primop 'match_fail'
+							  ({'badmatch',_cor17})
+						  -| ['compiler_generated'] )
+					      end
+					  %% Line 139
+					  <>
+					      when Freeze ->
+					      %% Line 140
+					      case %% Line 141
+						   apply 'freeze'/5
+						       (_cor2, _cor5, _cor4, _cor6, _cor3) of
+						<{Worklists0,Moves0}> when 'true' ->
+						    %% Line 142
+						    apply 'do_coloring'/7
+							(_cor6, Worklists0, Moves0, _cor3, _cor2, _cor1, _cor0)
+						( <_cor18> when 'true' ->
+						      primop 'match_fail'
+							  ({'badmatch',_cor18})
+						  -| ['compiler_generated'] )
+					      end
+					  %% Line 144
+					  <>
+					      when Spill ->
+					      %% Line 145
+					      case %% Line 146
+						   apply 'selectSpill'/6
+						       (_cor5, _cor4, _cor6, _cor2, _cor3, _cor1) of
+						<{Worklists0,Moves0}> when 'true' ->
+						    %% Line 147
+						    apply 'do_coloring'/7
+							(_cor6, Worklists0, Moves0, _cor3, _cor2, _cor1, _cor0)
+						( <_cor19> when 'true' ->
+						      primop 'match_fail'
+							  ({'badmatch',_cor19})
+						  -| ['compiler_generated'] )
+					      end
+					  %% Line 148
+					  <> when 'true' ->
+					      %% Line 149
+					      {_cor6,_cor5,_cor4,_cor3}
+					end
+'adjacent'/3 =
+    %% Line 166
+    fun (_cor2,_cor1,_cor0) ->
+	let <Adjacent_edges> =
+	    %% Line 167
+	    call 'hipe_ig':'node_adj_list'
+		(_cor2, _cor1)
+	in  %% Line 168
+	    call 'hipe_reg_worklists':'non_stacked_or_coalesced_nodes'
+		(Adjacent_edges, _cor0)
+'simplify'/5 =
+    %% Line 188
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],IG,Worklists,Moves,_X_K> when 'true' ->
+	      %% Line 189
+	      {IG,Worklists,Moves}
+	  %% Line 190
+	  <[Node|Nodes],IG,Worklists,Moves,K> when 'true' ->
+	      let <Worklists0> =
+		  %% Line 191
+		  call 'hipe_reg_worklists':'remove_simplify'
+		      (Node, Worklists)
+	      in  let <Adjacent> =
+		      %% Line 193
+		      apply 'adjacent'/3
+			  (Node, IG, Worklists0)
+		  in  let <Worklists01> =
+			  %% Line 194
+			  call 'hipe_reg_worklists':'push_stack'
+			      (Node, Adjacent, Worklists0)
+		      in  %% Line 195
+			  case %% Line 196
+			       apply 'decrement_degree'/5
+				   (Adjacent, IG, Worklists01, Moves, K) of
+			    <{New_ig,Worklists1,New_moves}> when 'true' ->
+				%% Line 197
+				apply 'simplify'/5
+				    (Nodes, New_ig, Worklists1, New_moves, K)
+			    ( <_cor8> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor8})
+			      -| ['compiler_generated'] )
+			  end
+	  ( <_cor13,_cor12,_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'simplify',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'decrement_degree'/5 =
+    %% Line 218
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],IG,Worklists,Moves,_X_K> when 'true' ->
+	      %% Line 219
+	      {IG,Worklists,Moves}
+	  %% Line 220
+	  <[Node|Nodes],IG,Worklists,Moves,K> when 'true' ->
+	      let <PrevDegree> =
+		  %% Line 221
+		  call 'hipe_ig':'get_node_degree'
+		      (Node, IG)
+	      in  let <IG0> =
+		      %% Line 222
+		      call 'hipe_ig':'dec_node_degree'
+			  (Node, IG)
+		  in  %% Line 223
+		      case <> of
+			<>
+			    when call 'erlang':'=:='
+				  (PrevDegree,
+				   K) ->
+			    let <AdjList> =
+				%% Line 224
+				call 'hipe_ig':'node_adj_list'
+				    (Node, IG0)
+			    in  let <_cor8> =
+				    %% Line 226
+				    call 'hipe_moves':'node_movelist'
+					(Node, Moves)
+				in  let <Moves00> =
+					%% Line 226
+					apply 'enable_moves_active_to_worklist'/2
+					    (_cor8, %% Line 227
+						    Moves)
+				    in  let <Moves0> =
+					    %% Line 228
+					    apply 'enable_moves'/3
+						(AdjList, Worklists, Moves00)
+					in  let <Worklists0> =
+						%% Line 229
+						call 'hipe_reg_worklists':'remove_spill'
+						    (Node, Worklists)
+					    in  %% Line 230
+						case call 'hipe_moves':'move_related'
+							 (Node, Moves0) of
+						  %% Line 231
+						  <'true'> when 'true' ->
+						      let <Worklists1> =
+							  %% Line 232
+							  call 'hipe_reg_worklists':'add_freeze'
+							      (Node, Worklists0)
+						      in  %% Line 233
+							  apply 'decrement_degree'/5
+							      (Nodes, IG0, Worklists1, Moves0, K)
+						  %% Line 234
+						  <_cor20> when 'true' ->
+						      let <Worklists1> =
+							  %% Line 235
+							  call 'hipe_reg_worklists':'add_simplify'
+							      (Node, Worklists0)
+						      in  %% Line 236
+							  apply 'decrement_degree'/5
+							      (Nodes, IG0, Worklists1, Moves0, K)
+						end
+			%% Line 238
+			<> when 'true' ->
+			    %% Line 239
+			    apply 'decrement_degree'/5
+				(Nodes, IG0, Worklists, Moves, K)
+		      end
+	  ( <_cor19,_cor18,_cor17,_cor16,_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor19,_cor18,_cor17,_cor16,_cor15})
+		  -| [{'function_name',{'decrement_degree',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'enable_moves'/3 =
+    %% Line 256
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_X_Worklists,Moves> when 'true' ->
+	      Moves
+	  %% Line 257
+	  <[Node|Nodes],Worklists,Moves> when 'true' ->
+	      %% Line 258
+	      case call 'hipe_reg_worklists':'member_stack_or_coalesced'
+		       (Node, Worklists) of
+		%% Line 259
+		<'true'> when 'true' ->
+		    apply 'enable_moves'/3
+			(Nodes, Worklists, Moves)
+		%% Line 260
+		<_cor9> when 'true' ->
+		    let <Node_moves> =
+			%% Line 262
+			call 'hipe_moves':'node_movelist'
+			    (Node, Moves)
+		    in  let <New_moves> =
+			    %% Line 263
+			    apply 'enable_moves_active_to_worklist'/2
+				(Node_moves, Moves)
+			in  %% Line 264
+			    apply 'enable_moves'/3
+				(Nodes, Worklists, New_moves)
+	      end
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'enable_moves',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'enable_moves_active_to_worklist'/2 =
+    %% Line 281
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Moves> when 'true' ->
+	      Moves
+	  %% Line 282
+	  <[Node|Nodes],Moves> when 'true' ->
+	      let <_cor4> =
+		  %% Line 284
+		  case call 'hipe_moves':'member_active'
+			   (Node, Moves) of
+		    %% Line 285
+		    <'true'> when 'true' ->
+			let <_cor2> =
+			    %% Line 286
+			    call 'hipe_moves':'remove_active'
+				(Node, Moves)
+			in  %% Line 286
+			    call 'hipe_moves':'add_worklist'
+				(Node, _cor2)
+		    %% Line 287
+		    <_cor8> when 'true' ->
+			%% Line 288
+			Moves
+		  end
+	      in  %% Line 290
+		  apply 'enable_moves_active_to_worklist'/2
+		      (Nodes, _cor4)
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'enable_moves_active_to_worklist',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'build_namelist'/4 =
+    %% Line 295
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 298
+	    apply 'aliasToList'/1
+		(_cor1)
+	in  let <AliasList> =
+		%% Line 298
+		apply 'build_alias_list'/3
+		    (_cor4, %% Line 299
+			    0, %% Line 300
+			       [])
+	    in  let <NL1> =
+		    %% Line 303
+		    apply 'build_coalescedlist'/4
+			(AliasList, _cor0, _cor1, [])
+		in  let <_cor7> =
+			%% Line 306
+			call 'hipe_node_sets':'colored'
+			    (_cor3)
+		    in  let <NL2> =
+			    %% Line 306
+			    apply 'build_reglist'/3
+				(_cor7, _cor0, NL1)
+			in  let <_cor9> =
+				%% Line 309
+				call 'hipe_node_sets':'spilled'
+				    (_cor3)
+			    in  %% Line 309
+				apply 'build_spillist'/3
+				    (_cor9, _cor2, NL2)
+'build_spillist'/3 =
+    %% Line 311
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],Index,List> when 'true' ->
+	      %% Line 312
+	      {List,Index}
+	  %% Line 313
+	  <[Node|Nodes],Index,List> when 'true' ->
+	      let <_cor3> =
+		  %% Line 315
+		  call 'erlang':'+'
+		      (Index, 1)
+	      in  %% Line 315
+		  apply 'build_spillist'/3
+		      (Nodes, _cor3, [{Node,{'spill',Index}}|List])
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'build_spillist',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'build_coalescedlist'/4 =
+    %% Line 317
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_Color,_X_Alias,List> when 'true' ->
+	      %% Line 318
+	      List
+	  %% Line 319
+	  <[Node|Ns],Color,Alias,List>
+	      when call 'erlang':'is_integer'
+		    (Node) ->
+	      let <_cor4> =
+		  %% Line 321
+		  apply 'getAlias'/2
+		      (Node, Alias)
+	      in  let <AC> =
+		      %% Line 321
+		      apply 'getColor'/2
+			  (_cor4, Color)
+		  in  %% Line 322
+		      apply 'build_coalescedlist'/4
+			  (Ns, Color, Alias, [{Node,{'reg',AC}}|List])
+	  ( <_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'build_coalescedlist',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'build_reglist'/3 =
+    %% Line 324
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_X_Color,List> when 'true' ->
+	      %% Line 325
+	      List
+	  %% Line 326
+	  <[Node|Ns],Color,List> when 'true' ->
+	      let <_cor3> =
+		  %% Line 327
+		  apply 'getColor'/2
+		      (Node, Color)
+	      in  %% Line 327
+		  apply 'build_reglist'/3
+		      (Ns, Color, [{Node,{'reg',_cor3}}|List])
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'build_reglist',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'build_alias_list'/3 =
+    %% Line 329
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_X_I,List> when 'true' ->
+	      %% Line 330
+	      List
+	  %% Line 331
+	  <[Alias|Aliases],I,List>
+	      when call 'erlang':'is_integer'
+		    (Alias) ->
+	      let <_cor3> =
+		  %% Line 332
+		  call 'erlang':'+'
+		      (I, 1)
+	      in  %% Line 332
+		  apply 'build_alias_list'/3
+		      (Aliases, _cor3, [I|List])
+	  %% Line 333
+	  <[_X_Alias|Aliases],I,List> when 'true' ->
+	      let <_cor4> =
+		  %% Line 334
+		  call 'erlang':'+'
+		      (I, 1)
+	      in  %% Line 334
+		  apply 'build_alias_list'/3
+		      (Aliases, _cor4, List)
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'build_alias_list',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'assignColors'/6 =
+    %% Line 359
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 360
+	case _cor5 of
+	  %% Line 361
+	  <[]> when 'true' ->
+	      %% Line 362
+	      {_cor3,_cor4}
+	  %% Line 363
+	  <[{Node,Edges}|Stack1]> when 'true' ->
+	      let <OkColors> =
+		  %% Line 373
+		  apply 'findOkColors'/4
+		      (Edges, _cor1, _cor3, _cor2)
+	      in  %% Line 374
+		  case apply 'colset_is_empty'/1
+			   (OkColors) of
+		    %% Line 375
+		    <'true'> when 'true' ->
+			let <NodeSets1> =
+			    %% Line 376
+			    call 'hipe_node_sets':'add_spilled'
+				(Node, _cor4)
+			in  %% Line 377
+			    apply 'assignColors'/6
+				(Stack1, NodeSets1, _cor3, _cor2, _cor1, _cor0)
+		    %% Line 378
+		    <'false'> when 'true' ->
+			let <Col> =
+			    %% Line 379
+			    apply 'colset_smallest'/1
+				(OkColors)
+			in  let <NodeSets1> =
+				%% Line 380
+				call 'hipe_node_sets':'add_colored'
+				    (Node, _cor4)
+			    in  let <_cor10> =
+				    %% Line 381
+				    call _cor0:'physical_name'
+					(Col)
+				in  let <Color1> =
+					%% Line 381
+					apply 'setColor'/3
+					    (Node, _cor10, _cor3)
+				    in  %% Line 382
+					apply 'assignColors'/6
+					    (Stack1, NodeSets1, Color1, _cor2, _cor1, _cor0)
+		    ( <_cor12> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor12})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor13> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor13})
+	    -| ['compiler_generated'] )
+	end
+'defaultColoring'/4 =
+    %% Line 401
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[],Color,NodeSets,_X_Target> when 'true' ->
+	      %% Line 402
+	      {Color,NodeSets}
+	  %% Line 403
+	  <[Reg|Regs],Color,NodeSets,Target> when 'true' ->
+	      let <_cor4> =
+		  %% Line 404
+		  call Target:'physical_name'
+		      (Reg)
+	      in  let <Color1> =
+		      %% Line 404
+		      apply 'setColor'/3
+			  (Reg, _cor4, Color)
+		  in  let <NodeSets1> =
+			  %% Line 405
+			  call 'hipe_node_sets':'add_colored'
+			      (Reg, NodeSets)
+		      in  %% Line 406
+			  apply 'defaultColoring'/4
+			      (Regs, Color1, NodeSets1, Target)
+	  ( <_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'defaultColoring',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'findOkColors'/4 =
+    %% Line 410
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 411
+	apply 'find'/4
+	    (_cor3, _cor2, _cor1, _cor0)
+'find'/4 =
+    %% Line 416
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[],OkColors,_X_Color,_X_Alias> when 'true' ->
+	      %% Line 417
+	      OkColors
+	  %% Line 418
+	  <[Node0|Nodes],OkColors,Color,Alias> when 'true' ->
+	      let <Node> =
+		  %% Line 419
+		  apply 'getAlias'/2
+		      (Node0, Alias)
+	      in  %% Line 420
+		  case apply 'getColor'/2
+			   (Node, Color) of
+		    %% Line 421
+		    <[]> when 'true' ->
+			%% Line 422
+			apply 'find'/4
+			    (Nodes, OkColors, Color, Alias)
+		    %% Line 423
+		    <Col> when 'true' ->
+			let <OkColors1> =
+			    %% Line 424
+			    apply 'colset_del_element'/2
+				(Col, OkColors)
+			in  %% Line 425
+			    apply 'find'/4
+				(Nodes, OkColors1, Color, Alias)
+		  end
+	  ( <_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'find',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'colset_from_list'/1 =
+    %% Line 466
+    fun (_cor0) ->
+	%% Line 467
+	apply 'colset_from_list'/2
+	    (_cor0, 0)
+'colset_from_list'/2 =
+    %% Line 469
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],ColSet> when 'true' ->
+	      %% Line 470
+	      ColSet
+	  %% Line 471
+	  <[Colour|Allocatable],ColSet> when 'true' ->
+	      let <_cor2> =
+		  %% Line 472
+		  call 'erlang':'bsl'
+		      (1, Colour)
+	      in  let <_cor3> =
+		      %% Line 472
+		      call 'erlang':'bor'
+			  (ColSet, _cor2)
+		  in  %% Line 472
+		      apply 'colset_from_list'/2
+			  (Allocatable, _cor3)
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'colset_from_list',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'colset_del_element'/2 =
+    %% Line 474
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 475
+	    call 'erlang':'bsl'
+		(1, _cor1)
+	in  let <_cor3> =
+		%% Line 475
+		call 'erlang':'bnot'
+		    (_cor2)
+	    in  %% Line 475
+		call 'erlang':'band'
+		    (_cor0, _cor3)
+'colset_is_empty'/1 =
+    %% Line 477
+    fun (_cor0) ->
+	case _cor0 of
+	  <0> when 'true' ->
+	      'true'
+	  %% Line 478
+	  <_cor2> when 'true' ->
+	      'false'
+	end
+'colset_smallest'/1 =
+    %% Line 480
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 481
+	    call 'erlang':'-'
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 481
+		call 'erlang':'band'
+		    (_cor0, _cor1)
+	    in  %% Line 481
+		apply 'bitN_log2'/2
+		    (_cor2, 0)
+'bitN_log2'/2 =
+    %% Line 483
+    fun (_cor1,_cor0) ->
+	%% Line 484
+	case <> of
+	  <>
+	      when call 'erlang':'>'
+		    (_cor1,
+		     65535) ->
+	      let <_cor3> =
+		  %% Line 485
+		  call 'erlang':'bsr'
+		      (_cor1, 16)
+	      in  let <_cor2> =
+		      %% Line 485
+		      call 'erlang':'+'
+			  (_cor0, 16)
+		  in  %% Line 485
+		      apply 'bitN_log2'/2
+			  (_cor3, _cor2)
+	  %% Line 486
+	  <> when 'true' ->
+	      let <_cor4> =
+		  %% Line 487
+		  call 'erlang':'-'
+		      (_cor1, 1)
+	      in  let <_cor5> =
+		      %% Line 487
+		      apply 'hweight16'/1
+			  (_cor4)
+		  in  %% Line 487
+		      call 'erlang':'+'
+			  (_cor0, _cor5)
+	end
+'hweight16'/1 =
+    %% Line 490
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 491
+	    call 'erlang':'band'
+		(_cor0, 21845)
+	in  let <_cor1> =
+		%% Line 491
+		call 'erlang':'bsr'
+		    (_cor0, 1)
+	    in  let <_cor2> =
+		    %% Line 491
+		    call 'erlang':'band'
+			(_cor1, 21845)
+		in  let <Res1> =
+			%% Line 491
+			call 'erlang':'+'
+			    (_cor3, _cor2)
+		    in  let <_cor7> =
+			    %% Line 492
+			    call 'erlang':'band'
+				(Res1, 13107)
+			in  let <_cor5> =
+				%% Line 492
+				call 'erlang':'bsr'
+				    (Res1, 2)
+			    in  let <_cor6> =
+				    %% Line 492
+				    call 'erlang':'band'
+					(_cor5, 13107)
+				in  let <Res2> =
+					%% Line 492
+					call 'erlang':'+'
+					    (_cor7, _cor6)
+				    in  let <_cor11> =
+					    %% Line 493
+					    call 'erlang':'band'
+						(Res2, 3855)
+					in  let <_cor9> =
+						%% Line 493
+						call 'erlang':'bsr'
+						    (Res2, 4)
+					    in  let <_cor10> =
+						    %% Line 493
+						    call 'erlang':'band'
+							(_cor9, 3855)
+						in  let <Res3> =
+							%% Line 493
+							call 'erlang':'+'
+							    (_cor11, _cor10)
+						    in  let <_cor15> =
+							    %% Line 494
+							    call 'erlang':'band'
+								(Res3, 255)
+							in  let <_cor13> =
+								%% Line 494
+								call 'erlang':'bsr'
+								    (Res3, 8)
+							    in  let <_cor14> =
+								    %% Line 494
+								    call 'erlang':'band'
+									(_cor13, 255)
+								in  %% Line 494
+								    call 'erlang':'+'
+									(_cor15, _cor14)
+'initColor'/1 =
+    %% Line 501
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 502
+	    call 'hipe_bifs':'array'
+		(_cor0, [])
+	in  %% Line 502
+	    {'colmap',_cor1}
+'getColor'/2 =
+    %% Line 504
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Node,{'colmap',ColMap}> when 'true' ->
+	      %% Line 505
+	      call 'hipe_bifs':'array_sub'
+		  (ColMap, Node)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'getColor',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'setColor'/3 =
+    %% Line 507
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Node,Colour,Col = {'colmap',ColMap}> when 'true' ->
+	      do  %% Line 508
+		  call 'hipe_bifs':'array_update'
+		      (ColMap, Node, Colour)
+		  %% Line 509
+		  Col
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'setColor',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'initAlias'/1 =
+    %% Line 515
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 516
+	    call 'hipe_bifs':'array'
+		(_cor0, [])
+	in  %% Line 516
+	    {'alias',_cor1}
+'getAlias'/2 =
+    %% Line 518
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Node,Alias = {'alias',AliasMap}> when 'true' ->
+	      %% Line 519
+	      case call 'hipe_bifs':'array_sub'
+		       (AliasMap, Node) of
+		%% Line 520
+		<[]> when 'true' ->
+		    %% Line 521
+		    Node
+		%% Line 522
+		<AliasNode> when 'true' ->
+		    %% Line 523
+		    apply 'getAlias'/2
+			(AliasNode, Alias)
+	      end
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'getAlias',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'setAlias'/3 =
+    %% Line 526
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Node,AliasNode,Alias = {'alias',AliasMap}> when 'true' ->
+	      do  %% Line 527
+		  call 'hipe_bifs':'array_update'
+		      (AliasMap, Node, AliasNode)
+		  %% Line 528
+		  Alias
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'setAlias',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'aliasToList'/1 =
+    %% Line 530
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'alias',AliasMap}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 531
+		  call 'hipe_bifs':'array_length'
+		      (AliasMap)
+	      in  %% Line 531
+		  apply 'aliasToList'/3
+		      (AliasMap, _cor1, [])
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'aliasToList',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'aliasToList'/3 =
+    %% Line 533
+    fun (_cor2,_cor1,_cor0) ->
+	let <I0> =
+	    %% Line 534
+	    call 'erlang':'-'
+		(_cor1, 1)
+	in  %% Line 535
+	    case <> of
+	      <>
+		  when call 'erlang':'>='
+			(I0,
+			 0) ->
+		  let <_cor4> =
+		      %% Line 536
+		      call 'hipe_bifs':'array_sub'
+			  (_cor2, I0)
+		  in  %% Line 536
+		      apply 'aliasToList'/3
+			  (_cor2, I0, [_cor4|_cor0])
+	      %% Line 537
+	      <> when 'true' ->
+		  _cor0
+	    end
+'coalesce'/6 =
+    %% Line 557
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 558
+	case call 'hipe_moves':'worklist_get_and_remove'
+		 (_cor5) of
+	  %% Line 559
+	  <{[],Moves0}> when 'true' ->
+	      %% Line 563
+	      {Moves0,_cor4,_cor3,_cor2}
+	  %% Line 564
+	  <{Move,Moves0}> when 'true' ->
+	      %% Line 565
+	      case call 'hipe_moves':'get_move'
+		       (Move, Moves0) of
+		<{Dest,Source}> when 'true' ->
+		    let <Alias_src> =
+			%% Line 567
+			apply 'getAlias'/2
+			    (Source, _cor2)
+		    in  let <Alias_dst> =
+			    %% Line 568
+			    apply 'getAlias'/2
+				(Dest, _cor2)
+			in  let <U,V> =
+				%% Line 569
+				case call _cor0:'is_precoloured'
+					 (Alias_dst) of
+				  %% Line 570
+				  <'true'> when 'true' ->
+				      <Alias_dst,Alias_src>
+				  %% Line 571
+				  <'false'> when 'true' ->
+				      <Alias_src,Alias_dst>
+				  ( <_cor9> when 'true' ->
+					primop 'match_fail'
+					    ({'case_clause',_cor9})
+				    -| ['compiler_generated'] )
+				end
+			    in  %% Line 574
+				case <> of
+				  <>
+				      when call 'erlang':'=:='
+					    (U,
+					     V) ->
+				      let <Worklists1> =
+					  %% Line 576
+					  apply 'add_worklist'/6
+					      (_cor3, U, _cor1, Moves0, _cor4, _cor0)
+				      in  %% Line 577
+					  {Moves0,_cor4,Worklists1,_cor2}
+				  %% Line 578
+				  <> when 'true' ->
+				      let <_cor16> =
+					  %% Line 579
+					  ( case call _cor0:'is_precoloured'
+						     (V) of
+					      ( <( 'true'
+						   -| ['compiler_generated'] )> when 'true' ->
+						    'true'
+						-| ['compiler_generated'] )
+					      ( <( 'false'
+						   -| ['compiler_generated'] )> when 'true' ->
+						    %% Line 580
+						    call 'hipe_ig':'nodes_are_adjacent'
+							(U, V, _cor4)
+						-| ['compiler_generated'] )
+					      ( <_cor14> when 'true' ->
+						    ( call ( 'erlang'
+							     -| ['compiler_generated'] ):( 'error'
+											   -| ['compiler_generated'] )
+							  (( {( 'badarg'
+								-| ['compiler_generated'] ),_cor14}
+							     -| ['compiler_generated'] ))
+						      -| ['compiler_generated'] )
+						-| ['compiler_generated'] )
+					    end
+					    -| ['compiler_generated'] )
+				      in  %% Line 579
+					  case _cor16 of
+					    %% Line 581
+					    <'true'> when 'true' ->
+						let <Worklists1> =
+						    %% Line 583
+						    apply 'add_worklist'/6
+							(_cor3, U, _cor1, Moves0, _cor4, _cor0)
+						in  let <Worklists2> =
+							%% Line 584
+							apply 'add_worklist'/6
+							    (Worklists1, V, _cor1, Moves0, _cor4, _cor0)
+						    in  %% Line 585
+							{Moves0,_cor4,Worklists2,_cor2}
+					    %% Line 586
+					    <'false'> when 'true' ->
+						let <_cor24> =
+						    %% Line 587
+						    case call _cor0:'is_precoloured'
+							     (U) of
+						      %% Line 588
+						      <'true'> when 'true' ->
+							  let <AdjV> =
+							      %% Line 589
+							      call 'hipe_ig':'node_adj_list'
+								  (V, _cor4)
+							  in  %% Line 590
+							      apply 'all_adjacent_ok'/6
+								  (AdjV, U, _cor3, _cor4, _cor1, _cor0)
+						      %% Line 591
+						      <'false'> when 'true' ->
+							  let <AdjV> =
+							      %% Line 592
+							      call 'hipe_ig':'node_adj_list'
+								  (V, _cor4)
+							  in  let <AdjU> =
+								  %% Line 593
+								  call 'hipe_ig':'node_adj_list'
+								      (U, _cor4)
+							      in  %% Line 594
+								  apply 'conservative'/6
+								      (AdjU, AdjV, U, _cor3, _cor4, _cor1)
+						      ( <_cor23> when 'true' ->
+							    primop 'match_fail'
+								({'case_clause',_cor23})
+							-| ['compiler_generated'] )
+						    end
+						in  %% Line 587
+						    case _cor24 of
+						      %% Line 596
+						      <'true'> when 'true' ->
+							  %% Line 598
+							  case %% Line 599
+							       apply 'combine'/8
+								   (U, V, _cor4, _cor3, Moves0, _cor2, _cor1, _cor0) of
+							    <{IG1,Worklists1,Moves2,Alias1}> when 'true' ->
+								let <Worklists2> =
+								    %% Line 600
+								    apply 'add_worklist'/6
+									(Worklists1, U, _cor1, Moves2, IG1, _cor0)
+								in  %% Line 601
+								    {Moves2,IG1,Worklists2,Alias1}
+							    ( <_cor26> when 'true' ->
+								  primop 'match_fail'
+								      ({'badmatch',_cor26})
+							      -| ['compiler_generated'] )
+							  end
+						      %% Line 602
+						      <'false'> when 'true' ->
+							  let <Moves1> =
+							      %% Line 603
+							      call 'hipe_moves':'add_active'
+								  (Move, Moves0)
+							  in  %% Line 604
+							      {Moves1,_cor4,_cor3,_cor2}
+						      ( <_cor29> when 'true' ->
+							    primop 'match_fail'
+								({'case_clause',_cor29})
+							-| ['compiler_generated'] )
+						    end
+					    ( <_cor30> when 'true' ->
+						  primop 'match_fail'
+						      ({'case_clause',_cor30})
+					      -| ['compiler_generated'] )
+					  end
+				end
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor31> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor31})
+	    -| ['compiler_generated'] )
+	end
+'add_worklist'/6 =
+    %% Line 628
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor7> =
+	    %% Line 629
+	    call _cor0:'is_precoloured'
+		(_cor4)
+	in  let <_cor12> =
+		%% Line 630
+		( case _cor7 of
+		    ( <'false'> when 'true' ->
+			  %% Line 631
+			  ( case call 'hipe_moves':'move_related'
+				     (_cor4, _cor2) of
+			      ( <'false'> when 'true' ->
+				    call 'hipe_ig':'is_trivially_colourable'
+					(_cor4, _cor3, _cor1)
+				-| ['compiler_generated'] )
+			      ( <'true'> when 'true' ->
+				    'false'
+				-| ['compiler_generated'] )
+			      ( <_cor_variable> when 'true' ->
+				    call 'erlang':'error'
+					('badarg')
+				-| ['compiler_generated'] )
+			    end
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		    ( <'true'> when 'true' ->
+			  'false'
+		      -| ['compiler_generated'] )
+		    ( <_cor_variable> when 'true' ->
+			  call 'erlang':'error'
+			      ('badarg')
+		      -| ['compiler_generated'] )
+		  end
+		  -| ['compiler_generated'] )
+	    in  %% Line 629
+		case _cor12 of
+		  %% Line 632
+		  <'true'> when 'true' ->
+		      %% Line 633
+		      call 'hipe_reg_worklists':'transfer_freeze_simplify'
+			  (_cor4, _cor5)
+		  %% Line 634
+		  <'false'> when 'true' ->
+		      _cor5
+		  ( <_cor13> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor13})
+		    -| ['compiler_generated'] )
+		end
+'combine'/8 =
+    %% Line 656
+    fun (_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor9> =
+	    %% Line 657
+	    case call 'hipe_reg_worklists':'member_freeze'
+		     (_cor6, _cor4) of
+	      %% Line 658
+	      <'true'> when 'true' ->
+		  call 'hipe_reg_worklists':'remove_freeze'
+		      (_cor6, _cor4)
+	      %% Line 659
+	      <'false'> when 'true' ->
+		  call 'hipe_reg_worklists':'remove_spill'
+		      (_cor6, _cor4)
+	      ( <_cor8> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor8})
+		-| ['compiler_generated'] )
+	    end
+	in  let <Worklists11> =
+		%% Line 661
+		call 'hipe_reg_worklists':'add_coalesced'
+		    (_cor6, _cor9)
+	    in  let <Alias1> =
+		    %% Line 665
+		    apply 'setAlias'/3
+			(_cor6, _cor7, _cor2)
+		in  let <_cor14> =
+			%% Line 672
+			call 'hipe_moves':'node_moves'
+			    (_cor7, _cor3)
+		    in  let <_cor13> =
+			    %% Line 673
+			    call 'hipe_moves':'node_moves'
+				(_cor6, _cor3)
+			in  let <_cor15> =
+				%% Line 672
+				call 'ordsets':'union'
+				    (_cor14, _cor13)
+			    in  let <Moves1> =
+				    %% Line 671
+				    call 'hipe_moves':'update_movelist'
+					(_cor7, _cor15, _cor3)
+				in  let <_cor17> =
+					%% Line 676
+					call 'hipe_moves':'node_movelist'
+					    (_cor6, Moves1)
+				    in  let <Moves2> =
+					    %% Line 676
+					    apply 'enable_moves_active_to_worklist'/2
+						(_cor17, Moves1)
+					in  let <AdjV> =
+						%% Line 677
+						call 'hipe_ig':'node_adj_list'
+						    (_cor6, _cor5)
+					    in  %% Line 679
+						case %% Line 680
+						     apply 'combine_edges'/7
+							 (AdjV, _cor7, _cor5, Worklists11, Moves2, _cor1, _cor0) of
+						  <{IG1,Worklists2,Moves3}> when 'true' ->
+						      let <_cor22> =
+							  %% Line 682
+							  call 'hipe_ig':'is_trivially_colourable'
+							      (_cor7, _cor1, IG1)
+						      in  let <_cor24> =
+							      %% Line 683
+							      ( case _cor22 of
+								  ( <'false'> when 'true' ->
+									%% Line 684
+									call 'hipe_reg_worklists':'member_freeze'
+									    (_cor7, Worklists2)
+								    -| ['compiler_generated'] )
+								  ( <'true'> when 'true' ->
+									'false'
+								    -| ['compiler_generated'] )
+								  ( <_cor_variable> when 'true' ->
+									call 'erlang':'error'
+									    ('badarg')
+								    -| ['compiler_generated'] )
+								end
+								-| ['compiler_generated'] )
+							  in  let <_cor26> =
+								  %% Line 682
+								  case _cor24 of
+								    %% Line 685
+								    <'true'> when 'true' ->
+									%% Line 686
+									call 'hipe_reg_worklists':'transfer_freeze_spill'
+									    (_cor7, Worklists2)
+								    %% Line 687
+								    <'false'> when 'true' ->
+									Worklists2
+								    ( <_cor25> when 'true' ->
+									  primop 'match_fail'
+									      ({'case_clause',_cor25})
+								      -| ['compiler_generated'] )
+								  end
+							      in  %% Line 689
+								  {IG1,_cor26,Moves3,Alias1}
+						  ( <_cor20> when 'true' ->
+							primop 'match_fail'
+							    ({'badmatch',_cor20})
+						    -| ['compiler_generated'] )
+						end
+'combine_edges'/7 =
+    %% Line 711
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_U,IG,Worklists,Moves,_X_K,_X_Target> when 'true' ->
+	      %% Line 712
+	      {IG,Worklists,Moves}
+	  %% Line 713
+	  <[T|Ts],U,IG,Worklists,Moves,K,Target> when 'true' ->
+	      %% Line 714
+	      case call 'hipe_reg_worklists':'member_stack_or_coalesced'
+		       (T, Worklists) of
+		%% Line 715
+		<'true'> when 'true' ->
+		    apply 'combine_edges'/7
+			(Ts, U, IG, Worklists, Moves, K, Target)
+		%% Line 716
+		<_cor25> when 'true' ->
+		    let <OldDegree> =
+			%% Line 729
+			call 'hipe_ig':'get_node_degree'
+			    (T, IG)
+		    in  let <IG1> =
+			    %% Line 730
+			    call 'hipe_ig':'add_edge'
+				(T, U, IG, Target)
+			in  let <NewDegree> =
+				%% Line 731
+				call 'hipe_ig':'get_node_degree'
+				    (T, IG1)
+			    in  let <_cor14> =
+				    %% Line 733
+				    case <> of
+				      <>
+					  when try
+						let <_cor10> =
+						    call 'erlang':'=:='
+							(NewDegree, K)
+						in  let <_cor11> =
+							call 'erlang':'-'
+							    (K, 1)
+						    in  let <_cor12> =
+							    call 'erlang':'=:='
+								(OldDegree, _cor11)
+							in  call 'erlang':'and'
+								(_cor10, _cor12)
+					    of <Try> ->
+						Try
+					    catch <T,R> ->
+						'false' ->
+					  let <Worklists00> =
+					      %% Line 741
+					      call 'hipe_reg_worklists':'remove_freeze'
+						  (T, Worklists)
+					  in  %% Line 742
+					      call 'hipe_reg_worklists':'add_spill'
+						  (T, Worklists00)
+				      %% Line 743
+				      <> when 'true' ->
+					  %% Line 744
+					  Worklists
+				    end
+				in  %% Line 746
+				    case %% Line 747
+					 apply 'decrement_degree'/5
+					     ([T|[]], IG1, _cor14, Moves, K) of
+				      <{IG2,Worklists1,Moves1}> when 'true' ->
+					  %% Line 748
+					  apply 'combine_edges'/7
+					      (Ts, U, IG2, Worklists1, Moves1, K, Target)
+				      ( <_cor16> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_cor16})
+					-| ['compiler_generated'] )
+				    end
+	      end
+	  ( <_cor24,_cor23,_cor22,_cor21,_cor20,_cor19,_cor18> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor24,_cor23,_cor22,_cor21,_cor20,_cor19,_cor18})
+		  -| [{'function_name',{'combine_edges',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'ok'/5 =
+    %% Line 767
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 769
+	( case call 'hipe_ig':'is_trivially_colourable'
+		   (_cor4, _cor1, _cor2) of
+	    ( <( 'true'
+		 -| ['compiler_generated'] )> when 'true' ->
+		  'true'
+	      -| ['compiler_generated'] )
+	    ( <( 'false'
+		 -| ['compiler_generated'] )> when 'true' ->
+		  %% Line 770
+		  ( case call _cor0:'is_precoloured'
+			     (_cor4) of
+		      ( <( 'true'
+			   -| ['compiler_generated'] )> when 'true' ->
+			    'true'
+			-| ['compiler_generated'] )
+		      ( <( 'false'
+			   -| ['compiler_generated'] )> when 'true' ->
+			    call 'hipe_ig':'nodes_are_adjacent'
+				(_cor4, _cor3, _cor2)
+			-| ['compiler_generated'] )
+		      ( <_cor6> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {( 'badarg'
+					-| ['compiler_generated'] ),_cor6}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	    ( <_cor5> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {( 'badarg'
+			      -| ['compiler_generated'] ),_cor5}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'all_adjacent_ok'/6 =
+    %% Line 788
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_U,_X_Worklists,_X_IG,_X_K,_X_Target> when 'true' ->
+	      'true'
+	  %% Line 789
+	  <[T|Ts],U,Worklists,IG,K,Target> when 'true' ->
+	      %% Line 790
+	      case call 'hipe_reg_worklists':'member_stack_or_coalesced'
+		       (T, Worklists) of
+		%% Line 791
+		<'true'> when 'true' ->
+		    apply 'all_adjacent_ok'/6
+			(Ts, U, Worklists, IG, K, Target)
+		%% Line 792
+		<_cor14> when 'true' ->
+		    %% Line 794
+		    case apply 'ok'/5
+			     (T, U, IG, K, Target) of
+		      %% Line 795
+		      <'true'> when 'true' ->
+			  apply 'all_adjacent_ok'/6
+			      (Ts, U, Worklists, IG, K, Target)
+		      %% Line 796
+		      <'false'> when 'true' ->
+			  'false'
+		      ( <_cor6> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor6})
+			-| ['compiler_generated'] )
+		    end
+	      end
+	  ( <_cor13,_cor12,_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11,_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'all_adjacent_ok',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'conservative'/6 =
+    %% Line 815
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 816
+	apply 'conservative_countU'/7
+	    (_cor5, _cor4, _cor3, _cor2, _cor1, _cor0, 0)
+'conservative_countU'/7 =
+    %% Line 833
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],AdjV,U,Worklists,IG,K,Cnt> when 'true' ->
+	      %% Line 834
+	      apply 'conservative_countV'/6
+		  (AdjV, U, Worklists, IG, K, Cnt)
+	  %% Line 835
+	  <[Node|AdjU],AdjV,U,Worklists,IG,K,Cnt> when 'true' ->
+	      %% Line 836
+	      case call 'hipe_reg_worklists':'member_stack_or_coalesced'
+		       (Node, Worklists) of
+		%% Line 837
+		<'true'> when 'true' ->
+		    apply 'conservative_countU'/7
+			(AdjU, AdjV, U, Worklists, IG, K, Cnt)
+		%% Line 838
+		<_cor17> when 'true' ->
+		    %% Line 839
+		    case call 'hipe_ig':'is_trivially_colourable'
+			     (Node, K, IG) of
+		      %% Line 840
+		      <'true'> when 'true' ->
+			  apply 'conservative_countU'/7
+			      (AdjU, AdjV, U, Worklists, IG, K, Cnt)
+		      %% Line 841
+		      <_cor18> when 'true' ->
+			  let <Cnt1> =
+			      %% Line 842
+			      call 'erlang':'+'
+				  (Cnt, 1)
+			  in  %% Line 843
+			      case <> of
+				<>
+				    when call 'erlang':'<'
+					  (Cnt1,
+					   K) ->
+				    %% Line 844
+				    apply 'conservative_countU'/7
+					(AdjU, AdjV, U, Worklists, IG, K, Cnt1)
+				%% Line 845
+				<> when 'true' ->
+				    'false'
+			      end
+		    end
+	      end
+	  ( <_cor16,_cor15,_cor14,_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15,_cor14,_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'conservative_countU',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'conservative_countV'/6 =
+    %% Line 850
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_U,_X_Worklists,_X_IG,_X_K,_X_Cnt> when 'true' ->
+	      'true'
+	  %% Line 851
+	  <[Node|AdjV],U,Worklists,IG,K,Cnt> when 'true' ->
+	      %% Line 852
+	      case call 'hipe_reg_worklists':'member_stack_or_coalesced'
+		       (Node, Worklists) of
+		%% Line 853
+		<'true'> when 'true' ->
+		    apply 'conservative_countV'/6
+			(AdjV, U, Worklists, IG, K, Cnt)
+		%% Line 854
+		<_cor16> when 'true' ->
+		    %% Line 855
+		    case call 'hipe_ig':'nodes_are_adjacent'
+			     (Node, U, IG) of
+		      %% Line 856
+		      <'true'> when 'true' ->
+			  apply 'conservative_countV'/6
+			      (AdjV, U, Worklists, IG, K, Cnt)
+		      %% Line 857
+		      <_cor17> when 'true' ->
+			  %% Line 858
+			  case call 'hipe_ig':'is_trivially_colourable'
+				   (Node, K, IG) of
+			    %% Line 859
+			    <'true'> when 'true' ->
+				apply 'conservative_countV'/6
+				    (AdjV, U, Worklists, IG, K, Cnt)
+			    %% Line 860
+			    <_cor18> when 'true' ->
+				let <Cnt1> =
+				    %% Line 861
+				    call 'erlang':'+'
+					(Cnt, 1)
+				in  %% Line 862
+				    case <> of
+				      <>
+					  when call 'erlang':'<'
+						(Cnt1,
+						 K) ->
+					  %% Line 863
+					  apply 'conservative_countV'/6
+					      (AdjV, U, Worklists, IG, K, Cnt1)
+				      %% Line 864
+				      <> when 'true' ->
+					  'false'
+				    end
+			  end
+		    end
+	      end
+	  ( <_cor15,_cor14,_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14,_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'conservative_countV',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'selectSpill'/6 =
+    %% Line 887
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 888
+	case call 'hipe_reg_worklists':'spill'
+		 (_cor5) of
+	  <[CAR|CDR]> when 'true' ->
+	      let <SpillCost> =
+		  %% Line 890
+		  apply 'getCost'/3
+		      (CAR, _cor3, _cor0)
+	      in  let <M> =
+		      %% Line 891
+		      apply 'findCheapest'/5
+			  (CDR, _cor3, SpillCost, CAR, _cor0)
+		  in  let <WorkLists1> =
+			  %% Line 893
+			  call 'hipe_reg_worklists':'remove_spill'
+			      (M, _cor5)
+		      in  %% Line 897
+			  case apply 'freezeMoves'/6
+				   (M, _cor2, WorkLists1, _cor4, _cor3, _cor1) of
+			    <{WorkLists2,Moves1}> when 'true' ->
+				let <WorkLists3> =
+				    %% Line 898
+				    call 'hipe_reg_worklists':'add_simplify'
+					(M, WorkLists2)
+				in  %% Line 899
+				    {WorkLists3,Moves1}
+			    ( <_cor10> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor10})
+			      -| ['compiler_generated'] )
+			  end
+	  ( <_cor6> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor6})
+	    -| ['compiler_generated'] )
+	end
+'findCheapest'/5 =
+    %% Line 903
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_IG,_X_Cost,Cheapest,_X_SpillLimit> when 'true' ->
+	      %% Line 904
+	      Cheapest
+	  %% Line 905
+	  <[Node|Nodes],IG,Cost,Cheapest,SpillLimit> when 'true' ->
+	      let <ThisCost> =
+		  %% Line 906
+		  apply 'getCost'/3
+		      (Node, IG, SpillLimit)
+	      in  %% Line 907
+		  case <> of
+		    %% Line 908
+		    <>
+			when call 'erlang':'<'
+			      (ThisCost,
+			       Cost) ->
+			%% Line 909
+			apply 'findCheapest'/5
+			    (Nodes, IG, ThisCost, Node, SpillLimit)
+		    %% Line 910
+		    <> when 'true' ->
+			%% Line 911
+			apply 'findCheapest'/5
+			    (Nodes, IG, Cost, Cheapest, SpillLimit)
+		  end
+	  ( <_cor11,_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'findCheapest',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'getCost'/3 =
+    %% Line 917
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 918
+	case <> of
+	  %% Line 919
+	  <>
+	      when call 'erlang':'>'
+		    (_cor2,
+		     _cor0) ->
+	      'inf'
+	  %% Line 920
+	  <> when 'true' ->
+	      call 'hipe_ig':'node_spill_cost'
+		  (_cor2, _cor1)
+	end
+'freeze'/5 =
+    %% Line 944
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 945
+	case call 'hipe_reg_worklists':'freeze'
+		 (_cor3) of
+	  <[U|_cor14]> when 'true' ->
+	      let <WorkLists0> =
+		  %% Line 947
+		  call 'hipe_reg_worklists':'remove_freeze'
+		      (U, _cor3)
+	      in  %% Line 951
+		  case apply 'freezeMoves'/6
+			   (U, _cor4, WorkLists0, _cor2, _cor1, _cor0) of
+		    <{WorkLists1,Moves1}> when 'true' ->
+			let <WorkLists2> =
+			    %% Line 952
+			    call 'hipe_reg_worklists':'add_simplify'
+				(U, WorkLists1)
+			in  %% Line 953
+			    {WorkLists2,Moves1}
+		    ( <_cor7> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor7})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'freezeMoves'/6 =
+    %% Line 975
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <Nodes> =
+	    %% Line 976
+	    call 'hipe_moves':'node_moves'
+		(_cor5, _cor2)
+	in  %% Line 977
+	    apply 'freezeEm'/7
+		(_cor5, Nodes, _cor4, _cor3, _cor2, _cor1, _cor0)
+'moves'/4 =
+    %% Line 982
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 983
+	case call 'hipe_moves':'get_move'
+		 (_cor2, _cor0) of
+	  <{X,Y}> when 'true' ->
+	      let <X1> =
+		  %% Line 993
+		  apply 'getAlias'/2
+		      (X, _cor1)
+	      in  let <Y1> =
+		      %% Line 994
+		      apply 'getAlias'/2
+			  (Y, _cor1)
+		  in  %% Line 995
+		      case <> of
+			<>
+			    when call 'erlang':'=:='
+				  (_cor3,
+				   X1) ->
+			    Y1
+			%% Line 996
+			<>
+			    when call 'erlang':'=:='
+				  (_cor3,
+				   Y1) ->
+			    X1
+			%% Line 997
+			<> when 'true' ->
+			    call 'erlang':'exit'
+				({'hipe_coalescing_regalloc','moves'})
+		      end
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'freezeEm'/7 =
+    %% Line 1000
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <_X_U,[],_X_K,WorkLists,Moves,_X_IG,_X_Alias> when 'true' ->
+	      %% Line 1001
+	      {WorkLists,Moves}
+	  %% Line 1002
+	  <U,[M|Ms],K,WorkLists,Moves,IG,Alias> when 'true' ->
+	      let <V> =
+		  %% Line 1003
+		  apply 'moves'/4
+		      (U, M, Alias, Moves)
+	      in  %% Line 1004
+		  case apply 'freezeEm2'/8
+			   (U, V, M, K, WorkLists, Moves, IG, Alias) of
+		    <{WorkLists2,Moves2}> when 'true' ->
+			%% Line 1005
+			apply 'freezeEm'/7
+			    (U, Ms, K, WorkLists2, Moves2, IG, Alias)
+		    ( <_cor8> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor8})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor15,_cor14,_cor13,_cor12,_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14,_cor13,_cor12,_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'freezeEm',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'freezeEm2'/8 =
+    %% Line 1007
+    fun (_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 1008
+	case call 'hipe_moves':'member_active'
+		 (_cor5, _cor2) of
+	  %% Line 1009
+	  <'true'> when 'true' ->
+	      let <Moves1> =
+		  %% Line 1010
+		  call 'hipe_moves':'remove_active'
+		      (_cor5, _cor2)
+	      in  %% Line 1011
+		  apply 'freezeEm3'/8
+		      (_cor7, _cor6, _cor5, _cor4, _cor3, Moves1, _cor1, _cor0)
+	  %% Line 1012
+	  <'false'> when 'true' ->
+	      let <Moves1> =
+		  %% Line 1013
+		  call 'hipe_moves':'remove_worklist'
+		      (_cor5, _cor2)
+	      in  %% Line 1014
+		  apply 'freezeEm3'/8
+		      (_cor7, _cor6, _cor5, _cor4, _cor3, Moves1, _cor1, _cor0)
+	  ( <_cor10> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor10})
+	    -| ['compiler_generated'] )
+	end
+'freezeEm3'/8 =
+    %% Line 1017
+    fun (_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor11> =
+	    %% Line 1021
+	    call 'hipe_moves':'move_related'
+		(_cor6, _cor2)
+	in  let <_cor13> =
+		%% Line 1021
+		( case _cor11 of
+		    ( <'false'> when 'true' ->
+			  %% Line 1022
+			  call 'hipe_ig':'is_trivially_colourable'
+			      (_cor6, _cor4, _cor1)
+		      -| ['compiler_generated'] )
+		    ( <'true'> when 'true' ->
+			  'false'
+		      -| ['compiler_generated'] )
+		    ( <_cor_variable> when 'true' ->
+			  call 'erlang':'error'
+			      ('badarg')
+		      -| ['compiler_generated'] )
+		  end
+		  -| ['compiler_generated'] )
+	    in  %% Line 1021
+		case _cor13 of
+		  %% Line 1023
+		  <'true'> when 'true' ->
+		      let <Worklists1> =
+			  %% Line 1025
+			  call 'hipe_reg_worklists':'transfer_freeze_simplify'
+			      (_cor6, _cor3)
+		      in  %% Line 1026
+			  {Worklists1,_cor2}
+		  %% Line 1027
+		  <'false'> when 'true' ->
+		      %% Line 1028
+		      {_cor3,_cor2}
+		  ( <_cor15> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor15})
+		    -| ['compiler_generated'] )
+		end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_coalescing_regalloc')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_coalescing_regalloc', _cor0)
+end

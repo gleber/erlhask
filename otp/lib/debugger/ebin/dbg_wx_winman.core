@@ -1,0 +1,488 @@
+module 'dbg_wx_winman' ['clear_process'/1,
+			'code_change'/3,
+			'handle_call'/3,
+			'handle_cast'/2,
+			'handle_info'/2,
+			'init'/1,
+			'insert'/2,
+			'is_started'/1,
+			'module_info'/0,
+			'module_info'/1,
+			'raise'/1,
+			'start'/0,
+			'terminate'/2,
+			'update_windows_menu'/2]
+    attributes [%% Line 22
+		'behaviour' =
+		    %% Line 22
+		    ['gen_server']]
+'start'/0 =
+    %% Line 50
+    fun () ->
+	%% Line 51
+	call 'gen_server':'start'
+	    ({'local','dbg_wx_winman'}, 'dbg_wx_winman', [], [])
+'insert'/2 =
+    %% Line 58
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 59
+	    call 'erlang':'self'
+		()
+	in  %% Line 59
+	    call 'gen_server':'cast'
+		('dbg_wx_winman', {'insert',_cor2,_cor1,_cor0})
+'is_started'/1 =
+    %% Line 65
+    fun (_cor0) ->
+	%% Line 66
+	case call 'gen_server':'call'
+		 ('dbg_wx_winman', {'is_started',_cor0}, 'infinity') of
+	  %% Line 67
+	  <{'true',Win}> when 'true' ->
+	      do  %% Line 68
+		  apply 'raise'/1
+		      (Win)
+		  %% Line 69
+		  'true'
+	  %% Line 70
+	  <'false'> when 'true' ->
+	      %% Line 71
+	      'false'
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'clear_process'/1 =
+    %% Line 78
+    fun (_cor0) ->
+	%% Line 79
+	call 'gen_server':'cast'
+	    ('dbg_wx_winman', {'clear_process',_cor0})
+'raise'/1 =
+    %% Line 85
+    fun (_cor0) ->
+	do  %% Line 86
+	    case call 'wxTopLevelWindow':'isIconized'
+		     (_cor0) of
+	      %% Line 87
+	      <'true'> when 'true' ->
+		  call 'wxTopLevelWindow':'iconize'
+		      (_cor0, [{'iconize','false'}])
+	      %% Line 88
+	      <'false'> when 'true' ->
+		  'ok'
+	      ( <_cor1> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor1})
+		-| ['compiler_generated'] )
+	    end
+	    %% Line 90
+	    call 'wxWindow':'raise'
+		(_cor0)
+'update_windows_menu'/2 =
+    %% Line 97
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Win,[MonInfo|Infos]> when 'true' ->
+	      let <Menu> =
+		  %% Line 98
+		  call 'erlang':'get'
+		      ('Windows')
+	      in  let <OldItems> =
+		      %% Line 99
+		      call 'wxMenu':'getMenuItems'
+			  (Menu)
+		  in  do  %% Line 100
+			  ( letrec
+				'lc$^0'/1 =
+				    fun (_cor6) ->
+					case _cor6 of
+					  <[Item|_cor5]> when 'true' ->
+					      do  call 'wxMenu':'delete'
+						      (Menu, Item)
+						  apply 'lc$^0'/1
+						      (_cor5)
+					  <[]> when 'true' ->
+					      []
+					  ( <_cor6> when 'true' ->
+						( primop 'match_fail'
+						      ({'function_clause',_cor6})
+						  -| [{'function_name',{'lc$^0',1}}] )
+					    -| ['compiler_generated'] )
+					end
+			    in  apply 'lc$^0'/1
+				    (OldItems)
+			    -| ['list_comprehension'] )
+			  do  %% Line 101
+			      apply 'menuitem'/4
+				  (Win, Menu, MonInfo, 700)
+			      do  %% Line 102
+				  call 'wxMenu':'appendSeparator'
+				      (Menu)
+				  let <_cor13> =
+				      %% Line 103
+				      ( fun (_cor10,_cor9) ->
+					    apply 'menuitem'/4
+						(Win, Menu, _cor10, _cor9)
+					-| [{'id',{0,0,'-update_windows_menu/2-fun-0-'}}] )
+				  in  %% Line 103
+				      call 'wx':'foldl'
+					  (_cor13, 701, Infos)
+	  ( <_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14})
+		  -| [{'function_name',{'update_windows_menu',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'menuitem'/4 =
+    %% Line 105
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Window,Menu,{Title,Win},Id> when 'true' ->
+	      do  %% Line 106
+		  call 'wxMenu':'append'
+		      (Menu, Id, Title)
+		  do  %% Line 107
+		      call 'wxWindow':'connect'
+			  (Window, 'command_menu_selected', %% Line 108
+							    [{'id',Id}|[{'userData',{'dbg_ui_winman',Win}}|[]]])
+		      %% Line 109
+		      call 'erlang':'+'
+			  (Id, 1)
+	  ( <_cor7,_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'menuitem',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'init'/1 =
+    %% Line 116
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      do  %% Line 117
+		  call 'erlang':'process_flag'
+		      ('trap_exit', 'true')
+		  %% Line 118
+		  {'ok',{'state',[]}}
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_call'/3 =
+    %% Line 120
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'is_started',Title},_X_From,State> when 'true' ->
+	      %% Line 121
+	      ( case State of
+		  ( <( {'state',_rec0}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor8> =
+			    case call 'lists':'keyfind'
+				     (Title, 3, _rec0) of
+			      %% Line 122
+			      <'false'> when 'true' ->
+				  'false'
+			      %% Line 123
+			      <Win> when 'true' ->
+				  ( case Win of
+				      ( <( {'win',_cor14,_cor15,_rec1}
+					   -| ['compiler_generated'] )> when 'true' ->
+					    {'true',_rec1}
+					-| ['compiler_generated'] )
+				      ( <_cor16> when 'true' ->
+					    ( call ( 'erlang'
+						     -| ['compiler_generated'] ):( 'error'
+										   -| ['compiler_generated'] )
+						  (( {'badrecord','win'}
+						     -| ['compiler_generated'] ))
+					      -| ['compiler_generated'] )
+					-| ['compiler_generated'] )
+				    end
+				    -| ['compiler_generated'] )
+			    end
+			in  %% Line 125
+			    {'reply',_cor8,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor13> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  ( <_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'handle_call',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_cast'/2 =
+    %% Line 127
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'insert',Pid,Title,Win},State> when 'true' ->
+	      do  %% Line 128
+		  call 'erlang':'link'
+		      (Pid)
+		  %% Line 129
+		  ( case State of
+		      ( <( {'state',_rec2}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    let <Wins> =
+				call 'erlang':'++'
+				    (_rec2, [{'win',Pid,Title,Win}|[]])
+			    in  do  %% Line 130
+				    apply 'inform_all'/1
+					(Wins)
+				    let <_cor7> = {%% Line 131
+					 'state',%% Line 131
+						 Wins}
+				    in  %% Line 131
+					{'noreply',_cor7}
+			-| ['compiler_generated'] )
+		      ( <_cor20> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	  %% Line 133
+	  <{'clear_process',Title},State> when 'true' ->
+	      %% Line 134
+	      ( case State of
+		  ( <( {'state',_rec5}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor13> =
+			    %% Line 135
+			    case call 'lists':'keyfind'
+				     (Title, 3, _rec5) of
+			      %% Line 136
+			      <{'win',Pid,_cor23,_cor24}> when 'true' ->
+				  do  %% Line 138
+				      call 'erlang':'!'
+					  (Pid, {'dbg_ui_winman','destroy'})
+				      %% Line 139
+				      call 'lists':'keydelete'
+					  (Title, 3, _rec5)
+			      %% Line 140
+			      <'false'> when 'true' ->
+				  _rec5
+			      ( <_cor12> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor12})
+				-| ['compiler_generated'] )
+			    end
+			in  let <_cor17> = {%% Line 143
+				 'state',_cor13}
+			    in  %% Line 143
+				{'noreply',_cor17}
+		    -| ['compiler_generated'] )
+		  ( <_cor22> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  ( <_cor19,_cor18> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor19,_cor18})
+		  -| [{'function_name',{'handle_cast',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_info'/2 =
+    %% Line 145
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'EXIT',Pid,_X_Reason},State> when 'true' ->
+	      %% Line 146
+	      ( case State of
+		  ( <( {'state',_rec8}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case _rec8 of
+			  <[Mon|_X_Wins]> when 'true' ->
+			      %% Line 147
+			      case <> of
+				%% Line 148
+				<>
+				    when ( try
+					    ( case <> of
+						( <>
+						      when ( call ( 'erlang'
+								 -| ['compiler_generated'] ):( 'is_record'
+											       -| ['compiler_generated'] )
+							      (Mon,
+							       ( 'win'
+								 -| ['compiler_generated'] ),
+							       ( 4
+								 -| ['compiler_generated'] ))
+							  -| ['compiler_generated'] ) ->
+						      let <_cor9> =
+							  ( call 'erlang':'element'
+								(2, Mon)
+							    -| ['compiler_generated'] )
+						      in  ( call 'erlang':'=:='
+								(Pid, _cor9)
+							    -| ['compiler_generated'] )
+						  -| ['compiler_generated'] )
+						( <> when 'true' ->
+						      'false'
+						  -| ['compiler_generated'] )
+					      end
+					      -| ['compiler_generated'] )
+					of <Try> ->
+					    Try
+					catch <T,R> ->
+					    'false'
+					-| ['compiler_generated'] ) ->
+				    {'stop','normal',State}
+				%% Line 149
+				<> when 'true' ->
+				    let <Wins2> =
+					%% Line 150
+					call 'lists':'keydelete'
+					    (Pid, 2, _rec8)
+				    in  do  %% Line 151
+					    apply 'inform_all'/1
+						(Wins2)
+					    let <_cor16> = {%% Line 152
+						 'state',%% Line 152
+							 Wins2}
+					    in  %% Line 152
+						{'noreply',_cor16}
+			      end
+			  ( <_cor4> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor4})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor19> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  ( <_cor18,_cor17> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor18,_cor17})
+		  -| [{'function_name',{'handle_info',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'terminate'/2 =
+    %% Line 155
+    fun (_cor1,_cor0) ->
+	%% Line 156
+	( case _cor0 of
+	    ( <( {'state',_rec12}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  do  apply 'delete_all'/1
+			  (_rec12)
+		      %% Line 157
+		      'ok'
+	      -| ['compiler_generated'] )
+	    ( <_cor6> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'code_change'/3 =
+    %% Line 159
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 160
+	{'ok',_cor1}
+'inform_all'/1 =
+    %% Line 167
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 168
+	    ( fun (_cor1) ->
+		  case _cor1 of
+		    <{'win',_cor10,Title,Win}> when 'true' ->
+			{Title,Win}
+		    ( <_cor2> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor2})
+			    -| [{'function_name',{'-inform_all/1-fun-0-',1}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-inform_all/1-fun-0-'}}] )
+	in  let <Infos> =
+		%% Line 168
+		call 'lists':'map'
+		    (_cor3, _cor0)
+	    in  let <Msg> = {%% Line 170
+		     'dbg_ui_winman',%% Line 170
+				     'update_windows_menu',%% Line 170
+							   Infos}
+		in  let <_cor8> =
+			%% Line 171
+			( fun (_cor6) ->
+			      case _cor6 of
+				<{'win',Pid,_cor11,_cor12}> when 'true' ->
+				    call 'erlang':'!'
+					(Pid, Msg)
+				( <_cor7> when 'true' ->
+				      ( primop 'match_fail'
+					    ({'function_clause',_cor7})
+					-| [{'function_name',{'-inform_all/1-fun-1-',1}}] )
+				  -| ['compiler_generated'] )
+			      end
+			  -| [{'id',{0,0,'-inform_all/1-fun-1-'}}] )
+		    in  %% Line 171
+			call 'lists':'foreach'
+			    (_cor8, _cor0)
+'delete_all'/1 =
+    %% Line 173
+    fun (_cor0) ->
+	let <_cor4> =
+	    %% Line 175
+	    ( fun (_cor2) ->
+		  case _cor2 of
+		    <{'win',Pid,_cor6,_cor7}> when 'true' ->
+			call 'erlang':'!'
+			    (Pid, {'dbg_ui_winman','destroy'})
+		    ( <_cor3> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor3})
+			    -| [{'function_name',{'-delete_all/1-fun-0-',1}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-delete_all/1-fun-0-'}}] )
+	in  %% Line 175
+	    call 'lists':'foreach'
+		(_cor4, _cor0)
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('dbg_wx_winman')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('dbg_wx_winman', _cor0)
+end

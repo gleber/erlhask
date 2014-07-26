@@ -1,0 +1,1886 @@
+module 'megaco_codec_meas' ['do_measure_codec'/7,
+			    'do_measure_codec_loop'/7,
+			    'flex_scanner_handler'/1,
+			    'module_info'/0,
+			    'module_info'/1,
+			    'start'/0,
+			    'start'/1,
+			    'start1'/0]
+    attributes [%% Line 24
+		'type' =
+		    %% Line 24
+		    [{{'record','file_info'},[{'typed_record_field',{'record_field',25,{'atom',25,'size'}},{'type',25,'union',[{'atom',25,'undefined'}|[{'type',25,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',26,{'atom',26,'type'}},{'type',26,'union',[{'atom',26,'undefined'}|[{'atom',26,'device'}|[{'atom',26,'directory'}|[{'atom',26,'other'}|[{'atom',26,'regular'}|[{'atom',26,'symlink'}]]]]]]}}|[{'typed_record_field',{'record_field',27,{'atom',27,'access'}},{'type',27,'union',[{'atom',27,'undefined'}|[{'atom',27,'read'}|[{'atom',27,'write'}|[{'atom',27,'read_write'}|[{'atom',27,'none'}]]]]]}}|[{'typed_record_field',{'record_field',28,{'atom',28,'atime'}},{'type',28,'union',[{'atom',28,'undefined'}|[{'remote_type',28,[{'atom',28,'file'}|[{'atom',28,'date_time'}|[[]]]]}|[{'type',28,'non_neg_integer',[]}]]]}}|[{'typed_record_field',{'record_field',32,{'atom',32,'mtime'}},{'type',32,'union',[{'atom',32,'undefined'}|[{'remote_type',32,[{'atom',32,'file'}|[{'atom',32,'date_time'}|[[]]]]}|[{'type',32,'non_neg_integer',[]}]]]}}|[{'typed_record_field',{'record_field',34,{'atom',34,'ctime'}},{'type',34,'union',[{'atom',34,'undefined'}|[{'remote_type',34,[{'atom',34,'file'}|[{'atom',34,'date_time'}|[[]]]]}|[{'type',34,'non_neg_integer',[]}]]]}}|[{'typed_record_field',{'record_field',40,{'atom',40,'mode'}},{'type',40,'union',[{'atom',40,'undefined'}|[{'type',40,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',43,{'atom',43,'links'}},{'type',43,'union',[{'atom',43,'undefined'}|[{'type',43,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',46,{'atom',46,'major_device'}},{'type',46,'union',[{'atom',46,'undefined'}|[{'type',46,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',52,{'atom',52,'minor_device'}},{'type',52,'union',[{'atom',52,'undefined'}|[{'type',52,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',53,{'atom',53,'inode'}},{'type',53,'union',[{'atom',53,'undefined'}|[{'type',53,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',54,{'atom',54,'uid'}},{'type',54,'union',[{'atom',54,'undefined'}|[{'type',54,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',55,{'atom',55,'gid'}},{'type',55,'union',[{'atom',55,'undefined'}|[{'type',55,'non_neg_integer',[]}]]}}]]]]]]]]]]]]],[]}],
+		%% Line 58
+		'type' =
+		    %% Line 58
+		    [{{'record','file_descriptor'},[{'typed_record_field',{'record_field',59,{'atom',59,'module'}},{'type',59,'union',[{'atom',59,'undefined'}|[{'type',59,'module',[]}]]}}|[{'typed_record_field',{'record_field',60,{'atom',60,'data'}},{'type',60,'union',[{'atom',60,'undefined'}|[{'type',60,'term',[]}]]}}]],[]}],
+		%% Line 76
+		'type' =
+		    %% Line 76
+		    [{{'record','stat'},[{'record_field',76,{'atom',76,'name'}}|[{'record_field',76,{'atom',76,'ecount'}}|[{'record_field',76,{'atom',76,'etime'}}|[{'record_field',76,{'atom',76,'dcount'}}|[{'record_field',76,{'atom',76,'dtime'}}|[{'record_field',76,{'atom',76,'size'}}]]]]]],[]}]]
+'start1'/0 =
+    %% Line 81
+    fun () ->
+	do  %% Line 82
+	    call 'erlang':'put'
+		('everbose', 'true')
+	    %% Line 83
+	    apply 'start'/0
+		()
+'start'/0 =
+    %% Line 85
+    fun () ->
+	let <_cor1> =
+	    %% Line 86
+	    call 'megaco_codec_transform':'default_message_package'
+		()
+	in  let <_cor0> =
+		%% Line 86
+		call 'megaco_codec_transform':'codecs'
+		    ()
+	    in  %% Line 86
+		apply 'meas_init'/2
+		    (_cor1, _cor0)
+'start'/1 =
+    %% Line 88
+    fun (_cor0) ->
+	case _cor0 of
+	  <[MessagePackage|[]]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 89
+		  call 'megaco_codec_transform':'codecs'
+		      ()
+	      in  %% Line 89
+		  apply 'do_start'/2
+		      (MessagePackage, _cor1)
+	  %% Line 90
+	  <MessagePackage> when 'true' ->
+	      let <_cor2> =
+		  %% Line 91
+		  call 'megaco_codec_transform':'codecs'
+		      ()
+	      in  %% Line 91
+		  apply 'do_start'/2
+		      (MessagePackage, _cor2)
+	end
+'do_start'/2 =
+    %% Line 93
+    fun (_cor1,_cor0) ->
+	let <MessagePackage> =
+	    %% Line 94
+	    apply 'parse_message_package'/1
+		(_cor1)
+	in  %% Line 95
+	    apply 'meas_init'/2
+		(MessagePackage, _cor0)
+'parse_message_package'/1 =
+    %% Line 97
+    fun (_cor0) ->
+	case _cor0 of
+	  <MessagePackageRaw>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      %% Line 98
+	      call 'erlang':'list_to_atom'
+		  (MessagePackageRaw)
+	  %% Line 99
+	  <MessagePackage>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      %% Line 100
+	      MessagePackage
+	  %% Line 101
+	  <BadMessagePackage> when 'true' ->
+	      %% Line 102
+	      call 'erlang':'throw'
+		  ({'error',{'bad_message_package',BadMessagePackage}})
+	end
+'meas_init'/2 =
+    %% Line 115
+    fun (_cor1,_cor0) ->
+	do  %% Line 117
+	    call 'io':'format'
+		([126|[110|[82|[117|[110|[32|[109|[101|[97|[115|[32|[111|[110|[32|[109|[101|[115|[115|[97|[103|[101|[32|[112|[97|[99|[107|[97|[103|[101|[58|[32|[126|[112|[126|[110|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [_cor1|[]])
+	    do  %% Line 118
+		apply 'display_os_info'/0
+		    ()
+		do  %% Line 119
+		    apply 'display_system_info'/0
+			()
+		    do  %% Line 120
+			apply 'display_app_info'/0
+			    ()
+			do  %% Line 121
+			    call 'io':'format'
+				([126|[110]], [])
+			    let <Started> =
+				%% Line 122
+				call 'erlang':'now'
+				    ()
+			    in  %% Line 123
+				case call 'megaco_codec_transform':'messages'
+					 (_cor1) of
+				  %% Line 124
+				  <Messages>
+				      when call 'erlang':'is_list'
+					    (Messages) ->
+				      let <ExpandedMessages> =
+					  %% Line 125
+					  apply 'expand_messages'/2
+					      (_cor0, Messages)
+				      in  let <Results> =
+					      %% Line 126
+					      apply 't1'/2
+						  (ExpandedMessages, [])
+					  in  let <_cor5> =
+						  %% Line 127
+						  call 'erlang':'now'
+						      ()
+					      in  do  %% Line 127
+						      apply 'display_time'/2
+							  (Started, _cor5)
+						      %% Line 128
+						      apply 'store_results'/1
+							  (Results)
+				  %% Line 129
+				  <Error> when 'true' ->
+				      %% Line 130
+				      Error
+				end
+'display_os_info'/0 =
+    %% Line 133
+    fun () ->
+	let <_cor2> =
+	    %% Line 134
+	    case call 'os':'version'
+		     () of
+	      %% Line 135
+	      <{Major,Minor,Release}> when 'true' ->
+		  let <_cor0> =
+		      %% Line 137
+		      call 'io_lib':'format'
+			  ([126|[119|[46|[126|[119|[46|[126|[119]]]]]]]], [Major|[Minor|[Release|[]]]])
+		  in  %% Line 136
+		      call 'lists':'flatten'
+			  (_cor0)
+	      %% Line 138
+	      <Str> when 'true' ->
+		  %% Line 139
+		  Str
+	    end
+	in  %% Line 141
+	    case call 'os':'type'
+		     () of
+	      %% Line 142
+	      <{OsFam,OsName}> when 'true' ->
+		  %% Line 143
+		  call 'io':'format'
+		      ([79|[83|[58|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[126|[112|[45|[126|[112|[58|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [OsFam|[OsName|[_cor2|[]]]])
+	      %% Line 144
+	      <OsFam> when 'true' ->
+		  %% Line 145
+		  call 'io':'format'
+		      ([79|[83|[58|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[126|[112|[58|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [OsFam|[_cor2|[]]])
+	    end
+'display_system_info'/0 =
+    %% Line 148
+    fun () ->
+	let <_cor0> =
+	    %% Line 149
+	    call 'erlang':'system_info'
+		('system_architecture')
+	in  let <SysArch> =
+		%% Line 149
+		call 'string':'strip'
+		    (_cor0, 'right', 10)
+	    in  let <_cor2> =
+		    %% Line 150
+		    call 'erlang':'system_info'
+			('system_version')
+		in  let <SysVer> =
+			%% Line 150
+			call 'string':'strip'
+			    (_cor2, 'right', 10)
+		    in  do  %% Line 151
+			    call 'io':'format'
+				([83|[121|[115|[116|[101|[109|[32|[97|[114|[99|[104|[105|[116|[101|[99|[116|[117|[114|[101|[58|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [SysArch|[]])
+			    do  %% Line 152
+				call 'io':'format'
+				    ([83|[121|[115|[116|[101|[109|[32|[118|[101|[114|[115|[105|[111|[110|[58|[32|[32|[32|[32|[32|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [SysVer|[]])
+				%% Line 153
+				'ok'
+'display_app_info'/0 =
+    %% Line 156
+    fun () ->
+	do  %% Line 157
+	    apply 'display_megaco_info'/0
+		()
+	    %% Line 158
+	    apply 'display_asn1_info'/0
+		()
+'display_megaco_info'/0 =
+    %% Line 160
+    fun () ->
+	let <MI> =
+	    %% Line 161
+	    call 'megaco':'module_info'
+		()
+	in  %% Line 162
+	    case call 'lists':'keysearch'
+		     ('attributes', 1, MI) of
+	      <{'value',{'attributes',Attr}}> when 'true' ->
+		  %% Line 163
+		  case call 'lists':'keysearch'
+			   ('app_vsn', 1, Attr) of
+		    <{'value',{'app_vsn',Ver}}> when 'true' ->
+			let <_cor5> =
+			    %% Line 165
+			    case call 'megaco_flex_scanner':'is_enabled'
+				     () of
+			      %% Line 166
+			      <'true'> when 'true' ->
+				  %% Line 167
+				  case call 'megaco_flex_scanner':'is_reentrant_enabled'
+					   () of
+				    %% Line 168
+				    <'true'> when 'true' ->
+					%% Line 169
+					[114|[101|[101|[110|[116|[114|[97|[110|[116|[32|[102|[108|[101|[120]]]]]]]]]]]]]]
+				    %% Line 170
+				    <'false'> when 'true' ->
+					%% Line 171
+					[110|[111|[110|[45|[114|[101|[101|[110|[116|[114|[97|[110|[116|[32|[102|[108|[101|[120]]]]]]]]]]]]]]]]]]
+				    ( <_cor3> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor3})
+				      -| ['compiler_generated'] )
+				  end
+			      %% Line 173
+			      <'false'> when 'true' ->
+				  %% Line 174
+				  [110|[111|[32|[102|[108|[101|[120]]]]]]]
+			      ( <_cor4> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor4})
+				-| ['compiler_generated'] )
+			    end
+			in  %% Line 176
+			    call 'io':'format'
+				([77|[101|[103|[97|[99|[111|[32|[118|[101|[114|[115|[105|[111|[110|[58|[32|[32|[32|[32|[32|[32|[126|[115|[32|[40|[126|[115|[41|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Ver|[_cor5|[]]])
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor2})
+		      -| ['compiler_generated'] )
+		  end
+	      ( <_cor1> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor1})
+		-| ['compiler_generated'] )
+	    end
+'display_asn1_info'/0 =
+    %% Line 178
+    fun () ->
+	let <AI> =
+	    %% Line 179
+	    call 'megaco_ber_media_gateway_control_v1':'info'
+		()
+	in  let <_cor2> =
+		%% Line 181
+		case call 'lists':'keysearch'
+			 ('vsn', 1, AI) of
+		  %% Line 182
+		  <{'value',{'vsn',V}}>
+		      when call 'erlang':'is_atom'
+			    (V) ->
+		      %% Line 183
+		      call 'erlang':'atom_to_list'
+			  (V)
+		  %% Line 184
+		  <{'value',{'vsn',V}}>
+		      when call 'erlang':'is_list'
+			    (V) ->
+		      %% Line 185
+		      V
+		  %% Line 186
+		  <_cor4> when 'true' ->
+		      %% Line 187
+		      [117|[110|[107|[110|[111|[119|[110]]]]]]]
+		end
+	    in  %% Line 189
+		call 'io':'format'
+		    ([65|[83|[78|[46|[49|[32|[118|[101|[114|[115|[105|[111|[110|[58|[32|[32|[32|[32|[32|[32|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [_cor2|[]])
+'display_time'/2 =
+    %% Line 193
+    fun (_cor1,_cor0) ->
+	let <FormatDate1> =
+	    %% Line 194
+	    apply 'format_timestamp'/1
+		(_cor1)
+	in  let <FormatDate2> =
+		%% Line 195
+		apply 'format_timestamp'/1
+		    (_cor0)
+	    in  let <FormatDiff> =
+		    %% Line 196
+		    apply 'format_diff'/2
+			(_cor1, _cor0)
+		in  do  %% Line 197
+			call 'io':'format'
+			    ([83|[116|[97|[114|[116|[101|[100|[58|[32|[32|[126|[115|[126|[110]]]]]]]]]]]]]], [FormatDate1|[]])
+			do  %% Line 198
+			    call 'io':'format'
+				([70|[105|[110|[105|[115|[104|[101|[100|[58|[32|[126|[115|[126|[110]]]]]]]]]]]]]], [FormatDate2|[]])
+			    do  %% Line 199
+				call 'io':'format'
+				    ([32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[126|[115|[126|[110|[126|[110|[126|[110]]]]]]]]]]]]]]]]]], [FormatDiff|[]])
+				%% Line 200
+				'ok'
+'format_timestamp'/1 =
+    %% Line 202
+    fun (_cor0) ->
+	case _cor0 of
+	  <Now = {_X_N1,_X_N2,N3}> when 'true' ->
+	      %% Line 203
+	      case call 'calendar':'now_to_datetime'
+		       (Now) of
+		<{Date,Time}> when 'true' ->
+		    %% Line 204
+		    case Date of
+		      <{YYYY,MM,DD}> when 'true' ->
+			  %% Line 205
+			  case Time of
+			    <{Hour,Min,Sec}> when 'true' ->
+				let <_cor4> =
+				    %% Line 208
+				    call 'erlang':'/'
+					(N3, 1000)
+				in  let <_cor5> =
+					%% Line 208
+					call 'erlang':'round'
+					    (_cor4)
+				    in  let <FormatDate> =
+					    %% Line 207
+					    call 'io_lib':'format'
+						([126|[46|[52|[119|[58|[126|[46|[50|[46|[48|[119|[58|[126|[46|[50|[46|[48|[119|[32|[126|[46|[50|[46|[48|[119|[58|[126|[46|[50|[46|[48|[119|[58|[126|[46|[50|[46|[48|[119|[32|[52|[126|[119]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 208
+																																		       [YYYY|[MM|[DD|[Hour|[Min|[Sec|[_cor5|[]]]]]]]])
+					in  %% Line 209
+					    call 'lists':'flatten'
+						(FormatDate)
+			    ( <_cor3> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor3})
+			      -| ['compiler_generated'] )
+			  end
+		      ( <_cor2> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor2})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7})
+		  -| [{'function_name',{'format_timestamp',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'format_diff'/2 =
+    %% Line 211
+    fun (_cor1,_cor0) ->
+	let <DateTime1> =
+	    %% Line 212
+	    call 'calendar':'now_to_universal_time'
+		(_cor1)
+	in  let <DateTime2> =
+		%% Line 213
+		call 'calendar':'now_to_universal_time'
+		    (_cor0)
+	    in  let <T1> =
+		    %% Line 214
+		    call 'calendar':'datetime_to_gregorian_seconds'
+			(DateTime1)
+		in  let <T2> =
+			%% Line 215
+			call 'calendar':'datetime_to_gregorian_seconds'
+			    (DateTime2)
+		    in  let <_cor6> =
+			    %% Line 216
+			    call 'erlang':'-'
+				(T2, T1)
+			in  %% Line 216
+			    case call 'calendar':'gregorian_seconds_to_datetime'
+				     (_cor6) of
+			      <{_cor13,Diff}> when 'true' ->
+				  let <_cor9> =
+				      %% Line 218
+				      case Diff of
+					%% Line 219
+					<{0,0,S}> when 'true' ->
+					    %% Line 220
+					    call 'io_lib':'format'
+						([126|[46|[50|[46|[48|[119|[32|[115|[101|[99]]]]]]]]]], [S|[]])
+					%% Line 221
+					<{0,M,S}> when 'true' ->
+					    %% Line 222
+					    call 'io_lib':'format'
+						([126|[119|[32|[109|[105|[110|[32|[126|[46|[50|[46|[48|[119|[32|[115|[101|[99]]]]]]]]]]]]]]]]], [M|[S|[]]])
+					%% Line 223
+					<{H,M,S}> when 'true' ->
+					    %% Line 224
+					    call 'io_lib':'format'
+						([126|[119|[32|[104|[111|[117|[114|[32|[126|[119|[32|[109|[105|[110|[32|[126|[46|[50|[46|[48|[119|[32|[115|[101|[99]]]]]]]]]]]]]]]]]]]]]]]]], [H|[M|[S|[]]]])
+					( <_cor8> when 'true' ->
+					      primop 'match_fail'
+						  ({'case_clause',_cor8})
+					  -| ['compiler_generated'] )
+				      end
+				  in  %% Line 226
+				      call 'lists':'flatten'
+					  (_cor9)
+			      ( <_cor7> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor7})
+				-| ['compiler_generated'] )
+			    end
+'t1'/2 =
+    %% Line 230
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Results> when 'true' ->
+	      %% Line 231
+	      call 'lists':'reverse'
+		  (Results)
+	  %% Line 232
+	  <[ECodec = {Id,Codec,Conf,_cor6,_cor7}|EMsgs],Results> when 'true' ->
+	      let <_cor2> =
+		  catch
+		      %% Line 233
+		      apply 'measure'/1
+			  (ECodec)
+	      in  %% Line 233
+		  case _cor2 of
+		    %% Line 234
+		    <{'EXIT',Reason}> when 'true' ->
+			do  %% Line 235
+			    apply 'error'/2
+				([109|[101|[97|[115|[117|[114|[101|[32|[111|[102|[32|[99|[111|[100|[101|[99|[32|[126|[112|[32|[101|[120|[105|[116|[101|[100|[58|[32|[126|[110|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Codec|[Reason|[]]])
+			    %% Line 236
+			    apply 't1'/2
+				(EMsgs, Results)
+		    %% Line 237
+		    <{'error',Reason}> when 'true' ->
+			do  %% Line 238
+			    apply 'error'/2
+				([115|[107|[105|[112|[112|[105|[110|[103|[32|[99|[111|[100|[101|[99|[32|[126|[112|[58|[32|[126|[110|[126|[112]]]]]]]]]]]]]]]]]]]]]]], [Codec|[Reason|[]]])
+			    %% Line 239
+			    apply 't1'/2
+				(EMsgs, Results)
+		    %% Line 240
+		    <{'ok',Res}> when 'true' ->
+			%% Line 241
+			apply 't1'/2
+			    (EMsgs, [{Id,Conf,Res}|Results])
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'t1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'measure'/1 =
+    %% Line 245
+    fun (_cor0) ->
+	case _cor0 of
+	  <{Id,Codec,Conf,Count,Msgs}> when 'true' ->
+	      do  %% Line 246
+		  call 'io':'format'
+		      ([109|[101|[97|[115|[117|[114|[101|[32|[117|[115|[105|[110|[103|[32|[99|[111|[100|[101|[99|[32|[126|[112|[32|[126|[112|[126|[110|[32]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Codec|[Conf|[]]])
+		  %% Line 247
+		  case apply 'measure_init'/1
+			   (Conf) of
+		    <{Init,Conf1}> when 'true' ->
+			let <Conf2> =
+			    %% Line 248
+			    [{'version3','v3'}|Conf1]
+			in  let <Res> =
+				%% Line 249
+				apply 'measure'/6
+				    (Id, Codec, Conf2, Msgs, [], Count)
+			    in  do  %% Line 250
+				    apply 'measure_fin'/1
+					(Init)
+				    %% Line 251
+				    Res
+		    ( <_cor1> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor1})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'measure',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'expand_messages'/2 =
+    %% Line 254
+    fun (_cor1,_cor0) ->
+	let <ECodecs> =
+	    %% Line 255
+	    apply 'expand_codecs'/2
+		(_cor1, [])
+	in  %% Line 256
+	    apply 'expand_messages'/3
+		(ECodecs, _cor0, [])
+'expand_messages'/3 =
+    %% Line 258
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_cor7,EMessages> when 'true' ->
+	      %% Line 259
+	      call 'lists':'reverse'
+		  (EMessages)
+	  %% Line 260
+	  <[{Id,Codec,Conf,Count}|ECodecs],Messages,EMessages> when 'true' ->
+	      %% Line 261
+	      case call 'lists':'keysearch'
+		       (Id, 1, Messages) of
+		%% Line 262
+		<{'value',{_cor8,Msgs}}>
+		    when call 'erlang':'=:='
+			  (_cor8,
+			   Id) ->
+		    %% Line 263
+		    apply 'expand_messages'/3
+			(ECodecs, Messages, %% Line 264
+					    [{Id,Codec,Conf,Count,Msgs}|EMessages])
+		%% Line 265
+		<'false'> when 'true' ->
+		    %% Line 266
+		    call 'erlang':'exit'
+			({'error',{'no_such_codec_data',Id}})
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'expand_messages',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'expand_codecs'/2 =
+    %% Line 269
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],ECodecs> when 'true' ->
+	      let <_cor2> =
+		  %% Line 270
+		  call 'lists':'flatten'
+		      (ECodecs)
+	      in  %% Line 270
+		  call 'lists':'reverse'
+		      (_cor2)
+	  %% Line 271
+	  <[Codec|Codecs],ECodecs>
+	      when call 'erlang':'is_atom'
+		    (Codec) ->
+	      let <ECodec> =
+		  %% Line 272
+		  apply 'expand_codec'/1
+		      (Codec)
+	      in  %% Line 273
+		  apply 'expand_codecs'/2
+		      (Codecs, [ECodec|ECodecs])
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'expand_codecs',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'expand_codec'/1 =
+    %% Line 275
+    fun (_cor0) ->
+	%% Line 276
+	case _cor0 of
+	  %% Line 277
+	  <'pretty'> when 'true' ->
+	      %% Line 278
+	      [{_cor0,'megaco_pretty_text_encoder',['flex_scanner'],2000}|%% Line 279
+									  [{_cor0,'megaco_pretty_text_encoder',[],1000}|[]]]
+	  %% Line 280
+	  <'compact'> when 'true' ->
+	      %% Line 281
+	      [{_cor0,'megaco_compact_text_encoder',['flex_scanner'],3000}|%% Line 282
+									   [{_cor0,'megaco_compact_text_encoder',[],1500}|[]]]
+	  %% Line 283
+	  <'ber'> when 'true' ->
+	      %% Line 284
+	      [{_cor0,'megaco_ber_encoder',['native'],3000}|%% Line 285
+							    [{_cor0,'megaco_ber_encoder',[],1000}|[]]]
+	  %% Line 286
+	  <'per'> when 'true' ->
+	      %% Line 287
+	      [{_cor0,'megaco_per_encoder',['native'],3000}|%% Line 288
+							    [{_cor0,'megaco_per_encoder',[],1000}|[]]]
+	  %% Line 289
+	  <'erlang'> when 'true' ->
+	      %% Line 290
+	      [%% Line 291
+	       {_cor0,'megaco_erl_dist_encoder',['megaco_compressed'|['compressed']],500}|%% Line 292
+											  [{_cor0,'megaco_erl_dist_encoder',['compressed'],400}|%% Line 293
+																		[{_cor0,'megaco_erl_dist_encoder',['megaco_compressed'],10000}|%% Line 294
+																									       [{_cor0,'megaco_erl_dist_encoder',[],10000}|%% Line 295
+																															   []]]]]
+	  %% Line 296
+	  <Else> when 'true' ->
+	      %% Line 297
+	      call 'erlang':'exit'
+		  ({'error',{'invalid_codec',Else}})
+	end
+'measure_init'/1 =
+    %% Line 301
+    fun (_cor0) ->
+	case _cor0 of
+	  <['flex_scanner']> when 'true' ->
+	      %% Line 302
+	      apply 'start_flex_scanner'/0
+		  ()
+	  %% Line 303
+	  <Conf> when 'true' ->
+	      %% Line 304
+	      {'undefined',Conf}
+	end
+'measure_fin'/1 =
+    %% Line 307
+    fun (_cor0) ->
+	case _cor0 of
+	  <Pid>
+	      when call 'erlang':'is_pid'
+		    (_cor0) ->
+	      do  %% Line 308
+		  apply 'stop_flex_scanner'/1
+		      (Pid)
+		  %% Line 309
+		  'ok'
+	  %% Line 310
+	  <_cor2> when 'true' ->
+	      %% Line 311
+	      'ok'
+	end
+'measure'/6 =
+    %% Line 314
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <_X_Dir,_X_Codec,_X_Conf,[],[],_X_MCount> when 'true' ->
+	      %% Line 315
+	      {'error','no_messages'}
+	  %% Line 317
+	  <_X_Dir,_X_Codec,_X_Conf,[],Res,_X_MCount> when 'true' ->
+	      let <_cor11> =
+		  %% Line 319
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor8) ->
+				case _cor8 of
+				  <[{'stat',_cor37,Ecnt,Etime,_cor38,_cor39,_cor40}|_cor7]> when 'true' ->
+				      let <_cor9> =
+					  call 'erlang':'/'
+					      (Etime, Ecnt)
+				      in  let <_cor10> =
+					      apply 'lc$^0'/1
+						  (_cor7)
+					  in  ( [_cor9|_cor10]
+						-| ['compiler_generated'] )
+				  ( <[_cor6|_cor7]> when 'true' ->
+					apply 'lc$^0'/1
+					    (_cor7)
+				    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor8> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor8})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (Res)
+		    -| ['list_comprehension'] )
+	      in  let <Eavg> =
+		      %% Line 319
+		      apply 'avg'/1
+			  (_cor11)
+		  in  let <_cor18> =
+			  %% Line 320
+			  ( letrec
+				'lc$^1'/1 =
+				    fun (_cor15) ->
+					case _cor15 of
+					  <[{'stat',_cor41,_cor42,_cor43,Dcnt,Dtime,_cor44}|_cor14]> when 'true' ->
+					      let <_cor16> =
+						  call 'erlang':'/'
+						      (Dtime, Dcnt)
+					      in  let <_cor17> =
+						      apply 'lc$^1'/1
+							  (_cor14)
+						  in  ( [_cor16|_cor17]
+							-| ['compiler_generated'] )
+					  ( <[_cor13|_cor14]> when 'true' ->
+						apply 'lc$^1'/1
+						    (_cor14)
+					    -| ['compiler_generated'] )
+					  <[]> when 'true' ->
+					      []
+					  ( <_cor15> when 'true' ->
+						( primop 'match_fail'
+						      ({'function_clause',_cor15})
+						  -| [{'function_name',{'lc$^1',1}}] )
+					    -| ['compiler_generated'] )
+					end
+			    in  apply 'lc$^1'/1
+				    (Res)
+			    -| ['list_comprehension'] )
+		      in  let <Davg> =
+			      %% Line 320
+			      apply 'avg'/1
+				  (_cor18)
+			  in  let <_cor24> =
+				  %% Line 321
+				  ( letrec
+					'lc$^2'/1 =
+					    fun (_cor22) ->
+						case _cor22 of
+						  <[{'stat',_cor45,_cor46,_cor47,_cor48,_cor49,Size}|_cor21]> when 'true' ->
+						      let <_cor23> =
+							  apply 'lc$^2'/1
+							      (_cor21)
+						      in  ( [Size|_cor23]
+							    -| ['compiler_generated'] )
+						  ( <[_cor20|_cor21]> when 'true' ->
+							apply 'lc$^2'/1
+							    (_cor21)
+						    -| ['compiler_generated'] )
+						  <[]> when 'true' ->
+						      []
+						  ( <_cor22> when 'true' ->
+							( primop 'match_fail'
+							      ({'function_clause',_cor22})
+							  -| [{'function_name',{'lc$^2',1}}] )
+						    -| ['compiler_generated'] )
+						end
+				    in  apply 'lc$^2'/1
+					    (Res)
+				    -| ['list_comprehension'] )
+			      in  let <Savg> =
+				      %% Line 321
+				      apply 'avg'/1
+					  (_cor24)
+				  in  let <_cor26> =
+					  %% Line 327
+					  call 'erlang':'length'
+					      (Res)
+				      in  do  %% Line 323
+					      call 'io':'format'
+						  ([126|[110|[32|[32|[77|[101|[97|[115|[117|[114|[109|[101|[110|[116|[32|[111|[110|[32|[126|[112|[32|[109|[101|[115|[115|[97|[103|[101|[115|[58|[126|[110|[32|[32|[65|[118|[101|[114|[97|[103|[101|[32|[115|[105|[122|[101|[58|[32|[32|[32|[126|[119|[32|[98|[121|[116|[101|[115|[44|[32|[126|[110|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[101|[110|[99|[111|[100|[101|[58|[32|[126|[119|[32|[109|[105|[99|[114|[111|[115|[101|[99|[44|[32|[126|[110|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[100|[101|[99|[111|[100|[101|[58|[32|[126|[119|[32|[109|[105|[99|[114|[111|[115|[101|[99|[126|[110|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 327
+																																																																																															    [_cor26|[Savg|[Eavg|[Davg|[]]]]])
+					      let <_cor27> =
+						  %% Line 329
+						  call 'lists':'reverse'
+						      (Res)
+					      in  %% Line 329
+						  {'ok',_cor27}
+	  %% Line 331
+	  <Dir,Codec,Conf,[{Name,Bin}|Msgs],Results,MCount> when 'true' ->
+	      do  %% Line 332
+		  call 'io':'format'
+		      ([32|[126|[112]]], [Name|[]])
+		  let <_cor28> =
+		      catch
+			  %% Line 333
+			  apply 'do_measure'/6
+			      (Dir, Codec, Conf, Name, Bin, MCount)
+		  in  %% Line 333
+		      case _cor28 of
+			%% Line 334
+			<{'ok',Stat}> when 'true' ->
+			    %% Line 335
+			    apply 'measure'/6
+				(Dir, Codec, Conf, Msgs, [Stat|Results], MCount)
+			%% Line 337
+			<{'error',S}> when 'true' ->
+			    do  %% Line 338
+				call 'io':'format'
+				    ([126|[110|[126|[115|[32|[102|[97|[105|[108|[101|[100|[58|[32|[126|[110]]]]]]]]]]]]]]], [Name|[]])
+				do  %% Line 339
+				    apply 'error'/2
+					(S, [])
+				    %% Line 340
+				    apply 'measure'/6
+					(Dir, Codec, Conf, Msgs, Results, MCount)
+			%% Line 342
+			<{'info',S}> when 'true' ->
+			    do  %% Line 343
+				case call 'erlang':'get'
+					 ('verbose') of
+				  %% Line 344
+				  <'true'> when 'true' ->
+				      do  %% Line 345
+					  call 'io':'format'
+					      ([126|[110]], [])
+					  %% Line 346
+					  apply 'info'/2
+					      (S, [])
+				  %% Line 347
+				  <_cor50> when 'true' ->
+				      %% Line 348
+				      call 'io':'format'
+					  ([126|[110|[126|[115|[32|[115|[107|[105|[112|[112|[101|[100|[126|[110]]]]]]]]]]]]]], [Name|[]])
+				end
+				%% Line 350
+				apply 'measure'/6
+				    (Dir, Codec, Conf, Msgs, Results, MCount)
+			( <_cor30> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor30})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor36,_cor35,_cor34,_cor33,_cor32,_cor31> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor36,_cor35,_cor34,_cor33,_cor32,_cor31})
+		  -| [{'function_name',{'measure',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'do_measure'/6 =
+    %% Line 355
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 357
+	case apply 'detect_version'/3
+		 (_cor4, _cor3, _cor1) of
+	  <{Version,NewBin}> when 'true' ->
+	      %% Line 358
+	      case apply 'measure_decode'/5
+		       (_cor4, _cor3, Version, NewBin, _cor0) of
+		<{Msg,Dcnt,Dtime}> when 'true' ->
+		    %% Line 359
+		    case apply 'measure_encode'/5
+			     (_cor4, _cor3, Version, Msg, _cor0) of
+		      <{_cor16,Ecnt,Etime}> when 'true' ->
+			  let <_cor9> =
+			      %% Line 364
+			      call 'erlang':'size'
+				  (NewBin)
+			  in  %% Line 361
+			      {'ok',{'stat',_cor2,%% Line 362
+						  Ecnt,%% Line 362
+						       Etime,%% Line 363
+							     Dcnt,%% Line 363
+								  Dtime,_cor9}}
+		      ( <_cor8> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor8})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor7> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor7})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor6> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor6})
+	    -| ['compiler_generated'] )
+	end
+'detect_version'/3 =
+    %% Line 366
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    catch
+		%% Line 367
+		call _cor2:'version_of'
+		    (_cor1, _cor0)
+	in  %% Line 367
+	    case _cor3 of
+	      %% Line 368
+	      <{'ok',V}> when 'true' ->
+		  do  %% Line 369
+		      call 'io':'format'
+			  ([91|[126|[119|[93]]]], [V|[]])
+		      %% Line 370
+		      case call _cor2:'decode_message'
+			       (_cor1, V, _cor0) of
+			<{'ok',M}> when 'true' ->
+			    %% Line 371
+			    case call _cor2:'encode_message'
+				     (_cor1, V, M) of
+			      <{'ok',NewBin}> when 'true' ->
+				  let <_cor6> =
+				      %% Line 372
+				      call 'erlang':'size'
+					  (NewBin)
+				  in  do  %% Line 372
+					  call 'io':'format'
+					      ([91|[126|[119|[93]]]], [_cor6|[]])
+					  %% Line 373
+					  {V,NewBin}
+			      ( <_cor5> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor5})
+				-| ['compiler_generated'] )
+			    end
+			( <_cor4> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor4})
+			  -| ['compiler_generated'] )
+		      end
+	      %% Line 374
+	      <Error> when 'true' ->
+		  do  %% Line 375
+		      call 'io':'format'
+			  ([126|[110|[118|[101|[114|[115|[105|[111|[110|[32|[100|[101|[116|[101|[99|[116|[105|[111|[110|[32|[102|[97|[105|[108|[101|[100|[58|[126|[110|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Error|[]])
+		      %% Line 376
+		      Error
+	    end
+'measure_decode'/5 =
+    %% Line 380
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 381
+	case apply 'measure_codec'/6
+		 (_cor4, 'decode_message', _cor3, _cor2, _cor1, _cor0) of
+	  %% Line 382
+	  <{'ok',Res}> when 'true' ->
+	      %% Line 383
+	      Res
+	  %% Line 384
+	  <{'error',Reason}> when 'true' ->
+	      let <S> =
+		  %% Line 385
+		  apply 'format'/2
+		      ([100|[101|[99|[111|[100|[101|[32|[102|[97|[105|[108|[101|[100|[32|[102|[111|[114|[32|[126|[112|[58|[126|[110|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]], [_cor4|[Reason|[]]])
+	      in  %% Line 386
+		  call 'erlang':'throw'
+		      ({'error',S})
+	  ( <_cor6> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor6})
+	    -| ['compiler_generated'] )
+	end
+'measure_encode'/5 =
+    %% Line 389
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 390
+	case apply 'measure_codec'/6
+		 (_cor4, 'encode_message', _cor3, _cor2, _cor1, _cor0) of
+	  %% Line 391
+	  <{'ok',Res}> when 'true' ->
+	      %% Line 392
+	      Res
+	  %% Line 393
+	  <{'error',Reason}> when 'true' ->
+	      let <S> =
+		  %% Line 394
+		  apply 'format'/2
+		      ([101|[110|[99|[111|[100|[101|[32|[102|[97|[105|[108|[101|[100|[32|[102|[111|[114|[32|[126|[112|[58|[126|[110|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]], [_cor4|[Reason|[]]])
+	      in  %% Line 395
+		  call 'erlang':'throw'
+		      ({'error',S})
+	  ( <_cor6> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor6})
+	    -| ['compiler_generated'] )
+	end
+'measure_codec'/6 =
+    %% Line 399
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor6> =
+	    %% Line 401
+	    call 'erlang':'self'
+		()
+	in  let <Pid> =
+		%% Line 400
+		call 'erlang':'spawn_link'
+		    ('megaco_codec_meas', 'do_measure_codec', %% Line 401
+							      [_cor6|[_cor5|[_cor4|[_cor3|[_cor2|[_cor1|[_cor0|[]]]]]]]])
+	    in  %% Line 402
+		receive
+		  %% Line 403
+		  <{'measure_result',_cor18,_cor19,Res}>
+		      when let <_cor20> =
+			    call 'erlang':'=:='
+				(_cor18, Pid)
+			in  let <_cor21> =
+				call 'erlang':'=:='
+				    (_cor19, _cor4)
+			    in  call 'erlang':'and'
+				    (_cor20, _cor21) ->
+		      %% Line 404
+		      {'ok',Res}
+		  %% Line 405
+		  <{'error',_cor22,Error}>
+		      when call 'erlang':'=:='
+			    (_cor22,
+			     Pid) ->
+		      %% Line 406
+		      {'error',Error}
+		  %% Line 407
+		  <Else> when 'true' ->
+		      %% Line 408
+		      {'error',{'unexpected_result',Else}}
+		after %% Line 409
+		      100000 ->
+		  let <_cor8> =
+		      catch
+			  %% Line 411
+			  call 'erlang':'process_info'
+			      (Pid)
+		  in  let <_cor10> =
+			  %% Line 411
+			  case _cor8 of
+			    %% Line 412
+			    <I>
+				when call 'erlang':'is_list'
+				      (_cor8) ->
+				do  %% Line 413
+				    call 'erlang':'exit'
+					(Pid, 'kill')
+				    %% Line 414
+				    I
+			    %% Line 415
+			    <_cor23> when 'true' ->
+				%% Line 416
+				'undefined'
+			  end
+		      in  %% Line 418
+			  {'error',{'timeout',_cor0,_cor10}}
+'do_measure_codec'/7 =
+    %% Line 422
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 423
+	case apply 'measure_warmup'/6
+		 (_cor5, _cor4, _cor3, _cor2, _cor1, _cor0) of
+	  <{'ok',Count}> when 'true' ->
+	      let <Res> =
+		  %% Line 424
+		  call 'timer':'tc'
+		      ('megaco_codec_meas', 'do_measure_codec_loop', %% Line 425
+								     [_cor5|[_cor4|[_cor3|[_cor2|[_cor1|[Count|['dummy']]]]]]])
+	      in  do  %% Line 426
+		      case Res of
+			%% Line 427
+			<{Time,{'ok',M}}> when 'true' ->
+			    let <_cor9> =
+				%% Line 429
+				call 'erlang':'self'
+				    ()
+			    in  %% Line 429
+				call 'erlang':'!'
+				    (_cor6, {'measure_result',_cor9,_cor4,{M,Count,Time}})
+			%% Line 430
+			<{_X_Time,Error}> when 'true' ->
+			    let <_cor10> =
+				%% Line 431
+				call 'erlang':'self'
+				    ()
+			    in  %% Line 431
+				call 'erlang':'!'
+				    (_cor6, {'error',_cor10,Error})
+			( <_cor11> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor11})
+			  -| ['compiler_generated'] )
+		      end
+		      %% Line 433
+		      call 'erlang':'unlink'
+			  (_cor6)
+	  ( <_cor7> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor7})
+	    -| ['compiler_generated'] )
+	end
+'measure_warmup'/6 =
+    %% Line 441
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 444
+	case call 'timer':'tc'
+		 ('megaco_codec_meas', 'do_measure_codec_loop', [_cor5|[_cor4|[_cor3|[_cor2|[_cor1|[_cor0|['dummy']]]]]]]) of
+	  %% Line 445
+	  <{Time,{'ok',_cor19}}> when 'true' ->
+	      let <_cor7> =
+		  %% Line 447
+		  call 'erlang':'/'
+		      (Time, _cor0)
+	      in  let <_cor10> =
+		      %% Line 447
+		      call 'erlang':'/'
+			  (1000000, _cor7)
+		  in  let <Count> =
+			  %% Line 447
+			  call 'erlang':'round'
+			      (_cor10)
+		      in  %% Line 449
+			  {'ok',Count}
+	  %% Line 450
+	  <{_X_Time,Error}> when 'true' ->
+	      %% Line 451
+	      {'error',{'warmup_failed',Error}}
+	  ( <_cor12> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor12})
+	    -| ['compiler_generated'] )
+	end
+'do_measure_codec_loop'/7 =
+    %% Line 455
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <_X_Codec,_X_Func,_X_Conf,_X_Version,_X_Bin,0,M> when 'true' ->
+	      %% Line 456
+	      {'ok',M}
+	  %% Line 457
+	  <Codec,Func,Conf,Version,Bin,Count,_cor16> when 'true' ->
+	      %% Line 458
+	      case call Codec:Func
+		       (Conf, Version, Bin) of
+		<{'ok',M}> when 'true' ->
+		    let <_cor8> =
+			%% Line 459
+			call 'erlang':'-'
+			    (Count, 1)
+		    in  %% Line 459
+			apply 'do_measure_codec_loop'/7
+			    (Codec, Func, Conf, Version, Bin, _cor8, M)
+		( <_cor7> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor7})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'store_results'/1 =
+    %% Line 464
+    fun (_cor0) ->
+	do  %% Line 465
+	    call 'io':'format'
+		([115|[116|[111|[114|[105|[110|[103|[58|[32|[126|[110]]]]]]]]]]], [])
+	    do  %% Line 466
+		apply 'store_excel_message_size'/1
+		    (_cor0)
+		do  %% Line 467
+		    apply 'store_excel_decode_time'/1
+			(_cor0)
+		    do  %% Line 468
+			apply 'store_excel_encode_time'/1
+			    (_cor0)
+			do  %% Line 469
+			    apply 'store_excel_total_time'/1
+				(_cor0)
+			    do  %% Line 470
+				call 'io':'format'
+				    ([126|[110]], [])
+				%% Line 471
+				'ok'
+'store_excel_message_size'/1 =
+    %% Line 474
+    fun (_cor0) ->
+	do  %% Line 476
+	    call 'io':'format'
+		([32|[32|[99|[114|[101|[97|[116|[105|[110|[103|[32|[126|[115|[126|[110]]]]]]]]]]]]]]], [[109|[101|[115|[115|[97|[103|[101|[95|[115|[105|[122|[101|[46|[120|[108|[115]]]]]]]]]]]]]]]]])
+	    %% Line 477
+	    case call 'file':'open'
+		     ([109|[101|[115|[115|[97|[103|[101|[95|[115|[105|[122|[101|[46|[120|[108|[115]]]]]]]]]]]]]]]], ['write']) of
+	      <{'ok',Fd}> when 'true' ->
+		  let <Sizes> =
+		      %% Line 478
+		      apply 'message_sizes'/2
+			  (_cor0, [])
+		  in  do  %% Line 479
+			  apply 'store_excel_tab'/2
+			      (Fd, Sizes)
+			  %% Line 480
+			  'ok'
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor2})
+		-| ['compiler_generated'] )
+	    end
+'store_excel_decode_time'/1 =
+    %% Line 482
+    fun (_cor0) ->
+	do  %% Line 484
+	    call 'io':'format'
+		([32|[32|[99|[114|[101|[97|[116|[105|[110|[103|[32|[126|[115|[126|[110]]]]]]]]]]]]]]], [[100|[101|[99|[111|[100|[101|[95|[116|[105|[109|[101|[46|[120|[108|[115]]]]]]]]]]]]]]]])
+	    %% Line 485
+	    case call 'file':'open'
+		     ([100|[101|[99|[111|[100|[101|[95|[116|[105|[109|[101|[46|[120|[108|[115]]]]]]]]]]]]]]], ['write']) of
+	      <{'ok',Fd}> when 'true' ->
+		  let <Decodes> =
+		      %% Line 486
+		      apply 'dec_times'/2
+			  (_cor0, [])
+		  in  do  %% Line 487
+			  apply 'store_excel_tab'/2
+			      (Fd, Decodes)
+			  %% Line 488
+			  'ok'
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor2})
+		-| ['compiler_generated'] )
+	    end
+'store_excel_encode_time'/1 =
+    %% Line 490
+    fun (_cor0) ->
+	do  %% Line 492
+	    call 'io':'format'
+		([32|[32|[99|[114|[101|[97|[116|[105|[110|[103|[32|[126|[115|[126|[110]]]]]]]]]]]]]]], [[101|[110|[99|[111|[100|[101|[95|[116|[105|[109|[101|[46|[120|[108|[115]]]]]]]]]]]]]]]])
+	    %% Line 493
+	    case call 'file':'open'
+		     ([101|[110|[99|[111|[100|[101|[95|[116|[105|[109|[101|[46|[120|[108|[115]]]]]]]]]]]]]]], ['write']) of
+	      <{'ok',Fd}> when 'true' ->
+		  let <Encodes> =
+		      %% Line 494
+		      apply 'enc_times'/2
+			  (_cor0, [])
+		  in  do  %% Line 495
+			  apply 'store_excel_tab'/2
+			      (Fd, Encodes)
+			  %% Line 496
+			  'ok'
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor2})
+		-| ['compiler_generated'] )
+	    end
+'store_excel_total_time'/1 =
+    %% Line 498
+    fun (_cor0) ->
+	do  %% Line 500
+	    call 'io':'format'
+		([32|[32|[99|[114|[101|[97|[116|[105|[110|[103|[32|[126|[115|[126|[110]]]]]]]]]]]]]]], [[116|[111|[116|[97|[108|[95|[116|[105|[109|[101|[46|[120|[108|[115]]]]]]]]]]]]]]])
+	    %% Line 501
+	    case call 'file':'open'
+		     ([116|[111|[116|[97|[108|[95|[116|[105|[109|[101|[46|[120|[108|[115]]]]]]]]]]]]]], ['write']) of
+	      <{'ok',Fd}> when 'true' ->
+		  let <Totals> =
+		      %% Line 502
+		      apply 'tot_times'/2
+			  (_cor0, [])
+		  in  do  %% Line 503
+			  apply 'store_excel_tab'/2
+			      (Fd, Totals)
+			  %% Line 504
+			  'ok'
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor2})
+		-| ['compiler_generated'] )
+	    end
+'message_sizes'/2 =
+    %% Line 507
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Sizes> when 'true' ->
+	      %% Line 508
+	      call 'lists':'reverse'
+		  (Sizes)
+	  %% Line 509
+	  <[{Dir,Conf,Res}|T],Acc> when 'true' ->
+	      let <_cor6> =
+		  %% Line 510
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor4) ->
+				case _cor4 of
+				  <[{'stat',_cor11,_cor12,_cor13,_cor14,_cor15,Size}|_cor3]> when 'true' ->
+				      let <_cor5> =
+					  apply 'lc$^0'/1
+					      (_cor3)
+				      in  ( [Size|_cor5]
+					    -| ['compiler_generated'] )
+				  ( <[_cor2|_cor3]> when 'true' ->
+					apply 'lc$^0'/1
+					    (_cor3)
+				    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor4> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor4})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (Res)
+		    -| ['list_comprehension'] )
+	      in  let <Avg> =
+		      %% Line 511
+		      apply 'avg'/1
+			  (_cor6)
+		  in  %% Line 512
+		      apply 'message_sizes'/2
+			  (T, [{Dir,Conf,Avg,_cor6}|Acc])
+	  ( <_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9})
+		  -| [{'function_name',{'message_sizes',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'dec_times'/2 =
+    %% Line 514
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Times> when 'true' ->
+	      %% Line 515
+	      call 'lists':'reverse'
+		  (Times)
+	  %% Line 516
+	  <[{Dir,Conf,Res}|T],Acc> when 'true' ->
+	      let <_cor7> =
+		  %% Line 517
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor4) ->
+				case _cor4 of
+				  <[{'stat',_cor12,_cor13,_cor14,Count,Time,_cor15}|_cor3]> when 'true' ->
+				      let <_cor5> =
+					  call 'erlang':'/'
+					      (Time, Count)
+				      in  let <_cor6> =
+					      apply 'lc$^0'/1
+						  (_cor3)
+					  in  ( [_cor5|_cor6]
+						-| ['compiler_generated'] )
+				  ( <[_cor2|_cor3]> when 'true' ->
+					apply 'lc$^0'/1
+					    (_cor3)
+				    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor4> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor4})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (Res)
+		    -| ['list_comprehension'] )
+	      in  let <Avg> =
+		      %% Line 518
+		      apply 'avg'/1
+			  (_cor7)
+		  in  %% Line 519
+		      apply 'dec_times'/2
+			  (T, [{Dir,Conf,Avg,_cor7}|Acc])
+	  ( <_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10})
+		  -| [{'function_name',{'dec_times',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'enc_times'/2 =
+    %% Line 521
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Times> when 'true' ->
+	      %% Line 522
+	      call 'lists':'reverse'
+		  (Times)
+	  %% Line 523
+	  <[{Dir,Conf,Res}|T],Acc> when 'true' ->
+	      let <_cor7> =
+		  %% Line 524
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor4) ->
+				case _cor4 of
+				  <[{'stat',_cor12,Count,Time,_cor13,_cor14,_cor15}|_cor3]> when 'true' ->
+				      let <_cor5> =
+					  call 'erlang':'/'
+					      (Time, Count)
+				      in  let <_cor6> =
+					      apply 'lc$^0'/1
+						  (_cor3)
+					  in  ( [_cor5|_cor6]
+						-| ['compiler_generated'] )
+				  ( <[_cor2|_cor3]> when 'true' ->
+					apply 'lc$^0'/1
+					    (_cor3)
+				    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor4> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor4})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (Res)
+		    -| ['list_comprehension'] )
+	      in  let <Avg> =
+		      %% Line 525
+		      apply 'avg'/1
+			  (_cor7)
+		  in  %% Line 526
+		      apply 'enc_times'/2
+			  (T, [{Dir,Conf,Avg,_cor7}|Acc])
+	  ( <_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10})
+		  -| [{'function_name',{'enc_times',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'tot_times'/2 =
+    %% Line 528
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Times> when 'true' ->
+	      %% Line 529
+	      call 'lists':'reverse'
+		  (Times)
+	  %% Line 530
+	  <[{Dir,Conf,Res}|T],Acc> when 'true' ->
+	      let <_cor9> =
+		  %% Line 531
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor4) ->
+				case _cor4 of
+				  <[{'stat',_cor14,Ecnt,%% Line 532
+							Etime,%% Line 533
+							      Dcnt,%% Line 534
+								   Dtime,_cor15}|_cor3]> when 'true' ->
+				      let <_cor6> =
+					  call 'erlang':'/'
+					      (Etime, Ecnt)
+				      in  let <_cor5> =
+					      call 'erlang':'/'
+						  (Dtime, Dcnt)
+					  in  let <_cor7> =
+						  call 'erlang':'+'
+						      (_cor6, _cor5)
+					      in  let <_cor8> =
+						      %% Line 534
+						      apply 'lc$^0'/1
+							  (_cor3)
+						  in  ( [_cor7|_cor8]
+							-| ['compiler_generated'] )
+				  ( <[_cor2|_cor3]> when 'true' ->
+					%% Line 534
+					apply 'lc$^0'/1
+					    (_cor3)
+				    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor4> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor4})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (%% Line 534
+			     Res)
+		    -| ['list_comprehension'] )
+	      in  let <Avg> =
+		      %% Line 535
+		      apply 'avg'/1
+			  (_cor9)
+		  in  %% Line 536
+		      apply 'tot_times'/2
+			  (T, [{Dir,Conf,Avg,_cor9}|Acc])
+	  ( <_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12})
+		  -| [{'function_name',{'tot_times',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'avg'/1 =
+    %% Line 539
+    fun (_cor0) ->
+	let <_cor2> =
+	    %% Line 540
+	    call 'lists':'sum'
+		(_cor0)
+	in  let <_cor1> =
+		%% Line 540
+		call 'erlang':'length'
+		    (_cor0)
+	    in  let <_cor3> =
+		    %% Line 540
+		    call 'erlang':'/'
+			(_cor2, _cor1)
+		in  %% Line 540
+		    call 'erlang':'round'
+			(_cor3)
+'store_excel_tab'/2 =
+    %% Line 543
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_Fd,[]> when 'true' ->
+	      %% Line 544
+	      'ok'
+	  %% Line 545
+	  <Fd,Res> when 'true' ->
+	      %% Line 547
+	      case Res of
+		<[{_cor6,_cor7,_cor8,Values}|_cor9]> when 'true' ->
+		    let <_cor3> =
+			%% Line 548
+			call 'erlang':'length'
+			    (Values)
+		    in  do  %% Line 548
+			    apply 'store_excel_tab_header'/3
+				(Fd, _cor3, 1)
+			    %% Line 549
+			    apply 'store_excel_tab1'/2
+				(Fd, Res)
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'store_excel_tab1'/2 =
+    %% Line 551
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Fd,[]> when 'true' ->
+	      %% Line 552
+	      call 'io':'format'
+		  (Fd, [126|[110]], [])
+	  %% Line 553
+	  <Fd,[{Dir,Conf,Avg,Values}|T]>
+	      when call 'erlang':'is_list'
+		    (Conf) ->
+	      let <_cor2> =
+		  %% Line 555
+		  call 'filename':'basename'
+		      (Dir)
+	      in  let <_cor3> =
+		      %% Line 555
+		      apply 'config_to_string'/1
+			  (Conf)
+		  in  do  %% Line 554
+			  call 'io':'format'
+			      (Fd, [126|[115|[126|[115|[32|[40|[126|[119|[41]]]]]]]]], %% Line 555
+										       [_cor2|[_cor3|[Avg|[]]]])
+			  do  %% Line 556
+			      apply 'store_excel_tab_row'/2
+				  (Fd, Values)
+			      %% Line 557
+			      apply 'store_excel_tab1'/2
+				  (Fd, T)
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'store_excel_tab1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'config_to_string'/1 =
+    %% Line 559
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 560
+	      []
+	  %% Line 561
+	  <[C|[]]>
+	      when call 'erlang':'is_atom'
+		    (C) ->
+	      %% Line 562
+	      call 'io_lib':'format'
+		  ([95|[126|[119]]], [C|[]])
+	  %% Line 563
+	  <[C|Cs]>
+	      when call 'erlang':'is_atom'
+		    (C) ->
+	      let <_cor2> =
+		  %% Line 564
+		  call 'io_lib':'format'
+		      ([95|[126|[119]]], [C|[]])
+	      in  let <_cor1> =
+		      %% Line 564
+		      apply 'config_to_string'/1
+			  (Cs)
+		  in  let <_cor3> =
+			  %% Line 564
+			  call 'erlang':'++'
+			      (_cor2, _cor1)
+		      in  %% Line 564
+			  call 'lists':'flatten'
+			      (_cor3)
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'config_to_string',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'store_excel_tab_header'/3 =
+    %% Line 566
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Fd,0,_cor8> when 'true' ->
+	      %% Line 567
+	      call 'io':'format'
+		  (Fd, [126|[110]], [])
+	  %% Line 568
+	  <Fd,N,M> when 'true' ->
+	      do  %% Line 569
+		  call 'io':'format'
+		      (Fd, [9|[126|[119]]], [M|[]])
+		  let <_cor4> =
+		      %% Line 570
+		      call 'erlang':'-'
+			  (N, 1)
+		  in  let <_cor3> =
+			  %% Line 570
+			  call 'erlang':'+'
+			      (M, 1)
+		      in  %% Line 570
+			  apply 'store_excel_tab_header'/3
+			      (Fd, _cor4, _cor3)
+	end
+'store_excel_tab_row'/2 =
+    %% Line 572
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Fd,[]> when 'true' ->
+	      %% Line 573
+	      call 'io':'format'
+		  (Fd, [126|[110]], [])
+	  %% Line 574
+	  <Fd,[Value|Values]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 575
+		  call 'erlang':'round'
+		      (Value)
+	      in  do  %% Line 575
+		      call 'io':'format'
+			  (Fd, [9|[126|[119]]], [_cor2|[]])
+		      %% Line 576
+		      apply 'store_excel_tab_row'/2
+			  (Fd, Values)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'store_excel_tab_row',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'start_flex_scanner'/0 =
+    %% Line 583
+    fun () ->
+	let <_cor0> =
+	    %% Line 584
+	    call 'erlang':'self'
+		()
+	in  let <Pid> =
+		%% Line 584
+		call 'proc_lib':'spawn'
+		    ('megaco_codec_meas', 'flex_scanner_handler', [_cor0|[]])
+	    in  %% Line 585
+		receive
+		  %% Line 586
+		  <{'flex_scanner_started',_cor2,Conf}>
+		      when call 'erlang':'=:='
+			    (_cor2,
+			     Pid) ->
+		      %% Line 587
+		      {Pid,[Conf|[]]}
+		  %% Line 588
+		  <{'flex_scanner_error',{'failed_loading_flex_scanner_driver',Reason}}> when 'true' ->
+		      %% Line 589
+		      call 'erlang':'throw'
+			  ({'error',{'failed_loading_flex_scanner_driver',Reason}})
+		  %% Line 590
+		  <{'flex_scanner_error',Reason}> when 'true' ->
+		      %% Line 591
+		      call 'erlang':'throw'
+			  ({'error',{'failed_loading_flex_scanner_driver',Reason}})
+		after %% Line 592
+		      10000 ->
+		  do  %% Line 593
+		      call 'erlang':'exit'
+			  (Pid, 'kill')
+		      %% Line 594
+		      call 'erlang':'throw'
+			  ({'error',{'failed_starting_flex_scanner','timeout'}})
+'stop_flex_scanner'/1 =
+    %% Line 597
+    fun (_cor0) ->
+	%% Line 598
+	call 'erlang':'!'
+	    (_cor0, 'stop_flex_scanner')
+'flex_scanner_handler'/1 =
+    %% Line 600
+    fun (_cor0) ->
+	let <_cor1> =
+	    catch
+		%% Line 601
+		call 'megaco_flex_scanner':'start'
+		    ()
+	in  %% Line 601
+	    case _cor1 of
+	      %% Line 602
+	      <{'ok',Port}>
+		  when call 'erlang':'is_port'
+			(Port) ->
+		  let <_cor2> =
+		      %% Line 603
+		      call 'erlang':'self'
+			  ()
+		  in  do  %% Line 603
+			  call 'erlang':'!'
+			      (_cor0, {'flex_scanner_started',_cor2,{'flex',Port}})
+			  %% Line 604
+			  apply 'flex_scanner_handler'/2
+			      (_cor0, Port)
+	      %% Line 605
+	      <{'ok',Ports}>
+		  when call 'erlang':'is_tuple'
+			(Ports) ->
+		  let <_cor3> =
+		      %% Line 606
+		      call 'erlang':'self'
+			  ()
+		  in  do  %% Line 606
+			  call 'erlang':'!'
+			      (_cor0, {'flex_scanner_started',_cor3,{'flex',Ports}})
+			  %% Line 607
+			  apply 'flex_scanner_handler'/2
+			      (_cor0, Ports)
+	      %% Line 608
+	      <{'error',{'load_driver',{'open_error',Reason}}}> when 'true' ->
+		  let <Error> = {%% Line 609
+		       'failed_loading_flex_scanner_driver',%% Line 609
+							    Reason}
+		  in  do  %% Line 610
+			  call 'erlang':'!'
+			      (_cor0, {'flex_scanner_error',Error})
+			  %% Line 611
+			  call 'erlang':'exit'
+			      (Error)
+	      %% Line 612
+	      <Else> when 'true' ->
+		  let <Error> = {%% Line 613
+		       'unknown_result_from_start_flex_scanner',%% Line 613
+								Else}
+		  in  do  %% Line 614
+			  call 'erlang':'!'
+			      (_cor0, {'flex_scanner_error',Error})
+			  %% Line 615
+			  call 'erlang':'exit'
+			      (Error)
+	    end
+'flex_scanner_handler'/2 =
+    %% Line 618
+    fun (_cor1,_cor0) ->
+	%% Line 619
+	receive
+	  %% Line 620
+	  <{'ping',Pinger}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 621
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 621
+		      call 'erlang':'!'
+			  (Pinger, {'pong',_cor2})
+		      %% Line 622
+		      apply 'flex_scanner_handler'/2
+			  (_cor1, _cor0)
+	  %% Line 623
+	  <{'EXIT',Port,Reason}> when 'true' ->
+	      %% Line 624
+	      case call 'megaco_flex_scanner':'is_scanner_port'
+		       (Port, _cor0) of
+		%% Line 625
+		<'true'> when 'true' ->
+		    do  %% Line 626
+			call 'erlang':'!'
+			    (_cor1, {'flex_scanner_exit',Reason})
+			%% Line 627
+			call 'erlang':'exit'
+			    ({'flex_scanner_exit',Reason})
+		%% Line 628
+		<'false'> when 'true' ->
+		    do  %% Line 629
+			apply 'info'/2
+			    ([101|[120|[105|[116|[32|[115|[105|[103|[110|[97|[108|[32|[102|[114|[111|[109|[32|[117|[110|[107|[110|[111|[119|[110|[32|[112|[111|[114|[116|[32|[126|[112|[126|[110|[32|[32|[32|[82|[101|[97|[115|[111|[110|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 630
+																																					   [Port|[Reason|[]]])
+			%% Line 631
+			apply 'flex_scanner_handler'/2
+			    (_cor1, _cor0)
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 633
+	  <'stop_flex_scanner'> when 'true' ->
+	      do  %% Line 634
+		  call 'megaco_flex_scanner':'stop'
+		      (_cor0)
+		  %% Line 635
+		  call 'erlang':'exit'
+		      ('normal')
+	  %% Line 636
+	  <Other> when 'true' ->
+	      do  %% Line 637
+		  apply 'info'/2
+		      ([102|[108|[101|[120|[32|[115|[99|[97|[110|[110|[101|[114|[32|[104|[97|[110|[100|[108|[101|[114|[32|[103|[111|[116|[32|[115|[111|[109|[101|[116|[104|[105|[110|[103|[58|[126|[110|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Other|[]])
+		  %% Line 638
+		  apply 'flex_scanner_handler'/2
+		      (_cor1, _cor0)
+	after 'infinity' ->
+	  'true'
+'info'/2 =
+    %% Line 644
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 645
+	    call 'erlang':'++'
+		(_cor1, [126|[110]])
+	in  %% Line 645
+	    call 'io':'format'
+		(_cor2, _cor0)
+'error'/2 =
+    %% Line 648
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 649
+	    call 'erlang':'++'
+		(_cor1, [126|[110]])
+	in  let <_cor3> =
+		%% Line 649
+		call 'erlang':'++'
+		    ([69|[82|[82|[79|[82|[58|[32]]]]]]], _cor2)
+	    in  %% Line 649
+		call 'io':'format'
+		    (_cor3, _cor0)
+'format'/2 =
+    %% Line 652
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 653
+	    call 'io_lib':'format'
+		(_cor1, _cor0)
+	in  %% Line 653
+	    call 'lists':'flatten'
+		(_cor2)
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('megaco_codec_meas')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('megaco_codec_meas', _cor0)
+end

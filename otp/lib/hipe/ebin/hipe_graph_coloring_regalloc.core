@@ -1,0 +1,1706 @@
+module 'hipe_graph_coloring_regalloc' ['module_info'/0,
+				       'module_info'/1,
+				       'regalloc'/5]
+    attributes [%% Line 301
+		'type' =
+		    %% Line 301
+		    [{{'record','comp_servers'},[{'typed_record_field',{'record_field',301,{'atom',301,'pp_server'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'range'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'type'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}]]],[]}],
+		%% Line 307
+		'type' =
+		    %% Line 307
+		    [{'comp_option',{'type',307,'union',[{'type',307,'atom',[]}|[{'type',307,'tuple',[{'type',307,'atom',[]}|[{'type',307,'atom',[]}]]}]]},[]}],
+		%% Line 308
+		'type' =
+		    %% Line 308
+		    [{'comp_options',{'type',308,'list',[{'type',308,'comp_option',[]}]},[]}],
+		%% Line 310
+		'type' =
+		    %% Line 310
+		    [{'hipe_architecture',{'type',311,'union',[{'atom',311,'amd64'}|[{'atom',311,'arm'}|[{'atom',311,'powerpc'}|[{'atom',311,'ppc64'}|[{'atom',311,'ultrasparc'}|[{'atom',311,'x86'}]]]]]]},[]}],
+		%% Line 313
+		'type' =
+		    %% Line 313
+		    [{'hipe_map',{'type',313,'list',[{'type',313,'tuple',[{'type',313,'non_neg_integer',[]}|[{'type',314,'union',[{'atom',314,'unknown'}|[{'type',314,'tuple',[{'type',314,'union',[{'atom',314,'reg'}|[{'atom',314,'fp_reg'}|[{'atom',314,'spill'}]]]}|[{'type',315,'non_neg_integer',[]}]]}]]}]]}]},[]}],
+		%% Line 316
+		'type' =
+		    %% Line 316
+		    [{'hipe_temp_map',{'type',316,'tuple','any'},[]}],
+		%% Line 317
+		'type' =
+		    %% Line 317
+		    [{'hipe_spill_map',{'type',317,'list',[{'type',317,'tuple',[{'type',317,'non_neg_integer',[]}|[{'type',317,'tuple',[{'atom',317,'spill'}|[{'type',317,'non_neg_integer',[]}]]}]]}]},[]}],
+		%% Line 575
+		'type' =
+		    %% Line 575
+		    [{{'record','ig_info'},[{'record_field',575,{'atom',575,'neighbors'},{'nil',575}}|[{'typed_record_field',{'record_field',575,{'atom',575,'degree'},{'integer',575,0}},{'type',575,'integer',[]}}]],[]}]]
+'regalloc'/5 =
+    %% Line 81
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <PhysRegs> =
+	    %% Line 82
+	    call _cor1:'allocatable'
+		()
+	in  %% Line 84
+	    case apply 'build_ig'/2
+		     (_cor4, _cor1) of
+	      <{IG,Spill}> when 'true' ->
+		  let <_cor13> =
+		      %% Line 90
+		      ( letrec
+			    'lc$^0'/1 =
+				fun (_cor10) ->
+				    case _cor10 of
+				      <[X|_cor8]> when 'true' ->
+					  let <_cor11> =
+					      call _cor1:'reg_nr'
+						  (X)
+					  in  let <_cor12> =
+						  apply 'lc$^0'/1
+						      (_cor8)
+					      in  ( [_cor11|_cor12]
+						    -| ['compiler_generated'] )
+				      <[]> when 'true' ->
+					  []
+				      ( <_cor10> when 'true' ->
+					    ( primop 'match_fail'
+						  ({'function_clause',_cor10})
+					      -| [{'function_name',{'lc$^0',1}}] )
+					-| ['compiler_generated'] )
+				    end
+			in  let <_cor9> =
+				call _cor1:'non_alloc'
+				    (_cor4)
+			    in  apply 'lc$^0'/1
+				    (_cor9)
+			-| ['list_comprehension'] )
+		  in  let <_cor16> =
+			  %% Line 96
+			  call 'ordsets':'from_list'
+			      (PhysRegs)
+		      in  let <_cor15> =
+			      %% Line 99
+			      call _cor1:'number_of_temporaries'
+				  (_cor4)
+			  in  %% Line 94
+			      case %% Line 95
+				   apply 'color'/8
+				       (IG, Spill, _cor16, _cor3, _cor2, _cor15, _cor1, _cor13) of
+				<{Cols,NewSpillIndex}> when 'true' ->
+				    let <_cor22> =
+					%% Line 101
+					( letrec
+					      'lc$^1'/1 =
+						  fun (_cor20) ->
+						      case _cor20 of
+							<[X|_cor19]> when 'true' ->
+							    let <_cor21> =
+								apply 'lc$^1'/1
+								    (_cor19)
+							    in  ( [{X,{'reg',X}}|_cor21]
+								  -| ['compiler_generated'] )
+							<[]> when 'true' ->
+							    Cols
+							( <_cor20> when 'true' ->
+							      ( primop 'match_fail'
+								    ({'function_clause',_cor20})
+								-| [{'function_name',{'lc$^1',1}}] )
+							  -| ['compiler_generated'] )
+						      end
+					  in  apply 'lc$^1'/1
+						  (_cor13)
+					  -| ['list_comprehension'] )
+				    in  %% Line 104
+					{_cor22,NewSpillIndex}
+				( <_cor17> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor17})
+				  -| ['compiler_generated'] )
+			      end
+	      ( <_cor6> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor6})
+		-| ['compiler_generated'] )
+	    end
+'build_ig'/2 =
+    %% Line 114
+    fun (_cor1,_cor0) ->
+	%% Line 115
+	try
+	    apply 'build_ig0'/2
+		(_cor1, _cor0)
+	of <_cor2> ->
+	    _cor2
+	catch <_cor5,_cor4,_cor3> ->
+	    case <_cor5,_cor4,_cor3> of
+	      %% Line 116
+	      <'error',Rsn,_cor8> when 'true' ->
+		  call 'erlang':'exit'
+		      ({'hipe_graph_coloring_regalloc','build_ig',Rsn})
+	      ( <_cor5,_cor4,_cor3> when 'true' ->
+		    primop 'raise'
+			(_cor3, _cor4)
+		-| ['compiler_generated'] )
+	    end
+'build_ig0'/2 =
+    %% Line 119
+    fun (_cor1,_cor0) ->
+	let <Live> =
+	    %% Line 120
+	    call _cor0:'analyze'
+		(_cor1)
+	in  let <NumN> =
+		%% Line 121
+		call _cor0:'number_of_temporaries'
+		    (_cor1)
+	    in  let <_cor6> =
+		    %% Line 122
+		    call _cor0:'labels'
+			(_cor1)
+		in  let <_cor5> =
+			%% Line 125
+			apply 'empty_ig'/1
+			    (NumN)
+		    in  let <_cor4> =
+			    %% Line 126
+			    apply 'empty_spill'/1
+				(NumN)
+			in  %% Line 122
+			    case apply 'build_ig_bbs'/6
+				     (_cor6, _cor1, %% Line 124
+						    Live, _cor5, _cor4, _cor0) of
+			      <{IG,Spill}> when 'true' ->
+				  let <_cor8> =
+				      %% Line 128
+				      apply 'normalize_ig'/1
+					  (IG)
+				  in  %% Line 128
+				      {_cor8,Spill}
+			      ( <_cor7> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor7})
+				-| ['compiler_generated'] )
+			    end
+'build_ig_bbs'/6 =
+    %% Line 130
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_CFG,_X_Live,IG,Spill,_X_Target> when 'true' ->
+	      %% Line 131
+	      {IG,Spill}
+	  %% Line 132
+	  <[L|Ls],CFG,Live,IG,Spill,Target> when 'true' ->
+	      let <Xs> =
+		  %% Line 133
+		  apply 'bb'/3
+		      (CFG, L, Target)
+	      in  let <_cor7> =
+		      %% Line 135
+		      apply 'liveout'/3
+			  (Live, L, Target)
+		  in  %% Line 134
+		      case %% Line 135
+			   apply 'build_ig_bb'/5
+			       (Xs, _cor7, IG, Spill, Target) of
+			<{_cor15,NewIG,NewSpill}> when 'true' ->
+			    %% Line 136
+			    apply 'build_ig_bbs'/6
+				(Ls, CFG, Live, NewIG, NewSpill, Target)
+			( <_cor8> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor8})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor14,_cor13,_cor12,_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14,_cor13,_cor12,_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'build_ig_bbs',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'build_ig_bb'/5 =
+    %% Line 138
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],LiveOut,IG,Spill,_X_Target> when 'true' ->
+	      %% Line 139
+	      {LiveOut,IG,Spill}
+	  %% Line 140
+	  <[X|Xs],LiveOut,IG,Spill,Target> when 'true' ->
+	      %% Line 141
+	      case apply 'build_ig_bb'/5
+		       (Xs, LiveOut, IG, Spill, Target) of
+		<{Live,NewIG,NewSpill}> when 'true' ->
+		    %% Line 142
+		    apply 'build_ig_instr'/5
+			(X, Live, NewIG, NewSpill, Target)
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor10,_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'build_ig_bb',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'build_ig_instr'/5 =
+    %% Line 150
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 151
+	case apply 'def_use'/2
+		 (_cor4, _cor0) of
+	  <{Def,Use}> when 'true' ->
+	      let <DefList> =
+		  %% Line 153
+		  call 'ordsets':'to_list'
+		      (Def)
+	      in  let <_cor7> =
+		      %% Line 155
+		      call 'ordsets':'to_list'
+			  (Use)
+		  in  let <_cor8> =
+			  %% Line 155
+			  apply 'inc_spill_costs'/2
+			      (_cor7, _cor1)
+		      in  let <NewSpill> =
+			      %% Line 154
+			      apply 'inc_spill_costs'/2
+				  (DefList, _cor8)
+			  in  let <_cor10> =
+				  %% Line 156
+				  call 'ordsets':'to_list'
+				      (_cor3)
+			      in  let <NewIG> =
+				      %% Line 156
+				      apply 'interference_arcs'/3
+					  (DefList, _cor10, _cor2)
+				  in  let <_cor12> =
+					  %% Line 157
+					  call 'ordsets':'subtract'
+					      (_cor3, Def)
+				      in  let <NewLive> =
+					      %% Line 157
+					      call 'ordsets':'union'
+						  (Use, _cor12)
+					  in  %% Line 158
+					      {NewLive,NewIG,NewSpill}
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'interference_arcs'/3 =
+    %% Line 162
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_X_Live,IG> when 'true' ->
+	      %% Line 163
+	      IG
+	  %% Line 164
+	  <[X|Xs],Live,IG> when 'true' ->
+	      let <_cor3> =
+		  %% Line 165
+		  apply 'i_arcs'/3
+		      (X, Live, IG)
+	      in  %% Line 165
+		  apply 'interference_arcs'/3
+		      (Xs, Live, _cor3)
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'interference_arcs',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'i_arcs'/3 =
+    %% Line 167
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_X_X,[],IG> when 'true' ->
+	      %% Line 168
+	      IG
+	  %% Line 169
+	  <X,[Y|Ys],IG> when 'true' ->
+	      let <_cor3> =
+		  %% Line 170
+		  apply 'add_edge'/3
+		      (X, Y, IG)
+	      in  %% Line 170
+		  apply 'i_arcs'/3
+		      (X, Ys, _cor3)
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'i_arcs',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'inc_spill_costs'/2 =
+    %% Line 174
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Spill> when 'true' ->
+	      Spill
+	  %% Line 175
+	  <[X|Xs],Spill> when 'true' ->
+	      let <_cor2> =
+		  %% Line 176
+		  apply 'inc_spill_cost'/2
+		      (X, Spill)
+	      in  %% Line 176
+		  apply 'inc_spill_costs'/2
+		      (Xs, _cor2)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'inc_spill_costs',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'inc_spill_cost'/2 =
+    %% Line 178
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 179
+	    apply 'get_spill_cost'/2
+		(_cor1, _cor0)
+	in  let <_cor3> =
+		%% Line 179
+		call 'erlang':'+'
+		    (_cor2, 1)
+	    in  %% Line 179
+		apply 'set_spill_cost'/3
+		    (_cor1, _cor3, _cor0)
+'get_spill_cost'/2 =
+    %% Line 181
+    fun (_cor1,_cor0) ->
+	%% Line 182
+	apply 'spill_cost_lookup'/2
+	    (_cor1, _cor0)
+'set_spill_cost'/3 =
+    %% Line 184
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 185
+	apply 'spill_cost_update'/3
+	    (_cor2, _cor1, _cor0)
+'color'/8 =
+    %% Line 210
+    fun (_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 211
+	try
+	    apply 'color_0'/8
+		(_cor7, _cor6, _cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+	of <_cor8> ->
+	    _cor8
+	catch <_cor11,_cor10,_cor9> ->
+	    case <_cor11,_cor10,_cor9> of
+	      %% Line 214
+	      <'error',Rsn,_cor27> when 'true' ->
+		  do  %% Line 215
+		      call 'code_server':'error_msg'
+			  ([60|[72|[105|[80|[69|[32|[40|[118|[32|[51|[46|[49|[49|[41|[62|[32|[69|[114|[114|[111|[114|[58|[32|[91|[126|[115|[58|[126|[119|[93|[58|[32|[67|[111|[108|[111|[114|[105|[110|[103|[32|[102|[97|[105|[108|[101|[100|[32|[119|[105|[116|[104|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], ['hipe_graph_coloring_regalloc'|[215|[Rsn|[]]]])
+		      do  %% Line 216
+			  call 'io':'format'
+			      ([60|[72|[105|[80|[69|[32|[40|[118|[32|[51|[46|[49|[49|[41|[62|[32|[69|[88|[73|[84|[69|[68|[32|[119|[105|[116|[104|[32|[114|[101|[97|[115|[111|[110|[32|[126|[119|[32|[64|[126|[119|[58|[126|[119|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Rsn|['hipe_graph_coloring_regalloc'|[216]]])
+			  %% Line 216
+			  call 'erlang':'error'
+			      ({'hipe_graph_coloring_regalloc',216,Rsn})
+	      ( <_cor11,_cor10,_cor9> when 'true' ->
+		    primop 'raise'
+			(_cor9, _cor10)
+		-| ['compiler_generated'] )
+	    end
+'color_0'/8 =
+    %% Line 219
+    fun (_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <K> =
+	    %% Line 222
+	    call 'ordsets':'size'
+		(_cor5)
+	in  let <Nodes> =
+		%% Line 223
+		apply 'list_ig'/1
+		    (_cor7)
+	    in  let <Low> =
+		    %% Line 225
+		    apply 'low_degree_nodes'/3
+			(Nodes, K, _cor0)
+		in  let <_cor16> =
+			%% Line 229
+			case <> of
+			  <>
+			      when try
+				    let <_cor11> =
+					call 'erlang':'+'
+					    (_cor3, 1)
+				    in  call 'erlang':'>'
+					    (_cor2, _cor11)
+				of <Try> ->
+				    Try
+				catch <T,R> ->
+				    'false' ->
+			      let <_cor13> =
+				  %% Line 230
+				  call 'erlang':'+'
+				      (_cor3, 1)
+			      in  let <_cor12> =
+				      %% Line 230
+				      call 'erlang':'-'
+					  (_cor2, 1)
+				  in  let <_cor14> =
+					  %% Line 230
+					  call 'lists':'seq'
+					      (_cor13, _cor12)
+				      in  let <_cor15> =
+					      %% Line 230
+					      call 'erlang':'--'
+						  (_cor14, Low)
+					  in  %% Line 230
+					      apply 'sort_on_degree'/2
+						  (_cor15, _cor7)
+			  %% Line 231
+			  <> when 'true' ->
+			      []
+			end
+		    in  let <Precolored> =
+			    %% Line 236
+			    call _cor1:'all_precoloured'
+				()
+			in  %% Line 237
+			    case %% Line 238
+				 apply 'simplify'/12
+				     (Low, _cor2, Precolored, _cor7, _cor6, %% Line 239
+									    K, _cor4, [], _cor3, _cor1, _cor0, _cor16) of
+			      <{Stk,NewSpillIx}> when 'true' ->
+				  let <_cor21> =
+				      %% Line 242
+				      apply 'select'/7
+					  (Stk, Precolored, _cor7, K, _cor5, _cor2, _cor1)
+				  in  %% Line 242
+				      {_cor21,%% Line 243
+					      NewSpillIx}
+			      ( <_cor20> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor20})
+				-| ['compiler_generated'] )
+			    end
+'sort_on_degree'/2 =
+    %% Line 245
+    fun (_cor1,_cor0) ->
+	%% Line 246
+	( letrec
+	      'lc$^2'/1 =
+		  fun (_cor17) ->
+		      case _cor17 of
+			<[{_cor21,Node3}|_cor3]> when 'true' ->
+			    let <_cor18> =
+				apply 'lc$^2'/1
+				    (_cor3)
+			    in  ( [Node3|_cor18]
+				  -| ['compiler_generated'] )
+			( <[_cor2|_cor3]> when 'true' ->
+			      apply 'lc$^2'/1
+				  (_cor3)
+			  -| ['compiler_generated'] )
+			<[]> when 'true' ->
+			    []
+			( <_cor17> when 'true' ->
+			      ( primop 'match_fail'
+				    ({'function_clause',_cor17})
+				-| [{'function_name',{'lc$^2',1}}] )
+			  -| ['compiler_generated'] )
+		      end
+	  in  let <_cor15> =
+		  %% Line 247
+		  ( letrec
+			'lc$^1'/1 =
+			    fun (_cor12) ->
+				case _cor12 of
+				  <[%% Line 248
+				    {Info,Node2}|_cor5]> when 'true' ->
+				      let <_cor13> =
+					  apply 'degree'/1
+					      (Info)
+				      in  let <_cor14> =
+					      %% Line 248
+					      apply 'lc$^1'/1
+						  (_cor5)
+					  in  ( [{_cor13,Node2}|_cor14]
+						-| ['compiler_generated'] )
+				  ( <[_cor4|_cor5]> when 'true' ->
+					%% Line 248
+					apply 'lc$^1'/1
+					    (_cor5)
+				    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor12> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor12})
+					  -| [{'function_name',{'lc$^1',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  let <_cor11> =
+			    %% Line 248
+			    ( letrec
+				  'lc$^0'/1 =
+				      fun (_cor8) ->
+					  case _cor8 of
+					    <[%% Line 249
+					      Node|_cor7]> when 'true' ->
+						let <_cor9> =
+						    call 'hipe_vectors':'get'
+							(_cor0, Node)
+						in  let <_cor10> =
+							%% Line 249
+							apply 'lc$^0'/1
+							    (_cor7)
+						    in  ( [{_cor9,%% Line 249
+								  Node}|_cor10]
+							  -| ['compiler_generated'] )
+					    <[]> when 'true' ->
+						[]
+					    ( <_cor8> when 'true' ->
+						  ( primop 'match_fail'
+							({'function_clause',_cor8})
+						    -| [{'function_name',{'lc$^0',1}}] )
+					      -| ['compiler_generated'] )
+					  end
+			      in  apply 'lc$^0'/1
+				      (_cor1)
+			      -| ['list_comprehension'] )
+			in  apply 'lc$^1'/1
+				(_cor11)
+		    -| ['list_comprehension'] )
+	      in  let <_cor16> =
+		      %% Line 247
+		      call 'lists':'sort'
+			  (_cor15)
+		  in  apply 'lc$^2'/1
+			  (_cor16)
+	  -| ['list_comprehension'] )
+'simplify'/12 =
+    %% Line 284
+    fun (_cor11,_cor10,_cor9,_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor12> =
+	    %% Line 286
+	    apply 'none_visited'/1
+		(_cor10)
+	in  let <Vis> =
+		%% Line 286
+		apply 'visit_all'/2
+		    (_cor9, _cor12)
+	    in  let <Vis1> =
+		    %% Line 287
+		    apply 'visit_all'/2
+			(_cor1, Vis)
+		in  let <_cor16> =
+			%% Line 288
+			call 'erlang':'length'
+			    (_cor9)
+		    in  let <_cor17> =
+			    %% Line 288
+			    call 'erlang':'-'
+				(_cor10, _cor16)
+			in  let <_cor15> =
+				%% Line 288
+				call 'erlang':'length'
+				    (_cor1)
+			    in  let <ActualNumNodes> =
+				    %% Line 288
+				    call 'erlang':'-'
+					(_cor17, _cor15)
+				in  %% Line 291
+				    case %% Line 292
+					 apply 'handle_non_spill'/10
+					     (_cor0, _cor8, _cor7, _cor6, _cor5, _cor4, Vis1, _cor11, _cor3, _cor2) of
+				      <{Stk2,Ix2,Vis2,Low2}> when 'true' ->
+					  let <_cor20> =
+					      %% Line 294
+					      call 'erlang':'length'
+						  (Stk2)
+					  in  let <_cor21> =
+						  %% Line 294
+						  call 'erlang':'-'
+						      (ActualNumNodes, _cor20)
+					      in  %% Line 294
+						  apply 'simplify_ig'/10
+						      (Low2, _cor21, _cor8, _cor7, _cor6, Ix2, Stk2, Vis2, _cor3, _cor2)
+				      ( <_cor19> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_cor19})
+					-| ['compiler_generated'] )
+				    end
+'handle_non_spill'/10 =
+    %% Line 297
+    fun (_cor9,_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor9,_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_IG,_X_Spill,_X_K,Ix,Stk,Vis,Low,_X_SpillLimit,_X_Target> when 'true' ->
+	      %% Line 298
+	      {Stk,Ix,Vis,Low}
+	  %% Line 299
+	  <L = [X|Xs],IG,Spill,K,Ix,Stk,Vis,Low,SpillLimit,Target> when 'true' ->
+	      let <Info> =
+		  %% Line 300
+		  call 'hipe_vectors':'get'
+		      (IG, X)
+	      in  let <Degree> =
+		      %% Line 301
+		      apply 'degree'/1
+			  (Info)
+		  in  %% Line 303
+		      case <> of
+			<>
+			    when call 'erlang':'>'
+				  (Degree,
+				   K) ->
+			    %% Line 305
+			    case apply 'spill'/6
+				     (IG, Vis, Spill, K, SpillLimit, Target) of
+			      <{Y,NewLow,NewIG}> when 'true' ->
+				  let <NewVis> =
+				      %% Line 306
+				      apply 'visit'/2
+					  (Y, Vis)
+				  in  %% Line 307
+				      case apply 'push_spill_node'/3
+					       (Y, Ix, Stk) of
+					<{NewStk,NewIx}> when 'true' ->
+					    let <_cor15> =
+						%% Line 310
+						call 'erlang':'++'
+						    (Low, NewLow)
+					    in  %% Line 309
+						apply 'handle_non_spill'/10
+						    (L, NewIG, Spill, K, NewIx, NewStk, NewVis, _cor15, %% Line 310
+													SpillLimit, %% Line 310
+														    Target)
+					( <_cor14> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor14})
+					  -| ['compiler_generated'] )
+				      end
+			      ( <_cor12> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor12})
+				-| ['compiler_generated'] )
+			    end
+			%% Line 311
+			<> when 'true' ->
+			    %% Line 312
+			    case apply 'decrement_neighbors'/5
+				     (X, Low, IG, Vis, K) of
+			      <{NewLow,NewIG}> when 'true' ->
+				  let <NewStk> =
+				      %% Line 314
+				      apply 'push_colored'/2
+					  (X, Stk)
+				  in  let <_cor18> =
+					  %% Line 315
+					  apply 'visit'/2
+					      (X, Vis)
+				      in  %% Line 315
+					  apply 'handle_non_spill'/10
+					      (Xs, NewIG, Spill, K, Ix, NewStk, _cor18, %% Line 316
+											NewLow, %% Line 316
+												SpillLimit, %% Line 316
+													    Target)
+			      ( <_cor16> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor16})
+				-| ['compiler_generated'] )
+			    end
+		      end
+	  ( <_cor28,_cor27,_cor26,_cor25,_cor24,_cor23,_cor22,_cor21,_cor20,_cor19> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor28,_cor27,_cor26,_cor25,_cor24,_cor23,_cor22,_cor21,_cor20,_cor19})
+		  -| [{'function_name',{'handle_non_spill',10}}] )
+	    -| ['compiler_generated'] )
+	end
+'simplify_ig'/10 =
+    %% Line 319
+    fun (_cor9,_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor9,_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],0,_X_IG,_X_Spill,_X_K,Ix,Stk,_X_Vis,_X_SpillLimit,_X_Target> when 'true' ->
+	      %% Line 320
+	      {Stk,Ix}
+	  %% Line 321
+	  <[],N,IG,Spill,K,Ix,Stk,Vis,SpillLimit,Target>
+	      when %% Line 322
+		call 'erlang':'>'
+		    (N,
+		     0) ->
+	      %% Line 325
+	      case apply 'spill'/6
+		       (IG, Vis, Spill, K, SpillLimit, Target) of
+		<{X,Low,NewIG}> when 'true' ->
+		    let <NewVis> =
+			%% Line 326
+			apply 'visit'/2
+			    (X, Vis)
+		    in  %% Line 327
+			case apply 'push_spill_node'/3
+				 (X, Ix, Stk) of
+			  <{NewStk,NewIx}> when 'true' ->
+			      let <_cor13> =
+				  %% Line 329
+				  call 'erlang':'-'
+				      (N, 1)
+			      in  %% Line 329
+				  apply 'simplify_ig'/10
+				      (Low, _cor13, NewIG, Spill, K, NewIx, NewStk, NewVis, %% Line 330
+											    SpillLimit, %% Line 330
+													Target)
+			  ( <_cor12> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor12})
+			    -| ['compiler_generated'] )
+			end
+		( <_cor10> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor10})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 331
+	  <[X|Xs],N,IG,Spill,K,Ix,Stk,Vis,SpillLimit,Target> when 'true' ->
+	      %% Line 333
+	      case apply 'is_visited'/2
+		       (X, Vis) of
+		%% Line 334
+		<'true'> when 'true' ->
+		    %% Line 336
+		    apply 'simplify_ig'/10
+			(Xs, N, IG, Spill, K, Ix, Stk, Vis, SpillLimit, Target)
+		%% Line 337
+		<'false'> when 'true' ->
+		    %% Line 339
+		    case apply 'decrement_neighbors'/5
+			     (X, Xs, IG, Vis, K) of
+		      <{NewLow,NewIG}> when 'true' ->
+			  let <NewStk> =
+			      %% Line 341
+			      apply 'push_colored'/2
+				  (X, Stk)
+			  in  let <_cor17> =
+				  %% Line 342
+				  call 'erlang':'-'
+				      (N, 1)
+			      in  let <_cor16> =
+				      %% Line 342
+				      apply 'visit'/2
+					  (X, Vis)
+				  in  %% Line 342
+				      apply 'simplify_ig'/10
+					  (NewLow, _cor17, NewIG, Spill, K, Ix, NewStk, _cor16, %% Line 343
+												SpillLimit, %% Line 343
+													    Target)
+		      ( <_cor14> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor14})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor18> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor18})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor28,_cor27,_cor26,_cor25,_cor24,_cor23,_cor22,_cor21,_cor20,_cor19> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor28,_cor27,_cor26,_cor25,_cor24,_cor23,_cor22,_cor21,_cor20,_cor19})
+		  -| [{'function_name',{'simplify_ig',10}}] )
+	    -| ['compiler_generated'] )
+	end
+'decrement_neighbors'/5 =
+    %% Line 348
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <Ns> =
+	    %% Line 349
+	    apply 'unvisited_neighbors'/3
+		(_cor4, _cor1, _cor2)
+	in  %% Line 352
+	    apply 'decrement_each'/5
+		(Ns, _cor3, _cor2, _cor1, _cor0)
+'decrement_each'/5 =
+    %% Line 357
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],Low,IG,_X_Vis,_X_K> when 'true' ->
+	      %% Line 358
+	      {Low,IG}
+	  %% Line 359
+	  <[N|Ns],OldLow,IG,Vis,K> when 'true' ->
+	      %% Line 360
+	      case apply 'decrement_each'/5
+		       (Ns, OldLow, IG, Vis, K) of
+		<Res = {Low,CurrIG}> when 'true' ->
+		    %% Line 361
+		    case apply 'is_visited'/2
+			     (N, Vis) of
+		      %% Line 362
+		      <'true'> when 'true' ->
+			  %% Line 363
+			  Res
+		      %% Line 364
+		      <'false'> when 'true' ->
+			  %% Line 365
+			  case apply 'decrement_degree'/2
+				   (N, CurrIG) of
+			    <{D,NewIG}> when 'true' ->
+				%% Line 366
+				case <> of
+				  %% Line 367
+				  <>
+				      when try
+					    let <_cor7> =
+						call 'erlang':'-'
+						    (K, 1)
+					    in  call 'erlang':'=:='
+						    (D, _cor7)
+					of <Try> ->
+					    Try
+					catch <T,R> ->
+					    'false' ->
+				      %% Line 368
+				      {[N|Low],NewIG}
+				  %% Line 369
+				  <> when 'true' ->
+				      %% Line 370
+				      {Low,NewIG}
+				end
+			    ( <_cor6> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor6})
+			      -| ['compiler_generated'] )
+			  end
+		      ( <_cor8> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor8})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor13,_cor12,_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'decrement_each',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'spill'/6 =
+    %% Line 391
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <Ns> =
+	    %% Line 392
+	    apply 'list_ig'/1
+		(_cor5)
+	in  let <Costs> =
+		%% Line 393
+		apply 'spill_costs'/6
+		    (Ns, _cor5, _cor4, _cor3, _cor1, _cor0)
+	    in  %% Line 397
+		case call 'lists':'sort'
+			 (Costs) of
+		  %% Line 398
+		  <[]> when 'true' ->
+		      do  %% Line 399
+			  call 'code_server':'error_msg'
+			      ([60|[72|[105|[80|[69|[32|[40|[118|[32|[51|[46|[49|[49|[41|[62|[32|[69|[114|[114|[111|[114|[58|[32|[91|[126|[115|[58|[126|[119|[93|[58|[32|[84|[104|[101|[114|[101|[32|[105|[115|[32|[110|[111|[32|[110|[111|[100|[101|[32|[116|[111|[32|[115|[112|[105|[108|[108]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], ['hipe_graph_coloring_regalloc'|[399]])
+			  do  %% Line 400
+			      call 'io':'format'
+				  ([60|[72|[105|[80|[69|[32|[40|[118|[32|[51|[46|[49|[49|[41|[62|[32|[69|[88|[73|[84|[69|[68|[32|[119|[105|[116|[104|[32|[114|[101|[97|[115|[111|[110|[32|[126|[119|[32|[64|[126|[119|[58|[126|[119|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], ['no node to spill'|['hipe_graph_coloring_regalloc'|[400]]])
+			      %% Line 400
+			      call 'erlang':'error'
+				  ({'hipe_graph_coloring_regalloc',400,'no node to spill'})
+		  %% Line 401
+		  <[{_X_Cost,N}|_cor24]> when 'true' ->
+		      %% Line 402
+		      case apply 'decrement_neighbors'/5
+			       (N, [], _cor5, _cor4, _cor2) of
+			<{Low,NewIG}> when 'true' ->
+			    %% Line 404
+			    {N,Low,NewIG}
+			( <_cor16> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor16})
+			  -| ['compiler_generated'] )
+		      end
+		  ( <_cor17> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor17})
+		    -| ['compiler_generated'] )
+		end
+'spill_costs'/6 =
+    %% Line 407
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_IG,_X_Vis,_X_Spill,_X_SpillLimit,_X_Target> when 'true' ->
+	      %% Line 408
+	      []
+	  %% Line 409
+	  <[{N,Info}|Ns],IG,Vis,Spill,SpillLimit,Target> when 'true' ->
+	      %% Line 410
+	      case apply 'degree'/1
+		       (Info) of
+		%% Line 411
+		<0> when 'true' ->
+		    apply 'spill_costs'/6
+			(Ns, IG, Vis, Spill, SpillLimit, Target)
+		%% Line 412
+		<Deg> when 'true' ->
+		    %% Line 413
+		    case apply 'is_visited'/2
+			     (N, Vis) of
+		      %% Line 414
+		      <'true'> when 'true' ->
+			  %% Line 415
+			  apply 'spill_costs'/6
+			      (Ns, IG, Vis, Spill, SpillLimit, Target)
+		      %% Line 416
+		      <_cor18> when 'true' ->
+			  %% Line 417
+			  case call Target:'is_fixed'
+				   (N) of
+			    %% Line 418
+			    <'true'> when 'true' ->
+				%% Line 419
+				apply 'spill_costs'/6
+				    (Ns, IG, Vis, Spill, SpillLimit, Target)
+			    %% Line 420
+			    <'false'> when 'true' ->
+				%% Line 421
+				case <> of
+				  <>
+				      when call 'erlang':'>'
+					    (N,
+					     SpillLimit) ->
+				      %% Line 422
+				      apply 'spill_costs'/6
+					  (Ns, IG, Vis, Spill, SpillLimit, Target)
+				  %% Line 423
+				  <> when 'true' ->
+				      let <_cor6> =
+					  %% Line 424
+					  apply 'spill_cost_of'/2
+					      (N, Spill)
+				      in  let <_cor7> =
+					      %% Line 424
+					      call 'erlang':'/'
+						  (_cor6, Deg)
+					  in  let <_cor8> =
+						  %% Line 425
+						  apply 'spill_costs'/6
+						      (Ns, IG, Vis, Spill, SpillLimit, Target)
+					      in  %% Line 424
+						  [{_cor7,N}|_cor8]
+				end
+			    ( <_cor9> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor9})
+			      -| ['compiler_generated'] )
+			  end
+		    end
+	      end
+	  ( <_cor17,_cor16,_cor15,_cor14,_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor17,_cor16,_cor15,_cor14,_cor13,_cor12})
+		  -| [{'function_name',{'spill_costs',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'select'/7 =
+    %% Line 440
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor7> =
+	    %% Line 442
+	    apply 'none_colored'/1
+		(_cor1)
+	in  %% Line 442
+	    case apply 'precolor'/3
+		     (_cor5, _cor7, _cor0) of
+	      <{PhysColors,Cols}> when 'true' ->
+		  let <_cor9> =
+		      %% Line 444
+		      apply 'select_colors'/5
+			  (_cor6, _cor4, Cols, _cor2, _cor3)
+		  in  %% Line 444
+		      call 'erlang':'++'
+			  (PhysColors, _cor9)
+	      ( <_cor8> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor8})
+		-| ['compiler_generated'] )
+	    end
+'select_colors'/5 =
+    %% Line 446
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_IG,_X_Cols,_X_PhysRegs,_X_K> when 'true' ->
+	      %% Line 448
+	      []
+	  %% Line 449
+	  <[{X,'colorable'}|Xs],IG,Cols,PhysRegs,K> when 'true' ->
+	      %% Line 451
+	      case apply 'select_color'/4
+		       (X, IG, Cols, PhysRegs) of
+		<{Reg,NewCols}> when 'true' ->
+		    let <_cor6> =
+			%% Line 453
+			apply 'select_colors'/5
+			    (Xs, IG, NewCols, PhysRegs, K)
+		    in  %% Line 453
+			[{X,{'reg',Reg}}|_cor6]
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 467
+	  <[{X,{'spill',M}}|Xs],IG,Cols,PhysRegs,K> when 'true' ->
+	      let <_cor7> =
+		  %% Line 476
+		  apply 'select_colors'/5
+		      (Xs, IG, Cols, PhysRegs, K)
+	      in  %% Line 476
+		  [{X,{'spill',M}}|_cor7]
+	  ( <_cor12,_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'select_colors',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'select_color'/4 =
+    %% Line 478
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 479
+	    apply 'neighbors'/2
+		(_cor3, _cor2)
+	in  let <UsedColors> =
+		%% Line 479
+		apply 'get_colors'/2
+		    (_cor4, _cor1)
+	    in  let <Reg> =
+		    %% Line 480
+		    apply 'select_unused_color'/2
+			(UsedColors, _cor0)
+		in  let <_cor7> =
+			%% Line 481
+			apply 'set_color'/3
+			    (_cor3, Reg, _cor1)
+		    in  %% Line 481
+			{Reg,_cor7}
+'get_colors'/2 =
+    %% Line 485
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_X_Cols> when 'true' ->
+	      []
+	  %% Line 486
+	  <[X|Xs],Cols> when 'true' ->
+	      %% Line 487
+	      case apply 'color_of'/2
+		       (X, Cols) of
+		%% Line 488
+		<'uncolored'> when 'true' ->
+		    %% Line 489
+		    apply 'get_colors'/2
+			(Xs, Cols)
+		%% Line 490
+		<{'color',R}> when 'true' ->
+		    let <_cor2> =
+			%% Line 491
+			apply 'get_colors'/2
+			    (Xs, Cols)
+		    in  %% Line 491
+			[R|_cor2]
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'get_colors',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'select_unused_color'/2 =
+    %% Line 494
+    fun (_cor1,_cor0) ->
+	let <Summary> =
+	    %% Line 495
+	    call 'ordsets':'from_list'
+		(_cor1)
+	in  let <_cor3> =
+		%% Line 496
+		call 'ordsets':'subtract'
+		    (_cor0, Summary)
+	    in  let <AvailRegs> =
+		    %% Line 496
+		    call 'ordsets':'to_list'
+			(_cor3)
+		in  %% Line 497
+		    call 'erlang':'hd'
+			(AvailRegs)
+'push_spill_node'/3 =
+    %% Line 522
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 523
+	    call 'erlang':'+'
+		(_cor1, 1)
+	in  %% Line 523
+	    {[{_cor2,{'spill',_cor1}}|_cor0],_cor3}
+'push_colored'/2 =
+    %% Line 525
+    fun (_cor1,_cor0) ->
+	%% Line 526
+	[{_cor1,'colorable'}|_cor0]
+'low_degree_nodes'/3 =
+    %% Line 530
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_X_K,_X_NotAllocatable> when 'true' ->
+	      []
+	  %% Line 531
+	  <[{N,Info}|Xs],K,NotAllocatable> when 'true' ->
+	      %% Line 532
+	      case call 'lists':'member'
+		       (N, NotAllocatable) of
+		%% Line 533
+		<'true'> when 'true' ->
+		    %% Line 534
+		    apply 'low_degree_nodes'/3
+			(Xs, K, NotAllocatable)
+		%% Line 535
+		<'false'> when 'true' ->
+		    let <Deg> =
+			%% Line 537
+			apply 'degree'/1
+			    (Info)
+		    in  %% Line 538
+			case <> of
+			  %% Line 539
+			  <>
+			      when call 'erlang':'<'
+				    (Deg,
+				     K) ->
+			      let <_cor4> =
+				  %% Line 540
+				  apply 'low_degree_nodes'/3
+				      (Xs, K, NotAllocatable)
+			      in  %% Line 540
+				  [N|_cor4]
+			  %% Line 541
+			  <> when 'true' ->
+			      %% Line 542
+			      apply 'low_degree_nodes'/3
+				  (Xs, K, NotAllocatable)
+			end
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'low_degree_nodes',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'unvisited_neighbors'/3 =
+    %% Line 548
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 549
+	    apply 'neighbors'/2
+		(_cor2, _cor0)
+	in  let <_cor4> =
+		%% Line 549
+		apply 'unvisited'/2
+		    (_cor3, _cor1)
+	    in  %% Line 549
+		call 'ordsets':'from_list'
+		    (_cor4)
+'unvisited'/2 =
+    %% Line 551
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_X_Vis> when 'true' ->
+	      []
+	  %% Line 552
+	  <[X|Xs],Vis> when 'true' ->
+	      %% Line 553
+	      case apply 'is_visited'/2
+		       (X, Vis) of
+		%% Line 554
+		<'true'> when 'true' ->
+		    %% Line 555
+		    apply 'unvisited'/2
+			(Xs, Vis)
+		%% Line 556
+		<'false'> when 'true' ->
+		    let <_cor2> =
+			%% Line 557
+			apply 'unvisited'/2
+			    (Xs, Vis)
+		    in  %% Line 557
+			[X|_cor2]
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'unvisited',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'empty_ig'/1 =
+    %% Line 577
+    fun (_cor0) ->
+	%% Line 578
+	call 'hipe_vectors':'new'
+	    (_cor0, {'ig_info',[],0})
+'degree'/1 =
+    %% Line 580
+    fun (_cor0) ->
+	%% Line 581
+	( case _cor0 of
+	    ( <( {'ig_info',_cor3,_rec0}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  _rec0
+	      -| ['compiler_generated'] )
+	    ( <_cor4> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','ig_info'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'neighbors'/1 =
+    %% Line 583
+    fun (_cor0) ->
+	%% Line 584
+	( case _cor0 of
+	    ( <( {'ig_info',_rec1,_cor3}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  _rec1
+	      -| ['compiler_generated'] )
+	    ( <_cor4> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','ig_info'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'add_edge'/3 =
+    %% Line 586
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <X,_cor7,IG>
+	      when call 'erlang':'=:='
+		    (_cor7,
+		     X) ->
+	      IG
+	  %% Line 587
+	  <X,Y,IG> when 'true' ->
+	      let <_cor3> =
+		  %% Line 588
+		  apply 'add_arc'/3
+		      (Y, X, IG)
+	      in  %% Line 588
+		  apply 'add_arc'/3
+		      (X, Y, _cor3)
+	end
+'add_arc'/3 =
+    %% Line 590
+    fun (_cor2,_cor1,_cor0) ->
+	let <Info> =
+	    %% Line 591
+	    call 'hipe_vectors':'get'
+		(_cor0, _cor2)
+	in  let <Old> =
+		%% Line 592
+		apply 'neighbors'/1
+		    (Info)
+	    in  let <_rec2> =
+		    %% Line 593
+		    [_cor1|Old]
+		in  %% Line 593
+		    case Info of
+		      <{'ig_info',_cor13,_cor14}> when 'true' ->
+			  let <_cor8> =
+			      call 'erlang':'setelement'
+				  (2, Info, _rec2)
+			  in  %% Line 594
+			      call 'hipe_vectors':'set'
+				  (_cor0, _cor2, _cor8)
+		      ( <_cor15> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','ig_info'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+'normalize_ig'/1 =
+    %% Line 596
+    fun (_cor0) ->
+	let <Size> =
+	    %% Line 597
+	    call 'hipe_vectors':'size'
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 598
+		call 'erlang':'-'
+		    (Size, 1)
+	    in  %% Line 598
+		apply 'normalize_ig'/2
+		    (_cor2, _cor0)
+'normalize_ig'/2 =
+    %% Line 600
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <-1,IG> when 'true' ->
+	      %% Line 601
+	      IG
+	  %% Line 602
+	  <I,IG> when 'true' ->
+	      let <Info> =
+		  %% Line 603
+		  call 'hipe_vectors':'get'
+		      (IG, I)
+	      in  let <_cor3> =
+		      %% Line 604
+		      apply 'neighbors'/1
+			  (Info)
+		  in  let <N> =
+			  %% Line 604
+			  call 'ordsets':'from_list'
+			      (_cor3)
+		      in  let <_rec4> =
+			      %% Line 605
+			      call 'erlang':'length'
+				  (N)
+			  in  %% Line 605
+			      case Info of
+				<{'ig_info',_rec6,_rec7}> when 'true' ->
+				    let <_cor8> = {'ig_info',N,_rec4}
+				    in  let <NewIG> =
+					    call 'hipe_vectors':'set'
+						(IG, I, _cor8)
+					in  let <_cor10> =
+						%% Line 606
+						call 'erlang':'-'
+						    (I, 1)
+					    in  %% Line 606
+						apply 'normalize_ig'/2
+						    (_cor10, NewIG)
+				( <_cor13> when 'true' ->
+				      ( call ( 'erlang'
+					       -| ['compiler_generated'] ):( 'error'
+									     -| ['compiler_generated'] )
+					    (( {'badrecord','ig_info'}
+					       -| ['compiler_generated'] ))
+					-| ['compiler_generated'] )
+				  -| ['compiler_generated'] )
+			      end
+	end
+'neighbors'/2 =
+    %% Line 612
+    fun (_cor1,_cor0) ->
+	%% Line 614
+	( case call 'hipe_vectors':'get'
+		   (_cor0, _cor1) of
+	    ( <( {'ig_info',_rec8,_cor6}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  _rec8
+	      -| ['compiler_generated'] )
+	    ( <_cor7> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','ig_info'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'decrement_degree'/2 =
+    %% Line 616
+    fun (_cor1,_cor0) ->
+	let <Info> =
+	    %% Line 617
+	    call 'hipe_vectors':'get'
+		(_cor0, _cor1)
+	in  let <Degree> =
+		%% Line 618
+		apply 'degree'/1
+		    (Info)
+	    in  let <NewDegree> =
+		    %% Line 619
+		    call 'erlang':'-'
+			(Degree, 1)
+		in  %% Line 620
+		    case Info of
+		      <{'ig_info',_cor12,_cor13}> when 'true' ->
+			  let <_cor7> =
+			      call 'erlang':'setelement'
+				  (3, Info, NewDegree)
+			  in  let <_cor9> =
+				  %% Line 621
+				  call 'hipe_vectors':'set'
+				      (_cor0, _cor1, _cor7)
+			      in  %% Line 621
+				  {NewDegree,_cor9}
+		      ( <_cor14> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','ig_info'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+'list_ig'/1 =
+    %% Line 623
+    fun (_cor0) ->
+	%% Line 624
+	call 'hipe_vectors':'list'
+	    (_cor0)
+'empty_spill'/1 =
+    %% Line 633
+    fun (_cor0) ->
+	%% Line 634
+	call 'hipe_vectors':'new'
+	    (_cor0, 0)
+'spill_cost_of'/2 =
+    %% Line 636
+    fun (_cor1,_cor0) ->
+	%% Line 637
+	call 'hipe_vectors':'get'
+	    (_cor0, _cor1)
+'spill_cost_lookup'/2 =
+    %% Line 639
+    fun (_cor1,_cor0) ->
+	%% Line 640
+	apply 'spill_cost_of'/2
+	    (_cor1, _cor0)
+'spill_cost_update'/3 =
+    %% Line 642
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 643
+	call 'hipe_vectors':'set'
+	    (_cor0, _cor2, _cor1)
+'none_colored'/1 =
+    %% Line 652
+    fun (_cor0) ->
+	%% Line 653
+	call 'hipe_vectors':'new'
+	    (_cor0, 'uncolored')
+'color_of'/2 =
+    %% Line 655
+    fun (_cor1,_cor0) ->
+	%% Line 656
+	call 'hipe_vectors':'get'
+	    (_cor0, _cor1)
+'set_color'/3 =
+    %% Line 658
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 659
+	call 'hipe_vectors':'set'
+	    (_cor0, _cor2, {'color',_cor1})
+'none_visited'/1 =
+    %% Line 672
+    fun (_cor0) ->
+	%% Line 673
+	call 'hipe_vectors':'new'
+	    (_cor0, 'false')
+'visit'/2 =
+    %% Line 675
+    fun (_cor1,_cor0) ->
+	%% Line 676
+	call 'hipe_vectors':'set'
+	    (_cor0, _cor1, 'true')
+'is_visited'/2 =
+    %% Line 678
+    fun (_cor1,_cor0) ->
+	%% Line 679
+	call 'hipe_vectors':'get'
+	    (_cor0, _cor1)
+'visit_all'/2 =
+    %% Line 681
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Vis> when 'true' ->
+	      Vis
+	  %% Line 682
+	  <[X|Xs],Vis> when 'true' ->
+	      let <_cor2> =
+		  %% Line 683
+		  apply 'visit'/2
+		      (X, Vis)
+	      in  %% Line 683
+		  apply 'visit_all'/2
+		      (Xs, _cor2)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'visit_all',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'liveout'/3 =
+    %% Line 774
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 775
+	    call _cor0:'liveout'
+		(_cor2, _cor1)
+	in  let <_cor4> =
+		%% Line 775
+		apply 'reg_names'/2
+		    (_cor3, _cor0)
+	    in  %% Line 775
+		call 'ordsets':'from_list'
+		    (_cor4)
+'bb'/3 =
+    %% Line 777
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 778
+	    call _cor0:'bb'
+		(_cor2, _cor1)
+	in  %% Line 778
+	    call 'hipe_bb':'code'
+		(_cor3)
+'def_use'/2 =
+    %% Line 780
+    fun (_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 781
+	    call _cor0:'defines'
+		(_cor1)
+	in  let <_cor6> =
+		%% Line 781
+		apply 'reg_names'/2
+		    (_cor5, _cor0)
+	    in  let <_cor7> =
+		    %% Line 781
+		    call 'ordsets':'from_list'
+			(_cor6)
+		in  let <_cor2> =
+			%% Line 782
+			call _cor0:'uses'
+			    (_cor1)
+		    in  let <_cor3> =
+			    %% Line 782
+			    apply 'reg_names'/2
+				(_cor2, _cor0)
+			in  let <_cor4> =
+				%% Line 782
+				call 'ordsets':'from_list'
+				    (_cor3)
+			    in  %% Line 781
+				{_cor7,_cor4}
+'reg_names'/2 =
+    %% Line 784
+    fun (_cor1,_cor0) ->
+	%% Line 785
+	( letrec
+	      'lc$^0'/1 =
+		  fun (_cor4) ->
+		      case _cor4 of
+			<[X|_cor3]> when 'true' ->
+			    let <_cor5> =
+				call _cor0:'reg_nr'
+				    (X)
+			    in  let <_cor6> =
+				    apply 'lc$^0'/1
+					(_cor3)
+				in  ( [_cor5|_cor6]
+				      -| ['compiler_generated'] )
+			<[]> when 'true' ->
+			    []
+			( <_cor4> when 'true' ->
+			      ( primop 'match_fail'
+				    ({'function_clause',_cor4})
+				-| [{'function_name',{'lc$^0',1}}] )
+			  -| ['compiler_generated'] )
+		      end
+	  in  apply 'lc$^0'/1
+		  (_cor1)
+	  -| ['list_comprehension'] )
+'precolor'/3 =
+    %% Line 792
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 794
+	case apply 'precolor0'/3
+		 (_cor2, _cor1, _cor0) of
+	  <Res = {_X_Cs,_X_NewCol}> when 'true' ->
+	      %% Line 796
+	      Res
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'precolor0'/3 =
+    %% Line 798
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],Cols,_X_Target> when 'true' ->
+	      %% Line 799
+	      {[],Cols}
+	  %% Line 800
+	  <[R|Rs],Cols,Target> when 'true' ->
+	      %% Line 801
+	      case apply 'precolor0'/3
+		       (Rs, Cols, Target) of
+		<{Cs,Cols1}> when 'true' ->
+		    let <_cor6> =
+			%% Line 802
+			apply 'physical_name'/2
+			    (R, Target)
+		    in  let <_cor4> =
+			    %% Line 803
+			    apply 'physical_name'/2
+				(R, Target)
+			in  let <_cor5> =
+				%% Line 803
+				apply 'set_color'/3
+				    (R, _cor4, Cols1)
+			    in  %% Line 802
+				{[{R,{'reg',_cor6}}|Cs],_cor5}
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'precolor0',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'physical_name'/2 =
+    %% Line 805
+    fun (_cor1,_cor0) ->
+	%% Line 806
+	call _cor0:'physical_name'
+	    (_cor1)
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_graph_coloring_regalloc')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_graph_coloring_regalloc', _cor0)
+end

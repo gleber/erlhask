@@ -1,0 +1,2356 @@
+module 'ct_ssh' ['apread'/4,
+		 'apread'/5,
+		 'apwrite'/4,
+		 'apwrite'/5,
+		 'aread'/3,
+		 'aread'/4,
+		 'awrite'/3,
+		 'awrite'/4,
+		 'close'/1,
+		 'close'/2,
+		 'close'/3,
+		 'connect'/1,
+		 'connect'/2,
+		 'connect'/3,
+		 'del_dir'/2,
+		 'del_dir'/3,
+		 'delete'/2,
+		 'delete'/3,
+		 'disconnect'/1,
+		 'exec'/2,
+		 'exec'/3,
+		 'exec'/4,
+		 'get_file_info'/2,
+		 'get_file_info'/3,
+		 'handle_msg'/2,
+		 'init'/3,
+		 'list_dir'/2,
+		 'list_dir'/3,
+		 'make_dir'/2,
+		 'make_dir'/3,
+		 'make_symlink'/3,
+		 'make_symlink'/4,
+		 'module_info'/0,
+		 'module_info'/1,
+		 'open'/3,
+		 'open'/4,
+		 'opendir'/2,
+		 'opendir'/3,
+		 'position'/3,
+		 'position'/4,
+		 'pread'/4,
+		 'pread'/5,
+		 'pwrite'/4,
+		 'pwrite'/5,
+		 'read'/3,
+		 'read'/4,
+		 'read_file'/2,
+		 'read_file'/3,
+		 'read_file_info'/2,
+		 'read_file_info'/3,
+		 'read_link'/2,
+		 'read_link'/3,
+		 'read_link_info'/2,
+		 'read_link_info'/3,
+		 'receive_response'/2,
+		 'receive_response'/3,
+		 'receive_response'/4,
+		 'reconnect'/2,
+		 'rename'/3,
+		 'rename'/4,
+		 'send'/3,
+		 'send'/4,
+		 'send'/5,
+		 'send_and_receive'/3,
+		 'send_and_receive'/4,
+		 'send_and_receive'/5,
+		 'send_and_receive'/6,
+		 'session_close'/2,
+		 'session_open'/1,
+		 'session_open'/2,
+		 'sftp_connect'/1,
+		 'subsystem'/3,
+		 'subsystem'/4,
+		 'terminate'/2,
+		 'write'/3,
+		 'write'/4,
+		 'write_file'/3,
+		 'write_file'/4,
+		 'write_file_info'/3,
+		 'write_file_info'/4]
+    attributes []
+'connect'/1 =
+    %% Line 103
+    fun (_cor0) ->
+	%% Line 104
+	apply 'connect'/2
+	    (_cor0, 'host')
+'connect'/2 =
+    %% Line 109
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <KeyOrName,ConnType>
+	      when call 'erlang':'is_atom'
+		    (ConnType) ->
+	      %% Line 110
+	      apply 'connect'/3
+		  (KeyOrName, ConnType, [])
+	  %% Line 115
+	  <KeyOrName,ExtraOpts>
+	      when call 'erlang':'is_list'
+		    (ExtraOpts) ->
+	      %% Line 116
+	      apply 'connect'/3
+		  (KeyOrName, 'host', ExtraOpts)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'connect',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'connect'/3 =
+    %% Line 158
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 159
+	case call 'ct':'get_config'
+		 (_cor2) of
+	  %% Line 160
+	  <'undefined'> when 'true' ->
+	      let <_cor3> =
+		  %% Line 161
+		  apply 'heading'/2
+		      ('connect', _cor2)
+	      in  do  %% Line 161
+		      apply 'log'/3
+			  (_cor3, [70|[97|[105|[108|[101|[100|[58|[32|[126|[112|[10]]]]]]]]]]], %% Line 162
+												[{'not_available',_cor2}|[]])
+		      %% Line 163
+		      {'error',{'not_available',_cor2}}
+	  %% Line 164
+	  <SSHData> when 'true' ->
+	      let <AllOpts> =
+		  %% Line 165
+		  call 'erlang':'++'
+		      (_cor0, SSHData)
+	      in  let <_cor16> =
+		      %% Line 167
+		      case _cor1 of
+			%% Line 168
+			<'host'> when 'true' ->
+			    %% Line 169
+			    case call 'proplists':'get_value'
+				     ('ssh', AllOpts) of
+			      %% Line 170
+			      <'undefined'> when 'true' ->
+				  %% Line 171
+				  case call 'proplists':'get_value'
+					   ('sftp', AllOpts) of
+				    %% Line 172
+				    <'undefined'> when 'true' ->
+					let <_cor5> =
+					    %% Line 173
+					    apply 'heading'/2
+						('connect', _cor2)
+					in  %% Line 173
+					    apply 'log'/3
+						(_cor5, %% Line 174
+							[78|[111|[32|[104|[111|[115|[116|[32|[105|[110|[102|[111|[114|[109|[97|[116|[105|[111|[110|[32|[115|[112|[101|[99|[105|[102|[105|[101|[100|[33|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 174
+																													   [])
+				    %% Line 175
+				    <SFTPAddr> when 'true' ->
+					%% Line 176
+					{'sftp',SFTPAddr,AllOpts}
+				  end
+			      %% Line 178
+			      <SSHAddr> when 'true' ->
+				  %% Line 179
+				  {'ssh',SSHAddr,AllOpts}
+			    end
+			%% Line 181
+			<_cor27> when 'true' ->
+			    %% Line 182
+			    case call 'proplists':'get_value'
+				     (_cor1, AllOpts) of
+			      %% Line 183
+			      <'undefined'>
+				  when call 'erlang':'=:='
+					(_cor1,
+					 'ssh') ->
+				  %% Line 184
+				  case call 'proplists':'get_value'
+					   ('sftp', AllOpts) of
+				    %% Line 185
+				    <'undefined'> when 'true' ->
+					%% Line 186
+					{'ssh','undefined',AllOpts}
+				    %% Line 187
+				    <SFTPAddr> when 'true' ->
+					let <_cor8> =
+					    %% Line 188
+					    apply 'heading'/2
+						('connect', _cor2)
+					in  do  %% Line 188
+						apply 'try_log'/3
+						    (_cor8, %% Line 189
+							    [78|[111|[116|[101|[58|[32|[79|[112|[101|[110|[105|[110|[103|[32|[115|[115|[104|[32|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[116|[111|[32|[115|[102|[116|[112|[32|[104|[111|[115|[116|[46|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 191
+																																						  [])
+						let <_cor9> =
+						    %% Line 194
+						    call 'proplists':'delete'
+							('sftp', AllOpts)
+						in  %% Line 192
+						    {'ssh',SFTPAddr,%% Line 193
+								    [{'ssh',SFTPAddr}|_cor9]}
+				  end
+			      %% Line 196
+			      <'undefined'>
+				  when call 'erlang':'=:='
+					(_cor1,
+					 'sftp') ->
+				  %% Line 197
+				  case call 'proplists':'get_value'
+					   ('ssh', AllOpts) of
+				    %% Line 198
+				    <'undefined'> when 'true' ->
+					%% Line 199
+					{'sftp','undefined',AllOpts}
+				    %% Line 200
+				    <SSHAddr> when 'true' ->
+					let <_cor11> =
+					    %% Line 201
+					    apply 'heading'/2
+						('connect', _cor2)
+					in  do  %% Line 201
+						apply 'try_log'/3
+						    (_cor11, %% Line 202
+							     [78|[111|[116|[101|[58|[32|[79|[112|[101|[110|[105|[110|[103|[32|[115|[102|[116|[112|[32|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[116|[111|[32|[115|[115|[104|[32|[104|[111|[115|[116|[46|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 204
+																																						   [])
+						let <_cor12> =
+						    %% Line 206
+						    call 'proplists':'delete'
+							('ssh', AllOpts)
+						in  %% Line 205
+						    {'sftp',SSHAddr,%% Line 206
+								    [{'sftp',SSHAddr}|_cor12]}
+				  end
+			      %% Line 208
+			      <SSHorSFTPAddr> when 'true' ->
+				  %% Line 209
+				  {_cor1,SSHorSFTPAddr,AllOpts}
+			    end
+		      end
+		  in  %% Line 166
+		      case _cor16 of
+			<{ConnType1,Addr,AllOpts1}> when 'true' ->
+			    let <_cor18> =
+				%% Line 212
+				call 'proplists':'get_value'
+				    ('port', AllOpts1)
+			    in  %% Line 212
+				case <Addr,_cor18> of
+				  %% Line 213
+				  <'undefined',_cor28> when 'true' ->
+				      let <_cor19> =
+					  %% Line 214
+					  apply 'heading'/2
+					      ('connect', _cor2)
+				      in  do  %% Line 214
+					      apply 'log'/3
+						  (_cor19, [70|[97|[105|[108|[101|[100|[58|[32|[126|[112|[10]]]]]]]]]]], %% Line 215
+															 [{'not_available',{_cor2,ConnType1}}|[]])
+					      %% Line 216
+					      {'error',{'not_available',{_cor2,ConnType1}}}
+				  %% Line 217
+				  <_cor29,'undefined'> when 'true' ->
+				      let <_cor20> =
+					  %% Line 218
+					  apply 'heading'/2
+					      ('connect', _cor2)
+				      in  do  %% Line 218
+					      apply 'try_log'/3
+						  (_cor20, %% Line 219
+							   [79|[112|[101|[110|[105|[110|[103|[32|[126|[119|[32|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[116|[111|[32|[126|[112|[58|[50|[50|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 220
+																													   [ConnType1|[Addr|[]]])
+					      %% Line 221
+					      call 'ct_gen_conn':'start'
+						  (_cor2, {ConnType1,Addr,22}, %% Line 222
+									       AllOpts1, %% Line 222
+											 'ct_ssh')
+				  %% Line 223
+				  <_cor30,Port> when 'true' ->
+				      let <_cor21> =
+					  %% Line 224
+					  apply 'heading'/2
+					      ('connect', _cor2)
+				      in  do  %% Line 224
+					      apply 'try_log'/3
+						  (_cor21, %% Line 225
+							   [79|[112|[101|[110|[105|[110|[103|[32|[126|[119|[32|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[116|[111|[32|[126|[112|[58|[126|[119|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 226
+																													     [ConnType1|[Addr|[Port|[]]]])
+					      %% Line 227
+					      call 'ct_gen_conn':'start'
+						  (_cor2, {ConnType1,Addr,Port}, %% Line 228
+										 AllOpts1, %% Line 228
+											   'ct_ssh')
+				end
+			( <_cor17> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor17})
+			  -| ['compiler_generated'] )
+		      end
+	end
+'disconnect'/1 =
+    %% Line 238
+    fun (_cor0) ->
+	%% Line 239
+	case apply 'get_handle'/1
+		 (_cor0) of
+	  %% Line 240
+	  <{'ok',Pid}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 241
+		  apply 'heading'/2
+		      ('disconnect', _cor0)
+	      in  do  %% Line 241
+		      apply 'try_log'/4
+			  (_cor1, [72|[97|[110|[100|[108|[101|[58|[32|[126|[112]]]]]]]]]], [Pid|[]], 5000)
+		      %% Line 242
+		      case call 'ct_gen_conn':'stop'
+			       (Pid) of
+			%% Line 243
+			<{'error',{'process_down',_cor5,'noproc'}}>
+			    when call 'erlang':'=:='
+				  (_cor5,
+				   Pid) ->
+			    %% Line 244
+			    {'error','already_closed'}
+			%% Line 245
+			<Result> when 'true' ->
+			    %% Line 246
+			    Result
+		      end
+	  %% Line 248
+	  <Error> when 'true' ->
+	      %% Line 249
+	      Error
+	end
+'session_open'/1 =
+    %% Line 255
+    fun (_cor0) ->
+	%% Line 256
+	apply 'call'/2
+	    (_cor0, {'session_open',10000})
+'session_open'/2 =
+    %% Line 266
+    fun (_cor1,_cor0) ->
+	%% Line 267
+	apply 'call'/2
+	    (_cor1, {'session_open',_cor0})
+'session_close'/2 =
+    %% Line 276
+    fun (_cor1,_cor0) ->
+	%% Line 277
+	apply 'call'/2
+	    (_cor1, {'session_close',_cor0})
+'exec'/2 =
+    %% Line 282
+    fun (_cor1,_cor0) ->
+	%% Line 283
+	apply 'exec'/4
+	    (_cor1, 'undefined', _cor0, 10000)
+'exec'/3 =
+    %% Line 297
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <SSH,Command,Timeout>
+	      when call 'erlang':'is_list'
+		    (Command) ->
+	      %% Line 298
+	      apply 'exec'/4
+		  (SSH, 'undefined', Command, Timeout)
+	  %% Line 303
+	  <SSH,ChannelId,Command>
+	      when call 'erlang':'is_integer'
+		    (ChannelId) ->
+	      %% Line 304
+	      apply 'exec'/4
+		  (SSH, ChannelId, Command, 10000)
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'exec',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'exec'/4 =
+    %% Line 319
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 320
+	apply 'call'/2
+	    (_cor3, {'exec',_cor2,_cor1,_cor0})
+'receive_response'/2 =
+    %% Line 325
+    fun (_cor1,_cor0) ->
+	%% Line 326
+	apply 'receive_response'/4
+	    (_cor1, _cor0, 'close', 10000)
+'receive_response'/3 =
+    %% Line 331
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <SSH,ChannelId,End>
+	      when call 'erlang':'is_function'
+		    (End) ->
+	      %% Line 332
+	      apply 'receive_response'/4
+		  (SSH, ChannelId, End, 10000)
+	  %% Line 337
+	  <SSH,ChannelId,Timeout>
+	      when call 'erlang':'is_integer'
+		    (Timeout) ->
+	      %% Line 338
+	      apply 'receive_response'/4
+		  (SSH, ChannelId, 'close', Timeout)
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'receive_response',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'receive_response'/4 =
+    %% Line 369
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 370
+	apply 'call'/2
+	    (_cor3, {'receive_response',_cor2,_cor1,_cor0})
+'send'/3 =
+    %% Line 375
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 376
+	apply 'send'/5
+	    (_cor2, _cor1, 0, _cor0, 10000)
+'send'/4 =
+    %% Line 381
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <SSH,ChannelId,Data,Timeout>
+	      when call 'erlang':'is_integer'
+		    (Timeout) ->
+	      %% Line 382
+	      apply 'send'/5
+		  (SSH, ChannelId, 0, Data, Timeout)
+	  %% Line 387
+	  <SSH,ChannelId,Type,Data>
+	      when call 'erlang':'is_integer'
+		    (Type) ->
+	      %% Line 388
+	      apply 'send'/5
+		  (SSH, ChannelId, Type, Data, 10000)
+	  ( <_cor7,_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'send',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'send'/5 =
+    %% Line 400
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 401
+	apply 'call'/2
+	    (_cor4, {'send',_cor3,_cor2,_cor1,_cor0})
+'send_and_receive'/3 =
+    %% Line 407
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 408
+	apply 'send_and_receive'/6
+	    (_cor2, _cor1, 0, _cor0, 'close', 10000)
+'send_and_receive'/4 =
+    %% Line 414
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <SSH,ChannelId,Data,End>
+	      when call 'erlang':'is_function'
+		    (End) ->
+	      %% Line 415
+	      apply 'send_and_receive'/6
+		  (SSH, ChannelId, 0, Data, End, 10000)
+	  %% Line 421
+	  <SSH,ChannelId,Data,Timeout>
+	      when call 'erlang':'is_integer'
+		    (Timeout) ->
+	      %% Line 422
+	      apply 'send_and_receive'/6
+		  (SSH, ChannelId, 0, Data, 'close', Timeout)
+	  %% Line 428
+	  <SSH,ChannelId,Type,Data>
+	      when call 'erlang':'is_integer'
+		    (Type) ->
+	      %% Line 429
+	      apply 'send_and_receive'/6
+		  (SSH, ChannelId, Type, Data, 'close', 10000)
+	  ( <_cor7,_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'send_and_receive',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'send_and_receive'/5 =
+    %% Line 435
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <SSH,ChannelId,Data,End,Timeout>
+	      when call 'erlang':'is_integer'
+		    (Timeout) ->
+	      %% Line 436
+	      apply 'send_and_receive'/6
+		  (SSH, ChannelId, 0, Data, End, Timeout)
+	  %% Line 442
+	  <SSH,ChannelId,Type,Data,Timeout>
+	      when call 'erlang':'is_integer'
+		    (Type) ->
+	      %% Line 443
+	      apply 'send_and_receive'/6
+		  (SSH, ChannelId, Type, Data, 'close', Timeout)
+	  %% Line 449
+	  <SSH,ChannelId,Type,Data,End>
+	      when call 'erlang':'is_function'
+		    (End) ->
+	      %% Line 450
+	      apply 'send_and_receive'/6
+		  (SSH, ChannelId, Type, Data, End, 10000)
+	  ( <_cor9,_cor8,_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'send_and_receive',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'send_and_receive'/6 =
+    %% Line 468
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 469
+	apply 'call'/2
+	    (_cor5, {'send_and_receive',_cor4,_cor3,_cor2,_cor1,_cor0})
+'subsystem'/3 =
+    %% Line 474
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 475
+	apply 'subsystem'/4
+	    (_cor2, _cor1, _cor0, 10000)
+'subsystem'/4 =
+    %% Line 488
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 489
+	apply 'call'/2
+	    (_cor3, {'subsystem',_cor2,_cor1,_cor0})
+'sftp_connect'/1 =
+    %% Line 503
+    fun (_cor0) ->
+	%% Line 504
+	apply 'call'/2
+	    (_cor0, 'sftp_connect')
+'read_file'/2 =
+    %% Line 512
+    fun (_cor1,_cor0) ->
+	%% Line 513
+	apply 'call'/2
+	    (_cor1, {'read_file','sftp',_cor0})
+'read_file'/3 =
+    %% Line 520
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 521
+	apply 'call'/2
+	    (_cor2, {'read_file',_cor1,_cor0})
+'write_file'/3 =
+    %% Line 529
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 530
+	apply 'call'/2
+	    (_cor2, {'write_file','sftp',_cor1,_cor0})
+'write_file'/4 =
+    %% Line 537
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 538
+	apply 'call'/2
+	    (_cor3, {'write_file',_cor2,_cor1,_cor0})
+'list_dir'/2 =
+    %% Line 546
+    fun (_cor1,_cor0) ->
+	%% Line 547
+	apply 'call'/2
+	    (_cor1, {'list_dir','sftp',_cor0})
+'list_dir'/3 =
+    %% Line 554
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 555
+	apply 'call'/2
+	    (_cor2, {'list_dir',_cor1,_cor0})
+'open'/3 =
+    %% Line 563
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 564
+	apply 'call'/2
+	    (_cor2, {'open','sftp',_cor1,_cor0})
+'open'/4 =
+    %% Line 571
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 572
+	apply 'call'/2
+	    (_cor3, {'open',_cor2,_cor1,_cor0})
+'opendir'/2 =
+    %% Line 580
+    fun (_cor1,_cor0) ->
+	%% Line 581
+	apply 'call'/2
+	    (_cor1, {'opendir','sftp',_cor0})
+'opendir'/3 =
+    %% Line 588
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 589
+	apply 'call'/2
+	    (_cor2, {'opendir',_cor1,_cor0})
+'close'/2 =
+    %% Line 597
+    fun (_cor1,_cor0) ->
+	%% Line 598
+	apply 'call'/2
+	    (_cor1, {'close','sftp',_cor0})
+'close'/3 =
+    %% Line 605
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 606
+	apply 'call'/2
+	    (_cor2, {'close',_cor1,_cor0})
+'read'/3 =
+    %% Line 614
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 615
+	apply 'call'/2
+	    (_cor2, {'read','sftp',_cor1,_cor0})
+'read'/4 =
+    %% Line 622
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 623
+	apply 'call'/2
+	    (_cor3, {'read',_cor2,_cor1,_cor0})
+'pread'/4 =
+    %% Line 631
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 632
+	apply 'call'/2
+	    (_cor3, {'pread','sftp',_cor2,_cor1,_cor0})
+'pread'/5 =
+    %% Line 639
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 640
+	apply 'call'/2
+	    (_cor4, {'pread',_cor3,_cor2,_cor1,_cor0})
+'aread'/3 =
+    %% Line 648
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 649
+	apply 'call'/2
+	    (_cor2, {'aread','sftp',_cor1,_cor0})
+'aread'/4 =
+    %% Line 656
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 657
+	apply 'call'/2
+	    (_cor3, {'aread',_cor2,_cor1,_cor0})
+'apread'/4 =
+    %% Line 665
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 666
+	apply 'call'/2
+	    (_cor3, {'apread','sftp',_cor2,_cor1,_cor0})
+'apread'/5 =
+    %% Line 673
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 674
+	apply 'call'/2
+	    (_cor4, {'apread',_cor3,_cor2,_cor1,_cor0})
+'write'/3 =
+    %% Line 682
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 683
+	apply 'call'/2
+	    (_cor2, {'write','sftp',_cor1,_cor0})
+'write'/4 =
+    %% Line 690
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 691
+	apply 'call'/2
+	    (_cor3, {'write',_cor2,_cor1,_cor0})
+'pwrite'/4 =
+    %% Line 699
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 700
+	apply 'call'/2
+	    (_cor3, {'pwrite','sftp',_cor2,_cor1,_cor0})
+'pwrite'/5 =
+    %% Line 707
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 708
+	apply 'call'/2
+	    (_cor4, {'pwrite',_cor3,_cor2,_cor1,_cor0})
+'awrite'/3 =
+    %% Line 716
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 717
+	apply 'call'/2
+	    (_cor2, {'awrite','sftp',_cor1,_cor0})
+'awrite'/4 =
+    %% Line 724
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 725
+	apply 'call'/2
+	    (_cor3, {'awrite',_cor2,_cor1,_cor0})
+'apwrite'/4 =
+    %% Line 733
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 734
+	apply 'call'/2
+	    (_cor3, {'apwrite','sftp',_cor2,_cor1,_cor0})
+'apwrite'/5 =
+    %% Line 741
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 742
+	apply 'call'/2
+	    (_cor4, {'apwrite',_cor3,_cor2,_cor1,_cor0})
+'position'/3 =
+    %% Line 750
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 751
+	apply 'call'/2
+	    (_cor2, {'position','sftp',_cor1,_cor0})
+'position'/4 =
+    %% Line 758
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 759
+	apply 'call'/2
+	    (_cor3, {'position',_cor2,_cor1,_cor0})
+'read_file_info'/2 =
+    %% Line 767
+    fun (_cor1,_cor0) ->
+	%% Line 768
+	apply 'call'/2
+	    (_cor1, {'read_file_info','sftp',_cor0})
+'read_file_info'/3 =
+    %% Line 775
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 776
+	apply 'call'/2
+	    (_cor2, {'read_file_info',_cor1,_cor0})
+'get_file_info'/2 =
+    %% Line 784
+    fun (_cor1,_cor0) ->
+	%% Line 785
+	apply 'call'/2
+	    (_cor1, {'get_file_info','sftp',_cor0})
+'get_file_info'/3 =
+    %% Line 792
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 793
+	apply 'call'/2
+	    (_cor2, {'get_file_info',_cor1,_cor0})
+'read_link_info'/2 =
+    %% Line 801
+    fun (_cor1,_cor0) ->
+	%% Line 802
+	apply 'call'/2
+	    (_cor1, {'read_link_info','sftp',_cor0})
+'read_link_info'/3 =
+    %% Line 809
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 810
+	apply 'call'/2
+	    (_cor2, {'read_link_info',_cor1,_cor0})
+'write_file_info'/3 =
+    %% Line 818
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 819
+	apply 'call'/2
+	    (_cor2, {'write_file_info','sftp',_cor1,_cor0})
+'write_file_info'/4 =
+    %% Line 826
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 827
+	apply 'call'/2
+	    (_cor3, {'write_file_info',_cor2,_cor1,_cor0})
+'read_link'/2 =
+    %% Line 835
+    fun (_cor1,_cor0) ->
+	%% Line 836
+	apply 'call'/2
+	    (_cor1, {'read_link','sftp',_cor0})
+'read_link'/3 =
+    %% Line 843
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 844
+	apply 'call'/2
+	    (_cor2, {'read_link',_cor1,_cor0})
+'make_symlink'/3 =
+    %% Line 852
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 853
+	apply 'call'/2
+	    (_cor2, {'make_symlink','sftp',_cor1,_cor0})
+'make_symlink'/4 =
+    %% Line 860
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 861
+	apply 'call'/2
+	    (_cor3, {'make_symlink',_cor2,_cor1,_cor0})
+'rename'/3 =
+    %% Line 869
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 870
+	apply 'call'/2
+	    (_cor2, {'rename','sftp',_cor1,_cor0})
+'rename'/4 =
+    %% Line 877
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 878
+	apply 'call'/2
+	    (_cor3, {'rename',_cor2,_cor1,_cor0})
+'delete'/2 =
+    %% Line 886
+    fun (_cor1,_cor0) ->
+	%% Line 887
+	apply 'call'/2
+	    (_cor1, {'delete','sftp',_cor0})
+'delete'/3 =
+    %% Line 894
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 895
+	apply 'call'/2
+	    (_cor2, {'delete',_cor1,_cor0})
+'make_dir'/2 =
+    %% Line 903
+    fun (_cor1,_cor0) ->
+	%% Line 904
+	apply 'call'/2
+	    (_cor1, {'make_dir','sftp',_cor0})
+'make_dir'/3 =
+    %% Line 911
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 912
+	apply 'call'/2
+	    (_cor2, {'make_dir',_cor1,_cor0})
+'del_dir'/2 =
+    %% Line 920
+    fun (_cor1,_cor0) ->
+	%% Line 921
+	apply 'call'/2
+	    (_cor1, {'del_dir','sftp',_cor0})
+'del_dir'/3 =
+    %% Line 928
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 929
+	apply 'call'/2
+	    (_cor2, {'del_dir',_cor1,_cor0})
+'init'/3 =
+    %% Line 937
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <KeyOrName,{ConnType,Addr,Port},AllOpts> when 'true' ->
+	      let <User> =
+		  %% Line 938
+		  call 'proplists':'get_value'
+		      ('user', AllOpts)
+	      in  let <_cor5> =
+		      %% Line 939
+		      case call 'proplists':'get_value'
+			       ('password', AllOpts) of
+			%% Line 940
+			<'undefined'> when 'true' ->
+			    []
+			%% Line 941
+			<Pwd> when 'true' ->
+			    Pwd
+		      end
+		  in  let <_cor8> =
+			  %% Line 943
+			  case call 'proplists':'get_value'
+				   ('connect_timeout', AllOpts) of
+			    %% Line 944
+			    <'undefined'> when 'true' ->
+				%% Line 945
+				[{'connect_timeout',10000}|AllOpts]
+			    %% Line 946
+			    <_cor29> when 'true' ->
+				%% Line 947
+				AllOpts
+			  end
+		      in  let <_cor15> =
+			      %% Line 950
+			      ( fun (_cor12,_cor11) ->
+				    case <_cor12,_cor11> of
+				      <{'ssh',_cor30},Opts> when 'true' ->
+					  Opts
+				      %% Line 951
+				      <{'sftp',_cor31},Opts> when 'true' ->
+					  Opts
+				      %% Line 952
+				      <{'port',_cor32},Opts> when 'true' ->
+					  Opts
+				      %% Line 953
+				      <{'silently_accept_hosts',_cor33},Opts> when 'true' ->
+					  Opts
+				      %% Line 954
+				      <{'user_interaction',_cor34},Opts> when 'true' ->
+					  Opts
+				      %% Line 955
+				      <Opt = {Key,_cor35},Opts> when 'true' ->
+					  %% Line 956
+					  case call 'lists':'keymember'
+						   (Key, 1, Opts) of
+					    %% Line 957
+					    <'true'> when 'true' ->
+						Opts
+					    %% Line 958
+					    <'false'> when 'true' ->
+						[Opt|Opts]
+					    ( <_cor10> when 'true' ->
+						  primop 'match_fail'
+						      ({'case_clause',_cor10})
+					      -| ['compiler_generated'] )
+					  end
+				      %% Line 960
+				      <_cor36,Opts> when 'true' ->
+					  Opts
+				    end
+				-| [{'id',{0,0,'-init/3-fun-0-'}}] )
+			  in  let <Options> =
+				  %% Line 950
+				  call 'lists':'foldl'
+				      (_cor15, %% Line 961
+					       [], _cor8)
+			      in  let <FinalOptions> =
+				      %% Line 962
+				      [{'silently_accept_hosts','true'}|%% Line 963
+									[{'user_interaction','false'}|Options]]
+				  in  do  %% Line 964
+					  call 'crypto':'start'
+					      ()
+					  do  %% Line 965
+					      call 'ssh':'start'
+						  ()
+					      let <_cor19> =
+						  %% Line 966
+						  case ConnType of
+						    %% Line 967
+						    <'ssh'> when 'true' ->
+							%% Line 968
+							call 'ssh':'connect'
+							    (Addr, Port, FinalOptions)
+						    %% Line 969
+						    <'sftp'> when 'true' ->
+							%% Line 970
+							call 'ssh_sftp':'start_channel'
+							    (Addr, Port, FinalOptions)
+						    ( <_cor18> when 'true' ->
+							  primop 'match_fail'
+							      ({'case_clause',_cor18})
+						      -| ['compiler_generated'] )
+						  end
+					      in  %% Line 972
+						  case _cor19 of
+						    %% Line 973
+						    <Error = {'error',_cor37}> when 'true' ->
+							%% Line 974
+							Error
+						    %% Line 975
+						    <Ok> when 'true' ->
+							let <SSHRef> =
+							    %% Line 976
+							    call 'erlang':'element'
+								(2, Ok)
+							in  let <_cor24> =
+								%% Line 977
+								apply 'heading'/2
+								    ('init', KeyOrName)
+							    in  let <_cor22> =
+								    %% Line 980
+								    call 'erlang':'length'
+									(_cor5)
+								in  let <_cor23> =
+									%% Line 980
+									call 'lists':'duplicate'
+									    (_cor22, 42)
+								    in  do  %% Line 977
+									    apply 'try_log'/3
+										(_cor24, %% Line 978
+											 [79|[112|[101|[110|[101|[100|[32|[126|[119|[32|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110|[58|[10|[72|[111|[115|[116|[58|[32|[126|[112|[32|[40|[126|[112|[41|[10|[85|[115|[101|[114|[58|[32|[126|[112|[10|[80|[97|[115|[115|[119|[111|[114|[100|[58|[32|[126|[112|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 980
+																																																			       [ConnType|[Addr|[Port|[User|[_cor23|[]]]]]])
+									    %% Line 981
+									    {'ok',SSHRef,{'state',SSHRef,ConnType,%% Line 982
+														  KeyOrName}}
+						  end
+	  ( <_cor28,_cor27,_cor26> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor28,_cor27,_cor26})
+		  -| [{'function_name',{'init',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_msg'/2 =
+    %% Line 986
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'sftp_connect',State> when 'true' ->
+	      %% Line 987
+	      case State of
+		<{'state',SSHRef,_cor211,Target}> when 'true' ->
+		    let <_cor3> =
+			%% Line 988
+			apply 'heading'/2
+			    ('sftp_connect', Target)
+		    in  do  %% Line 988
+			    apply 'try_log'/3
+				(_cor3, [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112]]]]]]]]]]], [SSHRef|[]])
+			    let <_cor4> =
+				%% Line 989
+				call 'ssh_sftp':'start_channel'
+				    (SSHRef)
+			    in  %% Line 989
+				{_cor4,State}
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 991
+	  <{'session_open',TO},State> when 'true' ->
+	      %% Line 992
+	      case State of
+		<{'state',SSHRef,_cor212,Target}> when 'true' ->
+		    let <_cor6> =
+			%% Line 993
+			apply 'heading'/2
+			    ('session_open', Target)
+		    in  do  %% Line 993
+			    apply 'try_log'/3
+				(_cor6, [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[84|[105|[109|[101|[111|[117|[116|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]], %% Line 994
+																					     [SSHRef|[TO|[]]])
+			    let <_cor7> =
+				%% Line 995
+				call 'ssh_connection':'session_channel'
+				    (SSHRef, TO)
+			    in  %% Line 995
+				{_cor7,State}
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 997
+	  <{'session_close',Chn},State> when 'true' ->
+	      %% Line 998
+	      case State of
+		<{'state',SSHRef,_cor213,Target}> when 'true' ->
+		    let <_cor9> =
+			%% Line 999
+			apply 'heading'/2
+			    ('session_close', Target)
+		    in  do  %% Line 999
+			    apply 'try_log'/3
+				(_cor9, [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[67|[104|[110|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]], [SSHRef|[Chn|[]]])
+			    let <_cor10> =
+				%% Line 1000
+				call 'ssh_connection':'close'
+				    (SSHRef, Chn)
+			    in  %% Line 1000
+				{_cor10,State}
+		( <_cor8> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor8})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1002
+	  <{'exec',Chn,Command,TO},State> when 'true' ->
+	      %% Line 1003
+	      case State of
+		<{'state',SSHRef,_cor214,Target}> when 'true' ->
+		    let <_cor14> =
+			%% Line 1005
+			case <> of
+			  <>
+			      when call 'erlang':'=:='
+				    (Chn,
+				     'undefined') ->
+			      let <_cor12> =
+				  %% Line 1006
+				  apply 'heading'/2
+				      ('exec', Target)
+			      in  do  %% Line 1006
+				      apply 'try_log'/3
+					  (_cor12, %% Line 1007
+						   [79|[112|[101|[110|[105|[110|[103|[32|[99|[104|[97|[110|[110|[101|[108|[32|[102|[111|[114|[32|[101|[120|[101|[99|[44|[32|[83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1007
+																																  [SSHRef|[]])
+				      %% Line 1008
+				      case call 'ssh_connection':'session_channel'
+					       (SSHRef, TO) of
+					%% Line 1009
+					<{'ok',C}> when 'true' ->
+					    C
+					%% Line 1010
+					<CErr> when 'true' ->
+					    CErr
+				      end
+			  %% Line 1012
+			  <> when 'true' ->
+			      %% Line 1013
+			      Chn
+			end
+		    in  %% Line 1015
+			case _cor14 of
+			  %% Line 1016
+			  <ChnError = {'error',_cor215}> when 'true' ->
+			      let <_cor16> =
+				  %% Line 1017
+				  apply 'heading'/2
+				      ('exec', Target)
+			      in  do  %% Line 1017
+				      apply 'log'/3
+					  (_cor16, [79|[112|[101|[110|[105|[110|[103|[32|[99|[104|[97|[110|[110|[101|[108|[32|[102|[97|[105|[108|[101|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]], [ChnError|[]])
+				      %% Line 1018
+				      {ChnError,State}
+			  %% Line 1019
+			  <_cor216> when 'true' ->
+			      let <_cor17> =
+				  %% Line 1020
+				  apply 'heading'/2
+				      ('exec', Target)
+			      in  do  %% Line 1020
+				      apply 'try_log'/3
+					  (_cor17, %% Line 1021
+						   [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[67|[104|[110|[58|[32|[126|[112|[44|[32|[67|[111|[109|[109|[97|[110|[100|[58|[32|[126|[112|[44|[32|[84|[105|[109|[101|[111|[117|[116|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1022
+																																						 [SSHRef|[_cor14|[Command|[TO|[]]]]])
+				      %% Line 1023
+				      case call 'ssh_connection':'exec'
+					       (SSHRef, _cor14, Command, TO) of
+					%% Line 1024
+					<'success'> when 'true' ->
+					    let <Result> =
+						%% Line 1025
+						apply 'do_recv_response'/5
+						    (SSHRef, _cor14, [], 'close', TO)
+					    in  do  %% Line 1026
+						    call 'ssh_connection':'close'
+							(SSHRef, _cor14)
+						    %% Line 1027
+						    {Result,State}
+					%% Line 1028
+					<Other> when 'true' ->
+					    %% Line 1029
+					    {{'error',Other},State}
+				      end
+			end
+		( <_cor11> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor11})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1033
+	  <{'receive_response',Chn,End,TO},State> when 'true' ->
+	      %% Line 1034
+	      case State of
+		<{'state',SSHRef,_cor217,Target}> when 'true' ->
+		    let <_cor22> =
+			%% Line 1035
+			apply 'heading'/2
+			    ('receive_response', Target)
+		    in  do  %% Line 1035
+			    apply 'try_log'/3
+				(_cor22, %% Line 1036
+					 [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[67|[104|[110|[58|[32|[126|[112|[44|[32|[84|[105|[109|[101|[111|[117|[116|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1036
+																											       [SSHRef|[Chn|[TO|[]]]])
+			    let <Result> =
+				%% Line 1037
+				apply 'do_recv_response'/5
+				    (SSHRef, Chn, [], End, TO)
+			    in  %% Line 1038
+				{Result,State}
+		( <_cor21> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor21})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1040
+	  <{'send',Chn,Type,Data,TO},State> when 'true' ->
+	      %% Line 1041
+	      case State of
+		<{'state',SSHRef,_cor218,Target}> when 'true' ->
+		    let <_cor25> =
+			%% Line 1042
+			apply 'heading'/2
+			    ('send', Target)
+		    in  do  %% Line 1042
+			    apply 'try_log'/3
+				(_cor25, %% Line 1043
+					 [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[67|[104|[110|[58|[32|[126|[112|[44|[32|[84|[121|[112|[101|[58|[32|[126|[112|[44|[32|[84|[105|[109|[101|[111|[117|[116|[58|[32|[126|[112|[126|[110|[68|[97|[116|[97|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1044
+																																									     [SSHRef|[Chn|[Type|[TO|[Data|[]]]]]])
+			    let <Result> =
+				%% Line 1045
+				call 'ssh_connection':'send'
+				    (SSHRef, Chn, Type, Data, TO)
+			    in  %% Line 1046
+				{Result,State}
+		( <_cor24> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor24})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1048
+	  <{'send_and_receive',Chn,Type,Data,End,TO},State> when 'true' ->
+	      %% Line 1049
+	      case State of
+		<{'state',SSHRef,_cor219,Target}> when 'true' ->
+		    let <_cor28> =
+			%% Line 1050
+			apply 'heading'/2
+			    ('send_and_receive', Target)
+		    in  do  %% Line 1050
+			    apply 'try_log'/3
+				(_cor28, %% Line 1051
+					 [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[67|[104|[110|[58|[32|[126|[112|[44|[32|[84|[121|[112|[101|[58|[32|[126|[112|[44|[32|[84|[105|[109|[101|[111|[117|[116|[58|[32|[126|[112|[126|[110|[68|[97|[116|[97|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1052
+																																									     [SSHRef|[Chn|[Type|[TO|[Data|[]]]]]])
+			    %% Line 1053
+			    case call 'ssh_connection':'send'
+				     (SSHRef, Chn, Type, Data, TO) of
+			      %% Line 1054
+			      <'ok'> when 'true' ->
+				  let <Result> =
+				      %% Line 1055
+				      apply 'do_recv_response'/5
+					  (SSHRef, Chn, [], End, TO)
+				  in  %% Line 1056
+				      {Result,State}
+			      %% Line 1057
+			      <Error> when 'true' ->
+				  %% Line 1058
+				  {Error,State}
+			    end
+		( <_cor27> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor27})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1061
+	  <{'subsystem',Chn,Subsystem,TO},State> when 'true' ->
+	      %% Line 1062
+	      case State of
+		<{'state',SSHRef,_cor220,Target}> when 'true' ->
+		    let <_cor32> =
+			%% Line 1063
+			apply 'heading'/2
+			    ('subsystem', Target)
+		    in  do  %% Line 1063
+			    apply 'try_log'/3
+				(_cor32, %% Line 1064
+					 [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[67|[104|[110|[58|[32|[126|[112|[44|[32|[83|[117|[98|[115|[121|[115|[58|[32|[126|[112|[44|[32|[84|[105|[109|[101|[111|[117|[116|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1065
+																																				 [SSHRef|[Chn|[Subsystem|[TO|[]]]]])
+			    let <Result> =
+				%% Line 1066
+				call 'ssh_connection':'subsystem'
+				    (SSHRef, Chn, Subsystem, TO)
+			    in  %% Line 1067
+				{Result,State}
+		( <_cor31> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor31})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1071
+	  <Cmd = {'read_file',Srv,File},S = {'state',SSHRef,_cor221,_cor222}> when 'true' ->
+	      let <_cor38> =
+		  %% Line 1072
+		  apply 'heading'/2
+		      ('sftp', _cor222)
+	      in  let <_cor34> =
+		      %% Line 1074
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor35> =
+			  %% Line 1074
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1072
+			      apply 'try_log'/3
+				  (_cor38, %% Line 1073
+					   [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1074
+																											     [SSHRef|[_cor34|[_cor35|[]]]])
+			      let <_cor39> =
+				  %% Line 1075
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor40> =
+				      %% Line 1075
+				      call 'ssh_sftp':'read_file'
+					  (_cor39, File)
+				  in  %% Line 1075
+				      {_cor40,S}
+	  %% Line 1077
+	  <Cmd = {'write_file',Srv,File,Iolist},S = {'state',SSHRef,_cor226,_cor227}> when 'true' ->
+	      let <_cor45> =
+		  %% Line 1078
+		  apply 'heading'/2
+		      ('sftp', _cor227)
+	      in  let <_cor41> =
+		      %% Line 1080
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor42> =
+			  %% Line 1080
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1078
+			      apply 'try_log'/3
+				  (_cor45, %% Line 1079
+					   [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1080
+																											     [SSHRef|[_cor41|[_cor42|[]]]])
+			      let <_cor46> =
+				  %% Line 1081
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor47> =
+				      %% Line 1081
+				      call 'ssh_sftp':'write_file'
+					  (_cor46, File, Iolist)
+				  in  %% Line 1081
+				      {_cor47,S}
+	  %% Line 1083
+	  <Cmd = {'list_dir',Srv,Path},S = {'state',SSHRef,_cor231,_cor232}> when 'true' ->
+	      let <_cor52> =
+		  %% Line 1084
+		  apply 'heading'/2
+		      ('sftp', _cor232)
+	      in  let <_cor48> =
+		      %% Line 1086
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor49> =
+			  %% Line 1086
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1084
+			      apply 'try_log'/3
+				  (_cor52, %% Line 1085
+					   [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1086
+																											     [SSHRef|[_cor48|[_cor49|[]]]])
+			      let <_cor53> =
+				  %% Line 1087
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor54> =
+				      %% Line 1087
+				      call 'ssh_sftp':'list_dir'
+					  (_cor53, Path)
+				  in  %% Line 1087
+				      {_cor54,S}
+	  %% Line 1089
+	  <Cmd = {'open',Srv,File,Mode},S = {'state',SSHRef,_cor236,_cor237}> when 'true' ->
+	      let <_cor59> =
+		  %% Line 1090
+		  apply 'heading'/2
+		      ('sftp', _cor237)
+	      in  let <_cor55> =
+		      %% Line 1092
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor56> =
+			  %% Line 1092
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1090
+			      apply 'try_log'/3
+				  (_cor59, %% Line 1091
+					   [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1092
+																											     [SSHRef|[_cor55|[_cor56|[]]]])
+			      let <_cor60> =
+				  %% Line 1093
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor61> =
+				      %% Line 1093
+				      call 'ssh_sftp':'open'
+					  (_cor60, File, Mode)
+				  in  %% Line 1093
+				      {_cor61,S}
+	  %% Line 1095
+	  <Cmd = {'opendir',Srv,Path},S = {'state',SSHRef,_cor241,_cor242}> when 'true' ->
+	      let <_cor66> =
+		  %% Line 1096
+		  apply 'heading'/2
+		      ('sftp', _cor242)
+	      in  let <_cor62> =
+		      %% Line 1098
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor63> =
+			  %% Line 1098
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1096
+			      apply 'try_log'/3
+				  (_cor66, %% Line 1097
+					   [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1098
+																											     [SSHRef|[_cor62|[_cor63|[]]]])
+			      let <_cor67> =
+				  %% Line 1099
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor68> =
+				      %% Line 1099
+				      call 'ssh_sftp':'opendir'
+					  (_cor67, Path)
+				  in  %% Line 1099
+				      {_cor68,S}
+	  %% Line 1101
+	  <Cmd = {'close',Srv,Handle},S = {'state',SSHRef,_cor246,_cor247}> when 'true' ->
+	      let <_cor73> =
+		  %% Line 1102
+		  apply 'heading'/2
+		      ('sftp', _cor247)
+	      in  let <_cor69> =
+		      %% Line 1104
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor70> =
+			  %% Line 1104
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1102
+			      apply 'try_log'/3
+				  (_cor73, %% Line 1103
+					   [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1104
+																											     [SSHRef|[_cor69|[_cor70|[]]]])
+			      let <_cor74> =
+				  %% Line 1105
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor75> =
+				      %% Line 1105
+				      call 'ssh_sftp':'close'
+					  (_cor74, Handle)
+				  in  %% Line 1105
+				      {_cor75,S}
+	  %% Line 1107
+	  <Cmd = {'read',Srv,Handle,Len},S = {'state',SSHRef,_cor251,_cor252}> when 'true' ->
+	      let <_cor80> =
+		  %% Line 1108
+		  apply 'heading'/2
+		      ('sftp', _cor252)
+	      in  let <_cor76> =
+		      %% Line 1110
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor77> =
+			  %% Line 1110
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1108
+			      apply 'try_log'/3
+				  (_cor80, %% Line 1109
+					   [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1110
+																											     [SSHRef|[_cor76|[_cor77|[]]]])
+			      let <_cor81> =
+				  %% Line 1111
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor82> =
+				      %% Line 1111
+				      call 'ssh_sftp':'read'
+					  (_cor81, Handle, Len)
+				  in  %% Line 1111
+				      {_cor82,S}
+	  %% Line 1113
+	  <Cmd = {'pread',Srv,Handle,Position,Length},S = {'state',SSHRef,_cor256,_cor257}> when 'true' ->
+	      let <_cor87> =
+		  %% Line 1114
+		  apply 'heading'/2
+		      ('sftp', _cor257)
+	      in  let <_cor83> =
+		      %% Line 1116
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor84> =
+			  %% Line 1116
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1114
+			      apply 'try_log'/3
+				  (_cor87, %% Line 1115
+					   [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1116
+																											     [SSHRef|[_cor83|[_cor84|[]]]])
+			      let <_cor88> =
+				  %% Line 1117
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor89> =
+				      %% Line 1117
+				      call 'ssh_sftp':'pread'
+					  (_cor88, Handle, Position, Length)
+				  in  %% Line 1117
+				      {_cor89,S}
+	  %% Line 1119
+	  <Cmd = {'aread',Srv,Handle,Len},S = {'state',SSHRef,_cor261,_cor262}> when 'true' ->
+	      let <_cor94> =
+		  %% Line 1120
+		  apply 'heading'/2
+		      ('sftp', _cor262)
+	      in  let <_cor90> =
+		      %% Line 1122
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor91> =
+			  %% Line 1122
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1120
+			      apply 'try_log'/3
+				  (_cor94, %% Line 1121
+					   [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1122
+																											     [SSHRef|[_cor90|[_cor91|[]]]])
+			      let <_cor95> =
+				  %% Line 1123
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor96> =
+				      %% Line 1123
+				      call 'ssh_sftp':'aread'
+					  (_cor95, Handle, Len)
+				  in  %% Line 1123
+				      {_cor96,S}
+	  %% Line 1125
+	  <Cmd = {'apread',Srv,Handle,Position,Length},S = {'state',SSHRef,_cor266,_cor267}> when 'true' ->
+	      let <_cor101> =
+		  %% Line 1126
+		  apply 'heading'/2
+		      ('sftp', _cor267)
+	      in  let <_cor97> =
+		      %% Line 1128
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor98> =
+			  %% Line 1128
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1126
+			      apply 'try_log'/3
+				  (_cor101, %% Line 1127
+					    [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1128
+																											      [SSHRef|[_cor97|[_cor98|[]]]])
+			      let <_cor102> =
+				  %% Line 1129
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor103> =
+				      %% Line 1129
+				      call 'ssh_sftp':'apread'
+					  (_cor102, Handle, Position, Length)
+				  in  %% Line 1129
+				      {_cor103,S}
+	  %% Line 1131
+	  <Cmd = {'write',Srv,Handle,Data},S = {'state',SSHRef,_cor271,_cor272}> when 'true' ->
+	      let <_cor108> =
+		  %% Line 1132
+		  apply 'heading'/2
+		      ('sftp', _cor272)
+	      in  let <_cor104> =
+		      %% Line 1134
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor105> =
+			  %% Line 1134
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1132
+			      apply 'try_log'/3
+				  (_cor108, %% Line 1133
+					    [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1134
+																											      [SSHRef|[_cor104|[_cor105|[]]]])
+			      let <_cor109> =
+				  %% Line 1135
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor110> =
+				      %% Line 1135
+				      call 'ssh_sftp':'write'
+					  (_cor109, Handle, Data)
+				  in  %% Line 1135
+				      {_cor110,S}
+	  %% Line 1137
+	  <Cmd = {'pwrite',Srv,Handle,Position,Data},S = {'state',SSHRef,_cor276,_cor277}> when 'true' ->
+	      let <_cor115> =
+		  %% Line 1138
+		  apply 'heading'/2
+		      ('sftp', _cor277)
+	      in  let <_cor111> =
+		      %% Line 1140
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor112> =
+			  %% Line 1140
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1138
+			      apply 'try_log'/3
+				  (_cor115, %% Line 1139
+					    [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1140
+																											      [SSHRef|[_cor111|[_cor112|[]]]])
+			      let <_cor116> =
+				  %% Line 1141
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor117> =
+				      %% Line 1141
+				      call 'ssh_sftp':'pwrite'
+					  (_cor116, Handle, Position, Data)
+				  in  %% Line 1141
+				      {_cor117,S}
+	  %% Line 1143
+	  <Cmd = {'awrite',Srv,Handle,Data},S = {'state',SSHRef,_cor281,_cor282}> when 'true' ->
+	      let <_cor122> =
+		  %% Line 1144
+		  apply 'heading'/2
+		      ('sftp', _cor282)
+	      in  let <_cor118> =
+		      %% Line 1146
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor119> =
+			  %% Line 1146
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1144
+			      apply 'try_log'/3
+				  (_cor122, %% Line 1145
+					    [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1146
+																											      [SSHRef|[_cor118|[_cor119|[]]]])
+			      let <_cor123> =
+				  %% Line 1147
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor124> =
+				      %% Line 1147
+				      call 'ssh_sftp':'awrite'
+					  (_cor123, Handle, Data)
+				  in  %% Line 1147
+				      {_cor124,S}
+	  %% Line 1149
+	  <Cmd = {'apwrite',Srv,Handle,Position,Data},S = {'state',SSHRef,_cor286,_cor287}> when 'true' ->
+	      let <_cor129> =
+		  %% Line 1150
+		  apply 'heading'/2
+		      ('sftp', _cor287)
+	      in  let <_cor125> =
+		      %% Line 1152
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor126> =
+			  %% Line 1152
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1150
+			      apply 'try_log'/3
+				  (_cor129, %% Line 1151
+					    [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1152
+																											      [SSHRef|[_cor125|[_cor126|[]]]])
+			      let <_cor130> =
+				  %% Line 1153
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor131> =
+				      %% Line 1153
+				      call 'ssh_sftp':'apwrite'
+					  (_cor130, Handle, Position, Data)
+				  in  %% Line 1153
+				      {_cor131,S}
+	  %% Line 1155
+	  <Cmd = {'position',Srv,Handle,Location},S = {'state',SSHRef,_cor291,_cor292}> when 'true' ->
+	      let <_cor136> =
+		  %% Line 1156
+		  apply 'heading'/2
+		      ('sftp', _cor292)
+	      in  let <_cor132> =
+		      %% Line 1158
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor133> =
+			  %% Line 1158
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1156
+			      apply 'try_log'/3
+				  (_cor136, %% Line 1157
+					    [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1158
+																											      [SSHRef|[_cor132|[_cor133|[]]]])
+			      let <_cor137> =
+				  %% Line 1159
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor138> =
+				      %% Line 1159
+				      call 'ssh_sftp':'position'
+					  (_cor137, Handle, Location)
+				  in  %% Line 1159
+				      {_cor138,S}
+	  %% Line 1161
+	  <Cmd = {'read_file_info',Srv,Name},S = {'state',SSHRef,_cor296,_cor297}> when 'true' ->
+	      let <_cor143> =
+		  %% Line 1162
+		  apply 'heading'/2
+		      ('sftp', _cor297)
+	      in  let <_cor139> =
+		      %% Line 1164
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor140> =
+			  %% Line 1164
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1162
+			      apply 'try_log'/3
+				  (_cor143, %% Line 1163
+					    [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1164
+																											      [SSHRef|[_cor139|[_cor140|[]]]])
+			      let <_cor144> =
+				  %% Line 1165
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor145> =
+				      %% Line 1165
+				      call 'ssh_sftp':'read_file_info'
+					  (_cor144, Name)
+				  in  %% Line 1165
+				      {_cor145,S}
+	  %% Line 1167
+	  <Cmd = {'get_file_info',Srv,Handle},S = {'state',SSHRef,_cor301,_cor302}> when 'true' ->
+	      let <_cor150> =
+		  %% Line 1168
+		  apply 'heading'/2
+		      ('sftp', _cor302)
+	      in  let <_cor146> =
+		      %% Line 1170
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor147> =
+			  %% Line 1170
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1168
+			      apply 'try_log'/3
+				  (_cor150, %% Line 1169
+					    [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1170
+																											      [SSHRef|[_cor146|[_cor147|[]]]])
+			      let <_cor151> =
+				  %% Line 1171
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor152> =
+				      %% Line 1171
+				      call 'ssh_sftp':'get_file_info'
+					  (_cor151, Handle)
+				  in  %% Line 1171
+				      {_cor152,S}
+	  %% Line 1173
+	  <Cmd = {'read_link_info',Srv,Name},S = {'state',SSHRef,_cor306,_cor307}> when 'true' ->
+	      let <_cor157> =
+		  %% Line 1174
+		  apply 'heading'/2
+		      ('sftp', _cor307)
+	      in  let <_cor153> =
+		      %% Line 1176
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor154> =
+			  %% Line 1176
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1174
+			      apply 'try_log'/3
+				  (_cor157, %% Line 1175
+					    [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1176
+																											      [SSHRef|[_cor153|[_cor154|[]]]])
+			      let <_cor158> =
+				  %% Line 1177
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor159> =
+				      %% Line 1177
+				      call 'ssh_sftp':'read_link_info'
+					  (_cor158, Name)
+				  in  %% Line 1177
+				      {_cor159,S}
+	  %% Line 1179
+	  <Cmd = {'write_file_info',Srv,Name,Info},S = {'state',SSHRef,_cor311,_cor312}> when 'true' ->
+	      let <_cor164> =
+		  %% Line 1180
+		  apply 'heading'/2
+		      ('sftp', _cor312)
+	      in  let <_cor160> =
+		      %% Line 1182
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor161> =
+			  %% Line 1182
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1180
+			      apply 'try_log'/3
+				  (_cor164, %% Line 1181
+					    [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1182
+																											      [SSHRef|[_cor160|[_cor161|[]]]])
+			      let <_cor165> =
+				  %% Line 1183
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor166> =
+				      %% Line 1183
+				      call 'ssh_sftp':'write_file_info'
+					  (_cor165, Name, Info)
+				  in  %% Line 1183
+				      {_cor166,S}
+	  %% Line 1185
+	  <Cmd = {'read_link',Srv,Name},S = {'state',SSHRef,_cor316,_cor317}> when 'true' ->
+	      let <_cor171> =
+		  %% Line 1186
+		  apply 'heading'/2
+		      ('sftp', _cor317)
+	      in  let <_cor167> =
+		      %% Line 1188
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor168> =
+			  %% Line 1188
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1186
+			      apply 'try_log'/3
+				  (_cor171, %% Line 1187
+					    [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1188
+																											      [SSHRef|[_cor167|[_cor168|[]]]])
+			      let <_cor172> =
+				  %% Line 1189
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor173> =
+				      %% Line 1189
+				      call 'ssh_sftp':'read_link'
+					  (_cor172, Name)
+				  in  %% Line 1189
+				      {_cor173,S}
+	  %% Line 1191
+	  <Cmd = {'make_symlink',Srv,Name,Target},S = {'state',SSHRef,_cor321,_cor322}> when 'true' ->
+	      let <_cor178> =
+		  %% Line 1192
+		  apply 'heading'/2
+		      ('sftp', _cor322)
+	      in  let <_cor174> =
+		      %% Line 1194
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor175> =
+			  %% Line 1194
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1192
+			      apply 'try_log'/3
+				  (_cor178, %% Line 1193
+					    [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1194
+																											      [SSHRef|[_cor174|[_cor175|[]]]])
+			      let <_cor179> =
+				  %% Line 1195
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor180> =
+				      %% Line 1195
+				      call 'ssh_sftp':'make_symlink'
+					  (_cor179, Name, Target)
+				  in  %% Line 1195
+				      {_cor180,S}
+	  %% Line 1197
+	  <Cmd = {'rename',Srv,OldName,NewName},S = {'state',SSHRef,_cor326,_cor327}> when 'true' ->
+	      let <_cor185> =
+		  %% Line 1198
+		  apply 'heading'/2
+		      ('sftp', _cor327)
+	      in  let <_cor181> =
+		      %% Line 1200
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor182> =
+			  %% Line 1200
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1198
+			      apply 'try_log'/3
+				  (_cor185, %% Line 1199
+					    [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1200
+																											      [SSHRef|[_cor181|[_cor182|[]]]])
+			      let <_cor186> =
+				  %% Line 1201
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor187> =
+				      %% Line 1201
+				      call 'ssh_sftp':'rename'
+					  (_cor186, OldName, NewName)
+				  in  %% Line 1201
+				      {_cor187,S}
+	  %% Line 1203
+	  <Cmd = {'delete',Srv,Name},S = {'state',SSHRef,_cor331,_cor332}> when 'true' ->
+	      let <_cor192> =
+		  %% Line 1204
+		  apply 'heading'/2
+		      ('sftp', _cor332)
+	      in  let <_cor188> =
+		      %% Line 1206
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor189> =
+			  %% Line 1206
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1204
+			      apply 'try_log'/3
+				  (_cor192, %% Line 1205
+					    [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1206
+																											      [SSHRef|[_cor188|[_cor189|[]]]])
+			      let <_cor193> =
+				  %% Line 1207
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor194> =
+				      %% Line 1207
+				      call 'ssh_sftp':'delete'
+					  (_cor193, Name)
+				  in  %% Line 1207
+				      {_cor194,S}
+	  %% Line 1209
+	  <Cmd = {'make_dir',Srv,Name},S = {'state',SSHRef,_cor336,_cor337}> when 'true' ->
+	      let <_cor199> =
+		  %% Line 1210
+		  apply 'heading'/2
+		      ('sftp', _cor337)
+	      in  let <_cor195> =
+		      %% Line 1212
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor196> =
+			  %% Line 1212
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1210
+			      apply 'try_log'/3
+				  (_cor199, %% Line 1211
+					    [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1212
+																											      [SSHRef|[_cor195|[_cor196|[]]]])
+			      let <_cor200> =
+				  %% Line 1213
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor201> =
+				      %% Line 1213
+				      call 'ssh_sftp':'make_dir'
+					  (_cor200, Name)
+				  in  %% Line 1213
+				      {_cor201,S}
+	  %% Line 1215
+	  <Cmd = {'del_dir',Srv,Name},S = {'state',SSHRef,_cor341,_cor342}> when 'true' ->
+	      let <_cor206> =
+		  %% Line 1216
+		  apply 'heading'/2
+		      ('sftp', _cor342)
+	      in  let <_cor202> =
+		      %% Line 1218
+		      apply 'ref'/2
+			  (Srv, SSHRef)
+		  in  let <_cor203> =
+			  %% Line 1218
+			  apply 'mod'/1
+			      (Cmd)
+		      in  do  %% Line 1216
+			      apply 'try_log'/3
+				  (_cor206, %% Line 1217
+					    [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112|[44|[32|[83|[101|[114|[118|[101|[114|[58|[32|[126|[112|[126|[110|[67|[109|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1218
+																											      [SSHRef|[_cor202|[_cor203|[]]]])
+			      let <_cor207> =
+				  %% Line 1219
+				  apply 'ref'/2
+				      (Srv, SSHRef)
+			      in  let <_cor208> =
+				      %% Line 1219
+				      call 'ssh_sftp':'del_dir'
+					  (_cor207, Name)
+				  in  %% Line 1219
+				      {_cor208,S}
+	  ( <_cor210,_cor209> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor210,_cor209})
+		  -| [{'function_name',{'handle_msg',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'reconnect'/2 =
+    %% Line 1222
+    fun (_cor1,_cor0) ->
+	%% Line 1223
+	{'error','no_reconnection_of_ssh'}
+'close'/1 =
+    %% Line 1226
+    fun (_cor0) ->
+	%% Line 1227
+	apply 'disconnect'/1
+	    (_cor0)
+'terminate'/2 =
+    %% Line 1230
+    fun (_cor1,_cor0) ->
+	%% Line 1231
+	( case _cor0 of
+	    ( <( {'state',_cor13,_rec25,_cor14}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  case _rec25 of
+		    %% Line 1232
+		    <'ssh'> when 'true' ->
+			let <_cor6> =
+			    %% Line 1233
+			    apply 'heading'/2
+				('disconnect_ssh', _cor14)
+			in  do  %% Line 1233
+				apply 'try_log'/4
+				    (_cor6, %% Line 1234
+					    [83|[83|[72|[32|[82|[101|[102|[58|[32|[126|[112]]]]]]]]]]], %% Line 1234
+													[_cor1|[]], %% Line 1234
+														    5000)
+				%% Line 1235
+				call 'ssh':'close'
+				    (_cor1)
+		    %% Line 1236
+		    <'sftp'> when 'true' ->
+			let <_cor9> =
+			    %% Line 1237
+			    apply 'heading'/2
+				('disconnect_sftp', _cor14)
+			in  do  %% Line 1237
+				apply 'try_log'/4
+				    (_cor9, %% Line 1238
+					    [83|[70|[84|[80|[32|[82|[101|[102|[58|[32|[126|[112]]]]]]]]]]]], %% Line 1238
+													     [_cor1|[]], %% Line 1238
+															 5000)
+				%% Line 1239
+				call 'ssh_sftp':'stop_channel'
+				    (_cor1)
+		    ( <_cor10> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor10})
+		      -| ['compiler_generated'] )
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor15> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'do_recv_response'/5 =
+    %% Line 1248
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 1249
+	receive
+	  %% Line 1250
+	  <{'ssh_cm',_cor16,{'open',_cor17,RemoteChn,{'session'}}}>
+	      when let <_cor18> =
+		    call 'erlang':'=:='
+			(_cor16, _cor4)
+		in  let <_cor19> =
+			call 'erlang':'=:='
+			    (_cor17, _cor3)
+		    in  call 'erlang':'and'
+			    (_cor18, _cor19) ->
+	      do  %% Line 1251
+		  apply 'debug'/1
+		      ([82|[69|[67|[86|[68|[32|[111|[112|[101|[110]]]]]]]]]])
+		  %% Line 1252
+		  {'ok',{'open',_cor3,RemoteChn,{'session'}}}
+	  %% Line 1254
+	  <{'ssh_cm',_cor20,{'closed',_cor21}}>
+	      when let <_cor22> =
+		    call 'erlang':'=:='
+			(_cor20, _cor4)
+		in  let <_cor23> =
+			call 'erlang':'=:='
+			    (_cor21, _cor3)
+		    in  call 'erlang':'and'
+			    (_cor22, _cor23) ->
+	      do  %% Line 1255
+		  call 'ssh_connection':'close'
+		      (_cor4, _cor3)
+		  do  %% Line 1256
+		      apply 'debug'/2
+			  ([67|[76|[83|[68|[126|[110|[126|[112|[32|[126|[112]]]]]]]]]]], [_cor4|[_cor3|[]]])
+		      %% Line 1257
+		      {'ok',_cor2}
+	  %% Line 1259
+	  <{'ssh_cm',_cor24,{'data',_cor25,_cor26,NewData}}>
+	      when let <_cor27> =
+		    call 'erlang':'=:='
+			(_cor24, _cor4)
+		in  let <_cor28> =
+			call 'erlang':'=:='
+			    (_cor25, _cor3)
+		    in  call 'erlang':'and'
+			    (_cor27, _cor28) ->
+	      let <_cor6> =
+		  %% Line 1260
+		  call 'erlang':'size'
+		      (NewData)
+	      in  do  %% Line 1260
+		      call 'ssh_connection':'adjust_window'
+			  (_cor4, _cor3, _cor6)
+		      let <_cor7> =
+			  %% Line 1261
+			  call 'erlang':'binary_to_list'
+			      (NewData)
+		      in  do  %% Line 1261
+			      apply 'debug'/2
+				  ([82|[69|[67|[86|[68|[126|[110|[126|[112]]]]]]]]], [_cor7|[]])
+			      let <_cor8> =
+				  %% Line 1262
+				  call 'erlang':'binary_to_list'
+				      (NewData)
+			      in  let <DataAcc> =
+				      %% Line 1262
+				      call 'erlang':'++'
+					  (_cor2, _cor8)
+				  in  %% Line 1263
+				      case <> of
+					<>
+					    when call 'erlang':'is_function'
+						  (_cor1) ->
+					    %% Line 1264
+					    case apply _cor1
+						     (DataAcc) of
+					      %% Line 1265
+					      <'true'> when 'true' ->
+						  %% Line 1266
+						  {'ok',DataAcc}
+					      %% Line 1267
+					      <'false'> when 'true' ->
+						  %% Line 1268
+						  apply 'do_recv_response'/5
+						      (_cor4, _cor3, DataAcc, _cor1, _cor0)
+					      ( <_cor10> when 'true' ->
+						    primop 'match_fail'
+							({'case_clause',_cor10})
+						-| ['compiler_generated'] )
+					    end
+					%% Line 1270
+					<> when 'true' ->
+					    %% Line 1271
+					    apply 'do_recv_response'/5
+						(_cor4, _cor3, DataAcc, _cor1, _cor0)
+				      end
+	  %% Line 1274
+	  <{'ssh_cm',_cor29,{'eof',_cor30}}>
+	      when let <_cor31> =
+		    call 'erlang':'=:='
+			(_cor29, _cor4)
+		in  let <_cor32> =
+			call 'erlang':'=:='
+			    (_cor30, _cor3)
+		    in  call 'erlang':'and'
+			    (_cor31, _cor32) ->
+	      do  %% Line 1275
+		  apply 'debug'/2
+		      ([82|[69|[67|[86|[68|[32|[69|[79|[70|[126|[110|[126|[112|[32|[126|[112]]]]]]]]]]]]]]]], [_cor4|[_cor3|[]]])
+		  %% Line 1276
+		  {'ok',_cor2}
+	  %% Line 1278
+	  <{'ssh_cm',_cor33,{'exit_signal',_cor34,Signal,Err,_X_Lang}}>
+	      when let <_cor35> =
+		    call 'erlang':'=:='
+			(_cor33, _cor4)
+		in  let <_cor36> =
+			call 'erlang':'=:='
+			    (_cor34, _cor3)
+		    in  call 'erlang':'and'
+			    (_cor35, _cor36) ->
+	      do  %% Line 1279
+		  apply 'debug'/2
+		      ([82|[69|[67|[86|[68|[32|[101|[120|[105|[116|[95|[115|[105|[103|[110|[97|[108|[126|[110|[126|[112|[32|[126|[112|[126|[110|[126|[112|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [_cor4|[_cor3|[Signal|[Err|[]]]]])
+		  %% Line 1280
+		  apply 'do_recv_response'/5
+		      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 1283
+	  <{'ssh_cm',_cor37,{'exit_status',_cor38,Status}}>
+	      when let <_cor39> =
+		    call 'erlang':'=:='
+			(_cor37, _cor4)
+		in  let <_cor40> =
+			call 'erlang':'=:='
+			    (_cor38, _cor3)
+		    in  call 'erlang':'and'
+			    (_cor39, _cor40) ->
+	      do  %% Line 1284
+		  apply 'debug'/2
+		      ([82|[69|[67|[86|[68|[32|[101|[120|[105|[116|[95|[115|[116|[97|[116|[117|[115|[126|[110|[126|[112|[32|[126|[112|[126|[110|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]], [_cor4|[_cor3|[Status|[]]]])
+		  %% Line 1285
+		  apply 'do_recv_response'/5
+		      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 1313
+	  <Other> when 'true' ->
+	      do  %% Line 1314
+		  apply 'debug'/2
+		      ([85|[78|[69|[88|[80|[69|[67|[84|[69|[68|[32|[77|[69|[83|[83|[65|[71|[69|[126|[110|[126|[112|[32|[126|[112|[126|[110|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [_cor4|[_cor3|[Other|[]]]])
+		  %% Line 1315
+		  apply 'do_recv_response'/5
+		      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	after _cor0 ->
+	  %% Line 1318
+	  case _cor1 of
+	    %% Line 1319
+	    <'timeout'> when 'true' ->
+		%% Line 1320
+		{'ok',_cor2}
+	    %% Line 1321
+	    <_cor41> when 'true' ->
+		%% Line 1322
+		{'timeout',_cor2}
+	  end
+'get_handle'/1 =
+    %% Line 1328
+    fun (_cor0) ->
+	case _cor0 of
+	  <SSH>
+	      when call 'erlang':'is_pid'
+		    (_cor0) ->
+	      %% Line 1329
+	      {'ok',SSH}
+	  %% Line 1330
+	  <SSH> when 'true' ->
+	      %% Line 1331
+	      case call 'ct_util':'get_connection'
+		       (SSH, 'ct_ssh') of
+		%% Line 1332
+		<{'ok',{Pid,_cor3}}> when 'true' ->
+		    %% Line 1333
+		    {'ok',Pid}
+		%% Line 1334
+		<{'error','no_registered_connection'}> when 'true' ->
+		    %% Line 1335
+		    apply 'connect'/1
+			(SSH)
+		%% Line 1336
+		<Error> when 'true' ->
+		    %% Line 1337
+		    Error
+	      end
+	end
+'call'/2 =
+    %% Line 1342
+    fun (_cor1,_cor0) ->
+	%% Line 1343
+	apply 'call'/3
+	    (_cor1, _cor0, 'infinity')
+'call'/3 =
+    %% Line 1345
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 1346
+	case apply 'get_handle'/1
+		 (_cor2) of
+	  %% Line 1347
+	  <{'ok',Pid}> when 'true' ->
+	      %% Line 1348
+	      call 'ct_gen_conn':'call'
+		  (Pid, _cor1, _cor0)
+	  %% Line 1349
+	  <Error> when 'true' ->
+	      %% Line 1350
+	      Error
+	end
+'ref'/2 =
+    %% Line 1355
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'sftp',SSHRef> when 'true' ->
+	      SSHRef
+	  %% Line 1356
+	  <Server,_cor4> when 'true' ->
+	      Server
+	end
+'mod'/1 =
+    %% Line 1360
+    fun (_cor0) ->
+	%% Line 1361
+	case call 'erlang':'tuple_to_list'
+		 (_cor0) of
+	  <[Op|[_X_Server|Args]]> when 'true' ->
+	      %% Line 1362
+	      call 'erlang':'list_to_tuple'
+		  ([Op|Args])
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'heading'/2 =
+    %% Line 1366
+    fun (_cor1,_cor0) ->
+	%% Line 1367
+	call 'io_lib':'format'
+	    ([99|[116|[95|[115|[115|[104|[58|[126|[119|[32|[126|[112]]]]]]]]]]]], [_cor1|[_cor0|[]]])
+'log'/3 =
+    %% Line 1371
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 1372
+	call 'ct_gen_conn':'log'
+	    (_cor2, _cor1, _cor0)
+'try_log'/3 =
+    %% Line 1376
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 1377
+	apply 'try_log'/4
+	    (_cor2, _cor1, _cor0, 'infinity')
+'try_log'/4 =
+    %% Line 1379
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 1380
+	case call 'ct_util':'is_silenced'
+		 ('ssh', _cor0) of
+	  %% Line 1381
+	  <'true'> when 'true' ->
+	      %% Line 1382
+	      'ok'
+	  %% Line 1383
+	  <'false'> when 'true' ->
+	      %% Line 1384
+	      call 'ct_gen_conn':'log'
+		  (_cor3, _cor2, _cor1)
+	  %% Line 1385
+	  <_X_Error> when 'true' ->
+	      %% Line 1386
+	      'ok'
+	end
+'debug'/1 =
+    %% Line 1391
+    fun (_cor0) ->
+	%% Line 1392
+	apply 'debug'/2
+	    (_cor0, [])
+'debug'/2 =
+    %% Line 1394
+    fun (_cor1,_cor0) ->
+	%% Line 1396
+	'ok'
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ct_ssh')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ct_ssh', _cor0)
+end

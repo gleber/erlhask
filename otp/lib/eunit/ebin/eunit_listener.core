@@ -1,0 +1,572 @@
+module 'eunit_listener' ['behaviour_info'/1,
+			 'module_info'/0,
+			 'module_info'/1,
+			 'start'/1,
+			 'start'/2,
+			 'test'/0]
+    attributes []
+'behaviour_info'/1 =
+    %% Line 33
+    fun (_cor0) ->
+	case _cor0 of
+	  <'callbacks'> when 'true' ->
+	      %% Line 34
+	      [{'init',1}|[{'handle_begin',3}|[{'handle_end',3}|[{'handle_cancel',3}|[{'terminate',2}]]]]]
+	  %% Line 36
+	  <_X_Other> when 'true' ->
+	      %% Line 37
+	      'undefined'
+	end
+'start'/1 =
+    %% Line 48
+    fun (_cor0) ->
+	%% Line 49
+	apply 'start'/2
+	    (_cor0, [])
+'start'/2 =
+    %% Line 51
+    fun (_cor1,_cor0) ->
+	let <St> =
+	    %% Line 52
+	    {'state',_cor1,0,0,0,0,'undefined'}
+	in  let <_cor4> =
+		%% Line 53
+		( fun () ->
+		      apply 'init'/2
+			  (St, _cor0)
+		  -| [{'id',{0,0,'-start/2-fun-0-'}}] )
+	    in  let <_cor3> =
+		    %% Line 54
+		    call 'proplists':'get_all_values'
+			('spawn', _cor0)
+		in  %% Line 53
+		    call 'erlang':'spawn_opt'
+			(_cor4, _cor3)
+'init'/2 =
+    %% Line 56
+    fun (_cor1,_cor0) ->
+	let <St1> =
+	    %% Line 57
+	    apply 'call'/3
+		('init', [_cor0|[]], _cor1)
+	in  let <St2> =
+		%% Line 58
+		apply 'expect'/3
+		    ([], 'undefined', St1)
+	    in  %% Line 59
+		( case St2 of
+		    ( <( {'state',_cor17,_rec0,_cor18,_cor19,_cor20,_cor21}
+			 -| ['compiler_generated'] )> when 'true' ->
+			  let <Data> =
+			      [{'pass',_rec0}|%% Line 60
+					      [{'fail',_cor18}|%% Line 61
+							       [{'skip',_cor19}|%% Line 62
+										[{'cancel',_cor20}|[]]]]]
+			  in  do  %% Line 63
+				  apply 'call'/3
+				      ('terminate', [{'ok',Data}|[_cor21|[]]], St2)
+				  %% Line 64
+				  call 'erlang':'exit'
+				      ('normal')
+		      -| ['compiler_generated'] )
+		    ( <_cor22> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','state'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+		  -| ['compiler_generated'] )
+'expect'/3 =
+    %% Line 66
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 67
+	case apply 'wait_for'/3
+		 (_cor2, 'begin', _cor1) of
+	  %% Line 68
+	  <{'done',Data}> when 'true' ->
+	      %% Line 69
+	      {'done',Data,_cor0}
+	  %% Line 70
+	  <{'ok',Msg}> when 'true' ->
+	      %% Line 71
+	      case Msg of
+		%% Line 72
+		<{'group',Data}> when 'true' ->
+		    %% Line 73
+		    apply 'group'/3
+			(_cor2, Data, _cor0)
+		%% Line 74
+		<{'test',Data}> when 'true' ->
+		    let <St1> =
+			%% Line 75
+			apply 'handle_begin'/4
+			    ('test', _cor2, Data, _cor0)
+		    in  %% Line 76
+			case apply 'wait_for'/3
+				 (_cor2, 'end', _cor1) of
+			  %% Line 77
+			  <{'cancel',Reason}> when 'true' ->
+			      %% Line 78
+			      apply 'handle_cancel'/5
+				  ('test', _cor2, Data, Reason, St1)
+			  %% Line 79
+			  <{'ok',Result}> when 'true' ->
+			      %% Line 80
+			      apply 'handle_end'/5
+				  ('test', _cor2, Data, Result, St1)
+			  ( <_cor4> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor4})
+			    -| ['compiler_generated'] )
+			end
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor6> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor6})
+	    -| ['compiler_generated'] )
+	end
+'group'/3 =
+    %% Line 86
+    fun (_cor2,_cor1,_cor0) ->
+	let <St1> =
+	    %% Line 87
+	    apply 'handle_begin'/4
+		('group', _cor2, _cor1, _cor0)
+	in  %% Line 88
+	    apply 'group_loop'/4
+		(0, _cor2, _cor1, St1)
+'group_loop'/4 =
+    %% Line 90
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <N1> =
+	    %% Line 91
+	    call 'erlang':'+'
+		(_cor3, 1)
+	in  let <_cor5> =
+		%% Line 92
+		call 'erlang':'++'
+		    (_cor2, [N1|[]])
+	    in  %% Line 92
+		case apply 'expect'/3
+			 (_cor5, _cor2, _cor0) of
+		  %% Line 93
+		  <{'done',{'cancel',Reason},St1}> when 'true' ->
+		      %% Line 94
+		      apply 'handle_cancel'/5
+			  ('group', _cor2, _cor1, Reason, St1)
+		  %% Line 95
+		  <{'done',Result,St1}> when 'true' ->
+		      %% Line 96
+		      apply 'handle_end'/5
+			  ('group', _cor2, _cor1, Result, St1)
+		  %% Line 97
+		  <St1> when 'true' ->
+		      %% Line 98
+		      apply 'group_loop'/4
+			  (N1, _cor2, _cor1, St1)
+		end
+'wait_for'/3 =
+    %% Line 113
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 115
+	receive
+	  %% Line 116
+	  <{'status',_cor6,{'progress',_cor7,Data}}>
+	      when let <_cor8> =
+		    call 'erlang':'=:='
+			(_cor6, _cor2)
+		in  let <_cor9> =
+			call 'erlang':'=:='
+			    (_cor7, _cor1)
+		    in  call 'erlang':'and'
+			    (_cor8, _cor9) ->
+	      %% Line 118
+	      {'ok',Data}
+	  %% Line 119
+	  <{'status',_cor10,{'progress','end',Data}}>
+	      when let <_cor11> =
+		    call 'erlang':'=:='
+			(_cor10, _cor0)
+		in  let <_cor12> =
+			call 'erlang':'=:='
+			    (_cor1, 'begin')
+		    in  call 'erlang':'and'
+			    (_cor11, _cor12) ->
+	      %% Line 121
+	      {'done',Data}
+	  %% Line 122
+	  <{'status',_cor13,{'cancel',Reason}}>
+	      when let <_cor14> =
+		    call 'erlang':'=:='
+			(_cor13, _cor2)
+		in  let <_cor15> =
+			call 'erlang':'=:='
+			    (_cor1, 'end')
+		    in  call 'erlang':'and'
+			    (_cor14, _cor15) ->
+	      %% Line 124
+	      {'cancel',Reason}
+	  %% Line 125
+	  <{'status',_cor16,{'cancel',_X_Reason}}>
+	      when call 'erlang':'=:='
+		    (_cor16,
+		     _cor0) ->
+	      %% Line 127
+	      {'done',{'cancel',_X_Reason}}
+	after 'infinity' ->
+	  'true'
+'call'/3 =
+    %% Line 130
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <F,As,St>
+	      when call 'erlang':'is_atom'
+		    (F) ->
+	      %% Line 131
+	      try
+		  ( case St of
+		      ( <( {'state',_rec5,_cor18,_cor19,_cor20,_cor21,_cor22}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    call 'erlang':'apply'
+				(_rec5, F, As)
+			-| ['compiler_generated'] )
+		      ( <_cor23> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	      of <_cor5> ->
+		  %% Line 132
+		  case St of
+		    <{'state',_cor24,_cor25,_cor26,_cor27,_cor28,_cor29}> when 'true' ->
+			call 'erlang':'setelement'
+			    (7, St, _cor5)
+		    ( <_cor30> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','state'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+	      catch <_cor11,_cor10,_cor9> ->
+		  let <Trace> =
+		      %% Line 135
+		      call 'erlang':'get_stacktrace'
+			  ()
+		  in  do  %% Line 136
+			  case <> of
+			    <>
+				when call 'erlang':'=/='
+				      (F,
+				       'terminate') ->
+				%% Line 138
+				( case St of
+				    ( <( {'state',_cor32,_cor33,_cor34,_cor35,_cor36,_rec7}
+					 -| ['compiler_generated'] )> when 'true' ->
+					  apply 'call'/3
+					      ('terminate', [{'error',{_cor11,_cor10,Trace}}|[_rec7|[]]], St)
+				      -| ['compiler_generated'] )
+				    ( <_cor37> when 'true' ->
+					  ( call ( 'erlang'
+						   -| ['compiler_generated'] ):( 'error'
+										 -| ['compiler_generated'] )
+						(( {'badrecord','state'}
+						   -| ['compiler_generated'] ))
+					    -| ['compiler_generated'] )
+				      -| ['compiler_generated'] )
+				  end
+				  -| ['compiler_generated'] )
+			    %% Line 139
+			    <> when 'true' ->
+				'ok'
+			  end
+			  %% Line 141
+			  call 'erlang':'raise'
+			      (_cor11, _cor10, Trace)
+	  ( <_cor17,_cor16,_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor17,_cor16,_cor15})
+		  -| [{'function_name',{'call',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_begin'/4 =
+    %% Line 144
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <'group',Id,Data0,St> when 'true' ->
+	      let <Data> =
+		  %% Line 145
+		  [{'id',Id}|Data0]
+	      in  %% Line 147
+		  ( case St of
+		      ( <( {'state',_cor14,_cor15,_cor16,_cor17,_cor18,_rec8}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    apply 'call'/3
+				('handle_begin', ['group'|[Data|[_rec8|[]]]], St)
+			-| ['compiler_generated'] )
+		      ( <_cor19> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	  %% Line 148
+	  <'test',Id,Data0,St> when 'true' ->
+	      let <Data> =
+		  %% Line 149
+		  [{'id',Id}|Data0]
+	      in  %% Line 151
+		  ( case St of
+		      ( <( {'state',_cor20,_cor21,_cor22,_cor23,_cor24,_rec9}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    apply 'call'/3
+				('handle_begin', ['test'|[Data|[_rec9|[]]]], St)
+			-| ['compiler_generated'] )
+		      ( <_cor25> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	  ( <_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'handle_begin',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_end'/5 =
+    %% Line 153
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <'group',Id,Data0,{Count,Data1},St> when 'true' ->
+	      let <_cor5> =
+		  %% Line 154
+		  call 'erlang':'++'
+		      (Data0, Data1)
+	      in  let <Data> =
+		      %% Line 154
+		      [{'id',Id}|[{'size',Count}|_cor5]]
+		  in  %% Line 156
+		      ( case St of
+			  ( <( {'state',_cor36,_cor37,_cor38,_cor39,_cor40,_rec10}
+			       -| ['compiler_generated'] )> when 'true' ->
+				apply 'call'/3
+				    ('handle_end', ['group'|[Data|[_rec10|[]]]], St)
+			    -| ['compiler_generated'] )
+			  ( <_cor41> when 'true' ->
+				( call ( 'erlang'
+					 -| ['compiler_generated'] ):( 'error'
+								       -| ['compiler_generated'] )
+				      (( {'badrecord','state'}
+					 -| ['compiler_generated'] ))
+				  -| ['compiler_generated'] )
+			    -| ['compiler_generated'] )
+			end
+			-| ['compiler_generated'] )
+	  %% Line 157
+	  <'test',Id,Data0,{Status,Data1},St> when 'true' ->
+	      let <_cor9> =
+		  %% Line 158
+		  call 'erlang':'++'
+		      (Data0, Data1)
+	      in  let <Data> =
+		      %% Line 158
+		      [{'id',Id}|[{'status',Status}|_cor9]]
+		  in  let <_cor27> =
+			  %% Line 160
+			  case Status of
+			    %% Line 161
+			    <'ok'> when 'true' ->
+				( case St of
+				    ( <( {'state',_cor42,_rec13,_cor43,_cor44,_cor45,_cor46}
+					 -| ['compiler_generated'] )> when 'true' ->
+					  let <_rec11> =
+					      call 'erlang':'+'
+						  (_rec13, 1)
+					  in  call 'erlang':'setelement'
+						  (3, St, _rec11)
+				      -| ['compiler_generated'] )
+				    ( <_cor47> when 'true' ->
+					  ( call ( 'erlang'
+						   -| ['compiler_generated'] ):( 'error'
+										 -| ['compiler_generated'] )
+						(( {'badrecord','state'}
+						   -| ['compiler_generated'] ))
+					    -| ['compiler_generated'] )
+				      -| ['compiler_generated'] )
+				  end
+				  -| ['compiler_generated'] )
+			    %% Line 162
+			    <{'skipped',_cor55}> when 'true' ->
+				( case St of
+				    ( <( {'state',_cor56,_cor57,_cor58,_rec16,_cor59,_cor60}
+					 -| ['compiler_generated'] )> when 'true' ->
+					  let <_rec14> =
+					      call 'erlang':'+'
+						  (_rec16, 1)
+					  in  call 'erlang':'setelement'
+						  (5, St, _rec14)
+				      -| ['compiler_generated'] )
+				    ( <_cor61> when 'true' ->
+					  ( call ( 'erlang'
+						   -| ['compiler_generated'] ):( 'error'
+										 -| ['compiler_generated'] )
+						(( {'badrecord','state'}
+						   -| ['compiler_generated'] ))
+					    -| ['compiler_generated'] )
+				      -| ['compiler_generated'] )
+				  end
+				  -| ['compiler_generated'] )
+			    %% Line 163
+			    <{'error',_cor69}> when 'true' ->
+				( case St of
+				    ( <( {'state',_cor70,_cor71,_rec19,_cor72,_cor73,_cor74}
+					 -| ['compiler_generated'] )> when 'true' ->
+					  let <_rec17> =
+					      call 'erlang':'+'
+						  (_rec19, 1)
+					  in  call 'erlang':'setelement'
+						  (4, St, _rec17)
+				      -| ['compiler_generated'] )
+				    ( <_cor75> when 'true' ->
+					  ( call ( 'erlang'
+						   -| ['compiler_generated'] ):( 'error'
+										 -| ['compiler_generated'] )
+						(( {'badrecord','state'}
+						   -| ['compiler_generated'] ))
+					    -| ['compiler_generated'] )
+				      -| ['compiler_generated'] )
+				  end
+				  -| ['compiler_generated'] )
+			    ( <_cor26> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor26})
+			      -| ['compiler_generated'] )
+			  end
+		      in  %% Line 165
+			  ( case St of
+			      ( <( {'state',_cor83,_cor84,_cor85,_cor86,_cor87,_rec20}
+				   -| ['compiler_generated'] )> when 'true' ->
+				    apply 'call'/3
+					('handle_end', ['test'|[Data|[_rec20|[]]]], _cor27)
+				-| ['compiler_generated'] )
+			      ( <_cor88> when 'true' ->
+				    ( call ( 'erlang'
+					     -| ['compiler_generated'] ):( 'error'
+									   -| ['compiler_generated'] )
+					  (( {'badrecord','state'}
+					     -| ['compiler_generated'] ))
+				      -| ['compiler_generated'] )
+				-| ['compiler_generated'] )
+			    end
+			    -| ['compiler_generated'] )
+	  ( <_cor35,_cor34,_cor33,_cor32,_cor31> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor35,_cor34,_cor33,_cor32,_cor31})
+		  -| [{'function_name',{'handle_end',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_cancel'/5 =
+    %% Line 167
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <'group',Id,Data0,Reason,St> when 'true' ->
+	      let <Data> =
+		  %% Line 168
+		  [{'id',Id}|[{'reason',Reason}|Data0]]
+	      in  %% Line 170
+		  ( case St of
+		      ( <( {'state',_cor28,_cor29,_cor30,_cor31,_cor32,_rec21}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    let <_rec22> =
+				%% Line 171
+				call 'erlang':'+'
+				    (_cor32, 1)
+			    in  let <_cor11> =
+				    %% Line 171
+				    call 'erlang':'setelement'
+					(6, St, _rec22)
+				in  apply 'call'/3
+					('handle_cancel', ['group'|[Data|[_rec21|[]]]], _cor11)
+			-| ['compiler_generated'] )
+		      ( <_cor33> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	  %% Line 172
+	  <'test',Id,Data0,Reason,St> when 'true' ->
+	      let <Data> =
+		  %% Line 173
+		  [{'id',Id}|[{'reason',Reason}|Data0]]
+	      in  %% Line 175
+		  ( case St of
+		      ( <( {'state',_cor47,_cor48,_cor49,_cor50,_cor51,_rec25}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    let <_rec26> =
+				%% Line 176
+				call 'erlang':'+'
+				    (_cor51, 1)
+			    in  let <_cor20> =
+				    %% Line 176
+				    call 'erlang':'setelement'
+					(6, St, _rec26)
+				in  apply 'call'/3
+					('handle_cancel', ['test'|[Data|[_rec25|[]]]], _cor20)
+			-| ['compiler_generated'] )
+		      ( <_cor52> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	  ( <_cor27,_cor26,_cor25,_cor24,_cor23> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor27,_cor26,_cor25,_cor24,_cor23})
+		  -| [{'function_name',{'handle_cancel',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'test'/0 =
+    fun () ->
+	call 'eunit':'test'
+	    ('eunit_listener')
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('eunit_listener')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('eunit_listener', _cor0)
+end

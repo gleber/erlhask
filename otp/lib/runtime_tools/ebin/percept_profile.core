@@ -1,0 +1,308 @@
+module 'percept_profile' ['module_info'/0,
+			  'module_info'/1,
+			  'start'/1,
+			  'start'/2,
+			  'start'/3,
+			  'stop'/0]
+    attributes [%% Line 44
+		'type' =
+		    %% Line 44
+		    [{'percept_option',{'type',44,'union',[{'atom',44,'procs'}|[{'atom',44,'ports'}|[{'atom',44,'exclusive'}|[{'atom',44,'scheduler'}]]]]},[]}],
+		%% Line 55
+		'spec' =
+		    %% Line 55
+		    [{{'start',1},[{'type',55,'fun',[{'type',55,'product',[{'ann_type',55,[{'var',55,'Filename'}|[{'remote_type',55,[{'atom',55,'file'}|[{'atom',55,'filename'}|[[]]]]}]]}]}|[{'type',56,'union',[{'type',56,'tuple',[{'atom',56,'ok'}|[{'type',56,'port',[]}]]}|[{'type',56,'tuple',[{'atom',56,'already_started'}|[{'type',56,'port',[]}]]}]]}]]}]}],
+		%% Line 67
+		'spec' =
+		    %% Line 67
+		    [{{'start',2},[{'type',67,'fun',[{'type',67,'product',[{'ann_type',67,[{'var',67,'Filename'}|[{'remote_type',67,[{'atom',67,'file'}|[{'atom',67,'filename'}|[[]]]]}]]}|[{'ann_type',68,[{'var',68,'Options'}|[{'type',68,'list',[{'type',68,'percept_option',[]}]}]]}]]}|[{'type',69,'union',[{'type',69,'tuple',[{'atom',69,'ok'}|[{'type',69,'port',[]}]]}|[{'type',69,'tuple',[{'atom',69,'already_started'}|[{'type',69,'port',[]}]]}]]}]]}]}],
+		%% Line 81
+		'spec' =
+		    %% Line 81
+		    [{{'start',3},[{'type',81,'fun',[{'type',81,'product',[{'ann_type',81,[{'var',81,'Filename'}|[{'remote_type',81,[{'atom',81,'file'}|[{'atom',81,'filename'}|[[]]]]}]]}|[{'ann_type',82,[{'var',82,'Entry'}|[{'type',82,'tuple',[{'type',82,'atom',[]}|[{'type',82,'atom',[]}|[{'type',82,'list',[]}]]]}]]}|[{'ann_type',83,[{'var',83,'Options'}|[{'type',83,'list',[{'type',83,'percept_option',[]}]}]]}]]]}|[{'type',84,'union',[{'atom',84,'ok'}|[{'type',84,'tuple',[{'atom',84,'already_started'}|[{'type',84,'port',[]}]]}|[{'type',84,'tuple',[{'atom',84,'error'}|[{'atom',84,'not_started'}]]}]]]}]]}]}],
+		%% Line 112
+		'spec' =
+		    %% Line 112
+		    [{{'stop',0},[{'type',112,'fun',[{'type',112,'product',[]}|[{'type',112,'union',[{'atom',112,'ok'}|[{'type',112,'tuple',[{'atom',112,'error'}|[{'atom',112,'not_started'}]]}]]}]]}]}]]
+'start'/1 =
+    %% Line 58
+    fun (_cor0) ->
+	%% Line 59
+	apply 'profile_to_file'/2
+	    (_cor0, ['procs'])
+'start'/2 =
+    %% Line 71
+    fun (_cor1,_cor0) ->
+	%% Line 72
+	apply 'profile_to_file'/2
+	    (_cor1, _cor0)
+'start'/3 =
+    %% Line 86
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Filename,{Module,Function,Args},Options> when 'true' ->
+	      %% Line 87
+	      case call 'erlang':'whereis'
+		       ('percept_port') of
+		%% Line 88
+		<'undefined'> when 'true' ->
+		    do  %% Line 89
+			apply 'profile_to_file'/2
+			    (Filename, Options)
+			do  %% Line 90
+			    call 'erlang':'apply'
+				(Module, Function, Args)
+			    %% Line 91
+			    apply 'stop'/0
+				()
+		%% Line 92
+		<Port> when 'true' ->
+		    %% Line 93
+		    {'already_started',Port}
+	      end
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'start',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'deliver_all_trace'/0 =
+    %% Line 96
+    fun () ->
+	let <Tracee> =
+	    %% Line 97
+	    call 'erlang':'self'
+		()
+	in  let <_cor3> =
+		%% Line 98
+		( fun () ->
+		      do  %% Line 99
+			  receive
+			    <{_cor5,'start'}>
+				when call 'erlang':'=:='
+				      (_cor5,
+				       Tracee) ->
+				'ok'
+			  after 'infinity' ->
+			    'ok'
+			  let <Ref> =
+			      %% Line 100
+			      call 'erlang':'trace_delivered'
+				  (Tracee)
+			  in  %% Line 101
+			      receive
+				<{'trace_delivered',_cor6,_cor7}>
+				    when let <_cor8> =
+					  call 'erlang':'=:='
+					      (_cor6, Tracee)
+				      in  let <_cor9> =
+					      call 'erlang':'=:='
+						  (_cor7, Ref)
+					  in  call 'erlang':'and'
+						  (_cor8, _cor9) ->
+				    let <_cor2> =
+					call 'erlang':'self'
+					    ()
+				    in  call 'erlang':'!'
+					    (Tracee, {_cor2,'ok'})
+			      after 'infinity' ->
+				'true'
+		  -| [{'id',{0,0,'-deliver_all_trace/0-fun-0-'}}] )
+	    in  let <Tracer> =
+		    %% Line 98
+		    call 'erlang':'spawn'
+			(_cor3)
+		in  do  %% Line 103
+			call 'erlang':'trace'
+			    (Tracee, 'true', ['procs'|[{'tracer',Tracer}|[]]])
+			do  %% Line 104
+			    call 'erlang':'!'
+				(Tracer, {Tracee,'start'})
+			    do  %% Line 105
+				receive
+				  <{_cor10,'ok'}>
+				      when call 'erlang':'=:='
+					    (_cor10,
+					     Tracer) ->
+				      'ok'
+				after 'infinity' ->
+				  'ok'
+				do  %% Line 106
+				    call 'erlang':'trace'
+					(Tracee, 'false', ['procs'])
+				    %% Line 107
+				    'ok'
+'stop'/0 =
+    %% Line 114
+    fun () ->
+	do  %% Line 115
+	    call 'erlang':'system_profile'
+		('undefined', ['runnable_ports'|['runnable_procs']])
+	    do  %% Line 116
+		call 'erlang':'trace'
+		    ('all', 'false', ['procs'|['ports'|['timestamp']]])
+		do  %% Line 117
+		    apply 'deliver_all_trace'/0
+			()
+		    %% Line 118
+		    case call 'erlang':'whereis'
+			     ('percept_port') of
+		      %% Line 119
+		      <'undefined'> when 'true' ->
+			  %% Line 120
+			  {'error','not_started'}
+		      %% Line 121
+		      <Port> when 'true' ->
+			  let <_cor0> =
+			      %% Line 122
+			      call 'erlang':'now'
+				  ()
+			  in  let <_cor1> =
+				  %% Line 122
+				  call 'erlang':'term_to_binary'
+				      ({'profile_stop',_cor0})
+			      in  do  %% Line 122
+				      call 'erlang':'port_command'
+					  (Port, _cor1)
+				      do  %% Line 124
+					  call 'erlang':'port_close'
+					      (Port)
+					  %% Line 125
+					  'ok'
+		    end
+'profile_to_file'/2 =
+    %% Line 134
+    fun (_cor1,_cor0) ->
+	%% Line 135
+	case call 'erlang':'whereis'
+		 ('percept_port') of
+	  %% Line 136
+	  <'undefined'> when 'true' ->
+	      do  %% Line 137
+		  call 'io':'format'
+		      ([83|[116|[97|[114|[116|[105|[110|[103|[32|[112|[114|[111|[102|[105|[108|[105|[110|[103|[46|[126|[110]]]]]]]]]]]]]]]]]]]]], [])
+		  do  %% Line 139
+		      call 'erlang':'system_flag'
+			  ('multi_scheduling', 'block')
+		      let <_cor2> =
+			  %% Line 140
+			  call 'dbg':'trace_port'
+			      ('file', _cor1)
+		      in  let <Port> =
+			      %% Line 140
+			      apply _cor2
+				  ()
+			  in  let <_cor4> =
+				  %% Line 142
+				  call 'erlang':'now'
+				      ()
+			      in  let <_cor5> =
+				      %% Line 142
+				      call 'erlang':'term_to_binary'
+					  ({'profile_start',_cor4})
+				  in  do  %% Line 142
+					  call 'erlang':'port_command'
+					      (Port, _cor5)
+					  do  %% Line 143
+					      call 'erlang':'system_flag'
+						  ('multi_scheduling', 'unblock')
+					      do  %% Line 146
+						  call 'erlang':'register'
+						      ('percept_port', Port)
+						  do  %% Line 147
+						      apply 'set_tracer'/2
+							  (Port, _cor0)
+						      %% Line 148
+						      {'ok',Port}
+	  %% Line 149
+	  <Port> when 'true' ->
+	      do  %% Line 150
+		  call 'io':'format'
+		      ([80|[114|[111|[102|[105|[108|[105|[110|[103|[32|[97|[108|[114|[101|[97|[100|[121|[32|[115|[116|[97|[114|[116|[101|[100|[32|[97|[116|[32|[112|[111|[114|[116|[32|[126|[112|[46|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Port|[]])
+		  %% Line 151
+		  {'already_started',Port}
+	end
+'set_tracer'/2 =
+    %% Line 156
+    fun (_cor1,_cor0) ->
+	%% Line 157
+	case apply 'parse_profile_options'/1
+		 (_cor0) of
+	  <{TOpts,POpts}> when 'true' ->
+	      do  %% Line 159
+		  call 'erlang':'trace'
+		      ('all', 'true', [{'tracer',_cor1}|['timestamp'|TOpts]])
+		  %% Line 160
+		  call 'erlang':'system_profile'
+		      (_cor1, POpts)
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'parse_profile_options'/1 =
+    %% Line 164
+    fun (_cor0) ->
+	%% Line 165
+	apply 'parse_profile_options'/2
+	    (_cor0, {[],[]})
+'parse_profile_options'/2 =
+    %% Line 167
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Out> when 'true' ->
+	      %% Line 168
+	      Out
+	  %% Line 169
+	  <[Opt|Opts],{TOpts,POpts}> when 'true' ->
+	      %% Line 170
+	      case Opt of
+		%% Line 171
+		<'procs'> when 'true' ->
+		    %% Line 172
+		    apply 'parse_profile_options'/2
+			(Opts, {%% Line 173
+				['procs'|TOpts],%% Line 174
+						['runnable_procs'|POpts]})
+		%% Line 176
+		<'ports'> when 'true' ->
+		    %% Line 177
+		    apply 'parse_profile_options'/2
+			(Opts, {%% Line 178
+				['ports'|TOpts],%% Line 179
+						['runnable_ports'|POpts]})
+		%% Line 181
+		<'scheduler'> when 'true' ->
+		    %% Line 182
+		    apply 'parse_profile_options'/2
+			(Opts, {%% Line 183
+				TOpts,%% Line 184
+				      ['scheduler'|POpts]})
+		%% Line 186
+		<'exclusive'> when 'true' ->
+		    %% Line 187
+		    apply 'parse_profile_options'/2
+			(Opts, {%% Line 188
+				TOpts,%% Line 189
+				      ['exclusive'|POpts]})
+		%% Line 191
+		<_cor5> when 'true' ->
+		    %% Line 192
+		    apply 'parse_profile_options'/2
+			(Opts, {TOpts,POpts})
+	      end
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'parse_profile_options',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('percept_profile')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('percept_profile', _cor0)
+end

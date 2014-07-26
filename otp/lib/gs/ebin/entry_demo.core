@@ -1,0 +1,103 @@
+module 'entry_demo' ['init'/1,
+		     'module_info'/0,
+		     'module_info'/1,
+		     'start'/0]
+    attributes []
+'start'/0 =
+    %% Line 35
+    fun () ->
+	let <_cor0> =
+	    %% Line 36
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 36
+		call 'erlang':'spawn'
+		    ('entry_demo', 'init', [_cor0|[]])
+		%% Line 37
+		receive
+		  %% Line 38
+		  <{'entry_reply',Reply}> when 'true' ->
+		      Reply
+		after 'infinity' ->
+		  'true'
+'init'/1 =
+    %% Line 41
+    fun (_cor0) ->
+	let <S> =
+	    %% Line 42
+	    call 'gs':'start'
+		()
+	in  let <Win> =
+		%% Line 43
+		call 'gs':'window'
+		    (S, [{'title',[69|[110|[116|[114|[121|[32|[68|[101|[109|[111]]]]]]]]]]}|[{'width',150}|[{'height',100}]]])
+	    in  do  %% Line 44
+		    call 'gs':'create'
+			('label', Win, [{'width',150}|[{'label',{'text',[87|[104|[97|[116|[39|[115|[32|[121|[111|[117|[114|[32|[110|[97|[109|[101|[63]]]]]]]]]]]]]]]]]}}]])
+		    do  %% Line 45
+			call 'gs':'create'
+			    ('entry', 'entry', Win, [{'x',10}|[{'y',30}|[{'width',130}|[{'keypress','true'}]]]])
+			do  %% Line 46
+			    call 'gs':'create'
+				('button', 'ok', Win, [{'width',45}|[{'y',60}|[{'x',10}|[{'label',{'text',[79|[107]]}}]]]])
+			    do  %% Line 47
+				call 'gs':'create'
+				    ('button', 'cancel', Win, [{'width',60}|[{'y',60}|[{'x',80}|[{'label',{'text',[67|[97|[110|[99|[101|[108]]]]]]}}]]]])
+				do  %% Line 48
+				    call 'gs':'config'
+					(Win, {'map','true'})
+				    %% Line 49
+				    apply 'loop'/1
+					(_cor0)
+'loop'/1 =
+    %% Line 51
+    fun (_cor0) ->
+	%% Line 52
+	receive
+	  %% Line 53
+	  <{'gs','entry','keypress',_cor4,['Return'|_cor5]}> when 'true' ->
+	      let <Text> =
+		  %% Line 54
+		  call 'gs':'read'
+		      ('entry', 'text')
+	      in  %% Line 55
+		  call 'erlang':'!'
+		      (_cor0, {'entry_reply',{'name',Text}})
+	  %% Line 56
+	  <{'gs','entry','keypress',_cor6,_cor7}> when 'true' ->
+	      %% Line 57
+	      apply 'loop'/1
+		  (_cor0)
+	  %% Line 58
+	  <{'gs','ok','click',_cor8,_cor9}> when 'true' ->
+	      let <Text> =
+		  %% Line 59
+		  call 'gs':'read'
+		      ('entry', 'text')
+	      in  %% Line 60
+		  call 'erlang':'!'
+		      (_cor0, {'entry_reply',{'name',Text}})
+	  %% Line 61
+	  <{'gs','cancel','click',_cor10,_cor11}> when 'true' ->
+	      %% Line 62
+	      call 'erlang':'!'
+		  (_cor0, {'entry_reply','cancel'})
+	  %% Line 63
+	  <X> when 'true' ->
+	      do  %% Line 64
+		  call 'io':'format'
+		      ([71|[111|[116|[32|[88|[61|[126|[119|[126|[110]]]]]]]]]], [X|[]])
+		  %% Line 65
+		  apply 'loop'/1
+		      (_cor0)
+	after 'infinity' ->
+	  'true'
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('entry_demo')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('entry_demo', _cor0)
+end

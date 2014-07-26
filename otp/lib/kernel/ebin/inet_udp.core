@@ -1,0 +1,366 @@
+module 'inet_udp' ['close'/1,
+		   'connect'/3,
+		   'controlling_process'/2,
+		   'fdopen'/2,
+		   'getaddr'/1,
+		   'getaddr'/2,
+		   'getserv'/1,
+		   'module_info'/0,
+		   'module_info'/1,
+		   'open'/1,
+		   'open'/2,
+		   'recv'/2,
+		   'recv'/3,
+		   'send'/2,
+		   'send'/4]
+    attributes [%% Line 374
+		'type' =
+		    %% Line 374
+		    [{{'record','connect_opts'},[{'record_field',376,{'atom',376,'ifaddr'},{'atom',376,'any'}}|[{'record_field',377,{'atom',377,'port'},{'integer',377,0}}|[{'record_field',378,{'atom',378,'fd'},{'op',378,'-',{'integer',378,1}}}|[{'record_field',379,{'atom',379,'opts'},{'nil',379}}]]]],[]}],
+		%% Line 382
+		'type' =
+		    %% Line 382
+		    [{{'record','listen_opts'},[{'record_field',384,{'atom',384,'ifaddr'},{'atom',384,'any'}}|[{'record_field',385,{'atom',385,'port'},{'integer',385,0}}|[{'record_field',386,{'atom',386,'backlog'},{'integer',386,5}}|[{'record_field',387,{'atom',387,'fd'},{'op',387,'-',{'integer',387,1}}}|[{'record_field',388,{'atom',388,'opts'},{'nil',388}}]]]]],[]}],
+		%% Line 392
+		'type' =
+		    %% Line 392
+		    [{{'record','udp_opts'},[{'record_field',394,{'atom',394,'ifaddr'},{'atom',394,'any'}}|[{'record_field',395,{'atom',395,'port'},{'integer',395,0}}|[{'record_field',396,{'atom',396,'fd'},{'op',396,'-',{'integer',396,1}}}|[{'record_field',397,{'atom',397,'opts'},{'cons',397,{'tuple',397,[{'atom',397,'active'}|[{'atom',397,'true'}]]},{'nil',397}}}]]]],[]}],
+		%% Line 402
+		'type' =
+		    %% Line 402
+		    [{{'record','sctp_opts'},[{'record_field',404,{'atom',404,'ifaddr'}}|[{'record_field',405,{'atom',405,'port'},{'integer',405,0}}|[{'record_field',406,{'atom',406,'fd'},{'op',406,'-',{'integer',406,1}}}|[{'record_field',407,{'atom',407,'type'},{'atom',407,'seqpacket'}}|[{'record_field',408,{'atom',408,'opts'},{'cons',408,{'tuple',408,[{'atom',408,'mode'}|[{'atom',408,'binary'}]]},{'cons',409,{'tuple',409,[{'atom',409,'buffer'}|[{'integer',409,65536}]]},{'cons',410,{'tuple',410,[{'atom',410,'sndbuf'}|[{'integer',410,65536}]]},{'cons',411,{'tuple',411,[{'atom',411,'recbuf'}|[{'integer',411,1024}]]},{'cons',412,{'tuple',412,[{'atom',412,'sctp_events'}|[{'atom',412,'undefined'}]]},{'nil',414}}}}}}}]]]]],[]}],
+		%% Line 42
+		'spec' =
+		    %% Line 42
+		    [{{'open',1},[{'type',42,'fun',[{'type',42,'product',[{'var',42,'_'}]}|[{'type',42,'union',[{'type',42,'tuple',[{'atom',42,'ok'}|[{'remote_type',42,[{'atom',42,'inet'}|[{'atom',42,'socket'}|[[]]]]}]]}|[{'type',42,'tuple',[{'atom',42,'error'}|[{'type',42,'atom',[]}]]}]]}]]}]}],
+		%% Line 45
+		'spec' =
+		    %% Line 45
+		    [{{'open',2},[{'type',45,'fun',[{'type',45,'product',[{'var',45,'_'}|[{'var',45,'_'}]]}|[{'type',45,'union',[{'type',45,'tuple',[{'atom',45,'ok'}|[{'remote_type',45,[{'atom',45,'inet'}|[{'atom',45,'socket'}|[[]]]]}]]}|[{'type',45,'tuple',[{'atom',45,'error'}|[{'type',45,'atom',[]}]]}]]}]]}]}],
+		%% Line 74
+		'spec' =
+		    %% Line 74
+		    [{{'close',1},[{'type',74,'fun',[{'type',74,'product',[{'remote_type',74,[{'atom',74,'inet'}|[{'atom',74,'socket'}|[[]]]]}]}|[{'atom',74,'ok'}]]}]}]]
+'getserv'/1 =
+    %% Line 35
+    fun (_cor0) ->
+	case _cor0 of
+	  <Port>
+	      when call 'erlang':'is_integer'
+		    (_cor0) ->
+	      {'ok',Port}
+	  %% Line 36
+	  <Name>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      call 'inet':'getservbyname'
+		  (Name, 'udp')
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'getserv',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'getaddr'/1 =
+    %% Line 39
+    fun (_cor0) ->
+	call 'inet':'getaddr'
+	    (_cor0, 'inet')
+'getaddr'/2 =
+    %% Line 40
+    fun (_cor1,_cor0) ->
+	call 'inet':'getaddr_tm'
+	    (_cor1, 'inet', _cor0)
+'open'/1 =
+    %% Line 43
+    fun (_cor0) ->
+	apply 'open'/2
+	    (_cor0, [])
+'open'/2 =
+    %% Line 46
+    fun (_cor1,_cor0) ->
+	%% Line 47
+	case call 'inet':'udp_options'
+		 (%% Line 48
+		  [{'port',_cor1}|[{'recbuf',8192}|_cor0]], %% Line 49
+							    'inet') of
+	  %% Line 50
+	  <{'error',Reason}> when 'true' ->
+	      call 'erlang':'exit'
+		  (Reason)
+	  %% Line 51
+	  <{'ok',{'udp_opts',BAddr = %% Line 52
+				     {A,B,C,D},%% Line 53
+					       BPort,Fd,%% Line 54
+							SockOpts}}>
+	      when %% Line 54
+		try
+		    let <_cor4> =
+			call 'erlang':'bor'
+			    (A, B)
+		    in  let <_cor5> =
+			    call 'erlang':'bor'
+				(_cor4, C)
+			in  let <_cor6> =
+				call 'erlang':'bor'
+				    (_cor5, D)
+			    in  let <_cor7> =
+				    call 'erlang':'band'
+					(_cor6, -256)
+				in  let <_cor8> =
+					call 'erlang':'=:='
+					    (_cor7, 0)
+				    in  let <_cor10> =
+					    call 'erlang':'band'
+						(BPort, -65536)
+					in  let <_cor11> =
+						call 'erlang':'=:='
+						    (_cor10, 0)
+					    in  call 'erlang':'and'
+						    (_cor8, _cor11)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 55
+	      call 'inet':'open'
+		  (Fd, BAddr, BPort, SockOpts, 'udp', 'inet', 'dgram', 'inet_udp')
+	  %% Line 56
+	  <{'ok',_cor15}> when 'true' ->
+	      call 'erlang':'exit'
+		  ('badarg')
+	  ( <_cor12> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor12})
+	    -| ['compiler_generated'] )
+	end
+'send'/4 =
+    %% Line 59
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <S,{A,B,C,D},P,Data>
+	      when try
+		    let <_cor5> =
+			call 'erlang':'bor'
+			    (A, B)
+		    in  let <_cor6> =
+			    call 'erlang':'bor'
+				(_cor5, C)
+			in  let <_cor7> =
+				call 'erlang':'bor'
+				    (_cor6, D)
+			    in  let <_cor8> =
+				    call 'erlang':'band'
+					(_cor7, -256)
+				in  let <_cor9> =
+					call 'erlang':'=:='
+					    (_cor8, 0)
+				    in  let <_cor11> =
+					    call 'erlang':'band'
+						(P, -65536)
+					in  let <_cor12> =
+						call 'erlang':'=:='
+						    (_cor11, 0)
+					    in  call 'erlang':'and'
+						    (_cor9, _cor12)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 60
+	      call 'prim_inet':'sendto'
+		  (S, {A,B,C,D}, P, Data)
+	  ( <_cor16,_cor15,_cor14,_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15,_cor14,_cor13})
+		  -| [{'function_name',{'send',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'send'/2 =
+    %% Line 62
+    fun (_cor1,_cor0) ->
+	%% Line 63
+	call 'prim_inet':'sendto'
+	    (_cor1, {0,0,0,0}, 0, _cor0)
+'connect'/3 =
+    %% Line 65
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <S,{A,B,C,D},P>
+	      when try
+		    let <_cor4> =
+			call 'erlang':'bor'
+			    (A, B)
+		    in  let <_cor5> =
+			    call 'erlang':'bor'
+				(_cor4, C)
+			in  let <_cor6> =
+				call 'erlang':'bor'
+				    (_cor5, D)
+			    in  let <_cor7> =
+				    call 'erlang':'band'
+					(_cor6, -256)
+				in  let <_cor8> =
+					call 'erlang':'=:='
+					    (_cor7, 0)
+				    in  let <_cor10> =
+					    call 'erlang':'band'
+						(P, -65536)
+					in  let <_cor11> =
+						call 'erlang':'=:='
+						    (_cor10, 0)
+					    in  call 'erlang':'and'
+						    (_cor8, _cor11)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 66
+	      call 'prim_inet':'connect'
+		  (S, {A,B,C,D}, P)
+	  ( <_cor14,_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14,_cor13,_cor12})
+		  -| [{'function_name',{'connect',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'recv'/2 =
+    %% Line 68
+    fun (_cor1,_cor0) ->
+	%% Line 69
+	call 'prim_inet':'recvfrom'
+	    (_cor1, _cor0)
+'recv'/3 =
+    %% Line 71
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 72
+	call 'prim_inet':'recvfrom'
+	    (_cor2, _cor1, _cor0)
+'close'/1 =
+    %% Line 76
+    fun (_cor0) ->
+	%% Line 77
+	call 'inet':'udp_close'
+	    (_cor0)
+'controlling_process'/2 =
+    %% Line 87
+    fun (_cor1,_cor0) ->
+	%% Line 88
+	call 'inet':'udp_controlling_process'
+	    (_cor1, _cor0)
+'fdopen'/2 =
+    %% Line 93
+    fun (_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 95
+	    apply 'optuniquify'/1
+		([{'recbuf',8192}|_cor0])
+	in  %% Line 94
+	    call 'inet':'fdopen'
+		(_cor1, _cor3, %% Line 96
+			       'udp', %% Line 96
+				      'inet', %% Line 96
+					      'dgram', %% Line 96
+						       'inet_udp')
+'optuniquify'/1 =
+    %% Line 108
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 109
+	    call 'lists':'reverse'
+		(_cor0)
+	in  %% Line 109
+	    apply 'optuniquify'/2
+		(_cor1, [])
+'optuniquify'/2 =
+    %% Line 111
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Result> when 'true' ->
+	      %% Line 112
+	      Result
+	  %% Line 113
+	  <[Opt|Tail],Result> when 'true' ->
+	      %% Line 117
+	      apply 'optuniquify'/4
+		  (Opt, Tail, [], Result)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'optuniquify',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'optuniquify'/4 =
+    %% Line 120
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Opt,[],Rest,Result> when 'true' ->
+	      let <_cor4> =
+		  %% Line 122
+		  call 'lists':'reverse'
+		      (Rest)
+	      in  %% Line 122
+		  apply 'optuniquify'/2
+		      (_cor4, [Opt|Result])
+	  %% Line 124
+	  <Opt0,[Opt1|Tail],Rest,Result>
+	      when %% Line 125
+		try
+		    let <_cor6> =
+			call 'erlang':'tuple_size'
+			    (Opt0)
+		    in  let <_cor5> =
+			    call 'erlang':'tuple_size'
+				(Opt1)
+			in  let <_cor7> =
+				call 'erlang':'=:='
+				    (_cor6, _cor5)
+			    in  let <_cor9> =
+				    %% Line 126
+				    call 'erlang':'element'
+					(1, Opt0)
+				in  let <_cor8> =
+					%% Line 126
+					call 'erlang':'element'
+					    (1, Opt1)
+				    in  let <_cor10> =
+					    %% Line 126
+					    call 'erlang':'=:='
+						(_cor9, _cor8)
+					in  call 'erlang':'and'
+						(_cor7, _cor10)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 128
+	      apply 'optuniquify'/4
+		  (Opt0, Tail, Rest, Result)
+	  %% Line 130
+	  <Opt,[_cor15|Tail],Rest,Result>
+	      when call 'erlang':'=:='
+		    (_cor15,
+		     Opt) ->
+	      %% Line 132
+	      apply 'optuniquify'/4
+		  (Opt, Tail, Rest, Result)
+	  %% Line 134
+	  <Opt,[X|Tail],Rest,Result> when 'true' ->
+	      %% Line 136
+	      apply 'optuniquify'/4
+		  (Opt, Tail, [X|Rest], Result)
+	  ( <_cor14,_cor13,_cor12,_cor11> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14,_cor13,_cor12,_cor11})
+		  -| [{'function_name',{'optuniquify',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('inet_udp')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('inet_udp', _cor0)
+end

@@ -1,0 +1,290 @@
+module 'ct_hooks_lock' ['code_change'/3,
+			'handle_call'/3,
+			'handle_cast'/2,
+			'handle_info'/2,
+			'init'/1,
+			'module_info'/0,
+			'module_info'/1,
+			'release'/0,
+			'request'/0,
+			'start'/1,
+			'stop'/1,
+			'terminate'/2]
+    attributes [%% Line 27
+		'behaviour' =
+		    %% Line 27
+		    ['gen_server']]
+'start'/1 =
+    %% Line 45
+    fun (_cor0) ->
+	%% Line 46
+	case call 'gen_server':'start'
+		 ({'local','ct_hooks_lock'}, 'ct_hooks_lock', _cor0, []) of
+	  %% Line 47
+	  <{'error',{'already_started',Pid}}> when 'true' ->
+	      %% Line 48
+	      {'ok',Pid}
+	  %% Line 49
+	  <Else> when 'true' ->
+	      %% Line 50
+	      Else
+	end
+'stop'/1 =
+    %% Line 53
+    fun (_cor0) ->
+	%% Line 54
+	try
+	    %% Line 55
+	    call 'gen_server':'call'
+		('ct_hooks_lock', {'stop',_cor0})
+	of <_cor1> ->
+	    _cor1
+	catch <_cor4,_cor3,_cor2> ->
+	    case <_cor4,_cor3,_cor2> of
+	      %% Line 56
+	      <'exit',{'noproc',_cor6},_cor7> when 'true' ->
+		  %% Line 57
+		  'stopped'
+	      ( <_cor4,_cor3,_cor2> when 'true' ->
+		    primop 'raise'
+			(_cor2, _cor3)
+		-| ['compiler_generated'] )
+	    end
+'request'/0 =
+    %% Line 60
+    fun () ->
+	%% Line 61
+	try
+	    let <_cor0> =
+		%% Line 62
+		call 'erlang':'self'
+		    ()
+	    in  %% Line 62
+		call 'gen_server':'call'
+		    ('ct_hooks_lock', {'request',_cor0}, 'infinity')
+	of <_cor1> ->
+	    _cor1
+	catch <_cor4,_cor3,_cor2> ->
+	    case <_cor4,_cor3,_cor2> of
+	      %% Line 63
+	      <'exit',{'noproc',_cor5},_cor6> when 'true' ->
+		  %% Line 64
+		  'locked'
+	      ( <_cor4,_cor3,_cor2> when 'true' ->
+		    primop 'raise'
+			(_cor2, _cor3)
+		-| ['compiler_generated'] )
+	    end
+'release'/0 =
+    %% Line 67
+    fun () ->
+	%% Line 68
+	try
+	    let <_cor0> =
+		%% Line 69
+		call 'erlang':'self'
+		    ()
+	    in  %% Line 69
+		call 'gen_server':'call'
+		    ('ct_hooks_lock', {'release',_cor0})
+	of <_cor1> ->
+	    _cor1
+	catch <_cor4,_cor3,_cor2> ->
+	    case <_cor4,_cor3,_cor2> of
+	      %% Line 70
+	      <'exit',{'noproc',_cor5},_cor6> when 'true' ->
+		  %% Line 71
+		  'unlocked'
+	      ( <_cor4,_cor3,_cor2> when 'true' ->
+		    primop 'raise'
+			(_cor2, _cor3)
+		-| ['compiler_generated'] )
+	    end
+'init'/1 =
+    %% Line 79
+    fun (_cor0) ->
+	%% Line 80
+	{'ok',{'state',_cor0,'false',[]}}
+'handle_call'/3 =
+    %% Line 83
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'stop',Id},_X_From,State = {'state',_cor28,_cor29,Reqs}>
+	      when call 'erlang':'=:='
+		    (_cor28,
+		     Id) ->
+	      do  %% Line 84
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor5) ->
+				case _cor5 of
+				  <[{Req,_X_ReqId}|_cor4]> when 'true' ->
+				      do  call 'gen_server':'reply'
+					      (Req, 'locker_stopped')
+					  apply 'lc$^0'/1
+					      (_cor4)
+				  ( <[_cor3|_cor4]> when 'true' ->
+					apply 'lc$^0'/1
+					    (_cor4)
+				    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor5> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor5})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (Reqs)
+		    -| ['list_comprehension'] )
+		  %% Line 85
+		  {'stop','normal','stopped',State}
+	  %% Line 86
+	  <{'stop',_X_Id},_X_From,State> when 'true' ->
+	      %% Line 87
+	      {'reply','stopped',State}
+	  %% Line 88
+	  <{'request',Pid},_X_From,State = {'state',_cor30,'false',%% Line 89
+								   []}> when 'true' ->
+	      let <Ref> =
+		  %% Line 90
+		  call 'erlang':'monitor'
+		      ('process', Pid)
+	      in  let <_rec0> = {%% Line 91
+		       'true',%% Line 91
+			      Pid,%% Line 91
+				  Ref}
+		  in  let <_cor12> =
+			  %% Line 91
+			  call 'erlang':'setelement'
+			      (3, State, _rec0)
+		      in  %% Line 91
+			  {'reply','locked',_cor12}
+	  %% Line 92
+	  <{'request',Pid},From,State = {'state',_cor35,_cor36,Reqs}> when 'true' ->
+	      let <_rec2> =
+		  %% Line 93
+		  call 'erlang':'++'
+		      (Reqs, [{From,Pid}|[]])
+	      in  let <_cor16> =
+		      %% Line 93
+		      call 'erlang':'setelement'
+			  (4, State, _rec2)
+		  in  %% Line 93
+		      {'noreply',_cor16}
+	  %% Line 94
+	  <{'release',Pid},_X_From,State = {'state',_cor41,{'true',_cor42,Ref},%% Line 95
+									       []}>
+	      when call 'erlang':'=:='
+		    (_cor42,
+		     Pid) ->
+	      do  %% Line 96
+		  call 'erlang':'demonitor'
+		      (Ref, ['flush'])
+		  let <_cor19> =
+		      %% Line 97
+		      call 'erlang':'setelement'
+			  (3, State, 'false')
+		  in  %% Line 97
+		      {'reply','unlocked',_cor19}
+	  %% Line 98
+	  <{'release',Pid},_X_From,State = %% Line 99
+					   {'state',_cor47,{'true',_cor48,Ref},%% Line 100
+									       [{NextFrom,NextPid}|Rest]}>
+	      when call 'erlang':'=:='
+		    (_cor48,
+		     %% Line 99
+		     Pid) ->
+	      do  %% Line 101
+		  call 'erlang':'demonitor'
+		      (Ref, ['flush'])
+		  do  %% Line 102
+		      call 'gen_server':'reply'
+			  (NextFrom, 'locked')
+		      let <NextRef> =
+			  %% Line 103
+			  call 'erlang':'monitor'
+			      ('process', NextPid)
+		      in  let <_rec5> = {%% Line 104
+			       'true',%% Line 104
+				      NextPid,%% Line 104
+					      NextRef}
+			  in  let <_cor24> =
+				  %% Line 105
+				  {'state',_cor47,_rec5,Rest}
+			      in  %% Line 104
+				  {'reply','unlocked',_cor24}
+	  %% Line 106
+	  <{'release',_X_Pid},_X_From,State> when 'true' ->
+	      %% Line 107
+	      {'reply','not_locked',State}
+	  ( <_cor27,_cor26,_cor25> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor27,_cor26,_cor25})
+		  -| [{'function_name',{'handle_call',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_cast'/2 =
+    %% Line 110
+    fun (_cor1,_cor0) ->
+	%% Line 111
+	{'noreply',_cor0}
+'handle_info'/2 =
+    %% Line 114
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'DOWN',Ref,'process',Pid,_cor9},State = %% Line 115
+						    {'state',_cor10,{'true',_cor11,_cor12},%% Line 116
+											   [{NextFrom,NextPid}|Rest]}>
+	      when let <_cor13> =
+		    call 'erlang':'=:='
+			(_cor11, %% Line 115
+				 Pid)
+		in  let <_cor14> =
+			call 'erlang':'=:='
+			    (_cor12, %% Line 115
+				     Ref)
+		    in  call 'erlang':'and'
+			    (_cor13, _cor14) ->
+	      do  %% Line 117
+		  call 'gen_server':'reply'
+		      (NextFrom, 'locked')
+		  let <NextRef> =
+		      %% Line 118
+		      call 'erlang':'monitor'
+			  ('process', NextPid)
+		  in  let <_rec10> = {%% Line 119
+			   'true',%% Line 119
+				  NextPid,%% Line 119
+					  NextRef}
+		      in  let <_cor6> =
+			      %% Line 120
+			      {'state',_cor10,_rec10,Rest}
+			  in  %% Line 119
+			      {'noreply',_cor6}
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7})
+		  -| [{'function_name',{'handle_info',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'terminate'/2 =
+    %% Line 123
+    fun (_cor1,_cor0) ->
+	%% Line 124
+	'ok'
+'code_change'/3 =
+    %% Line 127
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 128
+	{'ok',_cor1}
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ct_hooks_lock')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ct_hooks_lock', _cor0)
+end

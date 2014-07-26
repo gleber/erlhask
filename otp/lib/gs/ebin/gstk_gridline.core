@@ -1,0 +1,1049 @@
+module 'gstk_gridline' ['config'/3,
+			'create'/3,
+			'delete'/2,
+			'destroy'/3,
+			'event'/5,
+			'module_info'/0,
+			'module_info'/1,
+			'option'/5,
+			'read'/3,
+			'read_option'/5]
+    attributes []
+'create'/3 =
+    %% Line 43
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 44
+	( case _cor1 of
+	    ( <( {'gstkid',_cor20,_cor21,_cor22,_cor23,_rec0,_cor24}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <Pgstkid> =
+		      call 'gstk_db':'lookup_gstkid'
+			  (_cor2, _rec0)
+		  in  %% Line 46
+		      case Pgstkid of
+			<{'gstkid',_cor32,_cor33,State,_cor34,_cor35,_cor36}> when 'true' ->
+			    %% Line 47
+			    case State of
+			      <{'state',_cor37,Ncols,_cor38,_cor39,CP,_cor40,_cor41,TkW}> when 'true' ->
+				  let <Row> =
+				      %% Line 48
+				      call 'gs':'val'
+					  ('row', _cor0)
+				  in  %% Line 49
+				      case apply 'check_row'/2
+					       (CP, Row) of
+					%% Line 50
+					<{'error',Reason}> when 'true' ->
+					    {'error',Reason}
+					%% Line 51
+					<'ok'> when 'true' ->
+					    let <_cor14> =
+						%% Line 52
+						call 'erlang':'setelement'
+						    (3, _cor1, TkW)
+					    in  do  %% Line 53
+						    call 'gstk_db':'insert_opts'
+							(_cor2, _cor20, [{'data',[]}|[{'row',Row}|[]]])
+						    do  %% Line 54
+							apply 'update_cp_db'/4
+							    (Ncols, Row, _cor20, CP)
+							do  %% Line 55
+							    apply 'config_line'/5
+								(_cor2, Pgstkid, _cor14, Row, _cor0)
+							    _cor14
+					( <_cor16> when 'true' ->
+					      primop 'match_fail'
+						  ({'case_clause',_cor16})
+					  -| ['compiler_generated'] )
+				      end
+			      ( <_cor10> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor10})
+				-| ['compiler_generated'] )
+			    end
+			( <_cor9> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor9})
+			  -| ['compiler_generated'] )
+		      end
+	      -| ['compiler_generated'] )
+	    ( <_cor25> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','gstkid'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'check_row'/2 =
+    %% Line 62
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_CellPos,'undefined'> when 'true' ->
+	      %% Line 63
+	      {'error',{'gridline',{'row','undefined'}}}
+	  %% Line 64
+	  <CellPos,Row> when 'true' ->
+	      %% Line 65
+	      case call 'ets':'lookup'
+		       (CellPos, {1,Row}) of
+		%% Line 66
+		<[]> when 'true' ->
+		    %% Line 67
+		    {'error',{'gridline','row_outside_range',Row}}
+		%% Line 68
+		<[{_cor8,Item}|[]]> when 'true' ->
+		    %% Line 69
+		    ( case Item of
+			( <( {'item',_cor9,_cor10,_rec3}
+			     -| ['compiler_generated'] )> when 'true' ->
+			      case _rec3 of
+				%% Line 70
+				<'free'> when 'true' ->
+				    'ok'
+				%% Line 71
+				<_cor12> when 'true' ->
+				    %% Line 72
+				    {'error',{'gridline','row_is_occupied',Row}}
+			      end
+			  -| ['compiler_generated'] )
+			( <_cor11> when 'true' ->
+			      ( call ( 'erlang'
+				       -| ['compiler_generated'] ):( 'error'
+								     -| ['compiler_generated'] )
+				    (( {'badrecord','item'}
+				       -| ['compiler_generated'] ))
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+		      end
+		      -| ['compiler_generated'] )
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'option'/5 =
+    %% Line 80
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 81
+	case _cor4 of
+	  %% Line 82
+	  <{{'bg',_X_Item},Color}> when 'true' ->
+	      let <_cor5> =
+		  call 'gstk':'to_color'
+		      (Color)
+	      in  {'p',[[32|[45|[102|[32]]]]|[_cor5|[]]]}
+	  %% Line 83
+	  <{{'text',_X_Item},Text}> when 'true' ->
+	      let <_cor6> =
+		  call 'gstk':'to_ascii'
+		      (Text)
+	      in  {'s',[[32|[45|[116|[101|[32]]]]]|[_cor6|[]]]}
+	  %% Line 84
+	  <{{'fg',_X_Item},Color}> when 'true' ->
+	      let <_cor8> =
+		  call 'gstk':'to_color'
+		      (Color)
+	      in  let <_cor7> =
+		      %% Line 85
+		      call 'gstk':'to_color'
+			  (Color)
+		  in  {'sp',{[[32|[45|[102|[105|[32]]]]]|[_cor8|[]]],%% Line 85
+								     [[32|[45|[111|[117|[116|[108|[105|[110|[101|[32]]]]]]]]]]|[_cor7|[]]]}}
+	  %% Line 86
+	  <{{'font',_X_Item},Font}> when 'true' ->
+	      let <_cor9> =
+		  call 'gstk_font':'choose_ascii'
+		      (_cor1, Font)
+	      in  {'s',[[32|[45|[102|[111|[110|[116|[32]]]]]]]|[_cor9|[]]]}
+	  %% Line 87
+	  <_cor17> when 'true' ->
+	      'invalid_option'
+	end
+'delete'/2 =
+    %% Line 94
+    fun (_cor1,_cor0) ->
+	let <Row> =
+	    %% Line 95
+	    call 'gstk_db':'opt'
+		(_cor1, _cor0, 'row')
+	in  do  %% Line 96
+		call 'gstk_db':'delete_widget'
+		    (_cor1, _cor0)
+		%% Line 97
+		( case _cor0 of
+		    ( <( {'gstkid',_cor9,_cor10,_cor11,_cor12,_rec4,_cor13}
+			 -| ['compiler_generated'] )> when 'true' ->
+			  {_rec4,_cor9,'gstk_gridline',[_cor0|[Row|[]]]}
+		      -| ['compiler_generated'] )
+		    ( <_cor14> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','gstkid'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+		  -| ['compiler_generated'] )
+'destroy'/3 =
+    %% Line 102
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 103
+	( case _cor1 of
+	    ( <( {'gstkid',_cor17,_cor18,_cor19,_cor20,_rec6,_cor21}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <Ggstkid> =
+		      call 'gstk_db':'lookup_gstkid'
+			  (_cor2, _rec6)
+		  in  %% Line 104
+		      case Ggstkid of
+			<{'gstkid',_cor23,_cor24,State,_cor25,_cor26,_cor27}> when 'true' ->
+			    let <_cor7> =
+				%% Line 106
+				call 'gstk_db':'opt'
+				    (_cor2, Ggstkid, 'bg')
+			    in  let <_cor8> =
+				    %% Line 107
+				    call 'gstk_db':'opt'
+					(_cor2, Ggstkid, 'fg')
+				in  do  %% Line 105
+					apply 'config_line'/5
+					    (_cor2, Ggstkid, _cor1, _cor0, %% Line 106
+									   [{'bg',_cor7}|%% Line 107
+											 [{'fg',_cor8}|[{'text',[]}]]])
+					%% Line 108
+					( case State of
+					    ( <( {'state',_cor28,_rec7,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34}
+						 -| ['compiler_generated'] )> when 'true' ->
+						  %% Line 109
+						  apply 'update_cp_db'/4
+						      (_rec7, _cor0, 'free', _cor31)
+					      -| ['compiler_generated'] )
+					    ( <_cor35> when 'true' ->
+						  ( call ( 'erlang'
+							   -| ['compiler_generated'] ):( 'error'
+											 -| ['compiler_generated'] )
+							(( {'badrecord','state'}
+							   -| ['compiler_generated'] ))
+						    -| ['compiler_generated'] )
+					      -| ['compiler_generated'] )
+					  end
+					  -| ['compiler_generated'] )
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      -| ['compiler_generated'] )
+	    ( <_cor22> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','gstkid'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'config'/3 =
+    %% Line 112
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 113
+	( case _cor1 of
+	    ( <( {'gstkid',_cor18,_cor19,_cor20,_cor21,_rec9,_cor22}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <Pgstkid> =
+		      call 'gstk_db':'lookup_gstkid'
+			  (_cor2, _rec9)
+		  in  let <_cor7> =
+			  %% Line 114
+			  call 'gs':'val'
+			      ('row', _cor0, 'missing')
+		      in  let <_cor6> =
+			      %% Line 114
+			      call 'gstk_db':'opt'
+				  (_cor2, _cor1, 'row')
+			  in  do  %% Line 114
+				  case <_cor7,_cor6> of
+				    %% Line 115
+				    <Row,_cor24>
+					when call 'erlang':'=:='
+					      (_cor24,
+					       Row) ->
+					%% Line 116
+					apply 'config_line'/5
+					    (_cor2, Pgstkid, _cor1, Row, _cor0)
+				    %% Line 117
+				    <'missing',Row> when 'true' ->
+					%% Line 118
+					apply 'config_line'/5
+					    (_cor2, Pgstkid, _cor1, Row, _cor0)
+				    %% Line 119
+				    <NewRow,OldRow> when 'true' ->
+					do  %% Line 120
+					    apply 'config_line'/5
+						(_cor2, Pgstkid, _cor1, OldRow, _cor0)
+					    let <Ngstkid> =
+						%% Line 121
+						call 'gstk_db':'lookup_gstkid'
+						    (_cor2, _cor18)
+					    in  %% Line 122
+						( case Pgstkid of
+						    ( <( {'gstkid',_cor31,_cor32,_rec11,_cor33,_cor34,_cor35}
+							 -| ['compiler_generated'] )> when 'true' ->
+							  case apply 'move_line'/5
+								   (NewRow, OldRow, _cor2, _rec11, Ngstkid) of
+							    %% Line 123
+							    <'true'> when 'true' ->
+								do  %% Line 124
+								    call 'gstk_db':'insert_opt'
+									(_cor2, Ngstkid, {'row',NewRow})
+								    'ok'
+							    %% Line 126
+							    <{'error',_X_Reason}> when 'true' ->
+								'ok'
+							    ( <_cor13> when 'true' ->
+								  primop 'match_fail'
+								      ({'case_clause',_cor13})
+							      -| ['compiler_generated'] )
+							  end
+						      -| ['compiler_generated'] )
+						    ( <_cor36> when 'true' ->
+							  ( call ( 'erlang'
+								   -| ['compiler_generated'] ):( 'error'
+												 -| ['compiler_generated'] )
+								(( {'badrecord','gstkid'}
+								   -| ['compiler_generated'] ))
+							    -| ['compiler_generated'] )
+						      -| ['compiler_generated'] )
+						  end
+						  -| ['compiler_generated'] )
+				  end
+				  %% Line 129
+				  'ok'
+	      -| ['compiler_generated'] )
+	    ( <_cor23> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','gstkid'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'move_line'/5 =
+    %% Line 134
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 135
+	( case _cor1 of
+	    ( <( {'state',_cor14,_cor15,_cor16,_cor17,_rec12,_cor18,_cor19,_cor20}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  case call 'ets':'lookup'
+			   (_rec12, {1,_cor4}) of
+		    %% Line 136
+		    <[]> when 'true' ->
+			%% Line 137
+			{'error',{'gridline','row_outside_grid',_cor4}}
+		    %% Line 138
+		    <[{_cor22,{'item',_cor23,_cor24,Lid}}|[]]>
+			when call 'erlang':'=/='
+			      (Lid,
+			       'free') ->
+			%% Line 139
+			{'error',{'gridline','new_row_occupied',_cor4}}
+		    %% Line 140
+		    <[{_cor25,_X_NewItem}|[]]> when 'true' ->
+			do  %% Line 142
+			    apply 'swap_lines'/6
+				(_cor20, _cor3, _cor4, 1, _cor15, _rec12)
+			    %% Line 143
+			    'true'
+		    ( <_cor8> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor8})
+		      -| ['compiler_generated'] )
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor21> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'swap_lines'/6 =
+    %% Line 149
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <TkW,OldRow,NewRow,Col,MaxCol,CellPos>
+	      when call 'erlang':'=<'
+		    (Col,
+		     MaxCol) ->
+	      %% Line 150
+	      case call 'ets':'lookup'
+		       (CellPos, {Col,NewRow}) of
+		<[{_cor15,NewItem}|[]]> when 'true' ->
+		    %% Line 151
+		    case call 'ets':'lookup'
+			     (CellPos, {Col,OldRow}) of
+		      <[{_cor16,OldItem}|[]]> when 'true' ->
+			  do  %% Line 152
+			      apply 'swap_cells'/3
+				  (TkW, NewItem, OldItem)
+			      do  %% Line 153
+				  call 'ets':'insert'
+				      (CellPos, {{Col,NewRow},OldItem})
+				  do  %% Line 154
+				      call 'ets':'insert'
+					  (CellPos, {{Col,OldRow},NewItem})
+				      let <_cor8> =
+					  %% Line 155
+					  call 'erlang':'+'
+					      (Col, 1)
+				      in  %% Line 155
+					  apply 'swap_lines'/6
+					      (TkW, OldRow, NewRow, _cor8, MaxCol, CellPos)
+		      ( <_cor7> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor7})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 156
+	  <_cor17,_cor18,_cor19,_cor20,_cor21,_cor22> when 'true' ->
+	      'done'
+	end
+'swap_cells'/3 =
+    %% Line 158
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <TkW,{'item',NewTextId,NewRectId,_cor15},%% Line 159
+						   {'item',OldTextId,OldRectId,_cor16}> when 'true' ->
+	      let <Aorid> =
+		  %% Line 160
+		  call 'gstk':'to_ascii'
+		      (OldRectId)
+	      in  let <Aotid> =
+		      %% Line 161
+		      call 'gstk':'to_ascii'
+			  (OldTextId)
+		  in  let <Anrid> =
+			  %% Line 162
+			  call 'gstk':'to_ascii'
+			      (NewRectId)
+		      in  let <Antid> =
+			      %% Line 163
+			      call 'gstk':'to_ascii'
+				  (NewTextId)
+			  in  let <Pre> =
+				  %% Line 164
+				  [TkW|[[32|[99|[111|[111|[114|[100|[115|[32]]]]]]]]]]
+			      in  let <OldRectCoords> =
+				      %% Line 165
+				      call 'tcl2erl':'ret_str'
+					  ([Pre|[Aorid|[]]])
+				  in  let <OldTextCoords> =
+					  %% Line 166
+					  call 'tcl2erl':'ret_str'
+					      ([Pre|[Aotid|[]]])
+				      in  let <NewRectCoords> =
+					      %% Line 167
+					      call 'tcl2erl':'ret_str'
+						  ([Pre|[Anrid|[]]])
+					  in  let <NewTextCoords> =
+						  %% Line 168
+						  call 'tcl2erl':'ret_str'
+						      ([Pre|[Antid|[]]])
+					      in  do  %% Line 169
+						      call 'gstk':'exec'
+							  ([Pre|[Aotid|[[32]|[NewTextCoords|[]]]]])
+						      do  %% Line 170
+							  call 'gstk':'exec'
+							      ([Pre|[Antid|[[32]|[OldTextCoords|[]]]]])
+							  do  %% Line 171
+							      call 'gstk':'exec'
+								  ([Pre|[Aorid|[[32]|[NewRectCoords|[]]]]])
+							      %% Line 172
+							      call 'gstk':'exec'
+								  ([Pre|[Anrid|[[32]|[OldRectCoords|[]]]]])
+	  ( <_cor14,_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14,_cor13,_cor12})
+		  -| [{'function_name',{'swap_cells',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'config_line'/5 =
+    %% Line 177
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 178
+	case _cor3 of
+	  <{'gstkid',_cor14,TkW,State,_cor15,_cor16,_cor17}> when 'true' ->
+	      %% Line 179
+	      case State of
+		<{'state',_cor18,Ncols,_cor19,_cor20,CP,_cor21,_cor22,_cor23}> when 'true' ->
+		    let <Ropts> =
+			%% Line 180
+			apply 'transform_opts'/2
+			    (_cor0, Ncols)
+		    in  let <RestOpts> =
+			    %% Line 181
+			    apply 'config_gridline'/6
+				(_cor4, CP, _cor2, Ncols, _cor1, Ropts)
+			in  %% Line 182
+			    call 'gstk_generic':'mk_cmd_and_exec'
+				(RestOpts, _cor2, TkW, [], [], _cor4)
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'config_gridline'/6 =
+    %% Line 187
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <_X_DB,_X_CP,_X_Gstkid,0,_X_Row,Opts> when 'true' ->
+	      %% Line 188
+	      Opts
+	  %% Line 189
+	  <DB,CP,Gstkid,Col,Row,Opts> when 'true' ->
+	      %% Line 190
+	      case apply 'opts_for_col'/4
+		       (Col, Opts, [], []) of
+		<{ColOpts,OtherOpts}> when 'true' ->
+		    do  %% Line 191
+			case <> of
+			  %% Line 192
+			  <>
+			      when call 'erlang':'=:='
+				    (ColOpts,
+				     []) ->
+			      'ok'
+			  %% Line 193
+			  <> when 'true' ->
+			      %% Line 194
+			      case call 'ets':'lookup'
+				       (CP, {Col,Row}) of
+				<[{_X_pos,Item}|[]]> when 'true' ->
+				    %% Line 195
+				    ( case Gstkid of
+					( <( {'gstkid',_cor27,_rec13,_cor28,_cor29,_cor30,_cor31}
+					     -| ['compiler_generated'] )> when 'true' ->
+					      %% Line 196
+					      ( case Item of
+						  ( <( {'item',_rec14,_cor33,_cor34}
+						       -| ['compiler_generated'] )> when 'true' ->
+							let <_cor13> =
+							    call 'gstk':'to_ascii'
+								(_rec14)
+							in  let <TextPre> =
+								[_rec13|[[32|[105|[116|[101|[109|[99|[111|[110|[102|[32]]]]]]]]]]|[_cor13|[]]]]
+							    in  let <_cor17> =
+								    %% Line 197
+								    call 'gstk':'to_ascii'
+									(_cor33)
+								in  let <RectPre> =
+									%% Line 197
+									[59|[_rec13|[[32|[105|[116|[101|[109|[99|[111|[110|[102|[32]]]]]]]]]]|[_cor17|[]]]]]
+								    in  %% Line 198
+									case call 'gstk_generic':'make_command'
+										 (ColOpts, Gstkid, _rec13, %% Line 199
+													   TextPre, %% Line 199
+														    RectPre, %% Line 199
+															     DB) of
+									  %% Line 200
+									  <[]> when 'true' ->
+									      'ok'
+									  %% Line 201
+									  <{'error',_X_Reason}> when 'true' ->
+									      'ok'
+									  %% Line 202
+									  <Cmd> when 'true' ->
+									      call 'gstk':'exec'
+										  (Cmd)
+									end
+						    -| ['compiler_generated'] )
+						  ( <_cor35> when 'true' ->
+							( call ( 'erlang'
+								 -| ['compiler_generated'] ):( 'error'
+											       -| ['compiler_generated'] )
+							      (( {'badrecord','item'}
+								 -| ['compiler_generated'] ))
+							  -| ['compiler_generated'] )
+						    -| ['compiler_generated'] )
+						end
+						-| ['compiler_generated'] )
+					  -| ['compiler_generated'] )
+					( <_cor32> when 'true' ->
+					      ( call ( 'erlang'
+						       -| ['compiler_generated'] ):( 'error'
+										     -| ['compiler_generated'] )
+						    (( {'badrecord','gstkid'}
+						       -| ['compiler_generated'] ))
+						-| ['compiler_generated'] )
+					  -| ['compiler_generated'] )
+				      end
+				      -| ['compiler_generated'] )
+				( <_cor7> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor7})
+				  -| ['compiler_generated'] )
+			      end
+			end
+			let <_cor20> =
+			    %% Line 205
+			    call 'erlang':'-'
+				(Col, 1)
+			in  %% Line 205
+			    apply 'config_gridline'/6
+				(DB, CP, Gstkid, _cor20, Row, OtherOpts)
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'opts_for_col'/4 =
+    %% Line 207
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Col,[{{Key,_cor8},Val}|Opts],ColOpts,RestOpts>
+	      when call 'erlang':'=:='
+		    (_cor8,
+		     Col) ->
+	      %% Line 208
+	      apply 'opts_for_col'/4
+		  (Col, Opts, [{{Key,Col},Val}|ColOpts], RestOpts)
+	  %% Line 209
+	  <Col,[Opt|Opts],ColOpts,RestOpts> when 'true' ->
+	      %% Line 210
+	      apply 'opts_for_col'/4
+		  (Col, Opts, ColOpts, [Opt|RestOpts])
+	  %% Line 211
+	  <_X_Col,[],ColOpts,RestOpts> when 'true' ->
+	      {ColOpts,RestOpts}
+	  ( <_cor7,_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'opts_for_col',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'transform_opts'/2 =
+    %% Line 217
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_X_Ncols> when 'true' ->
+	      []
+	  %% Line 218
+	  <[{{Key,Col},Val}|Opts],Ncols> when 'true' ->
+	      let <_cor2> =
+		  %% Line 219
+		  apply 'transform_opts'/2
+		      (Opts, Ncols)
+	      in  %% Line 219
+		  [{{Key,Col},Val}|_cor2]
+	  %% Line 220
+	  <[{Key,{Col,Val}}|Opts],Ncols>
+	      when call 'erlang':'is_integer'
+		    (Col) ->
+	      let <_cor3> =
+		  %% Line 221
+		  apply 'transform_opts'/2
+		      (Opts, Ncols)
+	      in  %% Line 221
+		  [{{Key,Col},Val}|_cor3]
+	  %% Line 222
+	  <[{Key,Val}|Opts],Ncols> when 'true' ->
+	      %% Line 223
+	      case call 'lists':'member'
+		       (Key, ['fg'|['bg'|['text'|['font']]]]) of
+		%% Line 224
+		<'true'> when 'true' ->
+		    let <_cor5> =
+			%% Line 225
+			apply 'expand_to_all_cols'/3
+			    (Key, Val, Ncols)
+		    in  let <_cor4> =
+			    %% Line 226
+			    apply 'transform_opts'/2
+				(Opts, Ncols)
+			in  %% Line 225
+			    call 'lists':'append'
+				(_cor5, _cor4)
+		%% Line 227
+		<'false'> when 'true' ->
+		    %% Line 228
+		    case call 'lists':'member'
+			     (Key, ['click'|['doubleclick'|['row']]]) of
+		      %% Line 229
+		      <'true'> when 'true' ->
+			  let <_cor6> =
+			      %% Line 230
+			      apply 'transform_opts'/2
+				  (Opts, Ncols)
+			  in  %% Line 230
+			      [{'keep_opt',{Key,Val}}|_cor6]
+		      %% Line 231
+		      <'false'> when 'true' ->
+			  let <_cor7> =
+			      %% Line 232
+			      apply 'transform_opts'/2
+				  (Opts, Ncols)
+			  in  %% Line 232
+			      [{Key,Val}|_cor7]
+		      ( <_cor8> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor8})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor9> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor9})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 235
+	  <[Opt|Opts],Ncols> when 'true' ->
+	      let <_cor10> =
+		  %% Line 236
+		  apply 'transform_opts'/2
+		      (Opts, Ncols)
+	      in  %% Line 236
+		  [Opt|_cor10]
+	  ( <_cor12,_cor11> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11})
+		  -| [{'function_name',{'transform_opts',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'expand_to_all_cols'/3 =
+    %% Line 238
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Key,Val,1> when 'true' ->
+	      %% Line 239
+	      [{{Key,1},Val}|[]]
+	  %% Line 240
+	  <Key,Val,Col> when 'true' ->
+	      let <_cor3> =
+		  %% Line 241
+		  call 'erlang':'-'
+		      (Col, 1)
+	      in  let <_cor4> =
+		      %% Line 241
+		      apply 'expand_to_all_cols'/3
+			  (Key, Val, _cor3)
+		  in  %% Line 241
+		      [{{Key,Col},Val}|_cor4]
+	end
+'read'/3 =
+    %% Line 244
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 245
+	( case _cor1 of
+	    ( <( {'gstkid',_cor9,_cor10,_cor11,_cor12,_rec16,_cor13}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <Pgstkid> =
+		      call 'gstk_db':'lookup_gstkid'
+			  (_cor2, _rec16)
+		  in  %% Line 246
+		      call 'gstk_generic':'read_option'
+			  (_cor2, _cor1, _cor0, Pgstkid)
+	      -| ['compiler_generated'] )
+	    ( <_cor14> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','gstkid'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'read_option'/5 =
+    %% Line 248
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <{'font',Column},Gstkid,_X_TkW,DB,Pgstkid> when 'true' ->
+	      %% Line 249
+	      case call 'gstk_db':'opt_or_not'
+		       (DB, Gstkid, {'font',Column}) of
+		%% Line 250
+		<'false'> when 'true' ->
+		    call 'gstk_db':'opt'
+			(DB, Pgstkid, 'font')
+		%% Line 251
+		<{'value',V}> when 'true' ->
+		    V
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 253
+	  <{Opt,Column},Gstkid,TkW,DB,{'gstkid',_cor26,_cor27,State,_cor28,_cor29,_cor30}> when 'true' ->
+	      let <Row> =
+		  %% Line 254
+		  call 'gstk_db':'opt'
+		      (DB, Gstkid, 'row')
+	      in  %% Line 255
+		  ( case State of
+		      ( <( {'state',_cor31,_cor32,_cor33,_cor34,_rec17,_cor35,_cor36,_cor37}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    case call 'ets':'lookup'
+				     (_rec17, {Column,Row}) of
+			      <[{_X_pos,Item}|[]]> when 'true' ->
+				  %% Line 256
+				  ( case Item of
+				      ( <( {'item',_cor39,_rec18,_cor40}
+					   -| ['compiler_generated'] )> when 'true' ->
+					    let <Rid> =
+						call 'gstk':'to_ascii'
+						    (_rec18)
+					    in  let <Tid> =
+						    %% Line 257
+						    call 'gstk':'to_ascii'
+							(_cor39)
+						in  let <Pre> =
+							%% Line 258
+							[TkW|[[32|[105|[116|[101|[109|[99|[103|[32]]]]]]]]]]
+						    in  %% Line 259
+							case Opt of
+							  %% Line 260
+							  <'bg'> when 'true' ->
+							      call 'tcl2erl':'ret_color'
+								  ([Pre|[Rid|[[32|[45|[102]]]]]])
+							  %% Line 261
+							  <'fg'> when 'true' ->
+							      call 'tcl2erl':'ret_color'
+								  ([Pre|[Tid|[[32|[45|[102|[105]]]]]]])
+							  %% Line 262
+							  <'text'> when 'true' ->
+							      call 'tcl2erl':'ret_str'
+								  ([Pre|[Tid|[[32|[45|[116|[101]]]]]]])
+							  %% Line 263
+							  <_cor45> when 'true' ->
+							      ( case Gstkid of
+								  ( <( {'gstkid',_cor46,_cor47,_cor48,_cor49,_cor50,_rec20}
+								       -| ['compiler_generated'] )> when 'true' ->
+									{'bad_result',{_rec20,'invalid_option',{Opt,Column}}}
+								    -| ['compiler_generated'] )
+								  ( <_cor51> when 'true' ->
+									( call ( 'erlang'
+										 -| ['compiler_generated'] ):( 'error'
+													       -| ['compiler_generated'] )
+									      (( {'badrecord','gstkid'}
+										 -| ['compiler_generated'] ))
+									  -| ['compiler_generated'] )
+								    -| ['compiler_generated'] )
+								end
+								-| ['compiler_generated'] )
+							end
+					-| ['compiler_generated'] )
+				      ( <_cor41> when 'true' ->
+					    ( call ( 'erlang'
+						     -| ['compiler_generated'] ):( 'error'
+										   -| ['compiler_generated'] )
+						  (( {'badrecord','item'}
+						     -| ['compiler_generated'] ))
+					      -| ['compiler_generated'] )
+					-| ['compiler_generated'] )
+				    end
+				    -| ['compiler_generated'] )
+			      ( <_cor9> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor9})
+				-| ['compiler_generated'] )
+			    end
+			-| ['compiler_generated'] )
+		      ( <_cor38> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	  %% Line 265
+	  <Option,Gstkid,TkW,DB,Pgstkid> when 'true' ->
+	      %% Line 266
+	      case call 'lists':'member'
+		       (Option, ['bg'|['fg'|['text']]]) of
+		%% Line 267
+		<'true'> when 'true' ->
+		    apply 'read_option'/5
+			({Option,1}, Gstkid, TkW, DB, Pgstkid)
+		%% Line 268
+		<'false'> when 'true' ->
+		    call 'gstk_db':'opt'
+			(DB, Gstkid, Option, 'undefined')
+		( <_cor20> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor20})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'update_cp_db'/4 =
+    %% Line 271
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <0,_X_Row,_cor13,_cor14> when 'true' ->
+	      'ok'
+	  %% Line 272
+	  <Col,Row,ID,CP> when 'true' ->
+	      %% Line 273
+	      case call 'ets':'lookup'
+		       (CP, {Col,Row}) of
+		<[{_cor15,Item}|[]]> when 'true' ->
+		    %% Line 274
+		    case Item of
+		      <{'item',_cor16,_cor17,_cor18}> when 'true' ->
+			  let <_cor7> =
+			      call 'erlang':'setelement'
+				  (4, Item, ID)
+			  in  do  call 'ets':'insert'
+				      (CP, {{Col,Row},_cor7})
+				  let <_cor8> =
+				      %% Line 275
+				      call 'erlang':'-'
+					  (Col, 1)
+				  in  %% Line 275
+				      apply 'update_cp_db'/4
+					  (_cor8, Row, ID, CP)
+		      ( <_cor19> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','item'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'event'/5 =
+    %% Line 278
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <DB,GridGstkid,Etype,_X_Edata,[CanItem|[]]> when 'true' ->
+	      %% Line 279
+	      ( case GridGstkid of
+		  ( <( {'gstkid',_cor22,_cor23,_rec22,_cor24,_cor25,_cor26}
+		       -| ['compiler_generated'] )> when 'true' ->
+			%% Line 280
+			case _rec22 of
+			  <{'state',_cor28,_cor29,_cor30,CIs,CP,_cor31,_cor32,TkW}> when 'true' ->
+			      %% Line 281
+			      case call 'ets':'lookup'
+				       (CIs, CanItem) of
+				%% Line 282
+				<[{_X_id,{Col,Row}}|[]]> when 'true' ->
+				    %% Line 283
+				    case call 'ets':'lookup'
+					     (CP, {Col,Row}) of
+				      <[{_X_pos,Item}|[]]> when 'true' ->
+					  %% Line 284
+					  ( case Item of
+					      ( <( {'item',_cor33,_cor34,_rec23}
+						   -| ['compiler_generated'] )> when 'true' ->
+						    case _rec23 of
+						      %% Line 285
+						      <'free'> when 'true' ->
+							  'ok'
+						      %% Line 286
+						      <Id> when 'true' ->
+							  let <Lgstkid> =
+							      %% Line 287
+							      call 'gstk_db':'lookup_gstkid'
+								  (DB, Id)
+							  in  %% Line 288
+							      case call 'gstk_db':'opt_or_not'
+								       (DB, Lgstkid, Etype) of
+								%% Line 289
+								<{'value','true'}> when 'true' ->
+								    let <Txt> =
+									%% Line 290
+									apply 'read_option'/5
+									    ({'text',Col}, Lgstkid, TkW, %% Line 291
+													 DB, %% Line 291
+													     GridGstkid)
+								    in  %% Line 292
+									call 'gstk_generic':'event'
+									    (DB, Lgstkid, Etype, 'dummy', %% Line 293
+													  [Col|[Row|[Txt|[]]]])
+								%% Line 294
+								<_cor36> when 'true' ->
+								    'ok'
+							      end
+						    end
+						-| ['compiler_generated'] )
+					      ( <_cor35> when 'true' ->
+						    ( call ( 'erlang'
+							     -| ['compiler_generated'] ):( 'error'
+											   -| ['compiler_generated'] )
+							  (( {'badrecord','item'}
+							     -| ['compiler_generated'] ))
+						      -| ['compiler_generated'] )
+						-| ['compiler_generated'] )
+					    end
+					    -| ['compiler_generated'] )
+				      ( <_cor9> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_cor9})
+					-| ['compiler_generated'] )
+				    end
+				%% Line 297
+				<_cor37> when 'true' ->
+				    'ok'
+			      end
+			  ( <_cor8> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor8})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor27> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','gstkid'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 299
+	  <_X_DB,_X_Gstkid,_X_Etype,_X_Edata,_X_Args> when 'true' ->
+	      %% Line 300
+	      'ok'
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('gstk_gridline')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('gstk_gridline', _cor0)
+end

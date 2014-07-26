@@ -1,0 +1,2923 @@
+module 'hipe_icode_ssa' ['check'/1,
+			 'convert'/1,
+			 'module_info'/0,
+			 'module_info'/1,
+			 'remove_dead_code'/1,
+			 'ssa_liveness__analyze'/1,
+			 'ssa_liveness__livein'/2,
+			 'unconvert'/1]
+    attributes [%% Line 22
+		'type' =
+		    %% Line 22
+		    [{'ct_alignment',{'type',22,'union',[{'integer',22,4}|[{'integer',22,8}]]},[]}],
+		%% Line 24
+		'type' =
+		    %% Line 24
+		    [{'hipe_constlbl',{'type',24,'non_neg_integer',[]},[]}],
+		%% Line 25
+		'type' =
+		    %% Line 25
+		    [{'hipe_consttab',{'type',25,'tuple',[{'remote_type',25,[{'atom',25,'dict'}|[{'atom',25,'dict'}|[[]]]]}|[{'type',25,'list',[{'type',25,'hipe_constlbl',[]}]}|[{'type',25,'hipe_constlbl',[]}]]]},[]}],
+		%% Line 35
+		'type' =
+		    %% Line 35
+		    [{'simple_const',{'type',35,'union',[{'type',35,'atom',[]}|[{'type',35,'nil',[]}|[{'type',35,'integer',[]}|[{'type',35,'float',[]}]]]]},[]}],
+		%% Line 36
+		'type' =
+		    %% Line 36
+		    [{'structured_const',{'type',36,'union',[{'type',36,'list',[]}|[{'type',36,'tuple','any'}]]},[]}],
+		%% Line 38
+		'type' =
+		    %% Line 38
+		    [{'icode_lbl',{'type',38,'non_neg_integer',[]},[]}],
+		%% Line 44
+		'type' =
+		    %% Line 44
+		    [{{'record','flat'},[{'typed_record_field',{'record_field',44,{'atom',44,'value'}},{'type',44,'union',[{'atom',44,'undefined'}|[{'type',44,'simple_const',[]}|[{'type',44,'structured_const',[]}|[{'type',44,'binary',[]}]]]]}}],[]}],
+		%% Line 46
+		'type' =
+		    %% Line 46
+		    [{{'record','icode_const'},[{'typed_record_field',{'record_field',46,{'atom',46,'value'}},{'type',46,'union',[{'atom',46,'undefined'}|[{'type',46,'record',[{'atom',46,'flat'}]}]]}}],[]}],
+		%% Line 48
+		'type' =
+		    %% Line 48
+		    [{'variable_annotation',{'type',48,'tuple',[{'type',48,'atom',[]}|[{'type',48,'any',[]}|[{'type',48,'fun',[{'type',48,'product',[{'type',48,'any',[]}]}|[{'type',48,'string',[]}]]}]]]},[]}],
+		%% Line 50
+		'type' =
+		    %% Line 50
+		    [{{'record','icode_variable'},[{'typed_record_field',{'record_field',50,{'atom',50,'name'}},{'type',50,'union',[{'atom',50,'undefined'}|[{'type',50,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',51,{'atom',51,'kind'}},{'type',51,'union',[{'atom',51,'undefined'}|[{'atom',51,'var'}|[{'atom',51,'reg'}|[{'atom',51,'fvar'}]]]]}}|[{'typed_record_field',{'record_field',52,{'atom',52,'annotation'},{'nil',52}},{'type',52,'union',[{'type',52,'nil',[]}|[{'type',52,'variable_annotation',[]}]]}}]]],[]}],
+		%% Line 58
+		'type' =
+		    %% Line 58
+		    [{'icode_if_op',{'type',58,'union',[{'atom',58,'>'}|[{'atom',58,'<'}|[{'atom',58,'>='}|[{'atom',58,'=<'}|[{'atom',58,'=:='}|[{'atom',58,'=/='}|[{'atom',58,'=='}|[{'atom',58,'/='}|[{'atom',59,'fixnum_eq'}|[{'atom',59,'fixnum_neq'}|[{'atom',59,'fixnum_lt'}|[{'atom',60,'fixnum_le'}|[{'atom',60,'fixnum_ge'}|[{'atom',60,'fixnum_gt'}|[{'atom',61,'op_exact_eqeq_2'}|[{'atom',61,'suspend_msg_timeout'}]]]]]]]]]]]]]]]]},[]}],
+		%% Line 63
+		'type' =
+		    %% Line 63
+		    [{'icode_type_test',{'type',63,'union',[{'atom',63,'atom'}|[{'atom',63,'bignum'}|[{'atom',63,'binary'}|[{'atom',63,'bitstr'}|[{'atom',63,'boolean'}|[{'atom',64,'cons'}|[{'atom',64,'fixnum'}|[{'atom',64,'float'}|[{'atom',64,'function'}|[{'atom',65,'function2'}|[{'atom',65,'integer'}|[{'atom',65,'list'}|[{'atom',65,'map'}|[{'atom',65,'nil'}|[{'atom',66,'number'}|[{'atom',66,'pid'}|[{'atom',66,'port'}|[{'atom',66,'reference'}|[{'atom',66,'tuple'}|[{'type',67,'tuple',[{'atom',67,'atom'}|[{'type',67,'atom',[]}]]}|[{'type',67,'tuple',[{'atom',67,'integer'}|[{'type',67,'integer',[]}]]}|[{'type',68,'tuple',[{'atom',68,'record'}|[{'type',68,'atom',[]}|[{'type',68,'non_neg_integer',[]}]]]}|[{'type',69,'tuple',[{'atom',69,'tuple'}|[{'type',69,'non_neg_integer',[]}]]}]]]]]]]]]]]]]]]]]]]]]]]},[]}],
+		%% Line 71
+		'type' =
+		    %% Line 71
+		    [{'icode_primop',{'type',71,'union',[{'type',71,'atom',[]}|[{'type',71,'tuple','any'}]]},[]}],
+		%% Line 72
+		'type' =
+		    %% Line 72
+		    [{'icode_funcall',{'type',72,'union',[{'type',72,'mfa',[]}|[{'type',72,'icode_primop',[]}]]},[]}],
+		%% Line 74
+		'type' =
+		    %% Line 74
+		    [{'icode_var',{'type',74,'record',[{'atom',74,'icode_variable'}|[{'type',74,'field_type',[{'atom',74,'kind'}|[{'atom',74,'var'}]]}]]},[]}],
+		%% Line 75
+		'type' =
+		    %% Line 75
+		    [{'icode_reg',{'type',75,'record',[{'atom',75,'icode_variable'}|[{'type',75,'field_type',[{'atom',75,'kind'}|[{'atom',75,'reg'}]]}]]},[]}],
+		%% Line 76
+		'type' =
+		    %% Line 76
+		    [{'icode_fvar',{'type',76,'record',[{'atom',76,'icode_variable'}|[{'type',76,'field_type',[{'atom',76,'kind'}|[{'atom',76,'fvar'}]]}]]},[]}],
+		%% Line 77
+		'type' =
+		    %% Line 77
+		    [{'icode_argument',{'type',77,'union',[{'type',77,'record',[{'atom',77,'icode_const'}]}|[{'type',77,'record',[{'atom',77,'icode_variable'}]}]]},[]}],
+		%% Line 78
+		'type' =
+		    %% Line 78
+		    [{'icode_term_arg',{'type',78,'union',[{'type',78,'icode_var',[]}|[{'type',78,'record',[{'atom',78,'icode_const'}]}]]},[]}],
+		%% Line 80
+		'type' =
+		    %% Line 80
+		    [{'icode_switch_case',{'type',80,'tuple',[{'type',80,'record',[{'atom',80,'icode_const'}]}|[{'type',80,'icode_lbl',[]}]]},[]}],
+		%% Line 82
+		'type' =
+		    %% Line 82
+		    [{'icode_call_type',{'type',82,'union',[{'atom',82,'local'}|[{'atom',82,'primop'}|[{'atom',82,'remote'}]]]},[]}],
+		%% Line 83
+		'type' =
+		    %% Line 83
+		    [{'icode_exit_class',{'type',83,'union',[{'atom',83,'error'}|[{'atom',83,'exit'}|[{'atom',83,'rethrow'}|[{'atom',83,'throw'}]]]]},[]}],
+		%% Line 85
+		'type' =
+		    %% Line 85
+		    [{'icode_comment_text',{'type',85,'union',[{'type',85,'atom',[]}|[{'type',85,'string',[]}]]},[]}],
+		%% Line 87
+		'type' =
+		    %% Line 87
+		    [{'icode_info',{'type',87,'list',[{'type',87,'tuple',[{'atom',87,'arg_types'}|[{'type',87,'list',[{'remote_type',87,[{'atom',87,'erl_types'}|[{'atom',87,'erl_type'}|[[]]]]}]}]]}]},[]}],
+		%% Line 93
+		'type' =
+		    %% Line 93
+		    [{{'record','icode_label'},[{'typed_record_field',{'record_field',93,{'atom',93,'name'}},{'type',93,'union',[{'atom',93,'undefined'}|[{'type',93,'icode_lbl',[]}]]}}],[]}],
+		%% Line 95
+		'type' =
+		    %% Line 95
+		    [{{'record','icode_if'},[{'typed_record_field',{'record_field',95,{'atom',95,'op'}},{'type',95,'union',[{'atom',95,'undefined'}|[{'type',95,'icode_if_op',[]}]]}}|[{'typed_record_field',{'record_field',96,{'atom',96,'args'}},{'type',96,'union',[{'atom',96,'undefined'}|[{'type',96,'list',[{'type',96,'icode_term_arg',[]}]}]]}}|[{'typed_record_field',{'record_field',97,{'atom',97,'true_label'}},{'type',97,'union',[{'atom',97,'undefined'}|[{'type',97,'icode_lbl',[]}]]}}|[{'typed_record_field',{'record_field',98,{'atom',98,'false_label'}},{'type',98,'union',[{'atom',98,'undefined'}|[{'type',98,'icode_lbl',[]}]]}}|[{'typed_record_field',{'record_field',99,{'atom',99,'p'}},{'type',99,'union',[{'atom',99,'undefined'}|[{'type',99,'float',[]}]]}}]]]]],[]}],
+		%% Line 101
+		'type' =
+		    %% Line 101
+		    [{{'record','icode_switch_val'},[{'typed_record_field',{'record_field',101,{'atom',101,'term'}},{'type',101,'union',[{'atom',101,'undefined'}|[{'type',101,'icode_var',[]}]]}}|[{'typed_record_field',{'record_field',102,{'atom',102,'fail_label'}},{'type',102,'union',[{'atom',102,'undefined'}|[{'type',102,'icode_lbl',[]}]]}}|[{'typed_record_field',{'record_field',103,{'atom',103,'length'}},{'type',103,'union',[{'atom',103,'undefined'}|[{'type',103,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',104,{'atom',104,'cases'}},{'type',104,'union',[{'atom',104,'undefined'}|[{'type',104,'list',[{'type',104,'icode_switch_case',[]}]}]]}}]]]],[]}],
+		%% Line 106
+		'type' =
+		    %% Line 106
+		    [{{'record','icode_switch_tuple_arity'},[{'typed_record_field',{'record_field',106,{'atom',106,'term'}},{'type',106,'union',[{'atom',106,'undefined'}|[{'type',106,'icode_var',[]}]]}}|[{'typed_record_field',{'record_field',107,{'atom',107,'fail_label'}},{'type',107,'union',[{'atom',107,'undefined'}|[{'type',107,'icode_lbl',[]}]]}}|[{'typed_record_field',{'record_field',108,{'atom',108,'length'}},{'type',108,'union',[{'atom',108,'undefined'}|[{'type',108,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',109,{'atom',109,'cases'}},{'type',109,'union',[{'atom',109,'undefined'}|[{'type',109,'list',[{'type',109,'icode_switch_case',[]}]}]]}}]]]],[]}],
+		%% Line 111
+		'type' =
+		    %% Line 111
+		    [{{'record','icode_type'},[{'typed_record_field',{'record_field',111,{'atom',111,'test'}},{'type',111,'union',[{'atom',111,'undefined'}|[{'type',111,'icode_type_test',[]}]]}}|[{'typed_record_field',{'record_field',112,{'atom',112,'args'}},{'type',112,'union',[{'atom',112,'undefined'}|[{'type',112,'list',[{'type',112,'icode_term_arg',[]}]}]]}}|[{'typed_record_field',{'record_field',113,{'atom',113,'true_label'}},{'type',113,'union',[{'atom',113,'undefined'}|[{'type',113,'icode_lbl',[]}]]}}|[{'typed_record_field',{'record_field',114,{'atom',114,'false_label'}},{'type',114,'union',[{'atom',114,'undefined'}|[{'type',114,'icode_lbl',[]}]]}}|[{'typed_record_field',{'record_field',115,{'atom',115,'p'}},{'type',115,'union',[{'atom',115,'undefined'}|[{'type',115,'float',[]}]]}}]]]]],[]}],
+		%% Line 117
+		'type' =
+		    %% Line 117
+		    [{{'record','icode_goto'},[{'typed_record_field',{'record_field',117,{'atom',117,'label'}},{'type',117,'union',[{'atom',117,'undefined'}|[{'type',117,'icode_lbl',[]}]]}}],[]}],
+		%% Line 119
+		'type' =
+		    %% Line 119
+		    [{{'record','icode_move'},[{'typed_record_field',{'record_field',119,{'atom',119,'dst'}},{'type',119,'union',[{'atom',119,'undefined'}|[{'type',119,'record',[{'atom',119,'icode_variable'}]}]]}}|[{'typed_record_field',{'record_field',120,{'atom',120,'src'}},{'type',120,'union',[{'atom',120,'undefined'}|[{'type',120,'record',[{'atom',120,'icode_variable'}]}|[{'type',120,'record',[{'atom',120,'icode_const'}]}]]]}}]],[]}],
+		%% Line 122
+		'type' =
+		    %% Line 122
+		    [{{'record','icode_phi'},[{'typed_record_field',{'record_field',122,{'atom',122,'dst'}},{'type',122,'union',[{'atom',122,'undefined'}|[{'type',122,'record',[{'atom',122,'icode_variable'}]}]]}}|[{'typed_record_field',{'record_field',123,{'atom',123,'id'}},{'type',123,'union',[{'atom',123,'undefined'}|[{'type',123,'record',[{'atom',123,'icode_variable'}]}]]}}|[{'typed_record_field',{'record_field',124,{'atom',124,'arglist'}},{'type',124,'union',[{'atom',124,'undefined'}|[{'type',124,'list',[{'type',124,'tuple',[{'type',124,'icode_lbl',[]}|[{'type',124,'record',[{'atom',124,'icode_variable'}]}]]}]}]]}}]]],[]}],
+		%% Line 126
+		'type' =
+		    %% Line 126
+		    [{{'record','icode_call'},[{'typed_record_field',{'record_field',126,{'atom',126,'dstlist'}},{'type',126,'union',[{'atom',126,'undefined'}|[{'type',126,'list',[{'type',126,'record',[{'atom',126,'icode_variable'}]}]}]]}}|[{'typed_record_field',{'record_field',127,{'atom',127,'fun'}},{'type',127,'union',[{'atom',127,'undefined'}|[{'type',127,'icode_funcall',[]}]]}}|[{'typed_record_field',{'record_field',128,{'atom',128,'args'}},{'type',128,'union',[{'atom',128,'undefined'}|[{'type',128,'list',[{'type',128,'icode_argument',[]}]}]]}}|[{'typed_record_field',{'record_field',129,{'atom',129,'type'}},{'type',129,'union',[{'atom',129,'undefined'}|[{'type',129,'icode_call_type',[]}]]}}|[{'typed_record_field',{'record_field',130,{'atom',130,'continuation'}},{'type',130,'union',[{'atom',130,'undefined'}|[{'type',130,'nil',[]}|[{'type',130,'icode_lbl',[]}]]]}}|[{'typed_record_field',{'record_field',131,{'atom',131,'fail_label'},{'nil',131}},{'type',131,'union',[{'type',131,'nil',[]}|[{'type',131,'icode_lbl',[]}]]}}|[{'typed_record_field',{'record_field',132,{'atom',132,'in_guard'},{'atom',132,'false'}},{'type',132,'boolean',[]}}]]]]]]],[]}],
+		%% Line 134
+		'type' =
+		    %% Line 134
+		    [{{'record','icode_enter'},[{'typed_record_field',{'record_field',134,{'atom',134,'fun'}},{'type',134,'union',[{'atom',134,'undefined'}|[{'type',134,'icode_funcall',[]}]]}}|[{'typed_record_field',{'record_field',135,{'atom',135,'args'}},{'type',135,'union',[{'atom',135,'undefined'}|[{'type',135,'list',[{'type',135,'icode_term_arg',[]}]}]]}}|[{'typed_record_field',{'record_field',136,{'atom',136,'type'}},{'type',136,'union',[{'atom',136,'undefined'}|[{'type',136,'icode_call_type',[]}]]}}]]],[]}],
+		%% Line 138
+		'type' =
+		    %% Line 138
+		    [{{'record','icode_return'},[{'typed_record_field',{'record_field',138,{'atom',138,'vars'}},{'type',138,'union',[{'atom',138,'undefined'}|[{'type',138,'list',[{'type',138,'icode_var',[]}]}]]}}],[]}],
+		%% Line 140
+		'type' =
+		    %% Line 140
+		    [{{'record','icode_begin_try'},[{'typed_record_field',{'record_field',140,{'atom',140,'label'}},{'type',140,'union',[{'atom',140,'undefined'}|[{'type',140,'icode_lbl',[]}]]}}|[{'typed_record_field',{'record_field',140,{'atom',140,'successor'}},{'type',140,'union',[{'atom',140,'undefined'}|[{'type',140,'icode_lbl',[]}]]}}]],[]}],
+		%% Line 142
+		'type' =
+		    %% Line 142
+		    [{{'record','icode_end_try'},[],[]}],
+		%% Line 144
+		'type' =
+		    %% Line 144
+		    [{{'record','icode_begin_handler'},[{'typed_record_field',{'record_field',144,{'atom',144,'dstlist'}},{'type',144,'union',[{'atom',144,'undefined'}|[{'type',144,'list',[{'type',144,'icode_var',[]}]}]]}}],[]}],
+		%% Line 147
+		'type' =
+		    %% Line 147
+		    [{{'record','icode_fail'},[{'typed_record_field',{'record_field',147,{'atom',147,'class'}},{'type',147,'union',[{'atom',147,'undefined'}|[{'type',147,'icode_exit_class',[]}]]}}|[{'typed_record_field',{'record_field',148,{'atom',148,'args'}},{'type',148,'union',[{'atom',148,'undefined'}|[{'type',148,'list',[{'type',148,'icode_term_arg',[]}]}]]}}|[{'typed_record_field',{'record_field',149,{'atom',149,'fail_label'},{'nil',149}},{'type',149,'union',[{'type',149,'nil',[]}|[{'type',149,'icode_lbl',[]}]]}}]]],[]}],
+		%% Line 151
+		'type' =
+		    %% Line 151
+		    [{{'record','icode_comment'},[{'typed_record_field',{'record_field',151,{'atom',151,'text'}},{'type',151,'union',[{'atom',151,'undefined'}|[{'type',151,'icode_comment_text',[]}]]}}],[]}],
+		%% Line 157
+		'type' =
+		    %% Line 157
+		    [{'icode_instr',{'type',157,'union',[{'type',157,'record',[{'atom',157,'icode_begin_handler'}]}|[{'type',157,'record',[{'atom',157,'icode_begin_try'}]}|[{'type',158,'record',[{'atom',158,'icode_call'}]}|[{'type',158,'record',[{'atom',158,'icode_comment'}]}|[{'type',158,'record',[{'atom',158,'icode_end_try'}]}|[{'type',159,'record',[{'atom',159,'icode_enter'}]}|[{'type',159,'record',[{'atom',159,'icode_fail'}]}|[{'type',160,'record',[{'atom',160,'icode_goto'}]}|[{'type',160,'record',[{'atom',160,'icode_if'}]}|[{'type',160,'record',[{'atom',160,'icode_label'}]}|[{'type',161,'record',[{'atom',161,'icode_move'}]}|[{'type',161,'record',[{'atom',161,'icode_phi'}]}|[{'type',161,'record',[{'atom',161,'icode_return'}]}|[{'type',162,'record',[{'atom',162,'icode_switch_tuple_arity'}]}|[{'type',162,'record',[{'atom',162,'icode_switch_val'}]}|[{'type',163,'record',[{'atom',163,'icode_type'}]}]]]]]]]]]]]]]]]]},[]}],
+		%% Line 164
+		'type' =
+		    %% Line 164
+		    [{'icode_instrs',{'type',164,'list',[{'type',164,'icode_instr',[]}]},[]}],
+		%% Line 170
+		'type' =
+		    %% Line 170
+		    [{{'record','icode'},[{'typed_record_field',{'record_field',170,{'atom',170,'fun'}},{'type',170,'union',[{'atom',170,'undefined'}|[{'type',170,'mfa',[]}]]}}|[{'typed_record_field',{'record_field',171,{'atom',171,'params'}},{'type',171,'union',[{'atom',171,'undefined'}|[{'type',171,'list',[{'type',171,'icode_var',[]}]}]]}}|[{'typed_record_field',{'record_field',172,{'atom',172,'is_closure'}},{'type',172,'union',[{'atom',172,'undefined'}|[{'type',172,'boolean',[]}]]}}|[{'typed_record_field',{'record_field',173,{'atom',173,'closure_arity'}},{'type',173,'union',[{'atom',173,'undefined'}|[{'type',173,'arity',[]}]]}}|[{'typed_record_field',{'record_field',174,{'atom',174,'is_leaf'}},{'type',174,'union',[{'atom',174,'undefined'}|[{'type',174,'boolean',[]}]]}}|[{'typed_record_field',{'record_field',175,{'atom',175,'code'},{'nil',175}},{'type',175,'icode_instrs',[]}}|[{'typed_record_field',{'record_field',176,{'atom',176,'data'}},{'type',176,'union',[{'atom',176,'undefined'}|[{'type',176,'hipe_consttab',[]}]]}}|[{'typed_record_field',{'record_field',177,{'atom',177,'var_range'}},{'type',177,'union',[{'atom',177,'undefined'}|[{'type',177,'tuple',[{'type',177,'non_neg_integer',[]}|[{'type',177,'non_neg_integer',[]}]]}]]}}|[{'typed_record_field',{'record_field',178,{'atom',178,'label_range'}},{'type',178,'union',[{'atom',178,'undefined'}|[{'type',178,'tuple',[{'type',178,'icode_lbl',[]}|[{'type',178,'icode_lbl',[]}]]}]]}}|[{'typed_record_field',{'record_field',179,{'atom',179,'info'},{'nil',179}},{'type',179,'icode_info',[]}}]]]]]]]]]],[]}],
+		%% Line 180
+		'type' =
+		    %% Line 180
+		    [{'icode',{'type',180,'record',[{'atom',180,'icode'}]},[]}],
+		%% Line 301
+		'type' =
+		    %% Line 301
+		    [{{'record','comp_servers'},[{'typed_record_field',{'record_field',301,{'atom',301,'pp_server'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'range'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'type'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}]]],[]}],
+		%% Line 307
+		'type' =
+		    %% Line 307
+		    [{'comp_option',{'type',307,'union',[{'type',307,'atom',[]}|[{'type',307,'tuple',[{'type',307,'atom',[]}|[{'type',307,'atom',[]}]]}]]},[]}],
+		%% Line 308
+		'type' =
+		    %% Line 308
+		    [{'comp_options',{'type',308,'list',[{'type',308,'comp_option',[]}]},[]}],
+		%% Line 310
+		'type' =
+		    %% Line 310
+		    [{'hipe_architecture',{'type',311,'union',[{'atom',311,'amd64'}|[{'atom',311,'arm'}|[{'atom',311,'powerpc'}|[{'atom',311,'ppc64'}|[{'atom',311,'ultrasparc'}|[{'atom',311,'x86'}]]]]]]},[]}],
+		%% Line 313
+		'type' =
+		    %% Line 313
+		    [{'hipe_map',{'type',313,'list',[{'type',313,'tuple',[{'type',313,'non_neg_integer',[]}|[{'type',314,'union',[{'atom',314,'unknown'}|[{'type',314,'tuple',[{'type',314,'union',[{'atom',314,'reg'}|[{'atom',314,'fp_reg'}|[{'atom',314,'spill'}]]]}|[{'type',315,'non_neg_integer',[]}]]}]]}]]}]},[]}],
+		%% Line 316
+		'type' =
+		    %% Line 316
+		    [{'hipe_temp_map',{'type',316,'tuple','any'},[]}],
+		%% Line 317
+		'type' =
+		    %% Line 317
+		    [{'hipe_spill_map',{'type',317,'list',[{'type',317,'tuple',[{'type',317,'non_neg_integer',[]}|[{'type',317,'tuple',[{'atom',317,'spill'}|[{'type',317,'non_neg_integer',[]}]]}]]}]},[]}],
+		%% Line 28
+		'type' =
+		    %% Line 28
+		    [{'cfg_lbl',{'type',28,'non_neg_integer',[]},[]}],
+		%% Line 34
+		'type' =
+		    %% Line 34
+		    [{{'record','cfg_info'},[{'typed_record_field',{'record_field',34,{'atom',34,'fun'}},{'type',34,'union',[{'atom',34,'undefined'}|[{'type',34,'mfa',[]}]]}}|[{'typed_record_field',{'record_field',35,{'atom',35,'start_label'}},{'type',35,'union',[{'atom',35,'undefined'}|[{'type',35,'cfg_lbl',[]}]]}}|[{'typed_record_field',{'record_field',36,{'atom',36,'is_closure'}},{'type',36,'union',[{'atom',36,'undefined'}|[{'type',36,'boolean',[]}]]}}|[{'typed_record_field',{'record_field',37,{'atom',37,'closure_arity'}},{'type',37,'union',[{'atom',37,'undefined'}|[{'type',37,'arity',[]}]]}}|[{'typed_record_field',{'record_field',38,{'atom',38,'is_leaf'}},{'type',38,'union',[{'atom',38,'undefined'}|[{'type',38,'boolean',[]}]]}}|[{'record_field',39,{'atom',39,'params'}}|[{'record_field',40,{'atom',40,'info'},{'nil',40}}]]]]]]],[]}],
+		%% Line 45
+		'type' =
+		    %% Line 45
+		    [{'cfg_data',{'type',45,'tuple',[{'remote_type',45,[{'atom',45,'dict'}|[{'atom',45,'dict'}|[[]]]]}|[{'type',45,'list',[{'type',45,'cfg_lbl',[]}]}|[{'type',45,'non_neg_integer',[]}]]]},[]}],
+		%% Line 50
+		'type' =
+		    %% Line 50
+		    [{{'record','cfg'},[{'typed_record_field',{'record_field',50,{'atom',50,'table'},{'call',50,{'remote',50,{'atom',50,'gb_trees'},{'atom',50,'empty'}},[]}},{'remote_type',50,[{'atom',50,'gb_trees'}|[{'atom',50,'tree'}|[[]]]]}}|[{'typed_record_field',{'record_field',51,{'atom',51,'info'}},{'type',51,'union',[{'atom',51,'undefined'}|[{'type',51,'record',[{'atom',51,'cfg_info'}]}]]}}|[{'typed_record_field',{'record_field',52,{'atom',52,'data'}},{'type',52,'union',[{'atom',52,'undefined'}|[{'type',52,'cfg_data',[]}]]}}]]],[]}],
+		%% Line 53
+		'type' =
+		    %% Line 53
+		    [{'cfg',{'type',53,'record',[{'atom',53,'cfg'}]},[]}],
+		%% Line 58
+		'spec' =
+		    %% Line 58
+		    [{{'convert',1},[{'type',58,'fun',[{'type',58,'product',[{'type',58,'record',[{'atom',58,'cfg'}]}]}|[{'type',58,'record',[{'atom',58,'cfg'}]}]]}]}],
+		%% Line 602
+		'spec' =
+		    %% Line 602
+		    [{{'check',1},[{'type',602,'fun',[{'type',602,'product',[{'type',602,'record',[{'atom',602,'cfg'}]}]}|[{'atom',602,'ok'}]]}]}],
+		%% Line 791
+		'spec' =
+		    %% Line 791
+		    [{{'unconvert',1},[{'type',791,'fun',[{'type',791,'product',[{'type',791,'record',[{'atom',791,'cfg'}]}]}|[{'type',791,'record',[{'atom',791,'cfg'}]}]]}]}],
+		%% Line 912
+		'spec' =
+		    %% Line 912
+		    [{{'remove_dead_code',1},[{'type',912,'fun',[{'type',912,'product',[{'type',912,'record',[{'atom',912,'cfg'}]}]}|[{'type',912,'record',[{'atom',912,'cfg'}]}]]}]}],
+		%% Line 40
+		'spec' =
+		    %% Line 40
+		    [{{'ssa_liveness__analyze',1},[{'type',40,'fun',[{'type',40,'product',[{'type',40,'record',[{'atom',40,'cfg'}]}]}|[{'remote_type',40,[{'atom',40,'gb_trees'}|[{'atom',40,'tree'}|[[]]]]}]]}]}],
+		%% Line 41
+		'spec' =
+		    %% Line 41
+		    [{{'ssa_liveness__livein',2},[{'type',41,'fun',[{'type',41,'product',[{'var',41,'_'}|[{'type',41,'icode_lbl',[]}]]}|[{'type',41,'list',[{'type',41,'record',[{'atom',41,'icode_variable'}]}]}]]}]}]]
+'ssa_liveness__analyze'/1 =
+    %% Line 70
+    fun (_cor0) ->
+	let <PO> =
+	    %% Line 71
+	    call 'hipe_icode_cfg':'postorder'
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 72
+		apply 'init'/2
+		    (PO, _cor0)
+	    in  let <InitLiveness> =
+		    %% Line 72
+		    apply 'liveness_init'/1
+			(_cor2)
+		in  %% Line 73
+		    apply 'merry_go_around'/2
+			(PO, InitLiveness)
+'merry_go_around'/2 =
+    %% Line 79
+    fun (_cor1,_cor0) ->
+	%% Line 80
+	case apply 'doit_once'/2
+		 (_cor1, _cor0) of
+	  %% Line 81
+	  <{'fixpoint',NewLiveness}> when 'true' ->
+	      %% Line 82
+	      NewLiveness
+	  %% Line 83
+	  <{'value',NewLiveness}> when 'true' ->
+	      %% Line 84
+	      apply 'merry_go_around'/2
+		  (_cor1, NewLiveness)
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'doit_once'/2 =
+    %% Line 91
+    fun (_cor1,_cor0) ->
+	%% Line 92
+	apply 'doit_once'/3
+	    (_cor1, _cor0, 'true')
+'doit_once'/3 =
+    %% Line 94
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],Liveness,FixPoint> when 'true' ->
+	      %% Line 95
+	      case <> of
+		<>
+		    when call 'erlang':'=:='
+			  (FixPoint,
+			   'true') ->
+		    {'fixpoint',Liveness}
+		%% Line 96
+		<> when 'true' ->
+		    {'value',Liveness}
+	      end
+	  %% Line 98
+	  <[L|Ls],Liveness,FixPoint> when 'true' ->
+	      let <LiveOut> =
+		  %% Line 99
+		  apply 'join_livein'/2
+		      (Liveness, L)
+	      in  let <NewLiveness> =
+		      %% Line 100
+		      apply 'update_liveout'/3
+			  (L, LiveOut, Liveness)
+		  in  let <_cor5> =
+			  %% Line 101
+			  apply 'kill'/2
+			      (L, NewLiveness)
+		      in  let <Kill> =
+			      %% Line 101
+			      apply 'set_subtract'/2
+				  (LiveOut, _cor5)
+			  in  let <_cor7> =
+				  %% Line 102
+				  apply 'gen'/2
+				      (L, NewLiveness)
+			      in  let <LiveIn> =
+				      %% Line 102
+				      apply 'set_union'/2
+					  (Kill, _cor7)
+				  in  %% Line 103
+				      case apply 'update_livein'/3
+					       (L, LiveIn, NewLiveness) of
+					%% Line 104
+					<'fixpoint'> when 'true' ->
+					    apply 'doit_once'/3
+						(Ls, NewLiveness, FixPoint)
+					%% Line 105
+					<{'value',NewLiveness1}> when 'true' ->
+					    apply 'doit_once'/3
+						(Ls, NewLiveness1, 'false')
+					( <_cor9> when 'true' ->
+					      primop 'match_fail'
+						  ({'case_clause',_cor9})
+					  -| ['compiler_generated'] )
+				      end
+	  ( <_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'doit_once',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'update_livein'/3 =
+    %% Line 112
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 113
+	case apply 'liveness_lookup'/2
+		 (_cor2, _cor0) of
+	  <{GKD,LiveIn,LiveOut,Succ}> when 'true' ->
+	      %% Line 114
+	      case LiveIn of
+		%% Line 115
+		<_cor9>
+		    when call 'erlang':'=:='
+			  (LiveIn,
+			   _cor1) ->
+		    %% Line 116
+		    'fixpoint'
+		%% Line 117
+		<_cor10> when 'true' ->
+		    let <_cor4> =
+			%% Line 118
+			apply 'liveness_update'/3
+			    (_cor2, {GKD,_cor1,LiveOut,Succ}, _cor0)
+		    in  %% Line 118
+			{'value',_cor4}
+	      end
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'update_liveout'/3 =
+    %% Line 121
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 122
+	case apply 'liveness_lookup'/2
+		 (_cor2, _cor0) of
+	  <{GKD,LiveIn,_X_LiveOut,Succ}> when 'true' ->
+	      %% Line 123
+	      apply 'liveness_update'/3
+		  (_cor2, {GKD,LiveIn,_cor1,Succ}, _cor0)
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'join_livein'/2 =
+    %% Line 129
+    fun (_cor1,_cor0) ->
+	let <Succ> =
+	    %% Line 130
+	    apply 'successors'/2
+		(_cor0, _cor1)
+	in  %% Line 131
+	    case Succ of
+	      %% Line 132
+	      <[]> when 'true' ->
+		  let <_cor3> =
+		      %% Line 133
+		      apply 'liveout_no_succ'/0
+			  ()
+		  in  %% Line 133
+		      call 'gb_sets':'from_list'
+			  (_cor3)
+	      %% Line 134
+	      <_cor7> when 'true' ->
+		  %% Line 135
+		  apply 'join_livein1'/3
+		      (_cor0, Succ, _cor1)
+	    end
+'join_livein1'/3 =
+    %% Line 138
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 139
+	    apply 'new_set'/0
+		()
+	in  %% Line 139
+	    apply 'join_livein1'/4
+		(_cor2, _cor1, _cor0, _cor3)
+'join_livein1'/4 =
+    %% Line 141
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <_X_Pred,[],_X_Liveness,Live> when 'true' ->
+	      %% Line 142
+	      Live
+	  %% Line 143
+	  <Pred,[L|Ls],Liveness,Live> when 'true' ->
+	      let <OldLivein> =
+		  %% Line 144
+		  apply 'livein_set'/3
+		      (Liveness, L, Pred)
+	      in  let <NewLive> =
+		      %% Line 145
+		      apply 'set_union'/2
+			  (OldLivein, Live)
+		  in  %% Line 146
+		      apply 'join_livein1'/4
+			  (Pred, Ls, Liveness, NewLive)
+	  ( <_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'join_livein1',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'ssa_liveness__liveout'/2 =
+    %% Line 149
+    fun (_cor1,_cor0) ->
+	%% Line 150
+	case apply 'liveness_lookup'/2
+		 (_cor0, _cor1) of
+	  <{_X_GKD,_X_LiveIn,LiveOut,Successors}> when 'true' ->
+	      %% Line 151
+	      case Successors of
+		%% Line 152
+		<[]> when 'true' ->
+		    %% Line 153
+		    apply 'liveout_no_succ'/0
+			()
+		%% Line 154
+		<_cor6> when 'true' ->
+		    %% Line 155
+		    apply 'set_to_list'/1
+			(LiveOut)
+	      end
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'ssa_liveness__livein'/2 =
+    %% Line 159
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 160
+	    apply 'livein_set'/2
+		(_cor1, _cor0)
+	in  %% Line 160
+	    apply 'set_to_list'/1
+		(_cor2)
+'livein_set'/2 =
+    %% Line 165
+    fun (_cor1,_cor0) ->
+	%% Line 166
+	case %% Line 167
+	     apply 'liveness_lookup'/2
+		 (_cor0, _cor1) of
+	  <{{_X_Gen,_X_Kill,{TotalDirGen,_X_DirGen}},LiveIn,_X_LiveOut,_X_Successors}> when 'true' ->
+	      %% Line 168
+	      apply 'set_union'/2
+		  (TotalDirGen, LiveIn)
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'livein_set'/3 =
+    %% Line 171
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 172
+	case %% Line 173
+	     apply 'liveness_lookup'/2
+		 (_cor1, _cor2) of
+	  <{{_X_Gen,_X_Kill,{_X_TotalDirGen,DirGen}},LiveIn,_X_LiveOut,_X_Successors}> when 'true' ->
+	      %% Line 174
+	      case call 'gb_trees':'lookup'
+		       (_cor0, DirGen) of
+		%% Line 175
+		<'none'> when 'true' ->
+		    %% Line 176
+		    LiveIn
+		%% Line 177
+		<{'value',LiveInFromPred}> when 'true' ->
+		    %% Line 178
+		    apply 'set_union'/2
+			(LiveInFromPred, LiveIn)
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'successors'/2 =
+    %% Line 181
+    fun (_cor1,_cor0) ->
+	%% Line 182
+	case apply 'liveness_lookup'/2
+		 (_cor1, _cor0) of
+	  <{_X_GKD,_X_LiveIn,_X_LiveOut,Successors}> when 'true' ->
+	      %% Line 183
+	      Successors
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'kill'/2 =
+    %% Line 185
+    fun (_cor1,_cor0) ->
+	%% Line 186
+	case %% Line 187
+	     apply 'liveness_lookup'/2
+		 (_cor1, _cor0) of
+	  <{{_X_Gen,Kill,_X_DirGen},_X_LiveIn,_X_LiveOut,_X_Successors}> when 'true' ->
+	      %% Line 188
+	      Kill
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'gen'/2 =
+    %% Line 190
+    fun (_cor1,_cor0) ->
+	%% Line 191
+	case %% Line 192
+	     apply 'liveness_lookup'/2
+		 (_cor1, _cor0) of
+	  <{{Gen,_X_Kill,_X_DirGen},_X_LiveIn,_X_LiveOut,_X_Successors}> when 'true' ->
+	      %% Line 193
+	      Gen
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'init'/2 =
+    %% Line 205
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_cor12> when 'true' ->
+	      %% Line 206
+	      []
+	  %% Line 207
+	  <[L|Ls],CFG> when 'true' ->
+	      let <BB> =
+		  %% Line 208
+		  call 'hipe_icode_cfg':'bb'
+		      (CFG, L)
+	      in  let <Code> =
+		      %% Line 209
+		      call 'hipe_bb':'code'
+			  (BB)
+		  in  let <Succ> =
+			  %% Line 210
+			  call 'hipe_icode_cfg':'succ'
+			      (CFG, L)
+		      in  %% Line 211
+			  case apply 'make_bb_transfer'/2
+				   (Code, Succ) of
+			    <{Gen,Kill}> when 'true' ->
+				let <DirectedGen> =
+				    %% Line 212
+				    apply 'get_directed_gen'/1
+					(Code)
+				in  let <_cor8> =
+					%% Line 213
+					apply 'new_set'/0
+					    ()
+				    in  let <_cor7> =
+					    %% Line 213
+					    apply 'new_set'/0
+						()
+					in  let <_cor9> =
+						%% Line 214
+						apply 'init'/2
+						    (Ls, CFG)
+					    in  %% Line 213
+						[{L,{{Gen,Kill,DirectedGen},_cor8,_cor7,Succ}}|_cor9]
+			    ( <_cor5> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor5})
+			      -| ['compiler_generated'] )
+			  end
+	  ( <_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10})
+		  -| [{'function_name',{'init',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'make_bb_transfer'/2 =
+    %% Line 216
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_X_Succ> when 'true' ->
+	      let <_cor3> =
+		  %% Line 217
+		  apply 'new_set'/0
+		      ()
+	      in  let <_cor2> =
+		      %% Line 217
+		      apply 'new_set'/0
+			  ()
+		  in  %% Line 217
+		      {_cor3,_cor2}
+	  %% Line 218
+	  <[I|Is],Succ> when 'true' ->
+	      %% Line 219
+	      case apply 'make_bb_transfer'/2
+		       (Is, Succ) of
+		<{Gen,Kill}> when 'true' ->
+		    %% Line 220
+		    case call 'hipe_icode':'is_phi'
+			     (I) of
+		      %% Line 221
+		      <'true'> when 'true' ->
+			  let <_cor5> =
+			      %% Line 222
+			      call 'hipe_icode':'defines'
+				  (I)
+			  in  let <InstrKill> =
+				  %% Line 222
+				  apply 'set_from_list'/1
+				      (_cor5)
+			      in  let <Gen1> =
+				      %% Line 223
+				      apply 'set_subtract'/2
+					  (Gen, InstrKill)
+				  in  let <Kill1> =
+					  %% Line 224
+					  apply 'set_union'/2
+					      (Kill, InstrKill)
+				      in  %% Line 225
+					  {Gen1,Kill1}
+		      %% Line 226
+		      <'false'> when 'true' ->
+			  let <_cor9> =
+			      %% Line 227
+			      call 'hipe_icode':'uses'
+				  (I)
+			  in  let <InstrGen> =
+				  %% Line 227
+				  apply 'set_from_list'/1
+				      (_cor9)
+			      in  let <_cor11> =
+				      %% Line 228
+				      call 'hipe_icode':'defines'
+					  (I)
+				  in  let <InstrKill> =
+					  %% Line 228
+					  apply 'set_from_list'/1
+					      (_cor11)
+				      in  let <Gen1> =
+					      %% Line 229
+					      apply 'set_subtract'/2
+						  (Gen, InstrKill)
+					  in  let <Gen2> =
+						  %% Line 230
+						  apply 'set_union'/2
+						      (Gen1, InstrGen)
+					      in  let <Kill1> =
+						      %% Line 231
+						      apply 'set_union'/2
+							  (Kill, InstrKill)
+						  in  let <Kill2> =
+							  %% Line 232
+							  apply 'set_subtract'/2
+							      (Kill1, InstrGen)
+						      in  %% Line 233
+							  {Gen2,Kill2}
+		      ( <_cor17> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor17})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor19,_cor18> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor19,_cor18})
+		  -| [{'function_name',{'make_bb_transfer',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_directed_gen'/1 =
+    %% Line 236
+    fun (_cor0) ->
+	let <Map> =
+	    %% Line 237
+	    apply 'get_directed_gen_1'/1
+		(_cor0)
+	in  let <_cor8> =
+		%% Line 238
+		( fun (_cor5,_cor4) ->
+		      case <_cor5,_cor4> of
+			<{_X_Pred,Gen},Acc> when 'true' ->
+			    %% Line 239
+			    apply 'set_union'/2
+				(Gen, Acc)
+			( <_cor7,_cor6> when 'true' ->
+			      ( primop 'match_fail'
+				    ({'function_clause',_cor7,_cor6})
+				-| [{'function_name',{'-get_directed_gen/1-fun-0-',2}}] )
+			  -| ['compiler_generated'] )
+		      end
+		  -| [{'id',{0,0,'-get_directed_gen/1-fun-0-'}}] )
+	    in  let <_cor3> =
+		    %% Line 240
+		    apply 'new_set'/0
+			()
+		in  let <_cor2> =
+			%% Line 240
+			call 'gb_trees':'to_list'
+			    (Map)
+		    in  let <TotalGen> =
+			    %% Line 238
+			    call 'lists':'foldl'
+				(_cor8, _cor3, _cor2)
+			in  %% Line 241
+			    {TotalGen,Map}
+'get_directed_gen_1'/1 =
+    %% Line 243
+    fun (_cor0) ->
+	case _cor0 of
+	  <[I|Left]> when 'true' ->
+	      %% Line 244
+	      case call 'hipe_icode':'is_phi'
+		       (I) of
+		%% Line 245
+		<'false'> when 'true' ->
+		    %% Line 246
+		    call 'gb_trees':'empty'
+			()
+		%% Line 247
+		<'true'> when 'true' ->
+		    let <Map> =
+			%% Line 248
+			apply 'get_directed_gen_1'/1
+			    (Left)
+		    in  let <ArgList> =
+			    %% Line 249
+			    call 'hipe_icode':'phi_arglist'
+				(I)
+			in  %% Line 250
+			    call 'lists':'foldl'
+				(( 'update_directed_gen'/2
+				   -| [{'id',{0,0,'-get_directed_gen_1/1-fun-0-'}}] ), Map, ArgList)
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'get_directed_gen_1',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'update_directed_gen'/2 =
+    %% Line 253
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Pred,Var},Map> when 'true' ->
+	      %% Line 254
+	      case call 'gb_trees':'lookup'
+		       (Pred, Map) of
+		%% Line 255
+		<'none'> when 'true' ->
+		    let <_cor2> =
+			apply 'set_from_list'/1
+			    ([Var|[]])
+		    in  call 'gb_trees':'insert'
+			    (Pred, _cor2, Map)
+		%% Line 256
+		<{'value',Set}> when 'true' ->
+		    let <_cor3> =
+			apply 'set_add'/2
+			    (Var, Set)
+		    in  call 'gb_trees':'update'
+			    (Pred, _cor3, Map)
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'update_directed_gen',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'liveness_init'/1 =
+    %% Line 265
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 266
+	    call 'gb_trees':'empty'
+		()
+	in  %% Line 266
+	    apply 'liveness_init1'/2
+		(_cor0, _cor1)
+'liveness_init1'/2 =
+    %% Line 268
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{Label,Info}|Left],Map> when 'true' ->
+	      let <_cor2> =
+		  %% Line 269
+		  call 'gb_trees':'insert'
+		      (Label, Info, Map)
+	      in  %% Line 269
+		  apply 'liveness_init1'/2
+		      (Left, _cor2)
+	  %% Line 270
+	  <[],Map> when 'true' ->
+	      %% Line 271
+	      Map
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'liveness_init1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'liveness_lookup'/2 =
+    %% Line 273
+    fun (_cor1,_cor0) ->
+	%% Line 274
+	case call 'gb_trees':'lookup'
+		 (_cor1, _cor0) of
+	  <{'value',Info}> when 'true' ->
+	      %% Line 275
+	      Info
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'liveness_update'/3 =
+    %% Line 277
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 278
+	call 'gb_trees':'update'
+	    (_cor2, _cor1, _cor0)
+'new_set'/0 =
+    %% Line 286
+    fun () ->
+	%% Line 287
+	call 'gb_sets':'empty'
+	    ()
+'set_union'/2 =
+    %% Line 289
+    fun (_cor1,_cor0) ->
+	%% Line 290
+	call 'gb_sets':'union'
+	    (_cor1, _cor0)
+'set_subtract'/2 =
+    %% Line 292
+    fun (_cor1,_cor0) ->
+	%% Line 293
+	call 'gb_sets':'subtract'
+	    (_cor1, _cor0)
+'set_from_list'/1 =
+    %% Line 295
+    fun (_cor0) ->
+	%% Line 296
+	call 'gb_sets':'from_list'
+	    (_cor0)
+'set_to_list'/1 =
+    %% Line 298
+    fun (_cor0) ->
+	%% Line 299
+	call 'gb_sets':'to_list'
+	    (_cor0)
+'set_add'/2 =
+    %% Line 301
+    fun (_cor1,_cor0) ->
+	%% Line 302
+	call 'gb_sets':'add'
+	    (_cor1, _cor0)
+'convert'/1 =
+    %% Line 60
+    fun (_cor0) ->
+	let <CFG1> =
+	    %% Line 61
+	    apply 'insertNewStartNode'/1
+		(_cor0)
+	in  do  %% Line 63
+		call 'hipe_timing':'start_optional_timer'
+		    ([68|[111|[109|[105|[110|[97|[116|[111|[114|[32|[84|[114|[101|[101|[32|[99|[111|[110|[115|[116|[114|[117|[99|[116|[105|[111|[110]]]]]]]]]]]]]]]]]]]]]]]]]]], 'hipe_icode_ssa')
+		let <DomTree> =
+		    %% Line 64
+		    call 'hipe_dominators':'domTree_create'
+			(CFG1)
+		in  do  %% Line 65
+			call 'hipe_timing':'stop_optional_timer'
+			    ([68|[111|[109|[105|[110|[97|[116|[111|[114|[32|[84|[114|[101|[101|[32|[99|[111|[110|[115|[116|[114|[117|[99|[116|[105|[111|[110|[32|[100|[111|[110|[101]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], 'hipe_icode_ssa')
+			do  %% Line 67
+			    call 'hipe_timing':'start_optional_timer'
+				([68|[111|[109|[105|[110|[97|[110|[99|[101|[32|[70|[114|[111|[110|[116|[105|[101|[114]]]]]]]]]]]]]]]]]], 'hipe_icode_ssa')
+			    let <DomFrontier> =
+				%% Line 68
+				call 'hipe_dominators':'domFrontier_create'
+				    (CFG1, DomTree)
+			    in  do  %% Line 69
+				    call 'hipe_timing':'stop_optional_timer'
+					([68|[111|[109|[105|[110|[97|[110|[99|[101|[32|[70|[114|[111|[110|[116|[105|[101|[114|[32|[100|[111|[110|[101]]]]]]]]]]]]]]]]]]]]]]], 'hipe_icode_ssa')
+				    do  %% Line 71
+					call 'hipe_timing':'start_optional_timer'
+					    ([112|[108|[97|[99|[101|[109|[101|[110|[116|[32|[111|[102|[32|[80|[104|[105|[45|[110|[111|[100|[101|[115]]]]]]]]]]]]]]]]]]]]]], 'hipe_icode_ssa')
+					let <CFG2> =
+					    %% Line 72
+					    apply 'place_phi'/2
+						(CFG1, DomFrontier)
+					in  do  %% Line 73
+						call 'hipe_timing':'stop_optional_timer'
+						    ([112|[108|[97|[99|[101|[109|[101|[110|[116|[32|[111|[102|[32|[80|[104|[105|[45|[110|[111|[100|[101|[115|[32|[100|[111|[110|[101]]]]]]]]]]]]]]]]]]]]]]]]]]], 'hipe_icode_ssa')
+						do  %% Line 75
+						    call 'hipe_timing':'start_optional_timer'
+							([82|[101|[110|[97|[109|[101]]]]]], 'hipe_icode_ssa')
+						    let <CFG3> =
+							%% Line 76
+							apply 'rename'/2
+							    (CFG2, DomTree)
+						    in  do  %% Line 77
+							    call 'hipe_timing':'stop_optional_timer'
+								([82|[101|[110|[97|[109|[101|[32|[100|[111|[110|[101]]]]]]]]]]], 'hipe_icode_ssa')
+							    %% Line 79
+							    CFG3
+'insertNewStartNode'/1 =
+    %% Line 83
+    fun (_cor0) ->
+	let <StartLabel> =
+	    %% Line 84
+	    call 'hipe_icode_cfg':'start_label'
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 85
+		call 'hipe_icode':'mk_new_label'
+		    ()
+	    in  let <NewStartLabel> =
+		    %% Line 85
+		    call 'hipe_icode':'label_name'
+			(_cor2)
+		in  let <_cor4> =
+			%% Line 86
+			call 'hipe_icode':'mk_goto'
+			    (StartLabel)
+		    in  let <BB> =
+			    %% Line 86
+			    call 'hipe_bb':'mk_bb'
+				([_cor4|[]])
+			in  let <CFG2> =
+				%% Line 87
+				call 'hipe_icode_cfg':'bb_add'
+				    (_cor0, NewStartLabel, BB)
+			    in  %% Line 88
+				call 'hipe_icode_cfg':'start_label_update'
+				    (CFG2, NewStartLabel)
+'place_phi'/2 =
+    %% Line 103
+    fun (_cor1,_cor0) ->
+	let <AssMap> =
+	    %% Line 104
+	    apply 'insertParams'/1
+		(_cor1)
+	in  let <AssMap2> =
+		%% Line 105
+		apply 'preProcess'/2
+		    (_cor1, AssMap)
+	    in  let <VarList> =
+		    %% Line 106
+		    call 'gb_trees':'to_list'
+			(AssMap2)
+		in  let <Liveness> =
+			%% Line 107
+			call 'hipe_icode_liveness':'analyze'
+			    (_cor1)
+		    in  let <_cor7> =
+			    %% Line 108
+			    call 'gb_trees':'empty'
+				()
+			in  let <_cor6> =
+				%% Line 108
+				call 'gb_trees':'empty'
+				    ()
+			    in  %% Line 108
+				apply 'variableTraverse'/8
+				    (_cor1, _cor0, _cor7, _cor6, %% Line 109
+								 0, %% Line 109
+								    AssMap2, %% Line 109
+									     Liveness, %% Line 109
+										       VarList)
+'insertParams'/1 =
+    %% Line 118
+    fun (_cor0) ->
+	let <StartLabel> =
+	    %% Line 119
+	    call 'hipe_icode_cfg':'start_label'
+		(_cor0)
+	in  let <Params> =
+		%% Line 120
+		call 'hipe_icode_cfg':'params'
+		    (_cor0)
+	    in  let <_cor3> =
+		    %% Line 121
+		    call 'gb_trees':'empty'
+			()
+		in  %% Line 121
+		    apply 'insertParams'/3
+			(Params, StartLabel, _cor3)
+'insertParams'/3 =
+    %% Line 123
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Param|T],StartLabel,AssMap> when 'true' ->
+	      let <_cor3> =
+		  %% Line 124
+		  call 'gb_trees':'insert'
+		      (Param, [StartLabel|[]], AssMap)
+	      in  %% Line 124
+		  apply 'insertParams'/3
+		      (T, StartLabel, _cor3)
+	  %% Line 125
+	  <[],_cor7,AssMap> when 'true' ->
+	      AssMap
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'insertParams',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'preProcess'/2 =
+    %% Line 135
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 136
+	    call 'hipe_icode_cfg':'labels'
+		(_cor1)
+	in  %% Line 136
+	    apply 'traverseLabels'/3
+		(_cor1, _cor2, _cor0)
+'traverseLabels'/3 =
+    %% Line 148
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <CFG,[Label|T],AssMap> when 'true' ->
+	      let <Code> =
+		  %% Line 149
+		  apply 'get_code_from_label'/2
+		      (CFG, Label)
+	      in  let <NewVarList> =
+		      %% Line 150
+		      apply 'getAssignments'/1
+			  (Code)
+		  in  let <_cor5> =
+			  %% Line 151
+			  apply 'updateAssMap'/3
+			      (NewVarList, Label, AssMap)
+		      in  %% Line 151
+			  apply 'traverseLabels'/3
+			      (CFG, T, _cor5)
+	  %% Line 152
+	  <_cor9,[],AssMap> when 'true' ->
+	      AssMap
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'traverseLabels',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'getAssignments'/1 =
+    %% Line 163
+    fun (_cor0) ->
+	apply 'getAssignments'/2
+	    (_cor0, [])
+'getAssignments'/2 =
+    %% Line 165
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[Instr|T],VarList> when 'true' ->
+	      let <_cor2> =
+		  %% Line 166
+		  apply 'defs_to_rename'/1
+		      (Instr)
+	      in  let <_cor3> =
+		      %% Line 166
+		      call 'erlang':'++'
+			  (_cor2, VarList)
+		  in  %% Line 166
+		      apply 'getAssignments'/2
+			  (T, _cor3)
+	  %% Line 167
+	  <[],VarList> when 'true' ->
+	      VarList
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'getAssignments',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'updateAssMap'/3 =
+    %% Line 179
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[AssVar|T],Label,AssMap> when 'true' ->
+	      let <Lst> =
+		  %% Line 180
+		  apply 'getAssMap'/2
+		      (AssVar, AssMap)
+	      in  let <_cor4> =
+		      %% Line 181
+		      call 'gb_trees':'enter'
+			  (AssVar, [Label|Lst], AssMap)
+		  in  %% Line 181
+		      apply 'updateAssMap'/3
+			  (T, Label, _cor4)
+	  %% Line 182
+	  <[],_cor8,AssMap> when 'true' ->
+	      AssMap
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'updateAssMap',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'getAssMap'/2 =
+    %% Line 184
+    fun (_cor1,_cor0) ->
+	%% Line 185
+	case call 'gb_trees':'lookup'
+		 (_cor1, _cor0) of
+	  %% Line 186
+	  <{'value',L}> when 'true' ->
+	      L
+	  %% Line 187
+	  <'none'> when 'true' ->
+	      []
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'variableTraverse'/8 =
+    %% Line 204
+    fun (_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <CFG,DFMap,HasAlready,Work,%% Line 205
+				     IterCount,%% Line 205
+					       AssMap,%% Line 205
+						      Liveness,%% Line 205
+							       [{Var,_cor20}|VarLst]> when 'true' ->
+	      let <IterCount2> =
+		  %% Line 206
+		  call 'erlang':'+'
+		      (IterCount, 1)
+	      in  let <DefLst> =
+		      %% Line 207
+		      apply 'getAssMap'/2
+			  (Var, AssMap)
+		  in  %% Line 208
+		      case apply 'workListBuilder'/4
+			       (DefLst, Work, [], IterCount2) of
+			<{Work2,WorkLst2}> when 'true' ->
+			    %% Line 209
+			    case apply 'doWork'/8
+				     (CFG, DFMap, HasAlready, %% Line 210
+							      Work2, %% Line 210
+								     IterCount2, %% Line 210
+										 WorkLst2, %% Line 211
+											   Var, %% Line 211
+												Liveness) of
+			      <{CFG2,HasAlready2,Work3}> when 'true' ->
+				  %% Line 212
+				  apply 'variableTraverse'/8
+				      (CFG2, DFMap, HasAlready2, Work3, %% Line 213
+									IterCount2, %% Line 213
+										    AssMap, %% Line 213
+											    Liveness, %% Line 213
+												      VarLst)
+			      ( <_cor11> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor11})
+				-| ['compiler_generated'] )
+			    end
+			( <_cor10> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor10})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 214
+	  <CFG,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,[]> when 'true' ->
+	      CFG
+	  ( <_cor19,_cor18,_cor17,_cor16,_cor15,_cor14,_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor19,_cor18,_cor17,_cor16,_cor15,_cor14,_cor13,_cor12})
+		  -| [{'function_name',{'variableTraverse',8}}] )
+	    -| ['compiler_generated'] )
+	end
+'workListBuilder'/4 =
+    %% Line 226
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[Node|T],Work,WorkLst,IterCount> when 'true' ->
+	      %% Line 227
+	      case apply 'getCount'/2
+		       (Node, Work) of
+		%% Line 228
+		<0> when 'true' ->
+		    let <Work2> =
+			%% Line 229
+			call 'gb_trees':'enter'
+			    (Node, IterCount, Work)
+		    in  %% Line 230
+			apply 'workListBuilder'/4
+			    (T, Work2, [Node|WorkLst], IterCount)
+		%% Line 231
+		<_cor11> when 'true' ->
+		    let <Work2> =
+			%% Line 232
+			call 'gb_trees':'enter'
+			    (Node, IterCount, Work)
+		    in  %% Line 233
+			apply 'workListBuilder'/4
+			    (T, Work2, [Node|WorkLst], IterCount)
+	      end
+	  %% Line 235
+	  <[],Work,WorkLst,_X_IterCount> when 'true' ->
+	      %% Line 236
+	      {Work,WorkLst}
+	  ( <_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'workListBuilder',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'getCount'/2 =
+    %% Line 238
+    fun (_cor1,_cor0) ->
+	%% Line 239
+	case call 'gb_trees':'lookup'
+		 (_cor1, _cor0) of
+	  %% Line 240
+	  <{'value',V}> when 'true' ->
+	      V
+	  %% Line 241
+	  <'none'> when 'true' ->
+	      0
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'doWork'/8 =
+    %% Line 258
+    fun (_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <CFG,DFMap,HasAlready,Work,IterCount,%% Line 259
+					       [Node|WorkLst],%% Line 259
+							      Var,%% Line 259
+								  Liveness> when 'true' ->
+	      let <DFofX> =
+		  %% Line 260
+		  call 'hipe_dominators':'domFrontier_get'
+		      (Node, DFMap)
+	      in  %% Line 261
+		  case %% Line 262
+		       apply 'checkPhiNeeds'/8
+			   (CFG, DFofX, HasAlready, Work, %% Line 263
+							  IterCount, %% Line 263
+								     WorkLst, %% Line 263
+									      Var, %% Line 263
+										   Liveness) of
+		    <{CFG2,HasAlready2,Work2,WorkLst2}> when 'true' ->
+			%% Line 264
+			apply 'doWork'/8
+			    (CFG2, DFMap, HasAlready2, Work2, %% Line 265
+							      IterCount, %% Line 265
+									 WorkLst2, %% Line 265
+										   Var, %% Line 265
+											Liveness)
+		    ( <_cor9> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor9})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 266
+	  <CFG,_cor18,HasAlready,Work,_cor19,[],_cor20,_cor21> when 'true' ->
+	      %% Line 267
+	      {CFG,HasAlready,Work}
+	  ( <_cor17,_cor16,_cor15,_cor14,_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor17,_cor16,_cor15,_cor14,_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'doWork',8}}] )
+	    -| ['compiler_generated'] )
+	end
+'checkPhiNeeds'/8 =
+    %% Line 283
+    fun (_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <CFG,[Node|DFofX],HasAlready,Work,%% Line 284
+					    IterCount,%% Line 284
+						      WorkLst,%% Line 284
+							      Var,%% Line 284
+								  Liveness> when 'true' ->
+	      let <_cor8> =
+		  %% Line 285
+		  apply 'getCount'/2
+		      (Node, HasAlready)
+	      in  %% Line 285
+		  case <> of
+		    %% Line 286
+		    <>
+			when call 'erlang':'<'
+			      (_cor8,
+			       IterCount) ->
+			let <LiveIn> =
+			    %% Line 287
+			    call 'hipe_icode_liveness':'livein'
+				(Liveness, Node)
+			in  %% Line 288
+			    case call 'lists':'member'
+				     (Var, LiveIn) of
+			      %% Line 289
+			      <'true'> when 'true' ->
+				  let <CFG2> =
+				      %% Line 290
+				      apply 'insertPhiCode'/3
+					  (CFG, Node, Var)
+				  in  let <HasAlready2> =
+					  %% Line 291
+					  call 'gb_trees':'enter'
+					      (Node, IterCount, HasAlready)
+				      in  let <_cor12> =
+					      %% Line 292
+					      apply 'getCount'/2
+						  (Node, Work)
+					  in  %% Line 292
+					      case <> of
+						%% Line 293
+						<>
+						    when call 'erlang':'<'
+							  (_cor12,
+							   IterCount) ->
+						    let <Work2> =
+							%% Line 294
+							call 'gb_trees':'enter'
+							    (Node, IterCount, Work)
+						    in  let <WorkLst2> =
+							    %% Line 295
+							    [Node|WorkLst]
+							in  %% Line 296
+							    apply 'checkPhiNeeds'/8
+								(CFG2, DFofX, HasAlready2, Work2, %% Line 297
+												  IterCount, %% Line 297
+													     WorkLst2, %% Line 297
+														       Var, %% Line 297
+															    Liveness)
+						%% Line 298
+						<> when 'true' ->
+						    %% Line 299
+						    apply 'checkPhiNeeds'/8
+							(CFG2, DFofX, HasAlready2, Work, %% Line 300
+											 IterCount, %% Line 300
+												    WorkLst, %% Line 300
+													     Var, %% Line 300
+														  Liveness)
+					      end
+			      %% Line 302
+			      <'false'> when 'true' ->
+				  %% Line 303
+				  apply 'checkPhiNeeds'/8
+				      (CFG, DFofX, HasAlready, Work, IterCount, %% Line 304
+										WorkLst, %% Line 304
+											 Var, %% Line 304
+											      Liveness)
+			      ( <_cor16> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor16})
+				-| ['compiler_generated'] )
+			    end
+		    %% Line 306
+		    <> when 'true' ->
+			%% Line 307
+			apply 'checkPhiNeeds'/8
+			    (CFG, DFofX, HasAlready, Work, IterCount, %% Line 308
+								      WorkLst, %% Line 308
+									       Var, %% Line 308
+										    Liveness)
+		  end
+	  %% Line 310
+	  <CFG,[],HasAlready,Work,_cor26,WorkLst,_cor27,_cor28> when 'true' ->
+	      %% Line 311
+	      {CFG,HasAlready,Work,WorkLst}
+	  ( <_cor25,_cor24,_cor23,_cor22,_cor21,_cor20,_cor19,_cor18> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor25,_cor24,_cor23,_cor22,_cor21,_cor20,_cor19,_cor18})
+		  -| [{'function_name',{'checkPhiNeeds',8}}] )
+	    -| ['compiler_generated'] )
+	end
+'insertPhiCode'/3 =
+    %% Line 322
+    fun (_cor2,_cor1,_cor0) ->
+	let <BB> =
+	    %% Line 323
+	    call 'hipe_icode_cfg':'bb'
+		(_cor2, _cor1)
+	in  let <Phi> =
+		%% Line 324
+		call 'hipe_icode':'mk_phi'
+		    (_cor0)
+	    in  let <_cor5> =
+		    %% Line 325
+		    call 'hipe_bb':'code'
+			(BB)
+		in  let <Code> =
+			%% Line 325
+			[Phi|_cor5]
+		    in  let <_cor7> =
+			    %% Line 326
+			    call 'hipe_bb':'code_update'
+				(BB, Code)
+			in  %% Line 326
+			    call 'hipe_icode_cfg':'bb_add'
+				(_cor2, _cor1, _cor7)
+'rename'/2 =
+    %% Line 342
+    fun (_cor1,_cor0) ->
+	do  %% Line 345
+	    apply 'reset_var_indx'/0
+		()
+	    %% Line 346
+	    case apply 'insertRenamedParams'/1
+		     (_cor1) of
+	      <{CFG2,Current}> when 'true' ->
+		  let <_cor3> =
+		      %% Line 347
+		      call 'hipe_icode_cfg':'start_label'
+			  (CFG2)
+		  in  %% Line 347
+		      apply 'rename'/4
+			  (CFG2, _cor3, _cor0, Current)
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor2})
+		-| ['compiler_generated'] )
+	    end
+'rename'/4 =
+    %% Line 349
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <BB> =
+	    %% Line 350
+	    call 'hipe_icode_cfg':'bb'
+		(_cor3, _cor2)
+	in  let <Statements> =
+		%% Line 351
+		call 'hipe_bb':'code'
+		    (BB)
+	    in  %% Line 352
+		case apply 'renameVars'/2
+			 (Statements, _cor0) of
+		  <{Statements2,Current2}> when 'true' ->
+		      let <_cor7> =
+			  %% Line 353
+			  call 'hipe_bb':'code_update'
+			      (BB, Statements2)
+		      in  let <CFG1> =
+			      %% Line 353
+			      call 'hipe_icode_cfg':'bb_add'
+				  (_cor3, _cor2, _cor7)
+			  in  let <Succ> =
+				  %% Line 354
+				  call 'hipe_icode_cfg':'succ'
+				      (CFG1, _cor2)
+			      in  let <CFG2> =
+				      %% Line 355
+				      apply 'updateSuccPhi'/4
+					  (Succ, _cor2, CFG1, Current2)
+				  in  let <Children> =
+					  %% Line 356
+					  call 'hipe_dominators':'domTree_getChildren'
+					      (_cor2, _cor1)
+				      in  %% Line 357
+					  apply 'childrenRename'/4
+					      (Children, CFG2, _cor1, Current2)
+		  ( <_cor6> when 'true' ->
+			primop 'match_fail'
+			    ({'badmatch',_cor6})
+		    -| ['compiler_generated'] )
+		end
+'childrenRename'/4 =
+    %% Line 370
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[Child|Children],CFG,DomTree,Current> when 'true' ->
+	      let <CFG2> =
+		  %% Line 371
+		  apply 'rename'/4
+		      (CFG, Child, DomTree, Current)
+	      in  %% Line 372
+		  apply 'childrenRename'/4
+		      (Children, CFG2, DomTree, Current)
+	  %% Line 373
+	  <[],CFG,_cor9,_cor10> when 'true' ->
+	      %% Line 374
+	      CFG
+	  ( <_cor8,_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'childrenRename',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'renameVars'/2 =
+    %% Line 384
+    fun (_cor1,_cor0) ->
+	%% Line 385
+	apply 'renameVars'/3
+	    (_cor1, _cor0, [])
+'renameVars'/3 =
+    %% Line 387
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Statement|Statements],Current,Result> when 'true' ->
+	      let <Statement2> =
+		  %% Line 388
+		  apply 'renameUses'/2
+		      (Statement, Current)
+	      in  %% Line 389
+		  case apply 'renameDefs'/2
+			   (Statement2, Current) of
+		    <{Statement3,Current2}> when 'true' ->
+			%% Line 390
+			apply 'renameVars'/3
+			    (Statements, Current2, [Statement3|Result])
+		    ( <_cor4> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor4})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 391
+	  <[],Current,Result> when 'true' ->
+	      let <_cor5> =
+		  %% Line 392
+		  call 'lists':'reverse'
+		      (Result)
+	      in  %% Line 392
+		  {_cor5,Current}
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'renameVars',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'renameUses'/2 =
+    %% Line 402
+    fun (_cor1,_cor0) ->
+	%% Line 403
+	case call 'hipe_icode':'is_phi'
+		 (_cor1) of
+	  %% Line 404
+	  <'true'> when 'true' ->
+	      _cor1
+	  %% Line 405
+	  <'false'> when 'true' ->
+	      let <VarList> =
+		  apply 'uses_to_rename'/1
+		      (_cor1)
+	      in  %% Line 406
+		  apply 'updateStatementUses'/3
+		      (VarList, _cor1, _cor0)
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'updateStatementUses'/3 =
+    %% Line 419
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor8> =
+	    %% Line 420
+	    ( letrec
+		  'lc$^0'/1 =
+		      fun (_cor5) ->
+			  case _cor5 of
+			    <[Var|_cor4]> when 'true' ->
+				let <_cor6> =
+				    call 'gb_trees':'get'
+					(Var, _cor0)
+				in  let <_cor7> =
+					apply 'lc$^0'/1
+					    (_cor4)
+				    in  ( [{Var,_cor6}|_cor7]
+					  -| ['compiler_generated'] )
+			    <[]> when 'true' ->
+				[]
+			    ( <_cor5> when 'true' ->
+				  ( primop 'match_fail'
+					({'function_clause',_cor5})
+				    -| [{'function_name',{'lc$^0',1}}] )
+			      -| ['compiler_generated'] )
+			  end
+	      in  apply 'lc$^0'/1
+		      (_cor2)
+	      -| ['list_comprehension'] )
+	in  %% Line 421
+	    call 'hipe_icode':'subst_uses'
+		(_cor8, _cor1)
+'renameDefs'/2 =
+    %% Line 432
+    fun (_cor1,_cor0) ->
+	let <VarList> =
+	    %% Line 433
+	    apply 'defs_to_rename'/1
+		(_cor1)
+	in  %% Line 434
+	    apply 'updateStatementDefs'/3
+		(VarList, _cor1, _cor0)
+'updateStatementDefs'/3 =
+    %% Line 450
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 451
+	apply 'updateStatementDefs'/4
+	    (_cor2, _cor1, _cor0, [])
+'updateStatementDefs'/4 =
+    %% Line 453
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[Var|Vars],Statement,Current,Acc> when 'true' ->
+	      %% Line 454
+	      case apply 'updateIndices'/2
+		       (Current, Var) of
+		<{NewVar,Current2}> when 'true' ->
+		    %% Line 455
+		    apply 'updateStatementDefs'/4
+			(Vars, Statement, Current2, [{Var,NewVar}|Acc])
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 456
+	  <[],Statement,Current,Acc> when 'true' ->
+	      let <Statement2> =
+		  %% Line 457
+		  call 'hipe_icode':'subst_defines'
+		      (Acc, Statement)
+	      in  %% Line 458
+		  {Statement2,Current}
+	  ( <_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'updateStatementDefs',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'updateIndices'/2 =
+    %% Line 470
+    fun (_cor1,_cor0) ->
+	%% Line 471
+	case call 'hipe_icode':'is_var'
+		 (_cor0) of
+	  %% Line 472
+	  <'true'> when 'true' ->
+	      let <NewVar> =
+		  %% Line 473
+		  call 'hipe_icode':'mk_new_var'
+		      ()
+	      in  let <_cor3> =
+		      %% Line 474
+		      call 'gb_trees':'enter'
+			  (_cor0, NewVar, _cor1)
+		  in  %% Line 474
+		      {NewVar,_cor3}
+	  %% Line 475
+	  <'false'> when 'true' ->
+	      %% Line 476
+	      case apply 'is_fp_temp'/1
+		       (_cor0) of
+		%% Line 477
+		<'true'> when 'true' ->
+		    let <NewFVar> =
+			%% Line 478
+			apply 'mk_new_fp_temp'/0
+			    ()
+		    in  let <_cor5> =
+			    %% Line 479
+			    call 'gb_trees':'enter'
+				(_cor0, NewFVar, _cor1)
+			in  %% Line 479
+			    {NewFVar,_cor5}
+		%% Line 480
+		<'false'> when 'true' ->
+		    let <NewReg> =
+			%% Line 481
+			call 'hipe_icode':'mk_new_reg'
+			    ()
+		    in  let <_cor7> =
+			    %% Line 482
+			    call 'gb_trees':'enter'
+				(_cor0, NewReg, _cor1)
+			in  %% Line 482
+			    {NewReg,_cor7}
+		( <_cor8> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor8})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor9> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor9})
+	    -| ['compiler_generated'] )
+	end
+'updateSuccPhi'/4 =
+    %% Line 501
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[Succ|T],Parent,CFG,Current> when 'true' ->
+	      let <CFG2> =
+		  %% Line 502
+		  apply 'updatePhi'/4
+		      (Succ, Parent, CFG, Current)
+	      in  %% Line 503
+		  apply 'updateSuccPhi'/4
+		      (T, Parent, CFG2, Current)
+	  %% Line 504
+	  <[],_cor9,CFG,_cor10> when 'true' ->
+	      %% Line 505
+	      CFG
+	  ( <_cor8,_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'updateSuccPhi',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'updatePhi'/4 =
+    %% Line 523
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <BB> =
+	    %% Line 524
+	    call 'hipe_icode_cfg':'bb'
+		(_cor1, _cor3)
+	in  %% Line 525
+	    case call 'hipe_bb':'code'
+		     (BB) of
+	      %% Line 526
+	      <Statements = [Code|_cor13]> when 'true' ->
+		  %% Line 527
+		  case call 'hipe_icode':'is_phi'
+			   (Code) of
+		    %% Line 528
+		    <'true'> when 'true' ->
+			let <Code2> =
+			    %% Line 529
+			    apply 'updateCode'/3
+				(Statements, _cor2, _cor0)
+			in  let <_cor6> =
+				%% Line 530
+				call 'hipe_bb':'code_update'
+				    (BB, Code2)
+			    in  %% Line 530
+				call 'hipe_icode_cfg':'bb_add'
+				    (_cor1, _cor3, _cor6)
+		    %% Line 531
+		    <_cor14> when 'true' ->
+			_cor1
+		  end
+	      %% Line 534
+	      <_cor15> when 'true' ->
+		  _cor1
+	    end
+'updateCode'/3 =
+    %% Line 551
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 552
+	apply 'updateCode'/4
+	    (_cor2, _cor1, _cor0, [])
+'updateCode'/4 =
+    %% Line 554
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Statements = [Stat|Stats],Pred,Current,Result> when 'true' ->
+	      %% Line 555
+	      case call 'hipe_icode':'is_phi'
+		       (Stat) of
+		%% Line 556
+		<'true'> when 'true' ->
+		    let <Var> =
+			%% Line 557
+			call 'hipe_icode':'phi_id'
+			    (Stat)
+		    in  let <_cor7> =
+			    %% Line 558
+			    case call 'gb_trees':'lookup'
+				     (Var, Current) of
+			      %% Line 559
+			      <'none'> when 'true' ->
+				  %% Line 560
+				  [Stat|Result]
+			      %% Line 561
+			      <{'value',Var2}> when 'true' ->
+				  let <Stat2> =
+				      %% Line 562
+				      call 'hipe_icode':'phi_enter_pred'
+					  (Stat, Pred, Var2)
+				  in  %% Line 563
+				      [Stat2|Result]
+			      ( <_cor6> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor6})
+				-| ['compiler_generated'] )
+			    end
+			in  %% Line 565
+			    apply 'updateCode'/4
+				(Stats, Pred, Current, _cor7)
+		%% Line 566
+		<_cor14> when 'true' ->
+		    %% Line 567
+		    call 'erlang':'++'
+			(Result, Statements)
+	      end
+	  ( <_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'updateCode',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'insertRenamedParams'/1 =
+    %% Line 577
+    fun (_cor0) ->
+	let <Params> =
+	    %% Line 578
+	    call 'hipe_icode_cfg':'params'
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 580
+		call 'gb_trees':'empty'
+		    ()
+	    in  %% Line 580
+		case apply 'insertRenamedParams'/3
+			 (Params, _cor2, []) of
+		  <{Current,Params2}> when 'true' ->
+		      let <CFG2> =
+			  %% Line 581
+			  call 'hipe_icode_cfg':'params_update'
+			      (_cor0, Params2)
+		      in  %% Line 582
+			  {CFG2,Current}
+		  ( <_cor3> when 'true' ->
+			primop 'match_fail'
+			    ({'badmatch',_cor3})
+		    -| ['compiler_generated'] )
+		end
+'insertRenamedParams'/3 =
+    %% Line 584
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Param|Params],Current,Result> when 'true' ->
+	      %% Line 585
+	      case apply 'updateIndices'/2
+		       (Current, Param) of
+		<{Var,Current2}> when 'true' ->
+		    %% Line 586
+		    apply 'insertRenamedParams'/3
+			(Params, Current2, [Var|Result])
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 587
+	  <[],Current,Result> when 'true' ->
+	      let <_cor4> =
+		  %% Line 588
+		  call 'lists':'reverse'
+		      (Result)
+	      in  %% Line 588
+		  {Current,_cor4}
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'insertRenamedParams',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'check'/1 =
+    %% Line 604
+    fun (_cor0) ->
+	let <Labels> =
+	    %% Line 605
+	    call 'hipe_icode_cfg':'labels'
+		(_cor0)
+	in  let <VarTree> =
+		%% Line 606
+		apply 'traverse_labels'/2
+		    (Labels, _cor0)
+	    in  let <DomTree> =
+		    %% Line 607
+		    call 'hipe_dominators':'domTree_create'
+			(_cor0)
+		in  %% Line 608
+		    apply 'test_uses'/4
+			(Labels, VarTree, DomTree, _cor0)
+'traverse_labels'/2 =
+    %% Line 613
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 614
+	    call 'hipe_icode_cfg':'params'
+		(_cor0)
+	in  let <VarTree> =
+		%% Line 614
+		apply 'add_args'/1
+		    (_cor2)
+	    in  %% Line 615
+		apply 'traverse_labels'/3
+		    (_cor1, VarTree, _cor0)
+'traverse_labels'/3 =
+    %% Line 617
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Label|Rest],VarTree,CFG> when 'true' ->
+	      let <Code> =
+		  %% Line 618
+		  apply 'get_code_from_label'/2
+		      (CFG, Label)
+	      in  let <NewVarTree> =
+		      %% Line 619
+		      apply 'traverse_code'/3
+			  (Code, VarTree, Label)
+		  in  %% Line 620
+		      apply 'traverse_labels'/3
+			  (Rest, NewVarTree, CFG)
+	  %% Line 621
+	  <[],VarTree,_X_CFG> when 'true' ->
+	      %% Line 622
+	      VarTree
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'traverse_labels',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'traverse_code'/3 =
+    %% Line 627
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Instr|Rest],VarTree,Label> when 'true' ->
+	      let <Defined> =
+		  %% Line 628
+		  apply 'defs_to_rename'/1
+		      (Instr)
+	      in  let <NewVarTree> =
+		      %% Line 629
+		      apply 'add_to_var_tree'/4
+			  (Defined, VarTree, Instr, Label)
+		  in  %% Line 630
+		      apply 'traverse_code'/3
+			  (Rest, NewVarTree, Label)
+	  %% Line 631
+	  <[],VarTree,_cor8> when 'true' ->
+	      %% Line 632
+	      VarTree
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'traverse_code',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'add_to_var_tree'/4 =
+    %% Line 642
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[Var|Rest],VarTree,Instr,Label> when 'true' ->
+	      let <_cor13> =
+		  %% Line 644
+		  case call 'gb_trees':'lookup'
+			   (Var, VarTree) of
+		    %% Line 645
+		    <{'value',{OldInstr,OldLabel}}> when 'true' ->
+			do  %% Line 646
+			    call 'io':'format'
+				([60|[72|[105|[80|[69|[32|[40|[118|[32|[51|[46|[49|[49|[41|[62|[32|[87|[97|[114|[110|[105|[110|[103|[58|[32|[91|[126|[115|[58|[126|[119|[93|[58|[32|[86|[97|[114|[105|[97|[98|[108|[101|[58|[32|[126|[119|[32|[100|[101|[102|[105|[110|[101|[100|[32|[97|[32|[115|[101|[99|[111|[110|[100|[32|[116|[105|[109|[101|[10|[105|[110|[32|[73|[110|[115|[116|[114|[58|[32|[126|[119|[10|[97|[116|[32|[76|[97|[98|[101|[108|[58|[32|[126|[119|[10|[118|[97|[114|[105|[97|[98|[108|[101|[32|[119|[97|[115|[32|[102|[105|[114|[115|[116|[32|[100|[101|[102|[105|[110|[101|[100|[32|[97|[116|[32|[76|[97|[98|[101|[108|[40|[115|[41|[32|[126|[119|[10|[105|[110|[32|[73|[110|[115|[116|[114|[40|[115|[41|[58|[32|[126|[119|[10|[32|[45|[62|[32|[110|[111|[110|[32|[83|[83|[65|[32|[102|[111|[114|[109|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 650
+																																																																																																																									   ['hipe_icode_ssa'|[650|%% Line 651
+																																																																																																																												  [Var|[Instr|[Label|[OldLabel|[OldInstr|[]]]]]]]])
+			    %% Line 652
+			    call 'gb_trees':'update'
+				(Var, {[Instr|OldInstr],[Label|OldLabel]}, VarTree)
+		    %% Line 653
+		    <'none'> when 'true' ->
+			%% Line 654
+			call 'gb_trees':'insert'
+			    (Var, {[Instr|[]],[Label|[]]}, VarTree)
+		    ( <_cor12> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor12})
+		      -| ['compiler_generated'] )
+		  end
+	      in  %% Line 656
+		  apply 'add_to_var_tree'/4
+		      (Rest, _cor13, Instr, Label)
+	  %% Line 657
+	  <[],VarTree,_cor19,_cor20> when 'true' ->
+	      %% Line 658
+	      VarTree
+	  ( <_cor18,_cor17,_cor16,_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor18,_cor17,_cor16,_cor15})
+		  -| [{'function_name',{'add_to_var_tree',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'add_args'/1 =
+    %% Line 664
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 665
+	    call 'gb_trees':'empty'
+		()
+	in  %% Line 665
+	    apply 'add_args'/2
+		(_cor0, _cor1)
+'add_args'/2 =
+    %% Line 667
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[Arg|Rest],VarTree> when 'true' ->
+	      let <_cor2> =
+		  %% Line 668
+		  call 'gb_trees':'insert'
+		      (Arg, {['argument_variable'],[0]}, VarTree)
+	      in  %% Line 668
+		  apply 'add_args'/2
+		      (Rest, _cor2)
+	  %% Line 669
+	  <[],VarTree> when 'true' ->
+	      %% Line 670
+	      VarTree
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'add_args',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'test_uses'/4 =
+    %% Line 679
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[Label|Rest],VarTree,DomTree,CFG> when 'true' ->
+	      let <Code> =
+		  %% Line 680
+		  apply 'get_code_from_label'/2
+		      (CFG, Label)
+	      in  do  %% Line 681
+		      apply 'test_code'/6
+			  (Code, VarTree, Label, DomTree, CFG, [])
+		      %% Line 682
+		      apply 'test_uses'/4
+			  (Rest, VarTree, DomTree, CFG)
+	  %% Line 683
+	  <[],_X_VarTree,_X_DomTree,_X_CFG> when 'true' ->
+	      %% Line 684
+	      'ok'
+	  ( <_cor8,_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'test_uses',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'test_code'/6 =
+    %% Line 689
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[Instr|Instrs],VarTree,Label,DomTree,CFG,Old> when 'true' ->
+	      do  %% Line 690
+		  case call 'hipe_icode':'is_phi'
+			   (Instr) of
+		    %% Line 691
+		    <'true'> when 'true' ->
+			let <ArgList> =
+			    %% Line 692
+			    call 'hipe_icode':'phi_arglist'
+				(Instr)
+			in  do  %% Line 693
+				case ArgList of
+				  %% Line 694
+				  <[_X_Arg|[]]> when 'true' ->
+				      do  %% Line 695
+					  call 'io':'format'
+					      ([60|[72|[105|[80|[69|[32|[40|[118|[32|[51|[46|[49|[49|[41|[62|[32|[87|[97|[114|[110|[105|[110|[103|[58|[32|[91|[126|[115|[58|[126|[119|[93|[58|[32|[80|[104|[105|[32|[119|[105|[116|[104|[32|[111|[110|[108|[121|[32|[111|[110|[101|[32|[115|[111|[117|[114|[99|[101|[32|[97|[116|[32|[66|[66|[32|[119|[105|[116|[104|[32|[108|[97|[98|[101|[108|[32|[126|[119|[58|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], ['hipe_icode_ssa'|[695|%% Line 696
+																																																															      [Label|[]]]])
+					  'ok'
+				  %% Line 702
+				  <[_cor24|_cor25]> when 'true' ->
+				      'ok'
+				  ( <_cor11> when 'true' ->
+					primop 'match_fail'
+					    ({'case_clause',_cor11})
+				    -| ['compiler_generated'] )
+				end
+				let <_cor15> =
+				    %% Line 704
+				    ( fun (_cor13) ->
+					  case _cor13 of
+					    <{Pred,Var}> when 'true' ->
+						let <_cor12> =
+						    %% Line 706
+						    apply 'get_code_from_label'/2
+							(CFG, Pred)
+						in  %% Line 705
+						    apply 'def_doms_use'/5
+							([Var|[]], VarTree, Pred, DomTree, _cor12)
+					    ( <_cor14> when 'true' ->
+						  ( primop 'match_fail'
+							({'function_clause',_cor14})
+						    -| [{'function_name',{'-test_code/6-fun-0-',1}}] )
+					      -| ['compiler_generated'] )
+					  end
+				      -| [{'id',{0,0,'-test_code/6-fun-0-'}}] )
+				in  %% Line 704
+				    call 'lists':'foreach'
+					(_cor15, %% Line 707
+						 ArgList)
+		    %% Line 708
+		    <'false'> when 'true' ->
+			let <Uses> =
+			    %% Line 709
+			    apply 'uses_to_rename'/1
+				(Instr)
+			in  %% Line 710
+			    apply 'def_doms_use'/5
+				(Uses, VarTree, Label, DomTree, Old)
+		    ( <_cor17> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor17})
+		      -| ['compiler_generated'] )
+		  end
+		  %% Line 712
+		  apply 'test_code'/6
+		      (Instrs, VarTree, Label, DomTree, CFG, [Instr|Old])
+	  %% Line 713
+	  <[],_X_VarTree,_X_Label,_X_DomTree,_X_CFG,_X_Old> when 'true' ->
+	      %% Line 714
+	      'ok'
+	  ( <_cor23,_cor22,_cor21,_cor20,_cor19,_cor18> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor23,_cor22,_cor21,_cor20,_cor19,_cor18})
+		  -| [{'function_name',{'test_code',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_code_from_label'/2 =
+    %% Line 716
+    fun (_cor1,_cor0) ->
+	%% Line 717
+	case call 'hipe_icode_cfg':'bb'
+		 (_cor1, _cor0) of
+	  %% Line 718
+	  <'not_found'> when 'true' ->
+	      %% Line 719
+	      call 'code_server':'error_msg'
+		  ([60|[72|[105|[80|[69|[32|[40|[118|[32|[51|[46|[49|[49|[41|[62|[32|[69|[114|[114|[111|[114|[58|[32|[91|[126|[115|[58|[126|[119|[93|[58|[32|[66|[97|[115|[105|[99|[32|[98|[108|[111|[99|[107|[32|[119|[105|[116|[104|[32|[108|[97|[98|[101|[108|[32|[126|[119|[32|[119|[97|[115|[32|[110|[111|[116|[32|[102|[111|[117|[110|[100|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], ['hipe_icode_ssa'|[719|[_cor0|[]]]])
+	  %% Line 721
+	  <BB> when 'true' ->
+	      %% Line 722
+	      call 'hipe_bb':'code'
+		  (BB)
+	end
+'def_doms_use'/5 =
+    %% Line 738
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[Var|Vars],VarTree,Label,DomTree,Old> when 'true' ->
+	      do  %% Line 739
+		  case call 'gb_trees':'lookup'
+			   (Var, VarTree) of
+		    %% Line 740
+		    <{'value',{_cor34,[DefLabel|_cor35]}}> when 'true' ->
+			%% Line 741
+			case DefLabel of
+			  %% Line 742
+			  <0> when 'true' ->
+			      'ok'
+			  %% Line 744
+			  <_cor36>
+			      when call 'erlang':'=:='
+				    (DefLabel,
+				     Label) ->
+			      let <Fun> =
+				  %% Line 745
+				  ( fun (_cor9) ->
+					let <Defs> =
+					    apply 'defs_to_rename'/1
+						(_cor9)
+					in  let <_cor8> =
+						%% Line 746
+						( fun (_cor6) ->
+						      call 'erlang':'=='
+							  (Var, _cor6)
+						  -| [{'id',{0,0,'-def_doms_use/5-fun-0-'}}] )
+					    in  %% Line 746
+						call 'lists':'any'
+						    (_cor8, Defs)
+				    -| [{'id',{0,0,'-def_doms_use/5-fun-1-'}}] )
+			      in  %% Line 748
+				  case call 'lists':'any'
+					   (Fun, Old) of
+				    %% Line 749
+				    <'true'> when 'true' ->
+					'ok'
+				    %% Line 751
+				    <'false'> when 'true' ->
+					%% Line 752
+					call 'io':'format'
+					    ([60|[72|[105|[80|[69|[32|[40|[118|[32|[51|[46|[49|[49|[41|[62|[32|[87|[97|[114|[110|[105|[110|[103|[58|[32|[91|[126|[115|[58|[126|[119|[93|[58|[32|[86|[97|[114|[105|[97|[98|[108|[101|[32|[58|[32|[126|[119|[32|[117|[115|[101|[100|[32|[98|[101|[102|[111|[114|[101|[32|[100|[101|[102|[105|[110|[105|[116|[105|[111|[110|[32|[105|[110|[32|[98|[98|[58|[32|[126|[119|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], ['hipe_icode_ssa'|[752|%% Line 753
+																																																																  [Var|[Label|[]]]]])
+				    ( <_cor16> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor16})
+				      -| ['compiler_generated'] )
+				  end
+			  %% Line 755
+			  <_cor37> when 'true' ->
+			      %% Line 756
+			      case call 'hipe_dominators':'domTree_dominates'
+				       (DefLabel, Label, DomTree) of
+				%% Line 757
+				<'true'> when 'true' ->
+				    'ok'
+				%% Line 759
+				<'false'> when 'true' ->
+				    %% Line 760
+				    call 'io':'format'
+					([60|[72|[105|[80|[69|[32|[40|[118|[32|[51|[46|[49|[49|[41|[62|[32|[87|[97|[114|[110|[105|[110|[103|[58|[32|[91|[126|[115|[58|[126|[119|[93|[58|[32|[68|[101|[102|[105|[110|[105|[116|[105|[111|[110|[32|[100|[111|[101|[115|[32|[110|[111|[116|[32|[100|[111|[109|[105|[110|[97|[116|[101|[32|[117|[115|[101|[32|[102|[111|[114|[32|[118|[97|[114|[105|[97|[98|[108|[101|[58|[32|[126|[119|[32|[97|[116|[32|[108|[97|[98|[101|[108|[58|[32|[126|[119|[32|[40|[100|[101|[102|[105|[110|[105|[116|[105|[111|[110|[32|[108|[97|[98|[101|[108|[58|[32|[126|[119|[41|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 761
+																																																																																								      ['hipe_icode_ssa'|[761|%% Line 762
+																																																																																											     [Var|[Label|[DefLabel|[]]]]]])
+				( <_cor22> when 'true' ->
+				      primop 'match_fail'
+					  ({'case_clause',_cor22})
+				  -| ['compiler_generated'] )
+			      end
+			end
+		    %% Line 765
+		    <'none'> when 'true' ->
+			%% Line 766
+			call 'io':'format'
+			    ([60|[72|[105|[80|[69|[32|[40|[118|[32|[51|[46|[49|[49|[41|[62|[32|[87|[97|[114|[110|[105|[110|[103|[58|[32|[91|[126|[115|[58|[126|[119|[93|[58|[32|[85|[115|[101|[32|[119|[105|[116|[104|[32|[110|[111|[32|[100|[101|[102|[105|[110|[105|[116|[105|[111|[110|[32|[111|[102|[32|[118|[97|[114|[105|[97|[98|[108|[101|[58|[32|[126|[119|[32|[97|[116|[32|[108|[97|[98|[101|[108|[58|[32|[126|[119|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], ['hipe_icode_ssa'|[766|%% Line 767
+																																																																	       [Var|[Label|[]]]]])
+		    ( <_cor28> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor28})
+		      -| ['compiler_generated'] )
+		  end
+		  %% Line 769
+		  apply 'def_doms_use'/5
+		      (Vars, VarTree, Label, DomTree, Old)
+	  %% Line 770
+	  <[],_X_VarTree,_X_Label,_X_DomTree,_X_Old> when 'true' ->
+	      %% Line 771
+	      'ok'
+	  ( <_cor33,_cor32,_cor31,_cor30,_cor29> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor33,_cor32,_cor31,_cor30,_cor29})
+		  -| [{'function_name',{'def_doms_use',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'unconvert'/1 =
+    %% Line 793
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 794
+	    call 'hipe_icode_cfg':'reverse_postorder'
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 794
+		apply 'unconvert'/2
+		    (_cor1, _cor0)
+	    in  %% Line 794
+		call 'hipe_icode_cfg':'remove_trivial_bbs'
+		    (_cor2)
+'unconvert'/2 =
+    %% Line 796
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[Node|Nodes],CFG> when 'true' ->
+	      let <BB> =
+		  %% Line 797
+		  call 'hipe_icode_cfg':'bb'
+		      (CFG, Node)
+	      in  let <Code> =
+		      %% Line 798
+		      call 'hipe_bb':'code'
+			  (BB)
+		  in  %% Line 799
+		      case apply 'getPhiFuncts'/2
+			       (Code, []) of
+			<{Phis,Code2}> when 'true' ->
+			    %% Line 800
+			    case Phis of
+			      %% Line 801
+			      <[]> when 'true' ->
+				  %% Line 802
+				  apply 'unconvert'/2
+				      (Nodes, CFG)
+			      %% Line 803
+			      <_cor13> when 'true' ->
+				  let <BB2> =
+				      %% Line 804
+				      call 'hipe_bb':'code_update'
+					  (BB, Code2)
+				  in  let <CFG2> =
+					  %% Line 805
+					  call 'hipe_icode_cfg':'bb_add'
+					      (CFG, Node, BB2)
+				      in  let <Pred> =
+					      %% Line 806
+					      call 'hipe_icode_cfg':'pred'
+						  (CFG2, Node)
+					  in  let <PredMoveMap> =
+						  %% Line 807
+						  apply 'get_moves'/2
+						      (Pred, Phis)
+					      in  let <CFG3> =
+						      %% Line 808
+						      apply 'insert_move_bbs'/3
+							  (PredMoveMap, Node, CFG2)
+						  in  %% Line 809
+						      apply 'unconvert'/2
+							  (Nodes, CFG3)
+			    end
+			( <_cor4> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor4})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 811
+	  <[],CFG> when 'true' ->
+	      %% Line 812
+	      CFG
+	  ( <_cor12,_cor11> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11})
+		  -| [{'function_name',{'unconvert',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_moves'/2 =
+    %% Line 824
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 825
+	    call 'gb_trees':'empty'
+		()
+	in  %% Line 825
+	    apply 'get_moves'/3
+		(_cor1, _cor0, _cor2)
+'get_moves'/3 =
+    %% Line 827
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Pred|Left],Phis,Map> when 'true' ->
+	      let <Moves> =
+		  %% Line 828
+		  apply 'get_moves_from_phis'/3
+		      (Pred, Phis, [])
+	      in  let <_cor5> =
+		      %% Line 830
+		      case call 'gb_trees':'lookup'
+			       (Moves, Map) of
+			%% Line 831
+			<'none'> when 'true' ->
+			    call 'gb_trees':'insert'
+				(Moves, [Pred|[]], Map)
+			%% Line 832
+			<{'value',List}> when 'true' ->
+			    call 'gb_trees':'update'
+				(Moves, [Pred|List], Map)
+			( <_cor4> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor4})
+			  -| ['compiler_generated'] )
+		      end
+		  in  %% Line 834
+		      apply 'get_moves'/3
+			  (Left, Phis, _cor5)
+	  %% Line 835
+	  <[],_X_Phis,Map> when 'true' ->
+	      %% Line 836
+	      call 'gb_trees':'to_list'
+		  (Map)
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'get_moves',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_moves_from_phis'/3 =
+    %% Line 848
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Pred,[Phi|Left],Acc> when 'true' ->
+	      let <Dst> =
+		  %% Line 849
+		  call 'hipe_icode':'phi_dst'
+		      (Phi)
+	      in  let <Src> =
+		      %% Line 850
+		      call 'hipe_icode':'phi_arg'
+			  (Phi, Pred)
+		  in  let <NewAcc> =
+			  %% Line 851
+			  [{Dst,Src}|Acc]
+		      in  %% Line 852
+			  apply 'get_moves_from_phis'/3
+			      (Pred, Left, NewAcc)
+	  %% Line 853
+	  <_X_Pred,[],Acc> when 'true' ->
+	      %% Line 854
+	      Acc
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'get_moves_from_phis',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'insert_move_bbs'/3 =
+    %% Line 866
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[{Ordset,Preds}|Left],Label,Cfg> when 'true' ->
+	      let <_cor4> =
+		  %% Line 867
+		  apply 'create_moves'/2
+		      (Ordset, [])
+	      in  let <_cor3> =
+		      %% Line 867
+		      call 'hipe_icode':'mk_goto'
+			  (Label)
+		  in  let <Code> =
+			  %% Line 867
+			  call 'erlang':'++'
+			      (_cor4, [_cor3|[]])
+		      in  let <BB> =
+			      %% Line 868
+			      call 'hipe_bb':'mk_bb'
+				  (Code)
+			  in  let <_cor7> =
+				  %% Line 869
+				  call 'hipe_icode':'mk_new_label'
+				      ()
+			      in  let <NewLabel> =
+				      %% Line 869
+				      call 'hipe_icode':'label_name'
+					  (_cor7)
+				  in  let <NewCfg1> =
+					  %% Line 870
+					  call 'hipe_icode_cfg':'bb_add'
+					      (Cfg, NewLabel, BB)
+				      in  let <_cor14> =
+					      %% Line 871
+					      ( fun (_cor11,_cor10) ->
+						    %% Line 872
+						    call 'hipe_icode_cfg':'redirect'
+							(_cor10, _cor11, Label, NewLabel)
+						-| [{'id',{0,0,'-insert_move_bbs/3-fun-0-'}}] )
+					  in  let <NewCfg2> =
+						  %% Line 871
+						  call 'lists':'foldl'
+						      (_cor14, %% Line 874
+							       NewCfg1, %% Line 874
+									Preds)
+					      in  %% Line 875
+						  apply 'insert_move_bbs'/3
+						      (Left, Label, NewCfg2)
+	  %% Line 876
+	  <[],_X_Label,Cfg> when 'true' ->
+	      %% Line 877
+	      Cfg
+	  ( <_cor18,_cor17,_cor16> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor18,_cor17,_cor16})
+		  -| [{'function_name',{'insert_move_bbs',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'create_moves'/2 =
+    %% Line 879
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{X,_cor5}|Left],Acc>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     X) ->
+	      %% Line 880
+	      apply 'create_moves'/2
+		  (Left, Acc)
+	  %% Line 881
+	  <[{Dst,Src}|Left],Acc> when 'true' ->
+	      let <_cor2> =
+		  %% Line 882
+		  apply 'makePhiMove'/2
+		      (Dst, Src)
+	      in  %% Line 882
+		  apply 'create_moves'/2
+		      (Left, [_cor2|Acc])
+	  %% Line 883
+	  <[],Acc> when 'true' ->
+	      %% Line 885
+	      call 'lists':'reverse'
+		  (Acc)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'create_moves',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'getPhiFuncts'/2 =
+    %% Line 897
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <List = [I|T],Result> when 'true' ->
+	      %% Line 898
+	      case call 'hipe_icode':'is_phi'
+		       (I) of
+		%% Line 899
+		<'true'> when 'true' ->
+		    %% Line 900
+		    apply 'getPhiFuncts'/2
+			(T, [I|Result])
+		%% Line 901
+		<'false'> when 'true' ->
+		    %% Line 902
+		    {Result,List}
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 904
+	  <[],Result> when 'true' ->
+	      %% Line 905
+	      {Result,[]}
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'getPhiFuncts',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'remove_dead_code'/1 =
+    %% Line 914
+    fun (_cor0) ->
+	let <Lbls> =
+	    %% Line 915
+	    call 'hipe_icode_cfg':'reverse_postorder'
+		(_cor0)
+	in  let <Liveness> =
+		%% Line 916
+		apply 'ssa_liveness__analyze'/1
+		    (_cor0)
+	    in  %% Line 917
+		case apply 'do_lbls'/4
+			 (Lbls, _cor0, Liveness, 'false') of
+		  %% Line 918
+		  <{CFG1,'true'}> when 'true' ->
+		      %% Line 919
+		      apply 'remove_dead_code'/1
+			  (CFG1)
+		  %% Line 920
+		  <{CFG1,'false'}> when 'true' ->
+		      %% Line 921
+		      CFG1
+		  ( <_cor3> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor3})
+		    -| ['compiler_generated'] )
+		end
+'do_lbls'/4 =
+    %% Line 924
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[Lbl|Rest],CFG,Liveness,Changed> when 'true' ->
+	      let <_cor4> =
+		  %% Line 925
+		  apply 'ssa_liveness__liveout'/2
+		      (Liveness, Lbl)
+	      in  let <LiveOut> =
+		      %% Line 925
+		      call 'gb_sets':'from_list'
+			  (_cor4)
+		  in  let <BB> =
+			  %% Line 926
+			  call 'hipe_icode_cfg':'bb'
+			      (CFG, Lbl)
+		      in  let <Code> =
+			      %% Line 927
+			      call 'hipe_bb':'code'
+				  (BB)
+			  in  let <_cor8> =
+				  %% Line 928
+				  call 'lists':'reverse'
+				      (Code)
+			      in  %% Line 928
+				  case apply 'do_code'/4
+					   (_cor8, LiveOut, Changed, []) of
+				    <{NewCode,NewChanged}> when 'true' ->
+					let <NewBB> =
+					    %% Line 929
+					    call 'hipe_bb':'code_update'
+						(BB, NewCode)
+					in  let <NewCFG> =
+						%% Line 930
+						call 'hipe_icode_cfg':'bb_add'
+						    (CFG, Lbl, NewBB)
+					    in  %% Line 931
+						apply 'do_lbls'/4
+						    (Rest, NewCFG, Liveness, NewChanged)
+				    ( <_cor9> when 'true' ->
+					  primop 'match_fail'
+					      ({'badmatch',_cor9})
+				      -| ['compiler_generated'] )
+				  end
+	  %% Line 932
+	  <[],CFG,_X_Liveness,Changed> when 'true' ->
+	      %% Line 933
+	      {CFG,Changed}
+	  ( <_cor15,_cor14,_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14,_cor13,_cor12})
+		  -| [{'function_name',{'do_lbls',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'do_code'/4 =
+    %% Line 935
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[Instr|Instrs],LiveOut,Changed,Acc> when 'true' ->
+	      let <Def> =
+		  %% Line 936
+		  call 'hipe_icode':'defines'
+		      (Instr)
+	      in  let <Use> =
+		      %% Line 937
+		      call 'hipe_icode':'uses'
+			  (Instr)
+		  in  let <DefSet> =
+			  %% Line 938
+			  call 'gb_sets':'from_list'
+			      (Def)
+		      in  let <UseSet> =
+			      %% Line 939
+			      call 'gb_sets':'from_list'
+				  (Use)
+			  in  let <_cor8> =
+				  %% Line 940
+				  call 'gb_sets':'difference'
+				      (LiveOut, DefSet)
+			      in  let <LiveIn> =
+				      %% Line 940
+				      call 'gb_sets':'union'
+					  (_cor8, UseSet)
+				  in  let <_cor10> =
+					  %% Line 941
+					  call 'gb_sets':'intersection'
+					      (DefSet, LiveOut)
+				      in  %% Line 941
+					  case call 'gb_sets':'is_empty'
+						   (_cor10) of
+					    %% Line 942
+					    <'false'> when 'true' ->
+						%% Line 943
+						apply 'do_code'/4
+						    (Instrs, LiveIn, Changed, [Instr|Acc])
+					    %% Line 944
+					    <'true'> when 'true' ->
+						%% Line 945
+						case call 'hipe_icode':'is_safe'
+							 (Instr) of
+						  %% Line 946
+						  <'true'> when 'true' ->
+						      %% Line 947
+						      case call 'hipe_icode':'is_call'
+							       (Instr) of
+							%% Line 948
+							<'true'> when 'true' ->
+							    %% Line 949
+							    case call 'hipe_icode':'call_continuation'
+								     (Instr) of
+							      %% Line 950
+							      <[]> when 'true' ->
+								  %% Line 951
+								  apply 'do_code'/4
+								      (Instrs, LiveOut, 'true', Acc)
+							      %% Line 952
+							      <SuccLblName> when 'true' ->
+								  let <NewInstr> =
+								      %% Line 953
+								      call 'hipe_icode':'mk_goto'
+									  (SuccLblName)
+								  in  %% Line 954
+								      apply 'do_code'/4
+									  (Instrs, LiveOut, 'true', [NewInstr|Acc])
+							    end
+							%% Line 956
+							<'false'> when 'true' ->
+							    %% Line 957
+							    apply 'do_code'/4
+								(Instrs, LiveOut, 'true', Acc)
+							( <_cor13> when 'true' ->
+							      primop 'match_fail'
+								  ({'case_clause',_cor13})
+							  -| ['compiler_generated'] )
+						      end
+						  %% Line 959
+						  <'false'> when 'true' ->
+						      %% Line 960
+						      case call 'hipe_icode':'is_call'
+							       (Instr) of
+							%% Line 961
+							<'true'> when 'true' ->
+							    %% Line 962
+							    case call 'hipe_icode':'call_dstlist'
+								     (Instr) of
+							      %% Line 963
+							      <[]> when 'true' ->
+								  %% Line 964
+								  apply 'do_code'/4
+								      (Instrs, LiveIn, Changed, [Instr|Acc])
+							      %% Line 965
+							      <[_X_Dst|[]]> when 'true' ->
+								  let <NewInstr> =
+								      %% Line 966
+								      call 'hipe_icode':'call_dstlist_update'
+									  (Instr, [])
+								  in  %% Line 967
+								      apply 'do_code'/4
+									  (Instrs, LiveIn, 'true', [NewInstr|Acc])
+							      %% Line 968
+							      <[_cor23|_cor24]> when 'true' ->
+								  %% Line 969
+								  apply 'do_code'/4
+								      (Instrs, LiveIn, Changed, [Instr|Acc])
+							      ( <_cor15> when 'true' ->
+								    primop 'match_fail'
+									({'case_clause',_cor15})
+								-| ['compiler_generated'] )
+							    end
+							%% Line 971
+							<'false'> when 'true' ->
+							    %% Line 972
+							    apply 'do_code'/4
+								(Instrs, LiveIn, Changed, [Instr|Acc])
+							( <_cor16> when 'true' ->
+							      primop 'match_fail'
+								  ({'case_clause',_cor16})
+							  -| ['compiler_generated'] )
+						      end
+						  ( <_cor17> when 'true' ->
+							primop 'match_fail'
+							    ({'case_clause',_cor17})
+						    -| ['compiler_generated'] )
+						end
+					    ( <_cor18> when 'true' ->
+						  primop 'match_fail'
+						      ({'case_clause',_cor18})
+					      -| ['compiler_generated'] )
+					  end
+	  %% Line 976
+	  <[],_X_LiveOut,Changed,Acc> when 'true' ->
+	      %% Line 977
+	      {Acc,Changed}
+	  ( <_cor22,_cor21,_cor20,_cor19> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor22,_cor21,_cor20,_cor19})
+		  -| [{'function_name',{'do_code',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'defs_to_rename'/1 =
+    %% Line 48
+    fun (_cor0) ->
+	%% Line 49
+	call 'hipe_icode':'defines'
+	    (_cor0)
+'uses_to_rename'/1 =
+    %% Line 51
+    fun (_cor0) ->
+	%% Line 52
+	call 'hipe_icode':'uses'
+	    (_cor0)
+'liveout_no_succ'/0 =
+    %% Line 54
+    fun () ->
+	%% Line 55
+	[]
+'reset_var_indx'/0 =
+    %% Line 59
+    fun () ->
+	%% Line 60
+	call 'hipe_gensym':'set_var'
+	    ('icode', 0)
+'is_fp_temp'/1 =
+    %% Line 64
+    fun (_cor0) ->
+	%% Line 65
+	call 'hipe_icode':'is_fvar'
+	    (_cor0)
+'mk_new_fp_temp'/0 =
+    %% Line 67
+    fun () ->
+	%% Line 68
+	call 'hipe_icode':'mk_new_fvar'
+	    ()
+'makePhiMove'/2 =
+    %% Line 80
+    fun (_cor1,_cor0) ->
+	%% Line 81
+	case call 'hipe_icode':'is_fvar'
+		 (_cor1) of
+	  %% Line 82
+	  <'false'> when 'true' ->
+	      %% Line 83
+	      case call 'hipe_icode':'is_fvar'
+		       (_cor0) of
+		%% Line 84
+		<'false'> when 'true' ->
+		    %% Line 85
+		    call 'hipe_icode':'mk_move'
+			(_cor1, _cor0)
+		%% Line 86
+		<'true'> when 'true' ->
+		    %% Line 87
+		    call 'hipe_icode':'mk_primop'
+			([_cor1|[]], 'unsafe_tag_float', [_cor0|[]])
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 89
+	  <'true'> when 'true' ->
+	      %% Line 90
+	      case call 'hipe_icode':'is_fvar'
+		       (_cor0) of
+		%% Line 91
+		<'true'> when 'true' ->
+		    %% Line 92
+		    call 'hipe_icode':'mk_move'
+			(_cor1, _cor0)
+		%% Line 93
+		<'false'> when 'true' ->
+		    %% Line 94
+		    call 'hipe_icode':'mk_primop'
+			([_cor1|[]], 'conv_to_float', [_cor0|[]])
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_icode_ssa')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_icode_ssa', _cor0)
+end

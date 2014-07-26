@@ -1,0 +1,100 @@
+module 'hipe_sparc_ra' ['module_info'/0,
+			'module_info'/1,
+			'ra'/2]
+    attributes []
+'ra'/2 =
+    %% Line 24
+    fun (_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 27
+	    case call 'proplists':'get_bool'
+		     ('inline_fp', _cor0) of
+	      %% Line 28
+	      <'true'> when 'true' ->
+		  %% Line 29
+		  call 'hipe_regalloc_loop':'ra_fp'
+		      (_cor1, _cor0, %% Line 30
+				     'hipe_coalescing_regalloc', %% Line 31
+								 'hipe_sparc_specific_fp')
+	      %% Line 32
+	      <'false'> when 'true' ->
+		  %% Line 33
+		  {_cor1,[],0}
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor2})
+		-| ['compiler_generated'] )
+	    end
+	in  %% Line 27
+	    case _cor3 of
+	      <{Defun1,Coloring_fp,SpillIndex}> when 'true' ->
+		  let <_cor7> =
+		      %% Line 37
+		      case call 'proplists':'get_value'
+			       ('regalloc', _cor0, 'coalescing') of
+			%% Line 38
+			<'coalescing'> when 'true' ->
+			    %% Line 39
+			    apply 'ra'/4
+				(Defun1, SpillIndex, _cor0, 'hipe_coalescing_regalloc')
+			%% Line 40
+			<'optimistic'> when 'true' ->
+			    %% Line 41
+			    apply 'ra'/4
+				(Defun1, SpillIndex, _cor0, 'hipe_optimistic_regalloc')
+			%% Line 42
+			<'graph_color'> when 'true' ->
+			    %% Line 43
+			    apply 'ra'/4
+				(Defun1, SpillIndex, _cor0, 'hipe_graph_coloring_regalloc')
+			%% Line 44
+			<'linear_scan'> when 'true' ->
+			    %% Line 45
+			    call 'hipe_sparc_ra_ls':'ra'
+				(Defun1, SpillIndex, _cor0)
+			%% Line 46
+			<'naive'> when 'true' ->
+			    %% Line 47
+			    call 'hipe_sparc_ra_naive':'ra'
+				(Defun1, Coloring_fp, _cor0)
+			%% Line 48
+			<_cor11> when 'true' ->
+			    let <_cor5> =
+				%% Line 50
+				call 'proplists':'get_value'
+				    ('regalloc', _cor0)
+			    in  %% Line 49
+				call 'erlang':'exit'
+				    ({'unknown_regalloc_compiler_option',_cor5})
+		      end
+		  in  %% Line 37
+		      case _cor7 of
+			<{Defun2,Coloring}> when 'true' ->
+			    %% Line 53
+			    call 'hipe_sparc_ra_finalise':'finalise'
+				(Defun2, Coloring, Coloring_fp)
+			( <_cor8> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor8})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'ra'/4 =
+    %% Line 55
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 56
+	call 'hipe_regalloc_loop':'ra'
+	    (_cor3, _cor2, _cor1, _cor0, 'hipe_sparc_specific')
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_sparc_ra')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_sparc_ra', _cor0)
+end

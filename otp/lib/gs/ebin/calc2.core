@@ -1,0 +1,205 @@
+module 'calc2' ['calc'/0,
+		'module_info'/0,
+		'module_info'/1,
+		'start'/0]
+    attributes []
+'start'/0 =
+    %% Line 35
+    fun () ->
+	%% Line 36
+	call 'erlang':'spawn'
+	    ('calc2', 'calc', [])
+'calc'/0 =
+    %% Line 38
+    fun () ->
+	let <I> =
+	    %% Line 39
+	    call 'gs':'start'
+		()
+	in  let <Win> =
+		%% Line 40
+		call 'gs':'window'
+		    (I, [{'title',[67|[97|[108|[99|[50]]]]]}|[{'width',120}|[{'height',150}]]])
+	    in  let <Lbl> =
+		    %% Line 41
+		    call 'gs':'label'
+			(Win, [{'label',{'text',[48]}}|[{'width',120}]])
+		in  do  %% Line 42
+			call 'gs':'button'
+			    (Win, [{'label',{'text',[49]}}|[{'width',30}|[{'x',0}|[{'y',30}|[{'data',1}]]]]])
+			do  %% Line 43
+			    call 'gs':'button'
+				(Win, [{'label',{'text',[50]}}|[{'width',30}|[{'x',30}|[{'y',30}|[{'data',2}]]]]])
+			    do  %% Line 44
+				call 'gs':'button'
+				    (Win, [{'label',{'text',[51]}}|[{'width',30}|[{'x',60}|[{'y',30}|[{'data',3}]]]]])
+				do  %% Line 45
+				    call 'gs':'button'
+					(Win, [{'label',{'text',[52]}}|[{'width',30}|[{'x',0}|[{'y',60}|[{'data',4}]]]]])
+				    do  %% Line 46
+					call 'gs':'button'
+					    (Win, [{'label',{'text',[53]}}|[{'width',30}|[{'x',30}|[{'y',60}|[{'data',5}]]]]])
+					do  %% Line 47
+					    call 'gs':'button'
+						(Win, [{'label',{'text',[54]}}|[{'width',30}|[{'x',60}|[{'y',60}|[{'data',6}]]]]])
+					    do  %% Line 48
+						call 'gs':'button'
+						    (Win, [{'label',{'text',[55]}}|[{'width',30}|[{'x',0}|[{'y',90}|[{'data',7}]]]]])
+						do  %% Line 49
+						    call 'gs':'button'
+							(Win, [{'label',{'text',[56]}}|[{'width',30}|[{'x',30}|[{'y',90}|[{'data',8}]]]]])
+						    do  %% Line 50
+							call 'gs':'button'
+							    (Win, [{'label',{'text',[57]}}|[{'width',30}|[{'x',60}|[{'y',90}|[{'data',9}]]]]])
+							do  %% Line 51
+							    call 'gs':'button'
+								(Win, [{'label',{'text',[48]}}|[{'width',60}|[{'x',0}|[{'y',120}|[{'data',0}]]]]])
+							    do  %% Line 52
+								call 'gs':'button'
+								    (Win, [{'label',{'text',[67]}}|[{'width',30}|[{'x',60}|[{'y',120}|[{'data','C'}]]]]])
+								do  %% Line 53
+								    call 'gs':'button'
+									(Win, [{'label',{'text',[65|[67]]}}|[{'width',30}|[{'x',90}|[{'y',120}|[{'data','AC'}|[{'fg','red'}]]]]]])
+								    do  %% Line 55
+									call 'gs':'button'
+									    (Win, [{'label',{'text',[43]}}|[{'width',30}|[{'x',90}|[{'y',30}|[{'data','+'}]]]]])
+									do  %% Line 56
+									    call 'gs':'button'
+										(Win, [{'label',{'text',[42]}}|[{'width',30}|[{'x',90}|[{'y',60}|[{'data','*'}]]]]])
+									    do  %% Line 57
+										call 'gs':'button'
+										    (Win, [{'label',{'text',[45]}}|[{'width',30}|[{'x',90}|[{'y',90}|[{'data','-'}]]]]])
+										do  %% Line 58
+										    call 'gs':'config'
+											(Win, {'map','true'})
+										    %% Line 59
+										    apply 'calc_loop'/4
+											(Lbl, 0, 0, '+')
+'calc_loop'/4 =
+    %% Line 61
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 62
+	receive
+	  %% Line 63
+	  <{'gs',_cor10,'click',D,_cor11}>
+	      when call 'erlang':'is_integer'
+		    (D) ->
+	      let <_cor4> =
+		  %% Line 64
+		  call 'erlang':'*'
+		      (_cor1, 10)
+	      in  let <_cor5> =
+		      %% Line 64
+		      call 'erlang':'+'
+			  (_cor4, D)
+		  in  %% Line 64
+		      apply 'digit_press'/4
+			  (_cor3, _cor2, _cor5, _cor0)
+	  %% Line 65
+	  <{'gs',_cor12,'click','C',_cor13}> when 'true' ->
+	      %% Line 66
+	      apply 'c'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 67
+	  <{'gs',_cor14,'click','AC',_cor15}> when 'true' ->
+	      %% Line 68
+	      apply 'ac'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 69
+	  <{'gs',_cor16,'click',NewOp,_cor17}> when 'true' ->
+	      %% Line 70
+	      apply 'calc'/5
+		  (_cor3, _cor0, _cor2, _cor1, NewOp)
+	  %% Line 71
+	  <{'gs',_cor18,'destroy',_cor19,_cor20}> when 'true' ->
+	      %% Line 72
+	      call 'erlang':'exit'
+		  ('normal')
+	  %% Line 73
+	  <_X_Other> when 'true' ->
+	      %% Line 74
+	      apply 'calc_loop'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	after 'infinity' ->
+	  'true'
+'digit_press'/4 =
+    %% Line 77
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 78
+	    call 'gs':'config'
+		(_cor3, [{'label',{'text',_cor1}}|[]])
+	    %% Line 79
+	    apply 'calc_loop'/4
+		(_cor3, _cor2, _cor1, _cor0)
+'calc'/5 =
+    %% Line 81
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Lbl,'+',M,V,Op> when 'true' ->
+	      let <NewM> =
+		  %% Line 82
+		  call 'erlang':'+'
+		      (M, V)
+	      in  do  %% Line 83
+		      call 'gs':'config'
+			  (Lbl, [{'label',{'text',NewM}}|[]])
+		      %% Line 84
+		      apply 'calc_loop'/4
+			  (Lbl, NewM, 0, Op)
+	  %% Line 85
+	  <Lbl,'-',M,V,Op> when 'true' ->
+	      let <NewM> =
+		  %% Line 86
+		  call 'erlang':'-'
+		      (M, V)
+	      in  do  %% Line 87
+		      call 'gs':'config'
+			  (Lbl, [{'label',{'text',NewM}}|[]])
+		      %% Line 88
+		      apply 'calc_loop'/4
+			  (Lbl, NewM, 0, Op)
+	  %% Line 89
+	  <Lbl,'*',M,V,Op> when 'true' ->
+	      let <NewM> =
+		  %% Line 90
+		  call 'erlang':'*'
+		      (M, V)
+	      in  do  %% Line 91
+		      call 'gs':'config'
+			  (Lbl, [{'label',{'text',NewM}}|[]])
+		      %% Line 92
+		      apply 'calc_loop'/4
+			  (Lbl, NewM, 0, Op)
+	  ( <_cor12,_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'calc',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'c'/4 =
+    %% Line 94
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 95
+	    call 'gs':'config'
+		(_cor3, [{'label',{'text',0}}])
+	    %% Line 96
+	    apply 'calc_loop'/4
+		(_cor3, _cor2, 0, _cor0)
+'ac'/4 =
+    %% Line 98
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 99
+	    call 'gs':'config'
+		(_cor3, [{'label',{'text',0}}])
+	    %% Line 100
+	    apply 'calc_loop'/4
+		(_cor3, 0, 0, '+')
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('calc2')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('calc2', _cor0)
+end

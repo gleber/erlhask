@@ -1,0 +1,222 @@
+module 'erl_distribution' ['init'/1,
+			   'module_info'/0,
+			   'module_info'/1,
+			   'start'/1,
+			   'start_link'/0,
+			   'start_link'/1,
+			   'stop'/0]
+    attributes [%% Line 21
+		'behaviour' =
+		    %% Line 21
+		    ['supervisor']]
+'start_link'/0 =
+    %% Line 28
+    fun () ->
+	let <_cor0> =
+	    catch
+		%% Line 29
+		apply 'start_p'/0
+		    ()
+	in  %% Line 29
+	    case _cor0 of
+	      %% Line 30
+	      <{'ok',Args}> when 'true' ->
+		  %% Line 31
+		  apply 'start_link'/1
+		      (Args)
+	      %% Line 32
+	      <_cor2> when 'true' ->
+		  %% Line 33
+		  'ignore'
+	    end
+'start_link'/1 =
+    %% Line 36
+    fun (_cor0) ->
+	%% Line 37
+	call 'supervisor':'start_link'
+	    ({'local','net_sup'}, 'erl_distribution', _cor0)
+'init'/1 =
+    %% Line 39
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 41
+	    case call 'init':'get_argument'
+		     ('no_epmd') of
+	      %% Line 42
+	      <{'ok',[[]]}> when 'true' ->
+		  %% Line 43
+		  []
+	      %% Line 44
+	      <_cor11> when 'true' ->
+		  let <EpmdMod> =
+		      %% Line 45
+		      call 'net_kernel':'epmd_module'
+			  ()
+		  in  %% Line 46
+		      [{EpmdMod,{EpmdMod,'start_link',[]},%% Line 47
+							  'permanent',%% Line 47
+								      2000,%% Line 47
+									   'worker',%% Line 47
+										    [EpmdMod|[]]}|%% Line 47
+												  []]
+	    end
+	in  let <Kernel> =
+		%% Line 50
+		{'net_kernel',{'net_kernel','start_link',[_cor0|[]]},%% Line 51
+								     'permanent',%% Line 51
+										 2000,%% Line 51
+										      'worker',%% Line 51
+											       ['net_kernel']}
+	    in  let <EarlySpecs> =
+		    %% Line 52
+		    call 'net_kernel':'protocol_childspecs'
+			()
+		in  let <_cor8> =
+			%% Line 53
+			call 'erlang':'++'
+			    (_cor3, [{'auth',{'auth','start_link',[]},'permanent',2000,'worker',['auth']}|[Kernel|[]]])
+		    in  let <_cor9> =
+			    %% Line 53
+			    call 'erlang':'++'
+				(EarlySpecs, _cor8)
+			in  %% Line 53
+			    {'ok',{{'one_for_all',0,1},_cor9}}
+'start_p'/0 =
+    %% Line 55
+    fun () ->
+	do  %% Line 56
+	    apply 'sname'/0
+		()
+	    do  %% Line 57
+		apply 'lname'/0
+		    ()
+		%% Line 58
+		'false'
+'sname'/0 =
+    %% Line 60
+    fun () ->
+	%% Line 61
+	case call 'init':'get_argument'
+		 ('sname') of
+	  %% Line 62
+	  <{'ok',[[Name|[]]|[]]}> when 'true' ->
+	      let <_cor0> =
+		  %% Line 63
+		  call 'erlang':'list_to_atom'
+		      (Name)
+	      in  let <_cor1> =
+		      %% Line 63
+		      apply 'ticktime'/0
+			  ()
+		  in  %% Line 63
+		      call 'erlang':'throw'
+			  ({'ok',[_cor0|['shortnames'|_cor1]]})
+	  %% Line 64
+	  <_cor3> when 'true' ->
+	      %% Line 65
+	      'false'
+	end
+'lname'/0 =
+    %% Line 68
+    fun () ->
+	%% Line 69
+	case call 'init':'get_argument'
+		 ('name') of
+	  %% Line 70
+	  <{'ok',[[Name|[]]|[]]}> when 'true' ->
+	      let <_cor0> =
+		  %% Line 71
+		  call 'erlang':'list_to_atom'
+		      (Name)
+	      in  let <_cor1> =
+		      %% Line 71
+		      apply 'ticktime'/0
+			  ()
+		  in  %% Line 71
+		      call 'erlang':'throw'
+			  ({'ok',[_cor0|['longnames'|_cor1]]})
+	  %% Line 72
+	  <_cor3> when 'true' ->
+	      %% Line 73
+	      'false'
+	end
+'ticktime'/0 =
+    %% Line 76
+    fun () ->
+	let <_cor0> =
+	    catch
+		%% Line 81
+		call 'application':'get_env'
+		    ('net_ticktime')
+	in  %% Line 81
+	    case _cor0 of
+	      %% Line 82
+	      <{'ok',Value}>
+		  when let <_cor1> =
+			call 'erlang':'is_integer'
+			    (Value)
+		    in  let <_cor2> =
+			    call 'erlang':'>'
+				(Value, 0)
+			in  call 'erlang':'and'
+				(_cor1, _cor2) ->
+		  let <_cor3> =
+		      %% Line 83
+		      call 'erlang':'*'
+			  (Value, 250)
+		  in  %% Line 83
+		      [_cor3|[]]
+	      %% Line 84
+	      <_cor5> when 'true' ->
+		  %% Line 85
+		  []
+	    end
+'start'/1 =
+    %% Line 88
+    fun (_cor0) ->
+	let <C> =
+	    %% Line 89
+	    {'net_sup_dynamic',{'erl_distribution','start_link',[_cor0|[]]},'permanent',%% Line 90
+											1000,%% Line 90
+											     'supervisor',%% Line 90
+													  ['erl_distribution']}
+	in  %% Line 91
+	    call 'supervisor':'start_child'
+		('kernel_sup', C)
+'stop'/0 =
+    %% Line 93
+    fun () ->
+	%% Line 94
+	case call 'supervisor':'terminate_child'
+		 ('kernel_sup', 'net_sup_dynamic') of
+	  %% Line 95
+	  <'ok'> when 'true' ->
+	      %% Line 96
+	      call 'supervisor':'delete_child'
+		  ('kernel_sup', 'net_sup_dynamic')
+	  %% Line 97
+	  <Error> when 'true' ->
+	      %% Line 98
+	      case call 'erlang':'whereis'
+		       ('net_sup') of
+		%% Line 99
+		<Pid>
+		    when call 'erlang':'is_pid'
+			  (Pid) ->
+		    %% Line 101
+		    {'error','not_allowed'}
+		%% Line 102
+		<_cor2> when 'true' ->
+		    %% Line 103
+		    Error
+	      end
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('erl_distribution')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('erl_distribution', _cor0)
+end

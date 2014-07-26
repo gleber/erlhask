@@ -1,0 +1,186 @@
+module 'hipe_rtl_exceptions' ['gen_begin_handler'/3,
+			      'gen_fail'/3,
+			      'module_info'/0,
+			      'module_info'/1]
+    attributes [%% Line 301
+		'type' =
+		    %% Line 301
+		    [{{'record','comp_servers'},[{'typed_record_field',{'record_field',301,{'atom',301,'pp_server'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'range'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'type'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}]]],[]}],
+		%% Line 307
+		'type' =
+		    %% Line 307
+		    [{'comp_option',{'type',307,'union',[{'type',307,'atom',[]}|[{'type',307,'tuple',[{'type',307,'atom',[]}|[{'type',307,'atom',[]}]]}]]},[]}],
+		%% Line 308
+		'type' =
+		    %% Line 308
+		    [{'comp_options',{'type',308,'list',[{'type',308,'comp_option',[]}]},[]}],
+		%% Line 310
+		'type' =
+		    %% Line 310
+		    [{'hipe_architecture',{'type',311,'union',[{'atom',311,'amd64'}|[{'atom',311,'arm'}|[{'atom',311,'powerpc'}|[{'atom',311,'ppc64'}|[{'atom',311,'ultrasparc'}|[{'atom',311,'x86'}]]]]]]},[]}],
+		%% Line 313
+		'type' =
+		    %% Line 313
+		    [{'hipe_map',{'type',313,'list',[{'type',313,'tuple',[{'type',313,'non_neg_integer',[]}|[{'type',314,'union',[{'atom',314,'unknown'}|[{'type',314,'tuple',[{'type',314,'union',[{'atom',314,'reg'}|[{'atom',314,'fp_reg'}|[{'atom',314,'spill'}]]]}|[{'type',315,'non_neg_integer',[]}]]}]]}]]}]},[]}],
+		%% Line 316
+		'type' =
+		    %% Line 316
+		    [{'hipe_temp_map',{'type',316,'tuple','any'},[]}],
+		%% Line 317
+		'type' =
+		    %% Line 317
+		    [{'hipe_spill_map',{'type',317,'list',[{'type',317,'tuple',[{'type',317,'non_neg_integer',[]}|[{'type',317,'tuple',[{'atom',317,'spill'}|[{'type',317,'non_neg_integer',[]}]]}]]}]},[]}]]
+'gen_fail'/3 =
+    %% Line 47
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 48
+	case _cor1 of
+	  %% Line 49
+	  <[Reason|[]]> when 'true' ->
+	      %% Line 50
+	      case _cor2 of
+		%% Line 51
+		<'exit'> when 'true' ->
+		    %% Line 90
+		    apply 'gen_fail_call'/3
+			({'erlang','exit',1}, [Reason|[]], _cor0)
+		%% Line 53
+		<'throw'> when 'true' ->
+		    %% Line 93
+		    apply 'gen_fail_call'/3
+			({'erlang','throw',1}, [Reason|[]], _cor0)
+		%% Line 55
+		<'error'> when 'true' ->
+		    %% Line 96
+		    apply 'gen_fail_call'/3
+			({'erlang','error',1}, [Reason|[]], _cor0)
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 58
+	  <[Arg1|[Arg2|[]]]> when 'true' ->
+	      %% Line 59
+	      case _cor2 of
+		%% Line 60
+		<'error'> when 'true' ->
+		    %% Line 99
+		    apply 'gen_fail_call'/3
+			({'erlang','error',2}, [Arg1|[Arg2|[]]], _cor0)
+		%% Line 63
+		<'rethrow'> when 'true' ->
+		    %% Line 102
+		    apply 'gen_fail_call'/3
+			('rethrow', [Arg1|[Arg2|[]]], _cor0)
+		( <_cor8> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor9> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'gen_begin_handler'/3 =
+    %% Line 73
+    fun (_cor2,_cor1,_cor0) ->
+	let <Ds> =
+	    %% Line 74
+	    call 'hipe_icode':'begin_handler_dstlist'
+		(_cor2)
+	in  let <_533> =
+		%% Line 75
+		call 'hipe_rtl_varmap':'ivs2rvs'
+		    (Ds, _cor1)
+	    in  %% Line 75
+		case _533 of
+		  <{Vars,VarMap1}> when 'true' ->
+		      %% Line 76
+		      case Vars of
+			<[FTagVar|[FValueVar|[FTraceVar|[]]]]> when 'true' ->
+			    let <_cor6> =
+				%% Line 77
+				call 'hipe_rtl':'mk_comment'
+				    ('begin_handler')
+			    in  let <_cor7> =
+				    %% Line 78
+				    call 'hipe_bifs':'get_rts_param'
+					(28)
+				in  let <_cor8> =
+					%% Line 78
+					call 'hipe_rtl_arch':'pcb_load'
+					    (FValueVar, _cor7)
+				    in  let <_cor9> =
+					    %% Line 79
+					    call 'hipe_bifs':'get_rts_param'
+						(30)
+					in  let <_cor10> =
+						%% Line 79
+						call 'hipe_rtl_arch':'pcb_load'
+						    (FTraceVar, _cor9)
+					    in  let <_cor11> =
+						    %% Line 81
+						    call 'hipe_bifs':'get_rts_param'
+							(34)
+						in  let <_cor12> =
+							%% Line 81
+							call 'hipe_rtl_arch':'pcb_load'
+							    (FTagVar, _cor11)
+						    in  %% Line 77
+							{[_cor6|%% Line 78
+								[_cor8|%% Line 79
+								       [_cor10|%% Line 81
+									       [_cor12|%% Line 82
+										       []]]]],VarMap1,_cor0}
+			( <_cor5> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',Vars})
+			  -| ['compiler_generated'] )
+		      end
+		  ( <_cor4> when 'true' ->
+			primop 'match_fail'
+			    ({'badmatch',_533})
+		    -| ['compiler_generated'] )
+		end
+'gen_fail_call'/3 =
+    %% Line 114
+    fun (_cor2,_cor1,_cor0) ->
+	let <ContLbl> =
+	    %% Line 115
+	    call 'hipe_rtl':'mk_new_label'
+		()
+	in  let <Cont> =
+		%% Line 116
+		call 'hipe_rtl':'label_name'
+		    (ContLbl)
+	    in  let <_cor5> =
+		    %% Line 117
+		    call 'hipe_tagscheme':'mk_fixnum'
+			(0)
+		in  let <Zero> =
+			%% Line 117
+			call 'hipe_rtl':'mk_imm'
+			    (_cor5)
+		    in  let <_cor7> =
+			    %% Line 118
+			    call 'hipe_rtl':'mk_call'
+				([], _cor2, _cor1, Cont, _cor0, 'remote')
+			in  let <_cor8> =
+				%% Line 120
+				call 'hipe_rtl':'mk_return'
+				    ([Zero|[]])
+			    in  %% Line 118
+				[_cor7|%% Line 119
+				       [ContLbl|%% Line 120
+						[_cor8|[]]]]
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_rtl_exceptions')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_rtl_exceptions', _cor0)
+end

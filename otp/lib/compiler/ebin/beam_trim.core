@@ -1,0 +1,1323 @@
+module 'beam_trim' ['module'/2,
+		    'module_info'/0,
+		    'module_info'/1]
+    attributes []
+'module'/2 =
+    %% Line 30
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Mod,Exp,Attr,Fs0,Lc},_X_Opts> when 'true' ->
+	      let <_cor7> =
+		  %% Line 31
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor4) ->
+				case _cor4 of
+				  <[F|_cor3]> when 'true' ->
+				      let <_cor5> =
+					  apply 'function'/1
+					      (F)
+				      in  let <_cor6> =
+					      apply 'lc$^0'/1
+						  (_cor3)
+					  in  ( [_cor5|_cor6]
+						-| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_950> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor4})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (Fs0)
+		    -| ['list_comprehension'] )
+	      in  %% Line 32
+		  {'ok',{Mod,Exp,Attr,_cor7,Lc}}
+	  ( <_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'module',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'function'/1 =
+    %% Line 34
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'function',Name,Arity,CLabel,Is0}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 36
+		  apply 'safe_labels'/2
+		      (Is0, [])
+	      in  let <_cor1> =
+		      %% Line 36
+		      call 'beam_utils':'index_labels'
+			  (Is0)
+		  in  let <St> = {%% Line 36
+			   'st',_cor2,_cor1}
+		      in  let <Is> =
+			      %% Line 37
+			      apply 'trim'/3
+				  (Is0, St, [])
+			  in  %% Line 38
+			      {'function',Name,Arity,CLabel,Is}
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'function',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'trim'/3 =
+    %% Line 40
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Is0 = [{'kill',_cor21}|_cor22],St,Acc> when 'true' ->
+	      let <_cor5> =
+		  %% Line 41
+		  fun (_cor3) ->
+		      case _cor3 of
+			<{'kill',_cor23}> when 'true' ->
+			    'true'
+			%% Line 42
+			<_cor24> when 'true' ->
+			    'false'
+		      end
+	      in  let <_488> =
+		      %% Line 41
+		      call 'lists':'splitwith'
+			  (_cor5, _cor2)
+		  in  %% Line 41
+		      case _488 of
+			<{Kills0,Is1}> when 'true' ->
+			    let <Kills> =
+				%% Line 44
+				call 'lists':'sort'
+				    (Kills0)
+			    in  %% Line 45
+				try
+				    let <_923> =
+					%% Line 46
+					apply 'frame_layout'/3
+					    (Is1, Kills, _cor1)
+				    in  %% Line 46
+					case _923 of
+					  <{FrameSize,Layout}> when 'true' ->
+					      let <Configs> =
+						  %% Line 47
+						  apply 'trim_instructions'/1
+						      (Layout)
+					      in  %% Line 48
+						  apply 'try_remap'/3
+						      (Configs, Is1, FrameSize)
+					  ( <_cor8> when 'true' ->
+						primop 'match_fail'
+						    ({'badmatch',_923})
+					    -| ['compiler_generated'] )
+					end
+				of <_cor10> ->
+				    case _cor10 of
+				      %% Line 50
+				      <{Is,TrimInstr}> when 'true' ->
+					  let <_cor11> =
+					      %% Line 51
+					      call 'lists':'reverse'
+						  (TrimInstr)
+					  in  let <_cor12> =
+						  %% Line 51
+						  call 'erlang':'++'
+						      (_cor11, _cor0)
+					      in  %% Line 51
+						  apply 'trim'/3
+						      (Is, _cor1, _cor12)
+				      ( <_cor13> when 'true' ->
+					    primop 'match_fail'
+						({'try_clause',_cor10})
+					-| ['compiler_generated'] )
+				    end
+				catch <_cor16,_cor15,_cor14> ->
+				    case <_cor16,_cor15,_cor14> of
+				      %% Line 53
+				      <'throw','not_possible',_cor25> when 'true' ->
+					  let <_cor17> =
+					      %% Line 54
+					      call 'lists':'reverse'
+						  (Kills, _cor0)
+					  in  %% Line 54
+					      apply 'trim'/3
+						  (Is1, _cor1, _cor17)
+				      ( <_1578,_3071,_800> when 'true' ->
+					    primop 'raise'
+						(_cor14, _cor15)
+					-| ['compiler_generated'] )
+				    end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_488})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 56
+	  <[I|Is],St,Acc> when 'true' ->
+	      %% Line 57
+	      apply 'trim'/3
+		  (Is, _cor1, [I|_cor0])
+	  %% Line 58
+	  <[],_cor26,Acc> when 'true' ->
+	      %% Line 59
+	      call 'lists':'reverse'
+		  (_cor0)
+	  ( <_cor20,_cor19,_cor18> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'trim',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'trim_instructions'/1 =
+    %% Line 64
+    fun (_cor0) ->
+	let <_cor5> =
+	    %% Line 65
+	    ( letrec
+		  'lc$^0'/1 =
+		      fun (_cor3) ->
+			  case _cor3 of
+			    <[I = {'kill',_cor8}|_cor2]> when 'true' ->
+				let <_cor4> =
+				    apply 'lc$^0'/1
+					(_cor2)
+				in  ( [I|_cor4]
+				      -| ['compiler_generated'] )
+			    ( <[_cor1|_cor2]> when 'true' ->
+				  apply 'lc$^0'/1
+				      (_cor2)
+			      -| ['compiler_generated'] )
+			    <[]> when 'true' ->
+				[]
+			    ( <_2136> when 'true' ->
+				  ( primop 'match_fail'
+					({'function_clause',_cor3})
+				    -| [{'function_name',{'lc$^0',1}}] )
+			      -| ['compiler_generated'] )
+			  end
+	      in  apply 'lc$^0'/1
+		      (_cor0)
+	      -| ['list_comprehension'] )
+	in  let <Cost> =
+		%% Line 65
+		call 'erlang':'length'
+		    (_cor5)
+	    in  %% Line 66
+		apply 'trim_instructions_1'/4
+		    (_cor0, 0, [], {Cost,[]})
+'trim_instructions_1'/4 =
+    %% Line 68
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[{'kill',{'y',Trim0}}|Ks],_cor17,Moves,Config0>
+	      when call 'erlang':'=:='
+		    (_cor2,
+		     Trim0) ->
+	      let <Trim> =
+		  %% Line 69
+		  call 'erlang':'+'
+		      (Trim0, 1)
+	      in  let <Config> =
+		      %% Line 70
+		      apply 'save_config'/4
+			  (Ks, Trim, _cor1, _cor0)
+		  in  %% Line 71
+		      apply 'trim_instructions_1'/4
+			  (Ks, Trim, _cor1, Config)
+	  %% Line 72
+	  <[{'dead',{'y',Trim0}}|Ks],_cor18,Moves,Config0>
+	      when call 'erlang':'=:='
+		    (_cor2,
+		     Trim0) ->
+	      let <Trim> =
+		  %% Line 73
+		  call 'erlang':'+'
+		      (Trim0, 1)
+	      in  let <Config> =
+		      %% Line 74
+		      apply 'save_config'/4
+			  (Ks, Trim, _cor1, _cor0)
+		  in  %% Line 75
+		      apply 'trim_instructions_1'/4
+			  (Ks, Trim, _cor1, Config)
+	  %% Line 76
+	  <[{'live',Src = {'y',Trim0}}|Ks0],_cor19,Moves0,Config0>
+	      when call 'erlang':'=:='
+		    (_cor2,
+		     Trim0) ->
+	      let <_460> =
+		  %% Line 91
+		  call 'lists':'reverse'
+		      (Ks0)
+	      in  let <_2266> =
+		      %% Line 91
+		      apply 'take_last_dead_1'/1
+			  (_460)
+		  in  %% Line 77
+		      case _2266 of
+			%% Line 78
+			<'none'> when 'true' ->
+			    %% Line 79
+			    case _cor0 of
+			      <{_cor20,ConfigList}> when 'true' ->
+				  ConfigList
+			      ( <_cor8> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor0})
+				-| ['compiler_generated'] )
+			    end
+			%% Line 81
+			<{Dst,Ks}> when 'true' ->
+			    let <Trim> =
+				%% Line 82
+				call 'erlang':'+'
+				    (Trim0, 1)
+			    in  let <Moves> =
+				    %% Line 83
+				    [{'move',Src,Dst}|_cor1]
+				in  let <Config> =
+					%% Line 84
+					apply 'save_config'/4
+					    (Ks, Trim, Moves, _cor0)
+				    in  %% Line 85
+					apply 'trim_instructions_1'/4
+					    (Ks, Trim, Moves, Config)
+			( <_cor12> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_2266})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 87
+	  <[],_cor21,_cor22,{_cor23,ConfigList}> when 'true' ->
+	      ConfigList
+	  ( <_cor16,_cor15,_cor14,_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'trim_instructions_1',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'take_last_dead'/1 =
+    %% Line 90
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 91
+	    call 'lists':'reverse'
+		(_cor0)
+	in  %% Line 91
+	    apply 'take_last_dead_1'/1
+		(_cor1)
+'take_last_dead_1'/1 =
+    %% Line 93
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{'kill',Reg}|Is]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 94
+		  call 'lists':'reverse'
+		      (Is)
+	      in  %% Line 94
+		  {Reg,_cor1}
+	  %% Line 95
+	  <[{'dead',Reg}|Is]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 96
+		  call 'lists':'reverse'
+		      (Is)
+	      in  %% Line 96
+		  {Reg,_cor2}
+	  %% Line 97
+	  <_cor4> when 'true' ->
+	      'none'
+	end
+'save_config'/4 =
+    %% Line 99
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Ks,Trim,Moves,Config = {MaxCost,Acc}> when 'true' ->
+	      let <_2954> =
+		  %% Line 112
+		  call 'erlang':'length'
+		      (_cor1)
+	      in  let <_1919> =
+		      %% Line 112
+		      call 'erlang':'*'
+			  (2, _2954)
+		  in  let <_cor4> =
+			  %% Line 112
+			  call 'erlang':'+'
+			      (1, _1919)
+		      in  let <_1650> =
+			      %% Line 112
+			      apply 'config_cost_1'/2
+				  (_cor3, _cor4)
+			  in  %% Line 100
+			      case _1650 of
+				%% Line 101
+				<Cost>
+				    when call 'erlang':'=<'
+					  (_1650,
+					   MaxCost) ->
+				    %% Line 102
+				    {MaxCost,[{_cor3,_cor2,_cor1}|Acc]}
+				%% Line 103
+				<_X_Cost> when 'true' ->
+				    _cor0
+			      end
+	  ( <_cor8,_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'save_config',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'config_cost_1'/2 =
+    %% Line 114
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'kill',_cor5}|Ks],Cost> when 'true' ->
+	      let <_cor2> =
+		  %% Line 115
+		  call 'erlang':'+'
+		      (_cor0, 1)
+	      in  %% Line 115
+		  apply 'config_cost_1'/2
+		      (Ks, _cor2)
+	  %% Line 116
+	  <[_cor6|Ks],Cost> when 'true' ->
+	      %% Line 117
+	      apply 'config_cost_1'/2
+		  (Ks, _cor0)
+	  %% Line 118
+	  <[],Cost> when 'true' ->
+	      _cor0
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'config_cost_1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'expand_config'/2 =
+    %% Line 120
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Layout,Trim,Moves},FrameSize> when 'true' ->
+	      let <_cor6> =
+		  %% Line 121
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor4) ->
+				case _cor4 of
+				  <[Kill = {'kill',_cor14}|_cor3]> when 'true' ->
+				      let <_cor5> =
+					  apply 'lc$^0'/1
+					      (_cor3)
+				      in  ( [Kill|_cor5]
+					    -| ['compiler_generated'] )
+				  ( <[_cor2|_cor3]> when 'true' ->
+					apply 'lc$^0'/1
+					    (_cor3)
+				    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_2482> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor4})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (Layout)
+		    -| ['list_comprehension'] )
+	      in  let <_cor9> =
+		      %% Line 122
+		      call 'erlang':'-'
+			  (_cor0, Trim)
+		  in  let <_cor10> =
+			  %% Line 122
+			  call 'lists':'reverse'
+			      (Moves, [{'trim',Trim,_cor9}|[]])
+		      in  let <_cor11> =
+			      %% Line 122
+			      call 'erlang':'++'
+				  (_cor6, _cor10)
+			  in  let <_cor8> =
+				  %% Line 122
+				  apply 'create_map'/2
+				      (Trim, Moves)
+			      in  %% Line 122
+				  {_cor11,_cor8}
+	  ( <_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'expand_config',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'create_map'/2 =
+    %% Line 124
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Trim,[]> when 'true' ->
+	      %% Line 125
+	      fun (_cor3) ->
+		  case _cor3 of
+		    <{'y',Y}>
+			when call 'erlang':'<'
+			      (Y,
+			       _cor1) ->
+			call 'erlang':'throw'
+			    ('not_possible')
+		    %% Line 126
+		    <{'y',Y}> when 'true' ->
+			let <_cor2> =
+			    call 'erlang':'-'
+				(Y, _cor1)
+			in  {'y',_cor2}
+		    %% Line 127
+		    <{'frame_size',N}> when 'true' ->
+			call 'erlang':'-'
+			    (N, _cor1)
+		    %% Line 128
+		    <Any> when 'true' ->
+			_cor3
+		  end
+	  %% Line 130
+	  <Trim,Moves> when 'true' ->
+	      let <_cor10> =
+		  %% Line 131
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor7) ->
+				case _cor7 of
+				  <[{'move',{'y',Src},{'y',Dst}}|_cor6]> when 'true' ->
+				      let <_cor8> =
+					  call 'erlang':'-'
+					      (Dst, _cor1)
+				      in  let <_cor9> =
+					      apply 'lc$^0'/1
+						  (_cor6)
+					  in  ( [{Src,_cor8}|_cor9]
+						-| ['compiler_generated'] )
+				  ( <[_cor5|_cor6]> when 'true' ->
+					apply 'lc$^0'/1
+					    (_cor6)
+				    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_1693> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor7})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (_cor0)
+		    -| ['list_comprehension'] )
+	      in  let <_cor12> =
+		      %% Line 132
+		      call 'lists':'sort'
+			  (_cor10)
+		  in  let <GbTree> =
+			  %% Line 132
+			  call 'gb_trees':'from_orddict'
+			      (_cor12)
+		      in  let <_cor18> =
+			      %% Line 133
+			      ( letrec
+				    'lc$^1'/1 =
+					fun (_cor16) ->
+					    case _cor16 of
+					      <[{'move',_cor27,{'y',Dst}}|_cor15]> when 'true' ->
+						  let <_cor17> =
+						      apply 'lc$^1'/1
+							  (_cor15)
+						  in  ( [Dst|_cor17]
+							-| ['compiler_generated'] )
+					      ( <[_cor14|_cor15]> when 'true' ->
+						    apply 'lc$^1'/1
+							(_cor15)
+						-| ['compiler_generated'] )
+					      <[]> when 'true' ->
+						  []
+					      ( <_566> when 'true' ->
+						    ( primop 'match_fail'
+							  ({'function_clause',_cor16})
+						      -| [{'function_name',{'lc$^1',1}}] )
+						-| ['compiler_generated'] )
+					    end
+				in  apply 'lc$^1'/1
+					(_cor0)
+				-| ['list_comprehension'] )
+			  in  let <IllegalTargets> =
+				  %% Line 133
+				  call 'gb_sets':'from_list'
+				      (_cor18)
+			      in  %% Line 134
+				  fun (_cor23) ->
+				      case _cor23 of
+					<{'y',Y0}>
+					    when call 'erlang':'<'
+						  (Y0,
+						   _cor1) ->
+					    let <_1516> =
+						%% Line 135
+						call 'gb_trees':'lookup'
+						    (Y0, GbTree)
+					    in  %% Line 135
+						case _1516 of
+						  %% Line 136
+						  <{'value',Y}> when 'true' ->
+						      {'y',Y}
+						  %% Line 137
+						  <'none'> when 'true' ->
+						      call 'erlang':'throw'
+							  ('not_possible')
+						  ( <_cor20> when 'true' ->
+							primop 'match_fail'
+							    ({'case_clause',_1516})
+						    -| ['compiler_generated'] )
+						end
+					%% Line 139
+					<{'y',Y}> when 'true' ->
+					    let <_470> =
+						%% Line 140
+						call 'gb_sets':'is_element'
+						    (Y, IllegalTargets)
+					    in  %% Line 140
+						case _470 of
+						  %% Line 141
+						  <'true'> when 'true' ->
+						      call 'erlang':'throw'
+							  ('not_possible')
+						  %% Line 142
+						  <'false'> when 'true' ->
+						      let <_cor21> =
+							  call 'erlang':'-'
+							      (Y, _cor1)
+						      in  {'y',_cor21}
+						  ( <_cor22> when 'true' ->
+							primop 'match_fail'
+							    ({'case_clause',_470})
+						    -| ['compiler_generated'] )
+						end
+					%% Line 144
+					<{'frame_size',N}> when 'true' ->
+					    call 'erlang':'-'
+						(N, _cor1)
+					%% Line 145
+					<Any> when 'true' ->
+					    _cor23
+				      end
+	end
+'try_remap'/3 =
+    %% Line 148
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[C|Cs],Is,FrameSize> when 'true' ->
+	      let <_70> =
+		  %% Line 149
+		  apply 'expand_config'/2
+		      (C, _cor0)
+	      in  %% Line 149
+		  case _70 of
+		    <{TrimInstr,Map}> when 'true' ->
+			%% Line 150
+			try
+			    let <_cor4> =
+				%% Line 151
+				apply 'remap'/3
+				    (_cor1, Map, [])
+			    in  %% Line 151
+				{_cor4,TrimInstr}
+			of <_cor5> ->
+			    _cor5
+			catch <_cor8,_cor7,_cor6> ->
+			    case <_cor8,_cor7,_cor6> of
+			      %% Line 153
+			      <'throw','not_possible',_cor12> when 'true' ->
+				  %% Line 154
+				  apply 'try_remap'/3
+				      (Cs, _cor1, _cor0)
+			      ( <_1248,_530,_1546> when 'true' ->
+				    primop 'raise'
+					(_cor6, _cor7)
+				-| ['compiler_generated'] )
+			    end
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_70})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 156
+	  <[],_cor13,_cor14> when 'true' ->
+	      call 'erlang':'throw'
+		  ('not_possible')
+	  ( <_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'try_remap',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'remap'/3 =
+    %% Line 158
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[{'block',Bl0}|Is],Map,Acc> when 'true' ->
+	      let <Bl> =
+		  %% Line 159
+		  apply 'remap_block'/3
+		      (Bl0, _cor1, [])
+	      in  %% Line 160
+		  apply 'remap'/3
+		      (Is, _cor1, [{'block',Bl}|_cor0])
+	  %% Line 161
+	  <[I = {'call_fun',_cor57}|Is],Map,Acc> when 'true' ->
+	      %% Line 162
+	      apply 'remap'/3
+		  (Is, _cor1, [I|_cor0])
+	  %% Line 163
+	  <[I = {'call',_cor58,_cor59}|Is],Map,Acc> when 'true' ->
+	      %% Line 164
+	      apply 'remap'/3
+		  (Is, _cor1, [I|_cor0])
+	  %% Line 165
+	  <[I = {'call_ext',_cor60,_cor61}|Is],Map,Acc> when 'true' ->
+	      %% Line 166
+	      apply 'remap'/3
+		  (Is, _cor1, [I|_cor0])
+	  %% Line 167
+	  <[I = {'apply',_cor62}|Is],Map,Acc> when 'true' ->
+	      %% Line 168
+	      apply 'remap'/3
+		  (Is, _cor1, [I|_cor0])
+	  %% Line 169
+	  <[{'bif',Name,Fail,Ss,D}|Is],Map,Acc> when 'true' ->
+	      let <_cor10> =
+		  %% Line 170
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor7) ->
+				case _cor7 of
+				  <[S|_cor6]> when 'true' ->
+				      let <_cor8> =
+					  apply _cor1
+					      (S)
+				      in  let <_cor9> =
+					      apply 'lc$^0'/1
+						  (_cor6)
+					  in  ( [_cor8|_cor9]
+						-| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_2563> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor7})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (Ss)
+		    -| ['list_comprehension'] )
+	      in  let <_cor4> =
+		      %% Line 170
+		      apply _cor1
+			  (D)
+		  in  let <I> =
+			  %% Line 170
+			  {'bif',Name,Fail,_cor10,_cor4}
+		      in  %% Line 171
+			  apply 'remap'/3
+			      (Is, _cor1, [I|_cor0])
+	  %% Line 172
+	  <[{'gc_bif',Name,Fail,Live,Ss,D}|Is],Map,Acc> when 'true' ->
+	      let <_cor18> =
+		  %% Line 173
+		  ( letrec
+			'lc$^1'/1 =
+			    fun (_cor15) ->
+				case _cor15 of
+				  <[S|_cor14]> when 'true' ->
+				      let <_cor16> =
+					  apply _cor1
+					      (S)
+				      in  let <_cor17> =
+					      apply 'lc$^1'/1
+						  (_cor14)
+					  in  ( [_cor16|_cor17]
+						-| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_3112> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor15})
+					  -| [{'function_name',{'lc$^1',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^1'/1
+			    (Ss)
+		    -| ['list_comprehension'] )
+	      in  let <_cor12> =
+		      %% Line 173
+		      apply _cor1
+			  (D)
+		  in  let <I> =
+			  %% Line 173
+			  {'gc_bif',Name,Fail,Live,_cor18,_cor12}
+		      in  %% Line 174
+			  apply 'remap'/3
+			      (Is, _cor1, [I|_cor0])
+	  %% Line 175
+	  <[{'bs_init',Fail,Info,Live,Ss0,Dst0}|Is],Map,Acc> when 'true' ->
+	      let <_cor25> =
+		  %% Line 176
+		  ( letrec
+			'lc$^2'/1 =
+			    fun (_cor22) ->
+				case _cor22 of
+				  <[Src|_cor21]> when 'true' ->
+				      let <_cor23> =
+					  apply _cor1
+					      (Src)
+				      in  let <_cor24> =
+					      apply 'lc$^2'/1
+						  (_cor21)
+					  in  ( [_cor23|_cor24]
+						-| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_3001> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor22})
+					  -| [{'function_name',{'lc$^2',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^2'/1
+			    (Ss0)
+		    -| ['list_comprehension'] )
+	      in  let <Dst> =
+		      %% Line 177
+		      apply _cor1
+			  (Dst0)
+		  in  let <I> =
+			  %% Line 178
+			  {'bs_init',Fail,Info,Live,_cor25,Dst}
+		      in  %% Line 179
+			  apply 'remap'/3
+			      (Is, _cor1, [I|_cor0])
+	  %% Line 180
+	  <[{Op = 'bs_put',Fail,Info,Ss}|Is],Map,Acc> when 'true' ->
+	      let <_cor34> =
+		  %% Line 181
+		  ( letrec
+			'lc$^3'/1 =
+			    fun (_cor31) ->
+				case _cor31 of
+				  <[S|_cor30]> when 'true' ->
+				      let <_cor32> =
+					  apply _cor1
+					      (S)
+				      in  let <_cor33> =
+					      apply 'lc$^3'/1
+						  (_cor30)
+					  in  ( [_cor32|_cor33]
+						-| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_1926> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor31})
+					  -| [{'function_name',{'lc$^3',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^3'/1
+			    (Ss)
+		    -| ['list_comprehension'] )
+	      in  let <I> =
+		      %% Line 181
+		      {Op,Fail,Info,_cor34}
+		  in  %% Line 182
+		      apply 'remap'/3
+			  (Is, _cor1, [I|_cor0])
+	  %% Line 183
+	  <[{'kill',Y}|T],Map,Acc> when 'true' ->
+	      let <_cor36> =
+		  %% Line 184
+		  apply _cor1
+		      (Y)
+	      in  %% Line 184
+		  apply 'remap'/3
+		      (T, _cor1, [{'kill',_cor36}|_cor0])
+	  %% Line 185
+	  <[I = {'make_fun2',_cor63,_cor64,_cor65,_cor66}|T],Map,Acc> when 'true' ->
+	      %% Line 186
+	      apply 'remap'/3
+		  (T, _cor1, [I|_cor0])
+	  %% Line 187
+	  <[{'deallocate',N}|Is],Map,Acc> when 'true' ->
+	      let <_cor37> =
+		  %% Line 188
+		  apply _cor1
+		      ({'frame_size',N})
+	      in  let <I> = {%% Line 188
+		       'deallocate',_cor37}
+		  in  %% Line 189
+		      apply 'remap'/3
+			  (Is, _cor1, [I|_cor0])
+	  %% Line 190
+	  <[{'test',Name,Fail,Ss}|Is],Map,Acc> when 'true' ->
+	      let <_cor44> =
+		  %% Line 191
+		  ( letrec
+			'lc$^4'/1 =
+			    fun (_cor41) ->
+				case _cor41 of
+				  <[S|_cor40]> when 'true' ->
+				      let <_cor42> =
+					  apply _cor1
+					      (S)
+				      in  let <_cor43> =
+					      apply 'lc$^4'/1
+						  (_cor40)
+					  in  ( [_cor42|_cor43]
+						-| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_1348> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor41})
+					  -| [{'function_name',{'lc$^4',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^4'/1
+			    (Ss)
+		    -| ['list_comprehension'] )
+	      in  let <I> =
+		      %% Line 191
+		      {'test',Name,Fail,_cor44}
+		  in  %% Line 192
+		      apply 'remap'/3
+			  (Is, _cor1, [I|_cor0])
+	  %% Line 193
+	  <[{'test',Name,Fail,Live,Ss,Dst}|Is],Map,Acc> when 'true' ->
+	      let <_cor52> =
+		  %% Line 194
+		  ( letrec
+			'lc$^5'/1 =
+			    fun (_cor49) ->
+				case _cor49 of
+				  <[S|_cor48]> when 'true' ->
+				      let <_cor50> =
+					  apply _cor1
+					      (S)
+				      in  let <_cor51> =
+					      apply 'lc$^5'/1
+						  (_cor48)
+					  in  ( [_cor50|_cor51]
+						-| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_2353> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor49})
+					  -| [{'function_name',{'lc$^5',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^5'/1
+			    (Ss)
+		    -| ['list_comprehension'] )
+	      in  let <_cor46> =
+		      %% Line 194
+		      apply _cor1
+			  (Dst)
+		  in  let <I> =
+			  %% Line 194
+			  {'test',Name,Fail,Live,_cor52,_cor46}
+		      in  %% Line 195
+			  apply 'remap'/3
+			      (Is, _cor1, [I|_cor0])
+	  %% Line 196
+	  <Is = ['return'|_cor67],_cor68,Acc> when 'true' ->
+	      %% Line 197
+	      call 'lists':'reverse'
+		  (_cor0, _cor2)
+	  %% Line 198
+	  <[I = {'line',_cor69}|Is],Map,Acc> when 'true' ->
+	      %% Line 199
+	      apply 'remap'/3
+		  (Is, _cor1, [I|_cor0])
+	  ( <_cor56,_cor55,_cor54> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'remap',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'remap_block'/3 =
+    %% Line 201
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[{'set',Ds0,Ss0,Info}|Is],Map,Acc> when 'true' ->
+	      let <_cor8> =
+		  %% Line 202
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor5) ->
+				case _cor5 of
+				  <[D|_cor4]> when 'true' ->
+				      let <_cor6> =
+					  apply _cor1
+					      (D)
+				      in  let <_cor7> =
+					      apply 'lc$^0'/1
+						  (_cor4)
+					  in  ( [_cor6|_cor7]
+						-| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_1769> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor5})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (Ds0)
+		    -| ['list_comprehension'] )
+	      in  let <_cor15> =
+		      %% Line 203
+		      ( letrec
+			    'lc$^1'/1 =
+				fun (_cor12) ->
+				    case _cor12 of
+				      <[S|_cor11]> when 'true' ->
+					  let <_cor13> =
+					      apply _cor1
+						  (S)
+					  in  let <_cor14> =
+						  apply 'lc$^1'/1
+						      (_cor11)
+					      in  ( [_cor13|_cor14]
+						    -| ['compiler_generated'] )
+				      <[]> when 'true' ->
+					  []
+				      ( <_2196> when 'true' ->
+					    ( primop 'match_fail'
+						  ({'function_clause',_cor12})
+					      -| [{'function_name',{'lc$^1',1}}] )
+					-| ['compiler_generated'] )
+				    end
+			in  apply 'lc$^1'/1
+				(Ss0)
+			-| ['list_comprehension'] )
+		  in  %% Line 204
+		      apply 'remap_block'/3
+			  (Is, _cor1, [{'set',_cor8,_cor15,Info}|_cor0])
+	  %% Line 205
+	  <[],_cor20,Acc> when 'true' ->
+	      call 'lists':'reverse'
+		  (_cor0)
+	  ( <_cor19,_cor18,_cor17> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'remap_block',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'safe_labels'/2 =
+    %% Line 207
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'label',L}|[{'line',_cor4}|[{'badmatch',{Tag,_cor5}}|Is]]],Acc>
+	      when call 'erlang':'=/='
+		    (Tag,
+		     'y') ->
+	      %% Line 208
+	      apply 'safe_labels'/2
+		  (Is, [L|_cor0])
+	  %% Line 209
+	  <[{'label',L}|[{'line',_cor6}|[{'case_end',{Tag,_cor7}}|Is]]],Acc>
+	      when call 'erlang':'=/='
+		    (Tag,
+		     'y') ->
+	      %% Line 210
+	      apply 'safe_labels'/2
+		  (Is, [L|_cor0])
+	  %% Line 211
+	  <[{'label',L}|[{'line',_cor8}|['if_end'|Is]]],Acc> when 'true' ->
+	      %% Line 212
+	      apply 'safe_labels'/2
+		  (Is, [L|_cor0])
+	  %% Line 213
+	  <[{'label',L}|%% Line 214
+			[{'block',[{'set',[{'x',0}],[{Tag,_cor9}|[]],'move'}|[]]}|%% Line 215
+										  [{'line',_cor10}|%% Line 216
+												   [{'call_ext',1,{'extfunc','erlang','error',1}}|Is]]]],Acc>
+	      when %% Line 216
+		call 'erlang':'=/='
+		    (Tag,
+		     'y') ->
+	      %% Line 217
+	      apply 'safe_labels'/2
+		  (Is, [L|_cor0])
+	  %% Line 218
+	  <[_cor11|Is],Acc> when 'true' ->
+	      %% Line 219
+	      apply 'safe_labels'/2
+		  (Is, _cor0)
+	  %% Line 220
+	  <[],Acc> when 'true' ->
+	      call 'gb_sets':'from_list'
+		  (_cor0)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'safe_labels',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'frame_layout'/3 =
+    %% Line 226
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Is,Kills,{'st',Safe,D}> when 'true' ->
+	      let <N> =
+		  %% Line 227
+		  apply 'frame_size'/2
+		      (_cor2, Safe)
+	      in  let <IsKilled> =
+		      %% Line 228
+		      fun (_cor4) ->
+			  call 'beam_utils':'is_killed'
+			      (_cor4, _cor2, D)
+		  in  let <_cor7> =
+			  %% Line 229
+			  apply 'frame_layout_1'/5
+			      (_cor1, 0, N, IsKilled, [])
+		      in  %% Line 229
+			  {N,_cor7}
+	  ( <_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'frame_layout',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'frame_layout_1'/5 =
+    %% Line 231
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[I = {'kill',{'y',Y}}|Ks],_cor16,N,IsKilled,Acc>
+	      when call 'erlang':'=:='
+		    (_cor3,
+		     Y) ->
+	      let <_cor5> =
+		  %% Line 232
+		  call 'erlang':'+'
+		      (Y, 1)
+	      in  %% Line 232
+		  apply 'frame_layout_1'/5
+		      (Ks, _cor5, _cor2, _cor1, [I|_cor0])
+	  %% Line 233
+	  <Ks,Y,N,IsKilled,Acc>
+	      when call 'erlang':'<'
+		    (_cor3,
+		     _cor2) ->
+	      let <R> = {%% Line 234
+		   'y',_cor3}
+	      in  let <_3202> =
+		      %% Line 235
+		      apply _cor1
+			  (R)
+		  in  let <_cor8> =
+			  %% Line 235
+			  case _3202 of
+			    %% Line 236
+			    <'false'> when 'true' ->
+				{'live',R}
+			    %% Line 237
+			    <'true'> when 'true' ->
+				{'dead',R}
+			    ( <_cor7> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_3202})
+			      -| ['compiler_generated'] )
+			  end
+		      in  let <_cor10> =
+			      %% Line 239
+			      call 'erlang':'+'
+				  (_cor3, 1)
+			  in  %% Line 239
+			      apply 'frame_layout_1'/5
+				  (_cor4, _cor10, _cor2, _cor1, [_cor8|_cor0])
+	  %% Line 240
+	  <[],Y,_cor17,_cor18,Acc>
+	      when call 'erlang':'=:='
+		    (_cor2,
+		     _cor3) ->
+	      %% Line 243
+	      case _cor0 of
+		<[{'live',_1106}|Is]> when 'true' ->
+		    apply 'frame_layout_2'/1
+			(Is)
+		%% Line 244
+		<Is> when 'true' ->
+		    call 'lists':'reverse'
+			(_cor0)
+	      end
+	  ( <_cor15,_cor14,_cor13,_cor12,_cor11> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'frame_layout_1',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'frame_layout_2'/1 =
+    %% Line 243
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{'live',_cor2}|Is]> when 'true' ->
+	      apply 'frame_layout_2'/1
+		  (Is)
+	  %% Line 244
+	  <Is> when 'true' ->
+	      call 'lists':'reverse'
+		  (_cor0)
+	end
+'frame_size'/2 =
+    %% Line 249
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'block',_cor5}|Is],Safe> when 'true' ->
+	      %% Line 250
+	      apply 'frame_size'/2
+		  (Is, _cor0)
+	  %% Line 251
+	  <[{'call_fun',_cor6}|Is],Safe> when 'true' ->
+	      %% Line 252
+	      apply 'frame_size'/2
+		  (Is, _cor0)
+	  %% Line 253
+	  <[{'call',_cor7,_cor8}|Is],Safe> when 'true' ->
+	      %% Line 254
+	      apply 'frame_size'/2
+		  (Is, _cor0)
+	  %% Line 255
+	  <[I = {'call_ext',_cor9,_cor10}|Is],Safe> when 'true' ->
+	      let <_2771> =
+		  %% Line 256
+		  call 'beam_jump':'is_exit_instruction'
+		      (I)
+	      in  %% Line 256
+		  case _2771 of
+		    %% Line 257
+		    <'true'> when 'true' ->
+			call 'erlang':'throw'
+			    ('not_possible')
+		    %% Line 258
+		    <'false'> when 'true' ->
+			apply 'frame_size'/2
+			    (Is, _cor0)
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_2771})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 260
+	  <[{'apply',_cor11}|Is],Safe> when 'true' ->
+	      %% Line 261
+	      apply 'frame_size'/2
+		  (Is, _cor0)
+	  %% Line 262
+	  <[{'bif',_cor12,{'f',L},_cor13,_cor14}|Is],Safe> when 'true' ->
+	      %% Line 263
+	      apply 'frame_size_branch'/3
+		  (L, Is, _cor0)
+	  %% Line 264
+	  <[{'gc_bif',_cor15,{'f',L},_cor16,_cor17,_cor18}|Is],Safe> when 'true' ->
+	      %% Line 265
+	      apply 'frame_size_branch'/3
+		  (L, Is, _cor0)
+	  %% Line 266
+	  <[{'test',_cor19,{'f',L},_cor20}|Is],Safe> when 'true' ->
+	      %% Line 267
+	      apply 'frame_size_branch'/3
+		  (L, Is, _cor0)
+	  %% Line 268
+	  <[{'test',_cor21,{'f',L},_cor22,_cor23,_cor24}|Is],Safe> when 'true' ->
+	      %% Line 269
+	      apply 'frame_size_branch'/3
+		  (L, Is, _cor0)
+	  %% Line 270
+	  <[{'bs_init',{'f',L},_cor25,_cor26,_cor27,_cor28}|Is],Safe> when 'true' ->
+	      %% Line 271
+	      apply 'frame_size_branch'/3
+		  (L, Is, _cor0)
+	  %% Line 272
+	  <[{'bs_put',{'f',L},_cor29,_cor30}|Is],Safe> when 'true' ->
+	      %% Line 273
+	      apply 'frame_size_branch'/3
+		  (L, Is, _cor0)
+	  %% Line 274
+	  <[{'kill',_cor31}|Is],Safe> when 'true' ->
+	      %% Line 275
+	      apply 'frame_size'/2
+		  (Is, _cor0)
+	  %% Line 276
+	  <[{'make_fun2',_cor32,_cor33,_cor34,_cor35}|Is],Safe> when 'true' ->
+	      %% Line 277
+	      apply 'frame_size'/2
+		  (Is, _cor0)
+	  %% Line 278
+	  <[{'deallocate',N}|_cor36],_cor37> when 'true' ->
+	      N
+	  %% Line 279
+	  <[{'line',_cor38}|Is],Safe> when 'true' ->
+	      %% Line 280
+	      apply 'frame_size'/2
+		  (Is, _cor0)
+	  %% Line 281
+	  <[_cor39|_cor40],_cor41> when 'true' ->
+	      call 'erlang':'throw'
+		  ('not_possible')
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'frame_size',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'frame_size_branch'/3 =
+    %% Line 283
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <0,Is,Safe> when 'true' ->
+	      %% Line 284
+	      apply 'frame_size'/2
+		  (_cor1, _cor0)
+	  %% Line 285
+	  <L,Is,Safe> when 'true' ->
+	      let <_75> =
+		  %% Line 286
+		  call 'gb_sets':'is_member'
+		      (_cor2, _cor0)
+	      in  %% Line 286
+		  case _75 of
+		    %% Line 287
+		    <'false'> when 'true' ->
+			call 'erlang':'throw'
+			    ('not_possible')
+		    %% Line 288
+		    <'true'> when 'true' ->
+			apply 'frame_size'/2
+			    (_cor1, _cor0)
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_75})
+		      -| ['compiler_generated'] )
+		  end
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('beam_trim')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('beam_trim', _cor0)
+end

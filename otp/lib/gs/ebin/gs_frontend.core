@@ -1,0 +1,1089 @@
+module 'gs_frontend' ['config'/2,
+		      'create'/2,
+		      'destroy'/2,
+		      'event'/3,
+		      'info'/1,
+		      'init'/1,
+		      'module_info'/0,
+		      'module_info'/1,
+		      'read'/2,
+		      'start'/1,
+		      'stop'/0]
+    attributes []
+'create'/2 =
+    %% Line 54
+    fun (_cor1,_cor0) ->
+	%% Line 55
+	apply 'request'/2
+	    (_cor1, {'create',_cor0})
+'config'/2 =
+    %% Line 57
+    fun (_cor1,_cor0) ->
+	%% Line 58
+	apply 'request'/2
+	    (_cor1, {'config',_cor0})
+'read'/2 =
+    %% Line 60
+    fun (_cor1,_cor0) ->
+	%% Line 61
+	apply 'request'/2
+	    (_cor1, {'read',_cor0})
+'destroy'/2 =
+    %% Line 63
+    fun (_cor1,_cor0) ->
+	%% Line 64
+	apply 'request'/2
+	    (_cor1, {'destroy',_cor0})
+'info'/1 =
+    %% Line 66
+    fun (_cor0) ->
+	%% Line 67
+	apply 'request'/2
+	    ('gs_frontend', {'info',_cor0})
+'event'/3 =
+    %% Line 74
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 75
+	call 'erlang':'!'
+	    (_cor2, {'event',_cor1,_cor0})
+'request'/2 =
+    %% Line 78
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 79
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 79
+		call 'erlang':'!'
+		    (_cor1, {_cor2,_cor0})
+		%% Line 80
+		receive
+		  %% Line 81
+		  <{'gs_reply',R}> when 'true' ->
+		      R
+		after 'infinity' ->
+		  'true'
+'start'/1 =
+    %% Line 88
+    fun (_cor0) ->
+	%% Line 89
+	case call 'erlang':'whereis'
+		 ('gs_frontend') of
+	  %% Line 90
+	  <'undefined'> when 'true' ->
+	      let <P> =
+		  %% Line 91
+		  call 'erlang':'spawn_link'
+		      ('gs_frontend', 'init', [_cor0|[]])
+	      in  let <_cor2> =
+		      catch
+			  %% Line 92
+			  call 'erlang':'register'
+			      ('gs_frontend', P)
+		  in  %% Line 92
+		      case _cor2 of
+			%% Line 93
+			<'true'> when 'true' ->
+			    let <_cor3> =
+				%% Line 94
+				apply 'backend_name'/1
+				    (_cor0)
+			    in  %% Line 94
+				apply 'request'/2
+				    ('gs_frontend', {'instance',_cor3,_cor0})
+			%% Line 95
+			<{'EXIT',_cor8}> when 'true' ->
+			    do  %% Line 96
+				call 'erlang':'exit'
+				    (P, 'kill')
+				%% Line 97
+				apply 'start'/1
+				    (_cor0)
+			( <_cor4> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor4})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 99
+	  <P> when 'true' ->
+	      let <_cor5> =
+		  %% Line 100
+		  apply 'backend_name'/1
+		      (_cor0)
+	      in  %% Line 100
+		  apply 'request'/2
+		      (P, {'instance',_cor5,_cor0})
+	end
+'backend_name'/1 =
+    %% Line 103
+    fun (_cor0) ->
+	%% Line 104
+	case call 'gs':'assq'
+		 ('kernel', _cor0) of
+	  %% Line 105
+	  <{'value','true'}> when 'true' ->
+	      'kernel'
+	  %% Line 106
+	  <_cor3> when 'true' ->
+	      'user'
+	end
+'stop'/0 =
+    %% Line 110
+    fun () ->
+	%% Line 111
+	apply 'request'/2
+	    ('gs_frontend', 'stop')
+'init'/1 =
+    %% Line 118
+    fun (_cor0) ->
+	do  %% Line 119
+	    call 'erlang':'process_flag'
+		('trap_exit', 'true')
+	    let <DB> =
+		%% Line 120
+		call 'ets':'new'
+		    ('gs_names', ['set'|['public']])
+	    in  let <_cor2> =
+		    %% Line 121
+		    call 'erlang':'self'
+			()
+		in  %% Line 121
+		    apply 'loop'/1
+			({'state',DB,'undefined','undefined','undefined','undefined',_cor2})
+'loop'/1 =
+    %% Line 123
+    fun (_cor0) ->
+	%% Line 124
+	receive
+	  %% Line 125
+	  <X> when 'true' ->
+	      let <_cor1> =
+		  catch
+		      %% Line 127
+		      apply 'doit'/2
+			  (X, _cor0)
+	      in  %% Line 127
+		  case _cor1 of
+		    %% Line 128
+		    <'done'> when 'true' ->
+			apply 'loop'/1
+			    (_cor0)
+		    %% Line 129
+		    <NewState = {'state',_cor4,_cor5,_cor6,_cor7,_cor8,_cor9}> when ( 'true'
+										      -| ['compiler_generated'] ) ->
+			%% Line 130
+			apply 'loop'/1
+			    (NewState)
+		    %% Line 131
+		    <'stop'> when 'true' ->
+			'stop'
+		    %% Line 132
+		    <Reason> when 'true' ->
+			do  %% Line 133
+			    call 'io':'format'
+				([71|[83|[32|[102|[114|[111|[110|[116|[101|[110|[100|[46|[32|[76|[97|[115|[116|[32|[109|[103|[115|[32|[105|[110|[32|[119|[97|[115|[58|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [X|[]])
+			    do  %% Line 134
+				call 'io':'format'
+				    ([101|[120|[105|[116|[58|[126|[112|[126|[110]]]]]]]]], [X|[]])
+				do  %% Line 135
+				    call 'io':'format'
+					([82|[101|[97|[115|[111|[110|[58|[32|[126|[112|[126|[110]]]]]]]]]]]], [Reason|[]])
+				    do  %% Line 136
+					apply 'terminate'/2
+					    (Reason, _cor0)
+					%% Line 137
+					call 'erlang':'exit'
+					    (Reason)
+		  end
+	after 'infinity' ->
+	  'true'
+'reply'/2 =
+    %% Line 141
+    fun (_cor1,_cor0) ->
+	do  %% Line 142
+	    call 'erlang':'!'
+		(_cor1, {'gs_reply',_cor0})
+	    %% Line 143
+	    'done'
+'doit'/2 =
+    %% Line 145
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{FromOwner,{'config',Args}},State> when 'true' ->
+	      %% Line 146
+	      case Args of
+		<{IdOrName,Opts}> when 'true' ->
+		    %% Line 147
+		    case State of
+		      <{'state',DB,_cor81,_cor82,_cor83,_cor84,_cor85}> when 'true' ->
+			  %% Line 148
+			  case apply 'idOrName_to_id'/3
+				   (DB, IdOrName, FromOwner) of
+			    %% Line 149
+			    <'undefined'> when 'true' ->
+				%% Line 150
+				apply 'reply'/2
+				    (FromOwner, {'error',{'no_such_object',IdOrName}})
+			    %% Line 151
+			    <Obj> when 'true' ->
+				let <_cor4> =
+				    %% Line 152
+				    apply 'backend'/2
+					(State, Obj)
+				in  let <_cor5> =
+					%% Line 152
+					call 'gstk':'config'
+					    (_cor4, {Obj,Opts})
+				    in  %% Line 152
+					apply 'reply'/2
+					    (FromOwner, _cor5)
+			  end
+		      ( <_cor3> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor3})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 155
+	  <{'event',ToOwner,{'gs',Obj,Etype,Data,Args}},{'state',DB,_cor86,_cor87,_cor88,_cor89,Self}> when 'true' ->
+	      do  %% Line 156
+		  case call 'ets':'lookup'
+			   (DB, Obj) of
+		    %% Line 157
+		    <[{_cor90,{Name,_cor91}}|[]]>
+			when call 'erlang':'=:='
+			      (_cor91,
+			       ToOwner) ->
+			call 'erlang':'!'
+			    (ToOwner, {'gs',Name,Etype,Data,Args})
+		    %% Line 158
+		    <_cor92> when 'true' ->
+			call 'erlang':'!'
+			    (ToOwner, {'gs',{Obj,Self},Etype,Data,Args})
+		  end
+		  %% Line 160
+		  'done'
+	  %% Line 162
+	  <{FromOwner,{'create',Args}},State> when 'true' ->
+	      %% Line 163
+	      case Args of
+		<{Objtype,Name,Parent,Opts}> when 'true' ->
+		    %% Line 164
+		    case State of
+		      <{'state',DB,_cor93,_cor94,_cor95,_cor96,_cor97}> when 'true' ->
+			  let <_cor10> =
+			      %% Line 165
+			      call 'ets':'lookup'
+				  (DB, {Name,FromOwner})
+			  in  let <_cor12> =
+				  %% Line 165
+				  case <Name,_cor10> of
+				    %% Line 166
+				    <'undefined',_cor98> when 'true' ->
+					'false'
+				    %% Line 167
+				    <_cor99,[]> when 'true' ->
+					'false'
+				    %% Line 168
+				    <_fol20,_fol21> when 'true' ->
+					'true'
+				  end
+			      in  %% Line 170
+				  case <> of
+				    <>
+					when call 'erlang':'=:='
+					      (_cor12,
+					       'true') ->
+					%% Line 171
+					apply 'reply'/2
+					    (FromOwner, {'error',{'name_occupied',Name}})
+				    %% Line 172
+				    <> when 'true' ->
+					%% Line 173
+					case apply 'idOrName_to_id'/3
+						 (DB, Parent, FromOwner) of
+					  %% Line 174
+					  <'undefined'> when 'true' ->
+					      %% Line 175
+					      apply 'reply'/2
+						  (FromOwner, {'error',{'no_such_parent',Parent}})
+					  %% Line 176
+					  <ParentObj> when 'true' ->
+					      %% Line 177
+					      case apply 'inc'/2
+						       (ParentObj, State) of
+						<{Id,NewState}> when 'true' ->
+						    let <_cor15> =
+							%% Line 178
+							apply 'backend'/2
+							    (State, ParentObj)
+						    in  %% Line 178
+							case call 'gstk':'create'
+								 (_cor15, %% Line 179
+									  {FromOwner,{Objtype,Id,ParentObj,Opts}}) of
+							  %% Line 180
+							  <'ok'> when 'true' ->
+							      do  %% Line 181
+								  call 'erlang':'link'
+								      (FromOwner)
+								  %% Line 182
+								  case <> of
+								    <>
+									when call 'erlang':'=:='
+									      (Name,
+									       'undefined') ->
+									do  %% Line 183
+									    call 'ets':'insert'
+										(DB, {Id,'lives'})
+									    do  %% Line 184
+										apply 'reply'/2
+										    (FromOwner, Id)
+										%% Line 185
+										NewState
+								    %% Line 186
+								    <> when 'true' ->
+									let <NamePid> = {%% Line 187
+									     Name,%% Line 187
+										  FromOwner}
+									in  do  %% Line 188
+										call 'ets':'insert'
+										    (DB, {NamePid,Id})
+										do  %% Line 189
+										    call 'ets':'insert'
+											(DB, {Id,NamePid})
+										    do  %% Line 190
+											apply 'reply'/2
+											    (FromOwner, Id)
+											%% Line 191
+											NewState
+								  end
+							  %% Line 193
+							  <Err> when 'true' ->
+							      apply 'reply'/2
+								  (FromOwner, Err)
+							end
+						( <_cor14> when 'true' ->
+						      primop 'match_fail'
+							  ({'badmatch',_cor14})
+						  -| ['compiler_generated'] )
+					      end
+					end
+				  end
+		      ( <_cor9> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor9})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor8> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor8})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 198
+	  <{FromOwner,{'read',Args}},State> when 'true' ->
+	      %% Line 199
+	      case State of
+		<{'state',DB,_cor101,_cor102,_cor103,_cor104,_cor105}> when 'true' ->
+		    %% Line 200
+		    case Args of
+		      <{IdOrName,Opt}> when 'true' ->
+			  %% Line 201
+			  case apply 'idOrName_to_id'/3
+				   (DB, IdOrName, FromOwner) of
+			    %% Line 202
+			    <'undefined'> when 'true' ->
+				%% Line 203
+				apply 'reply'/2
+				    (FromOwner, {'error',{'no_such_object',IdOrName}})
+			    %% Line 204
+			    <Obj> when 'true' ->
+				let <_cor21> =
+				    %% Line 205
+				    apply 'backend'/2
+					(State, Obj)
+				in  let <_cor22> =
+					%% Line 205
+					call 'gstk':'read'
+					    (_cor21, {Obj,Opt})
+				    in  %% Line 205
+					apply 'reply'/2
+					    (FromOwner, _cor22)
+			  end
+		      ( <_cor20> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor20})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor19> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor19})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 208
+	  <{'EXIT',UserBackend,Reason},State = {'state',_cor106,_cor107,_cor108,_cor109,_cor110,_cor111}>
+	      when %% Line 209
+		call 'erlang':'=='
+		    (_cor107,
+		     UserBackend) ->
+	      do  %% Line 210
+		  call 'gs':'error'
+		      ([117|[115|[101|[114|[32|[98|[97|[99|[107|[101|[110|[100|[32|[100|[105|[101|[100|[32|[114|[101|[97|[115|[111|[110|[32|[126|[119|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Reason|[]])
+		  do  %% Line 211
+		      apply 'remove_user_objects'/1
+			  (_cor106)
+		      %% Line 212
+		      call 'erlang':'setelement'
+			  (3, State, 'undefined')
+	  %% Line 214
+	  <{'EXIT',KernelBackend,Reason},State = {'state',_cor125,_cor126,_cor127,_cor128,_cor129,_cor130}>
+	      when %% Line 215
+		call 'erlang':'=='
+		    (_cor128,
+		     KernelBackend) ->
+	      do  %% Line 216
+		  call 'gs':'error'
+		      ([107|[101|[114|[110|[101|[108|[32|[98|[97|[99|[107|[101|[110|[100|[32|[100|[105|[101|[100|[32|[114|[101|[97|[115|[111|[110|[32|[126|[119|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Reason|[]])
+		  %% Line 217
+		  call 'erlang':'exit'
+		      ({'gs_kernel_died',Reason})
+	  %% Line 219
+	  <{'EXIT',Pid,_X_Reason},{'state',DB,U,_cor131,K,_cor132,_cor133}> when 'true' ->
+	      do  %% Line 221
+		  case <> of
+		    <>
+			when call 'erlang':'is_pid'
+			      (U) ->
+			let <DeadObjU> =
+			    %% Line 222
+			    call 'gstk':'pid_died'
+				(U, Pid)
+			in  %% Line 223
+			    apply 'remove_objs'/2
+				(DB, DeadObjU)
+		    %% Line 224
+		    <> when 'true' ->
+			'ok'
+		  end
+		  do  %% Line 226
+		      case <> of
+			<>
+			    when call 'erlang':'is_pid'
+				  (K) ->
+			    let <DeadObjK> =
+				%% Line 227
+				call 'gstk':'pid_died'
+				    (K, Pid)
+			    in  %% Line 228
+				apply 'remove_objs'/2
+				    (DB, DeadObjK)
+			%% Line 229
+			<> when 'true' ->
+			    'ok'
+		      end
+		      %% Line 230
+		      'done'
+	  %% Line 232
+	  <{FromOwner,{'destroy',IdOrName}},State> when 'true' ->
+	      %% Line 233
+	      case State of
+		<{'state',DB,_cor134,_cor135,_cor136,_cor137,_cor138}> when 'true' ->
+		    %% Line 234
+		    case apply 'idOrName_to_id'/3
+			     (DB, IdOrName, FromOwner) of
+		      %% Line 235
+		      <'undefined'> when 'true' ->
+			  %% Line 236
+			  apply 'reply'/2
+			      (FromOwner, {'error',{'no_such_object',IdOrName}})
+		      %% Line 237
+		      <Obj> when 'true' ->
+			  let <_cor43> =
+			      %% Line 238
+			      apply 'backend'/2
+				  (State, Obj)
+			  in  let <DeadObj> =
+				  %% Line 238
+				  call 'gstk':'destroy'
+				      (_cor43, Obj)
+			      in  do  %% Line 239
+				      apply 'remove_objs'/2
+					  (DB, DeadObj)
+				      %% Line 240
+				      apply 'reply'/2
+					  (FromOwner, 'done')
+		    end
+		( <_cor42> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor42})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 243
+	  <{From,{'instance','user',Opts}},State> when 'true' ->
+	      %% Line 244
+	      case State of
+		<{'state',DB,_cor139,UC,_cor140,_cor141,Self}> when 'true' ->
+		    %% Line 245
+		    case call 'ets':'lookup'
+			     (DB, 1) of
+		      %% Line 246
+		      <[_cor142|[]]> when 'true' ->
+			  apply 'reply'/2
+			      (From, {1,Self})
+		      %% Line 247
+		      <[]> when 'true' ->
+			  do  %% Line 248
+			      call 'ets':'insert'
+				  (DB, {1,'lives'})
+			      %% Line 249
+			      case call 'gstk':'start_link'
+				       (1, Self, Self, Opts) of
+				%% Line 250
+				<{'ok',UserBackend}> when 'true' ->
+				    do  %% Line 251
+					apply 'reply'/2
+					    (From, {1,Self})
+					%% Line 252
+					case UC of
+					  %% Line 253
+					  <'undefined'> when 'true' ->
+					      let <_cor48> =
+						  %% Line 254
+						  call 'erlang':'setelement'
+						      (4, State, 1)
+					      in  %% Line 254
+						  call 'erlang':'setelement'
+						      (3, _cor48, UserBackend)
+					  %% Line 255
+					  <_X_N> when 'true' ->
+					      let <_rec3> =
+						  %% Line 256
+						  call 'erlang':'+'
+						      (UC, 2)
+					      in  let <_cor52> =
+						      %% Line 256
+						      call 'erlang':'setelement'
+							  (4, State, _rec3)
+						  in  %% Line 256
+						      call 'erlang':'setelement'
+							  (3, _cor52, UserBackend)
+					end
+				%% Line 258
+				<{'error',Reason}> when 'true' ->
+				    do  %% Line 259
+					apply 'reply'/2
+					    (From, {'error',Reason})
+					%% Line 260
+					'stop'
+				( <_cor55> when 'true' ->
+				      primop 'match_fail'
+					  ({'case_clause',_cor55})
+				  -| ['compiler_generated'] )
+			      end
+		      ( <_cor56> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor56})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor46> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor46})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 264
+	  <{From,{'instance','kernel',Opts}},State> when 'true' ->
+	      %% Line 265
+	      case State of
+		<{'state',DB,_cor157,_cor158,_cor159,_cor160,Self}> when 'true' ->
+		    %% Line 266
+		    case call 'ets':'lookup'
+			     (DB, 0) of
+		      %% Line 267
+		      <[_cor161|[]]> when 'true' ->
+			  apply 'reply'/2
+			      (From, {0,Self})
+		      %% Line 268
+		      <[]> when 'true' ->
+			  do  %% Line 269
+			      call 'ets':'insert'
+				  (DB, {0,'lives'})
+			      %% Line 270
+			      case call 'gstk':'start_link'
+				       (0, Self, Self, Opts) of
+				%% Line 271
+				<{'ok',KernelBackend}> when 'true' ->
+				    do  %% Line 272
+					apply 'reply'/2
+					    (From, {0,Self})
+					let <_cor59> =
+					    %% Line 273
+					    call 'erlang':'setelement'
+						(6, State, 0)
+					in  %% Line 273
+					    call 'erlang':'setelement'
+						(5, _cor59, KernelBackend)
+				%% Line 274
+				<{'error',Reason}> when 'true' ->
+				    do  %% Line 275
+					apply 'reply'/2
+					    (From, {'error',Reason})
+					%% Line 276
+					'stop'
+				( <_cor61> when 'true' ->
+				      primop 'match_fail'
+					  ({'case_clause',_cor61})
+				  -| ['compiler_generated'] )
+			      end
+		      ( <_cor62> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor62})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor57> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor57})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 281
+	  <{From,'stop'},State> when 'true' ->
+	      %% Line 282
+	      case State of
+		<{'state',_cor169,U,_cor170,K,_cor171,_cor172}> when 'true' ->
+		    do  %% Line 283
+			case <> of
+			  <>
+			      when call 'erlang':'is_pid'
+				    (U) ->
+			      call 'gstk':'stop'
+				  (U)
+			  %% Line 284
+			  <> when 'true' ->
+			      'ok'
+			end
+			do  %% Line 285
+			    case <> of
+			      <>
+				  when call 'erlang':'is_pid'
+					(K) ->
+				  call 'gstk':'stop'
+				      (K)
+			      %% Line 286
+			      <> when 'true' ->
+				  'ok'
+			    end
+			    do  %% Line 287
+				apply 'reply'/2
+				    (From, 'stopped')
+				%% Line 288
+				'stop'
+		( <_cor63> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor63})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 290
+	  <{From,{'gstk','user',Msg}},State> when 'true' ->
+	      %% Line 291
+	      ( case State of
+		  ( <( {'state',_cor173,_rec6,_cor174,_cor175,_cor176,_cor177}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor66> =
+			    call 'gstk':'request'
+				(_rec6, Msg)
+			in  apply 'reply'/2
+				(From, _cor66)
+		    -| ['compiler_generated'] )
+		  ( <_cor178> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 292
+	  <{From,{'gstk','kernel',Msg}},State> when 'true' ->
+	      %% Line 293
+	      ( case State of
+		  ( <( {'state',_cor179,_cor180,_cor181,_rec7,_cor182,_cor183}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor69> =
+			    call 'gstk':'request'
+				(_rec7, Msg)
+			in  apply 'reply'/2
+				(From, _cor69)
+		    -| ['compiler_generated'] )
+		  ( <_cor184> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 295
+	  <{From,{'info','gs_db'}},State> when 'true' ->
+	      %% Line 296
+	      ( case State of
+		  ( <( {'state',_rec8,_cor185,_cor186,_cor187,_cor188,_cor189}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor72> =
+			    call 'ets':'tab2list'
+				(_rec8)
+			in  do  call 'io':'format'
+				    ([103|[115|[95|[100|[98|[58|[126|[112|[126|[110]]]]]]]]]], [_cor72|[]])
+				%% Line 297
+				apply 'reply'/2
+				    (From, State)
+		    -| ['compiler_generated'] )
+		  ( <_cor190> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 298
+	  <{From,{'info','kernel_db'}},State> when 'true' ->
+	      %% Line 299
+	      ( case State of
+		  ( <( {'state',_cor191,_cor192,_cor193,_rec9,_cor194,_cor195}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor75> =
+			    call 'gstk':'request'
+				(_rec9, 'dump_db')
+			in  apply 'reply'/2
+				(From, _cor75)
+		    -| ['compiler_generated'] )
+		  ( <_cor196> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 300
+	  <{From,{'info','user_db'}},State> when 'true' ->
+	      %% Line 301
+	      ( case State of
+		  ( <( {'state',_cor197,_rec10,_cor198,_cor199,_cor200,_cor201}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor78> =
+			    call 'gstk':'request'
+				(_rec10, 'dump_db')
+			in  apply 'reply'/2
+				(From, _cor78)
+		    -| ['compiler_generated'] )
+		  ( <_cor202> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 302
+	  <{From,{'info',Unknown}},_X_State> when 'true' ->
+	      do  %% Line 303
+		  call 'io':'format'
+		      ([103|[115|[58|[32|[117|[110|[107|[110|[111|[119|[110|[32|[105|[110|[102|[111|[32|[111|[112|[116|[105|[111|[110|[32|[39|[126|[119|[39|[44|[32|[117|[115|[101|[32|[111|[110|[101|[32|[111|[102|[32|[39|[103|[115|[95|[100|[98|[39|[44|[32|[39|[107|[101|[114|[110|[101|[108|[95|[100|[98|[39|[32|[111|[114|[32|[39|[117|[115|[101|[114|[95|[100|[98|[39|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Unknown|[]])
+		  %% Line 304
+		  apply 'reply'/2
+		      (From, 'ok')
+	  ( <_cor80,_cor79> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor80,_cor79})
+		  -| [{'function_name',{'doit',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'terminate'/2 =
+    %% Line 306
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_Reason,{'state',DB,_cor4,_cor5,_cor6,_cor7,_cor8}> when 'true' ->
+	      %% Line 307
+	      case <> of
+		<>
+		    when call 'erlang':'=:='
+			  (DB,
+			   'undefined') ->
+		    'ok'
+		%% Line 308
+		<> when 'true' ->
+		    %% Line 310
+		    'ok'
+	      end
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'terminate',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'backend'/2 =
+    %% Line 314
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'state',_cor5,Upid,_cor6,Kpid,_cor7,_cor8},Obj> when 'true' ->
+	      %% Line 315
+	      case <> of
+		<>
+		    when try
+			  let <_cor2> =
+			      call 'erlang':'rem'
+				  (Obj, 2)
+			  in  call 'erlang':'=='
+				  (_cor2, 0)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    Kpid
+		%% Line 316
+		<> when 'true' ->
+		    Upid
+	      end
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'backend',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'inc'/2 =
+    %% Line 322
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <ParInt,State>
+	      when try
+		    let <_cor2> =
+			call 'erlang':'rem'
+			    (ParInt, 2)
+		    in  call 'erlang':'=='
+			    (_cor2, 1)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 323
+	      ( case State of
+		  ( <( {'state',_cor18,_cor19,_rec11,_cor20,_cor21,_cor22}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <X> =
+			    call 'erlang':'+'
+				(_rec11, 2)
+			in  let <_cor8> =
+				%% Line 324
+				call 'erlang':'setelement'
+				    (4, State, X)
+			    in  %% Line 324
+				{X,_cor8}
+		    -| ['compiler_generated'] )
+		  ( <_cor23> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 325
+	  <ParInt,State>
+	      when try
+		    let <_cor9> =
+			call 'erlang':'rem'
+			    (ParInt, 2)
+		    in  call 'erlang':'=='
+			    (_cor9, 0)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 326
+	      ( case State of
+		  ( <( {'state',_cor31,_cor32,_cor33,_cor34,_rec13,_cor35}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <X> =
+			    call 'erlang':'+'
+				(_rec13, 2)
+			in  let <_cor15> =
+				%% Line 327
+				call 'erlang':'setelement'
+				    (6, State, X)
+			    in  %% Line 327
+				{X,_cor15}
+		    -| ['compiler_generated'] )
+		  ( <_cor36> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  ( <_cor17,_cor16> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor17,_cor16})
+		  -| [{'function_name',{'inc',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'remove_user_objects'/1 =
+    %% Line 329
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 330
+	    call 'ets':'first'
+		(_cor0)
+	in  let <DeadObj> =
+		%% Line 330
+		apply 'find_user_obj'/2
+		    (_cor1, _cor0)
+	    in  %% Line 331
+		apply 'remove_objs'/2
+		    (_cor0, DeadObj)
+'find_user_obj'/2 =
+    %% Line 333
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Int,DB>
+	      when call 'erlang':'is_integer'
+		    (Int) ->
+	      %% Line 334
+	      case <> of
+		<>
+		    when try
+			  let <_cor2> =
+			      call 'erlang':'rem'
+				  (Int, 2)
+			  in  call 'erlang':'=='
+				  (_cor2, 0)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    let <_cor3> =
+			%% Line 335
+			call 'ets':'next'
+			    (DB, Int)
+		    in  %% Line 335
+			apply 'find_user_obj'/2
+			    (_cor3, DB)
+		%% Line 336
+		<> when 'true' ->
+		    let <_cor4> =
+			%% Line 337
+			call 'ets':'next'
+			    (DB, Int)
+		    in  let <_cor5> =
+			    %% Line 337
+			    apply 'find_user_obj'/2
+				(_cor4, DB)
+			in  %% Line 337
+			    [Int|_cor5]
+	      end
+	  %% Line 339
+	  <'$end_of_table',_X_DB> when 'true' ->
+	      %% Line 340
+	      []
+	  %% Line 341
+	  <OtherKey,DB> when 'true' ->
+	      let <_cor6> =
+		  %% Line 342
+		  call 'ets':'next'
+		      (DB, OtherKey)
+	      in  %% Line 342
+		  apply 'find_user_obj'/2
+		      (_cor6, DB)
+	end
+'remove_objs'/2 =
+    %% Line 344
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <DB,[Obj|Objs]> when 'true' ->
+	      do  %% Line 345
+		  case call 'ets':'lookup'
+			   (DB, Obj) of
+		    %% Line 346
+		    <[{_cor5,NamePid}|[]]> when 'true' ->
+			do  %% Line 347
+			    call 'ets':'delete'
+				(DB, Obj)
+			    %% Line 348
+			    call 'ets':'delete'
+				(DB, NamePid)
+		    %% Line 349
+		    <[]> when 'true' ->
+			'ok'
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor2})
+		      -| ['compiler_generated'] )
+		  end
+		  %% Line 351
+		  apply 'remove_objs'/2
+		      (DB, Objs)
+	  %% Line 352
+	  <_X_DB,[]> when 'true' ->
+	      'done'
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'remove_objs',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'idOrName_to_id'/3 =
+    %% Line 354
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <DB,IdOrName,Pid>
+	      when call 'erlang':'is_atom'
+		    (IdOrName) ->
+	      %% Line 355
+	      case call 'ets':'lookup'
+		       (DB, {IdOrName,Pid}) of
+		%% Line 356
+		<[{_cor8,Obj}|[]]> when 'true' ->
+		    Obj
+		%% Line 357
+		<_cor9> when 'true' ->
+		    'undefined'
+	      end
+	  %% Line 359
+	  <DB,Obj,_X_Pid> when 'true' ->
+	      %% Line 360
+	      case call 'ets':'lookup'
+		       (DB, Obj) of
+		%% Line 361
+		<[_cor10|[]]> when 'true' ->
+		    Obj
+		%% Line 362
+		<_cor11> when 'true' ->
+		    'undefined'
+	      end
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('gs_frontend')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('gs_frontend', _cor0)
+end

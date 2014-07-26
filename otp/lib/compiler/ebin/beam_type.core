@@ -1,0 +1,2589 @@
+module 'beam_type' ['module'/2,
+		    'module_info'/0,
+		    'module_info'/1]
+    attributes []
+'module'/2 =
+    %% Line 27
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Mod,Exp,Attr,Fs0,Lc},_X_Opts> when 'true' ->
+	      let <_cor7> =
+		  %% Line 28
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor4) ->
+				case _cor4 of
+				  <[F|_cor3]> when 'true' ->
+				      let <_cor5> =
+					  apply 'function'/1
+					      (F)
+				      in  let <_cor6> =
+					      apply 'lc$^0'/1
+						  (_cor3)
+					  in  ( [_cor5|_cor6]
+						-| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_2071> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor4})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (Fs0)
+		    -| ['list_comprehension'] )
+	      in  %% Line 29
+		  {'ok',{Mod,Exp,Attr,_cor7,Lc}}
+	  ( <_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'module',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'function'/1 =
+    %% Line 31
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'function',Name,Arity,CLabel,Asm0}> when 'true' ->
+	      %% Line 32
+	      try
+		  let <Asm1> =
+		      %% Line 33
+		      call 'beam_utils':'live_opt'
+			  (Asm0)
+		  in  let <Asm2> =
+			  %% Line 34
+			  apply 'opt'/3
+			      (Asm1, [], %% Line 624
+					 [])
+		      in  let <Asm> =
+			      %% Line 35
+			      call 'beam_utils':'delete_live_annos'
+				  (Asm2)
+			  in  %% Line 36
+			      {'function',Name,Arity,CLabel,Asm}
+	      of <_cor5> ->
+		  _cor5
+	      catch <_cor8,_cor7,_cor6> ->
+		  let <Stack> =
+		      %% Line 39
+		      call 'erlang':'get_stacktrace'
+			  ()
+		  in  do  %% Line 40
+			  call 'io':'fwrite'
+			      ([70|[117|[110|[99|[116|[105|[111|[110|[58|[32|[126|[119|[47|[126|[119|[10]]]]]]]]]]]]]]]], [Name|[Arity|[]]])
+			  %% Line 41
+			  call 'erlang':'raise'
+			      (_cor8, _cor7, Stack)
+	  ( <_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'function',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'opt'/3 =
+    %% Line 47
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[{'block',Body1}|Is],[{'block',Body0}|Acc],Ts0> when 'true' ->
+	      let <_5841> =
+		  %% Line 48
+		  apply 'simplify'/2
+		      (Body1, _cor0)
+	      in  %% Line 48
+		  case _5841 of
+		    <{Body2,Ts}> when 'true' ->
+			let <Body> =
+			    %% Line 49
+			    apply 'merge_blocks'/2
+				(Body0, Body2)
+			in  %% Line 50
+			    apply 'opt'/3
+				(Is, [{'block',Body}|Acc], Ts)
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_5841})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 51
+	  <[{'block',Body0}|Is],Acc,Ts0> when 'true' ->
+	      let <_1757> =
+		  %% Line 52
+		  apply 'simplify'/2
+		      (Body0, _cor0)
+	      in  %% Line 52
+		  case _1757 of
+		    <{Body,Ts}> when 'true' ->
+			%% Line 53
+			apply 'opt'/3
+			    (Is, [{'block',Body}|_cor1], Ts)
+		    ( <_cor5> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_1757})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 54
+	  <[I0|Is],Acc,Ts0> when 'true' ->
+	      let <_3124> =
+		  %% Line 55
+		  apply 'simplify_basic'/2
+		      ([I0|[]], _cor0)
+	      in  %% Line 55
+		  case _3124 of
+		    %% Line 56
+		    <{[],Ts}> when 'true' ->
+			apply 'opt'/3
+			    (Is, _cor1, Ts)
+		    %% Line 57
+		    <{[I|[]],Ts}> when 'true' ->
+			apply 'opt'/3
+			    (Is, [I|_cor1], Ts)
+		    ( <_cor6> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_3124})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 59
+	  <[],Acc,_cor10> when 'true' ->
+	      call 'lists':'reverse'
+		  (_cor1)
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'opt',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'simplify'/2 =
+    %% Line 65
+    fun (_cor1,_cor0) ->
+	let <_254> =
+	    %% Line 66
+	    apply 'simplify_basic'/2
+		(_cor1, _cor0)
+	in  %% Line 66
+	    case _254 of
+	      <BasicRes = {Is,_cor6}> when 'true' ->
+		  let <_4549> =
+		      %% Line 67
+		      apply 'simplify_float'/2
+			  (Is, _cor0)
+		  in  %% Line 67
+		      case _4549 of
+			%% Line 68
+			<'not_possible'> when 'true' ->
+			    _254
+			%% Line 69
+			<Res = {_cor7,_cor8}> when 'true' ->
+			    _4549
+			( <_cor3> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_4549})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_254})
+		-| ['compiler_generated'] )
+	    end
+'simplify_basic'/2 =
+    %% Line 75
+    fun (_cor1,_cor0) ->
+	%% Line 76
+	apply 'simplify_basic_1'/3
+	    (_cor1, _cor0, [])
+'simplify_basic_1'/3 =
+    %% Line 78
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[I0 = {'set',[D|[]],[{'integer',Index}|[Reg|[]]],{'bif','element',_cor27}}|Is],Ts0,Acc> when 'true' ->
+	      let <_532> =
+		  %% Line 469
+		  case apply 'tdb_find'/2
+			   (Reg, _cor1) of
+		    %% Line 470
+		    <{'tuple',Sz,_cor5}> when 'true' ->
+			Sz
+		    %% Line 471
+		    <_X_Other> when 'true' ->
+			0
+		  end
+	      in  let <_cor7> =
+		      %% Line 79
+		      case _532 of
+			%% Line 80
+			<Sz>
+			    when let <_cor3> =
+				  call 'erlang':'<'
+				      (0, Index)
+			      in  let <_cor4> =
+				      call 'erlang':'=<'
+					  (Index, _532)
+				  in  call 'erlang':'and'
+					  (_cor3, _cor4) ->
+			    let <_cor5> =
+				%% Line 81
+				call 'erlang':'-'
+				    (Index, 1)
+			    in  %% Line 81
+				{'set',[D|[]],[Reg|[]],{'get_tuple_element',_cor5}}
+			%% Line 82
+			<_X_Other> when 'true' ->
+			    I0
+		      end
+		  in  let <Ts> =
+			  %% Line 84
+			  apply 'update'/2
+			      (_cor7, _cor1)
+		      in  %% Line 85
+			  apply 'simplify_basic_1'/3
+			      (Is, Ts, [_cor7|_cor0])
+	  %% Line 86
+	  <[I = {'set',[D|[]],[TupleReg|[]],{'get_tuple_element',0}}|Is0],Ts0,Acc> when 'true' ->
+	      %% Line 87
+	      case apply 'tdb_find'/2
+		       (TupleReg, _cor1) of
+		%% Line 88
+		<{'tuple',_cor28,[Contents|[]]}> when 'true' ->
+		    %% Line 89
+		    apply 'simplify_basic_1'/3
+			([{'set',[D|[]],[Contents|[]],'move'}|Is0], _cor1, _cor0)
+		%% Line 90
+		<_cor29> when 'true' ->
+		    let <Ts> =
+			%% Line 91
+			apply 'update'/2
+			    (I, _cor1)
+		    in  %% Line 92
+			apply 'simplify_basic_1'/3
+			    (Is0, Ts, [I|_cor0])
+	      end
+	  %% Line 94
+	  <[I = {'set',_cor30,_cor31,{'catch',_cor32}}|Is],_X_Ts,Acc> when 'true' ->
+	      %% Line 95
+	      apply 'simplify_basic_1'/3
+		  (Is, %% Line 624
+		       [], [I|_cor0])
+	  %% Line 96
+	  <[I = {'test','is_tuple',_cor33,[R|[]]}|Is],Ts,Acc> when 'true' ->
+	      %% Line 97
+	      case apply 'tdb_find'/2
+		       (R, _cor1) of
+		%% Line 98
+		<{'tuple',_cor34,_cor35}> when 'true' ->
+		    apply 'simplify_basic_1'/3
+			(Is, _cor1, _cor0)
+		%% Line 99
+		<_cor36> when 'true' ->
+		    apply 'simplify_basic_1'/3
+			(Is, _cor1, [I|_cor0])
+	      end
+	  %% Line 101
+	  <[I = {'test','test_arity',_cor37,[R|[Arity|[]]]}|Is],Ts0,Acc> when 'true' ->
+	      %% Line 102
+	      case apply 'tdb_find'/2
+		       (R, _cor1) of
+		%% Line 103
+		<{'tuple',_cor38,_cor39}>
+		    when call 'erlang':'=:='
+			  (_cor38,
+			   Arity) ->
+		    %% Line 104
+		    apply 'simplify_basic_1'/3
+			(Is, _cor1, _cor0)
+		%% Line 105
+		<_X_Other> when 'true' ->
+		    let <Ts> =
+			%% Line 106
+			apply 'update'/2
+			    (I, _cor1)
+		    in  %% Line 107
+			apply 'simplify_basic_1'/3
+			    (Is, Ts, [I|_cor0])
+	      end
+	  %% Line 109
+	  <[I = {'test','is_eq_exact',Fail,[R|[Atom = {'atom',_cor40}|[]]]}|Is0],Ts0,Acc0> when 'true' ->
+	      let <_5869> =
+		  %% Line 110
+		  apply 'tdb_find'/2
+		      (R, _cor1)
+	      in  let <_cor17> =
+		      %% Line 110
+		      case _5869 of
+			%% Line 111
+			<_cor41 = {'atom',_cor42}>
+			    when call 'erlang':'=:='
+				  (_5869,
+				   Atom) ->
+			    _cor0
+			%% Line 112
+			<{'atom',_cor43}> when 'true' ->
+			    [{'jump',Fail}|_cor0]
+			%% Line 113
+			<_cor44> when 'true' ->
+			    [I|_cor0]
+		      end
+		  in  let <Ts> =
+			  %% Line 115
+			  apply 'update'/2
+			      (I, _cor1)
+		      in  %% Line 116
+			  apply 'simplify_basic_1'/3
+			      (Is0, Ts, _cor17)
+	  %% Line 117
+	  <[I = {'test','is_record',_cor45,[R|[Tag = {'atom',_cor46}|[{'integer',Arity}|[]]]]}|Is],Ts0,Acc> when 'true' ->
+	      %% Line 118
+	      case apply 'tdb_find'/2
+		       (R, _cor1) of
+		%% Line 119
+		<{'tuple',_cor47,[_cor48|[]]}>
+		    when let <_cor49> =
+			  call 'erlang':'=:='
+			      (_cor47, Arity)
+		      in  let <_cor50> =
+			      call 'erlang':'=:='
+				  (_cor48, Tag)
+			  in  call 'erlang':'and'
+				  (_cor49, _cor50) ->
+		    %% Line 120
+		    apply 'simplify_basic_1'/3
+			(Is, _cor1, _cor0)
+		%% Line 121
+		<_X_Other> when 'true' ->
+		    let <Ts> =
+			%% Line 122
+			apply 'update'/2
+			    (I, _cor1)
+		    in  %% Line 123
+			apply 'simplify_basic_1'/3
+			    (Is, Ts, [I|_cor0])
+	      end
+	  %% Line 125
+	  <[I|Is],Ts0,Acc> when 'true' ->
+	      let <Ts> =
+		  %% Line 126
+		  apply 'update'/2
+		      (I, _cor1)
+	      in  %% Line 127
+		  apply 'simplify_basic_1'/3
+		      (Is, Ts, [I|_cor0])
+	  %% Line 128
+	  <[],Ts,Acc> when 'true' ->
+	      let <Is> =
+		  %% Line 129
+		  call 'lists':'reverse'
+		      (_cor0)
+	      in  %% Line 130
+		  {Is,_cor1}
+	  ( <_cor26,_cor25,_cor24> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'simplify_basic_1',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'simplify_float'/2 =
+    %% Line 136
+    fun (_cor1,_cor0) ->
+	let <_594> =
+	    %% Line 137
+	    apply 'simplify_float_1'/4
+		(_cor1, _cor0, [], [])
+	in  %% Line 137
+	    case _594 of
+	      <{Is1,Ts}> when 'true' ->
+		  let <_5067> =
+		      %% Line 254
+		      call 'lists':'reverse'
+			  (Is1)
+		  in  let <Is2> =
+			  %% Line 254
+			  apply 'flt_need_heap_1'/4
+			      (_5067, 0, 0, [])
+		      in  %% Line 139
+			  try
+			      let <_cor4> =
+				  %% Line 140
+				  apply 'flt_liveness'/1
+				      (Is2)
+			      in  %% Line 140
+				  {_cor4,Ts}
+			  of <_cor5> ->
+			      _cor5
+			  catch <_cor8,_cor7,_cor6> ->
+			      case <_cor8,_cor7,_cor6> of
+				%% Line 142
+				<'throw','not_possible',_cor11> when 'true' ->
+				    'not_possible'
+				( <_5621,_5254,_5844> when 'true' ->
+				      primop 'raise'
+					  (_cor6, _cor7)
+				  -| ['compiler_generated'] )
+			      end
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_594})
+		-| ['compiler_generated'] )
+	    end
+'simplify_float_1'/4 =
+    %% Line 145
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[{'set',[],[],'fclearerror'}|Is],Ts,Rs,Acc> when 'true' ->
+	      let <_cor4> =
+		  %% Line 222
+		  apply 'clearerror'/2
+		      (_cor0, _cor0)
+	      in  %% Line 146
+		  apply 'simplify_float_1'/4
+		      (Is, _cor2, _cor1, _cor4)
+	  %% Line 147
+	  <[{'set',[],[],'fcheckerror'}|Is],Ts,Rs,Acc> when 'true' ->
+	      let <_cor5> =
+		  %% Line 595
+		  apply 'checkerror_1'/2
+		      (_cor0, _cor0)
+	      in  %% Line 148
+		  apply 'simplify_float_1'/4
+		      (Is, _cor2, _cor1, _cor5)
+	  %% Line 149
+	  <[I = {'set',[{'fr',_cor44}|[]],_cor45,_cor46}|Is],Ts,Rs,Acc> when 'true' ->
+	      %% Line 150
+	      apply 'simplify_float_1'/4
+		  (Is, _cor2, _cor1, [I|_cor0])
+	  %% Line 151
+	  <Is0 = [I = {'set',[D0|[]],[A0|[]],{'alloc',_cor47,{'gc_bif','-',{'f',0}}}}|Is],Ts0,Rs0,Acc0> when 'true' ->
+	      %% Line 153
+	      case apply 'tdb_find'/2
+		       (A0, _cor2) of
+		%% Line 154
+		<'float'> when 'true' ->
+		    let <A> =
+			%% Line 201
+			case A0 of
+			  <Int = {'integer',_4532}> when 'true' ->
+			      %% Line 202
+			      try
+				  call 'erlang':'float'
+				      (_4532)
+			      of <_5651> ->
+				  %% Line 204
+				  {'float',_5651}
+			      catch <_cor5,_cor4,_6842> ->
+				  A0
+			  %% Line 209
+			  <Other> when 'true' ->
+			      A0
+			end
+		    in  let <_1295> =
+			    %% Line 156
+			    apply 'load_reg'/4
+				(A, _cor2, _cor1, _cor0)
+			in  %% Line 156
+			    case _1295 of
+			      <{Rs1,Acc1}> when 'true' ->
+				  let <_1409> =
+				      %% Line 157
+				      apply 'find_dest'/2
+					  (D0, Rs1)
+				  in  %% Line 157
+				      case _1409 of
+					<{D,Rs}> when 'true' ->
+					    let <Areg> =
+						%% Line 158
+						apply 'fetch_reg'/2
+						    (A, Rs)
+					    in  let <_cor10> =
+						    %% Line 222
+						    apply 'clearerror'/2
+							(Acc1, Acc1)
+						in  let <Acc> =
+							%% Line 159
+							[{'set',[D|[]],[Areg|[]],{'bif','fnegate',{'f',0}}}|_cor10]
+						    in  let <Ts> =
+							    %% Line 160
+							    apply 'tdb_update'/2
+								([{D0,'float'}|[]], _cor2)
+							in  %% Line 161
+							    apply 'simplify_float_1'/4
+								(Is, Ts, Rs, Acc)
+					( <_cor8> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_1409})
+					  -| ['compiler_generated'] )
+				      end
+			      ( <_cor7> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_1295})
+				-| ['compiler_generated'] )
+			    end
+		%% Line 162
+		<_X_Other> when 'true' ->
+		    let <Ts> =
+			%% Line 163
+			apply 'update'/2
+			    (I, _cor2)
+		    in  let <_2287> =
+			    %% Line 164
+			    apply 'flush'/3
+				(_cor1, _cor3, _cor0)
+			in  %% Line 164
+			    case _2287 of
+			      <{Rs,Acc}> when 'true' ->
+				  let <_cor15> =
+				      %% Line 595
+				      apply 'checkerror_1'/2
+					  (Acc, Acc)
+				  in  %% Line 165
+				      apply 'simplify_float_1'/4
+					  (Is, Ts, Rs, [I|_cor15])
+			      ( <_cor14> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_2287})
+				-| ['compiler_generated'] )
+			    end
+	      end
+	  %% Line 167
+	  <Is0 = [I = {'set',[D0|[]],[A0|[B0|[]]],{'alloc',_cor48,{'gc_bif',Op0,{'f',0}}}}|Is],Ts0,Rs0,Acc0> when 'true' ->
+	      let <_1958> =
+		  %% Line 169
+		  apply 'float_op'/4
+		      (Op0, A0, B0, _cor2)
+	      in  %% Line 169
+		  case _1958 of
+		    %% Line 170
+		    <'no'> when 'true' ->
+			let <Ts> =
+			    %% Line 171
+			    apply 'update'/2
+				(I, _cor2)
+			in  let <_2708> =
+				%% Line 172
+				apply 'flush'/3
+				    (_cor1, _cor3, _cor0)
+			    in  %% Line 172
+				case _2708 of
+				  <{Rs,Acc}> when 'true' ->
+				      let <_cor19> =
+					  %% Line 595
+					  apply 'checkerror_1'/2
+					      (Acc, Acc)
+				      in  %% Line 173
+					  apply 'simplify_float_1'/4
+					      (Is, Ts, Rs, [I|_cor19])
+				  ( <_cor18> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_2708})
+				    -| ['compiler_generated'] )
+				end
+		    %% Line 174
+		    <{'yes',Op}> when 'true' ->
+			let <A> =
+			    %% Line 201
+			    case A0 of
+			      <Int = {'integer',_6996}> when 'true' ->
+				  %% Line 202
+				  try
+				      call 'erlang':'float'
+					  (_6996)
+				  of <_3794> ->
+				      %% Line 204
+				      {'float',_3794}
+				  catch <_cor5,_cor4,_5677> ->
+				      A0
+			      %% Line 209
+			      <Other> when 'true' ->
+				  A0
+			    end
+			in  let <B> =
+				%% Line 201
+				case B0 of
+				  <Int = {'integer',_2421}> when 'true' ->
+				      %% Line 202
+				      try
+					  call 'erlang':'float'
+					      (_2421)
+				      of <_4395> ->
+					  %% Line 204
+					  {'float',_4395}
+				      catch <_cor5,_cor4,_6329> ->
+					  B0
+				  %% Line 209
+				  <Other> when 'true' ->
+				      B0
+				end
+			    in  let <_6702> =
+				    %% Line 177
+				    apply 'load_reg'/4
+					(A, _cor2, _cor1, _cor0)
+				in  %% Line 177
+				    case _6702 of
+				      <{Rs1,Acc1}> when 'true' ->
+					  let <_4335> =
+					      %% Line 178
+					      apply 'load_reg'/4
+						  (B, _cor2, Rs1, Acc1)
+					  in  %% Line 178
+					      case _4335 of
+						<{Rs2,Acc2}> when 'true' ->
+						    let <_6833> =
+							%% Line 179
+							apply 'find_dest'/2
+							    (D0, Rs2)
+						    in  %% Line 179
+							case _6833 of
+							  <{D,Rs}> when 'true' ->
+							      let <Areg> =
+								  %% Line 180
+								  apply 'fetch_reg'/2
+								      (A, Rs)
+							      in  let <Breg> =
+								      %% Line 181
+								      apply 'fetch_reg'/2
+									  (B, Rs)
+								  in  let <_cor27> =
+									  %% Line 222
+									  apply 'clearerror'/2
+									      (Acc2, Acc2)
+								      in  let <Acc> =
+									      %% Line 182
+									      [{'set',[D|[]],[Areg|[Breg|[]]],{'bif',Op,{'f',0}}}|_cor27]
+									  in  let <Ts> =
+										  %% Line 183
+										  apply 'tdb_update'/2
+										      ([{D0,'float'}|[]], _cor2)
+									      in  %% Line 184
+										  apply 'simplify_float_1'/4
+										      (Is, Ts, Rs, Acc)
+							  ( <_cor24> when 'true' ->
+								primop 'match_fail'
+								    ({'badmatch',_6833})
+							    -| ['compiler_generated'] )
+							end
+						( <_cor23> when 'true' ->
+						      primop 'match_fail'
+							  ({'badmatch',_4335})
+						  -| ['compiler_generated'] )
+					      end
+				      ( <_cor22> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_6702})
+					-| ['compiler_generated'] )
+				    end
+		    ( <_cor30> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_1958})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 186
+	  <Is0 = [I = {'set',_cor49,_cor50,{'catch',_cor51}}|Is],_X_Ts,Rs0,Acc0> when 'true' ->
+	      let <Acc> =
+		  %% Line 187
+		  apply 'flush_all'/3
+		      (_cor1, _cor3, _cor0)
+	      in  %% Line 188
+		  apply 'simplify_float_1'/4
+		      (Is, %% Line 624
+			   [], _cor1, [I|Acc])
+	  %% Line 189
+	  <[I = {'set',_cor52,_cor53,{'line',_cor54}}|Is],Ts,Rs,Acc> when 'true' ->
+	      %% Line 190
+	      apply 'simplify_float_1'/4
+		  (Is, _cor2, _cor1, [I|_cor0])
+	  %% Line 191
+	  <Is0 = [I|Is],Ts0,Rs0,Acc0> when 'true' ->
+	      let <Ts> =
+		  %% Line 192
+		  apply 'update'/2
+		      (I, _cor2)
+	      in  let <_3867> =
+		      %% Line 193
+		      apply 'flush'/3
+			  (_cor1, _cor3, _cor0)
+		  in  %% Line 193
+		      case _3867 of
+			<{Rs,Acc}> when 'true' ->
+			    let <_cor35> =
+				%% Line 595
+				apply 'checkerror_1'/2
+				    (Acc, Acc)
+			    in  %% Line 194
+				apply 'simplify_float_1'/4
+				    (Is, Ts, Rs, [I|_cor35])
+			( <_cor34> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_3867})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 195
+	  <[],Ts,Rs,Acc0> when 'true' ->
+	      let <Acc> =
+		  %% Line 595
+		  apply 'checkerror_1'/2
+		      (_cor0, _cor0)
+	      in  let <_cor37> =
+		      %% Line 197
+		      apply 'flush_all'/3
+			  (_cor1, [], Acc)
+		  in  let <Is0> =
+			  %% Line 197
+			  call 'lists':'reverse'
+			      (_cor37)
+		      in  let <Is> =
+			      %% Line 198
+			      apply 'opt_fmoves'/2
+				  (Is0, [])
+			  in  %% Line 199
+			      {Is,_cor2}
+	  ( <_cor43,_cor42,_cor41,_cor40> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'simplify_float_1',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'opt_fmoves'/2 =
+    %% Line 211
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[I1 = {'set',[R = {'x',_cor5}|[]],Src = [{'fr',_cor6}|[]],'fmove'}|%% Line 212
+									      [I2 = {'set',Dst = [_cor7|[]],[_cor8 = {'x',_cor9}|[]],'move'}|Is]],Acc>
+	      when call 'erlang':'=:='
+		    (_cor8,
+		     R) ->
+	      let <_639> =
+		  %% Line 213
+		  call 'beam_utils':'is_killed_block'
+		      (R, Is)
+	      in  %% Line 213
+		  case _639 of
+		    %% Line 214
+		    <'false'> when 'true' ->
+			apply 'opt_fmoves'/2
+			    (Is, [I2|[I1|_cor0]])
+		    %% Line 215
+		    <'true'> when 'true' ->
+			apply 'opt_fmoves'/2
+			    (Is, [{'set',Dst,Src,'fmove'}|_cor0])
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_639})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 217
+	  <[I|Is],Acc> when 'true' ->
+	      %% Line 218
+	      apply 'opt_fmoves'/2
+		  (Is, [I|_cor0])
+	  %% Line 219
+	  <[],Acc> when 'true' ->
+	      call 'lists':'reverse'
+		  (_cor0)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'opt_fmoves',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'clearerror'/2 =
+    %% Line 224
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'set',[],[],'fclearerror'}|_cor4],OrigIs> when 'true' ->
+	      _cor0
+	  %% Line 225
+	  <[{'set',[],[],'fcheckerror'}|_cor5],OrigIs> when 'true' ->
+	      [{'set',[],[],'fclearerror'}|_cor0]
+	  %% Line 226
+	  <[_cor6|Is],OrigIs> when 'true' ->
+	      apply 'clearerror'/2
+		  (Is, _cor0)
+	  %% Line 227
+	  <[],OrigIs> when 'true' ->
+	      [{'set',[],[],'fclearerror'}|_cor0]
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'clearerror',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'merge_blocks'/2 =
+    %% Line 233
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <B1,[{'%live',_cor5}|B2]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 234
+		  call 'erlang':'++'
+		      (_cor1, [{'set',[],[],'stop_here'}|B2])
+	      in  %% Line 234
+		  apply 'merge_blocks_1'/1
+		      (_cor2)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'merge_blocks',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'merge_blocks_1'/1 =
+    %% Line 236
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{'set',[],_cor5,'stop_here'}|Is]> when 'true' ->
+	      Is
+	  %% Line 237
+	  <[I = {'set',[D|[]],_cor6,'move'}|Is]> when 'true' ->
+	      let <_2054> =
+		  %% Line 238
+		  call 'beam_utils':'is_killed_block'
+		      (D, Is)
+	      in  %% Line 238
+		  case _2054 of
+		    %% Line 239
+		    <'true'> when 'true' ->
+			apply 'merge_blocks_1'/1
+			    (Is)
+		    %% Line 240
+		    <'false'> when 'true' ->
+			let <_cor1> =
+			    apply 'merge_blocks_1'/1
+				(Is)
+			in  [I|_cor1]
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_2054})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 242
+	  <[I|Is]> when 'true' ->
+	      let <_cor3> =
+		  apply 'merge_blocks_1'/1
+		      (Is)
+	      in  [I|_cor3]
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'merge_blocks_1',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'flt_need_heap_1'/4 =
+    %% Line 256
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[{'set',[],[],{'alloc',_cor14,Alloc}}|Is],H,Fl,Acc> when 'true' ->
+	      %% Line 257
+	      case Alloc of
+		%% Line 258
+		<{_cor15,'nostack',_cor16,_cor17}> when 'true' ->
+		    %% Line 260
+		    apply 'flt_need_heap_1'/4
+			(Is, _cor2, _cor1, _cor0)
+		%% Line 261
+		<{Z,Stk,_cor18,Inits}>
+		    when call 'erlang':'is_integer'
+			  (Stk) ->
+		    let <_cor4> =
+			%% Line 312
+			case <_cor2,_cor1> of
+			  <Words,0> when 'true' ->
+			      _cor2
+			  %% Line 313
+			  <Words,Floats> when 'true' ->
+			      {'alloc',[{'words',_cor2}|[{'floats',_cor1}|[]]]}
+			end
+		    in  let <I> =
+			    %% Line 263
+			    {'set',[],[],{'alloc','regs',{Z,Stk,_cor4,Inits}}}
+			in  %% Line 264
+			    apply 'flt_need_heap_1'/4
+				(Is, 0, 0, [I|_cor0])
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',Alloc})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 266
+	  <[I|Is],H0,Fl0,Acc> when 'true' ->
+	      let <_3104> =
+		  %% Line 267
+		  apply 'flt_need_heap_2'/3
+		      (I, _cor2, _cor1)
+	      in  %% Line 267
+		  case _3104 of
+		    <{Ns,H1,Fl1}> when 'true' ->
+			let <_cor8> =
+			    %% Line 268
+			    [I|call 'erlang':'++'
+				   (Ns, _cor0)]
+			in  %% Line 268
+			    apply 'flt_need_heap_1'/4
+				(Is, H1, Fl1, _cor8)
+		    ( <_cor7> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_3104})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 269
+	  <[],H,Fl,Acc> when 'true' ->
+	      let <_cor9> =
+		  %% Line 270
+		  apply 'flt_alloc'/2
+		      (_cor2, _cor1)
+	      in  %% Line 270
+		  call 'erlang':'++'
+		      (_cor9, _cor0)
+	  ( <_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'flt_need_heap_1',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'flt_need_heap_2'/3 =
+    %% Line 274
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'set',[_cor11|[]],[{'fr',_cor12}|[]],'fmove'},H,Fl> when 'true' ->
+	      let <_cor3> =
+		  %% Line 275
+		  call 'erlang':'+'
+		      (_cor0, 1)
+	      in  %% Line 275
+		  {[],_cor1,_cor3}
+	  %% Line 276
+	  <{'set',_cor13,_cor14,'put_list'},H,Fl> when 'true' ->
+	      let <_cor4> =
+		  %% Line 277
+		  call 'erlang':'+'
+		      (_cor1, 2)
+	      in  %% Line 277
+		  {[],_cor4,_cor0}
+	  %% Line 278
+	  <{'set',_cor15,_cor16,{'put_tuple',_cor17}},H,Fl> when 'true' ->
+	      let <_cor5> =
+		  %% Line 279
+		  call 'erlang':'+'
+		      (_cor1, 1)
+	      in  %% Line 279
+		  {[],_cor5,_cor0}
+	  %% Line 280
+	  <{'set',_cor18,_cor19,'put'},H,Fl> when 'true' ->
+	      let <_cor6> =
+		  %% Line 281
+		  call 'erlang':'+'
+		      (_cor1, 1)
+	      in  %% Line 281
+		  {[],_cor6,_cor0}
+	  %% Line 283
+	  <{'set',[{'fr',_cor20}|[]],_cor21,_cor22},H,Fl> when 'true' ->
+	      %% Line 284
+	      {[],_cor1,_cor0}
+	  %% Line 285
+	  <{'set',[],[],'fclearerror'},H,Fl> when 'true' ->
+	      %% Line 286
+	      {[],_cor1,_cor0}
+	  %% Line 287
+	  <{'set',[],[],'fcheckerror'},H,Fl> when 'true' ->
+	      %% Line 288
+	      {[],_cor1,_cor0}
+	  %% Line 289
+	  <{'set',_cor23,_cor24,{'bif',_cor25,_cor26}},H,Fl> when 'true' ->
+	      %% Line 290
+	      {[],_cor1,_cor0}
+	  %% Line 291
+	  <{'set',_cor27,_cor28,'move'},H,Fl> when 'true' ->
+	      %% Line 292
+	      {[],_cor1,_cor0}
+	  %% Line 293
+	  <{'set',_cor29,_cor30,{'get_tuple_element',_cor31}},H,Fl> when 'true' ->
+	      %% Line 294
+	      {[],_cor1,_cor0}
+	  %% Line 295
+	  <{'set',_cor32,_cor33,'get_list'},H,Fl> when 'true' ->
+	      %% Line 296
+	      {[],_cor1,_cor0}
+	  %% Line 297
+	  <{'set',_cor34,_cor35,{'catch',_cor36}},H,Fl> when 'true' ->
+	      %% Line 298
+	      {[],_cor1,_cor0}
+	  %% Line 301
+	  <_cor37,H,Fl> when 'true' ->
+	      let <_cor7> =
+		  %% Line 302
+		  apply 'flt_alloc'/2
+		      (_cor1, _cor0)
+	      in  %% Line 302
+		  {_cor7,0,0}
+	end
+'flt_alloc'/2 =
+    %% Line 304
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <0,0> when 'true' ->
+	      %% Line 305
+	      []
+	  %% Line 306
+	  <H,0> when 'true' ->
+	      %% Line 307
+	      [{'set',[],[],{'alloc','regs',{'nozero','nostack',_cor1,[]}}}|[]]
+	  %% Line 308
+	  <H,F> when 'true' ->
+	      let <_cor2> =
+		  %% Line 312
+		  case <_cor1,_cor0> of
+		    <Words,0> when 'true' ->
+			_cor1
+		    %% Line 313
+		    <Words,Floats> when 'true' ->
+			{'alloc',[{'words',_cor1}|[{'floats',_cor0}|[]]]}
+		  end
+	      in  %% Line 309
+		  [{'set',[],[],{'alloc','regs',{'nozero','nostack',_cor2,%% Line 310
+									  []}}}|%% Line 310
+										[]]
+	end
+'flt_liveness'/1 =
+    %% Line 325
+    fun (_cor0) ->
+	case _cor0 of
+	  <[LiveInstr = {'%live',Live}|Is]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 341
+		  call 'erlang':'bsl'
+		      (1, Live)
+	      in  let <_cor1> =
+		      %% Line 341
+		      call 'erlang':'-'
+			  (_cor1, 1)
+		  in  %% Line 326
+		      apply 'flt_liveness_1'/3
+			  (Is, _cor1, [LiveInstr|[]])
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'flt_liveness',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'flt_liveness_1'/3 =
+    %% Line 328
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[{'set',Ds,Ss,{'alloc',_cor20,Alloc}}|Is],Regs0,Acc> when 'true' ->
+	      let <Live> =
+		  %% Line 344
+		  apply 'live_regs_1'/2
+		      (_cor1, 0)
+	      in  let <I> =
+		      %% Line 330
+		      {'set',Ds,Ss,{'alloc',Live,Alloc}}
+		  in  let <_cor9> =
+			  %% Line 331
+			  fun (_cor6,_cor5) ->
+			      %% Line 353
+			      case <_cor6,_cor5> of
+				<{'x',X},Regs> when 'true' ->
+				    let <_422> =
+					call 'erlang':'bsl'
+					    (1, X)
+				    in  call 'erlang':'bor'
+					    (_cor5, _422)
+				%% Line 354
+				<_6663,Regs> when 'true' ->
+				    _cor5
+			      end
+		      in  let <Regs> =
+			      %% Line 331
+			      call 'lists':'foldl'
+				  (_cor9, _cor1, Ds)
+			  in  %% Line 332
+			      apply 'flt_liveness_1'/3
+				  (Is, Regs, [I|_cor0])
+	  %% Line 333
+	  <[I = {'set',Ds,_cor21,_cor22}|Is],Regs0,Acc> when 'true' ->
+	      let <_cor15> =
+		  %% Line 334
+		  fun (_cor12,_cor11) ->
+		      %% Line 353
+		      case <_cor12,_cor11> of
+			<{'x',X},Regs> when 'true' ->
+			    let <_1440> =
+				call 'erlang':'bsl'
+				    (1, X)
+			    in  call 'erlang':'bor'
+				    (_cor11, _1440)
+			%% Line 354
+			<_cor5,Regs> when 'true' ->
+			    _cor11
+		      end
+	      in  let <Regs> =
+		      %% Line 334
+		      call 'lists':'foldl'
+			  (_cor15, _cor1, Ds)
+		  in  %% Line 335
+		      apply 'flt_liveness_1'/3
+			  (Is, Regs, [I|_cor0])
+	  %% Line 336
+	  <[I = {'%live',_cor23}|Is],Regs,Acc> when 'true' ->
+	      %% Line 337
+	      apply 'flt_liveness_1'/3
+		  (Is, _cor1, [I|_cor0])
+	  %% Line 338
+	  <[],_X_Regs,Acc> when 'true' ->
+	      call 'lists':'reverse'
+		  (_cor0)
+	  ( <_cor19,_cor18,_cor17> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'flt_liveness_1',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'live_regs_1'/2 =
+    %% Line 346
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <0,N> when 'true' ->
+	      _cor0
+	  %% Line 347
+	  <R,N> when 'true' ->
+	      let <_1475> =
+		  %% Line 348
+		  call 'erlang':'band'
+		      (_cor1, 1)
+	      in  %% Line 348
+		  case _1475 of
+		    %% Line 349
+		    <0> when 'true' ->
+			call 'erlang':'throw'
+			    ('not_possible')
+		    %% Line 350
+		    <1> when 'true' ->
+			let <_cor3> =
+			    call 'erlang':'bsr'
+				(_cor1, 1)
+			in  let <_cor2> =
+				call 'erlang':'+'
+				    (_cor0, 1)
+			    in  apply 'live_regs_1'/2
+				    (_cor3, _cor2)
+		    ( <_cor4> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_1475})
+		      -| ['compiler_generated'] )
+		  end
+	end
+'update'/2 =
+    %% Line 360
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'%live',_cor19},Ts> when 'true' ->
+	      _cor0
+	  %% Line 361
+	  <{'set',[D|[]],[S|[]],'move'},Ts> when 'true' ->
+	      %% Line 362
+	      apply 'tdb_copy'/3
+		  (S, D, _cor0)
+	  %% Line 363
+	  <{'set',[D|[]],[{'integer',I}|[Reg|[]]],{'bif','element',_cor20}},Ts0> when 'true' ->
+	      %% Line 364
+	      apply 'tdb_update'/2
+		  ([{Reg,{'tuple',I,[]}}|[{D,'kill'}|[]]], _cor0)
+	  %% Line 365
+	  <{'set',[D|[]],[_X_Index|[Reg|[]]],{'bif','element',_cor21}},Ts0> when 'true' ->
+	      %% Line 366
+	      apply 'tdb_update'/2
+		  ([{Reg,{'tuple',0,[]}}|[{D,'kill'}|[]]], _cor0)
+	  %% Line 367
+	  <{'set',[D|[]],[S|[]],{'get_tuple_element',0}},Ts> when 'true' ->
+	      %% Line 368
+	      apply 'tdb_update'/2
+		  ([{D,{'tuple_element',S,0}}|[]], _cor0)
+	  %% Line 369
+	  <{'set',[D|[]],[S|[]],{'alloc',_cor22,{'gc_bif','float',{'f',0}}}},Ts0> when 'true' ->
+	      let <_2652> =
+		  %% Line 462
+		  case S of
+		    <{'x',_cor2}> when 'true' ->
+			'true'
+		    %% Line 463
+		    <{'y',_cor3}> when 'true' ->
+			'true'
+		    %% Line 464
+		    <{'integer',_cor4}> when 'true' ->
+			'true'
+		    %% Line 465
+		    <{'float',_cor5}> when 'true' ->
+			'true'
+		    %% Line 466
+		    <_cor6> when 'true' ->
+			'false'
+		  end
+	      in  %% Line 371
+		  case _2652 of
+		    %% Line 372
+		    <'true'> when 'true' ->
+			apply 'tdb_update'/2
+			    ([{D,'float'}|[]], _cor0)
+		    %% Line 373
+		    <'false'> when 'true' ->
+			_cor0
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_2652})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 375
+	  <{'set',[D|[]],[S1|[S2|[]]],{'alloc',_cor23,{'gc_bif','/',{'f',0}}}},Ts0> when 'true' ->
+	      let <_418> =
+		  %% Line 462
+		  case S1 of
+		    <{'x',_cor2}> when 'true' ->
+			'true'
+		    %% Line 463
+		    <{'y',_cor3}> when 'true' ->
+			'true'
+		    %% Line 464
+		    <{'integer',_cor4}> when 'true' ->
+			'true'
+		    %% Line 465
+		    <{'float',_cor5}> when 'true' ->
+			'true'
+		    %% Line 466
+		    <_cor6> when 'true' ->
+			'false'
+		  end
+	      in  let <_cor5> =
+		      %% Line 377
+		      ( case _418 of
+			  ( <( 'true'
+			       -| ['compiler_generated'] )> when 'true' ->
+				%% Line 462
+				case S2 of
+				  <{'x',_cor2}> when 'true' ->
+				      'true'
+				  %% Line 463
+				  <{'y',_cor3}> when 'true' ->
+				      'true'
+				  %% Line 464
+				  <{'integer',_cor4}> when 'true' ->
+				      'true'
+				  %% Line 465
+				  <{'float',_cor5}> when 'true' ->
+				      'true'
+				  %% Line 466
+				  <_cor6> when 'true' ->
+				      'false'
+				end
+			    -| ['compiler_generated'] )
+			  ( <( 'false'
+			       -| ['compiler_generated'] )> when 'true' ->
+				'false'
+			    -| ['compiler_generated'] )
+			  ( <_cor3> when 'true' ->
+				( call ( 'erlang'
+					 -| ['compiler_generated'] ):( 'error'
+								       -| ['compiler_generated'] )
+				      (( {( 'badarg'
+					    -| ['compiler_generated'] ),_418}
+					 -| ['compiler_generated'] ))
+				  -| ['compiler_generated'] )
+			    -| ['compiler_generated'] )
+			end
+			-| ['compiler_generated'] )
+		  in  %% Line 377
+		      case _cor5 of
+			%% Line 378
+			<'true'> when 'true' ->
+			    apply 'tdb_update'/2
+				([{D,'float'}|[]], _cor0)
+			%% Line 379
+			<'false'> when 'true' ->
+			    _cor0
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor5})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 381
+	  <{'set',[D|[]],[S1|[S2|[]]],{'alloc',_cor24,{'gc_bif',Op,{'f',0}}}},Ts0> when 'true' ->
+	      let <_2589> =
+		  %% Line 525
+		  case Op of
+		    <'+'> when 'true' ->
+			{'yes','fadd'}
+		    %% Line 526
+		    <'-'> when 'true' ->
+			{'yes','fsub'}
+		    %% Line 527
+		    <'*'> when 'true' ->
+			{'yes','fmul'}
+		    %% Line 528
+		    <'/'> when 'true' ->
+			{'yes','fdiv'}
+		    %% Line 529
+		    <_cor2> when 'true' ->
+			'no'
+		  end
+	      in  %% Line 382
+		  case _2589 of
+		    %% Line 383
+		    <'no'> when 'true' ->
+			%% Line 384
+			apply 'tdb_update'/2
+			    ([{D,'kill'}|[]], _cor0)
+		    %% Line 385
+		    <{'yes',_cor25}> when 'true' ->
+			let <_cor8> =
+			    %% Line 386
+			    apply 'tdb_find'/2
+				(S1, _cor0)
+			in  let <_cor7> =
+				%% Line 386
+				apply 'tdb_find'/2
+				    (S2, _cor0)
+			    in  %% Line 386
+				case <_cor8,_cor7> of
+				  %% Line 387
+				  <'float',_cor26> when 'true' ->
+				      apply 'tdb_update'/2
+					  ([{D,'float'}|[]], _cor0)
+				  %% Line 388
+				  <_cor27,'float'> when 'true' ->
+				      apply 'tdb_update'/2
+					  ([{D,'float'}|[]], _cor0)
+				  %% Line 389
+				  <_cor28,_cor29> when 'true' ->
+				      apply 'tdb_update'/2
+					  ([{D,'kill'}|[]], _cor0)
+				end
+		    ( <_cor10> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_2589})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 392
+	  <{'set',[],_X_Src,_X_Op},Ts0> when 'true' ->
+	      _cor0
+	  %% Line 393
+	  <{'set',[D|[]],_X_Src,_X_Op},Ts0> when 'true' ->
+	      %% Line 394
+	      apply 'tdb_update'/2
+		  ([{D,'kill'}|[]], _cor0)
+	  %% Line 395
+	  <{'set',[D1|[D2|[]]],_X_Src,_X_Op},Ts0> when 'true' ->
+	      %% Line 396
+	      apply 'tdb_update'/2
+		  ([{D1,'kill'}|[{D2,'kill'}|[]]], _cor0)
+	  %% Line 397
+	  <{'kill',D},Ts> when 'true' ->
+	      %% Line 398
+	      apply 'tdb_update'/2
+		  ([{D,'kill'}|[]], _cor0)
+	  %% Line 401
+	  <{'test','is_float',_X_Fail,[Src|[]]},Ts0> when 'true' ->
+	      %% Line 402
+	      apply 'tdb_update'/2
+		  ([{Src,'float'}|[]], _cor0)
+	  %% Line 403
+	  <{'test','test_arity',_X_Fail,[Src|[Arity|[]]]},Ts0> when 'true' ->
+	      %% Line 404
+	      apply 'tdb_update'/2
+		  ([{Src,{'tuple',Arity,[]}}|[]], _cor0)
+	  %% Line 405
+	  <{'test','is_eq_exact',_cor30,[Reg|[Atom = {'atom',_cor31}|[]]]},Ts> when 'true' ->
+	      %% Line 406
+	      case apply 'tdb_find'/2
+		       (Reg, _cor0) of
+		%% Line 407
+		<'error'> when 'true' ->
+		    _cor0
+		%% Line 409
+		<{'tuple_element',TupleReg,0}> when 'true' ->
+		    %% Line 410
+		    apply 'tdb_update'/2
+			([{TupleReg,{'tuple',1,[Atom|[]]}}|[]], _cor0)
+		%% Line 411
+		<_cor32> when 'true' ->
+		    _cor0
+	      end
+	  %% Line 414
+	  <{'test','is_record',_X_Fail,[Src|[Tag|[{'integer',Arity}|[]]]]},Ts> when 'true' ->
+	      %% Line 415
+	      apply 'tdb_update'/2
+		  ([{Src,{'tuple',Arity,[Tag|[]]}}|[]], _cor0)
+	  %% Line 416
+	  <{'test',_X_Test,_X_Fail,_X_Other},Ts> when 'true' ->
+	      _cor0
+	  %% Line 418
+	  <{'call_ext',Ar,{'extfunc','math',Math,_cor33}},Ts>
+	      when call 'erlang':'=:='
+		    (_cor33,
+		     Ar) ->
+	      let <_330> =
+		  %% Line 419
+		  apply 'is_math_bif'/2
+		      (Math, Ar)
+	      in  %% Line 419
+		  case _330 of
+		    %% Line 420
+		    <'true'> when 'true' ->
+			apply 'tdb_update'/2
+			    ([{{'x',0},'float'}], _cor0)
+		    %% Line 421
+		    <'false'> when 'true' ->
+			apply 'tdb_kill_xregs'/1
+			    (_cor0)
+		    ( <_cor12> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_330})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 423
+	  <{'call_ext',3,{'extfunc','erlang','setelement',3}},Ts0> when 'true' ->
+	      let <_1969> =
+		  %% Line 635
+		  call 'orddict':'find'
+		      ({'x',1}, _cor0)
+	      in  let <_5606> =
+		      %% Line 635
+		      case _1969 of
+			%% Line 636
+			<{'ok',Val}> when 'true' ->
+			    Val
+			%% Line 637
+			<'error'> when 'true' ->
+			    'error'
+			( <_cor2> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_1969})
+			  -| ['compiler_generated'] )
+		      end
+		  in  let <_cor14> =
+			  %% Line 424
+			  case _5606 of
+			    %% Line 425
+			    <'error'> when 'true' ->
+				'kill'
+			    %% Line 426
+			    <Info> when 'true' ->
+				_5606
+			  end
+		      in  let <Ts1> =
+			      %% Line 428
+			      apply 'tdb_kill_xregs'/1
+				  (_cor0)
+			  in  %% Line 429
+			      apply 'tdb_update'/2
+				  ([{{'x',0},_cor14}|[]], Ts1)
+	  %% Line 430
+	  <{'call',_X_Arity,_X_Func},Ts> when 'true' ->
+	      apply 'tdb_kill_xregs'/1
+		  (_cor0)
+	  %% Line 431
+	  <{'call_ext',_X_Arity,_X_Func},Ts> when 'true' ->
+	      apply 'tdb_kill_xregs'/1
+		  (_cor0)
+	  %% Line 432
+	  <{'make_fun2',_cor34,_cor35,_cor36,_cor37},Ts> when 'true' ->
+	      apply 'tdb_kill_xregs'/1
+		  (_cor0)
+	  %% Line 433
+	  <{'line',_cor38},Ts> when 'true' ->
+	      _cor0
+	  %% Line 436
+	  <_X_I,_X_Ts> when 'true' ->
+	      %% Line 624
+	      []
+	end
+'is_math_bif'/2 =
+    %% Line 438
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'cos',1> when 'true' ->
+	      'true'
+	  %% Line 439
+	  <'cosh',1> when 'true' ->
+	      'true'
+	  %% Line 440
+	  <'sin',1> when 'true' ->
+	      'true'
+	  %% Line 441
+	  <'sinh',1> when 'true' ->
+	      'true'
+	  %% Line 442
+	  <'tan',1> when 'true' ->
+	      'true'
+	  %% Line 443
+	  <'tanh',1> when 'true' ->
+	      'true'
+	  %% Line 444
+	  <'acos',1> when 'true' ->
+	      'true'
+	  %% Line 445
+	  <'acosh',1> when 'true' ->
+	      'true'
+	  %% Line 446
+	  <'asin',1> when 'true' ->
+	      'true'
+	  %% Line 447
+	  <'asinh',1> when 'true' ->
+	      'true'
+	  %% Line 448
+	  <'atan',1> when 'true' ->
+	      'true'
+	  %% Line 449
+	  <'atanh',1> when 'true' ->
+	      'true'
+	  %% Line 450
+	  <'erf',1> when 'true' ->
+	      'true'
+	  %% Line 451
+	  <'erfc',1> when 'true' ->
+	      'true'
+	  %% Line 452
+	  <'exp',1> when 'true' ->
+	      'true'
+	  %% Line 453
+	  <'log',1> when 'true' ->
+	      'true'
+	  %% Line 454
+	  <'log10',1> when 'true' ->
+	      'true'
+	  %% Line 455
+	  <'sqrt',1> when 'true' ->
+	      'true'
+	  %% Line 456
+	  <'atan2',2> when 'true' ->
+	      'true'
+	  %% Line 457
+	  <'pow',2> when 'true' ->
+	      'true'
+	  %% Line 458
+	  <'pi',0> when 'true' ->
+	      'true'
+	  %% Line 459
+	  <_cor4,_cor5> when 'true' ->
+	      'false'
+	end
+'float_op'/4 =
+    %% Line 474
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <'/',A,B,_cor17> when 'true' ->
+	      let <_2812> =
+		  case _cor2 of
+		    <{'x',_1143}> when 'true' ->
+			'true'
+		    <{'y',_6385}> when 'true' ->
+			'true'
+		    <{'integer',_cor4}> when 'true' ->
+			'true'
+		    <{'float',_cor5}> when 'true' ->
+			'true'
+		    <_cor6> when 'true' ->
+			'false'
+		  end
+	      in  let <_cor6> =
+		      %% Line 475
+		      ( case _2812 of
+			  ( <( 'true'
+			       -| ['compiler_generated'] )> when 'true' ->
+				case _cor1 of
+				  <{'x',_769}> when 'true' ->
+				      'true'
+				  <{'y',_1407}> when 'true' ->
+				      'true'
+				  <{'integer',_cor4}> when 'true' ->
+				      'true'
+				  <{'float',_cor5}> when 'true' ->
+				      'true'
+				  <_cor6> when 'true' ->
+				      'false'
+				end
+			    -| ['compiler_generated'] )
+			  ( <( 'false'
+			       -| ['compiler_generated'] )> when 'true' ->
+				'false'
+			    -| ['compiler_generated'] )
+			  ( <_cor4> when 'true' ->
+				( call ( 'erlang'
+					 -| ['compiler_generated'] ):( 'error'
+								       -| ['compiler_generated'] )
+				      (( {( 'badarg'
+					    -| ['compiler_generated'] ),_2812}
+					 -| ['compiler_generated'] ))
+				  -| ['compiler_generated'] )
+			    -| ['compiler_generated'] )
+			end
+			-| ['compiler_generated'] )
+		  in  %% Line 475
+		      case _cor6 of
+			%% Line 476
+			<'true'> when 'true' ->
+			    {'yes','fdiv'}
+			%% Line 477
+			<'false'> when 'true' ->
+			    'no'
+			( <_cor7> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 479
+	  <Op,{'float',_cor18},B,_cor19> when 'true' ->
+	      let <_4867> =
+		  case _cor1 of
+		    <{'x',_507}> when 'true' ->
+			'true'
+		    <{'y',_4790}> when 'true' ->
+			'true'
+		    <{'integer',_cor4}> when 'true' ->
+			'true'
+		    <{'float',_cor5}> when 'true' ->
+			'true'
+		    <_cor6> when 'true' ->
+			'false'
+		  end
+	      in  %% Line 480
+		  case _4867 of
+		    %% Line 481
+		    <'true'> when 'true' ->
+			%% Line 525
+			case _cor3 of
+			  <'+'> when 'true' ->
+			      {'yes','fadd'}
+			  %% Line 526
+			  <'-'> when 'true' ->
+			      {'yes','fsub'}
+			  %% Line 527
+			  <'*'> when 'true' ->
+			      {'yes','fmul'}
+			  %% Line 528
+			  <'/'> when 'true' ->
+			      {'yes','fdiv'}
+			  %% Line 529
+			  <_5175> when 'true' ->
+			      'no'
+			end
+		    %% Line 482
+		    <'false'> when 'true' ->
+			'no'
+		    ( <_cor8> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_4867})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 484
+	  <Op,A,{'float',_cor20},_cor21> when 'true' ->
+	      let <_1851> =
+		  case _cor2 of
+		    <{'x',_6573}> when 'true' ->
+			'true'
+		    <{'y',_5840}> when 'true' ->
+			'true'
+		    <{'integer',_cor4}> when 'true' ->
+			'true'
+		    <{'float',_cor5}> when 'true' ->
+			'true'
+		    <_cor6> when 'true' ->
+			'false'
+		  end
+	      in  %% Line 485
+		  case _1851 of
+		    %% Line 486
+		    <'true'> when 'true' ->
+			%% Line 525
+			case _cor3 of
+			  <'+'> when 'true' ->
+			      {'yes','fadd'}
+			  %% Line 526
+			  <'-'> when 'true' ->
+			      {'yes','fsub'}
+			  %% Line 527
+			  <'*'> when 'true' ->
+			      {'yes','fmul'}
+			  %% Line 528
+			  <'/'> when 'true' ->
+			      {'yes','fdiv'}
+			  %% Line 529
+			  <_1238> when 'true' ->
+			      'no'
+			end
+		    %% Line 487
+		    <'false'> when 'true' ->
+			'no'
+		    ( <_cor9> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_1851})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 489
+	  <Op,A,B,Ts> when 'true' ->
+	      let <_cor11> =
+		  %% Line 490
+		  apply 'tdb_find'/2
+		      (_cor2, _cor0)
+	      in  let <_cor10> =
+		      %% Line 490
+		      apply 'tdb_find'/2
+			  (_cor1, _cor0)
+		  in  %% Line 490
+		      case <_cor11,_cor10> of
+			%% Line 491
+			<'float',_cor22> when 'true' ->
+			    %% Line 525
+			    case _cor3 of
+			      <'+'> when 'true' ->
+				  {'yes','fadd'}
+			      %% Line 526
+			      <'-'> when 'true' ->
+				  {'yes','fsub'}
+			      %% Line 527
+			      <'*'> when 'true' ->
+				  {'yes','fmul'}
+			      %% Line 528
+			      <'/'> when 'true' ->
+				  {'yes','fdiv'}
+			      %% Line 529
+			      <_6244> when 'true' ->
+				  'no'
+			    end
+			%% Line 492
+			<_cor23,'float'> when 'true' ->
+			    %% Line 525
+			    case _cor3 of
+			      <'+'> when 'true' ->
+				  {'yes','fadd'}
+			      %% Line 526
+			      <'-'> when 'true' ->
+				  {'yes','fsub'}
+			      %% Line 527
+			      <'*'> when 'true' ->
+				  {'yes','fmul'}
+			      %% Line 528
+			      <'/'> when 'true' ->
+				  {'yes','fdiv'}
+			      %% Line 529
+			      <_979> when 'true' ->
+				  'no'
+			    end
+			%% Line 493
+			<_cor24,_cor25> when 'true' ->
+			    'no'
+		      end
+	end
+'find_dest'/2 =
+    %% Line 496
+    fun (_cor1,_cor0) ->
+	let <_45> =
+	    %% Line 497
+	    apply 'find_reg'/2
+		(_cor1, _cor0)
+	in  %% Line 497
+	    case _45 of
+	      %% Line 498
+	      <{'ok',FR}> when 'true' ->
+		  let <_cor2> =
+		      %% Line 499
+		      apply 'mark'/3
+			  (_cor1, _cor0, 'dirty')
+		  in  %% Line 499
+		      {FR,_cor2}
+	      %% Line 500
+	      <'error'> when 'true' ->
+		  let <Rs> =
+		      %% Line 588
+		      apply 'put_reg_1'/4
+			  (_cor1, _cor0, 'dirty', 0)
+		  in  let <_4224> =
+			  %% Line 502
+			  apply 'find_reg'/2
+			      (_cor1, Rs)
+		      in  %% Line 502
+			  case _4224 of
+			    <{'ok',FR}> when 'true' ->
+				%% Line 503
+				{FR,Rs}
+			    ( <_cor4> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_4224})
+			      -| ['compiler_generated'] )
+			  end
+	      ( <_cor5> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_45})
+		-| ['compiler_generated'] )
+	    end
+'load_reg'/4 =
+    %% Line 506
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <F = {'float',_cor18},_cor19,Rs0,Is0> when 'true' ->
+	      let <Rs> =
+		  %% Line 588
+		  apply 'put_reg_1'/4
+		      (_cor3, _cor1, 'clean', 0)
+	      in  let <_5657> =
+		      %% Line 508
+		      apply 'find_reg'/2
+			  (_cor3, Rs)
+		  in  %% Line 508
+		      case _5657 of
+			<{'ok',FR}> when 'true' ->
+			    let <Is> =
+				%% Line 509
+				[{'set',[FR|[]],[_cor3|[]],'fmove'}|_cor0]
+			    in  %% Line 510
+				{Rs,Is}
+			( <_cor5> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_5657})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 511
+	  <V,Ts,Rs0,Is0> when 'true' ->
+	      let <_1951> =
+		  %% Line 512
+		  apply 'find_reg'/2
+		      (_cor3, _cor1)
+	      in  %% Line 512
+		  case _1951 of
+		    %% Line 513
+		    <{'ok',_X_FR}> when 'true' ->
+			{_cor1,_cor0}
+		    %% Line 514
+		    <'error'> when 'true' ->
+			let <Rs> =
+			    %% Line 588
+			    apply 'put_reg_1'/4
+				(_cor3, _cor1, 'clean', 0)
+			in  let <_5545> =
+				%% Line 516
+				apply 'find_reg'/2
+				    (_cor3, Rs)
+			    in  %% Line 516
+				case _5545 of
+				  <{'ok',FR}> when 'true' ->
+				      let <_3984> =
+					  %% Line 517
+					  apply 'tdb_find'/2
+					      (_cor3, _cor2)
+				      in  let <_cor10> =
+					      %% Line 517
+					      case _3984 of
+						%% Line 518
+						<'float'> when 'true' ->
+						    'fmove'
+						%% Line 519
+						<_cor20> when 'true' ->
+						    'fconv'
+					      end
+					  in  let <Is> =
+						  %% Line 521
+						  [{'set',[FR|[]],[_cor3|[]],_cor10}|_cor0]
+					      in  %% Line 522
+						  {Rs,Is}
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_5545})
+				    -| ['compiler_generated'] )
+				end
+		    ( <_cor13> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_1951})
+		      -| ['compiler_generated'] )
+		  end
+	end
+'flush'/3 =
+    %% Line 531
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Rs,Is0 = [{'set',[_cor18|[]],[],{'put_tuple',_cor19}}|_cor20],Acc0> when 'true' ->
+	      let <Acc> =
+		  %% Line 532
+		  apply 'flush_all'/3
+		      (_cor2, _cor1, _cor0)
+	      in  %% Line 533
+		  {[],Acc}
+	  %% Line 534
+	  <Rs0,[{'set',Ds,Ss,_X_Op}|_cor21],Acc0> when 'true' ->
+	      let <Save> =
+		  %% Line 535
+		  call 'gb_sets':'from_list'
+		      (Ss)
+	      in  let <_cor7> =
+		      %% Line 558
+		      fun (_cor4,_cor3) ->
+			  apply 'save_reg'/3
+			      (_cor4, Save, _cor3)
+		  in  let <Acc> =
+			  %% Line 558
+			  call 'lists':'foldl'
+			      (_cor7, _cor0, _cor2)
+		      in  let <_cor10> =
+			      %% Line 537
+			      fun (_cor7,_cor6) ->
+				  apply 'mark'/3
+				      (_cor7, _cor6, 'clean')
+			  in  let <Rs1> =
+				  %% Line 537
+				  call 'lists':'foldl'
+				      (_cor10, _cor2, Ss)
+			      in  let <Kill> =
+				      %% Line 538
+				      call 'gb_sets':'from_list'
+					  (Ds)
+				  in  let <Rs> =
+					  %% Line 539
+					  apply 'kill_regs'/2
+					      (Rs1, Kill)
+				      in  %% Line 540
+					  {Rs,Acc}
+	  %% Line 541
+	  <Rs0,Is,Acc0> when 'true' ->
+	      let <Acc> =
+		  %% Line 542
+		  apply 'flush_all'/3
+		      (_cor2, _cor1, _cor0)
+	      in  %% Line 543
+		  {[],Acc}
+	end
+'flush_all'/3 =
+    %% Line 545
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[{_cor8,{'float',_cor9},_cor10}|Rs],Is,Acc> when 'true' ->
+	      %% Line 546
+	      apply 'flush_all'/3
+		  (Rs, _cor1, _cor0)
+	  %% Line 547
+	  <[{I,V,'dirty'}|Rs],Is,Acc0> when 'true' ->
+	      let <Acc> =
+		  %% Line 595
+		  apply 'checkerror_1'/2
+		      (_cor0, _cor0)
+	      in  let <_2975> =
+		      %% Line 549
+		      call 'beam_utils':'is_killed_block'
+			  (V, _cor1)
+		  in  %% Line 549
+		      case _2975 of
+			%% Line 550
+			<'true'> when 'true' ->
+			    apply 'flush_all'/3
+				(Rs, _cor1, Acc)
+			%% Line 551
+			<'false'> when 'true' ->
+			    apply 'flush_all'/3
+				(Rs, _cor1, [{'set',[V|[]],[{'fr',I}|[]],'fmove'}|Acc])
+			( <_cor4> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_2975})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 553
+	  <[{_cor11,_cor12,'clean'}|Rs],Is,Acc> when 'true' ->
+	      apply 'flush_all'/3
+		  (Rs, _cor1, _cor0)
+	  %% Line 554
+	  <['free'|Rs],Is,Acc> when 'true' ->
+	      apply 'flush_all'/3
+		  (Rs, _cor1, _cor0)
+	  %% Line 555
+	  <[],_cor13,Acc> when 'true' ->
+	      _cor0
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'flush_all',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'save_reg'/3 =
+    %% Line 560
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{I,V,'dirty'},Save,Acc> when 'true' ->
+	      let <_1230> =
+		  %% Line 561
+		  call 'gb_sets':'is_member'
+		      (V, _cor1)
+	      in  %% Line 561
+		  case _1230 of
+		    %% Line 562
+		    <'true'> when 'true' ->
+			let <_cor3> =
+			    %% Line 595
+			    apply 'checkerror_1'/2
+				(_cor0, _cor0)
+			in  [{'set',[V|[]],[{'fr',I}|[]],'fmove'}|_cor3]
+		    %% Line 563
+		    <'false'> when 'true' ->
+			_cor0
+		    ( <_cor4> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_1230})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 565
+	  <_cor8,_cor9,Acc> when 'true' ->
+	      _cor0
+	end
+'kill_regs'/2 =
+    %% Line 567
+    fun (_cor1,_cor0) ->
+	%% Line 568
+	( letrec
+	      'lc$^0'/1 =
+		  fun (_cor4) ->
+		      case _cor4 of
+			<[R|_cor3]> when 'true' ->
+			    let <_cor5> =
+				apply 'kill_reg'/2
+				    (R, _cor0)
+			    in  let <_cor6> =
+				    apply 'lc$^0'/1
+					(_cor3)
+				in  ( [_cor5|_cor6]
+				      -| ['compiler_generated'] )
+			<[]> when 'true' ->
+			    []
+			( <_2922> when 'true' ->
+			      ( primop 'match_fail'
+				    ({'function_clause',_cor4})
+				-| [{'function_name',{'lc$^0',1}}] )
+			  -| ['compiler_generated'] )
+		      end
+	  in  case _cor1 of
+		<[R|_cor3]> when 'true' ->
+		    let <_cor5> =
+			%% Line 570
+			case <R,_cor0> of
+			  <_3630 = {_cor5,V,_cor6},Kill> when 'true' ->
+			      let <_5584> =
+				  %% Line 571
+				  call 'gb_sets':'is_member'
+				      (V, _cor0)
+			      in  %% Line 571
+				  case _5584 of
+				    %% Line 572
+				    <'true'> when 'true' ->
+					'free'
+				    %% Line 573
+				    <'false'> when 'true' ->
+					R
+				    ( <_cor2> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_5584})
+				      -| ['compiler_generated'] )
+				  end
+			  %% Line 575
+			  <_6526,_cor7> when 'true' ->
+			      R
+			end
+		    in  let <_cor6> =
+			    apply 'lc$^0'/1
+				(_cor3)
+			in  ( [_cor5|_cor6]
+			      -| ['compiler_generated'] )
+		<[]> when 'true' ->
+		    []
+		( <_2922> when 'true' ->
+		      primop 'match_fail'
+			  ({'function_clause',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  -| ['list_comprehension'] )
+'kill_reg'/2 =
+    %% Line 570
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <R = {_cor5,V,_cor6},Kill> when 'true' ->
+	      let <_5584> =
+		  %% Line 571
+		  call 'gb_sets':'is_member'
+		      (V, _cor0)
+	      in  %% Line 571
+		  case _5584 of
+		    %% Line 572
+		    <'true'> when 'true' ->
+			'free'
+		    %% Line 573
+		    <'false'> when 'true' ->
+			_cor1
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_5584})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 575
+	  <R,_cor7> when 'true' ->
+	      _cor1
+	end
+'mark'/3 =
+    %% Line 577
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <V,[{I,_cor7,_cor8}|Rs],Mark>
+	      when call 'erlang':'=:='
+		    (_cor7,
+		     _cor2) ->
+	      [{I,_cor2,_cor0}|Rs]
+	  %% Line 578
+	  <V,[R|Rs],Mark> when 'true' ->
+	      let <_cor3> =
+		  apply 'mark'/3
+		      (_cor2, Rs, _cor0)
+	      in  [R|_cor3]
+	  %% Line 579
+	  <_cor9,[],_cor10> when 'true' ->
+	      []
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'mark',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'fetch_reg'/2 =
+    %% Line 581
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <V,[{I,_cor4,_cor5}|_cor6]>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     _cor1) ->
+	      {'fr',I}
+	  %% Line 582
+	  <V,[_cor7|SRs]> when 'true' ->
+	      apply 'fetch_reg'/2
+		  (_cor1, SRs)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'fetch_reg',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'find_reg'/2 =
+    %% Line 584
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <V,[{I,_cor4,_cor5}|_cor6]>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     _cor1) ->
+	      {'ok',{'fr',I}}
+	  %% Line 585
+	  <V,[_cor7|SRs]> when 'true' ->
+	      apply 'find_reg'/2
+		  (_cor1, SRs)
+	  %% Line 586
+	  <_cor8,[]> when 'true' ->
+	      'error'
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'find_reg',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'put_reg_1'/4 =
+    %% Line 590
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <V,['free'|Rs],Dirty,I> when 'true' ->
+	      [{_cor0,_cor3,_cor1}|Rs]
+	  %% Line 591
+	  <V,[R|Rs],Dirty,I> when 'true' ->
+	      let <_cor4> =
+		  call 'erlang':'+'
+		      (_cor0, 1)
+	      in  let <_cor5> =
+		      apply 'put_reg_1'/4
+			  (_cor3, Rs, _cor1, _cor4)
+		  in  [R|_cor5]
+	  %% Line 592
+	  <V,[],Dirty,I> when 'true' ->
+	      [{_cor0,_cor3,_cor1}|[]]
+	  ( <_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'put_reg_1',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'checkerror_1'/2 =
+    %% Line 597
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'set',[],[],'fcheckerror'}|_cor4],OrigIs> when 'true' ->
+	      _cor0
+	  %% Line 598
+	  <[{'set',[],[],'fclearerror'}|_cor5],OrigIs> when 'true' ->
+	      _cor0
+	  %% Line 599
+	  <[{'set',_cor6,_cor7,{'bif','fadd',_cor8}}|_cor9],OrigIs> when 'true' ->
+	      %% Line 607
+	      [{'set',[],[],'fcheckerror'}|_cor0]
+	  %% Line 600
+	  <[{'set',_cor10,_cor11,{'bif','fsub',_cor12}}|_cor13],OrigIs> when 'true' ->
+	      %% Line 607
+	      [{'set',[],[],'fcheckerror'}|_cor0]
+	  %% Line 601
+	  <[{'set',_cor14,_cor15,{'bif','fmul',_cor16}}|_cor17],OrigIs> when 'true' ->
+	      %% Line 607
+	      [{'set',[],[],'fcheckerror'}|_cor0]
+	  %% Line 602
+	  <[{'set',_cor18,_cor19,{'bif','fdiv',_cor20}}|_cor21],OrigIs> when 'true' ->
+	      %% Line 607
+	      [{'set',[],[],'fcheckerror'}|_cor0]
+	  %% Line 603
+	  <[{'set',_cor22,_cor23,{'bif','fnegate',_cor24}}|_cor25],OrigIs> when 'true' ->
+	      %% Line 607
+	      [{'set',[],[],'fcheckerror'}|_cor0]
+	  %% Line 604
+	  <[_cor26|Is],OrigIs> when 'true' ->
+	      apply 'checkerror_1'/2
+		  (Is, _cor0)
+	  %% Line 605
+	  <[],OrigIs> when 'true' ->
+	      _cor0
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'checkerror_1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'tdb_find'/2 =
+    %% Line 630
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <K = {'x',_cor4},Ts> when 'true' ->
+	      let <_1969> =
+		  %% Line 635
+		  call 'orddict':'find'
+		      (_cor1, _cor0)
+	      in  %% Line 635
+		  case _1969 of
+		    %% Line 636
+		    <{'ok',Val}> when 'true' ->
+			Val
+		    %% Line 637
+		    <'error'> when 'true' ->
+			'error'
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_1969})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 631
+	  <K = {'y',_cor5},Ts> when 'true' ->
+	      let <_1969> =
+		  %% Line 635
+		  call 'orddict':'find'
+		      (_cor1, _cor0)
+	      in  %% Line 635
+		  case _1969 of
+		    %% Line 636
+		    <{'ok',Val}> when 'true' ->
+			Val
+		    %% Line 637
+		    <'error'> when 'true' ->
+			'error'
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_1969})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 632
+	  <_cor6,_cor7> when 'true' ->
+	      'error'
+	end
+'tdb_copy'/3 =
+    %% Line 644
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <S = {Tag,_cor9},D,Ts>
+	      when let <_cor3> =
+		    call 'erlang':'=:='
+			(Tag, 'x')
+		in  let <_cor4> =
+			call 'erlang':'=:='
+			    (Tag, 'y')
+		    in  call 'erlang':'or'
+			    (_cor3, _cor4) ->
+	      let <_4466> =
+		  %% Line 645
+		  apply 'tdb_find'/2
+		      (_cor2, _cor0)
+	      in  %% Line 645
+		  case _4466 of
+		    %% Line 646
+		    <'error'> when 'true' ->
+			call 'orddict':'erase'
+			    (_cor1, _cor0)
+		    %% Line 647
+		    <Type> when 'true' ->
+			call 'orddict':'store'
+			    (_cor1, _4466, _cor0)
+		  end
+	  %% Line 649
+	  <Literal,D,Ts> when 'true' ->
+	      call 'orddict':'store'
+		  (_cor1, _cor2, _cor0)
+	end
+'tdb_update'/2 =
+    %% Line 665
+    fun (_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 666
+	    fun (_cor2) ->
+		case _cor2 of
+		  <{{'x',_cor9},_X_Op}> when 'true' ->
+		      'true'
+		  %% Line 667
+		  <{{'y',_cor10},_X_Op}> when 'true' ->
+		      'true'
+		  %% Line 668
+		  <_cor11> when 'true' ->
+		      'false'
+		end
+	in  let <Uis1> =
+		%% Line 666
+		call 'lists':'filter'
+		    (_cor4, _cor1)
+	    in  let <_cor6> =
+		    %% Line 670
+		    call 'lists':'sort'
+			(Uis1)
+		in  %% Line 670
+		    apply 'tdb_update1'/2
+			(_cor6, _cor0)
+'tdb_update1'/2 =
+    %% Line 672
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{Key,'kill'}|Ops],Db = [{K,_X_Old}|_cor12]>
+	      when call 'erlang':'<'
+		    (Key,
+		     K) ->
+	      let <_cor2> =
+		  %% Line 697
+		  case <Key,Ops> of
+		    <_430,[{_cor4,_X_Op}|_3729]>
+			when call 'erlang':'=:='
+			      (_cor4,
+			       Key) ->
+			apply 'remove_key'/2
+			    (Key, _3729)
+		    %% Line 698
+		    <_cor5,_2330> when 'true' ->
+			Ops
+		  end
+	      in  %% Line 673
+		  apply 'tdb_update1'/2
+		      (_cor2, _cor0)
+	  %% Line 674
+	  <[New = {Key,_X_New}|Ops],Db = [{K,_X_Old}|_cor13]>
+	      when call 'erlang':'<'
+		    (Key,
+		     K) ->
+	      let <_cor3> =
+		  %% Line 675
+		  apply 'tdb_update1'/2
+		      (Ops, _cor0)
+	      in  %% Line 675
+		  [New|_cor3]
+	  %% Line 676
+	  <[{Key,'kill'}|Ops],[{_cor14,_cor15}|Db]>
+	      when call 'erlang':'=:='
+		    (_cor14,
+		     Key) ->
+	      let <_cor4> =
+		  %% Line 697
+		  case <Key,Ops> of
+		    <_935,[{_cor4,_X_Op}|_5308]>
+			when call 'erlang':'=:='
+			      (_cor4,
+			       Key) ->
+			apply 'remove_key'/2
+			    (Key, _5308)
+		    %% Line 698
+		    <_cor5,_3352> when 'true' ->
+			Ops
+		  end
+	      in  %% Line 677
+		  apply 'tdb_update1'/2
+		      (_cor4, Db)
+	  %% Line 678
+	  <[{Key,NewInfo}|Ops],[{_cor16,OldInfo}|Db]>
+	      when call 'erlang':'=:='
+		    (_cor16,
+		     Key) ->
+	      let <_cor5> =
+		  %% Line 679
+		  apply 'merge_type_info'/2
+		      (NewInfo, OldInfo)
+	      in  let <_cor6> =
+		      %% Line 679
+		      apply 'tdb_update1'/2
+			  (Ops, Db)
+		  in  %% Line 679
+		      [{Key,_cor5}|_cor6]
+	  %% Line 680
+	  <Ops = [{_cor17,_cor18}|_cor19],[Old|Db]> when 'true' ->
+	      let <_cor7> =
+		  %% Line 681
+		  apply 'tdb_update1'/2
+		      (_cor1, Db)
+	      in  %% Line 681
+		  [Old|_cor7]
+	  %% Line 682
+	  <[{Key,'kill'}|Ops],[]> when 'true' ->
+	      let <_cor8> =
+		  %% Line 697
+		  case <Key,Ops> of
+		    <_5954,[{_cor4,_X_Op}|_2591]>
+			when call 'erlang':'=:='
+			      (_cor4,
+			       Key) ->
+			apply 'remove_key'/2
+			    (Key, _2591)
+		    %% Line 698
+		    <_cor5,_2012> when 'true' ->
+			Ops
+		  end
+	      in  %% Line 683
+		  apply 'tdb_update1'/2
+		      (_cor8, [])
+	  %% Line 684
+	  <[New = {_cor20,_cor21}|Ops],[]> when 'true' ->
+	      let <_cor9> =
+		  %% Line 685
+		  apply 'tdb_update1'/2
+		      (Ops, [])
+	      in  %% Line 685
+		  [New|_cor9]
+	  %% Line 686
+	  <[],Db> when 'true' ->
+	      _cor0
+	  ( <_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'tdb_update1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'tdb_kill_xregs'/1 =
+    %% Line 692
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{{'x',_cor3},_X_Type}|Db]> when 'true' ->
+	      apply 'tdb_kill_xregs'/1
+		  (Db)
+	  %% Line 693
+	  <[{{'y',_cor4},{'tuple_element',{'x',_cor5},_cor6}}|Db]> when 'true' ->
+	      apply 'tdb_kill_xregs'/1
+		  (Db)
+	  %% Line 694
+	  <[Any|Db]> when 'true' ->
+	      let <_cor1> =
+		  apply 'tdb_kill_xregs'/1
+		      (Db)
+	      in  [Any|_cor1]
+	  %% Line 695
+	  <[]> when 'true' ->
+	      []
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'tdb_kill_xregs',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'remove_key'/2 =
+    %% Line 697
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Key,[{_cor4,_X_Op}|Ops]>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     _cor1) ->
+	      apply 'remove_key'/2
+		  (_cor1, Ops)
+	  %% Line 698
+	  <_cor5,Ops> when 'true' ->
+	      _cor0
+	end
+'merge_type_info'/2 =
+    %% Line 700
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <I,_cor4>
+	      when call 'erlang':'=:='
+		    (_cor0,
+		     _cor1) ->
+	      _cor1
+	  %% Line 701
+	  <{'tuple',Sz1,Same},Max = {'tuple',Sz2,_cor5}>
+	      when let <_cor6> =
+		    call 'erlang':'=:='
+			(_cor5, Same)
+		in  let <_cor7> =
+			call 'erlang':'<'
+			    (Sz1, Sz2)
+		    in  call 'erlang':'and'
+			    (_cor6, _cor7) ->
+	      _cor0
+	  %% Line 703
+	  <Max = {'tuple',Sz1,Same},{'tuple',Sz2,_cor8}>
+	      when let <_cor9> =
+		    call 'erlang':'=:='
+			(_cor8, Same)
+		in  let <_cor10> =
+			call 'erlang':'>'
+			    (Sz1, Sz2)
+		    in  call 'erlang':'and'
+			    (_cor9, _cor10) ->
+	      _cor1
+	  %% Line 705
+	  <{'tuple',Sz1,[]},Tuple2 = {'tuple',_X_Sz2,First}> when 'true' ->
+	      %% Line 706
+	      apply 'merge_type_info'/2
+		  ({'tuple',Sz1,First}, _cor0)
+	  %% Line 707
+	  <Tuple1 = {'tuple',_X_Sz1,First},{'tuple',Sz2,_cor11}> when 'true' ->
+	      %% Line 708
+	      apply 'merge_type_info'/2
+		  (_cor1, {'tuple',Sz2,First})
+	  %% Line 709
+	  <NewType,_cor12> when 'true' ->
+	      do  %% Line 710
+		  apply 'verify_type'/1
+		      (_cor1)
+		  _cor1
+	end
+'verify_type'/1 =
+    %% Line 713
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'tuple',Sz,[]}>
+	      when call 'erlang':'is_integer'
+		    (Sz) ->
+	      'ok'
+	  %% Line 714
+	  <{'tuple',Sz,[_cor2|[]]}>
+	      when call 'erlang':'is_integer'
+		    (Sz) ->
+	      'ok'
+	  %% Line 715
+	  <{'tuple_element',_cor3,_cor4}> when 'true' ->
+	      'ok'
+	  %% Line 716
+	  <'float'> when 'true' ->
+	      'ok'
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'verify_type',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('beam_type')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('beam_type', _cor0)
+end

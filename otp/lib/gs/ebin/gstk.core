@@ -1,0 +1,1104 @@
+module 'gstk' ['call'/1,
+	       'config'/2,
+	       'config_impl'/3,
+	       'create'/2,
+	       'create_impl'/2,
+	       'destroy'/2,
+	       'destroy_impl'/2,
+	       'event'/2,
+	       'exec'/1,
+	       'init'/1,
+	       'make_extern_id'/2,
+	       'module_info'/0,
+	       'module_info'/1,
+	       'pid_died'/2,
+	       'read'/2,
+	       'read_impl'/3,
+	       'request'/2,
+	       'start_link'/4,
+	       'stop'/1,
+	       'to_ascii'/1,
+	       'to_color'/1,
+	       'worker_do'/1,
+	       'worker_init'/1]
+    attributes []
+'start_link'/4 =
+    %% Line 50
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 51
+	case call 'gs':'assq'
+		 ('node', _cor0) of
+	  %% Line 52
+	  <'false'> when 'true' ->
+	      let <Gstk> =
+		  %% Line 53
+		  call 'erlang':'spawn_link'
+		      ('gstk', 'init', [{_cor3,_cor2,_cor1,_cor0}|[]])
+	      in  %% Line 54
+		  receive
+		    %% Line 55
+		    <{'ok',_X_PortHandler}> when 'true' ->
+			%% Line 56
+			{'ok',Gstk}
+		    %% Line 57
+		    <{'error',Reason}> when 'true' ->
+			%% Line 58
+			{'error',Reason}
+		  after 'infinity' ->
+		    'true'
+	  %% Line 60
+	  <{'value',Node}> when 'true' ->
+	      %% Line 61
+	      call 'rpc':'call'
+		  (Node, 'gen_server', 'start_link', ['gstk'|[{_cor1,_cor0}|[[]]]])
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'stop'/1 =
+    %% Line 64
+    fun (_cor0) ->
+	%% Line 65
+	apply 'request'/2
+	    (_cor0, 'stop')
+'create'/2 =
+    %% Line 67
+    fun (_cor1,_cor0) ->
+	%% Line 68
+	apply 'request'/2
+	    (_cor1, {'create',_cor0})
+'config'/2 =
+    %% Line 70
+    fun (_cor1,_cor0) ->
+	%% Line 71
+	apply 'request'/2
+	    (_cor1, {'config',_cor0})
+'read'/2 =
+    %% Line 73
+    fun (_cor1,_cor0) ->
+	%% Line 74
+	apply 'request'/2
+	    (_cor1, {'read',_cor0})
+'destroy'/2 =
+    %% Line 76
+    fun (_cor1,_cor0) ->
+	%% Line 77
+	apply 'request'/2
+	    (_cor1, {'destroy',_cor0})
+'pid_died'/2 =
+    %% Line 79
+    fun (_cor1,_cor0) ->
+	%% Line 80
+	apply 'request'/2
+	    (_cor1, {'pid_died',_cor0})
+'call'/1 =
+    %% Line 82
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 84
+	    call 'erlang':'get'
+		('port_handler')
+	in  %% Line 84
+	    call 'gstk_port_handler':'call'
+		(_cor1, _cor0)
+'exec'/1 =
+    %% Line 86
+    fun (_cor0) ->
+	%% Line 87
+	call 'gstk_port_handler':'exec'
+	    (_cor0)
+'make_extern_id'/2 =
+    %% Line 89
+    fun (_cor1,_cor0) ->
+	%% Line 90
+	case call 'ets':'lookup'
+		 (_cor0, 'frontend_node') of
+	  <[{_cor5,Node}|[]]> when 'true' ->
+	      %% Line 91
+	      {_cor1,Node}
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'event'/2 =
+    %% Line 93
+    fun (_cor1,_cor0) ->
+	%% Line 94
+	call 'erlang':'!'
+	    (_cor1, {'event',_cor0})
+'request'/2 =
+    %% Line 98
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 99
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 99
+		call 'erlang':'!'
+		    (_cor1, {_cor2,_cor0})
+		%% Line 100
+		receive
+		  %% Line 101
+		  <{'gstk_reply',R}> when 'true' ->
+		      R
+		  %% Line 102
+		  <{'EXIT',_cor6,Reason}>
+		      when call 'erlang':'=:='
+			    (_cor6,
+			     _cor1) ->
+		      let <_cor3> =
+			  %% Line 103
+			  call 'erlang':'self'
+			      ()
+		      in  do  %% Line 103
+			      call 'erlang':'!'
+				  (_cor3, {'EXIT',_cor1,Reason})
+			      %% Line 104
+			      {'error',Reason}
+		after 'infinity' ->
+		  'true'
+'init'/1 =
+    %% Line 113
+    fun (_cor0) ->
+	case _cor0 of
+	  <{GsId,FrontendNode,Owner,Opts}> when 'true' ->
+	      do  %% Line 114
+		  call 'erlang':'put'
+		      ('gs_frontend', Owner)
+		  let <_cor1> =
+		      %% Line 115
+		      call 'erlang':'self'
+			  ()
+		  in  %% Line 115
+		      case call 'gstk_port_handler':'start_link'
+			       (_cor1) of
+			%% Line 116
+			<{'error',Reason}> when 'true' ->
+			    do  %% Line 117
+				call 'erlang':'!'
+				    (FrontendNode, {'error',Reason})
+				%% Line 118
+				call 'erlang':'exit'
+				    ('normal')
+			%% Line 119
+			<{'ok',PortHandler}> when 'true' ->
+			    do  %% Line 120
+				call 'erlang':'!'
+				    (FrontendNode, {'ok',PortHandler})
+				do  %% Line 121
+				    call 'erlang':'put'
+					('port_handler', PortHandler)
+				    %% Line 122
+				    case call 'gstk_port_handler':'ping'
+					     (PortHandler) of
+				      <{'ok',Port}> when 'true' ->
+					  do  %% Line 123
+					      call 'erlang':'put'
+						  ('port', Port)
+					      do  %% Line 124
+						  apply 'exec'/1
+						      ([119|[109|[32|[119|[105|[116|[104|[100|[114|[97|[119|[32|[46]]]]]]]]]]]]])
+						  let <DB> =
+						      %% Line 125
+						      call 'gstk_db':'init'
+							  (Opts)
+						  in  do  %% Line 126
+							  call 'ets':'insert'
+							      (DB, {'frontend_node',FrontendNode})
+							  let <_cor4> =
+							      %% Line 127
+							      call 'erlang':'spawn_link'
+								  ('gstk', 'worker_init', [0])
+							  in  do  %% Line 127
+								  call 'erlang':'put'
+								      ('worker', _cor4)
+								  let <Gstkid> =
+								      %% Line 128
+								      {'gstkid',GsId,[],'undefined',Owner,'undefined','gs'}
+								  in  do  %% Line 129
+									  call 'gstk_db':'insert_gs'
+									      (DB, Gstkid)
+									  do  %% Line 130
+									      call 'gstk_font':'init'
+										  ()
+									      %% Line 131
+									      apply 'loop'/1
+										  ({'state',DB,FrontendNode,'undefined'})
+				      ( <_cor2> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_cor2})
+					-| ['compiler_generated'] )
+				    end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'loop'/1 =
+    %% Line 134
+    fun (_cor0) ->
+	%% Line 135
+	receive
+	  %% Line 136
+	  <X> when 'true' ->
+	      %% Line 137
+	      case apply 'doit'/2
+		       (X, _cor0) of
+		%% Line 138
+		<'done'> when 'true' ->
+		    apply 'loop'/1
+			(_cor0)
+		%% Line 139
+		<'stop'> when 'true' ->
+		    'bye'
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	after 'infinity' ->
+	  'true'
+'reply'/2 =
+    %% Line 143
+    fun (_cor1,_cor0) ->
+	do  %% Line 144
+	    call 'erlang':'!'
+		(_cor1, {'gstk_reply',_cor0})
+	    %% Line 145
+	    'done'
+'doit'/2 =
+    %% Line 147
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{From,{'config',{Id,Opts}}},{'state',DB,_cor31,_cor32}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 148
+		  apply 'config_impl'/3
+		      (DB, Id, Opts)
+	      in  %% Line 148
+		  apply 'reply'/2
+		      (From, _cor2)
+	  %% Line 149
+	  <{From,{'create',Args}},{'state',DB,_cor33,_cor34}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 150
+		  apply 'create_impl'/2
+		      (DB, Args)
+	      in  %% Line 150
+		  apply 'reply'/2
+		      (From, _cor3)
+	  %% Line 151
+	  <{From,{'read',{Id,Opt}}},{'state',DB,_cor35,_cor36}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 152
+		  apply 'read_impl'/3
+		      (DB, Id, Opt)
+	      in  %% Line 152
+		  apply 'reply'/2
+		      (From, _cor4)
+	  %% Line 153
+	  <{From,{'pid_died',Pid}},{'state',DB,_cor37,_cor38}> when 'true' ->
+	      do  %% Line 154
+		  apply 'pid_died_impl'/2
+		      (DB, Pid)
+		  let <_cor5> =
+		      %% Line 155
+		      call 'gstk_db':'get_deleted'
+			  (DB)
+		  in  %% Line 155
+		      apply 'reply'/2
+			  (From, _cor5)
+	  %% Line 156
+	  <{From,{'destroy',Id}},{'state',DB,_cor39,_cor40}> when 'true' ->
+	      let <_cor6> =
+		  %% Line 157
+		  call 'gstk_db':'lookup_gstkid'
+		      (DB, Id)
+	      in  do  %% Line 157
+		      apply 'destroy_impl'/2
+			  (DB, _cor6)
+		      let <_cor7> =
+			  %% Line 158
+			  call 'gstk_db':'get_deleted'
+			      (DB)
+		      in  %% Line 158
+			  apply 'reply'/2
+			      (From, _cor7)
+	  %% Line 160
+	  <{From,'dump_db'},State> when 'true' ->
+	      %% Line 161
+	      ( case State of
+		  ( <( {'state',_rec0,_cor41,_cor42}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor10> =
+			    call 'ets':'tab2list'
+				(_rec0)
+			in  let <_cor11> =
+				call 'lists':'sort'
+				    (_cor10)
+			    in  do  call 'io':'format'
+					([103|[115|[116|[107|[95|[100|[98|[58|[126|[112|[126|[110]]]]]]]]]]]], [_cor11|[]])
+				    let <_cor12> =
+					%% Line 162
+					call 'erlang':'get'
+					    ('events')
+				    in  let <_cor13> =
+					    %% Line 162
+					    call 'ets':'tab2list'
+						(_cor12)
+					in  let <_cor14> =
+						%% Line 162
+						call 'lists':'sort'
+						    (_cor13)
+					    in  do  %% Line 162
+						    call 'io':'format'
+							([101|[118|[101|[110|[116|[115|[58|[126|[112|[126|[110]]]]]]]]]]], [_cor14|[]])
+						    let <_cor15> =
+							%% Line 163
+							call 'erlang':'get'
+							    ('options')
+						    in  let <_cor16> =
+							    %% Line 163
+							    call 'ets':'tab2list'
+								(_cor15)
+							in  let <_cor17> =
+								%% Line 163
+								call 'lists':'sort'
+								    (_cor16)
+							    in  do  %% Line 163
+								    call 'io':'format'
+									([111|[112|[116|[105|[111|[110|[115|[58|[126|[112|[126|[110]]]]]]]]]]]], [_cor17|[]])
+								    let <_cor18> =
+									%% Line 164
+									call 'erlang':'get'
+									    ('defaults')
+								    in  let <_cor19> =
+									    %% Line 164
+									    call 'ets':'tab2list'
+										(_cor18)
+									in  let <_cor20> =
+										%% Line 164
+										call 'lists':'sort'
+										    (_cor19)
+									    in  do  %% Line 164
+										    call 'io':'format'
+											([100|[101|[102|[97|[117|[108|[116|[115|[58|[126|[112|[126|[110]]]]]]]]]]]]], [_cor20|[]])
+										    let <_cor21> =
+											%% Line 165
+											call 'erlang':'get'
+											    ('kids')
+										    in  let <_cor22> =
+											    %% Line 165
+											    call 'ets':'tab2list'
+												(_cor21)
+											in  let <_cor23> =
+												%% Line 165
+												call 'lists':'sort'
+												    (_cor22)
+											    in  do  %% Line 165
+												    call 'io':'format'
+													([107|[105|[100|[115|[58|[126|[112|[126|[110]]]]]]]]], [_cor23|[]])
+												    %% Line 166
+												    apply 'reply'/2
+													(From, State)
+		    -| ['compiler_generated'] )
+		  ( <_cor43> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 168
+	  <{From,'stop'},_X_State> when 'true' ->
+	      let <_cor24> =
+		  %% Line 169
+		  call 'erlang':'get'
+		      ('port_handler')
+	      in  do  %% Line 169
+		      call 'gstk_port_handler':'stop'
+			  (_cor24)
+		      let <_cor25> =
+			  %% Line 170
+			  call 'erlang':'get'
+			      ('worker')
+		      in  do  %% Line 170
+			      call 'erlang':'exit'
+				  (_cor25, 'kill')
+			      do  %% Line 171
+				  apply 'reply'/2
+				      (From, 'stopped')
+				  %% Line 172
+				  'stop'
+	  %% Line 174
+	  <{'event',{Id,Etag,Args}},{'state',DB,_cor44,_cor45}> when 'true' ->
+	      do  %% Line 175
+		  case call 'gstk_db':'lookup_event'
+			   (DB, Id, Etag) of
+		    %% Line 176
+		    <{Etype,Edata}> when 'true' ->
+			let <Gstkid> =
+			    %% Line 177
+			    call 'gstk_db':'lookup_gstkid'
+				(DB, Id)
+			in  let <_cor27> =
+				%% Line 178
+				call 'gstk_widgets':'objmod'
+				    (Gstkid)
+			    in  %% Line 178
+				call _cor27:'event'
+				    (DB, Gstkid, Etype, Edata, Args)
+		    %% Line 179
+		    <_cor46> when 'true' ->
+			'ok'
+		  end
+		  %% Line 181
+		  'done'
+	  ( <_cor30,_cor29> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor30,_cor29})
+		  -| [{'function_name',{'doit',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'create_impl'/2 =
+    %% Line 197
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <DB,{Owner,{Objtype,Id,Parent,Opts}}> when 'true' ->
+	      let <Pgstkid> =
+		  %% Line 198
+		  call 'gstk_db':'lookup_gstkid'
+		      (DB, Parent)
+	      in  let <GstkId> =
+		      %% Line 199
+		      {'gstkid',Id,'undefined','undefined',Owner,Parent,Objtype}
+		  in  do  %% Line 200
+			  call 'gstk_db':'insert_opt'
+			      (DB, Id, {'data',[]})
+			  let <_cor4> =
+			      %% Line 201
+			      call 'gstk_widgets':'objmod'
+				  (Pgstkid)
+			  in  let <RealOpts> =
+				  %% Line 201
+				  call _cor4:%% Line 202
+					     'mk_create_opts_for_child'
+				      (%% Line 202
+				       DB, %% Line 202
+					   GstkId, %% Line 202
+						   Pgstkid, %% Line 202
+							    Opts)
+			      in  %% Line 203
+				  case call 'gstk_widgets':'type2mod'
+					   (Objtype) of
+				    %% Line 204
+				    <{'error',Reason}> when 'true' ->
+					{'error',Reason}
+				    %% Line 205
+				    <ObjMod> when 'true' ->
+					%% Line 206
+					case call ObjMod:'create'
+						 (DB, GstkId, RealOpts) of
+					  %% Line 207
+					  <{'bad_result',BR}> when 'true' ->
+					      do  %% Line 208
+						  call 'gstk_db':'delete_gstkid'
+						      (DB, GstkId)
+						  %% Line 209
+						  call 'gs':'creation_error'
+						      (GstkId, {'bad_result',BR})
+					  %% Line 210
+					  <Ngstkid = {'gstkid',_cor10,_cor11,_cor12,_cor13,_cor14,_cor15}> when ( 'true'
+														  -| ['compiler_generated'] ) ->
+					      do  %% Line 211
+						  call 'gstk_db':'insert_widget'
+						      (DB, Ngstkid)
+						  %% Line 212
+						  'ok'
+					  %% Line 213
+					  <{'error',Reason}> when 'true' ->
+					      {'error',Reason}
+					  %% Line 214
+					  <'ok'> when 'true' ->
+					      'ok'
+					  ( <_cor6> when 'true' ->
+						primop 'match_fail'
+						    ({'case_clause',_cor6})
+					    -| ['compiler_generated'] )
+					end
+				  end
+	  ( <_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8})
+		  -| [{'function_name',{'create_impl',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'config_impl'/3 =
+    %% Line 218
+    fun (_cor2,_cor1,_cor0) ->
+	let <Gstkid> =
+	    %% Line 219
+	    call 'gstk_db':'lookup_gstkid'
+		(_cor2, _cor1)
+	in  let <_cor4> =
+		%% Line 220
+		call 'gstk_widgets':'objmod'
+		    (Gstkid)
+	    in  %% Line 220
+		case call _cor4:'config'
+			 (_cor2, Gstkid, _cor0) of
+		  %% Line 221
+		  <'ok'> when 'true' ->
+		      'ok'
+		  %% Line 222
+		  <{'bad_result',R}> when 'true' ->
+		      {'error',R}
+		  %% Line 223
+		  <{'error',Reason}> when 'true' ->
+		      {'error',Reason}
+		  %% Line 224
+		  <Q> when 'true' ->
+		      {'error',Q}
+		end
+'read_impl'/3 =
+    %% Line 228
+    fun (_cor2,_cor1,_cor0) ->
+	let <Gstkid> =
+	    %% Line 229
+	    call 'gstk_db':'lookup_gstkid'
+		(_cor2, _cor1)
+	in  let <_cor4> =
+		%% Line 230
+		call 'gstk_widgets':'objmod'
+		    (Gstkid)
+	    in  %% Line 230
+		case call _cor4:'read'
+			 (_cor2, Gstkid, _cor0) of
+		  %% Line 231
+		  <{'bad_result',R}> when 'true' ->
+		      {'error',R}
+		  %% Line 232
+		  <{'error',R}> when 'true' ->
+		      {'error',R}
+		  %% Line 233
+		  <Res> when 'true' ->
+		      Res
+		end
+'destroy_impl'/2 =
+    %% Line 242
+    fun (_cor1,_cor0) ->
+	do  %% Line 243
+	    apply 'worker_do'/1
+		({'delay_is',50})
+	    let <Widget> =
+		%% Line 244
+		apply 'delete_only_this_widget'/2
+		    (_cor1, _cor0)
+	    in  do  %% Line 245
+		    apply 'destroy_widgets'/2
+			([Widget|[]], _cor1)
+		    do  %% Line 246
+			apply 'worker_do'/1
+			    ({'delay_is',5})
+			%% Line 247
+			'true'
+'delete_only_this_widget'/2 =
+    %% Line 249
+    fun (_cor1,_cor0) ->
+	%% Line 250
+	case _cor0 of
+	  <{'gstkid',ID,_cor8,_cor9,_cor10,P,OT}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 251
+		  call 'gstk_db':'lookup_kids'
+		      (_cor1, ID)
+	      in  do  %% Line 251
+		      apply 'delete_widgets'/2
+			  (_cor3, _cor1)
+		      let <_cor4> =
+			  %% Line 252
+			  call 'gstk_widgets':'type2mod'
+			      (OT)
+		      in  let <Widget> =
+			      %% Line 252
+			      call _cor4:'delete'
+				  (_cor1, _cor0)
+			  in  do  %% Line 253
+				  call 'gstk_db':'delete_kid'
+				      (_cor1, P, ID)
+				  %% Line 254
+				  Widget
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'pid_died_impl'/2 =
+    %% Line 257
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 258
+	    call 'gstk_db':'lookup_ids'
+		(_cor1, _cor0)
+	in  %% Line 258
+	    case call 'lists':'sort'
+		     (_cor2) of
+	      %% Line 259
+	      <[ID|IDs]> when 'true' ->
+		  let <Gstkid> =
+		      %% Line 260
+		      call 'gstk_db':'lookup_gstkid'
+			  (_cor1, ID)
+		  in  do  %% Line 261
+			  apply 'destroy_impl'/2
+			      (_cor1, Gstkid)
+			  let <Tops> =
+			      %% Line 262
+			      apply 'get_tops'/2
+				  (IDs, _cor1)
+			  in  %% Line 263
+			      apply 'destroy_widgets'/2
+				  (Tops, _cor1)
+	      %% Line 264
+	      <_cor8> when 'true' ->
+		  %% Line 265
+		  'true'
+	    end
+'get_tops'/2 =
+    %% Line 269
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[ID|IDs],DB> when 'true' ->
+	      %% Line 270
+	      case call 'gstk_db':'lookup_gstkid'
+		       (DB, ID) of
+		%% Line 271
+		<'undefined'> when 'true' ->
+		    %% Line 272
+		    apply 'get_tops'/2
+			(IDs, DB)
+		%% Line 273
+		<Gstkid> when 'true' ->
+		    %% Line 274
+		    ( case Gstkid of
+			( <( {'gstkid',_cor11,_cor12,_cor13,_cor14,_rec1,_cor15}
+			     -| ['compiler_generated'] )> when 'true' ->
+			      %% Line 275
+			      case call 'lists':'member'
+				       (_rec1, IDs) of
+				%% Line 276
+				<'true'> when 'true' ->
+				    do  %% Line 277
+					apply 'delete_widgets'/2
+					    ([ID|[]], DB)
+					%% Line 278
+					apply 'get_tops'/2
+					    (IDs, DB)
+				%% Line 279
+				<'false'> when 'true' ->
+				    let <Widget> =
+					%% Line 280
+					apply 'delete_only_this_widget'/2
+					    (DB, Gstkid)
+				    in  let <_cor6> =
+					    %% Line 281
+					    apply 'get_tops'/2
+						(IDs, DB)
+					in  %% Line 281
+					    [Widget|_cor6]
+				( <_cor7> when 'true' ->
+				      primop 'match_fail'
+					  ({'case_clause',_cor7})
+				  -| ['compiler_generated'] )
+			      end
+			  -| ['compiler_generated'] )
+			( <_cor16> when 'true' ->
+			      ( call ( 'erlang'
+				       -| ['compiler_generated'] ):( 'error'
+								     -| ['compiler_generated'] )
+				    (( {'badrecord','gstkid'}
+				       -| ['compiler_generated'] ))
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+		      end
+		      -| ['compiler_generated'] )
+	      end
+	  %% Line 284
+	  <[],_X_DB> when 'true' ->
+	      []
+	  ( <_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9})
+		  -| [{'function_name',{'get_tops',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'delete_widgets'/2 =
+    %% Line 287
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[ID|Rest],DB> when 'true' ->
+	      let <_cor2> =
+		  %% Line 288
+		  call 'gstk_db':'lookup_kids'
+		      (DB, ID)
+	      in  do  %% Line 288
+		      apply 'delete_widgets'/2
+			  (_cor2, DB)
+		      %% Line 289
+		      case call 'gstk_db':'lookup_gstkid'
+			       (DB, ID) of
+			%% Line 290
+			<'undefined'> when 'true' ->
+			    %% Line 291
+			    apply 'delete_widgets'/2
+				(Rest, DB)
+			%% Line 292
+			<Gstkid> when 'true' ->
+			    let <_cor3> =
+				%% Line 293
+				call 'gstk_widgets':'objmod'
+				    (Gstkid)
+			    in  do  %% Line 293
+				    call _cor3:'delete'
+					(DB, Gstkid)
+				    %% Line 294
+				    apply 'delete_widgets'/2
+					(Rest, DB)
+		      end
+	  %% Line 296
+	  <[],_cor7> when 'true' ->
+	      'true'
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'delete_widgets',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'destroy_widgets'/2 =
+    %% Line 300
+    fun (_cor1,_cor0) ->
+	%% Line 301
+	case apply 'destroy_wids'/2
+		 (_cor1, _cor0) of
+	  %% Line 302
+	  <[]> when 'true' ->
+	      'true'
+	  %% Line 303
+	  <Destroys> when 'true' ->
+	      apply 'exec'/1
+		  ([[100|[101|[115|[116|[114|[111|[121|[32]]]]]]]]|[Destroys|[]]])
+	end
+'destroy_wids'/2 =
+    %% Line 307
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{Parent,ID,Objmod,Args}|Rest],DB> when 'true' ->
+	      do  %% Line 308
+		  call 'gstk_db':'delete_kid'
+		      (DB, Parent, ID)
+		  do  %% Line 309
+		      call 'erlang':'apply'
+			  (Objmod, 'destroy', [DB|Args])
+		      %% Line 310
+		      apply 'destroy_wids'/2
+			  (Rest, DB)
+	  %% Line 312
+	  <[W|Rest],DB> when 'true' ->
+	      let <_cor2> =
+		  %% Line 313
+		  apply 'destroy_wids'/2
+		      (Rest, DB)
+	      in  %% Line 313
+		  [W|[[32]|_cor2]]
+	  %% Line 315
+	  <[],_X_DB> when 'true' ->
+	      []
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'destroy_wids',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'to_color'/1 =
+    %% Line 320
+    fun (_cor0) ->
+	case _cor0 of
+	  <{R,G,B}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 321
+		  apply 'dec2hex'/2
+		      (2, R)
+	      in  let <_cor2> =
+		      %% Line 321
+		      apply 'dec2hex'/2
+			  (2, G)
+		  in  let <_cor3> =
+			  %% Line 321
+			  apply 'dec2hex'/2
+			      (2, B)
+		      in  %% Line 321
+			  [35|[_cor1|[_cor2|[_cor3|[]]]]]
+	  %% Line 322
+	  <Color>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      call 'erlang':'atom_to_list'
+		  (Color)
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'to_color',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'dec2hex'/2 =
+    %% Line 329
+    fun (_cor1,_cor0) ->
+	apply 'dec2hex'/3
+	    (_cor1, _cor0, [])
+'dec2hex'/3 =
+    %% Line 331
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <0,_X_N,Ack> when 'true' ->
+	      Ack
+	  %% Line 332
+	  <M,N,Ack> when 'true' ->
+	      let <_cor6> =
+		  call 'erlang':'-'
+		      (M, 1)
+	      in  let <_cor5> =
+		      call 'erlang':'bsr'
+			  (N, 4)
+		  in  let <_cor3> =
+			  call 'erlang':'band'
+			      (N, 15)
+		      in  let <_cor4> =
+			      apply 'd2h'/1
+				  (_cor3)
+			  in  apply 'dec2hex'/3
+				  (_cor6, _cor5, [_cor4|Ack])
+	end
+'d2h'/1 =
+    %% Line 334
+    fun (_cor0) ->
+	case _cor0 of
+	  <N>
+	      when call 'erlang':'<'
+		    (_cor0,
+		     10) ->
+	      call 'erlang':'+'
+		  (N, 48)
+	  %% Line 335
+	  <N> when 'true' ->
+	      let <_cor1> =
+		  call 'erlang':'+'
+		      (N, 97)
+	      in  call 'erlang':'-'
+		      (_cor1, 10)
+	end
+'to_ascii'/1 =
+    %% Line 340
+    fun (_cor0) ->
+	case _cor0 of
+	  <V>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      let <_cor1> =
+		  apply 'to_ascii'/3
+		      (V, [], [])
+	      in  [34|[_cor1|[34]]]
+	  %% Line 341
+	  <V>
+	      when call 'erlang':'is_integer'
+		    (_cor0) ->
+	      call 'erlang':'integer_to_list'
+		  (V)
+	  %% Line 342
+	  <V>
+	      when call 'erlang':'is_float'
+		    (_cor0) ->
+	      call 'erlang':'float_to_list'
+		  (V)
+	  %% Line 343
+	  <V>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      let <_cor2> =
+		  call 'erlang':'atom_to_list'
+		      (V)
+	      in  apply 'to_ascii'/1
+		      (_cor2)
+	  %% Line 344
+	  <V>
+	      when call 'erlang':'is_tuple'
+		    (_cor0) ->
+	      let <_cor3> =
+		  call 'io_lib':'format'
+		      ([126|[119]], [V|[]])
+	      in  let <_cor4> =
+		      call 'lists':'flatten'
+			  (_cor3)
+		  in  apply 'to_ascii'/1
+			  (_cor4)
+	  %% Line 345
+	  <V>
+	      when call 'erlang':'is_pid'
+		    (_cor0) ->
+	      call 'erlang':'pid_to_list'
+		  (V)
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5})
+		  -| [{'function_name',{'to_ascii',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'to_ascii'/3 =
+    %% Line 350
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[91|R],Y,X> when 'true' ->
+	      apply 'to_ascii'/3
+		  (R, Y, [91|[92|X]])
+	  %% Line 351
+	  <[93|R],Y,X> when 'true' ->
+	      apply 'to_ascii'/3
+		  (R, Y, [93|[92|X]])
+	  %% Line 352
+	  <[123|R],Y,X> when 'true' ->
+	      apply 'to_ascii'/3
+		  (R, Y, [123|[92|X]])
+	  %% Line 353
+	  <[125|R],Y,X> when 'true' ->
+	      apply 'to_ascii'/3
+		  (R, Y, [125|[92|X]])
+	  %% Line 354
+	  <[34|R],Y,X> when 'true' ->
+	      apply 'to_ascii'/3
+		  (R, Y, [34|[92|X]])
+	  %% Line 355
+	  <[36|R],Y,X> when 'true' ->
+	      apply 'to_ascii'/3
+		  (R, Y, [36|[92|X]])
+	  %% Line 356
+	  <[92|R],Y,X> when 'true' ->
+	      apply 'to_ascii'/3
+		  (R, Y, [92|[92|X]])
+	  %% Line 357
+	  <[C|R],Y,X>
+	      when call 'erlang':'is_list'
+		    (C) ->
+	      apply 'to_ascii'/3
+		  (C, [R|Y], X)
+	  %% Line 358
+	  <[C|R],Y,X> when 'true' ->
+	      apply 'to_ascii'/3
+		  (R, Y, [C|X])
+	  %% Line 359
+	  <[],[Y1|Y],X> when 'true' ->
+	      apply 'to_ascii'/3
+		  (Y1, Y, X)
+	  %% Line 360
+	  <[],[],X> when 'true' ->
+	      call 'lists':'reverse'
+		  (X)
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'to_ascii',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'worker_do'/1 =
+    %% Line 362
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 363
+	    call 'erlang':'get'
+		('worker')
+	in  %% Line 363
+	    call 'erlang':'!'
+		(_cor1, _cor0)
+'worker_init'/1 =
+    %% Line 365
+    fun (_cor0) ->
+	%% Line 366
+	receive
+	  %% Line 367
+	  <{'delay_is',D}> when 'true' ->
+	      %% Line 368
+	      apply 'worker_init'/1
+		  (D)
+	  %% Line 369
+	  <{'match_delete',DBExprs}> when 'true' ->
+	      do  %% Line 370
+		  apply 'worker_match'/1
+		      (DBExprs)
+		  %% Line 371
+		  case <> of
+		    <>
+			when call 'erlang':'>'
+			      (_cor0,
+			       0) ->
+			%% Line 372
+			receive
+			  %% Line 373
+			  <{'delay_is',D}> when 'true' ->
+			      %% Line 374
+			      apply 'worker_init'/1
+				  (D)
+			after _cor0 ->
+			  %% Line 376
+			  apply 'worker_init'/1
+			      (_cor0)
+		    %% Line 378
+		    <> when 'true' ->
+			%% Line 379
+			apply 'worker_init'/1
+			    (_cor0)
+		  end
+	after 'infinity' ->
+	  'true'
+'worker_match'/1 =
+    %% Line 383
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{DB,[Expr|Exprs]}|DbExprs]> when 'true' ->
+	      do  %% Line 384
+		  call 'ets':'match_delete'
+		      (DB, Expr)
+		  %% Line 385
+		  apply 'worker_match'/1
+		      ([{DB,Exprs}|DbExprs])
+	  %% Line 386
+	  <[{_X_DB,[]}|DbExprs]> when 'true' ->
+	      %% Line 387
+	      apply 'worker_match'/1
+		  (DbExprs)
+	  %% Line 388
+	  <[]> when 'true' ->
+	      'done'
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'worker_match',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('gstk')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('gstk', _cor0)
+end

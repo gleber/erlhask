@@ -1,0 +1,1221 @@
+module 'disksup' ['code_change'/3,
+		  'dummy_reply'/1,
+		  'format_status'/2,
+		  'get_almost_full_threshold'/0,
+		  'get_check_interval'/0,
+		  'get_disk_data'/0,
+		  'handle_call'/3,
+		  'handle_cast'/2,
+		  'handle_info'/2,
+		  'init'/1,
+		  'module_info'/0,
+		  'module_info'/1,
+		  'param_default'/1,
+		  'param_type'/2,
+		  'set_almost_full_threshold'/1,
+		  'set_check_interval'/1,
+		  'start_link'/0,
+		  'terminate'/2]
+    attributes [%% Line 20
+		'behaviour' =
+		    %% Line 20
+		    ['gen_server']]
+'start_link'/0 =
+    %% Line 42
+    fun () ->
+	%% Line 43
+	call 'gen_server':'start_link'
+	    ({'local','disksup'}, 'disksup', [], [])
+'get_disk_data'/0 =
+    %% Line 45
+    fun () ->
+	%% Line 46
+	call 'os_mon':'call'
+	    ('disksup', 'get_disk_data', 'infinity')
+'get_check_interval'/0 =
+    %% Line 48
+    fun () ->
+	%% Line 49
+	call 'os_mon':'call'
+	    ('disksup', 'get_check_interval', 'infinity')
+'set_check_interval'/1 =
+    %% Line 50
+    fun (_cor0) ->
+	%% Line 51
+	case apply 'param_type'/2
+		 ('disk_space_check_interval', _cor0) of
+	  %% Line 52
+	  <'true'> when 'true' ->
+	      %% Line 53
+	      call 'os_mon':'call'
+		  ('disksup', {'set_check_interval',_cor0}, 'infinity')
+	  %% Line 54
+	  <'false'> when 'true' ->
+	      %% Line 55
+	      call 'erlang':'error'
+		  ('badarg')
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'get_almost_full_threshold'/0 =
+    %% Line 58
+    fun () ->
+	%% Line 59
+	call 'os_mon':'call'
+	    ('disksup', 'get_almost_full_threshold', 'infinity')
+'set_almost_full_threshold'/1 =
+    %% Line 60
+    fun (_cor0) ->
+	%% Line 61
+	case apply 'param_type'/2
+		 ('disk_almost_full_threshold', _cor0) of
+	  %% Line 62
+	  <'true'> when 'true' ->
+	      %% Line 63
+	      call 'os_mon':'call'
+		  ('disksup', {'set_almost_full_threshold',_cor0}, 'infinity')
+	  %% Line 64
+	  <'false'> when 'true' ->
+	      %% Line 65
+	      call 'erlang':'error'
+		  ('badarg')
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'dummy_reply'/1 =
+    %% Line 68
+    fun (_cor0) ->
+	case _cor0 of
+	  <'get_disk_data'> when 'true' ->
+	      %% Line 69
+	      [{[110|[111|[110|[101]]]],0,0}]
+	  %% Line 70
+	  <'get_check_interval'> when 'true' ->
+	      let <_cor1> =
+		  %% Line 71
+		  call 'os_mon':'get_env'
+		      ('disksup', 'disk_space_check_interval')
+	      in  %% Line 71
+		  apply 'minutes_to_ms'/1
+		      (_cor1)
+	  %% Line 72
+	  <{'set_check_interval',_cor5}> when 'true' ->
+	      %% Line 73
+	      'ok'
+	  %% Line 74
+	  <'get_almost_full_threshold'> when 'true' ->
+	      let <_cor2> =
+		  %% Line 75
+		  call 'os_mon':'get_env'
+		      ('disksup', 'disk_almost_full_threshold')
+	      in  let <_cor3> =
+		      %% Line 75
+		      call 'erlang':'*'
+			  (_cor2, 100)
+		  in  %% Line 75
+		      call 'erlang':'round'
+			  (_cor3)
+	  %% Line 76
+	  <{'set_almost_full_threshold',_cor6}> when 'true' ->
+	      %% Line 77
+	      'ok'
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'dummy_reply',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'param_type'/2 =
+    %% Line 79
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'disk_space_check_interval',Val>
+	      when let <_cor2> =
+		    call 'erlang':'is_integer'
+			(Val)
+		in  let <_cor3> =
+			%% Line 80
+			call 'erlang':'>='
+			    (Val, 1)
+		    in  call 'erlang':'and'
+			    (_cor2, _cor3) ->
+	      %% Line 80
+	      'true'
+	  %% Line 81
+	  <'disk_almost_full_threshold',Val>
+	      when try
+		    let <_cor4> =
+			call 'erlang':'is_number'
+			    (Val)
+		    in  let <_cor5> =
+			    %% Line 82
+			    call 'erlang':'=<'
+				(0, Val)
+			in  let <_cor6> =
+				%% Line 83
+				call 'erlang':'=<'
+				    (Val, 1)
+			    in  let <_cor7> =
+				    call 'erlang':'and'
+					(_cor5, _cor6)
+				in  call 'erlang':'and'
+					(_cor4, _cor7)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 83
+	      'true'
+	  %% Line 84
+	  <_X_Param,_X_Val> when 'true' ->
+	      'false'
+	end
+'param_default'/1 =
+    %% Line 86
+    fun (_cor0) ->
+	case _cor0 of
+	  <'disk_space_check_interval'> when 'true' ->
+	      30
+	  %% Line 87
+	  <'disk_almost_full_threshold'> when 'true' ->
+	      8.00000000000000044409e-01
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'param_default',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'init'/1 =
+    %% Line 93
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      do  %% Line 94
+		  call 'erlang':'process_flag'
+		      ('trap_exit', 'true')
+		  do  %% Line 95
+		      call 'erlang':'process_flag'
+			  ('priority', 'low')
+		      let <OS> =
+			  %% Line 97
+			  apply 'get_os'/0
+			      ()
+		      in  let <_cor21> =
+			      %% Line 98
+			      case OS of
+				%% Line 99
+				<{'unix',Flavor}>
+				    when let <_cor2> =
+					  call 'erlang':'=:='
+					      (Flavor, 'sunos4')
+				      in  let <_cor3> =
+					      %% Line 100
+					      call 'erlang':'=:='
+						  (Flavor, 'solaris')
+					  in  let <_cor4> =
+						  %% Line 101
+						  call 'erlang':'=:='
+						      (Flavor, 'freebsd')
+					      in  let <_cor5> =
+						      %% Line 102
+						      call 'erlang':'=:='
+							  (Flavor, 'dragonfly')
+						  in  let <_cor6> =
+							  %% Line 103
+							  call 'erlang':'=:='
+							      (Flavor, 'darwin')
+						      in  let <_cor7> =
+							      %% Line 104
+							      call 'erlang':'=:='
+								  (Flavor, 'linux')
+							  in  let <_cor8> =
+								  %% Line 105
+								  call 'erlang':'=:='
+								      (Flavor, 'openbsd')
+							      in  let <_cor9> =
+								      %% Line 106
+								      call 'erlang':'=:='
+									  (Flavor, 'netbsd')
+								  in  let <_cor10> =
+									  %% Line 107
+									  call 'erlang':'=:='
+									      (Flavor, 'irix64')
+								      in  let <_cor11> =
+									      %% Line 108
+									      call 'erlang':'=:='
+										  (Flavor, 'irix')
+									  in  let <_cor12> =
+										  %% Line 107
+										  call 'erlang':'or'
+										      (_cor10, _cor11)
+									      in  let <_cor13> =
+										      %% Line 106
+										      call 'erlang':'or'
+											  (_cor9, _cor12)
+										  in  let <_cor14> =
+											  %% Line 105
+											  call 'erlang':'or'
+											      (_cor8, _cor13)
+										      in  let <_cor15> =
+											      %% Line 104
+											      call 'erlang':'or'
+												  (_cor7, _cor14)
+											  in  let <_cor16> =
+												  %% Line 103
+												  call 'erlang':'or'
+												      (_cor6, _cor15)
+											      in  let <_cor17> =
+												      %% Line 102
+												      call 'erlang':'or'
+													  (_cor5, _cor16)
+												  in  let <_cor18> =
+													  %% Line 101
+													  call 'erlang':'or'
+													      (_cor4, _cor17)
+												      in  let <_cor19> =
+													      %% Line 100
+													      call 'erlang':'or'
+														  (_cor3, _cor18)
+													  in  call 'erlang':'or'
+														  (_cor2, _cor19) ->
+				    %% Line 109
+				    apply 'start_portprogram'/0
+					()
+				%% Line 110
+				<{'win32',_X_OSname}> when 'true' ->
+				    %% Line 111
+				    'not_used'
+				%% Line 112
+				<_cor30> when 'true' ->
+				    %% Line 113
+				    call 'erlang':'exit'
+					({'unsupported_os',OS})
+			      end
+			  in  let <Threshold> =
+				  %% Line 117
+				  call 'os_mon':'get_env'
+				      ('disksup', 'disk_almost_full_threshold')
+			      in  let <Timeout> =
+				      %% Line 118
+				      call 'os_mon':'get_env'
+					  ('disksup', 'disk_space_check_interval')
+				  in  let <_cor25> =
+					  %% Line 121
+					  call 'erlang':'self'
+					      ()
+				      in  do  %% Line 121
+					      call 'erlang':'!'
+						  (_cor25, 'timeout')
+					      let <_cor27> =
+						  %% Line 124
+						  call 'erlang':'*'
+						      (Threshold, 100)
+					      in  let <_cor28> =
+						      %% Line 124
+						      call 'erlang':'round'
+							  (_cor27)
+						  in  let <_cor26> =
+							  %% Line 125
+							  apply 'minutes_to_ms'/1
+							      (Timeout)
+						      in  %% Line 123
+							  {'ok',{'state',_cor28,_cor26,OS,[],_cor21}}
+	  ( <_cor29> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor29})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_call'/3 =
+    %% Line 127
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'get_disk_data',_X_From,State> when 'true' ->
+	      %% Line 128
+	      ( case State of
+		  ( <( {'state',_cor24,_cor25,_cor26,_rec0,_cor27}
+		       -| ['compiler_generated'] )> when 'true' ->
+			{'reply',_rec0,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor28> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 130
+	  <'get_check_interval',_X_From,State> when 'true' ->
+	      %% Line 131
+	      ( case State of
+		  ( <( {'state',_cor29,_rec1,_cor30,_cor31,_cor32}
+		       -| ['compiler_generated'] )> when 'true' ->
+			{'reply',_rec1,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor33> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 132
+	  <{'set_check_interval',Minutes},_X_From,State> when 'true' ->
+	      let <Timeout> =
+		  %% Line 133
+		  apply 'minutes_to_ms'/1
+		      (Minutes)
+	      in  %% Line 134
+		  case State of
+		    <{'state',_cor34,_cor35,_cor36,_cor37,_cor38}> when 'true' ->
+			let <_cor10> =
+			    call 'erlang':'setelement'
+				(3, State, Timeout)
+			in  {'reply','ok',_cor10}
+		    ( <_cor39> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','state'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 136
+	  <'get_almost_full_threshold',_X_From,State> when 'true' ->
+	      %% Line 137
+	      ( case State of
+		  ( <( {'state',_rec3,_cor40,_cor41,_cor42,_cor43}
+		       -| ['compiler_generated'] )> when 'true' ->
+			{'reply',_rec3,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor44> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 138
+	  <{'set_almost_full_threshold',Float},_X_From,State> when 'true' ->
+	      let <_cor13> =
+		  %% Line 139
+		  call 'erlang':'*'
+		      (Float, 100)
+	      in  let <Threshold> =
+		      %% Line 139
+		      call 'erlang':'round'
+			  (_cor13)
+		  in  %% Line 140
+		      case State of
+			<{'state',_cor45,_cor46,_cor47,_cor48,_cor49}> when 'true' ->
+			    let <_cor17> =
+				call 'erlang':'setelement'
+				    (2, State, Threshold)
+			    in  {'reply','ok',_cor17}
+			( <_cor50> when 'true' ->
+			      ( call ( 'erlang'
+				       -| ['compiler_generated'] ):( 'error'
+								     -| ['compiler_generated'] )
+				    (( {'badrecord','state'}
+				       -| ['compiler_generated'] ))
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 142
+	  <{'set_threshold',Threshold},_X_From,State> when 'true' ->
+	      %% Line 143
+	      case State of
+		<{'state',_cor51,_cor52,_cor53,_cor54,_cor55}> when 'true' ->
+		    let <_cor20> =
+			call 'erlang':'setelement'
+			    (2, State, Threshold)
+		    in  {'reply','ok',_cor20}
+		( <_cor56> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor23,_cor22,_cor21> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor23,_cor22,_cor21})
+		  -| [{'function_name',{'handle_call',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_cast'/2 =
+    %% Line 145
+    fun (_cor1,_cor0) ->
+	%% Line 146
+	{'noreply',_cor0}
+'handle_info'/2 =
+    %% Line 148
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'timeout',State> when 'true' ->
+	      %% Line 149
+	      ( case State of
+		  ( <( {'state',_cor19,_cor20,_rec6,_cor21,_cor22}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <NewDiskData> =
+			    apply 'check_disk_space'/3
+				(_rec6, _cor22, _cor19)
+			in  do  %% Line 151
+				call 'timer':'send_after'
+				    (_cor20, 'timeout')
+				let <_cor13> =
+				    %% Line 152
+				    call 'erlang':'setelement'
+					(5, State, NewDiskData)
+				in  %% Line 152
+				    {'noreply',_cor13}
+		    -| ['compiler_generated'] )
+		  ( <_cor23> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 153
+	  <{'EXIT',_X_Port,Reason},State> when 'true' ->
+	      %% Line 154
+	      case State of
+		<{'state',_cor45,_cor46,_cor47,_cor48,_cor49}> when 'true' ->
+		    let <_cor16> =
+			call 'erlang':'setelement'
+			    (6, State, 'not_used')
+		    in  {'stop',{'port_died',Reason},_cor16}
+		( <_cor50> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 155
+	  <_X_Info,State> when 'true' ->
+	      %% Line 156
+	      {'noreply',State}
+	end
+'terminate'/2 =
+    %% Line 158
+    fun (_cor1,_cor0) ->
+	do  %% Line 159
+	    apply 'clear_alarms'/0
+		()
+	    %% Line 160
+	    ( case _cor0 of
+		( <( {'state',_cor7,_cor8,_cor9,_cor10,_rec12}
+		     -| ['compiler_generated'] )> when 'true' ->
+		      do  case _rec12 of
+			    %% Line 161
+			    <'not_used'> when 'true' ->
+				'ok'
+			    %% Line 163
+			    <Port> when 'true' ->
+				%% Line 164
+				call 'erlang':'port_close'
+				    (Port)
+			  end
+			  %% Line 166
+			  'ok'
+		  -| ['compiler_generated'] )
+		( <_cor11> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	      -| ['compiler_generated'] )
+'code_change'/3 =
+    %% Line 170
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Vsn,PrevState,[49|[46|[56]]]> when 'true' ->
+	      %% Line 171
+	      case Vsn of
+		%% Line 174
+		<{'down',_X_Vsn}> when 'true' ->
+		    %% Line 175
+		    ( case PrevState of
+			( <( {'state',_cor21,_cor22,_cor23,_cor24,_rec13}
+			     -| ['compiler_generated'] )> when 'true' ->
+			      let <_cor8> =
+				  case _rec13 of
+				    %% Line 176
+				    <'not_used'> when 'true' ->
+					call 'erlang':'setelement'
+					    (6, PrevState, 'noport')
+				    %% Line 177
+				    <_cor32> when 'true' ->
+					PrevState
+				  end
+			      in  %% Line 179
+				  {'ok',_cor8}
+			  -| ['compiler_generated'] )
+			( <_cor25> when 'true' ->
+			      ( call ( 'erlang'
+				       -| ['compiler_generated'] ):( 'error'
+								     -| ['compiler_generated'] )
+				    (( {'badrecord','state'}
+				       -| ['compiler_generated'] ))
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+		      end
+		      -| ['compiler_generated'] )
+		%% Line 182
+		<_X_Vsn> when 'true' ->
+		    %% Line 183
+		    ( case PrevState of
+			( <( {'state',_cor33,_cor34,_cor35,_cor36,_rec15}
+			     -| ['compiler_generated'] )> when 'true' ->
+			      let <_cor15> =
+				  case _rec15 of
+				    %% Line 184
+				    <'noport'> when 'true' ->
+					call 'erlang':'setelement'
+					    (6, PrevState, 'not_used')
+				    %% Line 185
+				    <_cor44> when 'true' ->
+					PrevState
+				  end
+			      in  %% Line 187
+				  {'ok',_cor15}
+			  -| ['compiler_generated'] )
+			( <_cor37> when 'true' ->
+			      ( call ( 'erlang'
+				       -| ['compiler_generated'] ):( 'error'
+								     -| ['compiler_generated'] )
+				    (( {'badrecord','state'}
+				       -| ['compiler_generated'] ))
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+		      end
+		      -| ['compiler_generated'] )
+	      end
+	  %% Line 189
+	  <_X_OldVsn,State,_X_Extra> when 'true' ->
+	      %% Line 190
+	      {'ok',State}
+	end
+'format_status'/2 =
+    %% Line 196
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_Opt,[_X_PDict|[{'state',Threshold,%% Line 197
+						Timeout,OS,%% Line 198
+							   DiskData,_cor4}|%% Line 198
+									   []]]> when 'true' ->
+	      %% Line 199
+	      [{'data',[{[79|[83]],OS}|%% Line 200
+				       [{[84|[105|[109|[101|[111|[117|[116]]]]]]],Timeout}|%% Line 201
+											   [{[84|[104|[114|[101|[115|[104|[111|[108|[100]]]]]]]]],Threshold}|%% Line 202
+																			     [{[68|[105|[115|[107|[68|[97|[116|[97]]]]]]]],DiskData}|[]]]]]}|%% Line 202
+																											     []]
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'format_status',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_os'/0 =
+    %% Line 208
+    fun () ->
+	%% Line 209
+	case call 'os':'type'
+		 () of
+	  %% Line 210
+	  <{'unix','sunos'}> when 'true' ->
+	      %% Line 211
+	      case call 'os':'version'
+		       () of
+		%% Line 212
+		<{5,_cor2,_cor3}> when 'true' ->
+		    {'unix','solaris'}
+		%% Line 213
+		<{4,_cor4,_cor5}> when 'true' ->
+		    {'unix','sunos4'}
+		%% Line 214
+		<V> when 'true' ->
+		    call 'erlang':'exit'
+			({'unknown_os_version',V})
+	      end
+	  %% Line 216
+	  <{'unix','irix64'}> when 'true' ->
+	      {'unix','irix'}
+	  %% Line 217
+	  <OS> when 'true' ->
+	      %% Line 218
+	      OS
+	end
+'start_portprogram'/0 =
+    %% Line 223
+    fun () ->
+	%% Line 224
+	call 'erlang':'open_port'
+	    ({'spawn',[115|[104|[32|[45|[115|[32|[100|[105|[115|[107|[115|[117|[112|[32|[50|[62|[38|[49]]]]]]]]]]]]]]]]]]}, ['stream'])
+'my_cmd'/2 =
+    %% Line 226
+    fun (_cor1,_cor0) ->
+	let <Cmd> =
+	    %% Line 229
+	    call 'io_lib':'format'
+		([40|[126|[115|[10|[41|[32|[60|[47|[100|[101|[118|[47|[110|[117|[108|[108|[59|[32|[101|[99|[104|[111|[32|[32|[34|[13|[34|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]], [_cor1|[]])
+	in  let <_cor3> =
+		%% Line 230
+		call 'erlang':'self'
+		    ()
+	    in  do  %% Line 230
+		    call 'erlang':'!'
+			(_cor0, {_cor3,{'command',[Cmd|[10]]}})
+		    %% Line 231
+		    apply 'get_reply'/2
+			(_cor0, [])
+'get_reply'/2 =
+    %% Line 233
+    fun (_cor1,_cor0) ->
+	%% Line 234
+	receive
+	  %% Line 235
+	  <{_cor5,{'data',N}}>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     _cor1) ->
+	      %% Line 236
+	      case apply 'newline'/2
+		       (N, _cor0) of
+		%% Line 237
+		<{'ok',Str}> when 'true' ->
+		    Str
+		%% Line 238
+		<{'more',Acc}> when 'true' ->
+		    apply 'get_reply'/2
+			(_cor1, Acc)
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 240
+	  <{'EXIT',_cor6,Reason}>
+	      when call 'erlang':'=:='
+		    (_cor6,
+		     _cor1) ->
+	      %% Line 241
+	      call 'erlang':'exit'
+		  ({'port_died',Reason})
+	after 'infinity' ->
+	  'true'
+'newline'/2 =
+    %% Line 244
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[13|_cor5],B> when 'true' ->
+	      let <_cor2> =
+		  call 'lists':'reverse'
+		      (B)
+	      in  {'ok',_cor2}
+	  %% Line 245
+	  <[H|T],B> when 'true' ->
+	      apply 'newline'/2
+		  (T, [H|B])
+	  %% Line 246
+	  <[],B> when 'true' ->
+	      {'more',B}
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'newline',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'check_disk_space'/3 =
+    %% Line 250
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'win32',_cor25},'not_used',Threshold> when 'true' ->
+	      let <Result> =
+		  %% Line 251
+		  call 'os_mon_sysinfo':'get_disk_info'
+		      ()
+	      in  %% Line 252
+		  apply 'check_disks_win32'/2
+		      (Result, Threshold)
+	  %% Line 253
+	  <{'unix','solaris'},Port,Threshold> when 'true' ->
+	      let <Result> =
+		  %% Line 254
+		  apply 'my_cmd'/2
+		      ([47|[117|[115|[114|[47|[98|[105|[110|[47|[100|[102|[32|[45|[108|[107]]]]]]]]]]]]]]], Port)
+	      in  let <_cor5> =
+		      %% Line 255
+		      apply 'skip_to_eol'/1
+			  (Result)
+		  in  %% Line 255
+		      apply 'check_disks_solaris'/2
+			  (_cor5, Threshold)
+	  %% Line 256
+	  <{'unix','irix'},Port,Threshold> when 'true' ->
+	      let <Result> =
+		  %% Line 257
+		  apply 'my_cmd'/2
+		      ([47|[117|[115|[114|[47|[115|[98|[105|[110|[47|[100|[102|[32|[45|[108|[107]]]]]]]]]]]]]]]], Port)
+	      in  let <_cor7> =
+		      %% Line 258
+		      apply 'skip_to_eol'/1
+			  (Result)
+		  in  %% Line 258
+		      apply 'check_disks_irix'/2
+			  (_cor7, Threshold)
+	  %% Line 259
+	  <{'unix','linux'},Port,Threshold> when 'true' ->
+	      let <Result> =
+		  %% Line 260
+		  apply 'my_cmd'/2
+		      ([47|[98|[105|[110|[47|[100|[102|[32|[45|[108|[107]]]]]]]]]]], Port)
+	      in  let <_cor9> =
+		      %% Line 261
+		      apply 'skip_to_eol'/1
+			  (Result)
+		  in  %% Line 261
+		      apply 'check_disks_solaris'/2
+			  (_cor9, Threshold)
+	  %% Line 262
+	  <{'unix','dragonfly'},Port,Threshold> when 'true' ->
+	      let <Result> =
+		  %% Line 263
+		  apply 'my_cmd'/2
+		      ([47|[98|[105|[110|[47|[100|[102|[32|[45|[107|[32|[45|[116|[32|[117|[102|[115|[44|[104|[97|[109|[109|[101|[114]]]]]]]]]]]]]]]]]]]]]]]], Port)
+	      in  let <_cor11> =
+		      %% Line 264
+		      apply 'skip_to_eol'/1
+			  (Result)
+		  in  %% Line 264
+		      apply 'check_disks_solaris'/2
+			  (_cor11, Threshold)
+	  %% Line 265
+	  <{'unix','freebsd'},Port,Threshold> when 'true' ->
+	      let <Result> =
+		  %% Line 266
+		  apply 'my_cmd'/2
+		      ([47|[98|[105|[110|[47|[100|[102|[32|[45|[107|[32|[45|[108]]]]]]]]]]]]], Port)
+	      in  let <_cor13> =
+		      %% Line 267
+		      apply 'skip_to_eol'/1
+			  (Result)
+		  in  %% Line 267
+		      apply 'check_disks_solaris'/2
+			  (_cor13, Threshold)
+	  %% Line 268
+	  <{'unix','openbsd'},Port,Threshold> when 'true' ->
+	      let <Result> =
+		  %% Line 269
+		  apply 'my_cmd'/2
+		      ([47|[98|[105|[110|[47|[100|[102|[32|[45|[107|[32|[45|[108]]]]]]]]]]]]], Port)
+	      in  let <_cor15> =
+		      %% Line 270
+		      apply 'skip_to_eol'/1
+			  (Result)
+		  in  %% Line 270
+		      apply 'check_disks_solaris'/2
+			  (_cor15, Threshold)
+	  %% Line 271
+	  <{'unix','netbsd'},Port,Threshold> when 'true' ->
+	      let <Result> =
+		  %% Line 272
+		  apply 'my_cmd'/2
+		      ([47|[98|[105|[110|[47|[100|[102|[32|[45|[107|[32|[45|[116|[32|[102|[102|[115]]]]]]]]]]]]]]]]], Port)
+	      in  let <_cor17> =
+		      %% Line 273
+		      apply 'skip_to_eol'/1
+			  (Result)
+		  in  %% Line 273
+		      apply 'check_disks_solaris'/2
+			  (_cor17, Threshold)
+	  %% Line 274
+	  <{'unix','sunos4'},Port,Threshold> when 'true' ->
+	      let <Result> =
+		  %% Line 275
+		  apply 'my_cmd'/2
+		      ([100|[102]], Port)
+	      in  let <_cor19> =
+		      %% Line 276
+		      apply 'skip_to_eol'/1
+			  (Result)
+		  in  %% Line 276
+		      apply 'check_disks_solaris'/2
+			  (_cor19, Threshold)
+	  %% Line 277
+	  <{'unix','darwin'},Port,Threshold> when 'true' ->
+	      let <Result> =
+		  %% Line 278
+		  apply 'my_cmd'/2
+		      ([47|[98|[105|[110|[47|[100|[102|[32|[45|[105|[32|[45|[107|[32|[45|[116|[32|[117|[102|[115|[44|[104|[102|[115]]]]]]]]]]]]]]]]]]]]]]]], Port)
+	      in  let <_cor21> =
+		      %% Line 279
+		      apply 'skip_to_eol'/1
+			  (Result)
+		  in  %% Line 279
+		      apply 'check_disks_susv3'/2
+			  (_cor21, Threshold)
+	  ( <_cor24,_cor23,_cor22> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor24,_cor23,_cor22})
+		  -| [{'function_name',{'check_disk_space',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'check_disks_solaris'/2 =
+    %% Line 282
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_X_Threshold> when 'true' ->
+	      %% Line 283
+	      []
+	  %% Line 284
+	  <[10],_X_Threshold> when 'true' ->
+	      %% Line 285
+	      []
+	  %% Line 286
+	  <Str,Threshold> when 'true' ->
+	      %% Line 287
+	      case call 'io_lib':'fread'
+		       ([126|[115|[126|[100|[126|[100|[126|[100|[126|[100|[37|[126|[115]]]]]]]]]]]]], Str) of
+		%% Line 288
+		<{'ok',[_X_FS|[KB|[_X_Used|[_X_Avail|[Cap|[MntOn|[]]]]]]],RestStr}> when 'true' ->
+		    do  %% Line 289
+			case <> of
+			  %% Line 290
+			  <>
+			      when call 'erlang':'>='
+				    (Cap,
+				     Threshold) ->
+			      %% Line 291
+			      apply 'set_alarm'/2
+				  ({'disk_almost_full',MntOn}, [])
+			  %% Line 292
+			  <> when 'true' ->
+			      %% Line 293
+			      apply 'clear_alarm'/1
+				  ({'disk_almost_full',MntOn})
+			end
+			let <_cor2> =
+			    %% Line 296
+			    apply 'check_disks_solaris'/2
+				(RestStr, Threshold)
+			in  %% Line 295
+			    [{MntOn,KB,Cap}|_cor2]
+		%% Line 297
+		<_X_Other> when 'true' ->
+		    let <_cor3> =
+			%% Line 298
+			apply 'skip_to_eol'/1
+			    (Str)
+		    in  %% Line 298
+			apply 'check_disks_solaris'/2
+			    (_cor3, Threshold)
+	      end
+	end
+'check_disks_susv3'/2 =
+    %% Line 302
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_X_Threshold> when 'true' ->
+	      %% Line 303
+	      []
+	  %% Line 304
+	  <[10],_X_Threshold> when 'true' ->
+	      %% Line 305
+	      []
+	  %% Line 306
+	  <Str,Threshold> when 'true' ->
+	      %% Line 307
+	      case call 'io_lib':'fread'
+		       ([126|[115|[126|[100|[126|[100|[126|[100|[126|[100|[37|[126|[100|[126|[100|[126|[100|[37|[126|[115]]]]]]]]]]]]]]]]]]]], Str) of
+		%% Line 308
+		<{'ok',[_X_FS|[KB|[_X_Used|[_X_Avail|[Cap|[_X_IUsed|[_X_IFree|[_X_ICap|[MntOn|[]]]]]]]]]],RestStr}> when 'true' ->
+		    do  %% Line 309
+			case <> of
+			  %% Line 310
+			  <>
+			      when call 'erlang':'>='
+				    (Cap,
+				     Threshold) ->
+			      %% Line 311
+			      apply 'set_alarm'/2
+				  ({'disk_almost_full',MntOn}, [])
+			  %% Line 312
+			  <> when 'true' ->
+			      %% Line 313
+			      apply 'clear_alarm'/1
+				  ({'disk_almost_full',MntOn})
+			end
+			let <_cor2> =
+			    %% Line 316
+			    apply 'check_disks_susv3'/2
+				(RestStr, Threshold)
+			in  %% Line 315
+			    [{MntOn,KB,Cap}|_cor2]
+		%% Line 317
+		<_X_Other> when 'true' ->
+		    let <_cor3> =
+			%% Line 318
+			apply 'skip_to_eol'/1
+			    (Str)
+		    in  %% Line 318
+			apply 'check_disks_susv3'/2
+			    (_cor3, Threshold)
+	      end
+	end
+'check_disks_irix'/2 =
+    %% Line 322
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_X_Threshold> when 'true' ->
+	      []
+	  %% Line 323
+	  <[10],_X_Threshold> when 'true' ->
+	      []
+	  %% Line 324
+	  <Str,Threshold> when 'true' ->
+	      %% Line 325
+	      case call 'io_lib':'fread'
+		       ([126|[115|[126|[115|[126|[100|[126|[100|[126|[100|[126|[100|[126|[115]]]]]]]]]]]]]], Str) of
+		%% Line 326
+		<{'ok',[_X_FS|[_X_FSType|[KB|[_X_Used|[_X_Avail|[Cap|[MntOn|[]]]]]]]],RestStr}> when 'true' ->
+		    do  %% Line 327
+			case <> of
+			  <>
+			      when call 'erlang':'>='
+				    (Cap,
+				     Threshold) ->
+			      apply 'set_alarm'/2
+				  ({'disk_almost_full',MntOn}, [])
+			  %% Line 328
+			  <> when 'true' ->
+			      apply 'clear_alarm'/1
+				  ({'disk_almost_full',MntOn})
+			end
+			let <_cor2> =
+			    %% Line 329
+			    apply 'check_disks_irix'/2
+				(RestStr, Threshold)
+			in  %% Line 329
+			    [{MntOn,KB,Cap}|_cor2]
+		%% Line 330
+		<_X_Other> when 'true' ->
+		    let <_cor3> =
+			%% Line 331
+			apply 'skip_to_eol'/1
+			    (Str)
+		    in  %% Line 331
+			apply 'check_disks_irix'/2
+			    (_cor3, Threshold)
+	      end
+	end
+'check_disks_win32'/2 =
+    %% Line 334
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_X_Threshold> when 'true' ->
+	      %% Line 335
+	      []
+	  %% Line 336
+	  <[H|T],Threshold> when 'true' ->
+	      %% Line 337
+	      case call 'io_lib':'fread'
+		       ([126|[115|[126|[115|[126|[100|[126|[100|[126|[100]]]]]]]]]], H) of
+		%% Line 338
+		<{'ok',[Drive|[[68|[82|[73|[86|[69|[95|[70|[73|[88|[69|[68]]]]]]]]]]]|[BAvail|[BTot|[_X_TotFree|[]]]]]],_X_RestStr}> when 'true' ->
+		    let <_cor2> =
+			%% Line 339
+			call 'erlang':'-'
+			    (BTot, BAvail)
+		    in  let <_cor3> =
+			    %% Line 339
+			    call 'erlang':'/'
+				(_cor2, BTot)
+			in  let <_cor4> =
+				%% Line 339
+				call 'erlang':'*'
+				    (_cor3, 100)
+			    in  let <Cap> =
+				    %% Line 339
+				    call 'erlang':'trunc'
+					(_cor4)
+				in  do  %% Line 340
+					case <> of
+					  %% Line 341
+					  <>
+					      when call 'erlang':'>='
+						    (Cap,
+						     Threshold) ->
+					      %% Line 342
+					      apply 'set_alarm'/2
+						  ({'disk_almost_full',Drive}, [])
+					  %% Line 343
+					  <> when 'true' ->
+					      %% Line 344
+					      apply 'clear_alarm'/1
+						  ({'disk_almost_full',Drive})
+					end
+					let <_cor6> =
+					    %% Line 346
+					    call 'erlang':'div'
+						(BTot, 1024)
+					in  let <_cor7> =
+						%% Line 347
+						apply 'check_disks_win32'/2
+						    (T, Threshold)
+					    in  %% Line 346
+						[{Drive,_cor6,Cap}|_cor7]
+		%% Line 348
+		<{'ok',_cor11,_X_RestStr}> when 'true' ->
+		    %% Line 349
+		    apply 'check_disks_win32'/2
+			(T, Threshold)
+		%% Line 350
+		<_X_Other> when 'true' ->
+		    %% Line 351
+		    []
+	      end
+	  ( <_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9})
+		  -| [{'function_name',{'check_disks_win32',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'set_alarm'/2 =
+    %% Line 356
+    fun (_cor1,_cor0) ->
+	%% Line 357
+	case call 'erlang':'get'
+		 (_cor1) of
+	  %% Line 358
+	  <'set'> when 'true' ->
+	      %% Line 359
+	      'ok'
+	  %% Line 360
+	  <'undefined'> when 'true' ->
+	      do  %% Line 361
+		  call 'alarm_handler':'set_alarm'
+		      ({_cor1,_cor0})
+		  %% Line 362
+		  call 'erlang':'put'
+		      (_cor1, 'set')
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'clear_alarm'/1 =
+    %% Line 365
+    fun (_cor0) ->
+	%% Line 366
+	case call 'erlang':'get'
+		 (_cor0) of
+	  %% Line 367
+	  <'set'> when 'true' ->
+	      do  %% Line 368
+		  call 'alarm_handler':'clear_alarm'
+		      (_cor0)
+		  %% Line 369
+		  call 'erlang':'erase'
+		      (_cor0)
+	  %% Line 370
+	  <'undefined'> when 'true' ->
+	      %% Line 371
+	      'ok'
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'clear_alarms'/0 =
+    %% Line 374
+    fun () ->
+	let <_cor3> =
+	    %% Line 375
+	    ( fun (_cor1) ->
+		  case _cor1 of
+		    <{AlarmId = {'disk_almost_full',_X_MntOn},'set'}> when 'true' ->
+			%% Line 376
+			call 'alarm_handler':'clear_alarm'
+			    (AlarmId)
+		    %% Line 377
+		    <_X_Other> when 'true' ->
+			%% Line 378
+			'ignore'
+		  end
+	      -| [{'id',{0,0,'-clear_alarms/0-fun-0-'}}] )
+	in  let <_cor0> =
+		%% Line 380
+		call 'erlang':'get'
+		    ()
+	    in  %% Line 375
+		call 'lists':'foreach'
+		    (_cor3, _cor0)
+'minutes_to_ms'/1 =
+    %% Line 385
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 386
+	    call 'erlang':'*'
+		(60000, _cor0)
+	in  %% Line 386
+	    call 'erlang':'trunc'
+		(_cor1)
+'skip_to_eol'/1 =
+    %% Line 388
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 389
+	      []
+	  %% Line 390
+	  <[10|T]> when 'true' ->
+	      %% Line 391
+	      T
+	  %% Line 392
+	  <[_cor2|T]> when 'true' ->
+	      %% Line 393
+	      apply 'skip_to_eol'/1
+		  (T)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'skip_to_eol',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('disksup')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('disksup', _cor0)
+end

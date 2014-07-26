@@ -1,0 +1,1063 @@
+module 'megaco_codec_mstone_lib' ['detect_version'/3,
+				  'display_alloc_info'/0,
+				  'display_app_info'/0,
+				  'display_os_info'/0,
+				  'display_system_info'/0,
+				  'expanded_messages'/2,
+				  'expanded_messages'/3,
+				  'flex_scanner_handler'/1,
+				  'module_info'/0,
+				  'module_info'/1,
+				  'start_flex_scanner'/0,
+				  'stop_flex_scanner'/1]
+    attributes [%% Line 24
+		'type' =
+		    %% Line 24
+		    [{{'record','file_info'},[{'typed_record_field',{'record_field',25,{'atom',25,'size'}},{'type',25,'union',[{'atom',25,'undefined'}|[{'type',25,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',26,{'atom',26,'type'}},{'type',26,'union',[{'atom',26,'undefined'}|[{'atom',26,'device'}|[{'atom',26,'directory'}|[{'atom',26,'other'}|[{'atom',26,'regular'}|[{'atom',26,'symlink'}]]]]]]}}|[{'typed_record_field',{'record_field',27,{'atom',27,'access'}},{'type',27,'union',[{'atom',27,'undefined'}|[{'atom',27,'read'}|[{'atom',27,'write'}|[{'atom',27,'read_write'}|[{'atom',27,'none'}]]]]]}}|[{'typed_record_field',{'record_field',28,{'atom',28,'atime'}},{'type',28,'union',[{'atom',28,'undefined'}|[{'remote_type',28,[{'atom',28,'file'}|[{'atom',28,'date_time'}|[[]]]]}|[{'type',28,'non_neg_integer',[]}]]]}}|[{'typed_record_field',{'record_field',32,{'atom',32,'mtime'}},{'type',32,'union',[{'atom',32,'undefined'}|[{'remote_type',32,[{'atom',32,'file'}|[{'atom',32,'date_time'}|[[]]]]}|[{'type',32,'non_neg_integer',[]}]]]}}|[{'typed_record_field',{'record_field',34,{'atom',34,'ctime'}},{'type',34,'union',[{'atom',34,'undefined'}|[{'remote_type',34,[{'atom',34,'file'}|[{'atom',34,'date_time'}|[[]]]]}|[{'type',34,'non_neg_integer',[]}]]]}}|[{'typed_record_field',{'record_field',40,{'atom',40,'mode'}},{'type',40,'union',[{'atom',40,'undefined'}|[{'type',40,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',43,{'atom',43,'links'}},{'type',43,'union',[{'atom',43,'undefined'}|[{'type',43,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',46,{'atom',46,'major_device'}},{'type',46,'union',[{'atom',46,'undefined'}|[{'type',46,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',52,{'atom',52,'minor_device'}},{'type',52,'union',[{'atom',52,'undefined'}|[{'type',52,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',53,{'atom',53,'inode'}},{'type',53,'union',[{'atom',53,'undefined'}|[{'type',53,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',54,{'atom',54,'uid'}},{'type',54,'union',[{'atom',54,'undefined'}|[{'type',54,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',55,{'atom',55,'gid'}},{'type',55,'union',[{'atom',55,'undefined'}|[{'type',55,'non_neg_integer',[]}]]}}]]]]]]]]]]]]],[]}],
+		%% Line 58
+		'type' =
+		    %% Line 58
+		    [{{'record','file_descriptor'},[{'typed_record_field',{'record_field',59,{'atom',59,'module'}},{'type',59,'union',[{'atom',59,'undefined'}|[{'type',59,'module',[]}]]}}|[{'typed_record_field',{'record_field',60,{'atom',60,'data'}},{'type',60,'union',[{'atom',60,'undefined'}|[{'type',60,'term',[]}]]}}]],[]}]]
+'detect_version'/3 =
+    %% Line 51
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    catch
+		%% Line 52
+		call _cor2:'version_of'
+		    (_cor1, _cor0)
+	in  %% Line 52
+	    case _cor3 of
+	      %% Line 53
+	      <{'ok',V}> when 'true' ->
+		  let <_cor4> =
+		      catch
+			  %% Line 54
+			  call _cor2:'decode_message'
+			      (_cor1, V, _cor0)
+		  in  %% Line 54
+		      case _cor4 of
+			%% Line 55
+			<{'ok',M}> when 'true' ->
+			    let <_cor5> =
+				catch
+				    %% Line 56
+				    call _cor2:'encode_message'
+					(_cor1, V, M)
+			    in  %% Line 56
+				case _cor5 of
+				  %% Line 57
+				  <{'ok',NewBin}> when 'true' ->
+				      %% Line 58
+				      {V,NewBin}
+				  %% Line 59
+				  <Error1> when 'true' ->
+				      %% Line 60
+				      apply 'error'/1
+					  ({'encode_failed',Error1,_cor2,_cor1,M})
+				end
+			%% Line 62
+			<Error2> when 'true' ->
+			    %% Line 63
+			    apply 'error'/1
+				({'decode_failed',Error2,_cor2,_cor1,_cor0})
+		      end
+	      %% Line 65
+	      <Error3> when 'true' ->
+		  %% Line 66
+		  apply 'error'/1
+		      ({'version_of_failed',Error3,_cor2,_cor1,_cor0})
+	    end
+'display_os_info'/0 =
+    %% Line 76
+    fun () ->
+	let <_cor2> =
+	    %% Line 77
+	    case call 'os':'version'
+		     () of
+	      %% Line 78
+	      <{Major,Minor,Release}> when 'true' ->
+		  let <_cor0> =
+		      %% Line 80
+		      call 'io_lib':'format'
+			  ([126|[119|[46|[126|[119|[46|[126|[119]]]]]]]], [Major|[Minor|[Release|[]]]])
+		  in  %% Line 79
+		      call 'lists':'flatten'
+			  (_cor0)
+	      %% Line 81
+	      <Str> when 'true' ->
+		  %% Line 82
+		  Str
+	    end
+	in  %% Line 84
+	    case call 'os':'type'
+		     () of
+	      %% Line 85
+	      <{OsFam,OsName}> when 'true' ->
+		  %% Line 86
+		  call 'io':'format'
+		      ([79|[83|[58|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[126|[112|[45|[126|[112|[58|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [OsFam|[OsName|[_cor2|[]]]])
+	      %% Line 87
+	      <OsFam> when 'true' ->
+		  %% Line 88
+		  call 'io':'format'
+		      ([79|[83|[58|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[126|[112|[58|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [OsFam|[_cor2|[]]])
+	    end
+'display_system_info'/0 =
+    %% Line 98
+    fun () ->
+	let <SysArch> =
+	    %% Line 99
+	    apply 'system_architecture'/0
+		()
+	in  let <OtpRel> =
+		%% Line 100
+		apply 'otp_release'/0
+		    ()
+	    in  let <SysVer> =
+		    %% Line 101
+		    apply 'system_version'/0
+			()
+		in  let <SysHT> =
+			%% Line 102
+			apply 'heap_type'/0
+			    ()
+		    in  let <SysSMP> =
+			    %% Line 103
+			    apply 'smp_support'/0
+				()
+			in  let <SysNumSched> =
+				%% Line 104
+				apply 'schedulers'/0
+				    ()
+			    in  let <SysProcLimit> =
+				    %% Line 105
+				    apply 'process_limit'/0
+					()
+				in  let <SysThreads> =
+					%% Line 106
+					apply 'threads'/0
+					    ()
+				    in  let <SysTPSz> =
+					    %% Line 107
+					    apply 'thread_pool_size'/0
+						()
+					in  let <SchedBindings> =
+						%% Line 108
+						apply 'scheduler_bindings'/0
+						    ()
+					    in  let <SchedBindType> =
+						    %% Line 109
+						    apply 'scheduler_bind_type'/0
+							()
+						in  let <CpuTopology> =
+							%% Line 110
+							apply 'cpu_topology'/0
+							    ()
+						    in  do  %% Line 111
+							    call 'io':'format'
+								([83|[121|[115|[116|[101|[109|[32|[97|[114|[99|[104|[105|[116|[101|[99|[116|[117|[114|[101|[58|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [SysArch|[]])
+							    do  %% Line 112
+								call 'io':'format'
+								    ([79|[84|[80|[32|[114|[101|[108|[101|[97|[115|[101|[58|[32|[32|[32|[32|[32|[32|[32|[32|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [OtpRel|[]])
+								do  %% Line 113
+								    call 'io':'format'
+									([83|[121|[115|[116|[101|[109|[32|[118|[101|[114|[115|[105|[111|[110|[58|[32|[32|[32|[32|[32|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [SysVer|[]])
+								    do  %% Line 114
+									call 'io':'format'
+									    ([72|[101|[97|[112|[32|[116|[121|[112|[101|[58|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [SysHT|[]])
+									do  %% Line 115
+									    call 'io':'format'
+										([84|[104|[114|[101|[97|[100|[32|[115|[117|[112|[112|[111|[114|[116|[58|[32|[32|[32|[32|[32|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [SysThreads|[]])
+									    do  %% Line 116
+										call 'io':'format'
+										    ([84|[104|[114|[101|[97|[100|[32|[112|[111|[111|[108|[32|[115|[105|[122|[101|[58|[32|[32|[32|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [SysTPSz|[]])
+										do  %% Line 117
+										    call 'io':'format'
+											([80|[114|[111|[99|[101|[115|[115|[32|[108|[105|[109|[105|[116|[58|[32|[32|[32|[32|[32|[32|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [SysProcLimit|[]])
+										    do  %% Line 118
+											call 'io':'format'
+											    ([83|[77|[80|[32|[115|[117|[112|[112|[111|[114|[116|[58|[32|[32|[32|[32|[32|[32|[32|[32|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [SysSMP|[]])
+											do  %% Line 119
+											    call 'io':'format'
+												([78|[117|[109|[32|[115|[99|[104|[101|[100|[117|[108|[101|[114|[115|[58|[32|[32|[32|[32|[32|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [SysNumSched|[]])
+											    do  %% Line 120
+												call 'io':'format'
+												    ([83|[99|[104|[101|[100|[117|[108|[101|[114|[32|[98|[105|[110|[100|[105|[110|[103|[115|[58|[32|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [SchedBindings|[]])
+												do  %% Line 121
+												    call 'io':'format'
+													([83|[99|[104|[101|[100|[117|[108|[101|[114|[32|[98|[105|[110|[100|[32|[116|[121|[112|[101|[58|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [SchedBindType|[]])
+												    do  %% Line 122
+													call 'io':'format'
+													    ([67|[112|[117|[32|[116|[111|[112|[111|[108|[111|[103|[121|[58|[32|[32|[32|[32|[32|[32|[32|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [CpuTopology|[]])
+													%% Line 123
+													'ok'
+'system_architecture'/0 =
+    %% Line 126
+    fun () ->
+	let <_cor0> =
+	    %% Line 127
+	    apply 'system_info'/2
+		('system_architecture', 'string')
+	in  %% Line 127
+	    call 'string':'strip'
+		(_cor0, 'right', 10)
+'otp_release'/0 =
+    %% Line 129
+    fun () ->
+	%% Line 130
+	apply 'system_info'/2
+	    ('otp_release', 'string')
+'system_version'/0 =
+    %% Line 132
+    fun () ->
+	let <_cor0> =
+	    %% Line 133
+	    apply 'system_info'/2
+		('system_version', 'string')
+	in  %% Line 133
+	    call 'string':'strip'
+		(_cor0, 'right', 10)
+'heap_type'/0 =
+    %% Line 135
+    fun () ->
+	%% Line 136
+	apply 'system_info'/2
+	    ('heap_type', 'any')
+'smp_support'/0 =
+    %% Line 138
+    fun () ->
+	%% Line 139
+	apply 'system_info'/2
+	    ('smp_support', 'any')
+'schedulers'/0 =
+    %% Line 141
+    fun () ->
+	%% Line 142
+	apply 'system_info'/2
+	    ('schedulers', 'any')
+'process_limit'/0 =
+    %% Line 144
+    fun () ->
+	%% Line 145
+	apply 'system_info'/2
+	    ('process_limit', 'any')
+'threads'/0 =
+    %% Line 147
+    fun () ->
+	%% Line 148
+	apply 'system_info'/2
+	    ('threads', 'any')
+'thread_pool_size'/0 =
+    %% Line 150
+    fun () ->
+	%% Line 151
+	apply 'system_info'/2
+	    ('thread_pool_size', 'any')
+'scheduler_bindings'/0 =
+    %% Line 153
+    fun () ->
+	%% Line 154
+	apply 'system_info'/2
+	    ('scheduler_bindings', 'any')
+'scheduler_bind_type'/0 =
+    %% Line 156
+    fun () ->
+	%% Line 157
+	apply 'system_info'/2
+	    ('scheduler_bind_type', 'any')
+'cpu_topology'/0 =
+    %% Line 159
+    fun () ->
+	%% Line 160
+	apply 'system_info'/2
+	    ('cpu_topology', 'any')
+'system_info'/2 =
+    %% Line 162
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    catch
+		%% Line 163
+		call 'erlang':'system_info'
+		    (_cor1)
+	in  %% Line 163
+	    case _cor2 of
+	      %% Line 164
+	      <{'EXIT',_cor10}> when 'true' ->
+		  %% Line 165
+		  [45]
+	      %% Line 166
+	      <Info>
+		  when try
+			( case <> of
+			    ( <>
+				  when call 'erlang':'is_list'
+					(_cor2) ->
+				  call 'erlang':'=:='
+				      (_cor0, 'string')
+			      -| ['compiler_generated'] )
+			    ( <> when 'true' ->
+				  'false'
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		    of <Try> ->
+			Try
+		    catch <T,R> ->
+			'false' ->
+		  %% Line 167
+		  Info
+	      %% Line 168
+	      <Info> when 'true' ->
+		  let <_cor6> =
+		      %% Line 169
+		      call 'io_lib':'format'
+			  ([126|[119]], [Info|[]])
+		  in  %% Line 169
+		      call 'lists':'flatten'
+			  (_cor6)
+	    end
+'display_alloc_info'/0 =
+    %% Line 180
+    fun () ->
+	do  %% Line 181
+	    call 'io':'format'
+		([65|[108|[108|[111|[99|[97|[116|[111|[114|[32|[109|[101|[109|[111|[114|[121|[32|[105|[110|[102|[111|[114|[109|[97|[116|[105|[111|[110|[58|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [])
+	    let <AllocInfo> =
+		%% Line 182
+		apply 'alloc_info'/0
+		    ()
+	    in  %% Line 183
+		apply 'display_alloc_info'/1
+		    (AllocInfo)
+'display_alloc_info'/1 =
+    %% Line 185
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 186
+	      'ok'
+	  %% Line 187
+	  <[{Alloc,Mem}|AllocInfo]> when 'true' ->
+	      do  %% Line 188
+		  call 'io':'format'
+		      ([32|[32|[126|[49|[53|[119|[58|[32|[126|[49|[48|[119|[126|[110]]]]]]]]]]]]]], [Alloc|[Mem|[]]])
+		  %% Line 189
+		  apply 'display_alloc_info'/1
+		      (AllocInfo)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'display_alloc_info',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'alloc_info'/0 =
+    %% Line 191
+    fun () ->
+	%% Line 192
+	case call 'erlang':'system_info'
+		 ('allocator') of
+	  %% Line 193
+	  <{_X_Allocator,_X_Version,Features,_X_Settings}> when 'true' ->
+	      %% Line 194
+	      apply 'alloc_info'/1
+		  (Features)
+	  %% Line 195
+	  <_cor1> when 'true' ->
+	      %% Line 196
+	      []
+	end
+'alloc_info'/1 =
+    %% Line 199
+    fun (_cor0) ->
+	%% Line 202
+	apply 'alloc_info'/3
+	    (_cor0, ['temp_alloc'|['sl_alloc'|['std_alloc'|['ll_alloc'|['eheap_alloc'|['ets_alloc'|['binary_alloc'|['driver_alloc']]]]]]]], [])
+'alloc_info'/3 =
+    %% Line 204
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_cor16,Acc> when 'true' ->
+	      %% Line 205
+	      call 'lists':'reverse'
+		  (Acc)
+	  %% Line 206
+	  <[Allocator|Allocators],Allocs,Acc> when 'true' ->
+	      %% Line 207
+	      case call 'lists':'member'
+		       (Allocator, Allocs) of
+		%% Line 208
+		<'true'> when 'true' ->
+		    let <Instances0> =
+			%% Line 209
+			call 'erlang':'system_info'
+			    ({'allocator',Allocator})
+		    in  let <_cor9> =
+			    %% Line 211
+			    case <> of
+			      %% Line 212
+			      <>
+				  when call 'erlang':'is_list'
+					(Instances0) ->
+				  %% Line 213
+				  ( letrec
+					'lc$^0'/1 =
+					    fun (_cor7) ->
+						case _cor7 of
+						  <[Instance|_cor5]>
+						      when %% Line 214
+							try
+							    let <_cor6> =
+								call 'erlang':'element'
+								    (1, Instance)
+							    in  call 'erlang':'=:='
+								    (_cor6, 'instance')
+							of <Try> ->
+							    Try
+							catch <T,R> ->
+							    'false' ->
+						      let <_cor8> =
+							  apply 'lc$^0'/1
+							      (_cor5)
+						      in  ( [Instance|_cor8]
+							    -| ['compiler_generated'] )
+						  ( <[Instance|_cor5]> when 'true' ->
+							apply 'lc$^0'/1
+							    (_cor5)
+						    -| ['compiler_generated'] )
+						  <[]> when 'true' ->
+						      []
+						  ( <_cor7> when 'true' ->
+							( primop 'match_fail'
+							      ({'function_clause',_cor7})
+							  -| [{'function_name',{'lc$^0',1}}] )
+						    -| ['compiler_generated'] )
+						end
+				    in  apply 'lc$^0'/1
+					    (Instances0)
+				    -| ['list_comprehension'] )
+			      %% Line 215
+			      <> when 'true' ->
+				  %% Line 216
+				  []
+			    end
+			in  let <AllocatorMem> =
+				%% Line 218
+				apply 'alloc_mem_info'/1
+				    (_cor9)
+			    in  %% Line 219
+				apply 'alloc_info'/3
+				    (Allocators, Allocs, [{Allocator,AllocatorMem}|Acc])
+		%% Line 221
+		<'false'> when 'true' ->
+		    %% Line 222
+		    apply 'alloc_info'/3
+			(Allocators, Allocs, Acc)
+		( <_cor12> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor12})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor15,_cor14,_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14,_cor13})
+		  -| [{'function_name',{'alloc_info',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'alloc_mem_info'/1 =
+    %% Line 226
+    fun (_cor0) ->
+	%% Line 227
+	apply 'alloc_mem_info'/2
+	    (_cor0, [])
+'alloc_mem_info'/2 =
+    %% Line 229
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Acc> when 'true' ->
+	      let <_cor6> =
+		  %% Line 230
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor4) ->
+				case _cor4 of
+				  <[{'instance',_cor10,Mem}|_cor3]> when 'true' ->
+				      let <_cor5> =
+					  apply 'lc$^0'/1
+					      (_cor3)
+				      in  ( [Mem|_cor5]
+					    -| ['compiler_generated'] )
+				  ( <[_cor2|_cor3]> when 'true' ->
+					apply 'lc$^0'/1
+					    (_cor3)
+				    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor4> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor4})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (Acc)
+		    -| ['list_comprehension'] )
+	      in  %% Line 230
+		  call 'lists':'sum'
+		      (_cor6)
+	  %% Line 231
+	  <[{'instance',N,Info}|Instances],Acc> when 'true' ->
+	      let <InstanceMemInfo> =
+		  %% Line 232
+		  apply 'alloc_instance_mem_info'/1
+		      (Info)
+	      in  %% Line 233
+		  apply 'alloc_mem_info'/2
+		      (Instances, [{'instance',N,InstanceMemInfo}|Acc])
+	  ( <_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8})
+		  -| [{'function_name',{'alloc_mem_info',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'alloc_instance_mem_info'/1 =
+    %% Line 235
+    fun (_cor0) ->
+	let <MBCS> =
+	    %% Line 236
+	    apply 'alloc_instance_mem_info'/2
+		('mbcs', _cor0)
+	in  let <SBCS> =
+		%% Line 237
+		apply 'alloc_instance_mem_info'/2
+		    ('sbcs', _cor0)
+	    in  %% Line 238
+		call 'erlang':'+'
+		    (MBCS, SBCS)
+'alloc_instance_mem_info'/2 =
+    %% Line 240
+    fun (_cor1,_cor0) ->
+	%% Line 241
+	case call 'lists':'keysearch'
+		 (_cor1, 1, _cor0) of
+	  %% Line 242
+	  <{'value',{_cor6,Info}}>
+	      when call 'erlang':'=:='
+		    (_cor6,
+		     _cor1) ->
+	      %% Line 243
+	      case call 'lists':'keysearch'
+		       ('blocks_size', 1, Info) of
+		%% Line 244
+		<{'value',{'blocks_size',Mem,_cor7,_cor8}}> when 'true' ->
+		    %% Line 245
+		    Mem
+		%% Line 246
+		<_cor9> when 'true' ->
+		    %% Line 247
+		    0
+	      end
+	  %% Line 249
+	  <_cor10> when 'true' ->
+	      %% Line 250
+	      0
+	end
+'display_app_info'/0 =
+    %% Line 260
+    fun () ->
+	do  %% Line 261
+	    apply 'display_megaco_info'/0
+		()
+	    %% Line 262
+	    apply 'display_asn1_info'/0
+		()
+'display_megaco_info'/0 =
+    %% Line 264
+    fun () ->
+	let <MI> =
+	    %% Line 265
+	    call 'megaco':'module_info'
+		()
+	in  %% Line 266
+	    case call 'lists':'keysearch'
+		     ('attributes', 1, MI) of
+	      <{'value',{'attributes',Attr}}> when 'true' ->
+		  %% Line 267
+		  case call 'lists':'keysearch'
+			   ('app_vsn', 1, Attr) of
+		    <{'value',{'app_vsn',Ver}}> when 'true' ->
+			%% Line 268
+			call 'io':'format'
+			    ([77|[101|[103|[97|[99|[111|[32|[118|[101|[114|[115|[105|[111|[110|[58|[32|[32|[32|[32|[32|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [Ver|[]])
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor2})
+		      -| ['compiler_generated'] )
+		  end
+	      ( <_cor1> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor1})
+		-| ['compiler_generated'] )
+	    end
+'display_asn1_info'/0 =
+    %% Line 270
+    fun () ->
+	let <AI> =
+	    %% Line 271
+	    call 'megaco_ber__media_gateway_control_v1':'info'
+		()
+	in  let <_cor2> =
+		%% Line 273
+		case call 'lists':'keysearch'
+			 ('vsn', 1, AI) of
+		  %% Line 274
+		  <{'value',{'vsn',V}}>
+		      when call 'erlang':'is_atom'
+			    (V) ->
+		      %% Line 275
+		      call 'erlang':'atom_to_list'
+			  (V)
+		  %% Line 276
+		  <{'value',{'vsn',V}}>
+		      when call 'erlang':'is_list'
+			    (V) ->
+		      %% Line 277
+		      V
+		  %% Line 278
+		  <_cor4> when 'true' ->
+		      %% Line 279
+		      [117|[110|[107|[110|[111|[119|[110]]]]]]]
+		end
+	    in  %% Line 281
+		call 'io':'format'
+		    ([65|[83|[78|[46|[49|[32|[118|[101|[114|[115|[105|[111|[110|[58|[32|[32|[32|[32|[32|[32|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [_cor2|[]])
+'expanded_messages'/2 =
+    %% Line 290
+    fun (_cor1,_cor0) ->
+	%% Line 292
+	apply 'expanded_messages'/3
+	    ('time_test', _cor1, _cor0)
+'expanded_messages'/3 =
+    %% Line 294
+    fun (_cor2,_cor1,_cor0) ->
+	let <ECodecs> =
+	    %% Line 295
+	    apply 'expand_codecs'/2
+		(_cor1, _cor0)
+	in  let <Messages> =
+		%% Line 296
+		call 'megaco_codec_transform':'messages'
+		    (_cor2)
+	    in  %% Line 297
+		apply 'expanded_messages2'/3
+		    (ECodecs, Messages, [])
+'expanded_messages2'/3 =
+    %% Line 299
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_X_Messages,EMessages> when 'true' ->
+	      %% Line 300
+	      call 'lists':'reverse'
+		  (EMessages)
+	  %% Line 301
+	  <[{Codec,Mod,Conf}|ECodecs],Messages,EMessages> when 'true' ->
+	      %% Line 302
+	      case call 'lists':'keysearch'
+		       (Codec, 1, Messages) of
+		%% Line 303
+		<{'value',{_cor7,Msgs}}>
+		    when call 'erlang':'=:='
+			  (_cor7,
+			   Codec) ->
+		    %% Line 304
+		    apply 'expanded_messages2'/3
+			(ECodecs, Messages, %% Line 305
+					    [{Codec,Mod,Conf,Msgs}|EMessages])
+		%% Line 306
+		<'false'> when 'true' ->
+		    %% Line 307
+		    call 'erlang':'exit'
+			({'error',{'no_such_codec_data',Codec}})
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'expanded_messages2',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'expand_codecs'/2 =
+    %% Line 317
+    fun (_cor1,_cor0) ->
+	%% Line 318
+	apply 'expand_codecs'/3
+	    (_cor1, _cor0, [])
+'expand_codecs'/3 =
+    %% Line 320
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_cor8,ECodecs> when 'true' ->
+	      let <_cor3> =
+		  %% Line 321
+		  call 'lists':'flatten'
+		      (ECodecs)
+	      in  %% Line 321
+		  call 'lists':'reverse'
+		      (_cor3)
+	  %% Line 322
+	  <[Codec|Codecs],DrvInclude,ECodecs>
+	      when call 'erlang':'is_atom'
+		    (Codec) ->
+	      let <ECodec> =
+		  %% Line 323
+		  apply 'expand_codec'/2
+		      (Codec, DrvInclude)
+	      in  %% Line 324
+		  apply 'expand_codecs'/3
+		      (Codecs, DrvInclude, [ECodec|ECodecs])
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'expand_codecs',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'expand_codec'/2 =
+    %% Line 326
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Codec,'flex'> when 'true' ->
+	      %% Line 327
+	      case Codec of
+		%% Line 328
+		<'pretty'> when 'true' ->
+		    %% Line 329
+		    [{Codec,'megaco_pretty_text_encoder',['flex_scanner']}|%% Line 330
+									   [{Codec,'megaco_pretty_text_encoder',['flex_scanner']}|%% Line 331
+																  [{Codec,'megaco_pretty_text_encoder',['flex_scanner']}|%% Line 332
+																							 [{Codec,'megaco_pretty_text_encoder',['flex_scanner']}|%% Line 333
+																														[{Codec,'megaco_pretty_text_encoder',['flex_scanner']}|%% Line 334
+																																				       [{Codec,'megaco_pretty_text_encoder',['flex_scanner']}|%% Line 335
+																																											      [{Codec,'megaco_pretty_text_encoder',['flex_scanner']}|%% Line 336
+																																																		     [{Codec,'megaco_pretty_text_encoder',['flex_scanner']}|[]]]]]]]]]
+		%% Line 337
+		<'compact'> when 'true' ->
+		    %% Line 338
+		    [{Codec,'megaco_compact_text_encoder',['flex_scanner']}|%% Line 339
+									    [{Codec,'megaco_compact_text_encoder',['flex_scanner']}|%% Line 340
+																    [{Codec,'megaco_compact_text_encoder',['flex_scanner']}|%% Line 341
+																							    [{Codec,'megaco_compact_text_encoder',['flex_scanner']}|%% Line 342
+																														    [{Codec,'megaco_compact_text_encoder',['flex_scanner']}|%% Line 343
+																																					    [{Codec,'megaco_compact_text_encoder',['flex_scanner']}|%% Line 344
+																																												    [{Codec,'megaco_compact_text_encoder',['flex_scanner']}|%% Line 345
+																																																			    [{Codec,'megaco_compact_text_encoder',['flex_scanner']}|[]]]]]]]]]
+		%% Line 346
+		<'ber'> when 'true' ->
+		    %% Line 347
+		    []
+		%% Line 348
+		<'per'> when 'true' ->
+		    %% Line 349
+		    []
+		%% Line 350
+		<'erlang'> when 'true' ->
+		    %% Line 351
+		    []
+		%% Line 352
+		<Else> when 'true' ->
+		    %% Line 353
+		    apply 'error'/1
+			({'invalid_codec',Else})
+	      end
+	  %% Line 355
+	  <Codec,'only_drv'> when 'true' ->
+	      %% Line 356
+	      case Codec of
+		%% Line 357
+		<'pretty'> when 'true' ->
+		    %% Line 358
+		    [{Codec,'megaco_pretty_text_encoder',['flex_scanner']}|%% Line 359
+									   [{Codec,'megaco_pretty_text_encoder',['flex_scanner']}|[]]]
+		%% Line 360
+		<'compact'> when 'true' ->
+		    %% Line 361
+		    [{Codec,'megaco_compact_text_encoder',['flex_scanner']}|%% Line 362
+									    [{Codec,'megaco_compact_text_encoder',['flex_scanner']}|[]]]
+		%% Line 363
+		<'ber'> when 'true' ->
+		    %% Line 364
+		    [{Codec,'megaco_ber_encoder',['native']}|%% Line 365
+							     [{Codec,'megaco_ber_encoder',[]}|[]]]
+		%% Line 366
+		<'per'> when 'true' ->
+		    %% Line 367
+		    [{Codec,'megaco_per_encoder',['native']}|%% Line 368
+							     [{Codec,'megaco_per_encoder',[]}|[]]]
+		%% Line 369
+		<'erlang'> when 'true' ->
+		    %% Line 371
+		    [%% Line 372
+		     {Codec,'megaco_erl_dist_encoder',['megaco_compressed'|['compressed']]}|%% Line 373
+											    [{Codec,'megaco_erl_dist_encoder',['compressed']}|%% Line 374
+																	      [{Codec,'megaco_erl_dist_encoder',['megaco_compressed'|['compressed']]}|%% Line 375
+																										      [{Codec,'megaco_erl_dist_encoder',['compressed']}|%% Line 376
+																																	[]]]]]
+		%% Line 377
+		<Else> when 'true' ->
+		    %% Line 378
+		    apply 'error'/1
+			({'invalid_codec',Else})
+	      end
+	  %% Line 380
+	  <Codec,'no_drv'> when 'true' ->
+	      %% Line 381
+	      case Codec of
+		%% Line 382
+		<'pretty'> when 'true' ->
+		    %% Line 383
+		    [{Codec,'megaco_pretty_text_encoder',[]}|%% Line 384
+							     [{Codec,'megaco_pretty_text_encoder',[]}|[]]]
+		%% Line 385
+		<'compact'> when 'true' ->
+		    %% Line 386
+		    [{Codec,'megaco_compact_text_encoder',[]}|%% Line 387
+							      [{Codec,'megaco_compact_text_encoder',[]}|[]]]
+		%% Line 388
+		<'ber'> when 'true' ->
+		    %% Line 389
+		    [{Codec,'megaco_ber_encoder',['native']}|%% Line 390
+							     [{Codec,'megaco_ber_encoder',[]}|[]]]
+		%% Line 391
+		<'per'> when 'true' ->
+		    %% Line 392
+		    [{Codec,'megaco_per_encoder',['native']}|%% Line 393
+							     [{Codec,'megaco_per_encoder',[]}|[]]]
+		%% Line 394
+		<'erlang'> when 'true' ->
+		    %% Line 396
+		    [%% Line 397
+		     {Codec,'megaco_erl_dist_encoder',['megaco_compressed']}|%% Line 398
+									     [{Codec,'megaco_erl_dist_encoder',[]}|%% Line 399
+														   [{Codec,'megaco_erl_dist_encoder',['megaco_compressed']}|%% Line 400
+																					    [{Codec,'megaco_erl_dist_encoder',[]}|%% Line 401
+																										  []]]]]
+		%% Line 402
+		<Else> when 'true' ->
+		    %% Line 403
+		    apply 'error'/1
+			({'invalid_codec',Else})
+	      end
+	  %% Line 405
+	  <Codec,_cor11> when 'true' ->
+	      %% Line 406
+	      case Codec of
+		%% Line 407
+		<'pretty'> when 'true' ->
+		    %% Line 408
+		    [{Codec,'megaco_pretty_text_encoder',['flex_scanner']}|%% Line 409
+									   [{Codec,'megaco_pretty_text_encoder',[]}|[]]]
+		%% Line 410
+		<'compact'> when 'true' ->
+		    %% Line 411
+		    [{Codec,'megaco_compact_text_encoder',['flex_scanner']}|%% Line 412
+									    [{Codec,'megaco_compact_text_encoder',[]}|[]]]
+		%% Line 413
+		<'ber'> when 'true' ->
+		    %% Line 414
+		    [{Codec,'megaco_ber_encoder',['native']}|%% Line 415
+							     [{Codec,'megaco_ber_encoder',[]}|[]]]
+		%% Line 416
+		<'per'> when 'true' ->
+		    %% Line 417
+		    [{Codec,'megaco_per_encoder',['native']}|%% Line 418
+							     [{Codec,'megaco_per_encoder',[]}|[]]]
+		%% Line 419
+		<'erlang'> when 'true' ->
+		    %% Line 421
+		    [%% Line 422
+		     {Codec,'megaco_erl_dist_encoder',['megaco_compressed'|['compressed']]}|%% Line 423
+											    [{Codec,'megaco_erl_dist_encoder',['compressed']}|%% Line 424
+																	      [{Codec,'megaco_erl_dist_encoder',['megaco_compressed']}|%% Line 425
+																								       [{Codec,'megaco_erl_dist_encoder',[]}|%% Line 426
+																													     []]]]]
+		%% Line 427
+		<Else> when 'true' ->
+		    %% Line 428
+		    apply 'error'/1
+			({'invalid_codec',Else})
+	      end
+	end
+'start_flex_scanner'/0 =
+    %% Line 441
+    fun () ->
+	let <_cor0> =
+	    %% Line 442
+	    call 'erlang':'self'
+		()
+	in  let <Pid> =
+		%% Line 442
+		call 'proc_lib':'spawn'
+		    ('megaco_codec_mstone_lib', 'flex_scanner_handler', [_cor0|[]])
+	    in  %% Line 443
+		receive
+		  %% Line 444
+		  <{'flex_scanner_started',_cor2,Conf}>
+		      when call 'erlang':'=:='
+			    (_cor2,
+			     Pid) ->
+		      %% Line 445
+		      {Pid,[Conf|[]]}
+		  %% Line 446
+		  <{'flex_scanner_error',{'failed_loading_flex_scanner_driver',Reason}}> when 'true' ->
+		      %% Line 447
+		      apply 'error'/1
+			  ({'failed_loading_flex_scanner_driver',Reason})
+		  %% Line 448
+		  <{'flex_scanner_error',Reason}> when 'true' ->
+		      %% Line 449
+		      apply 'error'/1
+			  ({'failed_loading_flex_scanner_driver',Reason})
+		after %% Line 450
+		      10000 ->
+		  do  %% Line 451
+		      call 'erlang':'exit'
+			  (Pid, 'kill')
+		      %% Line 452
+		      apply 'error'/1
+			  ({'failed_starting_flex_scanner','timeout'})
+'stop_flex_scanner'/1 =
+    %% Line 461
+    fun (_cor0) ->
+	%% Line 462
+	call 'erlang':'!'
+	    (_cor0, 'stop_flex_scanner')
+'flex_scanner_handler'/1 =
+    %% Line 464
+    fun (_cor0) ->
+	let <_cor1> =
+	    catch
+		%% Line 465
+		call 'megaco_flex_scanner':'start'
+		    ()
+	in  %% Line 465
+	    case _cor1 of
+	      %% Line 466
+	      <{'ok',PortOrPorts}> when 'true' ->
+		  let <_cor2> =
+		      %% Line 467
+		      call 'erlang':'self'
+			  ()
+		  in  do  %% Line 467
+			  call 'erlang':'!'
+			      (_cor0, {'flex_scanner_started',_cor2,{'flex',PortOrPorts}})
+			  %% Line 468
+			  apply 'flex_scanner_handler_loop'/2
+			      (_cor0, PortOrPorts)
+	      %% Line 469
+	      <{'error',{'load_driver',{'open_error',Reason}}}> when 'true' ->
+		  let <Error> = {%% Line 470
+		       'failed_loading_flex_scanner_driver',%% Line 470
+							    Reason}
+		  in  do  %% Line 471
+			  call 'erlang':'!'
+			      (_cor0, {'flex_scanner_error',Error})
+			  %% Line 472
+			  call 'erlang':'exit'
+			      (Error)
+	      %% Line 473
+	      <Else> when 'true' ->
+		  let <Error> = {%% Line 474
+		       'unknown_result_from_start_flex_scanner',%% Line 474
+								Else}
+		  in  do  %% Line 475
+			  call 'erlang':'!'
+			      (_cor0, {'flex_scanner_error',Error})
+			  %% Line 476
+			  call 'erlang':'exit'
+			      (Error)
+	    end
+'flex_scanner_handler_loop'/2 =
+    %% Line 479
+    fun (_cor1,_cor0) ->
+	%% Line 480
+	receive
+	  %% Line 481
+	  <{'ping',Pinger}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 482
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 482
+		      call 'erlang':'!'
+			  (Pinger, {'pong',_cor2})
+		      %% Line 483
+		      apply 'flex_scanner_handler_loop'/2
+			  (_cor1, _cor0)
+	  %% Line 484
+	  <{'EXIT',Port,Reason}>
+	      when call 'erlang':'=:='
+		    (Port,
+		     _cor0) ->
+	      do  %% Line 485
+		  call 'erlang':'!'
+		      (_cor1, {'flex_scanner_exit',Reason})
+		  %% Line 486
+		  call 'erlang':'exit'
+		      ({'flex_scanner_exit',Reason})
+	  %% Line 487
+	  <{'EXIT',Port,Reason}>
+	      when call 'erlang':'is_port'
+		    (Port) ->
+	      %% Line 488
+	      case call 'megaco_flex_scanner':'is_scanner_port'
+		       (Port, _cor0) of
+		%% Line 489
+		<'true'> when 'true' ->
+		    do  %% Line 490
+			call 'erlang':'!'
+			    (_cor1, {'flex_scanner_exit',Reason})
+			%% Line 491
+			call 'erlang':'exit'
+			    ({'flex_scanner_exit',Reason})
+		%% Line 492
+		<'false'> when 'true' ->
+		    %% Line 494
+		    apply 'flex_scanner_handler_loop'/2
+			(_cor1, _cor0)
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 496
+	  <'stop_flex_scanner'> when 'true' ->
+	      do  %% Line 497
+		  call 'megaco_flex_scanner':'stop'
+		      (_cor0)
+		  %% Line 498
+		  call 'erlang':'exit'
+		      ('normal')
+	  %% Line 499
+	  <_X_Other> when 'true' ->
+	      %% Line 500
+	      apply 'flex_scanner_handler_loop'/2
+		  (_cor1, _cor0)
+	after 'infinity' ->
+	  'true'
+'error'/1 =
+    %% Line 506
+    fun (_cor0) ->
+	%% Line 507
+	call 'erlang':'throw'
+	    ({'error',_cor0})
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('megaco_codec_mstone_lib')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('megaco_codec_mstone_lib', _cor0)
+end

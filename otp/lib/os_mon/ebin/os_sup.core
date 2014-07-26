@@ -1,0 +1,632 @@
+module 'os_sup' ['code_change'/3,
+		 'disable'/0,
+		 'disable'/2,
+		 'enable'/0,
+		 'enable'/2,
+		 'error_report'/2,
+		 'handle_call'/3,
+		 'handle_cast'/2,
+		 'handle_info'/2,
+		 'init'/1,
+		 'module_info'/0,
+		 'module_info'/1,
+		 'param_default'/1,
+		 'param_type'/2,
+		 'start'/0,
+		 'start_link'/1,
+		 'stop'/0,
+		 'terminate'/2]
+    attributes [%% Line 20
+		'behaviour' =
+		    %% Line 20
+		    ['gen_server']]
+'start_link'/1 =
+    %% Line 38
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'win32',_X_OSname}> when 'true' ->
+	      let <MFA> =
+		  %% Line 40
+		  call 'os_mon':'get_env'
+		      ('os_sup', 'os_sup_mfa')
+	      in  %% Line 41
+		  call 'gen_server':'start_link'
+		      ({'local','os_sup_server'}, 'nteventlog', %% Line 42
+								['os_sup'|[MFA|[]]], %% Line 42
+										     [])
+	  %% Line 43
+	  <_X_OS> when 'true' ->
+	      %% Line 44
+	      call 'gen_server':'start_link'
+		  ({'local','os_sup_server'}, 'os_sup', [], [])
+	end
+'start'/0 =
+    %% Line 46
+    fun () ->
+	%% Line 47
+	call 'gen_server':'start'
+	    ({'local','os_sup_server'}, 'os_sup', [], [])
+'stop'/0 =
+    %% Line 49
+    fun () ->
+	%% Line 50
+	call 'gen_server':'call'
+	    ('os_sup_server', 'stop')
+'error_report'/2 =
+    %% Line 52
+    fun (_cor1,_cor0) ->
+	%% Line 53
+	call 'error_logger':'error_report'
+	    (_cor0, _cor1)
+'enable'/0 =
+    %% Line 55
+    fun () ->
+	%% Line 56
+	apply 'command'/1
+	    ('enable')
+'enable'/2 =
+    %% Line 57
+    fun (_cor1,_cor0) ->
+	%% Line 58
+	apply 'command'/3
+	    ('enable', _cor1, _cor0)
+'disable'/0 =
+    %% Line 60
+    fun () ->
+	%% Line 61
+	apply 'command'/1
+	    ('disable')
+'disable'/2 =
+    %% Line 62
+    fun (_cor1,_cor0) ->
+	%% Line 63
+	apply 'command'/3
+	    ('disable', _cor1, _cor0)
+'param_type'/2 =
+    %% Line 65
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'os_sup_errortag',Val>
+	      when call 'erlang':'is_atom'
+		    (Val) ->
+	      'true'
+	  %% Line 66
+	  <'os_sup_own',Val> when 'true' ->
+	      call 'io_lib':'printable_list'
+		  (Val)
+	  %% Line 67
+	  <'os_sup_syslogconf',Val> when 'true' ->
+	      call 'io_lib':'printable_list'
+		  (Val)
+	  %% Line 68
+	  <'os_sup_enable',Val>
+	      when let <_cor2> =
+		    call 'erlang':'=:='
+			(Val, 'true')
+		in  let <_cor3> =
+			call 'erlang':'=:='
+			    (Val, 'false')
+		    in  call 'erlang':'or'
+			    (_cor2, _cor3) ->
+	      'true'
+	  %% Line 69
+	  <'os_sup_mfa',{Mod,Func,Args}>
+	      when try
+		    let <_cor4> =
+			call 'erlang':'is_atom'
+			    (Mod)
+		    in  let <_cor5> =
+			    %% Line 70
+			    call 'erlang':'is_atom'
+				(Func)
+			in  let <_cor6> =
+				%% Line 71
+				call 'erlang':'is_list'
+				    (Args)
+			    in  let <_cor7> =
+				    call 'erlang':'and'
+					(_cor5, _cor6)
+				in  call 'erlang':'and'
+					(_cor4, _cor7)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 71
+	      'true'
+	  %% Line 72
+	  <_X_Param,_X_Val> when 'true' ->
+	      'false'
+	end
+'param_default'/1 =
+    %% Line 74
+    fun (_cor0) ->
+	case _cor0 of
+	  <'os_sup_errortag'> when 'true' ->
+	      'std_error'
+	  %% Line 75
+	  <'os_sup_own'> when 'true' ->
+	      [47|[101|[116|[99]]]]
+	  %% Line 76
+	  <'os_sup_syslogconf'> when 'true' ->
+	      [47|[101|[116|[99|[47|[115|[121|[115|[108|[111|[103|[46|[99|[111|[110|[102]]]]]]]]]]]]]]]]
+	  %% Line 77
+	  <'os_sup_enable'> when 'true' ->
+	      'true'
+	  %% Line 78
+	  <'os_sup_mfa'> when 'true' ->
+	      {'os_sup','error_report',['std_error']}
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'param_default',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'init'/1 =
+    %% Line 84
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      do  %% Line 85
+		  call 'erlang':'process_flag'
+		      ('trap_exit', 'true')
+		  do  %% Line 86
+		      call 'erlang':'process_flag'
+			  ('priority', 'low')
+		      %% Line 88
+		      case call 'os':'type'
+			       () of
+			%% Line 89
+			<{'unix','sunos'}> when 'true' ->
+			    %% Line 90
+			    apply 'init2'/0
+				()
+			%% Line 91
+			<OS> when 'true' ->
+			    {'stop',{'unsupported_os',OS}}
+		      end
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'init2'/0 =
+    %% Line 94
+    fun () ->
+	let <ConfigP> =
+	    %% Line 95
+	    call 'os_mon':'get_env'
+		('os_sup', 'os_sup_enable')
+	in  %% Line 96
+	    case ConfigP of
+	      %% Line 97
+	      <'true'> when 'true' ->
+		  let <Path> =
+		      %% Line 98
+		      call 'os_mon':'get_env'
+			  ('os_sup', 'os_sup_own')
+		  in  let <Conf> =
+			  %% Line 99
+			  call 'os_mon':'get_env'
+			      ('os_sup', 'os_sup_syslogconf')
+		      in  %% Line 100
+			  case apply 'enable'/2
+				   (Path, Conf) of
+			    %% Line 101
+			    <'ok'> when 'true' ->
+				%% Line 102
+				apply 'init3'/1
+				    ({'state','undefined','undefined',ConfigP,Path,Conf})
+			    %% Line 103
+			    <{'error',Error}> when 'true' ->
+				%% Line 104
+				{'stop',{'mod_syslog',Error}}
+			    ( <_cor3> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor3})
+			      -| ['compiler_generated'] )
+			  end
+	      %% Line 106
+	      <'false'> when 'true' ->
+		  %% Line 107
+		  apply 'init3'/1
+		      ({'state','undefined','undefined',ConfigP,'undefined','undefined'})
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'init3'/1 =
+    %% Line 110
+    fun (_cor0) ->
+	let <Port> =
+	    %% Line 111
+	    apply 'start_portprogram'/0
+		()
+	in  let <_cor4> =
+		%% Line 114
+		case call 'os_mon':'get_env'
+			 ('os_sup', 'os_sup_mfa') of
+		  %% Line 115
+		  <{'os_sup','error_report',_cor11}> when 'true' ->
+		      let <Tag> =
+			  %% Line 116
+			  call 'os_mon':'get_env'
+			      ('os_sup', 'os_sup_errortag')
+		      in  %% Line 117
+			  {'os_sup','error_report',[Tag|[]]}
+		  %% Line 118
+		  <MFA0> when 'true' ->
+		      %% Line 119
+		      MFA0
+		end
+	    in  %% Line 122
+		case _cor0 of
+		  <{'state',_cor12,_cor13,_cor14,_cor15,_cor16}> when 'true' ->
+		      let <_cor7> =
+			  call 'erlang':'setelement'
+			      (3, _cor0, _cor4)
+		      in  let <_cor9> =
+			      call 'erlang':'setelement'
+				  (2, _cor7, Port)
+			  in  {'ok',_cor9}
+		  ( <_cor17> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+'handle_call'/3 =
+    %% Line 124
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'stop',_X_From,State> when 'true' ->
+	      %% Line 125
+	      {'stop','normal','ok',State}
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'handle_call',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_cast'/2 =
+    %% Line 127
+    fun (_cor1,_cor0) ->
+	%% Line 128
+	{'noreply',_cor0}
+'handle_info'/2 =
+    %% Line 130
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{_X_Port,{'data',Data}},State = {'state',_cor7,{M,F,A},_cor8,_cor9,_cor10}> when 'true' ->
+	      do  %% Line 131
+		  call 'erlang':'apply'
+		      (M, F, [Data|A])
+		  %% Line 132
+		  {'noreply',State}
+	  %% Line 133
+	  <{'EXIT',_X_Port,Reason},State> when 'true' ->
+	      %% Line 134
+	      case State of
+		<{'state',_cor11,_cor12,_cor13,_cor14,_cor15}> when 'true' ->
+		    let <_cor4> =
+			call 'erlang':'setelement'
+			    (2, State, 'not_used')
+		    in  {'stop',{'port_died',Reason},_cor4}
+		( <_cor16> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 135
+	  <_X_Info,State> when 'true' ->
+	      %% Line 136
+	      {'noreply',State}
+	end
+'terminate'/2 =
+    %% Line 138
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_Reason,State = {'state',Port,_cor19,_cor20,_cor21,_cor22}> when 'true' ->
+	      %% Line 139
+	      case _cor20 of
+		%% Line 140
+		<'true'>
+		    when call 'erlang':'is_port'
+			  (Port) ->
+		    let <_cor4> =
+			%% Line 141
+			call 'erlang':'self'
+			    ()
+		    in  do  %% Line 141
+			    call 'erlang':'!'
+				(Port, {_cor4,{'command',[111|[110|[108|[121|[95|[115|[116|[100|[105|[110]]]]]]]]]]}})
+			    let <Res> =
+				%% Line 142
+				apply 'disable'/2
+				    (_cor21, _cor22)
+			    in  do  %% Line 143
+				    call 'erlang':'port_close'
+					(Port)
+				    %% Line 144
+				    case <> of
+				      %% Line 145
+				      <>
+					  when call 'erlang':'/='
+						(Res,
+						 [48]) ->
+					  call 'erlang':'exit'
+					      ({'mod_syslog',Res})
+				      %% Line 146
+				      <> when 'true' ->
+					  'ok'
+				    end
+		%% Line 148
+		<'true'> when 'true' ->
+		    let <Res> =
+			%% Line 149
+			apply 'disable'/2
+			    (_cor21, _cor22)
+		    in  %% Line 150
+			case <> of
+			  %% Line 151
+			  <>
+			      when call 'erlang':'/='
+				    (Res,
+				     [48]) ->
+			      call 'erlang':'exit'
+				  ({'mod_syslog',Res})
+			  %% Line 152
+			  <> when 'true' ->
+			      'ok'
+			end
+		%% Line 154
+		<'false'>
+		    when call 'erlang':'is_port'
+			  (Port) ->
+		    let <_cor15> =
+			%% Line 155
+			call 'erlang':'self'
+			    ()
+		    in  do  %% Line 155
+			    call 'erlang':'!'
+				(Port, {_cor15,{'command',[111|[110|[108|[121|[95|[115|[116|[100|[105|[110]]]]]]]]]]}})
+			    %% Line 156
+			    call 'erlang':'port_close'
+				(Port)
+		%% Line 157
+		<'false'> when 'true' ->
+		    %% Line 158
+		    'ok'
+		( <_cor16> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor16})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor18,_cor17> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor18,_cor17})
+		  -| [{'function_name',{'terminate',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'code_change'/3 =
+    %% Line 163
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Vsn,PrevState,[49|[46|[56]]]> when 'true' ->
+	      %% Line 164
+	      case Vsn of
+		%% Line 167
+		<{'down',_X_Vsn}> when 'true' ->
+		    %% Line 170
+		    case apply 'param_default'/1
+			     ('os_sup_mfa') of
+		      <{DefM,DefF,_cor23}> when 'true' ->
+			  %% Line 171
+			  ( case PrevState of
+			      ( <( {'state',_cor24,_rec7,_cor25,_cor26,_cor27}
+				   -| ['compiler_generated'] )> when 'true' ->
+				    let <_cor8> =
+					case _rec7 of
+					  %% Line 175
+					  <{_cor29,_cor30,[Tag0|[]]}>
+					      when let <_cor31> =
+						    call 'erlang':'=:='
+							(_cor29, DefM)
+						in  let <_cor32> =
+							call 'erlang':'=:='
+							    (_cor30, DefF)
+						    in  call 'erlang':'and'
+							    (_cor31, _cor32) ->
+					      %% Line 176
+					      Tag0
+					  %% Line 181
+					  <_cor33> when 'true' ->
+					      %% Line 182
+					      case call 'application':'get_env'
+						       ('os_mon', %% Line 183
+								  'os_sup_errortag') of
+						%% Line 184
+						<{'ok',Tag1}> when 'true' ->
+						    %% Line 185
+						    Tag1
+						%% Line 191
+						<_cor34> when 'true' ->
+						    %% Line 192
+						    'std_error'
+					      end
+					end
+				    in  let <State> = {%% Line 197
+					     'state',_cor24,_cor8}
+					in  %% Line 198
+					    {'ok',State}
+				-| ['compiler_generated'] )
+			      ( <_cor28> when 'true' ->
+				    ( call ( 'erlang'
+					     -| ['compiler_generated'] ):( 'error'
+									   -| ['compiler_generated'] )
+					  (( {'badrecord','state'}
+					     -| ['compiler_generated'] ))
+				      -| ['compiler_generated'] )
+				-| ['compiler_generated'] )
+			    end
+			    -| ['compiler_generated'] )
+		      ( <_cor3> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor3})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 201
+		<_X_Vsn> when 'true' ->
+		    %% Line 203
+		    case PrevState of
+		      <{'state',Port,Tag}> when 'true' ->
+			  %% Line 205
+			  case apply 'param_default'/1
+				   ('os_sup_mfa') of
+			    <{DefM,DefF,_cor40}> when 'true' ->
+				let <MFA> =
+				    %% Line 206
+				    {DefM,DefF,[Tag|[]]}
+				in  let <Path> =
+					%% Line 213
+					call 'application':'get_env'
+					    ('os_mon', 'os_sup_own')
+				    in  let <Conf> =
+					    %% Line 214
+					    call 'application':'get_env'
+						('os_mon', 'os_sup_syslogconf')
+					in  let <State> =
+						%% Line 217
+						{'state',Port,MFA,'true',%% Line 218
+									 Path,%% Line 218
+									      Conf}
+					    in  %% Line 219
+						{'ok',State}
+			    ( <_cor14> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor14})
+			      -| ['compiler_generated'] )
+			  end
+		      ( <_cor13> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor13})
+			-| ['compiler_generated'] )
+		    end
+	      end
+	  %% Line 221
+	  <_X_OldVsn,State,_X_Extra> when 'true' ->
+	      %% Line 222
+	      {'ok',State}
+	end
+'start_portprogram'/0 =
+    %% Line 228
+    fun () ->
+	let <OwnPath> =
+	    %% Line 229
+	    call 'os_mon':'get_env'
+		('os_sup', 'os_sup_own')
+	in  let <_cor2> =
+		%% Line 231
+		call 'code':'priv_dir'
+		    ('os_mon')
+	    in  let <_cor3> =
+		    %% Line 231
+		    call 'filename':'join'
+			([_cor2|[[98|[105|[110]]]|[[102|[101|[114|[114|[117|[108|[101]]]]]]]]]])
+		in  let <_cor1> =
+			%% Line 232
+			[34|[32|OwnPath]]
+		    in  let <_cor4> =
+			    %% Line 231
+			    call 'erlang':'++'
+				(_cor3, _cor1)
+			in  let <Command> =
+				%% Line 231
+				[34|_cor4]
+			    in  %% Line 233
+				call 'erlang':'open_port'
+				    ({'spawn',Command}, [{'packet',2}])
+'command'/1 =
+    %% Line 238
+    fun (_cor0) ->
+	%% Line 239
+	apply 'command'/3
+	    (_cor0, [47|[101|[116|[99]]]], [47|[101|[116|[99|[47|[115|[121|[115|[108|[111|[103|[46|[99|[111|[110|[102]]]]]]]]]]]]]]]])
+'command'/3 =
+    %% Line 240
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 241
+	    apply 'cmd_str'/3
+		(_cor2, _cor1, _cor0)
+	in  %% Line 241
+	    case call 'os':'cmd'
+		     (_cor3) of
+	      %% Line 242
+	      <[48]> when 'true' ->
+		  %% Line 243
+		  'ok'
+	      %% Line 244
+	      <Error> when 'true' ->
+		  %% Line 245
+		  {'error',Error}
+	    end
+'cmd_str'/3 =
+    %% Line 248
+    fun (_cor2,_cor1,_cor0) ->
+	let <PrivDir> =
+	    %% Line 250
+	    call 'code':'priv_dir'
+		('os_mon')
+	in  let <_cor5> =
+		%% Line 252
+		case _cor2 of
+		  %% Line 253
+		  <'enable'> when 'true' ->
+		      %% Line 254
+		      [32|[111|[116|[112|[32]]]]]
+		  %% Line 255
+		  <'disable'> when 'true' ->
+		      %% Line 256
+		      [32|[110|[111|[111|[116|[112|[32]]]]]]]
+		  ( <_cor4> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor4})
+		    -| ['compiler_generated'] )
+		end
+	    in  let <_cor7> =
+		    %% Line 258
+		    [32|_cor0]
+		in  let <_cor8> =
+			%% Line 258
+			call 'erlang':'++'
+			    (_cor1, _cor7)
+		    in  let <_cor9> =
+			    %% Line 258
+			    call 'erlang':'++'
+				(_cor5, _cor8)
+			in  let <_cor10> =
+				%% Line 258
+				call 'erlang':'++'
+				    ([47|[98|[105|[110|[47|[109|[111|[100|[95|[115|[121|[115|[108|[111|[103]]]]]]]]]]]]]]], _cor9)
+			    in  %% Line 258
+				call 'erlang':'++'
+				    (PrivDir, _cor10)
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('os_sup')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('os_sup', _cor0)
+end

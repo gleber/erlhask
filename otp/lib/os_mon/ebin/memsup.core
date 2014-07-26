@@ -1,0 +1,2952 @@
+module 'memsup' ['code_change'/3,
+		 'dummy_reply'/1,
+		 'format_status'/2,
+		 'get_check_interval'/0,
+		 'get_helper_timeout'/0,
+		 'get_memory_data'/0,
+		 'get_os_wordsize'/0,
+		 'get_procmem_high_watermark'/0,
+		 'get_sysmem_high_watermark'/0,
+		 'get_system_memory_data'/0,
+		 'handle_call'/3,
+		 'handle_cast'/2,
+		 'handle_info'/2,
+		 'init'/1,
+		 'module_info'/0,
+		 'module_info'/1,
+		 'param_default'/1,
+		 'param_type'/2,
+		 'set_check_interval'/1,
+		 'set_helper_timeout'/1,
+		 'set_procmem_high_watermark'/1,
+		 'set_sysmem_high_watermark'/1,
+		 'start_link'/0,
+		 'terminate'/2]
+    attributes [%% Line 20
+		'behaviour' =
+		    %% Line 20
+		    ['gen_server']]
+'start_link'/0 =
+    %% Line 65
+    fun () ->
+	%% Line 66
+	call 'gen_server':'start_link'
+	    ({'local','memsup'}, 'memsup', [], [])
+'get_os_wordsize'/0 =
+    %% Line 68
+    fun () ->
+	%% Line 69
+	call 'os_mon':'call'
+	    ('memsup', 'get_os_wordsize', 'infinity')
+'get_memory_data'/0 =
+    %% Line 71
+    fun () ->
+	%% Line 72
+	call 'os_mon':'call'
+	    ('memsup', 'get_memory_data', 'infinity')
+'get_system_memory_data'/0 =
+    %% Line 74
+    fun () ->
+	%% Line 75
+	call 'os_mon':'call'
+	    ('memsup', 'get_system_memory_data', 'infinity')
+'get_check_interval'/0 =
+    %% Line 77
+    fun () ->
+	%% Line 78
+	call 'os_mon':'call'
+	    ('memsup', 'get_check_interval', 'infinity')
+'set_check_interval'/1 =
+    %% Line 79
+    fun (_cor0) ->
+	%% Line 80
+	case apply 'param_type'/2
+		 ('memory_check_interval', _cor0) of
+	  %% Line 81
+	  <'true'> when 'true' ->
+	      let <MS> =
+		  %% Line 82
+		  apply 'minutes_to_ms'/1
+		      (_cor0)
+	      in  %% Line 83
+		  call 'os_mon':'call'
+		      ('memsup', {'set_check_interval',MS}, 'infinity')
+	  %% Line 84
+	  <'false'> when 'true' ->
+	      %% Line 85
+	      call 'erlang':'error'
+		  ('badarg')
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'get_procmem_high_watermark'/0 =
+    %% Line 88
+    fun () ->
+	%% Line 89
+	call 'os_mon':'call'
+	    ('memsup', 'get_procmem_high_watermark', 'infinity')
+'set_procmem_high_watermark'/1 =
+    %% Line 90
+    fun (_cor0) ->
+	%% Line 91
+	case apply 'param_type'/2
+		 ('process_memory_high_watermark', _cor0) of
+	  %% Line 92
+	  <'true'> when 'true' ->
+	      %% Line 93
+	      call 'os_mon':'call'
+		  ('memsup', {'set_procmem_high_watermark',_cor0}, %% Line 94
+								   'infinity')
+	  %% Line 95
+	  <'false'> when 'true' ->
+	      %% Line 96
+	      call 'erlang':'error'
+		  ('badarg')
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'get_sysmem_high_watermark'/0 =
+    %% Line 99
+    fun () ->
+	%% Line 100
+	call 'os_mon':'call'
+	    ('memsup', 'get_sysmem_high_watermark', 'infinity')
+'set_sysmem_high_watermark'/1 =
+    %% Line 101
+    fun (_cor0) ->
+	%% Line 102
+	case apply 'param_type'/2
+		 ('system_memory_high_watermark', _cor0) of
+	  %% Line 103
+	  <'true'> when 'true' ->
+	      %% Line 104
+	      call 'os_mon':'call'
+		  ('memsup', {'set_sysmem_high_watermark',_cor0}, %% Line 105
+								  'infinity')
+	  %% Line 106
+	  <'false'> when 'true' ->
+	      %% Line 107
+	      call 'erlang':'error'
+		  ('badarg')
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'get_helper_timeout'/0 =
+    %% Line 110
+    fun () ->
+	%% Line 111
+	call 'os_mon':'call'
+	    ('memsup', 'get_helper_timeout', 'infinity')
+'set_helper_timeout'/1 =
+    %% Line 112
+    fun (_cor0) ->
+	%% Line 113
+	case apply 'param_type'/2
+		 ('memsup_helper_timeout', _cor0) of
+	  %% Line 114
+	  <'true'> when 'true' ->
+	      %% Line 115
+	      call 'os_mon':'call'
+		  ('memsup', {'set_helper_timeout',_cor0}, 'infinity')
+	  %% Line 116
+	  <'false'> when 'true' ->
+	      %% Line 117
+	      call 'erlang':'error'
+		  ('badarg')
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'dummy_reply'/1 =
+    %% Line 120
+    fun (_cor0) ->
+	case _cor0 of
+	  <'get_memory_data'> when 'true' ->
+	      let <_cor1> =
+		  %% Line 122
+		  call 'os_mon':'get_env'
+		      ('memsup', 'memsup_system_only')
+	      in  %% Line 121
+		  apply 'dummy_reply'/2
+		      ('get_memory_data', _cor1)
+	  %% Line 123
+	  <'get_system_memory_data'> when 'true' ->
+	      %% Line 124
+	      []
+	  %% Line 125
+	  <'get_os_wordsize'> when 'true' ->
+	      %% Line 126
+	      0
+	  %% Line 127
+	  <'get_check_interval'> when 'true' ->
+	      let <_cor2> =
+		  %% Line 128
+		  call 'os_mon':'get_env'
+		      ('memsup', 'memory_check_interval')
+	      in  %% Line 128
+		  apply 'minutes_to_ms'/1
+		      (_cor2)
+	  %% Line 129
+	  <{'set_check_interval',_cor8}> when 'true' ->
+	      %% Line 130
+	      'ok'
+	  %% Line 131
+	  <'get_procmem_high_watermark'> when 'true' ->
+	      let <_cor3> =
+		  %% Line 132
+		  call 'os_mon':'get_env'
+		      ('memsup', 'process_memory_high_watermark')
+	      in  let <_cor4> =
+		      %% Line 132
+		      call 'erlang':'*'
+			  (100, _cor3)
+		  in  %% Line 132
+		      call 'erlang':'trunc'
+			  (_cor4)
+	  %% Line 133
+	  <{'set_procmem_high_watermark',_cor9}> when 'true' ->
+	      %% Line 134
+	      'ok'
+	  %% Line 135
+	  <'get_sysmem_high_watermark'> when 'true' ->
+	      let <_cor5> =
+		  %% Line 136
+		  call 'os_mon':'get_env'
+		      ('memsup', 'system_memory_high_watermark')
+	      in  let <_cor6> =
+		      %% Line 136
+		      call 'erlang':'*'
+			  (100, _cor5)
+		  in  %% Line 136
+		      call 'erlang':'trunc'
+			  (_cor6)
+	  %% Line 137
+	  <{'set_sysmem_high_watermark',_cor10}> when 'true' ->
+	      %% Line 138
+	      'ok'
+	  %% Line 139
+	  <'get_helper_timeout'> when 'true' ->
+	      %% Line 140
+	      call 'os_mon':'get_env'
+		  ('memsup', 'memsup_helper_timeout')
+	  %% Line 141
+	  <{'set_helper_timeout',_cor11}> when 'true' ->
+	      %% Line 142
+	      'ok'
+	  ( <_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7})
+		  -| [{'function_name',{'dummy_reply',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'dummy_reply'/2 =
+    %% Line 143
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'get_memory_data','true'> when 'true' ->
+	      %% Line 144
+	      {0,0,'undefined'}
+	  %% Line 145
+	  <'get_memory_data','false'> when 'true' ->
+	      let <_cor2> =
+		  %% Line 146
+		  call 'erlang':'self'
+		      ()
+	      in  %% Line 146
+		  {0,0,{_cor2,0}}
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'dummy_reply',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'param_type'/2 =
+    %% Line 148
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'memsup_system_only',Val>
+	      when let <_cor2> =
+		    call 'erlang':'=:='
+			(Val, 'true')
+		in  let <_cor3> =
+			call 'erlang':'=:='
+			    (Val, 'false')
+		    in  call 'erlang':'or'
+			    (_cor2, _cor3) ->
+	      'true'
+	  %% Line 149
+	  <'memory_check_interval',Val>
+	      when let <_cor4> =
+		    call 'erlang':'is_integer'
+			(Val)
+		in  let <_cor5> =
+			%% Line 150
+			call 'erlang':'>'
+			    (Val, 0)
+		    in  call 'erlang':'and'
+			    (_cor4, _cor5) ->
+	      %% Line 150
+	      'true'
+	  %% Line 151
+	  <'memsup_helper_timeout',Val>
+	      when let <_cor6> =
+		    call 'erlang':'is_integer'
+			(Val)
+		in  let <_cor7> =
+			%% Line 152
+			call 'erlang':'>'
+			    (Val, 0)
+		    in  call 'erlang':'and'
+			    (_cor6, _cor7) ->
+	      %% Line 152
+	      'true'
+	  %% Line 153
+	  <'system_memory_high_watermark',Val>
+	      when try
+		    let <_cor8> =
+			call 'erlang':'is_number'
+			    (Val)
+		    in  let <_cor9> =
+			    %% Line 154
+			    call 'erlang':'=<'
+				(0, Val)
+			in  let <_cor10> =
+				%% Line 155
+				call 'erlang':'=<'
+				    (Val, 1)
+			    in  let <_cor11> =
+				    call 'erlang':'and'
+					(_cor9, _cor10)
+				in  call 'erlang':'and'
+					(_cor8, _cor11)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 155
+	      'true'
+	  %% Line 156
+	  <'process_memory_high_watermark',Val>
+	      when try
+		    let <_cor12> =
+			call 'erlang':'is_number'
+			    (Val)
+		    in  let <_cor13> =
+			    %% Line 157
+			    call 'erlang':'=<'
+				(0, Val)
+			in  let <_cor14> =
+				%% Line 158
+				call 'erlang':'=<'
+				    (Val, 1)
+			    in  let <_cor15> =
+				    call 'erlang':'and'
+					(_cor13, _cor14)
+				in  call 'erlang':'and'
+					(_cor12, _cor15)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 158
+	      'true'
+	  %% Line 159
+	  <_X_Param,_X_Val> when 'true' ->
+	      'false'
+	end
+'param_default'/1 =
+    %% Line 161
+    fun (_cor0) ->
+	case _cor0 of
+	  <'memsup_system_only'> when 'true' ->
+	      'false'
+	  %% Line 162
+	  <'memory_check_interval'> when 'true' ->
+	      1
+	  %% Line 163
+	  <'memsup_helper_timeout'> when 'true' ->
+	      30
+	  %% Line 164
+	  <'system_memory_high_watermark'> when 'true' ->
+	      8.00000000000000044409e-01
+	  %% Line 165
+	  <'process_memory_high_watermark'> when 'true' ->
+	      5.00000000000000027756e-02
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'param_default',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'init'/1 =
+    %% Line 171
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      do  %% Line 172
+		  call 'erlang':'process_flag'
+		      ('trap_exit', 'true')
+		  do  %% Line 173
+		      call 'erlang':'process_flag'
+			  ('priority', 'low')
+		      let <OS> =
+			  %% Line 175
+			  call 'os':'type'
+			      ()
+		      in  let <_cor3> =
+			      %% Line 176
+			      case OS of
+				%% Line 177
+				<{'unix','darwin'}> when 'true' ->
+				    'false'
+				%% Line 178
+				<{'unix','freebsd'}> when 'true' ->
+				    'false'
+				%% Line 179
+				<{'unix','dragonfly'}> when 'true' ->
+				    'false'
+				%% Line 181
+				<{'unix','linux'}> when 'true' ->
+				    'true'
+				%% Line 182
+				<{'unix','openbsd'}> when 'true' ->
+				    'true'
+				%% Line 183
+				<{'unix','netbsd'}> when 'true' ->
+				    'true'
+				%% Line 184
+				<{'unix','irix64'}> when 'true' ->
+				    'true'
+				%% Line 185
+				<{'unix','irix'}> when 'true' ->
+				    'true'
+				%% Line 186
+				<{'unix','sunos'}> when 'true' ->
+				    'true'
+				%% Line 187
+				<{'win32',_X_OSname}> when 'true' ->
+				    'false'
+				%% Line 188
+				<_cor19> when 'true' ->
+				    %% Line 189
+				    call 'erlang':'exit'
+					({'unsupported_os',OS})
+			      end
+			  in  let <_cor8> =
+				  %% Line 191
+				  case <> of
+				    %% Line 192
+				    <>
+					when _cor3 ->
+					let <_cor5> =
+					    %% Line 193
+					    ( fun () ->
+						  apply 'port_init'/0
+						      ()
+					      -| [{'id',{0,0,'-init/1-fun-0-'}}] )
+					in  %% Line 193
+					    call 'erlang':'spawn_link'
+						(_cor5)
+				    %% Line 194
+				    <>
+					when call 'erlang':'=:='
+					      (_cor3,
+					       'false') ->
+					%% Line 195
+					'undefined'
+				    ( <> when 'true' ->
+					  primop 'match_fail'
+					      ('if_clause')
+				      -| ['compiler_generated'] )
+				  end
+			      in  let <SysOnly> =
+				      %% Line 199
+				      call 'os_mon':'get_env'
+					  ('memsup', 'memsup_system_only')
+				  in  let <Timeout> =
+					  %% Line 200
+					  call 'os_mon':'get_env'
+					      ('memsup', 'memory_check_interval')
+				      in  let <HelperTimeout> =
+					      %% Line 201
+					      call 'os_mon':'get_env'
+						  ('memsup', 'memsup_helper_timeout')
+					  in  let <SysMem> =
+						  %% Line 202
+						  call 'os_mon':'get_env'
+						      ('memsup', 'system_memory_high_watermark')
+					      in  let <ProcMem> =
+						      %% Line 203
+						      call 'os_mon':'get_env'
+							  ('memsup', 'process_memory_high_watermark')
+						  in  let <_cor15> =
+							  %% Line 206
+							  call 'erlang':'self'
+							      ()
+						      in  do  %% Line 206
+							      call 'erlang':'!'
+								  (_cor15, 'time_to_collect')
+							      let <_cor17> =
+								  %% Line 211
+								  apply 'minutes_to_ms'/1
+								      (Timeout)
+							      in  let <_cor16> =
+								      %% Line 212
+								      apply 'sec_to_ms'/1
+									  (HelperTimeout)
+								  in  %% Line 208
+								      {'ok',{'state',OS,_cor3,'undefined','undefined',%% Line 210
+														      SysOnly,_cor17,_cor16,%% Line 213
+																	    SysMem,%% Line 214
+																		   ProcMem,_cor8,'undefined','undefined',[],[]}}
+	  ( <_cor18> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor18})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_call'/3 =
+    %% Line 218
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'get_os_wordsize',_X_From,State> when 'true' ->
+	      %% Line 219
+	      ( case State of
+		  ( <( {'state',_rec0,_cor133,_cor134,_cor135,_cor136,_cor137,_cor138,_cor139,_cor140,_cor141,_cor142,_cor143,_cor144,_cor145}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <Wordsize> =
+			    apply 'get_os_wordsize'/1
+				(_rec0)
+			in  %% Line 220
+			    {'reply',Wordsize,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor146> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 221
+	  <'get_memory_data',From,State> when 'true' ->
+	      %% Line 223
+	      ( case State of
+		  ( <( {'state',_cor147,_cor148,_rec1,_cor149,_cor150,_cor151,_cor152,_cor153,_cor154,_cor155,_cor156,_cor157,_cor158,_cor159}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case _rec1 of
+			  %% Line 224
+			  <{Alloc,Total}> when 'true' ->
+			      %% Line 226
+			      {'reply',{Total,Alloc,_cor149},State}
+			  %% Line 230
+			  <'undefined'> when 'true' ->
+			      %% Line 231
+			      case _cor156 of
+				%% Line 232
+				<'undefined'> when 'true' ->
+				    let <_cor13> =
+					%% Line 234
+					call 'erlang':'self'
+					    ()
+				    in  let <WDTimer> =
+					    %% Line 233
+					    call 'erlang':'send_after'
+						(_cor151, _cor13, %% Line 235
+								  'reg_collection_timeout')
+					in  let <Pending> =
+						%% Line 236
+						[{'reg',From}|[]]
+					    in  %% Line 237
+						case <> of
+						  %% Line 238
+						  <>
+						      when ( call 'erlang':'=:='
+							      (_cor148,
+							       'true')
+							  -| ['compiler_generated'] ) ->
+						      let <_cor24> =
+							  %% Line 239
+							  call 'erlang':'self'
+							      ()
+						      in  do  %% Line 239
+							      call 'erlang':'!'
+								  (_cor155, {_cor24,'collect_sys'})
+							      let <_cor28> =
+								  %% Line 241
+								  call 'erlang':'setelement'
+								      (14, State, Pending)
+							      in  let <_cor30> =
+								      %% Line 240
+								      call 'erlang':'setelement'
+									  (12, _cor28, WDTimer)
+								  in  %% Line 240
+								      {'noreply',_cor30}
+						  %% Line 242
+						  <> when 'true' ->
+						      let <Self> =
+							  %% Line 244
+							  call 'erlang':'self'
+							      ()
+						      in  let <_cor36> =
+							      %% Line 245
+							      ( fun () ->
+								    let <MU> =
+									%% Line 246
+									apply 'get_memory_usage'/1
+									    (_cor147)
+								    in  %% Line 247
+									call 'erlang':'!'
+									    (Self, {'collected_sys',MU})
+								-| [{'id',{0,0,'-handle_call/3-fun-0-'}}] )
+							  in  let <Pid> =
+								  %% Line 245
+								  call 'erlang':'spawn_link'
+								      (_cor36)
+							      in  let <_cor39> =
+								      %% Line 251
+								      call 'erlang':'setelement'
+									  (14, State, Pending)
+								  in  let <_cor40> =
+									  %% Line 250
+									  call 'erlang':'setelement'
+									      (12, _cor39, WDTimer)
+								      in  let <_cor42> =
+									      %% Line 249
+									      call 'erlang':'setelement'
+										  (11, _cor40, Pid)
+									  in  %% Line 249
+									      {'noreply',_cor42}
+						end
+				%% Line 253
+				<_X_TimerRef> when 'true' ->
+				    let <Pending> =
+					%% Line 254
+					[{'reg',From}|_cor158]
+				    in  let <_cor48> =
+					    %% Line 255
+					    call 'erlang':'setelement'
+						(14, State, Pending)
+					in  %% Line 255
+					    {'noreply',_cor48}
+			      end
+			  ( <_cor50> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor50})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor160> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 259
+	  <'get_system_memory_data',From,State = {'state',_cor290,'true',_cor291,_cor292,_cor293,_cor294,_cor295,_cor296,_cor297,_cor298,_cor299,_cor300,_cor301,_cor302}> when 'true' ->
+	      %% Line 262
+	      case _cor300 of
+		%% Line 263
+		<'undefined'> when 'true' ->
+		    let <_cor53> =
+			%% Line 265
+			call 'erlang':'self'
+			    ()
+		    in  let <WDTimer> =
+			    %% Line 264
+			    call 'erlang':'send_after'
+				(_cor295, _cor53, %% Line 266
+						  'ext_collection_timeout')
+			in  let <_cor57> =
+				%% Line 267
+				call 'erlang':'self'
+				    ()
+			    in  do  %% Line 267
+				    call 'erlang':'!'
+					(_cor298, {_cor57,'collect_ext_sys'})
+				    let <_rec14> =
+					%% Line 269
+					[{'ext',From}|[]]
+				    in  let <_cor62> =
+					    %% Line 269
+					    call 'erlang':'setelement'
+						(15, State, _rec14)
+					in  let <_cor64> =
+						%% Line 268
+						call 'erlang':'setelement'
+						    (13, _cor62, WDTimer)
+					    in  %% Line 268
+						{'noreply',_cor64}
+		%% Line 270
+		<_X_TimerRef> when 'true' ->
+		    let <Pending> =
+			%% Line 271
+			[{'ext',From}|_cor302]
+		    in  let <_cor70> =
+			    %% Line 272
+			    call 'erlang':'setelement'
+				(15, State, Pending)
+			in  %% Line 272
+			    {'noreply',_cor70}
+	      end
+	  %% Line 274
+	  <'get_system_memory_data',From,State> when 'true' ->
+	      %% Line 277
+	      ( case State of
+		  ( <( {'state',_cor389,_cor390,_cor391,_cor392,_cor393,_cor394,_cor395,_cor396,_cor397,_cor398,_rec18,_cor399,_cor400,_cor401}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case _rec18 of
+			  %% Line 278
+			  <'undefined'> when 'true' ->
+			      let <_cor74> =
+				  %% Line 280
+				  call 'erlang':'self'
+				      ()
+			      in  let <WDTimer> =
+				      %% Line 279
+				      call 'erlang':'send_after'
+					  (_cor395, _cor74, %% Line 281
+							    'reg_collection_timeout')
+				  in  let <Self> =
+					  %% Line 283
+					  call 'erlang':'self'
+					      ()
+				      in  let <_cor83> =
+					      %% Line 284
+					      ( fun () ->
+						    let <MemUsage> =
+							%% Line 285
+							apply 'get_memory_usage'/1
+							    (_cor389)
+						    in  %% Line 286
+							call 'erlang':'!'
+							    (Self, {'collected_sys',MemUsage})
+						-| [{'id',{0,0,'-handle_call/3-fun-1-'}}] )
+					  in  let <Pid> =
+						  %% Line 284
+						  call 'erlang':'spawn_link'
+						      (_cor83)
+					      in  let <_rec21> =
+						      %% Line 289
+						      [{'ext',From}|[]]
+						  in  let <_cor87> =
+							  %% Line 289
+							  call 'erlang':'setelement'
+							      (14, State, _rec21)
+						      in  let <_cor88> =
+							      %% Line 288
+							      call 'erlang':'setelement'
+								  (12, _cor87, WDTimer)
+							  in  let <_cor90> =
+								  %% Line 288
+								  call 'erlang':'setelement'
+								      (11, _cor88, Pid)
+							      in  %% Line 288
+								  {'noreply',_cor90}
+			  %% Line 290
+			  <_X_TimerRef> when 'true' ->
+			      let <Pending> =
+				  %% Line 291
+				  [{'ext',From}|_cor400]
+			      in  let <_cor96> =
+				      %% Line 292
+				      call 'erlang':'setelement'
+					  (14, State, Pending)
+				  in  %% Line 292
+				      {'noreply',_cor96}
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor402> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 295
+	  <'get_check_interval',_X_From,State> when 'true' ->
+	      %% Line 296
+	      ( case State of
+		  ( <( {'state',_cor475,_cor476,_cor477,_cor478,_cor479,_rec25,_cor480,_cor481,_cor482,_cor483,_cor484,_cor485,_cor486,_cor487}
+		       -| ['compiler_generated'] )> when 'true' ->
+			{'reply',_rec25,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor488> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 297
+	  <{'set_check_interval',MS},_X_From,State> when 'true' ->
+	      %% Line 298
+	      case State of
+		<{'state',_cor489,_cor490,_cor491,_cor492,_cor493,_cor494,_cor495,_cor496,_cor497,_cor498,_cor499,_cor500,_cor501,_cor502}> when 'true' ->
+		    let <_cor102> =
+			call 'erlang':'setelement'
+			    (7, State, MS)
+		    in  {'reply','ok',_cor102}
+		( <_cor503> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 300
+	  <'get_procmem_high_watermark',_X_From,State> when 'true' ->
+	      %% Line 301
+	      ( case State of
+		  ( <( {'state',_cor504,_cor505,_cor506,_cor507,_cor508,_cor509,_cor510,_cor511,_rec27,_cor512,_cor513,_cor514,_cor515,_cor516}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor105> =
+			    call 'erlang':'*'
+				(100, _rec27)
+			in  let <_cor106> =
+				call 'erlang':'trunc'
+				    (_cor105)
+			    in  {'reply',_cor106,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor517> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 302
+	  <{'set_procmem_high_watermark',Float},_X_From,State> when 'true' ->
+	      %% Line 303
+	      case State of
+		<{'state',_cor518,_cor519,_cor520,_cor521,_cor522,_cor523,_cor524,_cor525,_cor526,_cor527,_cor528,_cor529,_cor530,_cor531}> when 'true' ->
+		    let <_cor109> =
+			call 'erlang':'setelement'
+			    (10, State, Float)
+		    in  {'reply','ok',_cor109}
+		( <_cor532> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 305
+	  <'get_sysmem_high_watermark',_X_From,State> when 'true' ->
+	      %% Line 306
+	      ( case State of
+		  ( <( {'state',_cor533,_cor534,_cor535,_cor536,_cor537,_cor538,_cor539,_rec29,_cor540,_cor541,_cor542,_cor543,_cor544,_cor545}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor112> =
+			    call 'erlang':'*'
+				(100, _rec29)
+			in  let <_cor113> =
+				call 'erlang':'trunc'
+				    (_cor112)
+			    in  {'reply',_cor113,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor546> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 307
+	  <{'set_sysmem_high_watermark',Float},_X_From,State> when 'true' ->
+	      %% Line 308
+	      case State of
+		<{'state',_cor547,_cor548,_cor549,_cor550,_cor551,_cor552,_cor553,_cor554,_cor555,_cor556,_cor557,_cor558,_cor559,_cor560}> when 'true' ->
+		    let <_cor116> =
+			call 'erlang':'setelement'
+			    (9, State, Float)
+		    in  {'reply','ok',_cor116}
+		( <_cor561> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 310
+	  <'get_helper_timeout',_X_From,State> when 'true' ->
+	      %% Line 311
+	      ( case State of
+		  ( <( {'state',_cor562,_cor563,_cor564,_cor565,_cor566,_cor567,_rec31,_cor568,_cor569,_cor570,_cor571,_cor572,_cor573,_cor574}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor119> =
+			    apply 'ms_to_sec'/1
+				(_rec31)
+			in  {'reply',_cor119,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor575> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 312
+	  <{'set_helper_timeout',Seconds},_X_From,State> when 'true' ->
+	      let <_rec32> =
+		  %% Line 313
+		  apply 'sec_to_ms'/1
+		      (Seconds)
+	      in  %% Line 313
+		  case State of
+		    <{'state',_cor576,_cor577,_cor578,_cor579,_cor580,_cor581,_cor582,_cor583,_cor584,_cor585,_cor586,_cor587,_cor588,_cor589}> when 'true' ->
+			let <_cor123> =
+			    call 'erlang':'setelement'
+				(8, State, _rec32)
+			in  {'reply','ok',_cor123}
+		    ( <_cor590> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','state'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 316
+	  <{'set_sys_hw',HW},_X_From,State> when 'true' ->
+	      %% Line 317
+	      case State of
+		<{'state',_cor591,_cor592,_cor593,_cor594,_cor595,_cor596,_cor597,_cor598,_cor599,_cor600,_cor601,_cor602,_cor603,_cor604}> when 'true' ->
+		    let <_cor126> =
+			call 'erlang':'setelement'
+			    (9, State, HW)
+		    in  {'reply','ok',_cor126}
+		( <_cor605> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 318
+	  <{'set_pid_hw',HW},_X_From,State> when 'true' ->
+	      %% Line 319
+	      case State of
+		<{'state',_cor606,_cor607,_cor608,_cor609,_cor610,_cor611,_cor612,_cor613,_cor614,_cor615,_cor616,_cor617,_cor618,_cor619}> when 'true' ->
+		    let <_cor129> =
+			call 'erlang':'setelement'
+			    (10, State, HW)
+		    in  {'reply','ok',_cor129}
+		( <_cor620> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 320
+	  <'get_state',_X_From,State> when 'true' ->
+	      %% Line 321
+	      {'reply',State,State}
+	  ( <_cor132,_cor131,_cor130> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor132,_cor131,_cor130})
+		  -| [{'function_name',{'handle_call',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_cast'/2 =
+    %% Line 323
+    fun (_cor1,_cor0) ->
+	%% Line 324
+	{'noreply',_cor0}
+'handle_info'/2 =
+    %% Line 327
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'time_to_collect',State> when 'true' ->
+	      %% Line 328
+	      ( case State of
+		  ( <( {'state',_cor148,_cor149,_cor150,_cor151,_cor152,_cor153,_cor154,_cor155,_cor156,_cor157,_rec36,_cor158,_cor159,_cor160}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case _rec36 of
+			  %% Line 329
+			  <'undefined'> when 'true' ->
+			      let <_cor4> =
+				  %% Line 331
+				  call 'erlang':'self'
+				      ()
+			      in  let <WDTimer> =
+				      %% Line 330
+				      call 'erlang':'send_after'
+					  (_cor154, _cor4, %% Line 332
+							   'reg_collection_timeout')
+				  in  %% Line 333
+				      case <> of
+					%% Line 334
+					<>
+					    when ( call 'erlang':'=:='
+						    (_cor149,
+						     'true')
+						-| ['compiler_generated'] ) ->
+					    let <_cor14> =
+						%% Line 335
+						call 'erlang':'self'
+						    ()
+					    in  do  %% Line 335
+						    call 'erlang':'!'
+							(_cor157, {_cor14,'collect_sys'})
+						    let <_cor18> =
+							%% Line 337
+							call 'erlang':'setelement'
+							    (14, State, ['reg'])
+						    in  let <_cor20> =
+							    %% Line 336
+							    call 'erlang':'setelement'
+								(12, _cor18, WDTimer)
+							in  %% Line 336
+							    {'noreply',_cor20}
+					%% Line 338
+					<> when 'true' ->
+					    let <Self> =
+						%% Line 340
+						call 'erlang':'self'
+						    ()
+					    in  let <_cor26> =
+						    %% Line 341
+						    ( fun () ->
+							  let <MU> =
+							      %% Line 342
+							      apply 'get_memory_usage'/1
+								  (_cor148)
+							  in  %% Line 343
+							      call 'erlang':'!'
+								  (Self, {'collected_sys',MU})
+						      -| [{'id',{0,0,'-handle_info/2-fun-0-'}}] )
+						in  let <Pid> =
+							%% Line 341
+							call 'erlang':'spawn_link'
+							    (_cor26)
+						    in  let <_cor29> =
+							    %% Line 346
+							    call 'erlang':'setelement'
+								(14, State, ['reg'])
+							in  let <_cor30> =
+								%% Line 345
+								call 'erlang':'setelement'
+								    (12, _cor29, WDTimer)
+							    in  let <_cor32> =
+								    %% Line 345
+								    call 'erlang':'setelement'
+									(11, _cor30, Pid)
+								in  %% Line 345
+								    {'noreply',_cor32}
+				      end
+			  %% Line 348
+			  <_X_TimerRef> when 'true' ->
+			      let <_rec42> =
+				  %% Line 349
+				  ['reg'|_cor159]
+			      in  let <_cor38> =
+				      %% Line 349
+				      call 'erlang':'setelement'
+					  (14, State, _rec42)
+				  in  %% Line 349
+				      {'noreply',_cor38}
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor161> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 353
+	  <{'collected_sys',{Alloc,Total}},State> when 'true' ->
+	      %% Line 357
+	      ( case State of
+		  ( <( {'state',_cor263,_cor264,_cor265,_cor266,_cor267,_cor268,_cor269,_cor270,_cor271,_cor272,_rec45,_cor273,_cor274,_cor275}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor46> =
+			    case call 'erlang':'cancel_timer'
+				     (_rec45) of
+			      %% Line 358
+			      <'false'> when 'true' ->
+				  _cor269
+			      %% Line 360
+			      <TimeLeft> when 'true' ->
+				  %% Line 361
+				  call 'erlang':'-'
+				      (_cor269, TimeLeft)
+			    end
+			in  do  %% Line 363
+				apply 'flush'/1
+				    ('reg_collection_timeout')
+				let <_cor73> =
+				    %% Line 368
+				    case call 'lists':'member'
+					     ('reg', _cor274) of
+				      %% Line 369
+				      <'true'> when 'true' ->
+					  do  %% Line 372
+					      case <> of
+						%% Line 373
+						<>
+						    when ( try
+							    let <_cor55> =
+								( call 'erlang':'*'
+								      (_cor270, Total)
+								  -| ['compiler_generated'] )
+							    in  ( call 'erlang':'>'
+								      (Alloc, _cor55)
+								  -| ['compiler_generated'] )
+							of <Try> ->
+							    Try
+							catch <T,R> ->
+							    'false'
+							-| ['compiler_generated'] ) ->
+						    %% Line 374
+						    apply 'set_alarm'/2
+							('system_memory_high_watermark', [])
+						%% Line 375
+						<> when 'true' ->
+						    %% Line 376
+						    apply 'clear_alarm'/1
+							('system_memory_high_watermark')
+					      end
+					      %% Line 380
+					      case _cor267 of
+						%% Line 381
+						<'false'> when 'true' ->
+						    %% Line 382
+						    case apply 'get_worst_memory_user'/0
+							     () of
+						      <{Pid,Bytes}> when 'true' ->
+							  let <Threshold> =
+							      %% Line 383
+							      call 'erlang':'*'
+								  (_cor271, Total)
+							  in  do  %% Line 386
+								  case <> of
+								    %% Line 387
+								    <>
+									when call 'erlang':'>'
+									      (Bytes,
+									       Threshold) ->
+									%% Line 388
+									apply 'set_alarm'/2
+									    ('process_memory_high_watermark', %% Line 389
+													      Pid)
+								    %% Line 390
+								    <> when 'true' ->
+									%% Line 391
+									apply 'clear_alarm'/1
+									    ('process_memory_high_watermark')
+								  end
+								  let <_rec51> = {%% Line 394
+								       Alloc,%% Line 394
+									     Total}
+								  in  let <_rec52> = {%% Line 395
+									   Pid,%% Line 395
+									       Bytes}
+								      in  let <_cor66> =
+									      %% Line 395
+									      call 'erlang':'setelement'
+										  (5, State, _rec52)
+									  in  %% Line 394
+									      call 'erlang':'setelement'
+										  (4, _cor66, _rec51)
+						      ( <_cor59> when 'true' ->
+							    primop 'match_fail'
+								({'badmatch',_cor59})
+							-| ['compiler_generated'] )
+						    end
+						%% Line 396
+						<'true'> when 'true' ->
+						    let <_rec54> = {%% Line 397
+							 Alloc,%% Line 397
+							       Total}
+						    in  %% Line 397
+							call 'erlang':'setelement'
+							    (4, State, _rec54)
+						( <_cor71> when 'true' ->
+						      primop 'match_fail'
+							  ({'case_clause',_cor71})
+						  -| ['compiler_generated'] )
+					      end
+				      %% Line 399
+				      <'false'> when 'true' ->
+					  %% Line 400
+					  State
+				      ( <_cor72> when 'true' ->
+					    primop 'match_fail'
+						({'case_clause',_cor72})
+					-| ['compiler_generated'] )
+				    end
+				in  %% Line 404
+				    ( case _cor73 of
+					( <( {'state',_cor377,_cor378,_cor379,_rec56,_cor380,_cor381,_cor382,_cor383,_cor384,_cor385,_cor386,_cor387,_cor388,_cor389}
+					     -| ['compiler_generated'] )> when 'true' ->
+					      let <SysMemUsage> =
+						  %% Line 405
+						  apply 'get_ext_memory_usage'/2
+						      (_cor377, {Alloc,Total})
+					      in  do  %% Line 406
+						      apply 'reply'/3
+							  (_cor388, {Total,Alloc,_rec56}, SysMemUsage)
+						      do  %% Line 410
+							  case call 'lists':'member'
+								   ('reg', _cor274) of
+							    %% Line 411
+							    <'true'> when 'true' ->
+								let <_cor88> =
+								    %% Line 412
+								    case call 'erlang':'-'
+									     (_cor381, _cor46) of
+								      %% Line 413
+								      <MS>
+									  when call 'erlang':'<'
+										(MS,
+										 0) ->
+									  %% Line 414
+									  0
+								      %% Line 415
+								      <MS> when 'true' ->
+									  %% Line 416
+									  MS
+								    end
+								in  let <_cor90> =
+									%% Line 418
+									call 'erlang':'self'
+									    ()
+								    in  %% Line 418
+									call 'erlang':'send_after'
+									    (_cor88, _cor90, 'time_to_collect')
+							    %% Line 419
+							    <'false'> when 'true' ->
+								'ok'
+							    ( <_cor91> when 'true' ->
+								  primop 'match_fail'
+								      ({'case_clause',_cor91})
+							      -| ['compiler_generated'] )
+							  end
+							  let <_cor93> =
+							      %% Line 422
+							      call 'erlang':'setelement'
+								  (14, _cor73, [])
+							  in  let <_cor95> =
+								  %% Line 422
+								  call 'erlang':'setelement'
+								      (12, _cor93, 'undefined')
+							      in  %% Line 422
+								  {'noreply',_cor95}
+					  -| ['compiler_generated'] )
+					( <_cor390> when 'true' ->
+					      ( call ( 'erlang'
+						       -| ['compiler_generated'] ):( 'error'
+										     -| ['compiler_generated'] )
+						    (( {'badrecord','state'}
+						       -| ['compiler_generated'] ))
+						-| ['compiler_generated'] )
+					  -| ['compiler_generated'] )
+				      end
+				      -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		  ( <_cor276> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 423
+	  <{'EXIT',Pid,'normal'},State>
+	      when call 'erlang':'is_pid'
+		    (Pid) ->
+	      %% Line 425
+	      {'noreply',State}
+	  %% Line 428
+	  <'reg_collection_timeout',State> when 'true' ->
+	      do  %% Line 432
+		  case <> of
+		    %% Line 433
+		    <>
+			when ( try
+				( case <> of
+				    ( <>
+					  when ( call ( 'erlang'
+						     -| ['compiler_generated'] ):( 'is_record'
+										   -| ['compiler_generated'] )
+						  (State,
+						   ( 'state'
+						     -| ['compiler_generated'] ),
+						   ( 15
+						     -| ['compiler_generated'] ))
+					      -| ['compiler_generated'] ) ->
+					  let <_cor100> =
+					      ( call 'erlang':'element'
+						    (3, State)
+						-| ['compiler_generated'] )
+					  in  ( call 'erlang':'=:='
+						    (_cor100, 'true')
+						-| ['compiler_generated'] )
+				      -| ['compiler_generated'] )
+				    ( <> when 'true' ->
+					  'false'
+				      -| ['compiler_generated'] )
+				  end
+				  -| ['compiler_generated'] )
+			    of <Try> ->
+				Try
+			    catch <T,R> ->
+				'false'
+			    -| ['compiler_generated'] ) ->
+			( case State of
+			    ( <( {'state',_cor462,_cor463,_cor464,_cor465,_cor466,_cor467,_cor468,_cor469,_cor470,_rec62,_cor471,_cor472,_cor473,_cor474}
+				 -| ['compiler_generated'] )> when 'true' ->
+				  call 'erlang':'!'
+				      (_rec62, 'cancel')
+			      -| ['compiler_generated'] )
+			    ( <_cor475> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','state'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		    %% Line 434
+		    <> when 'true' ->
+			( case State of
+			    ( <( {'state',_cor476,_cor477,_cor478,_cor479,_cor480,_cor481,_cor482,_cor483,_cor484,_rec63,_cor485,_cor486,_cor487,_cor488}
+				 -| ['compiler_generated'] )> when 'true' ->
+				  call 'erlang':'exit'
+				      (_rec63, 'cancel')
+			      -| ['compiler_generated'] )
+			    ( <_cor489> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','state'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		  end
+		  do  %% Line 436
+		      apply 'flush'/1
+			  ('collected_sys')
+		      do  %% Line 440
+			  call 'error_logger':'warning_msg'
+			      ([79|[83|[95|[77|[79|[78|[32|[40|[109|[101|[109|[115|[117|[112|[41|[32|[116|[105|[109|[101|[111|[117|[116|[44|[32|[110|[111|[32|[100|[97|[116|[97|[32|[99|[111|[108|[108|[101|[99|[116|[101|[100|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+			  %% Line 443
+			  ( case State of
+			      ( <( {'state',_cor490,_cor491,_cor492,_cor493,_cor494,_cor495,_cor496,_cor497,_cor498,_cor499,_cor500,_cor501,_rec64,_cor502}
+				   -| ['compiler_generated'] )> when 'true' ->
+				    let <_cor110> =
+					%% Line 444
+					apply 'dummy_reply'/2
+					    ('get_memory_data', _cor494)
+				    in  let <_cor107> =
+					    %% Line 445
+					    apply 'dummy_reply'/1
+						('get_system_memory_data')
+					in  do  apply 'reply'/3
+						    (_rec64, _cor110, _cor107)
+						do  %% Line 450
+						    case call 'lists':'member'
+							     ('reg', _rec64) of
+						      %% Line 451
+						      <'true'> when 'true' ->
+							  let <_cor120> =
+							      %% Line 453
+							      case call 'erlang':'-'
+								       (_cor495, _cor496) of
+								%% Line 454
+								<MS>
+								    when call 'erlang':'<'
+									  (MS,
+									   0) ->
+								    0
+								%% Line 455
+								<MS> when 'true' ->
+								    MS
+							      end
+							  in  let <_cor122> =
+								  %% Line 457
+								  call 'erlang':'self'
+								      ()
+							      in  %% Line 457
+								  call 'erlang':'send_after'
+								      (_cor120, _cor122, 'time_to_collect')
+						      %% Line 458
+						      <'false'> when 'true' ->
+							  'ok'
+						      ( <_cor123> when 'true' ->
+							    primop 'match_fail'
+								({'case_clause',_cor123})
+							-| ['compiler_generated'] )
+						    end
+						    let <_cor125> =
+							%% Line 461
+							call 'erlang':'setelement'
+							    (14, State, [])
+						    in  let <_cor127> =
+							    %% Line 461
+							    call 'erlang':'setelement'
+								(12, _cor125, 'undefined')
+							in  %% Line 461
+							    {'noreply',_cor127}
+				-| ['compiler_generated'] )
+			      ( <_cor503> when 'true' ->
+				    ( call ( 'erlang'
+					     -| ['compiler_generated'] ):( 'error'
+									   -| ['compiler_generated'] )
+					  (( {'badrecord','state'}
+					     -| ['compiler_generated'] ))
+				      -| ['compiler_generated'] )
+				-| ['compiler_generated'] )
+			    end
+			    -| ['compiler_generated'] )
+	  %% Line 462
+	  <{'EXIT',Pid,'cancel'},State>
+	      when call 'erlang':'is_pid'
+		    (Pid) ->
+	      %% Line 464
+	      {'noreply',State}
+	  %% Line 467
+	  <{'collected_ext_sys',SysMemUsage},State> when 'true' ->
+	      %% Line 471
+	      ( case State of
+		  ( <( {'state',_cor575,_cor576,_cor577,_cor578,_cor579,_cor580,_cor581,_cor582,_cor583,_cor584,_cor585,_rec70,_cor586,_cor587}
+		       -| ['compiler_generated'] )> when 'true' ->
+			do  call 'erlang':'cancel_timer'
+				(_rec70)
+			    do  %% Line 472
+				apply 'flush'/1
+				    ('ext_collection_timeout')
+				do  %% Line 475
+				    apply 'reply'/3
+					(_cor587, 'undef', SysMemUsage)
+				    let <_cor133> =
+					%% Line 477
+					call 'erlang':'setelement'
+					    (15, State, [])
+				    in  let <_cor135> =
+					    %% Line 477
+					    call 'erlang':'setelement'
+						(13, _cor133, 'undefined')
+					in  %% Line 477
+					    {'noreply',_cor135}
+		    -| ['compiler_generated'] )
+		  ( <_cor588> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 480
+	  <'ext_collection_timeout',State> when 'true' ->
+	      %% Line 484
+	      ( case State of
+		  ( <( {'state',_cor618,_cor619,_cor620,_cor621,_cor622,_cor623,_cor624,_cor625,_cor626,_rec73,_cor627,_cor628,_cor629,_cor630}
+		       -| ['compiler_generated'] )> when 'true' ->
+			do  call 'erlang':'!'
+				(_rec73, 'ext_cancel')
+			    do  %% Line 485
+				apply 'flush'/1
+				    ('collected_ext_sys')
+				do  %% Line 489
+				    call 'error_logger':'warning_msg'
+					([79|[83|[95|[77|[79|[78|[32|[40|[109|[101|[109|[115|[117|[112|[41|[32|[116|[105|[109|[101|[111|[117|[116|[44|[32|[110|[111|[32|[100|[97|[116|[97|[32|[99|[111|[108|[108|[101|[99|[116|[101|[100|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+				    let <SysMemUsage> =
+					%% Line 492
+					apply 'dummy_reply'/1
+					    ('get_system_memory_data')
+				    in  do  %% Line 493
+					    apply 'reply'/3
+						(_cor630, 'undef', SysMemUsage)
+					    let <_cor143> =
+						%% Line 495
+						call 'erlang':'setelement'
+						    (15, State, [])
+					    in  let <_cor145> =
+						    %% Line 495
+						    call 'erlang':'setelement'
+							(13, _cor143, 'undefined')
+						in  %% Line 495
+						    {'noreply',_cor145}
+		    -| ['compiler_generated'] )
+		  ( <_cor631> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 498
+	  <{'EXIT',Pid,Reason},State>
+	      when call 'erlang':'is_pid'
+		    (Pid) ->
+	      %% Line 499
+	      {'stop',Reason,State}
+	  %% Line 501
+	  <_X_Info,State> when 'true' ->
+	      %% Line 502
+	      {'noreply',State}
+	end
+'terminate'/2 =
+    %% Line 504
+    fun (_cor1,_cor0) ->
+	do  %% Line 505
+	    case <> of
+	      %% Line 506
+	      <>
+		  when ( try
+			  ( case <> of
+			      ( <>
+				    when ( call ( 'erlang'
+					       -| ['compiler_generated'] ):( 'is_record'
+									     -| ['compiler_generated'] )
+					    (_cor0,
+					     ( 'state'
+					       -| ['compiler_generated'] ),
+					     ( 15
+					       -| ['compiler_generated'] ))
+					-| ['compiler_generated'] ) ->
+				    let <_cor6> =
+					( call 'erlang':'element'
+					      (3, _cor0)
+					  -| ['compiler_generated'] )
+				    in  ( call 'erlang':'=:='
+					      (_cor6, 'true')
+					  -| ['compiler_generated'] )
+				-| ['compiler_generated'] )
+			      ( <> when 'true' ->
+				    'false'
+				-| ['compiler_generated'] )
+			    end
+			    -| ['compiler_generated'] )
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false'
+		      -| ['compiler_generated'] ) ->
+		  ( case _cor0 of
+		      ( <( {'state',_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_rec76,_cor21,_cor22,_cor23,_cor24}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    call 'erlang':'!'
+				(_rec76, 'close')
+			-| ['compiler_generated'] )
+		      ( <_cor25> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	      %% Line 507
+	      <> when 'true' ->
+		  'ok'
+	    end
+	    do  %% Line 509
+		apply 'clear_alarms'/0
+		    ()
+		%% Line 510
+		'ok'
+'code_change'/3 =
+    %% Line 514
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Vsn,PrevState,[49|[46|[56]]]> when 'true' ->
+	      %% Line 515
+	      case Vsn of
+		%% Line 518
+		<{'down',_X_Vsn}> when 'true' ->
+		    %% Line 522
+		    ( case PrevState of
+			( <( {'state',_cor78,_cor79,_cor80,_cor81,_cor82,_cor83,_cor84,_cor85,_cor86,_rec77,_cor87,_cor88,_cor89,_cor90}
+			     -| ['compiler_generated'] )> when 'true' ->
+			      do  case _rec77 of
+				    %% Line 523
+				    <Pid>
+					when call 'erlang':'is_pid'
+					      (_rec77) ->
+					do  %% Line 524
+					    call 'erlang':'unlink'
+						(Pid)
+					    %% Line 525
+					    call 'erlang':'exit'
+						(Pid, 'cancel')
+				    %% Line 526
+				    <'undefined'> when 'true' ->
+					'ok'
+				    ( <_cor5> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor5})
+				      -| ['compiler_generated'] )
+				  end
+				  do  %% Line 528
+				      apply 'flush'/1
+					  ('collected_sys')
+				      do  %% Line 529
+					  apply 'flush'/1
+					      ('collected_ext_sys')
+					  do  %% Line 533
+					      case _cor87 of
+						%% Line 534
+						<'undefined'> when 'true' ->
+						    'ok'
+						%% Line 536
+						<TimerRef1> when 'true' ->
+						    do  %% Line 537
+							call 'erlang':'cancel_timer'
+							    (TimerRef1)
+							let <MemUsage> =
+							    %% Line 539
+							    apply 'dummy_reply'/2
+								('get_memory_data', _cor82)
+							in  let <SysMemUsage1> =
+								%% Line 540
+								apply 'dummy_reply'/1
+								    ('get_system_memory_data')
+							    in  %% Line 541
+								apply 'reply'/3
+								    (_cor89, MemUsage, SysMemUsage1)
+					      end
+					      do  %% Line 543
+						  case _cor88 of
+						    %% Line 544
+						    <'undefined'> when 'true' ->
+							'ok'
+						    %% Line 546
+						    <TimerRef2> when 'true' ->
+							do  %% Line 547
+							    call 'erlang':'cancel_timer'
+								(TimerRef2)
+							    let <SysMemUsage2> =
+								%% Line 548
+								apply 'dummy_reply'/1
+								    ('get_system_memory_data')
+							    in  %% Line 549
+								apply 'reply'/3
+								    (_cor89, 'undef', SysMemUsage2)
+						  end
+						  do  %% Line 551
+						      apply 'flush'/1
+							  ('reg_collection_timeout')
+						      do  %% Line 552
+							  apply 'flush'/1
+							      ('ext_collection_timeout')
+							  let <_cor26> =
+							      %% Line 561
+							      call 'erlang':'not'
+								  (_cor82)
+							  in  let <State> =
+								  %% Line 555
+								  {'state',_cor83,_cor80,_cor81,_cor85,_cor86,_cor26,%% Line 562
+														     'undefined',%% Line 563
+																 [],%% Line 564
+																    'undefined',%% Line 565
+																		[],_cor84}
+							      in  %% Line 567
+								  {'ok',State}
+			  -| ['compiler_generated'] )
+			( <_cor91> when 'true' ->
+			      ( call ( 'erlang'
+				       -| ['compiler_generated'] ):( 'error'
+								     -| ['compiler_generated'] )
+				    (( {'badrecord','state'}
+				       -| ['compiler_generated'] ))
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+		      end
+		      -| ['compiler_generated'] )
+		%% Line 570
+		<_X_Vsn> when 'true' ->
+		    %% Line 577
+		    case PrevState of
+		      <{'state',Timeout,MemUsage,WorstMemUser,SysMemWatermark,ProcMemWatermark,CollProc,WDTimer,Pending,ExtWDTimer,ExtPending,HelperTimeout}> when 'true' ->
+			  let <SysOnly> =
+			      %% Line 578
+			      call 'erlang':'not'
+				  (CollProc)
+			  in  do  %% Line 581
+				  apply 'flush'/1
+				      ('collected_sys')
+				  do  %% Line 582
+				      apply 'flush'/1
+					  ('collected_proc')
+				      do  %% Line 583
+					  apply 'flush'/1
+					      ('collected_ext_sys')
+					  do  %% Line 587
+					      case WDTimer of
+						%% Line 588
+						<'undefined'> when 'true' ->
+						    'ok'
+						%% Line 590
+						<TimerRef1> when 'true' ->
+						    do  %% Line 591
+							call 'erlang':'cancel_timer'
+							    (TimerRef1)
+							%% Line 592
+							case apply 'dummy_reply'/2
+								 ('get_memory_data', SysOnly) of
+							  <_cor260>
+							      when call 'erlang':'=:='
+								    (_cor260,
+								     MemUsage) ->
+							      let <_cor43> =
+								  %% Line 593
+								  ( fun (_cor41) ->
+									{'reg',_cor41}
+								    -| [{'id',{0,0,'-code_change/3-fun-0-'}}] )
+							      in  let <Pending2> =
+								      %% Line 593
+								      call 'lists':'map'
+									  (_cor43, %% Line 594
+										   Pending)
+								  in  %% Line 595
+								      apply 'reply'/3
+									  (Pending2, MemUsage, 'undef')
+							  ( <_cor40> when 'true' ->
+								primop 'match_fail'
+								    ({'badmatch',_cor40})
+							    -| ['compiler_generated'] )
+							end
+					      end
+					      do  %% Line 597
+						  case ExtWDTimer of
+						    %% Line 598
+						    <'undefined'> when 'true' ->
+							'ok'
+						    %% Line 600
+						    <TimerRef2> when 'true' ->
+							do  %% Line 601
+							    call 'erlang':'cancel_timer'
+								(TimerRef2)
+							    let <SysMemUsage> =
+								%% Line 602
+								apply 'dummy_reply'/1
+								    ('get_system_memory_data')
+							    in  let <_cor49> =
+								    %% Line 603
+								    ( fun (_cor47) ->
+									  {'ext',_cor47}
+								      -| [{'id',{0,0,'-code_change/3-fun-1-'}}] )
+								in  let <ExtPending2> =
+									%% Line 603
+									call 'lists':'map'
+									    (_cor49, %% Line 604
+										     ExtPending)
+								    in  %% Line 605
+									apply 'reply'/3
+									    (ExtPending2, 'undef', SysMemUsage)
+						  end
+						  do  %% Line 607
+						      apply 'flush'/1
+							  ('reg_collection_timeout')
+						      do  %% Line 608
+							  apply 'flush'/1
+							      ('ext_collection_timeout')
+							  let <OS> =
+							      %% Line 610
+							      call 'os':'type'
+								  ()
+							  in  let <_cor54> =
+								  %% Line 611
+								  case OS of
+								    %% Line 612
+								    <{'unix','darwin'}> when 'true' ->
+									'false'
+								    %% Line 613
+								    <{'unix','freebsd'}> when 'true' ->
+									'false'
+								    %% Line 614
+								    <{'unix','dragonfly'}> when 'true' ->
+									'false'
+								    %% Line 615
+								    <{'unix','linux'}> when 'true' ->
+									'false'
+								    %% Line 616
+								    <{'unix','openbsd'}> when 'true' ->
+									'true'
+								    %% Line 617
+								    <{'unix','netbsd'}> when 'true' ->
+									'true'
+								    %% Line 618
+								    <{'unix','sunos'}> when 'true' ->
+									'true'
+								    %% Line 619
+								    <{'win32',_X_OSname}> when 'true' ->
+									'false'
+								    ( <_cor53> when 'true' ->
+									  primop 'match_fail'
+									      ({'case_clause',_cor53})
+								      -| ['compiler_generated'] )
+								  end
+							      in  let <_cor59> =
+								      %% Line 621
+								      case <> of
+									%% Line 622
+									<>
+									    when call 'erlang':'=:='
+										  (_cor54,
+										   'true') ->
+									    let <_cor56> =
+										( fun () ->
+										      apply 'port_init'/0
+											  ()
+										  -| [{'id',{0,0,'-code_change/3-fun-2-'}}] )
+									    in  call 'erlang':'spawn_link'
+										    (_cor56)
+									%% Line 623
+									<>
+									    when let <_cor57> =
+										  call 'erlang':'=:='
+										      (_cor54, 'false')
+									      in  let <_cor58> =
+										      call 'erlang':'is_boolean'
+											  (_cor54)
+										  in  call 'erlang':'and'
+											  (_cor57, _cor58) ->
+									    'undefined'
+									( <> when 'true' ->
+									      primop 'match_fail'
+										  ('if_clause')
+									  -| ['compiler_generated'] )
+								      end
+								  in  let <State> =
+									  %% Line 627
+									  {'state',OS,_cor54,%% Line 629
+											     MemUsage,%% Line 630
+												      WorstMemUser,%% Line 631
+														   SysOnly,%% Line 632
+															   Timeout,%% Line 633
+																   HelperTimeout,%% Line 634
+																		 SysMemWatermark,%% Line 635
+																				 ProcMemWatermark,_cor59,%% Line 637
+																							 'undefined',%% Line 638
+																								     'undefined',%% Line 639
+																										 [],%% Line 640
+																										    []}
+								      in  %% Line 641
+									  {'ok',State}
+		      ( <_cor38> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor38})
+			-| ['compiler_generated'] )
+		    end
+	      end
+	  %% Line 643
+	  <_X_Vsn,State,[50|[46|[48]]]> when 'true' ->
+	      %% Line 646
+	      ( case State of
+		  ( <( {'state',_cor261,_rec90,_cor262,_cor263,_cor264,_cor265,_cor266,_cor267,_cor268,_cor269,_cor270,_cor271,_cor272,_cor273}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor70> =
+			    case _rec90 of
+			      %% Line 647
+			      <'true'> when 'true' ->
+				  do  %% Line 648
+				      call 'erlang':'!'
+					  (_cor269, 'close')
+				      let <_cor67> =
+					  %% Line 649
+					  ( fun () ->
+						apply 'port_init'/0
+						    ()
+					    -| [{'id',{0,0,'-code_change/3-fun-3-'}}] )
+				      in  %% Line 649
+					  call 'erlang':'spawn_link'
+					      (_cor67)
+			      %% Line 650
+			      <'false'> when 'true' ->
+				  _cor269
+			      ( <_cor69> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor69})
+				-| ['compiler_generated'] )
+			    end
+			in  let <_cor74> =
+				%% Line 653
+				call 'erlang':'setelement'
+				    (11, State, _cor70)
+			    in  %% Line 653
+				{'ok',_cor74}
+		    -| ['compiler_generated'] )
+		  ( <_cor274> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 655
+	  <_X_OldVsn,State,_X_Extra> when 'true' ->
+	      %% Line 656
+	      {'ok',State}
+	end
+'format_status'/2 =
+    %% Line 662
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_Opt,[_X_PDict|[{'state',_cor8,_cor9,MemUsage,%% Line 663
+							   WorstMemUser,_cor10,Timeout,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18}|%% Line 663
+																		[]]]> when 'true' ->
+	      %% Line 664
+	      case MemUsage of
+		<{Allocated,Total}> when 'true' ->
+		    let <_cor4> =
+			%% Line 665
+			case WorstMemUser of
+			  %% Line 666
+			  <{Pid,Mem}> when 'true' ->
+			      %% Line 667
+			      [{[80|[105|[100]]],Pid}|[{[77|[101|[109|[111|[114|[121]]]]]],Mem}|[]]]
+			  %% Line 668
+			  <'undefined'> when 'true' ->
+			      %% Line 669
+			      'undefined'
+			  ( <_cor3> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor3})
+			    -| ['compiler_generated'] )
+			end
+		    in  %% Line 671
+			[{'data',[{[84|[105|[109|[101|[111|[117|[116]]]]]]],Timeout}|[]]}|%% Line 672
+											  [{'items',{[77|[101|[109|[111|[114|[121|[32|[85|[115|[97|[103|[101]]]]]]]]]]]],[{[65|[108|[108|[111|[99|[97|[116|[101|[100]]]]]]]]],Allocated}|%% Line 673
+																													 [{[84|[111|[116|[97|[108]]]]],Total}|[]]]}}|%% Line 674
+																																		     [{'items',{[87|[111|[114|[115|[116|[32|[77|[101|[109|[111|[114|[121|[32|[85|[115|[101|[114]]]]]]]]]]]]]]]]],_cor4}}|[]]]]
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'format_status',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_os_wordsize'/1 =
+    %% Line 683
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'unix','sunos'}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 684
+		  call 'os':'cmd'
+		      ([105|[115|[97|[105|[110|[102|[111|[32|[45|[98]]]]]]]]]])
+	      in  let <String> =
+		      %% Line 684
+		      apply 'clean_string'/1
+			  (_cor1)
+		  in  %% Line 685
+		      call 'erlang':'list_to_integer'
+			  (String)
+	  %% Line 686
+	  <{'unix','irix64'}> when 'true' ->
+	      64
+	  %% Line 687
+	  <{'unix','irix'}> when 'true' ->
+	      32
+	  %% Line 688
+	  <{'unix','linux'}> when 'true' ->
+	      apply 'get_os_wordsize_with_uname'/0
+		  ()
+	  %% Line 689
+	  <{'unix','darwin'}> when 'true' ->
+	      apply 'get_os_wordsize_with_uname'/0
+		  ()
+	  %% Line 690
+	  <{'unix','netbsd'}> when 'true' ->
+	      apply 'get_os_wordsize_with_uname'/0
+		  ()
+	  %% Line 691
+	  <{'unix','freebsd'}> when 'true' ->
+	      apply 'get_os_wordsize_with_uname'/0
+		  ()
+	  %% Line 692
+	  <{'unix','dragonfly'}> when 'true' ->
+	      apply 'get_os_wordsize_with_uname'/0
+		  ()
+	  %% Line 693
+	  <{'unix','openbsd'}> when 'true' ->
+	      apply 'get_os_wordsize_with_uname'/0
+		  ()
+	  %% Line 694
+	  <_cor4> when 'true' ->
+	      'unsupported_os'
+	end
+'get_os_wordsize_with_uname'/0 =
+    %% Line 696
+    fun () ->
+	let <_cor0> =
+	    %% Line 697
+	    call 'os':'cmd'
+		([117|[110|[97|[109|[101|[32|[45|[109]]]]]]]])
+	in  %% Line 698
+	    case apply 'clean_string'/1
+		     (_cor0) of
+	      %% Line 699
+	      <[120|[56|[54|[95|[54|[52]]]]]]> when 'true' ->
+		  64
+	      %% Line 700
+	      <[115|[112|[97|[114|[99|[54|[52]]]]]]]> when 'true' ->
+		  64
+	      %% Line 701
+	      <_cor3> when 'true' ->
+		  32
+	    end
+'clean_string'/1 =
+    %% Line 704
+    fun (_cor0) ->
+	let <_cor1> =
+	    call 'string':'tokens'
+		(_cor0, [13|[10|[9|[32]]]])
+	in  call 'lists':'flatten'
+		(_cor1)
+'reply'/3 =
+    %% Line 709
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor6> =
+	    %% Line 710
+	    ( fun (_cor4) ->
+		  case _cor4 of
+		    <'reg'> when 'true' ->
+			%% Line 711
+			'ignore'
+		    %% Line 712
+		    <{'reg',From}> when 'true' ->
+			%% Line 713
+			call 'gen_server':'reply'
+			    (From, _cor1)
+		    %% Line 714
+		    <{'ext',From}> when 'true' ->
+			%% Line 715
+			call 'gen_server':'reply'
+			    (From, _cor0)
+		    ( <_cor5> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor5})
+			    -| [{'function_name',{'-reply/3-fun-0-',1}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-reply/3-fun-0-'}}] )
+	in  let <_cor3> =
+		%% Line 717
+		call 'lists':'reverse'
+		    (_cor2)
+	    in  %% Line 710
+		call 'lists':'foreach'
+		    (_cor6, _cor3)
+'get_memory_usage'/1 =
+    %% Line 725
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'unix','darwin'}> when 'true' ->
+	      let <Str1> =
+		  %% Line 726
+		  call 'os':'cmd'
+		      ([47|[117|[115|[114|[47|[98|[105|[110|[47|[118|[109|[95|[115|[116|[97|[116]]]]]]]]]]]]]]]])
+	      in  %% Line 729
+		  case apply 'fread_value'/2
+			   ([80|[97|[103|[101|[115|[32|[102|[114|[101|[101|[58|[126|[100|[46]]]]]]]]]]]]]], Str1) of
+		    <{[Free|[]],Str2}> when 'true' ->
+			%% Line 730
+			case apply 'fread_value'/2
+				 ([80|[97|[103|[101|[115|[32|[97|[99|[116|[105|[118|[101|[58|[126|[100|[46]]]]]]]]]]]]]]]], Str2) of
+			  <{[Active|[]],Str3}> when 'true' ->
+			      %% Line 731
+			      case apply 'fread_value'/2
+				       ([80|[97|[103|[101|[115|[32|[105|[110|[97|[99|[116|[105|[118|[101|[58|[126|[100|[46]]]]]]]]]]]]]]]]]], Str3) of
+				<{[Inactive|[]],Str4}> when 'true' ->
+				    %% Line 732
+				    case apply 'fread_value'/2
+					     ([80|[97|[103|[101|[115|[32|[115|[112|[101|[99|[117|[108|[97|[116|[105|[118|[101|[58|[126|[100|[46]]]]]]]]]]]]]]]]]]]]], Str4) of
+				      <{[Speculative|[]],Str5}> when 'true' ->
+					  %% Line 733
+					  case apply 'fread_value'/2
+						   ([80|[97|[103|[101|[115|[32|[119|[105|[114|[101|[100|[32|[100|[111|[119|[110|[58|[126|[100|[46]]]]]]]]]]]]]]]]]]]], Str5) of
+					    <{[Wired|[]],_cor26}> when 'true' ->
+						let <_cor8> =
+						    %% Line 735
+						    call 'erlang':'+'
+							(Wired, Active)
+						in  let <_cor9> =
+							%% Line 735
+							call 'erlang':'+'
+							    (_cor8, Inactive)
+						    in  let <NMemUsed> =
+							    %% Line 735
+							    call 'erlang':'*'
+								(_cor9, 4096)
+							in  let <_cor11> =
+								%% Line 736
+								call 'erlang':'+'
+								    (Free, Speculative)
+							    in  let <_cor12> =
+								    %% Line 736
+								    call 'erlang':'*'
+									(_cor11, 4096)
+								in  let <NMemTotal> =
+									%% Line 736
+									call 'erlang':'+'
+									    (NMemUsed, _cor12)
+								    in  %% Line 737
+									{NMemUsed,NMemTotal}
+					    ( <_cor7> when 'true' ->
+						  primop 'match_fail'
+						      ({'badmatch',_cor7})
+					      -| ['compiler_generated'] )
+					  end
+				      ( <_cor6> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_cor6})
+					-| ['compiler_generated'] )
+				    end
+				( <_cor5> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor5})
+				  -| ['compiler_generated'] )
+			      end
+			  ( <_cor4> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor4})
+			    -| ['compiler_generated'] )
+			end
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 741
+	  <{'unix',OSname}>
+	      when let <_cor14> =
+		    call 'erlang':'=:='
+			(OSname, 'freebsd')
+		in  let <_cor15> =
+			call 'erlang':'=:='
+			    (OSname, 'dragonfly')
+		    in  call 'erlang':'or'
+			    (_cor14, _cor15) ->
+	      let <PageSize> =
+		  %% Line 742
+		  apply 'freebsd_sysctl'/1
+		      ([118|[109|[46|[115|[116|[97|[116|[115|[46|[118|[109|[46|[118|[95|[112|[97|[103|[101|[95|[115|[105|[122|[101]]]]]]]]]]]]]]]]]]]]]]])
+	      in  let <PageCount> =
+		      %% Line 743
+		      apply 'freebsd_sysctl'/1
+			  ([118|[109|[46|[115|[116|[97|[116|[115|[46|[118|[109|[46|[118|[95|[112|[97|[103|[101|[95|[99|[111|[117|[110|[116]]]]]]]]]]]]]]]]]]]]]]]])
+		  in  let <FreeCount> =
+			  %% Line 744
+			  apply 'freebsd_sysctl'/1
+			      ([118|[109|[46|[115|[116|[97|[116|[115|[46|[118|[109|[46|[118|[95|[102|[114|[101|[101|[95|[99|[111|[117|[110|[116]]]]]]]]]]]]]]]]]]]]]]]])
+		      in  let <_cor19> =
+			      %% Line 745
+			      call 'erlang':'-'
+				  (PageCount, FreeCount)
+			  in  let <NMemUsed> =
+				  %% Line 745
+				  call 'erlang':'*'
+				      (_cor19, PageSize)
+			      in  let <NMemTotal> =
+				      %% Line 746
+				      call 'erlang':'*'
+					  (PageCount, PageSize)
+				  in  %% Line 747
+				      {NMemUsed,NMemTotal}
+	  %% Line 751
+	  <{'win32',_X_OSname}> when 'true' ->
+	      %% Line 752
+	      case call 'os_mon_sysinfo':'get_mem_info'
+		       () of
+		<[Result|_cor27]> when 'true' ->
+		    %% Line 754
+		    case %% Line 755
+			 call 'io_lib':'fread'
+			     ([126|[100|[126|[100|[126|[100|[126|[100|[126|[100|[126|[100|[126|[100]]]]]]]]]]]]]], Result) of
+		      <{'ok',[_X_MemLoad|[TotPhys|[AvailPhys|[_X_TotPage|[_X_AvailPage|[_X_TotV|[_X_AvailV|[]]]]]]]],_X_RestStr}> when 'true' ->
+			  let <_cor24> =
+			      %% Line 756
+			      call 'erlang':'-'
+				  (TotPhys, AvailPhys)
+			  in  %% Line 756
+			      {_cor24,TotPhys}
+		      ( <_cor23> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor23})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor22> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor22})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor25> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor25})
+		  -| [{'function_name',{'get_memory_usage',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'fread_value'/2 =
+    %% Line 758
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 759
+	    apply 'skip_to_eol'/1
+		(_cor0)
+	in  %% Line 759
+	    case call 'io_lib':'fread'
+		     (_cor1, _cor2) of
+	      %% Line 760
+	      <{'error',{'fread','input'}}> when 'true' ->
+		  {[0],_cor0}
+	      %% Line 761
+	      <{'ok',Value,Str1}> when 'true' ->
+		  {Value,Str1}
+	      ( <_cor3> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor3})
+		-| ['compiler_generated'] )
+	    end
+'skip_to_eol'/1 =
+    %% Line 764
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      []
+	  %% Line 765
+	  <[10|T]> when 'true' ->
+	      T
+	  %% Line 766
+	  <[_cor2|T]> when 'true' ->
+	      apply 'skip_to_eol'/1
+		  (T)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'skip_to_eol',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'freebsd_sysctl'/1 =
+    %% Line 768
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 769
+	    call 'erlang':'++'
+		([47|[115|[98|[105|[110|[47|[115|[121|[115|[99|[116|[108|[32|[45|[110|[32]]]]]]]]]]]]]]]], _cor0)
+	in  let <_cor2> =
+		%% Line 769
+		call 'os':'cmd'
+		    (_cor1)
+	    in  let <_cor3> =
+		    %% Line 769
+		    call 'erlang':'--'
+			(_cor2, [10])
+		in  %% Line 769
+		    call 'erlang':'list_to_integer'
+			(_cor3)
+'get_ext_memory_usage'/2 =
+    %% Line 772
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <OS,{Alloc,Total}> when 'true' ->
+	      %% Line 773
+	      case OS of
+		%% Line 774
+		<{'win32',_cor10}> when 'true' ->
+		    let <_cor2> =
+			%% Line 775
+			call 'erlang':'-'
+			    (Total, Alloc)
+		    in  %% Line 775
+			[{'total_memory',Total}|[{'free_memory',_cor2}|%% Line 776
+								       [{'system_total_memory',Total}|[]]]]
+		%% Line 777
+		<{'unix','linux'}> when 'true' ->
+		    let <_cor3> =
+			%% Line 778
+			call 'erlang':'-'
+			    (Total, Alloc)
+		    in  %% Line 778
+			[{'total_memory',Total}|[{'free_memory',_cor3}|%% Line 780
+								       [{'system_total_memory',Total}|[]]]]
+		%% Line 781
+		<{'unix','freebsd'}> when 'true' ->
+		    let <_cor4> =
+			%% Line 782
+			call 'erlang':'-'
+			    (Total, Alloc)
+		    in  %% Line 782
+			[{'total_memory',Total}|[{'free_memory',_cor4}|%% Line 783
+								       [{'system_total_memory',Total}|[]]]]
+		%% Line 784
+		<{'unix','dragonfly'}> when 'true' ->
+		    let <_cor5> =
+			%% Line 785
+			call 'erlang':'-'
+			    (Total, Alloc)
+		    in  %% Line 785
+			[{'total_memory',Total}|[{'free_memory',_cor5}|%% Line 786
+								       [{'system_total_memory',Total}|[]]]]
+		%% Line 787
+		<{'unix','darwin'}> when 'true' ->
+		    let <_cor6> =
+			%% Line 788
+			call 'erlang':'-'
+			    (Total, Alloc)
+		    in  %% Line 788
+			[{'total_memory',Total}|[{'free_memory',_cor6}|%% Line 789
+								       [{'system_total_memory',Total}|[]]]]
+		%% Line 790
+		<_cor11> when 'true' ->
+		    %% Line 791
+		    'dummy'
+	      end
+	  ( <_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8})
+		  -| [{'function_name',{'get_ext_memory_usage',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'port_init'/0 =
+    %% Line 796
+    fun () ->
+	do  %% Line 797
+	    call 'erlang':'process_flag'
+		('trap_exit', 'true')
+	    let <Port> =
+		%% Line 798
+		apply 'start_portprogram'/0
+		    ()
+	    in  %% Line 799
+		apply 'port_idle'/1
+		    (Port)
+'start_portprogram'/0 =
+    %% Line 801
+    fun () ->
+	%% Line 802
+	call 'os_mon':'open_port'
+	    ([109|[101|[109|[115|[117|[112]]]]]], [{'packet',1}])
+'port_idle'/1 =
+    %% Line 812
+    fun (_cor0) ->
+	%% Line 813
+	receive
+	  %% Line 814
+	  <{Memsup,'collect_sys'}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 815
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 815
+		      call 'erlang':'!'
+			  (_cor0, {_cor1,{'command',[1]}})
+		      %% Line 816
+		      apply 'get_memory_usage'/3
+			  (_cor0, 'undefined', Memsup)
+	  %% Line 817
+	  <{Memsup,'collect_ext_sys'}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 818
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 818
+		      call 'erlang':'!'
+			  (_cor0, {_cor2,{'command',[2]}})
+		      %% Line 819
+		      apply 'get_ext_memory_usage'/3
+			  (_cor0, [], Memsup)
+	  %% Line 820
+	  <'cancel'> when 'true' ->
+	      %% Line 822
+	      apply 'port_idle'/1
+		  (_cor0)
+	  %% Line 823
+	  <'ext_cancel'> when 'true' ->
+	      %% Line 825
+	      apply 'port_idle'/1
+		  (_cor0)
+	  %% Line 826
+	  <'close'> when 'true' ->
+	      %% Line 827
+	      call 'erlang':'port_close'
+		  (_cor0)
+	  %% Line 828
+	  <{_cor4,{'data',Data}}>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     _cor0) ->
+	      %% Line 829
+	      call 'erlang':'exit'
+		  ({'port_error',Data})
+	  %% Line 830
+	  <{'EXIT',_cor5,Reason}>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     _cor0) ->
+	      %% Line 831
+	      call 'erlang':'exit'
+		  ({'port_died',Reason})
+	  %% Line 832
+	  <{'EXIT',_X_Memsup,_X_Reason}> when 'true' ->
+	      %% Line 833
+	      call 'erlang':'port_close'
+		  (_cor0)
+	after 'infinity' ->
+	  'true'
+'get_memory_usage'/3 =
+    %% Line 836
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 837
+	receive
+	  %% Line 838
+	  <{_cor8,{'data',Data}}>
+	      when let <_cor9> =
+		    call 'erlang':'=:='
+			(_cor8, _cor2)
+		in  let <_cor10> =
+			call 'erlang':'=:='
+			    (_cor1, 'undefined')
+		    in  call 'erlang':'and'
+			    (_cor9, _cor10) ->
+	      let <_cor3> =
+		  %% Line 839
+		  call 'erlang':'list_to_integer'
+		      (Data, 16)
+	      in  %% Line 839
+		  apply 'get_memory_usage'/3
+		      (_cor2, _cor3, _cor0)
+	  %% Line 840
+	  <{_cor11,{'data',Data}}>
+	      when call 'erlang':'=:='
+		    (_cor11,
+		     _cor2) ->
+	      let <Total> =
+		  %% Line 841
+		  call 'erlang':'list_to_integer'
+		      (Data, 16)
+	      in  do  %% Line 842
+		      call 'erlang':'!'
+			  (_cor0, {'collected_sys',{_cor1,Total}})
+		      %% Line 843
+		      apply 'port_idle'/1
+			  (_cor2)
+	  %% Line 844
+	  <'cancel'> when 'true' ->
+	      %% Line 845
+	      apply 'get_memory_usage_cancelled'/2
+		  (_cor2, _cor1)
+	  %% Line 846
+	  <'close'> when 'true' ->
+	      %% Line 847
+	      call 'erlang':'port_close'
+		  (_cor2)
+	  %% Line 848
+	  <{'EXIT',_cor12,Reason}>
+	      when call 'erlang':'=:='
+		    (_cor12,
+		     _cor2) ->
+	      %% Line 849
+	      call 'erlang':'exit'
+		  ({'port_died',Reason})
+	  %% Line 850
+	  <{'EXIT',_X_Memsup,_X_Reason}> when 'true' ->
+	      %% Line 851
+	      call 'erlang':'port_close'
+		  (_cor2)
+	after 'infinity' ->
+	  'true'
+'get_memory_usage_cancelled'/2 =
+    %% Line 853
+    fun (_cor1,_cor0) ->
+	%% Line 854
+	receive
+	  %% Line 855
+	  <{_cor4,{'data',_X_Data}}>
+	      when let <_cor5> =
+		    call 'erlang':'=:='
+			(_cor4, _cor1)
+		in  let <_cor6> =
+			call 'erlang':'=:='
+			    (_cor0, 'undefined')
+		    in  call 'erlang':'and'
+			    (_cor5, _cor6) ->
+	      %% Line 856
+	      apply 'get_memory_usage_cancelled'/2
+		  (_cor1, 0)
+	  %% Line 857
+	  <{_cor7,{'data',_X_Data}}>
+	      when call 'erlang':'=:='
+		    (_cor7,
+		     _cor1) ->
+	      %% Line 858
+	      apply 'port_idle'/1
+		  (_cor1)
+	  %% Line 859
+	  <'close'> when 'true' ->
+	      %% Line 860
+	      call 'erlang':'port_close'
+		  (_cor1)
+	  %% Line 861
+	  <{'EXIT',_cor8,Reason}>
+	      when call 'erlang':'=:='
+		    (_cor8,
+		     _cor1) ->
+	      %% Line 862
+	      call 'erlang':'exit'
+		  ({'port_died',Reason})
+	  %% Line 863
+	  <{'EXIT',_X_Memsup,_X_Reason}> when 'true' ->
+	      %% Line 864
+	      call 'erlang':'port_close'
+		  (_cor1)
+	after 'infinity' ->
+	  'true'
+'get_ext_memory_usage'/3 =
+    %% Line 867
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 880
+	receive
+	  %% Line 881
+	  <{_cor8,{'data',[0]}}>
+	      when call 'erlang':'=:='
+		    (_cor8,
+		     _cor2) ->
+	      do  %% Line 882
+		  call 'erlang':'!'
+		      (_cor0, {'collected_ext_sys',_cor1})
+		  %% Line 883
+		  apply 'port_idle'/1
+		      (_cor2)
+	  %% Line 884
+	  <{_cor9,{'data',[Tag|[]]}}>
+	      when call 'erlang':'=:='
+		    (_cor9,
+		     _cor2) ->
+	      %% Line 885
+	      case call 'lists':'keysearch'
+		       (Tag, 1, [{1,'system_total_memory'}|[{2,'total_memory'}|[{3,'free_memory'}|[{6,'buffered_memory'}|[{7,'cached_memory'}|[{8,'shared_memory'}|[{4,'largest_free'}|[{5,'number_of_free'}|[{9,'total_swap'}|[{10,'free_swap'}]]]]]]]]]]) of
+		%% Line 886
+		<{'value',{_cor10,ATag}}>
+		    when call 'erlang':'=:='
+			  (_cor10,
+			   Tag) ->
+		    %% Line 887
+		    apply 'get_ext_memory_usage'/4
+			(ATag, _cor2, _cor1, _cor0)
+		%% Line 888
+		<_cor11> when 'true' ->
+		    %% Line 889
+		    call 'erlang':'exit'
+			({'memsup_port_error',{_cor2,[Tag|[]]}})
+	      end
+	  %% Line 891
+	  <'ext_cancel'> when 'true' ->
+	      %% Line 892
+	      apply 'get_ext_memory_usage_cancelled'/1
+		  (_cor2)
+	  %% Line 893
+	  <'close'> when 'true' ->
+	      %% Line 894
+	      call 'erlang':'port_close'
+		  (_cor2)
+	  %% Line 895
+	  <{'EXIT',_cor12,Reason}>
+	      when call 'erlang':'=:='
+		    (_cor12,
+		     _cor2) ->
+	      %% Line 896
+	      call 'erlang':'exit'
+		  ({'port_died',Reason})
+	  %% Line 897
+	  <{'EXIT',_X_Memsup,_X_Reason}> when 'true' ->
+	      %% Line 898
+	      call 'erlang':'port_close'
+		  (_cor2)
+	after 'infinity' ->
+	  'true'
+'get_ext_memory_usage_cancelled'/1 =
+    %% Line 900
+    fun (_cor0) ->
+	%% Line 913
+	receive
+	  %% Line 914
+	  <{_cor4,{'data',[0]}}>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     _cor0) ->
+	      %% Line 915
+	      apply 'port_idle'/1
+		  (_cor0)
+	  %% Line 916
+	  <{_cor5,{'data',[Tag|[]]}}>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     _cor0) ->
+	      %% Line 917
+	      case call 'lists':'keysearch'
+		       (Tag, 1, [{1,'system_total_memory'}|[{2,'total_memory'}|[{3,'free_memory'}|[{6,'buffered_memory'}|[{7,'cached_memory'}|[{8,'shared_memory'}|[{4,'largest_free'}|[{5,'number_of_free'}|[{9,'total_swap'}|[{10,'free_swap'}]]]]]]]]]]) of
+		%% Line 918
+		<{'value',{_cor6,ATag}}>
+		    when call 'erlang':'=:='
+			  (_cor6,
+			   Tag) ->
+		    %% Line 919
+		    apply 'get_ext_memory_usage_cancelled'/2
+			(ATag, _cor0)
+		%% Line 920
+		<_cor7> when 'true' ->
+		    %% Line 921
+		    call 'erlang':'exit'
+			({'memsup_port_error',{_cor0,[Tag|[]]}})
+	      end
+	  %% Line 923
+	  <'close'> when 'true' ->
+	      %% Line 924
+	      call 'erlang':'port_close'
+		  (_cor0)
+	  %% Line 925
+	  <{'EXIT',_cor8,Reason}>
+	      when call 'erlang':'=:='
+		    (_cor8,
+		     _cor0) ->
+	      %% Line 926
+	      call 'erlang':'exit'
+		  ({'port_died',Reason})
+	  %% Line 927
+	  <{'EXIT',_X_Memsup,_X_Reason}> when 'true' ->
+	      %% Line 928
+	      call 'erlang':'port_close'
+		  (_cor0)
+	after 'infinity' ->
+	  'true'
+'get_ext_memory_usage'/4 =
+    %% Line 931
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 932
+	receive
+	  %% Line 933
+	  <{_cor10,{'data',Data}}>
+	      when call 'erlang':'=:='
+		    (_cor10,
+		     _cor2) ->
+	      let <_cor4> =
+		  %% Line 934
+		  call 'erlang':'list_to_integer'
+		      (Data, 16)
+	      in  let <Accum> =
+		      %% Line 934
+		      [{_cor3,_cor4}|_cor1]
+		  in  %% Line 935
+		      apply 'get_ext_memory_usage'/3
+			  (_cor2, Accum, _cor0)
+	  %% Line 936
+	  <'cancel'> when 'true' ->
+	      %% Line 937
+	      apply 'get_ext_memory_usage_cancelled'/2
+		  (_cor3, _cor2)
+	  %% Line 938
+	  <'close'> when 'true' ->
+	      %% Line 939
+	      call 'erlang':'port_close'
+		  (_cor2)
+	  %% Line 940
+	  <{'EXIT',_cor11,Reason}>
+	      when call 'erlang':'=:='
+		    (_cor11,
+		     _cor2) ->
+	      %% Line 941
+	      call 'erlang':'exit'
+		  ({'port_died',Reason})
+	  %% Line 942
+	  <{'EXIT',_X_Memsup,_X_Reason}> when 'true' ->
+	      %% Line 943
+	      call 'erlang':'port_close'
+		  (_cor2)
+	after 'infinity' ->
+	  'true'
+'get_ext_memory_usage_cancelled'/2 =
+    %% Line 945
+    fun (_cor1,_cor0) ->
+	%% Line 946
+	receive
+	  %% Line 947
+	  <{_cor4,{'data',_X_Data}}>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     _cor0) ->
+	      %% Line 948
+	      apply 'get_ext_memory_usage_cancelled'/1
+		  (_cor0)
+	  %% Line 949
+	  <'close'> when 'true' ->
+	      %% Line 950
+	      call 'erlang':'port_close'
+		  (_cor0)
+	  %% Line 951
+	  <{'EXIT',_cor5,Reason}>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     _cor0) ->
+	      %% Line 952
+	      call 'erlang':'exit'
+		  ({'port_died',Reason})
+	  %% Line 953
+	  <{'EXIT',_X_Memsup,_X_Reason}> when 'true' ->
+	      %% Line 954
+	      call 'erlang':'port_close'
+		  (_cor0)
+	after 'infinity' ->
+	  'true'
+'get_worst_memory_user'/0 =
+    %% Line 960
+    fun () ->
+	let <_cor1> =
+	    %% Line 961
+	    call 'erlang':'processes'
+		()
+	in  let <_cor0> =
+		%% Line 961
+		call 'erlang':'self'
+		    ()
+	    in  %% Line 961
+		apply 'get_worst_memory_user'/3
+		    (_cor1, _cor0, 0)
+'get_worst_memory_user'/3 =
+    %% Line 963
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Pid|Pids],MaxPid,MaxMemBytes> when 'true' ->
+	      %% Line 964
+	      case apply 'process_memory'/1
+		       (Pid) of
+		%% Line 965
+		<'undefined'> when 'true' ->
+		    %% Line 966
+		    apply 'get_worst_memory_user'/3
+			(Pids, MaxPid, MaxMemBytes)
+		%% Line 967
+		<MemoryBytes>
+		    when call 'erlang':'>'
+			  (MemoryBytes,
+			   MaxMemBytes) ->
+		    %% Line 968
+		    apply 'get_worst_memory_user'/3
+			(Pids, Pid, MemoryBytes)
+		%% Line 969
+		<_X_MemoryBytes> when 'true' ->
+		    %% Line 970
+		    apply 'get_worst_memory_user'/3
+			(Pids, MaxPid, MaxMemBytes)
+	      end
+	  %% Line 972
+	  <[],MaxPid,MaxMemBytes> when 'true' ->
+	      %% Line 973
+	      {MaxPid,MaxMemBytes}
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'get_worst_memory_user',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'process_memory'/1 =
+    %% Line 975
+    fun (_cor0) ->
+	%% Line 976
+	case call 'erlang':'process_info'
+		 (_cor0, 'memory') of
+	  %% Line 977
+	  <{'memory',Bytes}> when 'true' ->
+	      %% Line 978
+	      Bytes
+	  %% Line 979
+	  <'undefined'> when 'true' ->
+	      %% Line 980
+	      'undefined'
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'set_alarm'/2 =
+    %% Line 985
+    fun (_cor1,_cor0) ->
+	%% Line 986
+	case call 'erlang':'get'
+		 (_cor1) of
+	  %% Line 987
+	  <'set'> when 'true' ->
+	      %% Line 988
+	      'ok'
+	  %% Line 989
+	  <'undefined'> when 'true' ->
+	      do  %% Line 990
+		  call 'alarm_handler':'set_alarm'
+		      ({_cor1,_cor0})
+		  %% Line 991
+		  call 'erlang':'put'
+		      (_cor1, 'set')
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'clear_alarm'/1 =
+    %% Line 994
+    fun (_cor0) ->
+	%% Line 995
+	case call 'erlang':'get'
+		 (_cor0) of
+	  %% Line 996
+	  <'set'> when 'true' ->
+	      do  %% Line 997
+		  call 'alarm_handler':'clear_alarm'
+		      (_cor0)
+		  %% Line 998
+		  call 'erlang':'erase'
+		      (_cor0)
+	  %% Line 999
+	  <_cor3> when 'true' ->
+	      %% Line 1000
+	      'ok'
+	end
+'clear_alarms'/0 =
+    %% Line 1003
+    fun () ->
+	let <_cor3> =
+	    %% Line 1004
+	    ( fun (_cor1) ->
+		  case _cor1 of
+		    <{Id = 'system_memory_high_watermark','set'}> when 'true' ->
+			%% Line 1005
+			call 'alarm_handler':'clear_alarm'
+			    (Id)
+		    %% Line 1006
+		    <{Id = 'process_memory_high_watermark','set'}> when 'true' ->
+			%% Line 1007
+			call 'alarm_handler':'clear_alarm'
+			    (Id)
+		    %% Line 1008
+		    <_X_Other> when 'true' ->
+			%% Line 1009
+			'ignore'
+		  end
+	      -| [{'id',{0,0,'-clear_alarms/0-fun-0-'}}] )
+	in  let <_cor0> =
+		%% Line 1011
+		call 'erlang':'get'
+		    ()
+	    in  %% Line 1004
+		call 'lists':'foreach'
+		    (_cor3, _cor0)
+'minutes_to_ms'/1 =
+    %% Line 1016
+    fun (_cor0) ->
+	let <_cor1> =
+	    call 'erlang':'*'
+		(60000, _cor0)
+	in  call 'erlang':'trunc'
+		(_cor1)
+'sec_to_ms'/1 =
+    %% Line 1017
+    fun (_cor0) ->
+	let <_cor1> =
+	    call 'erlang':'*'
+		(1000, _cor0)
+	in  call 'erlang':'trunc'
+		(_cor1)
+'ms_to_sec'/1 =
+    %% Line 1018
+    fun (_cor0) ->
+	call 'erlang':'div'
+	    (_cor0, 1000)
+'flush'/1 =
+    %% Line 1020
+    fun (_cor0) ->
+	%% Line 1021
+	receive
+	  %% Line 1022
+	  <{_cor2,_cor3}>
+	      when call 'erlang':'=:='
+		    (_cor2,
+		     _cor0) ->
+	      'true'
+	  %% Line 1023
+	  <_cor4>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     _cor0) ->
+	      'true'
+	after %% Line 1024
+	      0 ->
+	  %% Line 1025
+	  'true'
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('memsup')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('memsup', _cor0)
+end

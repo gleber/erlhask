@@ -1,0 +1,203 @@
+module 'dbg_wx_break' ['init'/6,
+		       'module_info'/0,
+		       'module_info'/1,
+		       'start'/3,
+		       'start'/4,
+		       'start'/5]
+    attributes []
+'start'/3 =
+    %% Line 43
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 44
+	apply 'start'/5
+	    (_cor2, _cor1, _cor0, [], [])
+'start'/4 =
+    %% Line 45
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 46
+	apply 'start'/5
+	    (_cor3, _cor2, _cor1, _cor0, [])
+'start'/5 =
+    %% Line 47
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <Env> =
+	    %% Line 48
+	    call 'wx':'get_env'
+		()
+	in  %% Line 49
+	    call 'erlang':'spawn_link'
+		('dbg_wx_break', 'init', [_cor4|[Env|[_cor3|[_cor2|[_cor1|[_cor0|[]]]]]]])
+'init'/6 =
+    %% Line 56
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 57
+	    call 'wx':'set_env'
+		(_cor4)
+	    let <_cor6> =
+		%% Line 58
+		( fun () ->
+		      call 'dbg_wx_break_win':'create_win'
+			  (_cor5, _cor3, _cor2, _cor1, _cor0)
+		  -| [{'id',{0,0,'-init/6-fun-0-'}}] )
+	    in  let <Win> =
+		    %% Line 58
+		    call 'wx':'batch'
+			(_cor6)
+		in  %% Line 59
+		    case <> of
+		      %% Line 60
+		      <>
+			  when let <_cor8> =
+				call 'erlang':'=:='
+				    (_cor2, 'function')
+			    in  let <_cor9> =
+				    call 'erlang':'is_atom'
+					(_cor1)
+				in  call 'erlang':'and'
+					(_cor8, _cor9) ->
+			  let <Win2> =
+			      %% Line 61
+			      apply 'gui_cmd'/2
+				  ({'module',_cor1}, Win)
+			  in  %% Line 62
+			      apply 'loop'/1
+				  (Win2)
+		      %% Line 63
+		      <> when 'true' ->
+			  %% Line 64
+			  apply 'loop'/1
+			      (Win)
+		    end
+'loop'/1 =
+    %% Line 67
+    fun (_cor0) ->
+	%% Line 68
+	receive
+	  %% Line 71
+	  <GuiEvent>
+	      when let <_cor2> =
+		    try
+			let <_cor1> =
+			    call 'erlang':'element'
+				(1, GuiEvent)
+			in  call 'erlang':'=:='
+				(_cor1, 'gs')
+		    of <Try> ->
+			Try
+		    catch <T,R> ->
+			'false'
+		in  let <_cor4> =
+			try
+			    let <_cor3> =
+				call 'erlang':'element'
+				    (1, GuiEvent)
+			    in  call 'erlang':'=:='
+				    (_cor3, 'wx')
+			of <Try> ->
+			    Try
+			catch <T,R> ->
+			    'false'
+		    in  call 'erlang':'or'
+			    (_cor2, _cor4) ->
+	      let <_cor5> =
+		  %% Line 72
+		  ( fun () ->
+			call 'dbg_wx_break_win':'handle_event'
+			    (GuiEvent, _cor0)
+		    -| [{'id',{0,0,'-loop/1-fun-0-'}}] )
+	      in  let <Cmd> =
+		      %% Line 72
+		      call 'wx':'batch'
+			  (_cor5)
+		  in  let <Win2> =
+			  %% Line 73
+			  apply 'gui_cmd'/2
+			      (Cmd, _cor0)
+		      in  %% Line 74
+			  apply 'loop'/1
+			      (Win2)
+	after 'infinity' ->
+	  'true'
+'gui_cmd'/2 =
+    %% Line 77
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'ignore',Win> when 'true' ->
+	      %% Line 78
+	      Win
+	  %% Line 79
+	  <'stopped',_X_Win> when 'true' ->
+	      %% Line 80
+	      call 'erlang':'exit'
+		  ('normal')
+	  %% Line 81
+	  <{'win',Win2},_X_Win> when 'true' ->
+	      %% Line 82
+	      Win2
+	  %% Line 83
+	  <{'module',Mod},Win> when 'true' ->
+	      let <Funcs> =
+		  %% Line 84
+		  call 'int':'functions'
+		      (Mod)
+	      in  %% Line 85
+		  call 'dbg_wx_break_win':'update_functions'
+		      (Win, Funcs)
+	  %% Line 86
+	  <{'break',DataL,Action},_X_Win> when 'true' ->
+	      let <Fun> =
+		  %% Line 88
+		  ( fun (_cor4) ->
+			%% Line 89
+			case _cor4 of
+			  %% Line 90
+			  <[Mod|[Line|[]]]> when 'true' ->
+			      do  %% Line 91
+				  call 'int':'break'
+				      (Mod, Line)
+				  %% Line 92
+				  call 'int':'action_at_break'
+				      (Mod, Line, Action)
+			  %% Line 93
+			  <[Mod|[Line|[CMod|[CFunc|[]]]]]> when 'true' ->
+			      do  %% Line 94
+				  call 'int':'break'
+				      (Mod, Line)
+				  do  %% Line 95
+				      call 'int':'test_at_break'
+					  (Mod, Line, {CMod,CFunc})
+				      %% Line 96
+				      call 'int':'action_at_break'
+					  (Mod, Line, Action)
+			  %% Line 97
+			  <[Mod|[Func|[Arity|[]]]]> when 'true' ->
+			      %% Line 98
+			      call 'int':'break_in'
+				  (Mod, Func, Arity)
+			  ( <_cor3> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor3})
+			    -| ['compiler_generated'] )
+			end
+		    -| [{'id',{0,0,'-gui_cmd/2-fun-0-'}}] )
+	      in  do  %% Line 101
+		      call 'lists':'foreach'
+			  (Fun, DataL)
+		      %% Line 102
+		      call 'erlang':'exit'
+			  ('normal')
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7})
+		  -| [{'function_name',{'gui_cmd',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('dbg_wx_break')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('dbg_wx_break', _cor0)
+end

@@ -1,0 +1,64 @@
+module 'sshc_sup' ['init'/1,
+		   'module_info'/0,
+		   'module_info'/1,
+		   'start_child'/1,
+		   'start_link'/1,
+		   'stop_child'/1]
+    attributes [%% Line 27
+		'behaviour' =
+		    %% Line 27
+		    ['supervisor']]
+'start_link'/1 =
+    %% Line 37
+    fun (_cor0) ->
+	%% Line 38
+	call 'supervisor':'start_link'
+	    ({'local','sshc_sup'}, 'sshc_sup', [_cor0|[]])
+'start_child'/1 =
+    %% Line 40
+    fun (_cor0) ->
+	%% Line 41
+	call 'supervisor':'start_child'
+	    ('sshc_sup', _cor0)
+'stop_child'/1 =
+    %% Line 43
+    fun (_cor0) ->
+	let <_cor2> =
+	    %% Line 44
+	    ( fun () ->
+		  let <ClientSup> =
+		      %% Line 45
+		      call 'erlang':'whereis'
+			  ('sshc_sup')
+		  in  %% Line 46
+		      call 'supervisor':'terminate_child'
+			  (ClientSup, _cor0)
+	      -| [{'id',{0,0,'-stop_child/1-fun-0-'}}] )
+	in  do  %% Line 44
+		call 'erlang':'spawn'
+		    (_cor2)
+		%% Line 48
+		'ok'
+'init'/1 =
+    %% Line 53
+    fun (_cor0) ->
+	let <_cor4> =
+	    %% Line 57
+	    apply 'child_spec'/1
+		(_cor0)
+	in  %% Line 57
+	    {'ok',{{'simple_one_for_one',0,3600},[_cor4|[]]}}
+'child_spec'/1 =
+    %% Line 62
+    fun (_cor0) ->
+	%% Line 69
+	{'undefined',{'ssh_connection_handler','start_link',[]},'temporary','infinity','supervisor',['ssh_connection_handler']}
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('sshc_sup')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('sshc_sup', _cor0)
+end

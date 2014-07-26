@@ -1,0 +1,461 @@
+module 'hipe_llvm_merge' ['finalize'/3,
+			  'module_info'/0,
+			  'module_info'/1]
+    attributes [%% Line 301
+		'type' =
+		    %% Line 301
+		    [{{'record','comp_servers'},[{'typed_record_field',{'record_field',301,{'atom',301,'pp_server'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'range'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'type'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}]]],[]}],
+		%% Line 307
+		'type' =
+		    %% Line 307
+		    [{'comp_option',{'type',307,'union',[{'type',307,'atom',[]}|[{'type',307,'tuple',[{'type',307,'atom',[]}|[{'type',307,'atom',[]}]]}]]},[]}],
+		%% Line 308
+		'type' =
+		    %% Line 308
+		    [{'comp_options',{'type',308,'list',[{'type',308,'comp_option',[]}]},[]}],
+		%% Line 310
+		'type' =
+		    %% Line 310
+		    [{'hipe_architecture',{'type',311,'union',[{'atom',311,'amd64'}|[{'atom',311,'arm'}|[{'atom',311,'powerpc'}|[{'atom',311,'ppc64'}|[{'atom',311,'ultrasparc'}|[{'atom',311,'x86'}]]]]]]},[]}],
+		%% Line 313
+		'type' =
+		    %% Line 313
+		    [{'hipe_map',{'type',313,'list',[{'type',313,'tuple',[{'type',313,'non_neg_integer',[]}|[{'type',314,'union',[{'atom',314,'unknown'}|[{'type',314,'tuple',[{'type',314,'union',[{'atom',314,'reg'}|[{'atom',314,'fp_reg'}|[{'atom',314,'spill'}]]]}|[{'type',315,'non_neg_integer',[]}]]}]]}]]}]},[]}],
+		%% Line 316
+		'type' =
+		    %% Line 316
+		    [{'hipe_temp_map',{'type',316,'tuple','any'},[]}],
+		%% Line 317
+		'type' =
+		    %% Line 317
+		    [{'hipe_spill_map',{'type',317,'list',[{'type',317,'tuple',[{'type',317,'non_neg_integer',[]}|[{'type',317,'tuple',[{'atom',317,'spill'}|[{'type',317,'non_neg_integer',[]}]]}]]}]},[]}]]
+'finalize'/3 =
+    %% Line 11
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor7> =
+	    %% Line 12
+	    ( letrec
+		  'lc$^0'/1 =
+		      fun (_cor5) ->
+			  case _cor5 of
+			    <[{_cor30,CodePack}|_cor4]> when 'true' ->
+				let <_cor6> =
+				    apply 'lc$^0'/1
+					(_cor4)
+				in  ( [CodePack|_cor6]
+				      -| ['compiler_generated'] )
+			    ( <[_cor3|_cor4]> when 'true' ->
+				  apply 'lc$^0'/1
+				      (_cor4)
+			      -| ['compiler_generated'] )
+			    <[]> when 'true' ->
+				[]
+			    ( <_483> when 'true' ->
+				  ( primop 'match_fail'
+					({'function_clause',_cor5})
+				    -| [{'function_name',{'lc$^0',1}}] )
+			      -| ['compiler_generated'] )
+			  end
+	      in  apply 'lc$^0'/1
+		      (_cor2)
+	      -| ['list_comprehension'] )
+	in  let <_cor13> =
+		%% Line 13
+		( letrec
+		      'lc$^1'/1 =
+			  fun (_cor11) ->
+			      case _cor11 of
+				<[%% Line 14
+				  {MFA,_cor31,_cor32,ConstTab,_cor33,_cor34}|_cor10]> when 'true' ->
+				    let <_cor12> =
+					%% Line 14
+					apply 'lc$^1'/1
+					    (_cor10)
+				    in  ( [{MFA,[],ConstTab}|_cor12]
+					  -| ['compiler_generated'] )
+				( <[_cor9|_cor10]> when 'true' ->
+				      %% Line 14
+				      apply 'lc$^1'/1
+					  (_cor10)
+				  -| ['compiler_generated'] )
+				<[]> when 'true' ->
+				    []
+				( <_1157> when 'true' ->
+				      ( primop 'match_fail'
+					    ({'function_clause',_cor11})
+					-| [{'function_name',{'lc$^1',1}}] )
+				  -| ['compiler_generated'] )
+			      end
+		  in  apply 'lc$^1'/1
+			  (_cor7)
+		  -| ['list_comprehension'] )
+	    in  let <_cor15> =
+		    %% Line 16
+		    call 'hipe_amd64_registers':'alignment'
+			()
+		in  let <_895> =
+			%% Line 16
+			call 'hipe_pack_constants':'pack_constants'
+			    (_cor13, _cor15)
+		    in  %% Line 15
+			case _895 of
+			  <{ConstAlign,ConstSize,ConstMap,RefsFromConsts}> when 'true' ->
+			      let <CodeSize> =
+				  %% Line 18
+				  apply 'compute_code_size'/2
+				      (_cor7, 0)
+			      in  let <_700> =
+				      %% Line 20
+				      apply 'merge_mfas'/4
+					  (_cor7, 0, #{}#, [])
+				  in  %% Line 20
+				      case _700 of
+					<{CodeBinary,ExportMap}> when 'true' ->
+					    let <AccRefs> =
+						%% Line 23
+						apply 'merge_refs'/4
+						    (_cor7, ConstMap, 0, [])
+					    in  let <_cor20> =
+						    %% Line 25
+						    call 'gb_trees':'empty'
+							()
+						in  let <LabelMap> =
+							%% Line 25
+							apply 'combine_label_maps'/3
+							    (_cor7, 0, _cor20)
+						    in  let <SC> =
+							    %% Line 26
+							    call 'hipe_pack_constants':'slim_constmap'
+								(ConstMap)
+							in  let <DataRelocs> =
+								%% Line 27
+								call 'hipe_pack_constants':'mk_data_relocs'
+								    (RefsFromConsts, LabelMap)
+							    in  let <SSE> =
+								    %% Line 28
+								    call 'hipe_pack_constants':'slim_sorted_exportmap'
+									(ExportMap, _cor1, _cor0)
+								in  let <SlimRefs> =
+									%% Line 29
+									call 'hipe_pack_constants':'slim_refs'
+									    (AccRefs)
+								    in  let <_cor26> =
+									    %% Line 30
+									    call 'hipe_bifs':'system_crc'
+										(13615612)
+									in  %% Line 30
+									    call 'erlang':'term_to_binary'
+										([{[51|[46|[49|[49]]]],_cor26}|%% Line 31
+													       [ConstAlign|[ConstSize|%% Line 32
+																      [SC|%% Line 33
+																	  [DataRelocs|%% Line 34
+																		      [SSE|%% Line 35
+																			   [CodeSize|[CodeBinary|[SlimRefs|%% Line 36
+																							   [0|[[]]]]]]]]]]]])
+					( <_cor18> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_700})
+					  -| ['compiler_generated'] )
+				      end
+			  ( <_cor16> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_895})
+			    -| ['compiler_generated'] )
+			end
+'compute_code_size'/2 =
+    %% Line 46
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{_X_MFA,_X_BinaryCode,CodeSize,_cor6,_cor7,_cor8}|Code],Size> when 'true' ->
+	      let <_cor2> =
+		  %% Line 47
+		  call 'erlang':'+'
+		      (_cor0, CodeSize)
+	      in  let <_739> =
+		      call 'erlang':'rem'
+			  (_cor2, 4)
+		  in  let <_701> =
+			  call 'erlang':'-'
+			      (4, _739)
+		      in  let <_124> =
+			      call 'erlang':'rem'
+				  (_701, 4)
+			  in  let <_cor3> =
+				  call 'erlang':'+'
+				      (_cor2, _124)
+			      in  %% Line 47
+				  apply 'compute_code_size'/2
+				      (Code, _cor3)
+	  %% Line 48
+	  <[],Size> when 'true' ->
+	      _cor0
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'compute_code_size',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'combine_label_maps'/3 =
+    %% Line 50
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[{MFA,_cor10,CodeSize,_cor11,_cor12,LabelMap}|Code],Address,CLM> when 'true' ->
+	      let <_cor3> =
+		  %% Line 51
+		  call 'gb_trees':'to_list'
+		      (LabelMap)
+	      in  let <NewCLM> =
+		      %% Line 51
+		      apply 'merge_label_map'/4
+			  (_cor3, MFA, _cor1, _cor0)
+		  in  let <_cor5> =
+			  %% Line 52
+			  call 'erlang':'+'
+			      (_cor1, CodeSize)
+		      in  let <_1787> =
+			      call 'erlang':'rem'
+				  (_cor5, 4)
+			  in  let <_172> =
+				  call 'erlang':'-'
+				      (4, _1787)
+			      in  let <_902> =
+				      call 'erlang':'rem'
+					  (_172, 4)
+				  in  let <_cor6> =
+					  call 'erlang':'+'
+					      (_cor5, _902)
+				      in  %% Line 52
+					  apply 'combine_label_maps'/3
+					      (Code, _cor6, NewCLM)
+	  %% Line 53
+	  <[],_X_Address,CLM> when 'true' ->
+	      _cor0
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'combine_label_maps',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'merge_label_map'/4 =
+    %% Line 55
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[{Label,Offset}|Rest],MFA,Address,CLM> when 'true' ->
+	      let <_cor4> =
+		  %% Line 56
+		  call 'erlang':'+'
+		      (_cor1, Offset)
+	      in  let <NewCLM> =
+		      %% Line 56
+		      call 'gb_trees':'insert'
+			  ({_cor2,Label}, _cor4, _cor0)
+		  in  %% Line 57
+		      apply 'merge_label_map'/4
+			  (Rest, _cor2, _cor1, NewCLM)
+	  %% Line 58
+	  <[],_X_MFA,_X_Address,CLM> when 'true' ->
+	      _cor0
+	  ( <_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'merge_label_map',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'merge_mfas'/4 =
+    %% Line 64
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[{{M,F,A},CodeBinary,CodeSize,_cor19,_cor20,_cor21}|Code],Address,AccCode,AccExportMap> when 'true' ->
+	      let <_cor4> =
+		  %% Line 68
+		  call 'erlang':'+'
+		      (_cor2, CodeSize)
+	      in  let <_15> =
+		      call 'erlang':'rem'
+			  (_cor4, 4)
+		  in  let <_1406> =
+			  call 'erlang':'-'
+			      (4, _15)
+		      in  let <_1142> =
+			      call 'erlang':'rem'
+				  (_1406, 4)
+			  in  let <Address1,Code1> =
+				  %% Line 68
+				  case _1142 of
+				    %% Line 69
+				    <0> when 'true' ->
+					let <_cor5> =
+					    %% Line 70
+					    call 'erlang':'+'
+						(_cor2, CodeSize)
+					in  <_cor5,CodeBinary>
+				    %% Line 71
+				    <NrPadBytes> when 'true' ->
+					let <_cor6> =
+					    %% Line 72
+					    call 'lists':'duplicate'
+						(_1142, 0)
+					in  let <Padding> =
+						%% Line 72
+						call 'erlang':'list_to_binary'
+						    (_cor6)
+					    in  let <_cor9> =
+						    %% Line 73
+						    call 'erlang':'+'
+							(_cor2, CodeSize)
+						in  let <_cor10> =
+							%% Line 73
+							call 'erlang':'+'
+							    (_cor9, _1142)
+						    in  let <_cor8> =
+							    %% Line 74
+							    #{#<CodeBinary>('all',8,'binary',['unsigned'|['big']]),
+							      #<Padding>('all',8,'binary',['unsigned'|['big']])}#
+							in  <_cor10,_cor8>
+				  end
+			      in  let <AccCode1> =
+				      %% Line 78
+				      #{#<_cor1>('all',8,'binary',['unsigned'|['big']]),
+					#<Code1>('all',8,'binary',['unsigned'|['big']])}#
+				  in  %% Line 79
+				      apply 'merge_mfas'/4
+					  (Code, Address1, AccCode1, [{_cor2,M,F,A}|_cor0])
+	  %% Line 80
+	  <[],_X_Address,AccCode,AccExportMap> when 'true' ->
+	      %% Line 81
+	      {_cor1,_cor0}
+	  ( <_cor18,_cor17,_cor16,_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'merge_mfas',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'merge_refs'/4 =
+    %% Line 85
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_ConstMap,_X_Addr,AccRefs> when 'true' ->
+	      _cor0
+	  %% Line 86
+	  <[{MFA,_cor19,CodeSize,_cor20,Refs,_cor21}|Rest],ConstMap,Address,AccRefs> when 'true' ->
+	      let <_cor10> =
+		  %% Line 92
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor6) ->
+				case _cor6 of
+				  <[Ref|_cor5]> when 'true' ->
+				      let <_cor7> =
+					  %% Line 97
+					  case <Ref,MFA,_cor2> of
+					    <{Type,Offset,{'constant',Label}},_912,_708> when 'true' ->
+						let <ConstNo> =
+						    %% Line 98
+						    call 'hipe_pack_constants':'find_const'
+							({MFA,Label}, _cor2)
+						in  %% Line 99
+						    {Type,Offset,{'constant',ConstNo}}
+					    %% Line 100
+					    <Other,_X_MFA,_X_ConstMap> when 'true' ->
+						Ref
+					  end
+				      in  let <_cor8> =
+					      apply 'update_ref'/2
+						  (_cor7, _cor1)
+					  in  let <_cor9> =
+						  %% Line 93
+						  apply 'lc$^0'/1
+						      (_cor5)
+					      in  ( [_cor8|_cor9]
+						    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_192> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor6})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (Refs)
+		    -| ['list_comprehension'] )
+	      in  let <_cor13> =
+		      %% Line 94
+		      call 'erlang':'+'
+			  (_cor1, CodeSize)
+		  in  let <_2083> =
+			  call 'erlang':'rem'
+			      (_cor13, 4)
+		      in  let <_1814> =
+			      call 'erlang':'-'
+				  (4, _2083)
+			  in  let <_234> =
+				  call 'erlang':'rem'
+				      (_1814, 4)
+			      in  let <_cor14> =
+				      call 'erlang':'+'
+					  (_cor13, _234)
+				  in  let <_cor12> =
+					  %% Line 95
+					  call 'erlang':'++'
+					      (_cor10, _cor0)
+				      in  %% Line 94
+					  apply 'merge_refs'/4
+					      (Rest, _cor2, _cor14, _cor12)
+	  ( <_cor18,_cor17,_cor16,_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'merge_refs',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'update_ref'/2 =
+    %% Line 105
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{4,Offset,SDesc},CodeAddr> when 'true' ->
+	      let <NewRefAddr> =
+		  %% Line 106
+		  call 'erlang':'+'
+		      (Offset, _cor0)
+	      in  %% Line 107
+		  case SDesc of
+		    %% Line 108
+		    <{[],_cor8,_cor9,_cor10}> when 'true' ->
+			%% Line 109
+			{4,NewRefAddr,SDesc}
+		    %% Line 110
+		    <{ExnHandler,FrameSize,StackArity,Roots}> when 'true' ->
+			let <_cor3> =
+			    %% Line 111
+			    call 'erlang':'+'
+				(ExnHandler, _cor0)
+			in  %% Line 111
+			    {4,NewRefAddr,{_cor3,FrameSize,StackArity,Roots}}
+		    ( <_cor4> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',SDesc})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 113
+	  <{Type,Offset,Term},CodeAddr> when 'true' ->
+	      let <_cor5> =
+		  %% Line 114
+		  call 'erlang':'+'
+		      (Offset, _cor0)
+	      in  %% Line 114
+		  {Type,_cor5,Term}
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'update_ref',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_llvm_merge')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_llvm_merge', _cor0)
+end

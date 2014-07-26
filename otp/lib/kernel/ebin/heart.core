@@ -1,0 +1,696 @@
+module 'heart' ['clear_cmd'/0,
+		'cycle'/0,
+		'get_cmd'/0,
+		'init'/2,
+		'module_info'/0,
+		'module_info'/1,
+		'set_cmd'/1,
+		'start'/0]
+    attributes [%% Line 53
+		'spec' =
+		    %% Line 53
+		    [{{'start',0},[{'type',53,'fun',[{'type',53,'product',[]}|[{'type',53,'union',[{'atom',53,'ignore'}|[{'type',53,'tuple',[{'atom',53,'error'}|[{'type',53,'term',[]}]]}|[{'type',53,'tuple',[{'atom',53,'ok'}|[{'type',53,'pid',[]}]]}]]]}]]}]}],
+		%% Line 78
+		'spec' =
+		    %% Line 78
+		    [{{'init',2},[{'type',78,'fun',[{'type',78,'product',[{'type',78,'pid',[]}|[{'type',78,'pid',[]}]]}|[{'type',78,'union',[{'type',78,'tuple',[{'atom',78,'no_heart'}|[{'type',78,'pid',[]}]]}|[{'type',78,'tuple',[{'atom',78,'start_error'}|[{'type',78,'pid',[]}]]}]]}]]}]}],
+		%% Line 94
+		'spec' =
+		    %% Line 94
+		    [{{'set_cmd',1},[{'type',94,'bounded_fun',[{'type',94,'fun',[{'type',94,'product',[{'var',94,'Cmd'}]}|[{'type',94,'union',[{'atom',94,'ok'}|[{'type',94,'tuple',[{'atom',94,'error'}|[{'type',94,'tuple',[{'atom',94,'bad_cmd'}|[{'var',94,'Cmd'}]]}]]}]]}]]}|[[{'type',95,'constraint',[{'atom',95,'is_subtype'}|[[{'var',95,'Cmd'}|[{'type',95,'string',[]}]]]]}]]]}]}],
+		%% Line 101
+		'spec' =
+		    %% Line 101
+		    [{{'get_cmd',0},[{'type',101,'bounded_fun',[{'type',101,'fun',[{'type',101,'product',[]}|[{'type',101,'tuple',[{'atom',101,'ok'}|[{'var',101,'Cmd'}]]}]]}|[[{'type',102,'constraint',[{'atom',102,'is_subtype'}|[[{'var',102,'Cmd'}|[{'type',102,'string',[]}]]]]}]]]}]}],
+		%% Line 108
+		'spec' =
+		    %% Line 108
+		    [{{'clear_cmd',0},[{'type',108,'fun',[{'type',108,'product',[]}|[{'atom',108,'ok'}]]}]}],
+		%% Line 116
+		'spec' =
+		    %% Line 116
+		    [{{'cycle',0},[{'type',116,'fun',[{'type',116,'product',[]}|[{'type',116,'union',[{'atom',116,'ok'}|[{'type',116,'tuple',[{'atom',116,'error'}|[{'type',116,'term',[]}]]}]]}]]}]}],
+		%% Line 226
+		'spec' =
+		    %% Line 226
+		    [{{'no_reboot_shutdown',1},[{'type',226,'fun',[{'type',226,'product',[{'type',226,'port',[]}]}|[{'type',226,'no_return',[]}]]}]}]]
+'start'/0 =
+    %% Line 55
+    fun () ->
+	%% Line 56
+	case call 'erlang':'whereis'
+		 ('heart') of
+	  %% Line 57
+	  <'undefined'> when 'true' ->
+	      let <_cor0> =
+		  %% Line 62
+		  call 'erlang':'self'
+		      ()
+	      in  let <_cor1> =
+		      %% Line 62
+		      call 'erlang':'whereis'
+			  ('init')
+		  in  let <Pid> =
+			  %% Line 62
+			  call 'erlang':'spawn'
+			      ('heart', 'init', [_cor0|[_cor1|[]]])
+		      in  %% Line 63
+			  apply 'wait_for_init_ack'/1
+			      (Pid)
+	  %% Line 64
+	  <Pid> when 'true' ->
+	      %% Line 65
+	      {'ok',Pid}
+	end
+'wait_for_init_ack'/1 =
+    %% Line 68
+    fun (_cor0) ->
+	%% Line 69
+	receive
+	  %% Line 70
+	  <Ok = {'ok',_cor2}>
+	      when call 'erlang':'=:='
+		    (_cor2,
+		     _cor0) ->
+	      %% Line 71
+	      Ok
+	  %% Line 72
+	  <{'no_heart',_cor3}>
+	      when call 'erlang':'=:='
+		    (_cor3,
+		     _cor0) ->
+	      %% Line 73
+	      'ignore'
+	  %% Line 74
+	  <{Error,_cor4}>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     _cor0) ->
+	      %% Line 75
+	      {'error',Error}
+	after 'infinity' ->
+	  'true'
+'init'/2 =
+    %% Line 80
+    fun (_cor1,_cor0) ->
+	do  %% Line 81
+	    call 'erlang':'process_flag'
+		('trap_exit', 'true')
+	    do  %% Line 82
+		call 'erlang':'process_flag'
+		    ('priority', 'max')
+		let <_cor2> =
+		    %% Line 83
+		    call 'erlang':'self'
+			()
+		in  do  %% Line 83
+			call 'erlang':'register'
+			    ('heart', _cor2)
+			let <_cor3> =
+			    catch
+				%% Line 84
+				apply 'start_portprogram'/0
+				    ()
+			in  %% Line 84
+			    case _cor3 of
+			      %% Line 85
+			      <{'ok',Port}> when 'true' ->
+				  let <_cor4> =
+				      %% Line 86
+				      call 'erlang':'self'
+					  ()
+				  in  do  %% Line 86
+					  call 'erlang':'!'
+					      (_cor1, {'ok',_cor4})
+					  %% Line 87
+					  apply 'loop'/3
+					      (_cor0, Port, [])
+			      %% Line 88
+			      <'no_heart'> when 'true' ->
+				  let <_cor5> =
+				      %% Line 89
+				      call 'erlang':'self'
+					  ()
+				  in  %% Line 89
+				      call 'erlang':'!'
+					  (_cor1, {'no_heart',_cor5})
+			      %% Line 90
+			      <'error'> when 'true' ->
+				  let <_cor6> =
+				      %% Line 91
+				      call 'erlang':'self'
+					  ()
+				  in  %% Line 91
+				      call 'erlang':'!'
+					  (_cor1, {'start_error',_cor6})
+			      ( <_cor7> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor7})
+				-| ['compiler_generated'] )
+			    end
+'set_cmd'/1 =
+    %% Line 97
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 98
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 98
+		call 'erlang':'!'
+		    ('heart', {_cor1,'set_cmd',_cor0})
+		%% Line 99
+		apply 'wait'/0
+		    ()
+'get_cmd'/0 =
+    %% Line 104
+    fun () ->
+	let <_cor0> =
+	    %% Line 105
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 105
+		call 'erlang':'!'
+		    ('heart', {_cor0,'get_cmd'})
+		%% Line 106
+		apply 'wait'/0
+		    ()
+'clear_cmd'/0 =
+    %% Line 110
+    fun () ->
+	let <_cor0> =
+	    %% Line 111
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 111
+		call 'erlang':'!'
+		    ('heart', {_cor0,'clear_cmd'})
+		%% Line 112
+		apply 'wait'/0
+		    ()
+'cycle'/0 =
+    %% Line 118
+    fun () ->
+	let <_cor0> =
+	    %% Line 119
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 119
+		call 'erlang':'!'
+		    ('heart', {_cor0,'cycle'})
+		%% Line 120
+		apply 'wait'/0
+		    ()
+'wait'/0 =
+    %% Line 122
+    fun () ->
+	%% Line 123
+	receive
+	  %% Line 124
+	  <{'heart',Res}> when 'true' ->
+	      %% Line 125
+	      Res
+	after 'infinity' ->
+	  'true'
+'start_portprogram'/0 =
+    %% Line 128
+    fun () ->
+	do  %% Line 129
+	    apply 'check_start_heart'/0
+		()
+	    let <_cor2> =
+		%% Line 130
+		call 'os':'getpid'
+		    ()
+	    in  let <_cor0> =
+		    %% Line 130
+		    apply 'get_heart_timeouts'/0
+			()
+		in  let <_cor1> =
+			%% Line 130
+			[32|_cor0]
+		    in  let <_cor3> =
+			    %% Line 130
+			    call 'erlang':'++'
+				(_cor2, _cor1)
+			in  let <HeartCmd> =
+				%% Line 130
+				call 'erlang':'++'
+				    ([104|[101|[97|[114|[116|[32|[45|[112|[105|[100|[32]]]]]]]]]]], _cor3)
+			    in  %% Line 131
+				try
+				    call 'erlang':'open_port'
+					({'spawn',HeartCmd}, [{'packet',2}])
+				of <_cor5> ->
+				    case _cor5 of
+				      %% Line 132
+				      <Port>
+					  when call 'erlang':'is_port'
+						(_cor5) ->
+					  %% Line 133
+					  case apply 'wait_ack'/1
+						   (Port) of
+					    %% Line 134
+					    <'ok'> when 'true' ->
+						do  %% Line 136
+						    call 'erlang':'register'
+							('heart_port', Port)
+						    %% Line 137
+						    {'ok',Port}
+					    %% Line 138
+					    <{'error',Reason}> when 'true' ->
+						do  %% Line 139
+						    apply 'report_problem'/1
+							({{'port_problem',Reason},%% Line 140
+										  {'heart','start_portprogram',[]}})
+						    %% Line 141
+						    'error'
+					    ( <_cor6> when 'true' ->
+						  primop 'match_fail'
+						      ({'case_clause',_cor6})
+					      -| ['compiler_generated'] )
+					  end
+				      ( <_cor7> when 'true' ->
+					    primop 'match_fail'
+						({'try_clause',_cor7})
+					-| ['compiler_generated'] )
+				    end
+				catch <_cor10,_cor9,_cor8> ->
+				    do  %% Line 145
+					apply 'report_problem'/1
+					    ({{'open_port',_cor9},%% Line 146
+								  {'heart','start_portprogram',[]}})
+					%% Line 147
+					'error'
+'get_heart_timeouts'/0 =
+    %% Line 150
+    fun () ->
+	let <_cor1> =
+	    %% Line 151
+	    case call 'os':'getenv'
+		     ([72|[69|[65|[82|[84|[95|[66|[69|[65|[84|[95|[84|[73|[77|[69|[79|[85|[84]]]]]]]]]]]]]]]]]]) of
+	      %% Line 152
+	      <'false'> when 'true' ->
+		  []
+	      %% Line 153
+	      <H>
+		  when call 'erlang':'is_list'
+			(H) ->
+		  %% Line 154
+		  [45|[104|[116|[32|H]]]]
+	      ( <_cor0> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor0})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor4> =
+		%% Line 156
+		case call 'os':'getenv'
+			 ([72|[69|[65|[82|[84|[95|[66|[69|[65|[84|[95|[66|[79|[79|[84|[95|[68|[69|[76|[65|[89]]]]]]]]]]]]]]]]]]]]]) of
+		  %% Line 157
+		  <'false'> when 'true' ->
+		      []
+		  %% Line 158
+		  <W>
+		      when call 'erlang':'is_list'
+			    (W) ->
+		      %% Line 159
+		      call 'erlang':'++'
+			  ([32|[45|[119|[116|[32]]]]], W)
+		  ( <_cor3> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor3})
+		    -| ['compiler_generated'] )
+		end
+	    in  %% Line 156
+		call 'erlang':'++'
+		    (_cor1, _cor4)
+'check_start_heart'/0 =
+    %% Line 162
+    fun () ->
+	%% Line 163
+	case call 'init':'get_argument'
+		 ('heart') of
+	  %% Line 164
+	  <{'ok',[[]]}> when 'true' ->
+	      %% Line 165
+	      'ok'
+	  %% Line 166
+	  <'error'> when 'true' ->
+	      %% Line 167
+	      call 'erlang':'throw'
+		  ('no_heart')
+	  %% Line 168
+	  <{'ok',[[X|_cor2]|_cor3]}> when 'true' ->
+	      let <_cor0> =
+		  %% Line 169
+		  call 'erlang':'list_to_atom'
+		      (X)
+	      in  do  %% Line 169
+		      apply 'report_problem'/1
+			  ({{'bad_heart_flag',_cor0},%% Line 170
+						     {'heart','check_start_heart',[]}})
+		      %% Line 171
+		      call 'erlang':'throw'
+			  ('error')
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'wait_ack'/1 =
+    %% Line 174
+    fun (_cor0) ->
+	%% Line 175
+	receive
+	  %% Line 176
+	  <{_cor2,{'data',[1]}}>
+	      when call 'erlang':'=:='
+		    (_cor2,
+		     _cor0) ->
+	      %% Line 177
+	      'ok'
+	  %% Line 178
+	  <{'EXIT',_cor3,'badsig'}>
+	      when call 'erlang':'=:='
+		    (_cor3,
+		     _cor0) ->
+	      %% Line 179
+	      apply 'wait_ack'/1
+		  (_cor0)
+	  %% Line 180
+	  <{'EXIT',_cor4,Reason}>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     _cor0) ->
+	      %% Line 181
+	      {'error',Reason}
+	after 'infinity' ->
+	  'true'
+'loop'/3 =
+    %% Line 184
+    fun (_cor2,_cor1,_cor0) ->
+	let <_X_> =
+	    %% Line 185
+	    apply 'send_heart_beat'/1
+		(_cor1)
+	in  %% Line 186
+	    receive
+	      %% Line 187
+	      <{From,'set_cmd',NewCmd0}> when 'true' ->
+		  let <Enc> =
+		      %% Line 188
+		      call 'file':'native_name_encoding'
+			  ()
+		  in  let <_cor5> =
+			  catch
+			      %% Line 189
+			      call 'unicode':'characters_to_binary'
+				  (NewCmd0, Enc, Enc)
+		      in  %% Line 189
+			  case _cor5 of
+			    %% Line 190
+			    <NewCmd>
+				when try
+				      let <_cor6> =
+					  call 'erlang':'is_binary'
+					      (_cor5)
+				      in  let <_cor7> =
+					      call 'erlang':'byte_size'
+						  (_cor5)
+					  in  let <_cor8> =
+						  call 'erlang':'<'
+						      (_cor7, 2047)
+					      in  call 'erlang':'and'
+						      (_cor6, _cor8)
+				  of <Try> ->
+				      Try
+				  catch <T,R> ->
+				      'false' ->
+				let <_X_> =
+				    %% Line 191
+				    apply 'send_heart_cmd'/2
+					(_cor1, NewCmd)
+				in  let <_X_> =
+					%% Line 192
+					apply 'wait_ack'/1
+					    (_cor1)
+				    in  do  %% Line 193
+					    call 'erlang':'!'
+						(From, {'heart','ok'})
+					    %% Line 194
+					    apply 'loop'/3
+						(_cor2, _cor1, NewCmd)
+			    %% Line 195
+			    <_cor18> when 'true' ->
+				do  %% Line 196
+				    call 'erlang':'!'
+					(From, {'heart',{'error',{'bad_cmd',NewCmd0}}})
+				    %% Line 197
+				    apply 'loop'/3
+					(_cor2, _cor1, _cor0)
+			  end
+	      %% Line 199
+	      <{From,'clear_cmd'}> when 'true' ->
+		  do  %% Line 200
+		      call 'erlang':'!'
+			  (From, {'heart','ok'})
+		      let <_X_> =
+			  %% Line 201
+			  apply 'send_heart_cmd'/2
+			      (_cor1, [])
+		      in  let <_X_> =
+			      %% Line 202
+			      apply 'wait_ack'/1
+				  (_cor1)
+			  in  %% Line 203
+			      apply 'loop'/3
+				  (_cor2, _cor1, [])
+	      %% Line 204
+	      <{From,'get_cmd'}> when 'true' ->
+		  let <_cor14> =
+		      %% Line 205
+		      apply 'get_heart_cmd'/1
+			  (_cor1)
+		  in  do  %% Line 205
+			  call 'erlang':'!'
+			      (From, {'heart',_cor14})
+			  %% Line 206
+			  apply 'loop'/3
+			      (_cor2, _cor1, _cor0)
+	      %% Line 207
+	      <{From,'cycle'}> when 'true' ->
+		  %% Line 209
+		  apply 'do_cycle_port_program'/4
+		      (From, _cor2, _cor1, _cor0)
+	      %% Line 210
+	      <{'EXIT',_cor19,'shutdown'}>
+		  when call 'erlang':'=:='
+			(_cor19,
+			 _cor2) ->
+		  %% Line 211
+		  apply 'no_reboot_shutdown'/1
+		      (_cor1)
+	      %% Line 212
+	      <{'EXIT',_cor20,Reason}>
+		  when call 'erlang':'=:='
+			(_cor20,
+			 _cor2) ->
+		  do  %% Line 213
+		      call 'erlang':'exit'
+			  (_cor1, Reason)
+		      %% Line 214
+		      call 'erlang':'exit'
+			  (Reason)
+	      %% Line 215
+	      <{'EXIT',_cor21,'badsig'}>
+		  when call 'erlang':'=:='
+			(_cor21,
+			 _cor1) ->
+		  %% Line 216
+		  apply 'loop'/3
+		      (_cor2, _cor1, _cor0)
+	      %% Line 217
+	      <{'EXIT',_cor22,_X_Reason}>
+		  when call 'erlang':'=:='
+			(_cor22,
+			 _cor1) ->
+		  %% Line 218
+		  call 'erlang':'exit'
+		      ({'port_terminated',{'heart','loop',[_cor2|[_cor1|[_cor0|[]]]]}})
+	      %% Line 219
+	      <_cor23> when 'true' ->
+		  %% Line 220
+		  apply 'loop'/3
+		      (_cor2, _cor1, _cor0)
+	    after %% Line 222
+		  5000 ->
+	      %% Line 223
+	      apply 'loop'/3
+		  (_cor2, _cor1, _cor0)
+'no_reboot_shutdown'/1 =
+    %% Line 228
+    fun (_cor0) ->
+	let <_X_> =
+	    %% Line 229
+	    apply 'send_shutdown'/1
+		(_cor0)
+	in  %% Line 230
+	    receive
+	      %% Line 231
+	      <{'EXIT',_cor3,Reason}>
+		  when let <_cor4> =
+			call 'erlang':'=:='
+			    (_cor3, _cor0)
+		    in  let <_cor5> =
+			    call 'erlang':'=/='
+				(Reason, 'badsig')
+			in  call 'erlang':'and'
+				(_cor4, _cor5) ->
+		  %% Line 232
+		  call 'erlang':'exit'
+		      ('normal')
+	    after 'infinity' ->
+	      'true'
+'do_cycle_port_program'/4 =
+    %% Line 235
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 236
+	    call 'erlang':'unregister'
+		('heart_port')
+	    let <_cor4> =
+		catch
+		    %% Line 237
+		    apply 'start_portprogram'/0
+			()
+	    in  %% Line 237
+		case _cor4 of
+		  %% Line 238
+		  <{'ok',NewPort}> when 'true' ->
+		      let <_X_> =
+			  %% Line 239
+			  apply 'send_shutdown'/1
+			      (_cor1)
+		      in  %% Line 240
+			  receive
+			    %% Line 241
+			    <{'EXIT',_cor13,_X_Reason}>
+				when call 'erlang':'=:='
+				      (_cor13,
+				       _cor1) ->
+				let <_X_> =
+				    %% Line 242
+				    apply 'send_heart_cmd'/2
+					(NewPort, _cor0)
+				in  do  %% Line 243
+					call 'erlang':'!'
+					    (_cor3, {'heart','ok'})
+					%% Line 244
+					apply 'loop'/3
+					    (_cor2, NewPort, _cor0)
+			  after %% Line 246
+				10000 ->
+			    let <_X_> =
+				%% Line 250
+				apply 'send_heart_cmd'/2
+				    (NewPort, _cor0)
+			    in  do  %% Line 251
+				    call 'erlang':'!'
+					(_cor3, {'heart',{'error','stop_error'}})
+				    %% Line 252
+				    apply 'loop'/3
+					(_cor2, NewPort, _cor0)
+		  %% Line 254
+		  <'no_heart'> when 'true' ->
+		      do  %% Line 255
+			  call 'erlang':'!'
+			      (_cor3, {'heart',{'error','no_heart'}})
+			  %% Line 256
+			  apply 'loop'/3
+			      (_cor2, _cor1, _cor0)
+		  %% Line 257
+		  <'error'> when 'true' ->
+		      do  %% Line 258
+			  call 'erlang':'!'
+			      (_cor3, {'heart',{'error','start_error'}})
+			  %% Line 259
+			  apply 'loop'/3
+			      (_cor2, _cor1, _cor0)
+		  ( <_cor8> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor8})
+		    -| ['compiler_generated'] )
+		end
+'send_heart_beat'/1 =
+    %% Line 264
+    fun (_cor0) ->
+	let <_cor1> =
+	    call 'erlang':'self'
+		()
+	in  call 'erlang':'!'
+		(_cor0, {_cor1,{'command',[2]}})
+'send_heart_cmd'/2 =
+    %% Line 267
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Port,[]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 268
+		  call 'erlang':'self'
+		      ()
+	      in  %% Line 268
+		  call 'erlang':'!'
+		      (Port, {_cor2,{'command',[5]}})
+	  %% Line 269
+	  <Port,Cmd> when 'true' ->
+	      let <_cor3> =
+		  %% Line 270
+		  call 'erlang':'self'
+		      ()
+	      in  %% Line 270
+		  call 'erlang':'!'
+		      (Port, {_cor3,{'command',[4|Cmd]}})
+	end
+'get_heart_cmd'/1 =
+    %% Line 272
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 273
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 273
+		call 'erlang':'!'
+		    (_cor0, {_cor1,{'command',[6]}})
+		%% Line 274
+		receive
+		  %% Line 275
+		  <{_cor3,{'data',[7|Cmd]}}>
+		      when call 'erlang':'=:='
+			    (_cor3,
+			     _cor0) ->
+		      %% Line 276
+		      {'ok',Cmd}
+		after 'infinity' ->
+		  'true'
+'send_shutdown'/1 =
+    %% Line 280
+    fun (_cor0) ->
+	let <_cor1> =
+	    call 'erlang':'self'
+		()
+	in  call 'erlang':'!'
+		(_cor0, {_cor1,{'command',[3]}})
+'report_problem'/1 =
+    %% Line 284
+    fun (_cor0) ->
+	%% Line 285
+	call 'erlang':'display'
+	    (_cor0)
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('heart')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('heart', _cor0)
+end

@@ -1,0 +1,2197 @@
+module 'observer_backend' ['etop_collect'/1,
+			   'fetch_stats'/2,
+			   'get_table'/3,
+			   'get_table_list'/2,
+			   'module_info'/0,
+			   'module_info'/1,
+			   'sys_info'/0,
+			   'ttb_fetch'/2,
+			   'ttb_get_filenames'/1,
+			   'ttb_init_node'/3,
+			   'ttb_resume_trace'/0,
+			   'ttb_stop'/1,
+			   'ttb_write_binary'/2,
+			   'ttb_write_trace_info'/3,
+			   'vsn'/0]
+    attributes []
+'vsn'/0 =
+    %% Line 41
+    fun () ->
+	%% Line 42
+	case call 'application':'load'
+		 ('runtime_tools') of
+	  %% Line 43
+	  <R>
+	      when let <_cor0> =
+		    call 'erlang':'=:='
+			(R, 'ok')
+		in  let <_cor1> =
+			call 'erlang':'=:='
+			    (R, {'error',{'already_loaded','runtime_tools'}})
+		    in  call 'erlang':'or'
+			    (_cor0, _cor1) ->
+	      %% Line 44
+	      call 'application':'get_key'
+		  ('runtime_tools', 'vsn')
+	  %% Line 45
+	  <Error> when 'true' ->
+	      Error
+	end
+'sys_info'/0 =
+    %% Line 51
+    fun () ->
+	let <_cor5> =
+	    %% Line 52
+	    try
+		call 'erlang':'memory'
+		    ()
+	    of <_cor0> ->
+		_cor0
+	    catch <_cor4,_cor3,_cor2> ->
+		%% Line 54
+		[]
+	in  let <SchedulersOnline> =
+		%% Line 57
+		call 'erlang':'system_info'
+		    ('schedulers_online')
+	    in  let <_cor9> =
+		    %% Line 58
+		    case call 'erlang':'system_info'
+			     ('multi_scheduling') of
+		      %% Line 59
+		      <'enabled'> when 'true' ->
+			  SchedulersOnline
+		      %% Line 60
+		      <_cor34> when 'true' ->
+			  1
+		    end
+		in  %% Line 63
+		    case call 'erlang':'statistics'
+			     ('io') of
+		      <{{_cor35,Input},{_cor36,Output}}> when 'true' ->
+			  let <_cor12> =
+			      %% Line 64
+			      call 'erlang':'system_info'
+				  ('process_count')
+			  in  let <_cor13> =
+				  %% Line 65
+				  call 'erlang':'system_info'
+				      ('process_limit')
+			      in  let <_cor14> =
+				      %% Line 66
+				      call 'erlang':'statistics'
+					  ('wall_clock')
+				  in  let <_cor15> =
+					  %% Line 66
+					  call 'erlang':'element'
+					      (1, _cor14)
+				      in  let <_cor16> =
+					      %% Line 67
+					      call 'erlang':'statistics'
+						  ('run_queue')
+					  in  let <_cor17> =
+						  %% Line 71
+						  call 'erlang':'system_info'
+						      ('logical_processors')
+					      in  let <_cor18> =
+						      %% Line 72
+						      call 'erlang':'system_info'
+							  ('logical_processors_online')
+						  in  let <_cor19> =
+							  %% Line 73
+							  call 'erlang':'system_info'
+							      ('logical_processors_available')
+						      in  let <_cor20> =
+							      %% Line 74
+							      call 'erlang':'system_info'
+								  ('schedulers')
+							  in  let <_cor21> =
+								  %% Line 78
+								  call 'erlang':'system_info'
+								      ('otp_release')
+							      in  let <_cor22> =
+								      %% Line 79
+								      call 'erlang':'system_info'
+									  ('version')
+								  in  let <_cor23> =
+									  %% Line 80
+									  call 'erlang':'system_info'
+									      ('system_architecture')
+								      in  let <_cor24> =
+									      %% Line 81
+									      call 'erlang':'system_info'
+										  ('kernel_poll')
+									  in  let <_cor25> =
+										  %% Line 82
+										  call 'erlang':'system_info'
+										      ('smp_support')
+									      in  let <_cor26> =
+										      %% Line 83
+										      call 'erlang':'system_info'
+											  ('threads')
+										  in  let <_cor27> =
+											  %% Line 84
+											  call 'erlang':'system_info'
+											      ('thread_pool_size')
+										      in  let <_cor28> =
+											      %% Line 85
+											      call 'erlang':'system_info'
+												  ({'wordsize','internal'})
+											  in  let <_cor29> =
+												  %% Line 86
+												  call 'erlang':'system_info'
+												      ({'wordsize','external'})
+											      in  let <_cor30> =
+												      %% Line 87
+												      apply 'alloc_info'/0
+													  ()
+												  in  %% Line 64
+												      [{'process_count',_cor12}|%% Line 65
+																[{'process_limit',_cor13}|%% Line 66
+																			  [{'uptime',_cor15}|%% Line 67
+																					     [{'run_queue',_cor16}|%% Line 68
+																								   [{'io_input',Input}|%% Line 69
+																										       [{'io_output',Output}|%% Line 71
+																													     [{'logical_processors',_cor17}|%% Line 72
+																																	    [{'logical_processors_online',_cor18}|%% Line 73
+																																						  [{'logical_processors_available',_cor19}|%% Line 74
+																																											   [{'schedulers',_cor20}|%% Line 75
+																																														  [{'schedulers_online',SchedulersOnline}|%% Line 76
+																																																			  [{'schedulers_available',_cor9}|%% Line 78
+																																																							  [{'otp_release',_cor21}|%% Line 79
+																																																										  [{'version',_cor22}|%% Line 80
+																																																												      [{'system_architecture',_cor23}|%% Line 81
+																																																																      [{'kernel_poll',_cor24}|%% Line 82
+																																																																			      [{'smp_support',_cor25}|%% Line 83
+																																																																						      [{'threads',_cor26}|%% Line 84
+																																																																									  [{'thread_pool_size',_cor27}|%% Line 85
+																																																																												       [{'wordsize_internal',_cor28}|%% Line 86
+																																																																																     [{'wordsize_external',_cor29}|%% Line 87
+																																																																																				   [{'alloc_info',_cor30}|_cor5]]]]]]]]]]]]]]]]]]]]]]
+		      ( <_cor11> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor11})
+			-| ['compiler_generated'] )
+		    end
+'alloc_info'/0 =
+    %% Line 90
+    fun () ->
+	let <AlcuAllocs> =
+	    %% Line 91
+	    call 'erlang':'system_info'
+		('alloc_util_allocators')
+	in  %% Line 92
+	    try
+		call 'erlang':'system_info'
+		    ({'allocator_sizes',AlcuAllocs})
+	    of <_cor1> ->
+		_cor1
+	    catch <_cor5,_cor4,_cor3> ->
+		%% Line 94
+		[]
+'get_table'/3 =
+    %% Line 97
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 98
+	    ( fun () ->
+		  do  %% Line 99
+		      call 'erlang':'link'
+			  (_cor2)
+		      %% Line 100
+		      apply 'get_table2'/3
+			  (_cor2, _cor1, _cor0)
+	      -| [{'id',{0,0,'-get_table/3-fun-0-'}}] )
+	in  %% Line 98
+	    call 'erlang':'spawn'
+		(_cor3)
+'get_table2'/3 =
+    %% Line 103
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 104
+	    case _cor0 of
+	      %% Line 105
+	      <'ets'> when 'true' ->
+		  call 'ets':'info'
+		      (_cor1, 'size')
+	      %% Line 106
+	      <'mnesia'> when 'true' ->
+		  call 'mnesia':'table_info'
+		      (_cor1, 'size')
+	      ( <_cor3> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor3})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor8> =
+		%% Line 108
+		( case <> of
+		    ( <>
+			  when call 'erlang':'=/='
+				(_cor4,
+				 'undefined') ->
+			  call 'erlang':'>'
+			      (_cor4, 0)
+		      -| ['compiler_generated'] )
+		    ( <> when 'true' ->
+			  'false'
+		      -| ['compiler_generated'] )
+		  end
+		  -| ['compiler_generated'] )
+	    in  %% Line 108
+		case _cor8 of
+		  %% Line 109
+		  <'false'> when 'true' ->
+		      let <_cor9> =
+			  %% Line 110
+			  call 'erlang':'self'
+			      ()
+		      in  do  %% Line 110
+			      call 'erlang':'!'
+				  (_cor2, {_cor9,'$end_of_table'})
+			      %% Line 111
+			      'normal'
+		  %% Line 112
+		  <'true'>
+		      when call 'erlang':'=:='
+			    (_cor0,
+			     'ets') ->
+		      let <Mem> =
+			  %% Line 113
+			  call 'ets':'info'
+			      (_cor1, 'memory')
+		      in  let <Average> =
+			      %% Line 114
+			      call 'erlang':'div'
+				  (Mem, _cor4)
+			  in  let <_cor12> =
+				  %% Line 115
+				  call 'erlang':'div'
+				      (20000, Average)
+			      in  let <NoElements> =
+				      %% Line 115
+				      call 'erlang':'max'
+					  (10, _cor12)
+				  in  let <_cor14> =
+					  %% Line 116
+					  call 'ets':'match'
+					      (_cor1, '$1', NoElements)
+				      in  %% Line 116
+					  apply 'get_ets_loop'/2
+					      (_cor2, _cor14)
+		  %% Line 117
+		  <'true'> when 'true' ->
+		      let <Mem> =
+			  %% Line 118
+			  call 'mnesia':'table_info'
+			      (_cor1, 'memory')
+		      in  let <Average> =
+			      %% Line 119
+			      call 'erlang':'div'
+				  (Mem, _cor4)
+			  in  let <_cor17> =
+				  %% Line 120
+				  call 'erlang':'div'
+				      (20000, Average)
+			      in  let <NoElements> =
+				      %% Line 120
+				      call 'erlang':'max'
+					  (10, _cor17)
+				  in  let <Get> =
+					  %% Line 122
+					  ( fun () ->
+						let <_cor20> =
+						    %% Line 123
+						    call 'mnesia':'select'
+							(_cor1, [{'$1',[],['$1']}], NoElements, 'read')
+						in  %% Line 123
+						    apply 'get_mnesia_loop'/2
+							(_cor2, _cor20)
+					    -| [{'id',{0,0,'-get_table2/3-fun-0-'}}] )
+				      in  %% Line 126
+					  call 'mnesia':'async_dirty'
+					      (Get)
+		  ( <_cor22> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor22})
+		    -| ['compiler_generated'] )
+		end
+'get_ets_loop'/2 =
+    %% Line 129
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Parent,'$end_of_table'> when 'true' ->
+	      let <_cor2> =
+		  %% Line 130
+		  call 'erlang':'self'
+		      ()
+	      in  %% Line 130
+		  call 'erlang':'!'
+		      (Parent, {_cor2,'$end_of_table'})
+	  %% Line 131
+	  <Parent,{Match,Cont}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 132
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 132
+		      call 'erlang':'!'
+			  (Parent, {_cor3,Match})
+		      let <_cor4> =
+			  %% Line 133
+			  call 'ets':'match'
+			      (Cont)
+		      in  %% Line 133
+			  apply 'get_ets_loop'/2
+			      (Parent, _cor4)
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'get_ets_loop',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_mnesia_loop'/2 =
+    %% Line 135
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Parent,'$end_of_table'> when 'true' ->
+	      let <_cor2> =
+		  %% Line 136
+		  call 'erlang':'self'
+		      ()
+	      in  %% Line 136
+		  call 'erlang':'!'
+		      (Parent, {_cor2,'$end_of_table'})
+	  %% Line 137
+	  <Parent,{Match,Cont}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 138
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 138
+		      call 'erlang':'!'
+			  (Parent, {_cor3,Match})
+		      let <_cor4> =
+			  %% Line 139
+			  call 'mnesia':'select'
+			      (Cont)
+		      in  %% Line 139
+			  apply 'get_mnesia_loop'/2
+			      (Parent, _cor4)
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'get_mnesia_loop',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_table_list'/2 =
+    %% Line 141
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'ets',Opts> when 'true' ->
+	      let <HideUnread> =
+		  %% Line 142
+		  call 'proplists':'get_value'
+		      ('unread_hidden', Opts, 'true')
+	      in  let <HideSys> =
+		      %% Line 143
+		      call 'proplists':'get_value'
+			  ('sys_hidden', Opts, 'true')
+		  in  let <Info> =
+			  %% Line 144
+			  ( fun (_cor46,_cor45) ->
+				%% Line 145
+				try
+				    let <_cor5> =
+					%% Line 146
+					case call 'ets':'info'
+						 (_cor46, 'named_table') of
+					  %% Line 147
+					  <'true'> when 'true' ->
+					      'ignore'
+					  %% Line 148
+					  <'false'> when 'true' ->
+					      _cor46
+					  ( <_cor4> when 'true' ->
+						primop 'match_fail'
+						    ({'case_clause',_cor4})
+					    -| ['compiler_generated'] )
+					end
+				    in  let <Name> =
+					    %% Line 150
+					    call 'ets':'info'
+						(_cor46, 'name')
+					in  let <Protection> =
+						%% Line 151
+						call 'ets':'info'
+						    (_cor46, 'protection')
+					    in  let <_cor11> =
+						    %% Line 152
+						    ( case HideUnread of
+							( <( 'true'
+							     -| ['compiler_generated'] )> when 'true' ->
+							      call 'erlang':'=:='
+								  (Protection, 'private')
+							  -| ['compiler_generated'] )
+							( <( 'false'
+							     -| ['compiler_generated'] )> when 'true' ->
+							      'false'
+							  -| ['compiler_generated'] )
+							( <_cor9> when 'true' ->
+							      ( call ( 'erlang'
+								       -| ['compiler_generated'] ):( 'error'
+												     -| ['compiler_generated'] )
+								    (( {( 'badarg'
+									  -| ['compiler_generated'] ),_cor9}
+								       -| ['compiler_generated'] ))
+								-| ['compiler_generated'] )
+							  -| ['compiler_generated'] )
+						      end
+						      -| ['compiler_generated'] )
+						in  do  %% Line 152
+							apply 'ignore'/2
+							    (_cor11, 'unreadable')
+							let <Owner> =
+							    %% Line 153
+							    call 'ets':'info'
+								(_cor46, 'owner')
+							in  let <_cor13> =
+								catch
+								    %% Line 154
+								    call 'erlang':'process_info'
+									(Owner, 'registered_name')
+							    in  let <_cor15> =
+								    %% Line 154
+								    case _cor13 of
+								      %% Line 155
+								      <[]> when 'true' ->
+									  'ignore'
+								      %% Line 156
+								      <{'registered_name',ProcName}> when 'true' ->
+									  ProcName
+								      ( <_cor14> when 'true' ->
+									    primop 'match_fail'
+										({'case_clause',_cor14})
+									-| ['compiler_generated'] )
+								    end
+								in  let <_cor20> =
+									%% Line 158
+									( case HideSys of
+									    ( <( 'true'
+										 -| ['compiler_generated'] )> when 'true' ->
+										  let <_cor18> =
+										      apply 'sys_processes'/0
+											  ()
+										  in  call 'ordsets':'is_element'
+											  (_cor15, _cor18)
+									      -| ['compiler_generated'] )
+									    ( <( 'false'
+										 -| ['compiler_generated'] )> when 'true' ->
+										  'false'
+									      -| ['compiler_generated'] )
+									    ( <_cor17> when 'true' ->
+										  ( call ( 'erlang'
+											   -| ['compiler_generated'] ):( 'error'
+															 -| ['compiler_generated'] )
+											(( {( 'badarg'
+											      -| ['compiler_generated'] ),_cor17}
+											   -| ['compiler_generated'] ))
+										    -| ['compiler_generated'] )
+									      -| ['compiler_generated'] )
+									  end
+									  -| ['compiler_generated'] )
+								    in  do  %% Line 158
+									    apply 'ignore'/2
+										(_cor20, 'system_tab')
+									    let <_cor24> =
+										%% Line 159
+										( case HideSys of
+										    ( <( 'true'
+											 -| ['compiler_generated'] )> when 'true' ->
+											  let <_cor22> =
+											      apply 'sys_tables'/0
+												  ()
+											  in  call 'ordsets':'is_element'
+												  (Name, _cor22)
+										      -| ['compiler_generated'] )
+										    ( <( 'false'
+											 -| ['compiler_generated'] )> when 'true' ->
+											  'false'
+										      -| ['compiler_generated'] )
+										    ( <_cor21> when 'true' ->
+											  ( call ( 'erlang'
+												   -| ['compiler_generated'] ):( 'error'
+																 -| ['compiler_generated'] )
+												(( {( 'badarg'
+												      -| ['compiler_generated'] ),_cor21}
+												   -| ['compiler_generated'] ))
+											    -| ['compiler_generated'] )
+										      -| ['compiler_generated'] )
+										  end
+										  -| ['compiler_generated'] )
+									    in  do  %% Line 159
+										    apply 'ignore'/2
+											(_cor24, 'system_tab')
+										    let <_cor30> =
+											%% Line 161
+											( case <> of
+											    ( <>
+												  when call 'erlang':'=:='
+													(_cor15,
+													 'mnesia_monitor') ->
+												  %% Line 162
+												  ( case <> of
+												      ( <>
+													    when call 'erlang':'=/='
+														  (Name,
+														   'schema') ->
+													    let <_cor27> =
+														catch
+														    call 'mnesia':'table_info'
+															(Name, 'where_to_read')
+													    in  call 'erlang':'is_atom'
+														    (_cor27)
+													-| ['compiler_generated'] )
+												      ( <> when 'true' ->
+													    'false'
+													-| ['compiler_generated'] )
+												    end
+												    -| ['compiler_generated'] )
+											      -| ['compiler_generated'] )
+											    ( <> when 'true' ->
+												  'false'
+											      -| ['compiler_generated'] )
+											  end
+											  -| ['compiler_generated'] )
+										    in  do  %% Line 160
+											    apply 'ignore'/2
+												(_cor30, %% Line 162
+													 'mnesia_tab')
+											    let <_cor32> =
+												%% Line 163
+												call 'ets':'info'
+												    (_cor46, 'memory')
+											    in  let <_cor31> =
+												    %% Line 163
+												    call 'erlang':'system_info'
+													('wordsize')
+												in  let <Memory> =
+													%% Line 163
+													call 'erlang':'*'
+													    (_cor32, _cor31)
+												    in  let <_cor34> =
+													    %% Line 168
+													    call 'ets':'info'
+														(_cor46, 'size')
+													in  let <_cor35> =
+														%% Line 170
+														call 'ets':'info'
+														    (_cor46, 'type')
+													    in  let <_cor36> =
+														    %% Line 171
+														    call 'ets':'info'
+															(_cor46, 'keypos')
+														in  let <_cor37> =
+															%% Line 172
+															call 'ets':'info'
+															    (_cor46, 'heir')
+														    in  let <_cor38> =
+															    %% Line 174
+															    call 'ets':'info'
+																(_cor46, 'compressed')
+															in  let <_cor39> =
+																%% Line 175
+																call 'ets':'info'
+																    (_cor46, 'fixed')
+															    in  let <Tab> =
+																    %% Line 164
+																    [{'name',Name}|%% Line 165
+																		   [{'id',_cor5}|%% Line 166
+																				 [{'protection',Protection}|%% Line 167
+																							    [{'owner',Owner}|%% Line 168
+																									     [{'size',_cor34}|%% Line 169
+																											      [{'reg_name',_cor15}|%% Line 170
+																														   [{'type',_cor35}|%% Line 171
+																																    [{'keypos',_cor36}|%% Line 172
+																																		       [{'heir',_cor37}|%% Line 173
+																																					[{'memory',Memory}|%% Line 174
+																																							   [{'compressed',_cor38}|%% Line 175
+																																										  [{'fixed',_cor39}|%% Line 176
+																																												    []]]]]]]]]]]]]
+																in  %% Line 177
+																    [Tab|_cor45]
+				of <_cor41> ->
+				    _cor41
+				catch <_cor44,_cor43,_cor42> ->
+				    _cor45
+			    -| [{'id',{0,0,'-get_table_list/2-fun-0-'}}] )
+		      in  let <_cor50> =
+			      %% Line 183
+			      call 'ets':'all'
+				  ()
+			  in  %% Line 183
+			      call 'lists':'foldl'
+				  (Info, [], _cor50)
+	  %% Line 185
+	  <'mnesia',Opts> when 'true' ->
+	      let <HideSys> =
+		  %% Line 186
+		  call 'proplists':'get_value'
+		      ('sys_hidden', Opts, 'true')
+	      in  let <Owner> =
+		      %% Line 187
+		      call 'ets':'info'
+			  ('schema', 'owner')
+		  in  do  %% Line 188
+			  ( case <> of
+			      ( <>
+				    when call 'erlang':'=/='
+					  (Owner,
+					   'undefined') ->
+				    'ok'
+				-| ['compiler_generated'] )
+			      ( <> when 'true' ->
+				    let <_cor54> =
+					%% Line 189
+					call 'erlang':'node'
+					    ()
+				    in  let <_cor55> =
+					    %% Line 189
+					    call 'erlang':'atom_to_list'
+						(_cor54)
+					in  let <_cor56> =
+						%% Line 189
+						call 'erlang':'++'
+						    ([77|[110|[101|[115|[105|[97|[32|[105|[115|[32|[110|[111|[116|[32|[114|[117|[110|[110|[105|[110|[103|[32|[111|[110|[58|[32]]]]]]]]]]]]]]]]]]]]]]]]]], _cor55)
+					    in  %% Line 189
+						call 'erlang':'throw'
+						    ({'error',_cor56})
+				-| ['compiler_generated'] )
+			    end
+			    -| ['compiler_generated'] )
+			  %% Line 190
+			  case call 'erlang':'process_info'
+				   (Owner, 'registered_name') of
+			    <{'registered_name',RegName}> when 'true' ->
+				let <Info> =
+				    %% Line 191
+				    ( fun (_cor86,_cor85) ->
+					  %% Line 192
+					  try
+					      let <_cor63> =
+						  %% Line 194
+						  ( case HideSys of
+						      ( <( 'true'
+							   -| ['compiler_generated'] )> when 'true' ->
+							    let <_cor61> =
+								apply 'mnesia_tables'/0
+								    ()
+							    in  call 'ordsets':'is_element'
+								    (_cor86, _cor61)
+							-| ['compiler_generated'] )
+						      ( <( 'false'
+							   -| ['compiler_generated'] )> when 'true' ->
+							    'false'
+							-| ['compiler_generated'] )
+						      ( <_cor60> when 'true' ->
+							    ( call ( 'erlang'
+								     -| ['compiler_generated'] ):( 'error'
+												   -| ['compiler_generated'] )
+								  (( {( 'badarg'
+									-| ['compiler_generated'] ),_cor60}
+								     -| ['compiler_generated'] ))
+							      -| ['compiler_generated'] )
+							-| ['compiler_generated'] )
+						    end
+						    -| ['compiler_generated'] )
+					      in  do  %% Line 194
+						      apply 'ignore'/2
+							  (_cor63, 'system_tab')
+						      let <_cor64> =
+							  %% Line 195
+							  call 'erlang':'=:='
+							      (_cor86, 'schema')
+						      in  do  %% Line 195
+							      apply 'ignore'/2
+								  (_cor64, 'mnesia_tab')
+							      let <Storage> =
+								  %% Line 196
+								  call 'mnesia':'table_info'
+								      (_cor86, 'storage_type')
+							      in  let <_cor66> =
+								      %% Line 199
+								      call 'mnesia':'table_info'
+									  (_cor86, 'size')
+								  in  let <_cor67> =
+									  %% Line 201
+									  call 'mnesia':'table_info'
+									      (_cor86, 'type')
+								      in  let <_cor69> =
+									      %% Line 203
+									      call 'mnesia':'table_info'
+										  (_cor86, 'memory')
+									  in  let <_cor68> =
+										  %% Line 203
+										  call 'erlang':'system_info'
+										      ('wordsize')
+									      in  let <_cor70> =
+										      %% Line 203
+										      call 'erlang':'*'
+											  (_cor69, _cor68)
+										  in  let <_cor71> =
+											  %% Line 205
+											  call 'mnesia':'table_info'
+											      (_cor86, 'index')
+										      in  let <Tab0> =
+											      %% Line 197
+											      [{'name',_cor86}|%% Line 198
+													       [{'owner',Owner}|%% Line 199
+																[{'size',_cor66}|%% Line 200
+																		 [{'reg_name',RegName}|%% Line 201
+																				       [{'type',_cor67}|%% Line 202
+																							[{'keypos',2}|%% Line 203
+																								      [{'memory',_cor70}|%% Line 204
+																											 [{'storage',Storage}|%% Line 205
+																													      [{'index',_cor71}|%% Line 206
+																																[]]]]]]]]]]
+											  in  let <_cor79> =
+												  %% Line 207
+												  case <> of
+												    <>
+													when call 'erlang':'=:='
+													      (Storage,
+													       'disc_only_copies') ->
+													let <_cor73> =
+													    %% Line 208
+													    call 'dets':'info'
+														(_cor86, 'safe_fixed')
+													in  %% Line 208
+													    [{'fixed',_cor73}|Tab0]
+												    %% Line 209
+												    <>
+													when try
+													      ( case <> of
+														  ( <>
+															when call 'erlang':'=:='
+															      (Storage,
+															       'ram_copies') ->
+															'true'
+														    -| ['compiler_generated'] )
+														  ( <> when 'true' ->
+															%% Line 210
+															call 'erlang':'=:='
+															    (Storage, 'disc_copies')
+														    -| ['compiler_generated'] )
+														end
+														-| ['compiler_generated'] )
+													  of <Try> ->
+													      Try
+													  catch <T,R> ->
+													      'false' ->
+													let <_cor77> =
+													    %% Line 211
+													    call 'ets':'info'
+														(_cor86, 'fixed')
+													in  let <_cor78> =
+														%% Line 212
+														call 'ets':'info'
+														    (_cor86, 'compressed')
+													    in  %% Line 211
+														[{'fixed',_cor77}|%% Line 212
+																  [{'compressed',_cor78}|Tab0]]
+												    %% Line 213
+												    <> when 'true' ->
+													Tab0
+												  end
+											      in  %% Line 215
+												  [_cor79|_cor85]
+					  of <_cor81> ->
+					      _cor81
+					  catch <_cor84,_cor83,_cor82> ->
+					      _cor85
+				      -| [{'id',{0,0,'-get_table_list/2-fun-1-'}}] )
+				in  let <_cor90> =
+					%% Line 221
+					call 'mnesia':'system_info'
+					    ('tables')
+				    in  %% Line 221
+					call 'lists':'foldl'
+					    (Info, [], _cor90)
+			    ( <_cor58> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor58})
+			      -| ['compiler_generated'] )
+			  end
+	  ( <_cor92,_cor91> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor92,_cor91})
+		  -| [{'function_name',{'get_table_list',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'fetch_stats'/2 =
+    %% Line 223
+    fun (_cor1,_cor0) ->
+	do  %% Line 224
+	    call 'erlang':'process_flag'
+		('trap_exit', 'true')
+	    %% Line 225
+	    apply 'fetch_stats_loop'/2
+		(_cor1, _cor0)
+'fetch_stats_loop'/2 =
+    %% Line 227
+    fun (_cor1,_cor0) ->
+	do  %% Line 228
+	    call 'erlang':'system_flag'
+		('scheduler_wall_time', 'true')
+	    %% Line 229
+	    receive
+	      %% Line 230
+	      <_X_Msg> when 'true' ->
+		  %% Line 232
+		  'ok'
+	    after _cor0 ->
+	      let <_cor8> =
+		  %% Line 235
+		  call 'erlang':'statistics'
+		      ('scheduler_wall_time')
+	      in  let <_cor7> =
+		      %% Line 236
+		      call 'erlang':'statistics'
+			  ('io')
+		  in  let <_cor6> =
+			  %% Line 237
+			  try
+			      call 'erlang':'memory'
+				  ()
+			  of <_cor2> ->
+			      _cor2
+			  catch <_cor5,_cor4,_cor3> ->
+			      []
+		      in  let <_X_M> =
+			      %% Line 234
+			      call 'erlang':'!'
+				  (_cor1, {'stats',1,_cor8,_cor7,_cor6})
+			  in  %% Line 238
+			      apply 'fetch_stats_loop'/2
+				  (_cor1, _cor0)
+'etop_collect'/1 =
+    %% Line 243
+    fun (_cor0) ->
+	let <SchedulerWallTime> =
+	    %% Line 248
+	    call 'erlang':'statistics'
+		('scheduler_wall_time')
+	in  let <_cor2> =
+		%% Line 249
+		call 'erlang':'processes'
+		    ()
+	    in  let <ProcInfo> =
+		    %% Line 249
+		    apply 'etop_collect'/2
+			(_cor2, [])
+		in  let <_cor8> =
+			%% Line 251
+			call 'erlang':'self'
+			    ()
+		    in  let <_cor7> =
+			    %% Line 251
+			    call 'erlang':'now'
+				()
+			in  let <_cor6> =
+				%% Line 252
+				call 'erlang':'length'
+				    (ProcInfo)
+			    in  let <_cor5> =
+				    %% Line 253
+				    call 'erlang':'statistics'
+					('run_queue')
+				in  let <_cor4> =
+					%% Line 255
+					apply 'etop_memi'/0
+					    ()
+				    in  do  %% Line 251
+					    call 'erlang':'!'
+						(_cor0, {_cor8,{'etop_info',_cor7,_cor6,'undefined',%% Line 254
+												    SchedulerWallTime,_cor5,[],_cor4,%% Line 256
+																     ProcInfo}})
+					    do  %% Line 259
+						case SchedulerWallTime of
+						  %% Line 260
+						  <'undefined'> when 'true' ->
+						      let <_cor9> =
+							  %% Line 261
+							  ( fun () ->
+								apply 'flag_holder_proc'/1
+								    (_cor0)
+							    -| [{'id',{0,0,'-etop_collect/1-fun-0-'}}] )
+						      in  %% Line 261
+							  call 'erlang':'spawn'
+							      (_cor9)
+						  %% Line 262
+						  <_cor12> when 'true' ->
+						      'ok'
+						end
+						%% Line 266
+						call 'erlang':'system_flag'
+						    ('scheduler_wall_time', 'true')
+'flag_holder_proc'/1 =
+    %% Line 268
+    fun (_cor0) ->
+	let <Ref> =
+	    %% Line 269
+	    call 'erlang':'monitor'
+		('process', _cor0)
+	in  %% Line 270
+	    receive
+	      %% Line 271
+	      <{'DOWN',_cor3,_cor4,_cor5,_cor6}>
+		  when call 'erlang':'=:='
+			(_cor3,
+			 Ref) ->
+		  %% Line 273
+		  'ok'
+	    after 'infinity' ->
+	      'true'
+'etop_memi'/0 =
+    %% Line 276
+    fun () ->
+	%% Line 277
+	try
+	    let <_cor0> =
+		%% Line 278
+		call 'c':'memory'
+		    ('total')
+	    in  let <_cor1> =
+		    %% Line 279
+		    call 'c':'memory'
+			('processes')
+		in  let <_cor2> =
+			%% Line 280
+			call 'c':'memory'
+			    ('ets')
+		    in  let <_cor3> =
+			    %% Line 281
+			    call 'c':'memory'
+				('atom')
+			in  let <_cor4> =
+				%% Line 282
+				call 'c':'memory'
+				    ('code')
+			    in  let <_cor5> =
+				    %% Line 283
+				    call 'c':'memory'
+					('binary')
+				in  %% Line 278
+				    [{'total',_cor0}|%% Line 279
+						     [{'processes',_cor1}|%% Line 280
+									  [{'ets',_cor2}|%% Line 281
+											 [{'atom',_cor3}|%% Line 282
+													 [{'code',_cor4}|%% Line 283
+															 [{'binary',_cor5}|[]]]]]]]
+	of <_cor6> ->
+	    _cor6
+	catch <_cor9,_cor8,_cor7> ->
+	    case <_cor9,_cor8,_cor7> of
+	      %% Line 285
+	      <'error','notsup',_cor10> when 'true' ->
+		  %% Line 286
+		  'undefined'
+	      ( <_cor9,_cor8,_cor7> when 'true' ->
+		    primop 'raise'
+			(_cor7, _cor8)
+		-| ['compiler_generated'] )
+	    end
+'etop_collect'/2 =
+    %% Line 289
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[P|Ps],Acc>
+	      when try
+		    let <_cor2> =
+			call 'erlang':'self'
+			    ()
+		    in  call 'erlang':'=:='
+			    (P, _cor2)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 290
+	      apply 'etop_collect'/2
+		  (Ps, Acc)
+	  %% Line 291
+	  <[P|Ps],Acc> when 'true' ->
+	      %% Line 293
+	      case call 'erlang':'process_info'
+		       (P, ['registered_name'|['initial_call'|['memory'|['reductions'|['current_function'|['message_queue_len']]]]]]) of
+		%% Line 294
+		<'undefined'> when 'true' ->
+		    %% Line 295
+		    apply 'etop_collect'/2
+			(Ps, Acc)
+		%% Line 296
+		<[{'registered_name',Reg}|[{'initial_call',Initial}|[{'memory',Mem}|%% Line 297
+										    [{'reductions',Reds}|[{'current_function',Current}|[{'message_queue_len',Qlen}|[]]]]]]]> when 'true' ->
+		    let <_cor5> =
+			%% Line 298
+			case Reg of
+			  %% Line 299
+			  <[]> when 'true' ->
+			      apply 'initial_call'/2
+				  (Initial, P)
+			  %% Line 300
+			  <_cor11> when 'true' ->
+			      Reg
+			end
+		    in  let <Info> =
+			    %% Line 302
+			    {'etop_proc_info',P,Mem,Reds,_cor5,0,%% Line 303
+								 Current,%% Line 303
+									 Qlen}
+			in  %% Line 304
+			    apply 'etop_collect'/2
+				(Ps, [Info|Acc])
+		( <_cor8> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor8})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 306
+	  <[],Acc> when 'true' ->
+	      Acc
+	  ( <_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9})
+		  -| [{'function_name',{'etop_collect',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'initial_call'/2 =
+    %% Line 308
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'proc_lib','init_p',_cor4},Pid> when 'true' ->
+	      %% Line 309
+	      call 'proc_lib':'translate_initial_call'
+		  (Pid)
+	  %% Line 310
+	  <Initial,_X_Pid> when 'true' ->
+	      %% Line 311
+	      Initial
+	end
+'ttb_init_node'/3 =
+    %% Line 316
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor22,MetaFile> =
+	    %% Line 317
+	    case <> of
+	      %% Line 318
+	      <>
+		  when let <_cor3> =
+			call 'erlang':'is_list'
+			    (_cor2)
+		    in  let <_cor4> =
+			    %% Line 319
+			    call 'erlang':'is_atom'
+				(_cor2)
+			in  call 'erlang':'or'
+				(_cor3, _cor4) ->
+		  %% Line 320
+		  case call 'file':'get_cwd'
+			   () of
+		    <{'ok',Cwd}> when 'true' ->
+			let <MetaFile> =
+			    %% Line 321
+			    call 'filename':'join'
+				(Cwd, _cor2)
+			in  let <_cor21> =
+				%% Line 322
+				call 'file':'delete'
+				    (MetaFile)
+			    in  <_cor21,MetaFile>
+		    ( <_cor5> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor5})
+		      -| ['compiler_generated'] )
+		  end
+	      %% Line 323
+	      <> when 'true' ->
+		  <_cor2,_cor2>
+	    end
+	in  do  %% Line 326
+		case call 'proplists':'get_value'
+			 ('resume', _cor0) of
+		  %% Line 327
+		  <{'true',_cor18}> when 'true' ->
+		      let <_cor8> =
+			  apply 'autostart_module'/0
+			      ()
+		      in  call _cor8:'write_config'
+			      (_cor0)
+		  %% Line 328
+		  <_cor19> when 'true' ->
+		      'ok'
+		end
+		let <Self> =
+		    %% Line 330
+		    call 'erlang':'self'
+			()
+		in  let <_cor11> =
+			%% Line 331
+			( fun () ->
+			      apply 'ttb_meta_tracer'/4
+				  (MetaFile, _cor1, Self, _cor0)
+			  -| [{'id',{0,0,'-ttb_init_node/3-fun-0-'}}] )
+		    in  let <MetaPid> =
+			    %% Line 331
+			    call 'erlang':'spawn'
+				(_cor11)
+			in  do  %% Line 332
+				receive
+				  <{_cor20,'started'}>
+				      when call 'erlang':'=:='
+					    (_cor20,
+					     MetaPid) ->
+				      'ok'
+				after 'infinity' ->
+				  'ok'
+				do  %% Line 333
+				    call 'erlang':'!'
+					(MetaPid, {'metadata',_cor0})
+				    do  %% Line 334
+					case _cor1 of
+					  %% Line 335
+					  <'true'> when 'true' ->
+					      let <Proci> =
+						  %% Line 336
+						  apply 'pnames'/0
+						      ()
+					      in  %% Line 337
+						  call 'erlang':'!'
+						      (MetaPid, {'metadata',Proci})
+					  %% Line 338
+					  <'false'> when 'true' ->
+					      'ok'
+					  ( <_cor14> when 'true' ->
+						primop 'match_fail'
+						    ({'case_clause',_cor14})
+					    -| ['compiler_generated'] )
+					end
+					%% Line 341
+					{'ok',MetaFile,MetaPid}
+'ttb_write_trace_info'/3 =
+    %% Line 343
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 344
+	    call 'erlang':'!'
+		(_cor2, {'metadata',_cor1,_cor0})
+	    %% Line 345
+	    'ok'
+'ttb_meta_tracer'/4 =
+    %% Line 347
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 348
+	    call 'proplists':'get_value'
+		('ttb_control', _cor0)
+	in  do  %% Line 348
+		call 'erlang':'monitor'
+		    ('process', _cor4)
+		do  %% Line 349
+		    case _cor2 of
+		      %% Line 350
+		      <'true'> when 'true' ->
+			  do  %% Line 352
+			      call 'erlang':'trace_pattern'
+				  ({'erlang','spawn',3}, [{'_',[],[{'return_trace'}]}], ['meta'])
+			      do  %% Line 353
+				  call 'erlang':'trace_pattern'
+				      ({'erlang','spawn_link',3}, [{'_',[],[{'return_trace'}]}], ['meta'])
+				  do  %% Line 354
+				      call 'erlang':'trace_pattern'
+					  ({'erlang','spawn_opt',1}, [{'_',[],[{'return_trace'}]}], ['meta'])
+				      do  %% Line 355
+					  call 'erlang':'trace_pattern'
+					      ({'erlang','register',2}, [], ['meta'])
+					  %% Line 356
+					  call 'erlang':'trace_pattern'
+					      ({'global','register_name',2}, [], ['meta'])
+		      %% Line 357
+		      <'false'> when 'true' ->
+			  'ok'
+		      ( <_cor6> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor6})
+			-| ['compiler_generated'] )
+		    end
+		    let <_cor7> =
+			%% Line 360
+			call 'erlang':'self'
+			    ()
+		    in  do  %% Line 360
+			    call 'erlang':'!'
+				(_cor1, {_cor7,'started'})
+			    do  %% Line 361
+				case call 'proplists':'get_value'
+					 ('overload_check', _cor0) of
+				  %% Line 362
+				  <{Ms,M,F}> when 'true' ->
+				      do  catch
+					      %% Line 363
+					      call M:F
+						  ('init')
+					  let <_cor8> =
+					      %% Line 364
+					      call 'erlang':'self'
+						  ()
+					  in  %% Line 364
+					      call 'erlang':'send_after'
+						  (Ms, _cor8, 'overload_check')
+				  %% Line 365
+				  <_cor15> when 'true' ->
+				      'ok'
+				end
+				let <_cor10> =
+				    %% Line 368
+				    call 'dict':'new'
+					()
+				in  %% Line 368
+				    apply 'ttb_meta_tracer_loop'/4
+					(_cor3, _cor2, _cor10, _cor0)
+'ttb_meta_tracer_loop'/4 =
+    %% Line 370
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 371
+	receive
+	  %% Line 372
+	  <{'trace_ts',_cor42,'call',{'erlang','register',[Name|[Pid|[]]]},_cor43}> when 'true' ->
+	      do  %% Line 373
+		  apply 'ttb_store_meta'/2
+		      ({'pid',{Pid,Name}}, _cor3)
+		  %% Line 374
+		  apply 'ttb_meta_tracer_loop'/4
+		      (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 375
+	  <{'trace_ts',_cor44,'call',{'global','register_name',[Name|[Pid|[]]]},_cor45}> when 'true' ->
+	      do  %% Line 376
+		  apply 'ttb_store_meta'/2
+		      ({'pid',{Pid,{'global',Name}}}, _cor3)
+		  %% Line 377
+		  apply 'ttb_meta_tracer_loop'/4
+		      (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 378
+	  <{'trace_ts',CallingPid,'call',{'erlang','spawn_opt',[{M,F,Args,_cor46}|[]]},_cor47}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 379
+		  call 'erlang':'length'
+		      (Args)
+	      in  let <MFA> = {%% Line 379
+		       M,%% Line 379
+			 F,_cor4}
+		  in  let <_cor8> =
+			  %% Line 381
+			  ( fun (_cor6) ->
+				[MFA|_cor6]
+			    -| [{'id',{0,0,'-ttb_meta_tracer_loop/4-fun-0-'}}] )
+		      in  let <NewAcc> =
+			      %% Line 380
+			      call 'dict':'update'
+				  (CallingPid, _cor8, %% Line 381
+						      [MFA|[]], _cor1)
+			  in  %% Line 383
+			      apply 'ttb_meta_tracer_loop'/4
+				  (_cor3, _cor2, NewAcc, _cor0)
+	  %% Line 384
+	  <{'trace_ts',CallingPid,'return_from',{'erlang','spawn_opt',_X_Arity},Ret,_cor48}> when 'true' ->
+	      let <_cor56,NewPid> =
+		  %% Line 385
+		  case Ret of
+		    %% Line 386
+		    <{NewPid,_X_Mref}>
+			when call 'erlang':'is_pid'
+			      (NewPid) ->
+			<'ok',NewPid>
+		    %% Line 387
+		    <NewPid>
+			when call 'erlang':'is_pid'
+			      (Ret) ->
+			<'ok',NewPid>
+		    ( <_cor10> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor10})
+		      -| ['compiler_generated'] )
+		  end
+	      in  let <_cor13> =
+		      %% Line 391
+		      ( fun (_cor11) ->
+			    case _cor11 of
+			      <[H|T]> when 'true' ->
+				  do  %% Line 392
+				      apply 'ttb_store_meta'/2
+					  ({'pid',{NewPid,H}}, _cor3)
+				      %% Line 393
+				      T
+			      ( <_cor12> when 'true' ->
+				    ( primop 'match_fail'
+					  ({'function_clause',_cor12})
+				      -| [{'function_name',{'-ttb_meta_tracer_loop/4-fun-1-',1}}] )
+				-| ['compiler_generated'] )
+			    end
+			-| [{'id',{0,0,'-ttb_meta_tracer_loop/4-fun-1-'}}] )
+		  in  let <NewAcc> =
+			  %% Line 390
+			  call 'dict':'update'
+			      (CallingPid, _cor13, _cor1)
+		      in  %% Line 396
+			  apply 'ttb_meta_tracer_loop'/4
+			      (_cor3, _cor2, NewAcc, _cor0)
+	  %% Line 397
+	  <{'trace_ts',CallingPid,'call',{'erlang',Spawn,[M|[F|[Args|[]]]]},_cor49}>
+	      when let <_cor15> =
+		    %% Line 398
+		    call 'erlang':'=:='
+			(Spawn, 'spawn')
+		in  let <_cor16> =
+			%% Line 398
+			call 'erlang':'=:='
+			    (Spawn, 'spawn_link')
+		    in  %% Line 398
+			call 'erlang':'or'
+			    (_cor15, _cor16) ->
+	      let <_cor17> =
+		  %% Line 399
+		  call 'erlang':'length'
+		      (Args)
+	      in  let <MFA> = {%% Line 399
+		       M,%% Line 399
+			 F,_cor17}
+		  in  let <_cor21> =
+			  %% Line 401
+			  ( fun (_cor19) ->
+				[MFA|_cor19]
+			    -| [{'id',{0,0,'-ttb_meta_tracer_loop/4-fun-2-'}}] )
+		      in  let <NewAcc> =
+			      %% Line 400
+			      call 'dict':'update'
+				  (CallingPid, _cor21, %% Line 401
+						       [MFA|[]], _cor1)
+			  in  %% Line 403
+			      apply 'ttb_meta_tracer_loop'/4
+				  (_cor3, _cor2, NewAcc, _cor0)
+	  %% Line 405
+	  <{'trace_ts',CallingPid,'return_from',{'erlang',Spawn,_X_Arity},NewPid,_cor50}>
+	      when let <_cor23> =
+		    %% Line 406
+		    call 'erlang':'=:='
+			(Spawn, 'spawn')
+		in  let <_cor24> =
+			%% Line 406
+			call 'erlang':'=:='
+			    (Spawn, 'spawn_link')
+		    in  %% Line 406
+			call 'erlang':'or'
+			    (_cor23, _cor24) ->
+	      let <_cor27> =
+		  %% Line 409
+		  ( fun (_cor25) ->
+			case _cor25 of
+			  <[H|T]> when 'true' ->
+			      do  %% Line 410
+				  apply 'ttb_store_meta'/2
+				      ({'pid',{NewPid,H}}, _cor3)
+				  %% Line 411
+				  T
+			  ( <_cor26> when 'true' ->
+				( primop 'match_fail'
+				      ({'function_clause',_cor26})
+				  -| [{'function_name',{'-ttb_meta_tracer_loop/4-fun-3-',1}}] )
+			    -| ['compiler_generated'] )
+			end
+		    -| [{'id',{0,0,'-ttb_meta_tracer_loop/4-fun-3-'}}] )
+	      in  let <NewAcc> =
+		      %% Line 408
+		      call 'dict':'update'
+			  (CallingPid, _cor27, _cor1)
+		  in  %% Line 414
+		      apply 'ttb_meta_tracer_loop'/4
+			  (_cor3, _cor2, NewAcc, _cor0)
+	  %% Line 416
+	  <{'metadata',Data}>
+	      when call 'erlang':'is_list'
+		    (Data) ->
+	      do  %% Line 417
+		  apply 'ttb_store_meta'/2
+		      (Data, _cor3)
+		  %% Line 418
+		  apply 'ttb_meta_tracer_loop'/4
+		      (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 420
+	  <{'metadata',Key,Fun}>
+	      when call 'erlang':'is_function'
+		    (Fun) ->
+	      let <_cor29> =
+		  %% Line 421
+		  apply Fun
+		      ()
+	      in  do  %% Line 421
+		      apply 'ttb_store_meta'/2
+			  ([{Key,_cor29}|[]], _cor3)
+		      %% Line 422
+		      apply 'ttb_meta_tracer_loop'/4
+			  (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 424
+	  <{'metadata',Key,What}> when 'true' ->
+	      do  %% Line 425
+		  apply 'ttb_store_meta'/2
+		      ([{Key,What}|[]], _cor3)
+		  %% Line 426
+		  apply 'ttb_meta_tracer_loop'/4
+		      (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 427
+	  <'overload_check'> when 'true' ->
+	      %% Line 428
+	      case call 'proplists':'get_value'
+		       ('overload_check', _cor0) of
+		<{Ms,M,F}> when 'true' ->
+		    let <_cor31> =
+			catch
+			    %% Line 429
+			    call M:F
+				('check')
+		    in  %% Line 429
+			case _cor31 of
+			  %% Line 430
+			  <'true'> when 'true' ->
+			      do  %% Line 431
+				  call 'erlang':'trace'
+				      ('all', 'false', ['all'])
+				  let <ControlPid> =
+				      %% Line 432
+				      call 'proplists':'get_value'
+					  ('ttb_control', _cor0)
+				  in  let <_cor33> =
+					  %% Line 433
+					  call 'erlang':'node'
+					      ()
+				      in  do  %% Line 433
+					      call 'erlang':'!'
+						  (ControlPid, {'node_overloaded',_cor33})
+					      do  catch
+						      %% Line 434
+						      call M:F
+							  ('stop')
+						  let <_cor34> =
+						      %% Line 435
+						      call 'lists':'keydelete'
+							  ('overload_check', 1, _cor0)
+						  in  %% Line 435
+						      apply 'ttb_meta_tracer_loop'/4
+							  (_cor3, _cor2, _cor1, _cor34)
+			  %% Line 436
+			  <_cor51> when 'true' ->
+			      let <_cor35> =
+				  %% Line 437
+				  call 'erlang':'self'
+				      ()
+			      in  do  %% Line 437
+				      call 'erlang':'send_after'
+					  (Ms, _cor35, 'overload_check')
+				      %% Line 438
+				      apply 'ttb_meta_tracer_loop'/4
+					  (_cor3, _cor2, _cor1, _cor0)
+			end
+		( <_cor30> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor30})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 440
+	  <{'DOWN',_cor52,_cor53,_cor54,_cor55}> when 'true' ->
+	      do  %% Line 441
+		  apply 'stop_seq_trace'/0
+		      ()
+		  let <_cor37> =
+		      %% Line 442
+		      call 'erlang':'self'
+			  ()
+		  in  do  %% Line 442
+			  call 'erlang':'!'
+			      (_cor37, 'stop')
+			  %% Line 443
+			  apply 'ttb_meta_tracer_loop'/4
+			      (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 444
+	  <'stop'>
+	      when call 'erlang':'=:='
+		    (_cor2,
+		     'true') ->
+	      do  %% Line 445
+		  apply 'try_stop_resume'/1
+		      (_cor0)
+		  do  %% Line 446
+		      apply 'try_stop_overload_check'/1
+			  (_cor0)
+		      do  %% Line 447
+			  call 'erlang':'trace_pattern'
+			      ({'erlang','spawn',3}, 'false', ['meta'])
+			  do  %% Line 448
+			      call 'erlang':'trace_pattern'
+				  ({'erlang','spawn_link',3}, 'false', ['meta'])
+			      do  %% Line 449
+				  call 'erlang':'trace_pattern'
+				      ({'erlang','spawn_opt',1}, 'false', ['meta'])
+				  do  %% Line 450
+				      call 'erlang':'trace_pattern'
+					  ({'erlang','register',2}, 'false', ['meta'])
+				      %% Line 451
+				      call 'erlang':'trace_pattern'
+					  ({'global','register_name',2}, 'false', ['meta'])
+	  %% Line 452
+	  <'stop'> when 'true' ->
+	      do  %% Line 453
+		  apply 'try_stop_resume'/1
+		      (_cor0)
+		  %% Line 454
+		  apply 'try_stop_overload_check'/1
+		      (_cor0)
+	after 'infinity' ->
+	  'true'
+'try_stop_overload_check'/1 =
+    %% Line 457
+    fun (_cor0) ->
+	%% Line 458
+	case call 'proplists':'get_value'
+		 ('overload', _cor0) of
+	  %% Line 459
+	  <'undefined'> when 'true' ->
+	      'ok'
+	  %% Line 460
+	  <{_cor3,M,F}> when 'true' ->
+	      catch
+		  call M:F
+		      ('stop')
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'pnames'/0 =
+    %% Line 463
+    fun () ->
+	let <Processes> =
+	    %% Line 464
+	    call 'erlang':'processes'
+		()
+	in  let <_cor5> =
+		%% Line 465
+		( fun (_cor3) ->
+		      let <_cor2> =
+			  call 'global':'whereis_name'
+			      (_cor3)
+		      in  {_cor2,_cor3}
+		  -| [{'id',{0,0,'-pnames/0-fun-0-'}}] )
+	    in  let <_cor1> =
+		    %% Line 466
+		    call 'global':'registered_names'
+			()
+		in  let <Globals> =
+			%% Line 465
+			call 'lists':'map'
+			    (_cor5, _cor1)
+		    in  let <_cor12> =
+			    %% Line 467
+			    ( fun (_cor9,_cor8) ->
+				  let <_cor7> =
+				      apply 'pinfo'/2
+					  (_cor9, Globals)
+				  in  [_cor7|_cor8]
+			      -| [{'id',{0,0,'-pnames/0-fun-1-'}}] )
+			in  let <_cor13> =
+				%% Line 467
+				call 'lists':'foldl'
+				    (_cor12, %% Line 468
+					     [], %% Line 468
+						 Processes)
+			    in  %% Line 467
+				call 'lists':'flatten'
+				    (_cor13)
+'pinfo'/2 =
+    %% Line 470
+    fun (_cor1,_cor0) ->
+	%% Line 471
+	case call 'erlang':'process_info'
+		 (_cor1, 'registered_name') of
+	  %% Line 472
+	  <[]> when 'true' ->
+	      %% Line 473
+	      case call 'lists':'keysearch'
+		       (_cor1, 1, _cor0) of
+		%% Line 474
+		<{'value',{_cor7,G}}>
+		    when call 'erlang':'=:='
+			  (_cor7,
+			   _cor1) ->
+		    {'pid',{_cor1,{'global',G}}}
+		%% Line 475
+		<'false'> when 'true' ->
+		    %% Line 476
+		    case call 'erlang':'process_info'
+			     (_cor1, 'initial_call') of
+		      %% Line 477
+		      <{_cor8,I}> when 'true' ->
+			  {'pid',{_cor1,I}}
+		      %% Line 478
+		      <'undefined'> when 'true' ->
+			  []
+		      ( <_cor2> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor2})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 481
+	  <{_cor9,R}> when 'true' ->
+	      {'pid',{_cor1,R}}
+	  %% Line 482
+	  <'undefined'> when 'true' ->
+	      []
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'autostart_module'/0 =
+    %% Line 485
+    fun () ->
+	let <_cor0> =
+	    %% Line 486
+	    call 'application':'get_env'
+		('runtime_tools', 'ttb_autostart_module')
+	in  %% Line 486
+	    call 'erlang':'element'
+		(2, _cor0)
+'try_stop_resume'/1 =
+    %% Line 488
+    fun (_cor0) ->
+	%% Line 489
+	case call 'proplists':'get_value'
+		 ('resume', _cor0) of
+	  %% Line 490
+	  <'true'> when 'true' ->
+	      let <_cor1> =
+		  apply 'autostart_module'/0
+		      ()
+	      in  call _cor1:'delete_config'
+		      ()
+	  %% Line 491
+	  <_cor4> when 'true' ->
+	      'ok'
+	end
+'ttb_resume_trace'/0 =
+    %% Line 494
+    fun () ->
+	let <_cor0> =
+	    %% Line 495
+	    apply 'autostart_module'/0
+		()
+	in  %% Line 495
+	    case call _cor0:'read_config'
+		     () of
+	      %% Line 496
+	      <{'error',_cor9}> when 'true' ->
+		  %% Line 497
+		  'ok'
+	      %% Line 498
+	      <{'ok',Data}> when 'true' ->
+		  let <Pid> =
+		      %% Line 499
+		      call 'proplists':'get_value'
+			  ('ttb_control', Data)
+		  in  %% Line 500
+		      case call 'proplists':'get_value'
+			       ('resume', Data) of
+			<{_cor10,Timeout}> when 'true' ->
+			    let <_cor3> =
+				%% Line 501
+				call 'erlang':'node'
+				    (Pid)
+			    in  do  %% Line 501
+				    case call 'rpc':'call'
+					     (_cor3, 'erlang', 'whereis', ['ttb']) of
+				      %% Line 502
+				      <_cor11>
+					  when call 'erlang':'=:='
+						(_cor11,
+						 Pid) ->
+					  let <_cor5> =
+					      %% Line 503
+					      call 'erlang':'node'
+						  ()
+					  in  let <_cor4> =
+						  %% Line 503
+						  call 'erlang':'self'
+						      ()
+					      in  do  %% Line 503
+						      call 'erlang':'!'
+							  (Pid, {'noderesumed',_cor5,_cor4})
+						      %% Line 504
+						      apply 'wait_for_fetch_ready'/1
+							  (Timeout)
+				      %% Line 505
+				      <_cor12> when 'true' ->
+					  'ok'
+				    end
+				    let <_cor7> =
+					%% Line 508
+					apply 'autostart_module'/0
+					    ()
+				    in  do  %% Line 508
+					    call _cor7:'delete_config'
+						()
+					    %% Line 509
+					    'ok'
+			( <_cor2> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor2})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor8> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor8})
+		-| ['compiler_generated'] )
+	    end
+'wait_for_fetch_ready'/1 =
+    %% Line 512
+    fun (_cor0) ->
+	%% Line 513
+	receive
+	  %% Line 514
+	  <'trace_resumed'> when 'true' ->
+	      %% Line 515
+	      'ok'
+	after _cor0 ->
+	  %% Line 517
+	  'ok'
+'ttb_store_meta'/2 =
+    %% Line 520
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Data,{'local',MetaFile,Port}>
+	      when call 'erlang':'is_list'
+		    (Data) ->
+	      %% Line 521
+	      apply 'ttb_send_to_port'/3
+		  (Port, MetaFile, Data)
+	  %% Line 522
+	  <Data,MetaFile>
+	      when call 'erlang':'is_list'
+		    (Data) ->
+	      %% Line 523
+	      case call 'file':'open'
+		       (MetaFile, ['raw'|['append']]) of
+		<{'ok',Fd}> when 'true' ->
+		    do  %% Line 524
+			apply 'ttb_write_binary'/2
+			    (Fd, Data)
+			%% Line 525
+			call 'file':'close'
+			    (Fd)
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 526
+	  <Data,MetaFile> when 'true' ->
+	      %% Line 527
+	      apply 'ttb_store_meta'/2
+		  ([Data|[]], MetaFile)
+	end
+'ttb_write_binary'/2 =
+    %% Line 529
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Fd,[H|T]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 530
+		  apply 'ttb_make_binary'/1
+		      (H)
+	      in  do  %% Line 530
+		      call 'file':'write'
+			  (Fd, _cor2)
+		      %% Line 531
+		      apply 'ttb_write_binary'/2
+			  (Fd, T)
+	  %% Line 532
+	  <_X_Fd,[]> when 'true' ->
+	      %% Line 533
+	      'ok'
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'ttb_write_binary',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'ttb_send_to_port'/3 =
+    %% Line 535
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Port,MetaFile,[H|T]> when 'true' ->
+	      let <B1> =
+		  %% Line 536
+		  apply 'ttb_make_binary'/1
+		      (H)
+	      in  let <B2> =
+		      %% Line 537
+		      call 'erlang':'term_to_binary'
+			  ({'metadata',MetaFile,B1})
+		  in  do  %% Line 538
+			  call 'erlang':'port_command'
+			      (Port, B2)
+			  %% Line 539
+			  apply 'ttb_send_to_port'/3
+			      (Port, MetaFile, T)
+	  %% Line 540
+	  <_X_Port,_X_MetaFile,[]> when 'true' ->
+	      %% Line 541
+	      'ok'
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'ttb_send_to_port',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'ttb_make_binary'/1 =
+    %% Line 543
+    fun (_cor0) ->
+	let <B> =
+	    %% Line 544
+	    call 'erlang':'term_to_binary'
+		(_cor0)
+	in  let <SizeB> =
+		%% Line 545
+		call 'erlang':'byte_size'
+		    (B)
+	    in  %% Line 546
+		case <> of
+		  <>
+		      when call 'erlang':'>'
+			    (SizeB,
+			     255) ->
+		      let <SB> =
+			  %% Line 549
+			  call 'erlang':'term_to_binary'
+			      ({'$size',SizeB})
+		      in  let <_cor4> =
+			      %% Line 550
+			      call 'erlang':'byte_size'
+				  (SB)
+			  in  %% Line 550
+			      #{#<_cor4>(8,1,'integer',['unsigned'|['big']]),
+				#<SB>('all',8,'binary',['unsigned'|['big']]),
+				#<B>('all',8,'binary',['unsigned'|['big']])}#
+		  %% Line 551
+		  <> when 'true' ->
+		      %% Line 552
+		      #{#<SizeB>(8,1,'integer',['unsigned'|['big']]),
+			#<B>('all',8,'binary',['unsigned'|['big']])}#
+		end
+'ttb_stop'/1 =
+    %% Line 557
+    fun (_cor0) ->
+	let <Delivered> =
+	    %% Line 558
+	    call 'erlang':'trace_delivered'
+		('all')
+	in  do  %% Line 559
+		receive
+		  %% Line 560
+		  <{'trace_delivered','all',_cor4}>
+		      when call 'erlang':'=:='
+			    (_cor4,
+			     Delivered) ->
+		      'ok'
+		after 'infinity' ->
+		  'ok'
+		let <Ref> =
+		    %% Line 562
+		    call 'erlang':'monitor'
+			('process', _cor0)
+		in  do  %% Line 563
+			call 'erlang':'!'
+			    (_cor0, 'stop')
+			do  %% Line 569
+			    receive
+			      <{'DOWN',_cor5,'process',_cor6,_X_Info}>
+				  when let <_cor7> =
+					call 'erlang':'=:='
+					    (_cor5, Ref)
+				    in  let <_cor8> =
+					    call 'erlang':'=:='
+						(_cor6, _cor0)
+					in  call 'erlang':'and'
+						(_cor7, _cor8) ->
+				  'ok'
+			    after 'infinity' ->
+			      'ok'
+			    %% Line 570
+			    apply 'stop_seq_trace'/0
+				()
+'stop_seq_trace'/0 =
+    %% Line 572
+    fun () ->
+	do  %% Line 573
+	    call 'seq_trace':'reset_trace'
+		()
+	    %% Line 574
+	    call 'seq_trace':'set_system_tracer'
+		('false')
+'ttb_fetch'/2 =
+    %% Line 577
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <MetaFile,{Port,Host}> when 'true' ->
+	      do  %% Line 578
+		  call 'erlang':'process_flag'
+		      ('priority', 'low')
+		  let <Files> =
+		      %% Line 579
+		      apply 'ttb_get_filenames'/1
+			  (MetaFile)
+		  in  %% Line 580
+		      case call 'gen_tcp':'connect'
+			       (Host, Port, ['binary'|[{'packet',2}]]) of
+			<{'ok',Sock}> when 'true' ->
+			    do  %% Line 581
+				apply 'send_files'/2
+				    ({Sock,Host}, Files)
+				let <_cor7> =
+				    %% Line 582
+				    call 'gen_tcp':'close'
+					(Sock)
+				in  %% Line 582
+				    case _cor7 of
+				      <'ok'> when 'true' ->
+					  ( _cor7
+					    -| ['compiler_generated'] )
+				      ( <_cor4> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_cor4})
+					-| ['compiler_generated'] )
+				    end
+			( <_cor3> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor3})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'ttb_fetch',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'send_files'/2 =
+    %% Line 585
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Sock,Host},[File|Files]> when 'true' ->
+	      %% Line 586
+	      case call 'file':'open'
+		       (File, ['raw'|['read'|['binary']]]) of
+		<{'ok',Fd}> when 'true' ->
+		    let <_cor3> =
+			%% Line 587
+			call 'filename':'basename'
+			    (File)
+		    in  let <_cor4> =
+			    %% Line 587
+			    call 'erlang':'list_to_binary'
+				(_cor3)
+			in  let <_cor5> =
+				%% Line 587
+				#{#<1>(8,1,'integer',['unsigned'|['big']]),
+				  #<_cor4>('all',8,'binary',['unsigned'|['big']])}#
+			    in  do  %% Line 587
+				    call 'gen_tcp':'send'
+					(Sock, _cor5)
+				    do  %% Line 588
+					apply 'send_chunks'/2
+					    (Sock, Fd)
+					do  %% Line 589
+					    call 'file':'delete'
+						(File)
+					    %% Line 590
+					    apply 'send_files'/2
+						({Sock,Host}, Files)
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 591
+	  <{_X_Sock,_X_Host},[]> when 'true' ->
+	      %% Line 592
+	      'done'
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'send_files',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'send_chunks'/2 =
+    %% Line 594
+    fun (_cor1,_cor0) ->
+	%% Line 595
+	case call 'file':'read'
+		 (_cor0, 8191) of
+	  %% Line 596
+	  <{'ok',Bin}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 597
+		  #{#<0>(8,1,'integer',['unsigned'|['big']]),
+		    #<Bin>('all',8,'binary',['unsigned'|['big']])}#
+	      in  %% Line 597
+		  case call 'gen_tcp':'send'
+			   (_cor1, _cor2) of
+		    <'ok'> when 'true' ->
+			%% Line 598
+			apply 'send_chunks'/2
+			    (_cor1, _cor0)
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 599
+	  <'eof'> when 'true' ->
+	      %% Line 600
+	      'ok'
+	  %% Line 601
+	  <{'error',Reason}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 602
+		  call 'erlang':'term_to_binary'
+		      (Reason)
+	      in  let <_cor5> =
+		      %% Line 602
+		      #{#<2>(8,1,'integer',['unsigned'|['big']]),
+			#<_cor4>('all',8,'binary',['unsigned'|['big']])}#
+		  in  let <_cor10> =
+			  %% Line 602
+			  call 'gen_tcp':'send'
+			      (_cor1, _cor5)
+		      in  %% Line 602
+			  case _cor10 of
+			    <'ok'> when 'true' ->
+				( _cor10
+				  -| ['compiler_generated'] )
+			    ( <_cor6> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor6})
+			      -| ['compiler_generated'] )
+			  end
+	  ( <_cor7> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor7})
+	    -| ['compiler_generated'] )
+	end
+'ttb_get_filenames'/1 =
+    %% Line 605
+    fun (_cor0) ->
+	let <Dir> =
+	    %% Line 606
+	    call 'filename':'dirname'
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 607
+		call 'filename':'basename'
+		    (_cor0)
+	    in  let <Root> =
+		    %% Line 607
+		    call 'filename':'rootname'
+			(_cor2)
+		in  %% Line 608
+		    case call 'file':'list_dir'
+			     (Dir) of
+		      <{'ok',List}> when 'true' ->
+			  %% Line 609
+			  apply 'match_filenames'/4
+			      (Dir, Root, List, [])
+		      ( <_cor4> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor4})
+			-| ['compiler_generated'] )
+		    end
+'match_filenames'/4 =
+    %% Line 611
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Dir,MetaFile,[H|T],Files> when 'true' ->
+	      %% Line 612
+	      case call 'lists':'prefix'
+		       (MetaFile, H) of
+		%% Line 613
+		<'true'> when 'true' ->
+		    let <_cor4> =
+			call 'filename':'join'
+			    (Dir, H)
+		    in  apply 'match_filenames'/4
+			    (Dir, MetaFile, T, [_cor4|Files])
+		%% Line 614
+		<'false'> when 'true' ->
+		    apply 'match_filenames'/4
+			(Dir, MetaFile, T, Files)
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 616
+	  <_X_Dir,_X_MetaFile,[],Files> when 'true' ->
+	      %% Line 617
+	      Files
+	  ( <_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'match_filenames',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'sys_tables'/0 =
+    %% Line 622
+    fun () ->
+	%% Line 623
+	['ac_tab'|['asn1'|['cdv_dump_index_table'|['cdv_menu_table'|['cdv_decode_heap_table'|['cell_id'|['cell_pos'|['clist'|['cover_internal_data_table'|['cover_collected_remote_data_table'|['cover_binary_code_table'|['code'|['code_names'|['cookies'|['corba_policy'|['corba_policy_associations'|['dets'|['dets_owners'|['dets_registry'|['disk_log_names'|['disk_log_pids'|['eprof'|['erl_atom_cache'|['erl_epmd_nodes'|['etop_accum_tab'|['etop_tr'|['ets_coverage_data'|['file_io_servers'|['gs_mapping'|['gs_names'|['gstk_db'|['gstk_grid_cellid'|['gstk_grid_cellpos'|['gstk_grid_id'|['httpd'|['id'|['ign_req_index'|['ign_requests'|['index'|['inet_cache'|['inet_db'|['inet_hosts'|['InitialReferences'|['int_db'|['interpreter_includedirs_macros'|['ir_WstringDef'|['lmcounter'|['locks'|['mnesia_gvar'|['mnesia_stats'|['pg2_table'|['queue'|['schema'|['shell_records'|['snmp_agent_table'|['snmp_local_db2'|['snmp_mib_data'|['snmp_note_store'|['snmp_symbolic_ets'|['tkFun'|['tkLink'|['tkPriv'|['ttb'|['ttb_history_table'|['udp_fds'|['udp_pids']]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+'sys_processes'/0 =
+    %% Line 660
+    fun () ->
+	%% Line 661
+	['auth'|['code_server'|['global_name_server'|['inet_db'|['mnesia_recover'|['net_kernel'|['timer_server'|['wxe_master']]]]]]]]
+'mnesia_tables'/0 =
+    %% Line 664
+    fun () ->
+	%% Line 665
+	['ir_AliasDef'|['ir_ArrayDef'|['ir_AttributeDef'|['ir_ConstantDef'|['ir_Contained'|['ir_Container'|['ir_EnumDef'|['ir_ExceptionDef'|['ir_IDLType'|['ir_IRObject'|['ir_InterfaceDef'|['ir_ModuleDef'|['ir_ORB'|['ir_OperationDef'|['ir_PrimitiveDef'|['ir_Repository'|['ir_SequenceDef'|['ir_StringDef'|['ir_StructDef'|['ir_TypedefDef'|['ir_UnionDef'|['logTable'|['logTransferTable'|['mesh_meas'|['mesh_type'|['mnesia_clist'|['orber_CosNaming'|['orber_objkeys'|['user']]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+'ignore'/2 =
+    %% Line 675
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'true',Reason> when 'true' ->
+	      call 'erlang':'throw'
+		  (Reason)
+	  %% Line 676
+	  <_cor4,_cor5> when 'true' ->
+	      'ok'
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('observer_backend')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('observer_backend', _cor0)
+end

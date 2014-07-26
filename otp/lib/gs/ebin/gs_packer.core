@@ -1,0 +1,577 @@
+module 'gs_packer' ['module_info'/0,
+		    'module_info'/1,
+		    'pack'/2]
+    attributes []
+'pack'/2 =
+    %% Line 79
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Size,SpecSizes>
+	      when call 'erlang':'<'
+		    (Size,
+		     0) ->
+	      %% Line 80
+	      apply 'pack'/2
+		  (0, SpecSizes)
+	  %% Line 81
+	  <Size,SpecSizes> when 'true' ->
+	      %% Line 82
+	      case apply 'get_size_info'/1
+		       (SpecSizes) of
+		<{Weights,_X_Stretched,Fixed,Min,Max}> when 'true' ->
+		    let <Left> =
+			%% Line 83
+			call 'erlang':'-'
+			    (Size, Fixed)
+		    in  let <_cor4> =
+			    %% Line 84
+			    case <> of
+			      <>
+				  when call 'erlang':'=='
+					(Weights,
+					 0) ->
+				  0
+			      <> when 'true' ->
+				  call 'erlang':'/'
+				      (Left, Weights)
+			    end
+			in  %% Line 85
+			    case <> of
+			      %% Line 86
+			      <>
+				  when call 'erlang':'<'
+					(Left,
+					 Min) ->
+				  let <NewSpecs> =
+				      %% Line 87
+				      apply 'cnvt_to_min'/1
+					  (SpecSizes)
+				  in  %% Line 88
+				      apply 'pack'/2
+					  (Size, NewSpecs)
+			      %% Line 89
+			      <>
+				  when try
+					let <_cor7> =
+					    call 'erlang':'is_integer'
+						(Max)
+					in  let <_cor8> =
+						call 'erlang':'=/='
+						    (Max, 0)
+					    in  let <_cor9> =
+						    call 'erlang':'>'
+							(Left, Max)
+						in  let <_cor10> =
+							call 'erlang':'and'
+							    (_cor8, _cor9)
+						    in  call 'erlang':'and'
+							    (_cor7, _cor10)
+				    of <Try> ->
+					Try
+				    catch <T,R> ->
+					'false' ->
+				  let <NewSpecs> =
+				      %% Line 90
+				      apply 'cnvt_to_max'/1
+					  (SpecSizes)
+				  in  %% Line 91
+				      apply 'pack'/2
+					  (Size, NewSpecs)
+			      %% Line 92
+			      <> when 'true' ->
+				  %% Line 93
+				  case apply 'remove_failure'/2
+					   (SpecSizes, _cor4) of
+				    %% Line 94
+				    <{'no',NewSpecs}> when 'true' ->
+					%% Line 95
+					apply 'distribute_space'/2
+					    (NewSpecs, _cor4)
+				    %% Line 96
+				    <{'yes',NewSpecs}> when 'true' ->
+					%% Line 97
+					apply 'pack'/2
+					    (Size, NewSpecs)
+				    ( <_cor12> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor12})
+				      -| ['compiler_generated'] )
+				  end
+			    end
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'remove_failure'/2 =
+    %% Line 121
+    fun (_cor1,_cor0) ->
+	%% Line 122
+	case apply 'remove_failure'/3
+		 (_cor1, _cor0, 0) of
+	  %% Line 123
+	  <{'done',NewSpecs}> when 'true' ->
+	      %% Line 124
+	      {'yes',NewSpecs}
+	  %% Line 125
+	  <{_cor5,_X_NewSpecs}> when 'true' ->
+	      %% Line 126
+	      {'no',_cor1}
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'remove_failure'/3 =
+    %% Line 129
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_X_Unit,MaxFailure> when 'true' ->
+	      %% Line 130
+	      {MaxFailure,[]}
+	  %% Line 131
+	  <[{'stretch',W,Mi}|Specs],Unit,MaxFailure> when 'true' ->
+	      let <_cor3> =
+		  %% Line 132
+		  call 'erlang':'*'
+		      (W, Unit)
+	      in  let <_cor4> =
+		      %% Line 132
+		      call 'erlang':'-'
+			  (Mi, _cor3)
+		  in  %% Line 132
+		      case apply 'max_failure'/3
+			       (MaxFailure, _cor4, 0) of
+			<{MinMax,NewMaxFailure}> when 'true' ->
+			    let <_cor6> =
+				%% Line 133
+				apply 'remove_failure'/3
+				    (Specs, Unit, NewMaxFailure)
+			    in  %% Line 133
+				case <MinMax,_cor6> of
+				  %% Line 134
+				  <'min',{_cor19,Rest}>
+				      when call 'erlang':'=:='
+					    (_cor19,
+					     NewMaxFailure) ->
+				      %% Line 135
+				      {'done',[{'fixed',Mi}|Rest]}
+				  %% Line 136
+				  <_cor20,{OtherMaxFailure,Rest}> when 'true' ->
+				      %% Line 137
+				      {OtherMaxFailure,[{'stretch',W,Mi}|Rest]}
+				  ( <_fol2,_fol3> when 'true' ->
+					let <_cor7> = {_fol2,_fol3}
+					in  primop 'match_fail'
+						({'case_clause',_cor7})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor5> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor5})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 139
+	  <[{'stretch',W,Mi,Ma}|Specs],Unit,MaxFailure> when 'true' ->
+	      let <_cor10> =
+		  %% Line 140
+		  call 'erlang':'*'
+		      (W, Unit)
+	      in  let <_cor11> =
+		      %% Line 140
+		      call 'erlang':'-'
+			  (Mi, _cor10)
+		  in  let <_cor8> =
+			  %% Line 140
+			  call 'erlang':'*'
+			      (W, Unit)
+		      in  let <_cor9> =
+			      %% Line 140
+			      call 'erlang':'-'
+				  (_cor8, Ma)
+			  in  %% Line 140
+			      case apply 'max_failure'/3
+				       (MaxFailure, _cor11, _cor9) of
+				<{MinMax,NewMaxFailure}> when 'true' ->
+				    let <_cor13> =
+					%% Line 141
+					apply 'remove_failure'/3
+					    (Specs, Unit, NewMaxFailure)
+				    in  %% Line 141
+					case <MinMax,_cor13> of
+					  %% Line 142
+					  <'min',{_cor21,Rest}>
+					      when call 'erlang':'=:='
+						    (_cor21,
+						     NewMaxFailure) ->
+					      %% Line 143
+					      {'done',[{'fixed',Mi}|Rest]}
+					  %% Line 144
+					  <'max',{_cor22,Rest}>
+					      when call 'erlang':'=:='
+						    (_cor22,
+						     NewMaxFailure) ->
+					      %% Line 145
+					      {'done',[{'fixed',Ma}|Rest]}
+					  %% Line 146
+					  <_cor23,{OtherMaxFailure,Rest}> when 'true' ->
+					      %% Line 147
+					      {OtherMaxFailure,[{'stretch',W,Mi,Ma}|Rest]}
+					  ( <_fol4,_fol5> when 'true' ->
+						let <_cor14> = {_fol4,_fol5}
+						in  primop 'match_fail'
+							({'case_clause',_cor14})
+					    -| ['compiler_generated'] )
+					end
+				( <_cor12> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor12})
+				  -| ['compiler_generated'] )
+			      end
+	  %% Line 149
+	  <[Spec|Specs],Unit,MaxFailure> when 'true' ->
+	      %% Line 150
+	      case apply 'remove_failure'/3
+		       (Specs, Unit, MaxFailure) of
+		<{NewMaxFailure,NewSpecs}> when 'true' ->
+		    %% Line 151
+		    {NewMaxFailure,[Spec|NewSpecs]}
+		( <_cor15> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor15})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor18,_cor17,_cor16> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor18,_cor17,_cor16})
+		  -| [{'function_name',{'remove_failure',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'max_failure'/3 =
+    %% Line 153
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <LastDiff,DMi,DMa>
+	      when let <_cor3> =
+		    %% Line 154
+		    call 'erlang':'>'
+			(DMi, LastDiff)
+		in  let <_cor4> =
+			%% Line 154
+			call 'erlang':'>'
+			    (DMi, DMa)
+		    in  %% Line 154
+			call 'erlang':'and'
+			    (_cor3, _cor4) ->
+	      %% Line 155
+	      {'min',DMi}
+	  %% Line 156
+	  <LastDiff,_X_DMi,DMa>
+	      when %% Line 157
+		call 'erlang':'>'
+		    (DMa,
+		     LastDiff) ->
+	      %% Line 158
+	      {'max',DMa}
+	  %% Line 159
+	  <MaxFailure,_X_DMi,_X_DMa> when 'true' ->
+	      %% Line 160
+	      {'other',MaxFailure}
+	end
+'distribute_space'/2 =
+    %% Line 182
+    fun (_cor1,_cor0) ->
+	%% Line 183
+	apply 'distribute_space'/3
+	    (_cor1, _cor0, 0.00000000000000000000e+00)
+'distribute_space'/3 =
+    %% Line 185
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_X_Unit,_X_Err> when 'true' ->
+	      %% Line 186
+	      []
+	  %% Line 187
+	  <[Spec|Specs],Unit,Err> when 'true' ->
+	      %% Line 188
+	      apply 'distribute_space'/4
+		  (Spec, Specs, Unit, Err)
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'distribute_space',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'distribute_space'/4 =
+    %% Line 190
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <{'fixed',P},Specs,Unit,Err> when 'true' ->
+	      let <_cor4> =
+		  %% Line 191
+		  apply 'distribute_space'/3
+		      (Specs, Unit, Err)
+	      in  %% Line 191
+		  [P|_cor4]
+	  %% Line 192
+	  <{'stretch',Weight},Specs,Unit,Err> when 'true' ->
+	      let <_cor5> =
+		  %% Line 193
+		  call 'erlang':'*'
+		      (Weight, Unit)
+	      in  let <Size> =
+		      %% Line 193
+		      call 'erlang':'+'
+			  (_cor5, Err)
+		  in  let <Pixels> =
+			  %% Line 194
+			  call 'erlang':'round'
+			      (Size)
+		      in  let <NewErr> =
+			      %% Line 195
+			      call 'erlang':'-'
+				  (Size, Pixels)
+			  in  let <_cor9> =
+				  %% Line 196
+				  apply 'distribute_space'/3
+				      (Specs, Unit, NewErr)
+			      in  %% Line 196
+				  [Pixels|_cor9]
+	  %% Line 197
+	  <{'stretch',W,_X_Mi},Specs,Unit,Err> when 'true' ->
+	      %% Line 198
+	      apply 'distribute_space'/4
+		  ({'stretch',W}, Specs, Unit, Err)
+	  %% Line 199
+	  <{'stretch',W,_X_Mi,_X_Ma},Specs,Unit,Err> when 'true' ->
+	      %% Line 200
+	      apply 'distribute_space'/4
+		  ({'stretch',W}, Specs, Unit, Err)
+	  ( <_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'distribute_space',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'cnvt_to_min'/1 =
+    %% Line 224
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 225
+	      []
+	  %% Line 226
+	  <[Spec|Specs]> when 'true' ->
+	      %% Line 227
+	      apply 'cnvt_to_min'/2
+		  (Spec, Specs)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'cnvt_to_min',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'cnvt_to_max'/1 =
+    %% Line 229
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 230
+	      []
+	  %% Line 231
+	  <[Spec|Specs]> when 'true' ->
+	      %% Line 232
+	      apply 'cnvt_to_max'/2
+		  (Spec, Specs)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'cnvt_to_max',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'cnvt_to_min'/2 =
+    %% Line 234
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'fixed',P},Specs> when 'true' ->
+	      let <_cor2> =
+		  %% Line 235
+		  apply 'cnvt_to_min'/1
+		      (Specs)
+	      in  %% Line 235
+		  [{'stretch',P}|_cor2]
+	  %% Line 236
+	  <{'stretch',_X_W},Specs> when 'true' ->
+	      let <_cor3> =
+		  %% Line 237
+		  apply 'cnvt_to_min'/1
+		      (Specs)
+	      in  %% Line 237
+		  [{'fixed',0}|_cor3]
+	  %% Line 238
+	  <{'stretch',_X_W,Mi},Specs> when 'true' ->
+	      let <_cor4> =
+		  %% Line 239
+		  apply 'cnvt_to_min'/1
+		      (Specs)
+	      in  %% Line 239
+		  [{'stretch',Mi}|_cor4]
+	  %% Line 240
+	  <{'stretch',_X_W,Mi,_X_Ma},Specs> when 'true' ->
+	      let <_cor5> =
+		  %% Line 241
+		  apply 'cnvt_to_min'/1
+		      (Specs)
+	      in  %% Line 241
+		  [{'stretch',Mi}|_cor5]
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'cnvt_to_min',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'cnvt_to_max'/2 =
+    %% Line 246
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'fixed',P},Specs> when 'true' ->
+	      let <_cor2> =
+		  %% Line 247
+		  apply 'cnvt_to_max'/1
+		      (Specs)
+	      in  %% Line 247
+		  [{'stretch',P}|_cor2]
+	  %% Line 248
+	  <{'stretch',_X_W,_X_Mi,Ma},Specs> when 'true' ->
+	      let <_cor3> =
+		  %% Line 249
+		  apply 'cnvt_to_max'/1
+		      (Specs)
+	      in  %% Line 249
+		  [{'stretch',Ma}|_cor3]
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'cnvt_to_max',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_size_info'/1 =
+    %% Line 258
+    fun (_cor0) ->
+	%% Line 259
+	apply 'get_size_info'/6
+	    (_cor0, 0, 0, 0, 0, 0)
+'get_size_info'/6 =
+    %% Line 261
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],TotW,NumW,TotFixed,TotMin,TotMax> when 'true' ->
+	      %% Line 262
+	      {TotW,NumW,TotFixed,TotMin,TotMax}
+	  %% Line 263
+	  <[Spec|Specs],TotW,NumW,TotFixed,TotMin,TotMax> when 'true' ->
+	      %% Line 264
+	      apply 'get_size_info'/7
+		  (Spec, TotW, NumW, TotFixed, TotMin, TotMax, Specs)
+	  ( <_cor11,_cor10,_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'get_size_info',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_size_info'/7 =
+    %% Line 266
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <{'fixed',P},TotW,NumW,TotFixed,TotMin,TotMax,Specs> when 'true' ->
+	      let <_cor7> =
+		  %% Line 267
+		  call 'erlang':'+'
+		      (TotFixed, P)
+	      in  %% Line 267
+		  apply 'get_size_info'/6
+		      (Specs, TotW, NumW, _cor7, TotMin, TotMax)
+	  %% Line 268
+	  <{'stretch',W},TotW,NumW,TotFixed,TotMin,_X_TotMax,Specs> when 'true' ->
+	      let <_cor9> =
+		  %% Line 269
+		  call 'erlang':'+'
+		      (TotW, W)
+	      in  let <_cor8> =
+		      %% Line 269
+		      call 'erlang':'+'
+			  (NumW, 1)
+		  in  %% Line 269
+		      apply 'get_size_info'/6
+			  (Specs, _cor9, _cor8, TotFixed, TotMin, 'infinity')
+	  %% Line 270
+	  <{'stretch',W,Mi},TotW,NumW,TotFixed,TotMin,_X_TotMax,Specs> when 'true' ->
+	      let <_cor12> =
+		  %% Line 271
+		  call 'erlang':'+'
+		      (TotW, W)
+	      in  let <_cor11> =
+		      %% Line 271
+		      call 'erlang':'+'
+			  (NumW, 1)
+		  in  let <_cor10> =
+			  %% Line 271
+			  call 'erlang':'+'
+			      (TotMin, Mi)
+		      in  %% Line 271
+			  apply 'get_size_info'/6
+			      (Specs, _cor12, _cor11, TotFixed, _cor10, 'infinity')
+	  %% Line 272
+	  <{'stretch',W,Mi,_X_Ma},TotW,NumW,TotFixed,TotMin,'infinity',Specs> when 'true' ->
+	      let <_cor15> =
+		  %% Line 273
+		  call 'erlang':'+'
+		      (TotW, W)
+	      in  let <_cor14> =
+		      %% Line 273
+		      call 'erlang':'+'
+			  (NumW, 1)
+		  in  let <_cor13> =
+			  %% Line 273
+			  call 'erlang':'+'
+			      (TotMin, Mi)
+		      in  %% Line 273
+			  apply 'get_size_info'/6
+			      (Specs, _cor15, _cor14, TotFixed, _cor13, 'infinity')
+	  %% Line 274
+	  <{'stretch',W,Mi,Ma},TotW,NumW,TotFixed,TotMin,TotMax,Specs> when 'true' ->
+	      let <_cor19> =
+		  %% Line 275
+		  call 'erlang':'+'
+		      (TotW, W)
+	      in  let <_cor18> =
+		      %% Line 275
+		      call 'erlang':'+'
+			  (NumW, 1)
+		  in  let <_cor17> =
+			  %% Line 275
+			  call 'erlang':'+'
+			      (TotMin, Mi)
+		      in  let <_cor16> =
+			      %% Line 275
+			      call 'erlang':'+'
+				  (TotMax, Ma)
+			  in  %% Line 275
+			      apply 'get_size_info'/6
+				  (Specs, _cor19, _cor18, TotFixed, _cor17, _cor16)
+	  ( <_cor26,_cor25,_cor24,_cor23,_cor22,_cor21,_cor20> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor26,_cor25,_cor24,_cor23,_cor22,_cor21,_cor20})
+		  -| [{'function_name',{'get_size_info',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('gs_packer')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('gs_packer', _cor0)
+end

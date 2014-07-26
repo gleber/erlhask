@@ -1,0 +1,218 @@
+module 'ct_config_xml' ['check_parameter'/1,
+			'module_info'/0,
+			'module_info'/1,
+			'read_config'/1]
+    attributes []
+'read_config'/1 =
+    %% Line 28
+    fun (_cor0) ->
+	let <_cor1> =
+	    catch
+		%% Line 29
+		apply 'do_read_xml_config'/1
+		    (_cor0)
+	in  %% Line 29
+	    case _cor1 of
+	      %% Line 30
+	      <{'ok',Config}> when 'true' ->
+		  %% Line 31
+		  {'ok',Config}
+	      %% Line 32
+	      <Error = {'error',_cor4}> when 'true' ->
+		  %% Line 33
+		  Error
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor2})
+		-| ['compiler_generated'] )
+	    end
+'check_parameter'/1 =
+    %% Line 37
+    fun (_cor0) ->
+	%% Line 38
+	case call 'filelib':'is_file'
+		 (_cor0) of
+	  %% Line 39
+	  <'true'> when 'true' ->
+	      %% Line 40
+	      {'ok',{'file',_cor0}}
+	  %% Line 41
+	  <'false'> when 'true' ->
+	      %% Line 42
+	      {'error',{'nofile',_cor0}}
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'do_read_xml_config'/1 =
+    %% Line 46
+    fun (_cor0) ->
+	let <_cor1> =
+	    catch
+		%% Line 47
+		call 'xmerl_sax_parser':'file'
+		    (_cor0, %% Line 48
+			    [{'event_fun',( 'event'/3
+					    -| [{'id',{0,0,'-do_read_xml_config/1-fun-0-'}}] )}|%% Line 49
+												[{'event_state',[]}]])
+	in  %% Line 47
+	    case _cor1 of
+	      %% Line 50
+	      <{'ok',EntityList,_cor6}> when 'true' ->
+		  let <_cor2> =
+		      %% Line 51
+		      apply 'transform_entity_list'/1
+			  (EntityList)
+		  in  let <_cor3> =
+			  %% Line 51
+			  call 'lists':'reverse'
+			      (_cor2)
+		      in  %% Line 51
+			  {'ok',_cor3}
+	      %% Line 52
+	      <Oops> when 'true' ->
+		  %% Line 53
+		  {'error',{'parsing_failed',Oops}}
+	    end
+'event'/3 =
+    %% Line 57
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 58
+	apply 'tag'/2
+	    (_cor2, _cor0)
+'tag'/2 =
+    %% Line 61
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'startDocument',State> when 'true' ->
+	      %% Line 62
+	      State
+	  %% Line 65
+	  <{'startElement',_X_Uri,[99|[111|[110|[102|[105|[103]]]]]],_X_QName,_X_Attributes},[]> when 'true' ->
+	      %% Line 66
+	      [{[99|[111|[110|[102|[105|[103]]]]]],[]}]
+	  %% Line 69
+	  <{'startElement',_X_Uri,Name,_X_QName,_X_Attributes},Tags> when 'true' ->
+	      %% Line 70
+	      [{Name,[]}|Tags]
+	  %% Line 73
+	  <{'characters',String},[{Tag,_X_Value}|Tags]> when 'true' ->
+	      %% Line 74
+	      [{Tag,String}|Tags]
+	  %% Line 77
+	  <{'endElement',_X_Uri,_X_Name,_X_QName},%% Line 78
+						  [Entity|[{PrevEntityTag,PrevEntityValue}|Tags]]> when 'true' ->
+	      let <NewHead> =
+		  %% Line 79
+		  {PrevEntityTag,[Entity|PrevEntityValue]}
+	      in  %% Line 80
+		  [NewHead|Tags]
+	  %% Line 83
+	  <{'endElement',_X_Uri,[99|[111|[110|[102|[105|[103]]]]]],_X_QName},[{[99|[111|[110|[102|[105|[103]]]]]],Config}|[]]> when 'true' ->
+	      %% Line 84
+	      Config
+	  %% Line 87
+	  <'endDocument',{_X_Tags,Result}> when 'true' ->
+	      %% Line 88
+	      Result
+	  %% Line 91
+	  <_X_El,State> when 'true' ->
+	      %% Line 92
+	      State
+	end
+'transform_entity_list'/1 =
+    %% Line 95
+    fun (_cor0) ->
+	%% Line 96
+	call 'lists':'map'
+	    (( 'transform_entity'/1
+	       -| [{'id',{0,0,'-transform_entity_list/1-fun-0-'}}] ), _cor0)
+'transform_entity'/1 =
+    %% Line 99
+    fun (_cor0) ->
+	case _cor0 of
+	  <{Tag,[Value|Rest]}>
+	      when %% Line 100
+		call 'erlang':'is_tuple'
+		    (Value) ->
+	      let <_cor3> =
+		  %% Line 101
+		  call 'erlang':'list_to_atom'
+		      (Tag)
+	      in  let <_cor1> =
+		      %% Line 101
+		      call 'lists':'reverse'
+			  ([Value|Rest])
+		  in  let <_cor2> =
+			  %% Line 101
+			  apply 'transform_entity_list'/1
+			      (_cor1)
+		      in  %% Line 101
+			  {_cor3,_cor2}
+	  %% Line 102
+	  <{Tag,String}> when 'true' ->
+	      %% Line 103
+	      case apply 'list_to_term'/1
+		       (String) of
+		%% Line 104
+		<{'ok',Value}> when 'true' ->
+		    let <_cor4> =
+			%% Line 105
+			call 'erlang':'list_to_atom'
+			    (Tag)
+		    in  %% Line 105
+			{_cor4,Value}
+		%% Line 106
+		<Error> when 'true' ->
+		    %% Line 107
+		    call 'erlang':'throw'
+			(Error)
+	      end
+	  ( <_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6})
+		  -| [{'function_name',{'transform_entity',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'list_to_term'/1 =
+    %% Line 111
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 112
+	    call 'erlang':'++'
+		(_cor0, [46])
+	in  %% Line 112
+	    case call 'erl_scan':'string'
+		     (_cor1) of
+	      <{'ok',T,_cor6}> when 'true' ->
+		  let <_cor3> =
+		      catch
+			  %% Line 113
+			  call 'erl_parse':'parse_term'
+			      (T)
+		  in  %% Line 113
+		      case _cor3 of
+			%% Line 114
+			<{'ok',Term}> when 'true' ->
+			    %% Line 115
+			    {'ok',Term}
+			%% Line 116
+			<Error> when 'true' ->
+			    %% Line 117
+			    {'error',{Error,_cor0}}
+		      end
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor2})
+		-| ['compiler_generated'] )
+	    end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ct_config_xml')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ct_config_xml', _cor0)
+end

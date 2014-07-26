@@ -1,0 +1,1301 @@
+module 'erlsrv' ['disable_service'/1,
+		 'disable_service'/2,
+		 'enable_service'/1,
+		 'enable_service'/2,
+		 'erlsrv'/1,
+		 'get_all_services'/0,
+		 'get_service'/1,
+		 'get_service'/2,
+		 'module_info'/0,
+		 'module_info'/1,
+		 'new_service'/3,
+		 'new_service'/4,
+		 'remove_service'/1,
+		 'rename_service'/2,
+		 'rename_service'/3,
+		 'store_service'/1,
+		 'store_service'/2]
+    attributes []
+'erlsrv'/1 =
+    %% Line 31
+    fun (_cor0) ->
+	let <Root> =
+	    %% Line 32
+	    call 'code':'root_dir'
+		()
+	in  let <_cor2> =
+		%% Line 33
+		call 'erlang':'++'
+		    ([101|[114|[116|[115|[45]]]]], _cor0)
+	    in  %% Line 33
+		call 'filename':'join'
+		    ([Root|[_cor2|[[98|[105|[110]]]|[[101|[114|[108|[115|[114|[118|[46|[101|[120|[101]]]]]]]]]]]]]])
+'current_version'/0 =
+    %% Line 35
+    fun () ->
+	let <_cor0> =
+	    %% Line 36
+	    call 'erlang':'system_info'
+		('version')
+	in  let <_cor1> =
+		%% Line 36
+		call 'string':'tokens'
+		    (_cor0, [95|[32]])
+	    in  %% Line 36
+		call 'erlang':'hd'
+		    (_cor1)
+'run_erlsrv'/1 =
+    %% Line 39
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 40
+	    apply 'current_version'/0
+		()
+	in  %% Line 40
+	    apply 'run_erlsrv'/2
+		(_cor1, _cor0)
+'run_erlsrv'/2 =
+    %% Line 41
+    fun (_cor1,_cor0) ->
+	let <_cor6> =
+	    catch
+		let <_cor3> =
+		    %% Line 42
+		    apply 'erlsrv'/1
+			(_cor1)
+		in  let <_cor2> =
+			%% Line 42
+			[34|[32|_cor0]]
+		    in  let <_cor4> =
+			    %% Line 42
+			    call 'erlang':'++'
+				(_cor3, _cor2)
+			in  let <_cor5> =
+				%% Line 42
+				[34|_cor4]
+			    in  %% Line 42
+				call 'erlang':'open_port'
+				    ({'spawn',_cor5}, %% Line 43
+						      [{'line',1000}|['in'|['eof']]])
+	in  %% Line 42
+	    case _cor6 of
+	      %% Line 44
+	      <{'EXIT',{Reason,_cor11}}> when 'true' ->
+		  %% Line 45
+		  {'port_error',Reason}
+	      %% Line 46
+	      <Port> when 'true' ->
+		  %% Line 47
+		  case apply 'read_all_data'/1
+			   (Port) of
+		    %% Line 48
+		    <[]> when 'true' ->
+			%% Line 49
+			'failed'
+		    %% Line 50
+		    <X> when 'true' ->
+			%% Line 51
+			{'ok',X}
+		  end
+	    end
+'run_erlsrv_interactive'/2 =
+    %% Line 55
+    fun (_cor1,_cor0) ->
+	let <_cor5> =
+	    catch
+		let <_cor2> =
+		    %% Line 56
+		    apply 'erlsrv'/1
+			(_cor1)
+		in  let <_cor3> =
+			%% Line 56
+			call 'erlang':'++'
+			    (_cor2, [34|[32|[114|[101|[97|[100|[97|[114|[103|[115]]]]]]]]]])
+		    in  let <_cor4> =
+			    %% Line 56
+			    [34|_cor3]
+			in  %% Line 56
+			    call 'erlang':'open_port'
+				({'spawn',_cor4}, %% Line 57
+						  [{'line',1000}|['eof']])
+	in  %% Line 56
+	    case _cor5 of
+	      %% Line 58
+	      <{'EXIT',{Reason,_cor10}}> when 'true' ->
+		  %% Line 59
+		  {'port_error',Reason}
+	      %% Line 60
+	      <Port> when 'true' ->
+		  do  %% Line 61
+		      apply 'write_all_data'/2
+			  (Port, _cor0)
+		      %% Line 62
+		      case apply 'read_all_data'/1
+			       (Port) of
+			%% Line 63
+			<[]> when 'true' ->
+			    %% Line 64
+			    'failed'
+			%% Line 65
+			<X> when 'true' ->
+			    %% Line 66
+			    {'ok',X}
+		      end
+	    end
+'write_all_data'/2 =
+    %% Line 70
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Port,[]> when 'true' ->
+	      let <_cor3> =
+		  %% Line 71
+		  call 'erlang':'self'
+		      ()
+	      in  let <_cor2> =
+		      %% Line 71
+		      call 'io_lib':'nl'
+			  ()
+		  in  do  %% Line 71
+			  call 'erlang':'!'
+			      (Port, {_cor3,{'command',_cor2}})
+			  %% Line 72
+			  'ok'
+	  %% Line 73
+	  <Port,[H|T]> when 'true' ->
+	      let <_cor6> =
+		  %% Line 74
+		  call 'erlang':'self'
+		      ()
+	      in  let <_cor4> =
+		      %% Line 74
+		      call 'io_lib':'nl'
+			  ()
+		  in  let <_cor5> =
+			  %% Line 74
+			  call 'unicode':'characters_to_binary'
+			      ([H|[_cor4|[]]])
+		      in  do  %% Line 74
+			      call 'erlang':'!'
+				  (Port, {_cor6,{'command',_cor5}})
+			      %% Line 75
+			      apply 'write_all_data'/2
+				  (Port, T)
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7})
+		  -| [{'function_name',{'write_all_data',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'read_all_data'/1 =
+    %% Line 77
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 78
+	    apply 'read_all_data'/3
+		(_cor0, [], [])
+	in  let <Data0> =
+		%% Line 78
+		call 'lists':'reverse'
+		    (_cor1)
+	    in  %% Line 80
+		( letrec
+		      'lc$^0'/1 =
+			  fun (_cor5) ->
+			      case _cor5 of
+				<[Data|_cor4]> when 'true' ->
+				    let <_cor6> =
+					call 'erlang':'list_to_binary'
+					    (Data)
+				    in  let <_cor7> =
+					    call 'unicode':'characters_to_list'
+						(_cor6)
+					in  let <_cor8> =
+						apply 'lc$^0'/1
+						    (_cor4)
+					    in  ( [_cor7|_cor8]
+						  -| ['compiler_generated'] )
+				<[]> when 'true' ->
+				    []
+				( <_cor5> when 'true' ->
+				      ( primop 'match_fail'
+					    ({'function_clause',_cor5})
+					-| [{'function_name',{'lc$^0',1}}] )
+				  -| ['compiler_generated'] )
+			      end
+		  in  apply 'lc$^0'/1
+			  (Data0)
+		  -| ['list_comprehension'] )
+'read_all_data'/3 =
+    %% Line 82
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 83
+	receive
+	  %% Line 84
+	  <{_cor10,{'data',{'noeol',Data}}}>
+	      when call 'erlang':'=:='
+		    (_cor10,
+		     _cor2) ->
+	      let <_cor3> =
+		  %% Line 85
+		  call 'erlang':'++'
+		      (_cor1, Data)
+	      in  %% Line 85
+		  apply 'read_all_data'/3
+		      (_cor2, _cor3, _cor0)
+	  %% Line 86
+	  <{_cor11,{'data',{'eol',Data}}}>
+	      when call 'erlang':'=:='
+		    (_cor11,
+		     _cor2) ->
+	      let <_cor4> =
+		  %% Line 87
+		  call 'erlang':'++'
+		      (_cor1, Data)
+	      in  %% Line 87
+		  apply 'read_all_data'/3
+		      (_cor2, [], [_cor4|_cor0])
+	  %% Line 88
+	  <{_cor12,_X_Other}>
+	      when call 'erlang':'=:='
+		    (_cor12,
+		     _cor2) ->
+	      let <_cor5> =
+		  %% Line 89
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 89
+		      call 'erlang':'!'
+			  (_cor2, {_cor5,'close'})
+		      %% Line 90
+		      receive
+			%% Line 91
+			<{_cor13,'closed'}>
+			    when call 'erlang':'=:='
+				  (_cor13,
+				   _cor2) ->
+			    %% Line 92
+			    case _cor1 of
+			      %% Line 93
+			      <[]> when 'true' ->
+				  _cor0
+			      %% Line 94
+			      <_cor14> when 'true' ->
+				  [_cor1|_cor0]
+			    end
+		      after 'infinity' ->
+			'true'
+	after 'infinity' ->
+	  'true'
+'get_all_services'/0 =
+    %% Line 101
+    fun () ->
+	%% Line 102
+	case apply 'run_erlsrv'/1
+		 ([108|[105|[115|[116]]]]) of
+	  %% Line 103
+	  <'failed'> when 'true' ->
+	      %% Line 104
+	      []
+	  %% Line 105
+	  <{'ok',[_cor5|[]]}> when 'true' ->
+	      %% Line 106
+	      []
+	  %% Line 107
+	  <{'ok',[_X_H|T]}> when 'true' ->
+	      let <F> =
+		  %% Line 108
+		  ( fun (_cor1) ->
+			let <_cor0> =
+			    %% Line 109
+			    call 'string':'tokens'
+				(_cor1, [9|[32]])
+			in  %% Line 109
+			    call 'erlang':'hd'
+				(_cor0)
+		    -| [{'id',{0,0,'-get_all_services/0-fun-0-'}}] )
+	      in  %% Line 111
+		  call 'lists':'map'
+		      (F, T)
+	  %% Line 112
+	  <_cor6> when 'true' ->
+	      %% Line 113
+	      {'error','external_program_failed'}
+	end
+'disable_service'/1 =
+    %% Line 116
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 117
+	    apply 'current_version'/0
+		()
+	in  %% Line 117
+	    apply 'disable_service'/2
+		(_cor1, _cor0)
+'disable_service'/2 =
+    %% Line 118
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 119
+	    call 'erlang':'++'
+		([100|[105|[115|[97|[98|[108|[101|[32]]]]]]]], _cor0)
+	in  %% Line 119
+	    apply 'run_erlsrv'/2
+		(_cor1, _cor2)
+'enable_service'/1 =
+    %% Line 120
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 121
+	    apply 'current_version'/0
+		()
+	in  %% Line 121
+	    apply 'enable_service'/2
+		(_cor1, _cor0)
+'enable_service'/2 =
+    %% Line 122
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 123
+	    call 'erlang':'++'
+		([101|[110|[97|[98|[108|[101|[32]]]]]]], _cor0)
+	in  %% Line 123
+	    apply 'run_erlsrv'/2
+		(_cor1, _cor2)
+'remove_service'/1 =
+    %% Line 124
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 125
+	    call 'erlang':'++'
+		([114|[101|[109|[111|[118|[101|[32]]]]]]], _cor0)
+	in  %% Line 125
+	    apply 'run_erlsrv'/1
+		(_cor1)
+'rename_service'/2 =
+    %% Line 126
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 127
+	    apply 'current_version'/0
+		()
+	in  %% Line 127
+	    apply 'rename_service'/3
+		(_cor2, _cor1, _cor0)
+'rename_service'/3 =
+    %% Line 128
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 129
+	    [32|_cor0]
+	in  let <_cor4> =
+		%% Line 129
+		call 'erlang':'++'
+		    (_cor1, _cor3)
+	    in  let <_cor5> =
+		    %% Line 129
+		    call 'erlang':'++'
+			([114|[101|[110|[97|[109|[101|[32]]]]]]], _cor4)
+		in  %% Line 129
+		    apply 'run_erlsrv'/2
+			(_cor2, _cor5)
+'get_service'/1 =
+    %% Line 151
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 152
+	    apply 'current_version'/0
+		()
+	in  %% Line 152
+	    apply 'get_service'/2
+		(_cor1, _cor0)
+'get_service'/2 =
+    %% Line 153
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 154
+	    call 'erlang':'++'
+		([108|[105|[115|[116|[32]]]]], _cor0)
+	in  %% Line 154
+	    case apply 'run_erlsrv'/2
+		     (_cor1, _cor2) of
+	      %% Line 155
+	      <'failed'> when 'true' ->
+		  %% Line 156
+		  {'error','no_such_service'}
+	      %% Line 157
+	      <{'port_error',Reason}> when 'true' ->
+		  %% Line 158
+		  {'error',{'port_error',Reason}}
+	      %% Line 159
+	      <{'ok',Data}> when 'true' ->
+		  let <F> =
+		      %% Line 173
+		      ( fun (_cor6) ->
+			    %% Line 174
+			    case apply 'splitline'/1
+				     (_cor6) of
+			      <{Name,Value}> when 'true' ->
+				  %% Line 175
+				  case call 'lists':'keysearch'
+					   (Name, 1, [{[83|[101|[114|[118|[105|[99|[101|[32|[110|[97|[109|[101]]]]]]]]]]]],'servicename',[]}|[{[83|[116|[111|[112|[65|[99|[116|[105|[111|[110]]]]]]]]]],'stopaction',[]}|[{[79|[110|[70|[97|[105|[108]]]]]],'onfail',[105|[103|[110|[111|[114|[101]]]]]]}|[{[77|[97|[99|[104|[105|[110|[101]]]]]]],'machine',[]}|[{[87|[111|[114|[107|[68|[105|[114]]]]]]],'workdir',[]}|[{[83|[78|[97|[109|[101]]]]],'sname',[]}|[{[78|[97|[109|[101]]]],'name',[]}|[{[80|[114|[105|[111|[114|[105|[116|[121]]]]]]]],'priority',[100|[101|[102|[97|[117|[108|[116]]]]]]]}|[{[68|[101|[98|[117|[103|[84|[121|[112|[101]]]]]]]]],'debugtype',[110|[111|[110|[101]]]]}|[{[65|[114|[103|[115]]]],'args',[]}|[{[73|[110|[116|[101|[114|[110|[97|[108|[83|[101|[114|[118|[105|[99|[101|[78|[97|[109|[101]]]]]]]]]]]]]]]]]]],'internalservicename',[]}|[{[67|[111|[109|[109|[101|[110|[116]]]]]]],'comment',[]}]]]]]]]]]]]]) of
+				    %% Line 176
+				    <{'value',{_cor28,_X_Atom,_cor29}}>
+					when let <_cor30> =
+					      call 'erlang':'=:='
+						  (_cor28, Name)
+					  in  let <_cor31> =
+						  call 'erlang':'=:='
+						      (_cor29, Value)
+					      in  call 'erlang':'and'
+						      (_cor30, _cor31) ->
+					%% Line 177
+					[]
+				    %% Line 178
+				    <{'value',{_cor32,Atom,_cor33}}>
+					when call 'erlang':'=:='
+					      (_cor32,
+					       Name) ->
+					%% Line 179
+					{Atom,Value}
+				    %% Line 180
+				    <_cor34> when 'true' ->
+					%% Line 181
+					[]
+				  end
+			      ( <_cor4> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor4})
+				-| ['compiler_generated'] )
+			    end
+			-| [{'id',{0,0,'-get_service/2-fun-0-'}}] )
+		  in  %% Line 185
+		      case apply 'split_by_env'/1
+			       (Data) of
+			<{Before,After}> when 'true' ->
+			    let <_cor10> =
+				%% Line 186
+				call 'lists':'map'
+				    (F, Before)
+			    in  let <FirstPass> =
+				    %% Line 186
+				    call 'lists':'flatten'
+					(_cor10)
+				in  let <SecondPass> =
+					%% Line 188
+					apply 'split_arglist'/1
+					    (FirstPass)
+				    in  let <_cor22> =
+					    %% Line 192
+					    ( fun (_cor20) ->
+						  let <X> =
+						      %% Line 193
+						      call 'string':'strip'
+							  (_cor20, 'left', 9)
+						  in  let <_cor14> =
+							  %% Line 194
+							  call 'string':'tokens'
+							      (X, [61])
+						      in  %% Line 194
+							  case call 'erlang':'hd'
+								   (_cor14) of
+							    %% Line 195
+							    <_cor35>
+								when call 'erlang':'=:='
+								      (_cor35,
+								       X) ->
+								%% Line 197
+								{X,[]}
+							    %% Line 198
+							    <Y> when 'true' ->
+								let <_cor16> =
+								    %% Line 200
+								    call 'erlang':'length'
+									(Y)
+								in  let <_cor17> =
+									%% Line 200
+									call 'erlang':'+'
+									    (_cor16, 2)
+								    in  let <_cor15> =
+									    %% Line 201
+									    call 'erlang':'length'
+										(X)
+									in  let <_cor18> =
+										%% Line 200
+										call 'lists':'sublist'
+										    (X, _cor17, _cor15)
+									    in  %% Line 199
+										{Y,_cor18}
+							  end
+					      -| [{'id',{0,0,'-get_service/2-fun-1-'}}] )
+					in  let <EnvParts> =
+						%% Line 191
+						call 'lists':'map'
+						    (_cor22, %% Line 204
+							     After)
+					    in  %% Line 205
+						case EnvParts of
+						  %% Line 206
+						  <[]> when 'true' ->
+						      %% Line 207
+						      SecondPass
+						  %% Line 208
+						  <_cor36> when 'true' ->
+						      %% Line 209
+						      call 'lists':'append'
+							  (SecondPass, [{'env',EnvParts}|[]])
+						end
+			( <_cor9> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor9})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor25> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor25})
+		-| ['compiler_generated'] )
+	    end
+'store_service'/1 =
+    %% Line 214
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 215
+	    apply 'current_version'/0
+		()
+	in  %% Line 215
+	    apply 'store_service'/2
+		(_cor1, _cor0)
+'store_service'/2 =
+    %% Line 216
+    fun (_cor1,_cor0) ->
+	%% Line 217
+	case call 'lists':'keysearch'
+		 ('servicename', 1, _cor0) of
+	  %% Line 218
+	  <'false'> when 'true' ->
+	      %% Line 219
+	      {'error','no_servicename'}
+	  %% Line 220
+	  <{'value',{_cor12,Name}}> when 'true' ->
+	      let <Action,Service1> =
+		  %% Line 221
+		  case apply 'get_service'/2
+			   (_cor1, Name) of
+		    %% Line 222
+		    <{'error','no_such_service'}> when 'true' ->
+			%% Line 223
+			<[97|[100|[100]]],_cor0>
+		    %% Line 224
+		    <_cor13> when 'true' ->
+			let <_cor2> =
+			    %% Line 226
+			    call 'lists':'keydelete'
+				('internalservicename', 1, _cor0)
+			in  %% Line 225
+			    <[115|[101|[116]]],_cor2>
+		  end
+	      in  let <_cor6> =
+		      %% Line 228
+		      apply 'build_commands'/2
+			  (Name, Service1)
+		  in  let <Commands> =
+			  %% Line 228
+			  [Action|_cor6]
+		      in  %% Line 229
+			  case apply 'run_erlsrv_interactive'/2
+				   (_cor1, Commands) of
+			    %% Line 230
+			    <{'ok',_cor14}> when 'true' ->
+				%% Line 231
+				'ok'
+			    %% Line 232
+			    <X> when 'true' ->
+				%% Line 233
+				{'error',X}
+			  end
+	  %% Line 235
+	  <_cor15> when 'true' ->
+	      %% Line 236
+	      {'error','malformed_description'}
+	end
+'build_commands'/2 =
+    %% Line 239
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 240
+	    apply 'build_commands2'/2
+		(_cor0, [])
+	in  let <_cor3> =
+		%% Line 240
+		call 'lists':'reverse'
+		    (_cor2)
+	    in  %% Line 240
+		[_cor1|_cor3]
+'build_commands2'/2 =
+    %% Line 242
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],A> when 'true' ->
+	      %% Line 243
+	      A
+	  %% Line 244
+	  <[{'env',[]}|T],A> when 'true' ->
+	      %% Line 245
+	      apply 'build_commands2'/2
+		  (T, A)
+	  %% Line 246
+	  <[{'env',[{Var,Val}|Et]}|T],A> when 'true' ->
+	      let <_cor2> =
+		  %% Line 247
+		  [61|Val]
+	      in  let <_cor3> =
+		      %% Line 247
+		      call 'erlang':'++'
+			  (Var, _cor2)
+		  in  %% Line 247
+		      apply 'build_commands2'/2
+			  ([{'env',Et}|T], [_cor3|[[45|[101|[110|[118]]]]|A]])
+	  %% Line 248
+	  <[{'servicename',_cor11}|T],A> when 'true' ->
+	      %% Line 249
+	      apply 'build_commands2'/2
+		  (T, A)
+	  %% Line 250
+	  <[{Atom,[]}|T],A> when 'true' ->
+	      let <_cor4> =
+		  %% Line 251
+		  call 'erlang':'atom_to_list'
+		      (Atom)
+	      in  let <_cor5> =
+		      %% Line 251
+		      [45|_cor4]
+		  in  %% Line 251
+		      apply 'build_commands2'/2
+			  (T, [_cor5|A])
+	  %% Line 252
+	  <[{'args',L}|T],A> when 'true' ->
+	      let <_cor6> =
+		  %% Line 253
+		  apply 'concat_args'/1
+		      (L)
+	      in  %% Line 253
+		  apply 'build_commands2'/2
+		      (T, [_cor6|[[45|[97|[114|[103|[115]]]]]|A]])
+	  %% Line 254
+	  <[{Atom,Value}|T],A> when 'true' ->
+	      let <_cor7> =
+		  %% Line 255
+		  call 'erlang':'atom_to_list'
+		      (Atom)
+	      in  let <_cor8> =
+		      %% Line 255
+		      [45|_cor7]
+		  in  %% Line 255
+		      apply 'build_commands2'/2
+			  (T, [Value|[_cor8|A]])
+	  ( <_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9})
+		  -| [{'function_name',{'build_commands2',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'concat_args'/1 =
+    %% Line 257
+    fun (_cor0) ->
+	case _cor0 of
+	  <[H|T]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 258
+		  apply 'concat_args2'/1
+		      (T)
+	      in  %% Line 258
+		  call 'erlang':'++'
+		      (H, _cor1)
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'concat_args',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'concat_args2'/1 =
+    %% Line 259
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 260
+	      []
+	  %% Line 261
+	  <[H|T]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 262
+		  apply 'concat_args2'/1
+		      (T)
+	      in  let <_cor2> =
+		      %% Line 262
+		      call 'erlang':'++'
+			  (H, _cor1)
+		  in  %% Line 262
+		      [32|_cor2]
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'concat_args2',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'new_service'/3 =
+    %% Line 265
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 266
+	apply 'new_service'/4
+	    (_cor2, _cor1, _cor0, [])
+'new_service'/4 =
+    %% Line 267
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <Tmp0> =
+	    %% Line 268
+	    call 'lists':'keydelete'
+		('internalservicename', 1, _cor2)
+	in  let <Tmp1> =
+		%% Line 271
+		call 'lists':'keyreplace'
+		    ('servicename', 1, Tmp0, %% Line 272
+					     {'servicename',_cor3})
+	    in  let <_cor8> =
+		    %% Line 273
+		    case call 'lists':'keysearch'
+			     ('env', 1, Tmp1) of
+		      %% Line 274
+		      <{'value',{'env',Env0}}> when 'true' ->
+			  let <Env1> =
+			      %% Line 275
+			      call 'lists':'keydelete'
+				  ([69|[82|[76|[83|[82|[86|[95|[83|[69|[82|[86|[73|[67|[69|[95|[78|[65|[77|[69]]]]]]]]]]]]]]]]]]], 1, Env0)
+			  in  %% Line 276
+			      call 'lists':'keyreplace'
+				  ('env', 1, Tmp1, %% Line 277
+						   {'env',[{[69|[82|[76|[83|[82|[86|[95|[83|[69|[82|[86|[73|[67|[69|[95|[78|[65|[77|[69]]]]]]]]]]]]]]]]]]],_cor0}|%% Line 279
+																				  Env1]})
+		      %% Line 280
+		      <_cor42> when 'true' ->
+			  %% Line 281
+			  Tmp1
+		    end
+		in  let <_cor11> =
+			%% Line 284
+			case call 'lists':'keysearch'
+				 ('args', 1, _cor8) of
+			  %% Line 285
+			  <'false'> when 'true' ->
+			      %% Line 286
+			      []
+			  %% Line 287
+			  <{'value',{'args',OldArgs}}> when 'true' ->
+			      %% Line 288
+			      OldArgs
+			  ( <_cor10> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor10})
+			    -| ['compiler_generated'] )
+			end
+		    in  let <Args> =
+			    %% Line 290
+			    apply 'backstrip'/2
+				(_cor11, [43|[43]])
+			in  let <_cor19> =
+				%% Line 291
+				( fun (_cor16,_cor15) ->
+				      case <_cor16,_cor15> of
+					<A,{Flag,AccIn}> when 'true' ->
+					    %% Line 292
+					    case <Flag,A> of
+					      %% Line 293
+					      <'true',_cor43> when 'true' ->
+						  {Flag,AccIn}
+					      %% Line 294
+					      <'false',[43|[43]]> when 'true' ->
+						  {'true',AccIn}
+					      %% Line 295
+					      <_fol36,_fol37> when 'true' ->
+						  {'false',[A|AccIn]}
+					    end
+					( <_cor18,_cor17> when 'true' ->
+					      ( primop 'match_fail'
+						    ({'function_clause',_cor18,_cor17})
+						-| [{'function_name',{'-new_service/4-fun-0-',2}}] )
+					  -| ['compiler_generated'] )
+				      end
+				  -| [{'id',{0,0,'-new_service/4-fun-0-'}}] )
+			    in  %% Line 291
+				case call 'lists':'foldr'
+					 (_cor19, %% Line 297
+						  {'false',[]}, %% Line 297
+								Args) of
+				  <{Found,Tail}> when 'true' ->
+				      let <_cor22> =
+					  %% Line 299
+					  case Found of
+					    %% Line 300
+					    <'true'> when 'true' ->
+						%% Line 301
+						apply 'check_tail'/1
+						    (Tail)
+					    %% Line 302
+					    <'false'> when 'true' ->
+						%% Line 303
+						{[],'false'}
+					    ( <_cor21> when 'true' ->
+						  primop 'match_fail'
+						      ({'case_clause',_cor21})
+					      -| ['compiler_generated'] )
+					  end
+				      in  %% Line 299
+					  case _cor22 of
+					    <{OtherFlags,_X_DataDir}> when 'true' ->
+						let <_cor25> =
+						    %% Line 305
+						    case _cor1 of
+						      %% Line 306
+						      <[]> when 'true' ->
+							  %% Line 307
+							  OtherFlags
+						      %% Line 308
+						      <_cor45> when 'true' ->
+							  %% Line 309
+							  [[45|[100|[97|[116|[97]]]]]|[_cor1|OtherFlags]]
+						    end
+						in  %% Line 311
+						    case Found of
+						      %% Line 312
+						      <'false'> when 'true' ->
+							  let <_cor28> =
+							      %% Line 313
+							      case _cor25 of
+								%% Line 314
+								<[]> when 'true' ->
+								    %% Line 315
+								    []
+								%% Line 316
+								<_cor46> when 'true' ->
+								    %% Line 317
+								    [[43|[43]]|_cor25]
+							      end
+							  in  %% Line 319
+							      case <Args,_cor28> of
+								%% Line 320
+								<[],[]> when 'true' ->
+								    _cor8
+								%% Line 322
+								<[],_cor47> when 'true' ->
+								    %% Line 323
+								    call 'erlang':'++'
+									(_cor8, [{'args',_cor28}|[]])
+								%% Line 324
+								<_cor48,_cor49> when 'true' ->
+								    let <_cor30> =
+									%% Line 325
+									call 'erlang':'++'
+									    (Args, _cor28)
+								    in  %% Line 325
+									call 'lists':'keyreplace'
+									    ('args', 1, _cor8, {'args',_cor30})
+							      end
+						      %% Line 327
+						      <'true'> when 'true' ->
+							  let <StripArgs> =
+							      %% Line 328
+							      apply 'backstrip'/2
+								  (Args, [[43|[43]]|Tail])
+							  in  let <_cor34> =
+								  %% Line 329
+								  case _cor25 of
+								    %% Line 330
+								    <[]> when 'true' ->
+									%% Line 331
+									[]
+								    %% Line 332
+								    <_cor50> when 'true' ->
+									%% Line 333
+									[[43|[43]]|_cor25]
+								  end
+							      in  let <NewArgs> =
+								      %% Line 335
+								      call 'erlang':'++'
+									  (StripArgs, _cor34)
+								  in  %% Line 336
+								      call 'lists':'keyreplace'
+									  ('args', 1, _cor8, {'args',NewArgs})
+						      ( <_cor37> when 'true' ->
+							    primop 'match_fail'
+								({'case_clause',_cor37})
+							-| ['compiler_generated'] )
+						    end
+					    ( <_cor23> when 'true' ->
+						  primop 'match_fail'
+						      ({'badmatch',_cor23})
+					      -| ['compiler_generated'] )
+					  end
+				  ( <_cor20> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor20})
+				    -| ['compiler_generated'] )
+				end
+'backstrip'/2 =
+    %% Line 340
+    fun (_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 341
+	    call 'lists':'reverse'
+		(_cor1)
+	in  let <_cor2> =
+		%% Line 341
+		call 'lists':'reverse'
+		    (_cor0)
+	    in  let <_cor4> =
+		    %% Line 341
+		    apply 'backstrip2'/2
+			(_cor3, _cor2)
+		in  %% Line 341
+		    call 'lists':'reverse'
+			(_cor4)
+'backstrip2'/2 =
+    %% Line 342
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[A|T1],[_cor4|T2]>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     A) ->
+	      %% Line 343
+	      apply 'backstrip2'/2
+		  (T1, T2)
+	  %% Line 344
+	  <L,_cor5> when 'true' ->
+	      %% Line 345
+	      L
+	end
+'check_tail'/1 =
+    %% Line 347
+    fun (_cor0) ->
+	%% Line 348
+	case apply 'check_tail'/3
+		 (_cor0, [], 'false') of
+	  <{A,B}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 349
+		  call 'lists':'reverse'
+		      (A)
+	      in  %% Line 349
+		  {_cor2,B}
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'check_tail'/3 =
+    %% Line 351
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],OtherFlags,DataDir> when 'true' ->
+	      %% Line 352
+	      {OtherFlags,DataDir}
+	  %% Line 353
+	  <[[45|[100|[97|[116|[97]]]]]|[TheDataDir|T]],OtherFlags,_X_DataDir> when 'true' ->
+	      %% Line 354
+	      apply 'check_tail'/3
+		  (T, OtherFlags, TheDataDir)
+	  %% Line 355
+	  <[H|T],OtherFlags,DataDir> when 'true' ->
+	      %% Line 356
+	      apply 'check_tail'/3
+		  (T, [H|OtherFlags], DataDir)
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'check_tail',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'split_arglist'/1 =
+    %% Line 362
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 363
+	      []
+	  %% Line 364
+	  <[{'args',Str}|T]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 365
+		  apply 'parse_arglist'/1
+		      (Str)
+	      in  %% Line 365
+		  [{'args',_cor1}|T]
+	  %% Line 366
+	  <[H|T]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 367
+		  apply 'split_arglist'/1
+		      (T)
+	      in  %% Line 367
+		  [H|_cor2]
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'split_arglist',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'parse_arglist'/1 =
+    %% Line 370
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 371
+	    apply 'parse_arglist'/2
+		(_cor0, [])
+	in  %% Line 371
+	    call 'lists':'reverse'
+		(_cor1)
+'parse_arglist'/2 =
+    %% Line 372
+    fun (_cor1,_cor0) ->
+	let <Stripped> =
+	    %% Line 373
+	    call 'string':'strip'
+		(_cor1, 'left')
+	in  %% Line 374
+	    case call 'erlang':'length'
+		     (Stripped) of
+	      %% Line 375
+	      <0> when 'true' ->
+		  _cor0
+	      %% Line 377
+	      <_cor7> when 'true' ->
+		  %% Line 378
+		  case apply 'pick_argument'/1
+			   (_cor1) of
+		    <{Next,Rest}> when 'true' ->
+			%% Line 379
+			apply 'parse_arglist'/2
+			    (Rest, [Next|_cor0])
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	    end
+'pick_argument'/1 =
+    %% Line 382
+    fun (_cor0) ->
+	%% Line 383
+	case apply 'pick_argument'/3
+		 ('normal', _cor0, []) of
+	  <{Rev,Rest}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 384
+		  call 'lists':'reverse'
+		      (Rev)
+	      in  %% Line 384
+		  {_cor2,Rest}
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'pick_argument'/3 =
+    %% Line 386
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_cor6,[],Acc> when 'true' ->
+	      %% Line 387
+	      {Acc,[]}
+	  %% Line 388
+	  <'normal',[32|T],Acc> when 'true' ->
+	      %% Line 389
+	      {Acc,T}
+	  %% Line 390
+	  <'normal',[92|T],Acc> when 'true' ->
+	      %% Line 391
+	      apply 'pick_argument'/3
+		  ('normal_escaped', T, [92|Acc])
+	  %% Line 392
+	  <'normal',[34|T],Acc> when 'true' ->
+	      %% Line 393
+	      apply 'pick_argument'/3
+		  ('quoted', T, [34|Acc])
+	  %% Line 394
+	  <'normal_escaped',[34|T],Acc> when 'true' ->
+	      %% Line 395
+	      apply 'pick_argument'/3
+		  ('bquoted', T, [34|Acc])
+	  %% Line 396
+	  <'normal_escaped',[A|T],Acc> when 'true' ->
+	      %% Line 397
+	      apply 'pick_argument'/3
+		  ('normal', T, [A|Acc])
+	  %% Line 398
+	  <'quoted_escaped',[H|T],Acc> when 'true' ->
+	      %% Line 399
+	      apply 'pick_argument'/3
+		  ('quoted', T, [H|Acc])
+	  %% Line 400
+	  <'quoted',[34|T],Acc> when 'true' ->
+	      %% Line 401
+	      apply 'pick_argument'/3
+		  ('normal', T, [34|Acc])
+	  %% Line 402
+	  <'quoted',[92|T],Acc> when 'true' ->
+	      %% Line 403
+	      apply 'pick_argument'/3
+		  ('quoted_escaped', T, [92|Acc])
+	  %% Line 404
+	  <'quoted',[H|T],Acc> when 'true' ->
+	      %% Line 405
+	      apply 'pick_argument'/3
+		  ('quoted', T, [H|Acc])
+	  %% Line 406
+	  <'bquoted_escaped',[34|T],Acc> when 'true' ->
+	      %% Line 407
+	      apply 'pick_argument'/3
+		  ('normal', T, [34|Acc])
+	  %% Line 408
+	  <'bquoted_escaped',[H|T],Acc> when 'true' ->
+	      %% Line 409
+	      apply 'pick_argument'/3
+		  ('bquoted', T, [H|Acc])
+	  %% Line 410
+	  <'bquoted',[92|T],Acc> when 'true' ->
+	      %% Line 411
+	      apply 'pick_argument'/3
+		  ('bquoted_escaped', T, [92|Acc])
+	  %% Line 412
+	  <'bquoted',[H|T],Acc> when 'true' ->
+	      %% Line 413
+	      apply 'pick_argument'/3
+		  ('bquoted', T, [H|Acc])
+	  %% Line 414
+	  <'normal',[H|T],Acc> when 'true' ->
+	      %% Line 415
+	      apply 'pick_argument'/3
+		  ('normal', T, [H|Acc])
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'pick_argument',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'split_helper'/2 =
+    %% Line 417
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[69|[110|[118|[58]]]],{Where,0}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 418
+		  call 'erlang':'+'
+		      (Where, 1)
+	      in  %% Line 418
+		  {_cor2,Where}
+	  %% Line 419
+	  <_cor6,{Where,Pos}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 420
+		  call 'erlang':'+'
+		      (Where, 1)
+	      in  %% Line 420
+		  {_cor3,Pos}
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'split_helper',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'split_by_env'/1 =
+    %% Line 422
+    fun (_cor0) ->
+	%% Line 424
+	case call 'lists':'foldl'
+		 (( 'split_helper'/2
+		    -| [{'id',{0,0,'-split_by_env/1-fun-0-'}}] ), {0,0}, _cor0) of
+	  %% Line 425
+	  <{_cor6,0}> when 'true' ->
+	      %% Line 427
+	      {_cor0,[]}
+	  %% Line 428
+	  <{Len,Pos}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 429
+		  call 'lists':'sublist'
+		      (_cor0, Pos)
+	      in  let <_cor1> =
+		      %% Line 429
+		      call 'erlang':'+'
+			  (Pos, 2)
+		  in  let <_cor2> =
+			  %% Line 429
+			  call 'lists':'sublist'
+			      (_cor0, _cor1, Len)
+		      in  %% Line 429
+			  {_cor3,_cor2}
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'splitline'/1 =
+    %% Line 433
+    fun (_cor0) ->
+	%% Line 434
+	case call 'string':'chr'
+		 (_cor0, 58) of
+	  %% Line 435
+	  <0> when 'true' ->
+	      %% Line 436
+	      {_cor0,[]}
+	  %% Line 437
+	  <N> when 'true' ->
+	      let <_cor1> =
+		  %% Line 438
+		  call 'string':'substr'
+		      (_cor0, N)
+	      in  %% Line 438
+		  case call 'erlang':'length'
+			   (_cor1) of
+		    %% Line 439
+		    <1> when 'true' ->
+			let <_cor2> =
+			    %% Line 440
+			    call 'erlang':'-'
+				(N, 1)
+			in  let <_cor3> =
+				%% Line 440
+				call 'string':'substr'
+				    (_cor0, 1, _cor2)
+			    in  %% Line 440
+				{_cor3,[]}
+		    %% Line 441
+		    <_cor11> when 'true' ->
+			let <_cor6> =
+			    %% Line 442
+			    call 'erlang':'-'
+				(N, 1)
+			in  let <_cor7> =
+				%% Line 442
+				call 'string':'substr'
+				    (_cor0, 1, _cor6)
+			    in  let <_cor4> =
+				    %% Line 442
+				    call 'erlang':'+'
+					(N, 2)
+				in  let <_cor5> =
+					%% Line 442
+					call 'string':'substr'
+					    (_cor0, _cor4)
+				    in  %% Line 442
+					{_cor7,_cor5}
+		  end
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('erlsrv')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('erlsrv', _cor0)
+end

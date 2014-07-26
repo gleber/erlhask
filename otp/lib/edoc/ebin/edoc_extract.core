@@ -1,0 +1,1839 @@
+module 'edoc_extract' ['file'/4,
+		       'header'/3,
+		       'header'/4,
+		       'header'/5,
+		       'module_info'/0,
+		       'module_info'/1,
+		       'source'/3,
+		       'source'/4,
+		       'source'/5,
+		       'text'/4]
+    attributes []
+'source'/3 =
+    %% Line 51
+    fun (_cor2,_cor1,_cor0) ->
+	let <Forms> =
+	    %% Line 52
+	    call 'edoc':'read_source'
+		(_cor2, _cor0)
+	in  let <Comments> =
+		%% Line 53
+		call 'edoc':'read_comments'
+		    (_cor2, _cor0)
+	    in  %% Line 54
+		apply 'source'/5
+		    (Forms, Comments, _cor2, _cor1, _cor0)
+'source'/5 =
+    %% Line 73
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Forms,Comments,File,Env,Opts>
+	      when call 'erlang':'is_list'
+		    (Forms) ->
+	      let <Forms1> =
+		  %% Line 74
+		  call 'erl_syntax':'form_list'
+		      (Forms)
+	      in  %% Line 75
+		  apply 'source'/5
+		      (Forms1, Comments, File, Env, Opts)
+	  %% Line 76
+	  <Forms,Comments,File,Env,Opts> when 'true' ->
+	      let <Tree> =
+		  %% Line 77
+		  call 'erl_recomment':'quick_recomment_forms'
+		      (Forms, Comments)
+	      in  let <TypeDocs> =
+		      %% Line 78
+		      apply 'find_type_docs'/4
+			  (Forms, Comments, Env, File)
+		  in  %% Line 79
+		      apply 'source1'/5
+			  (Tree, File, Env, Opts, TypeDocs)
+	end
+'source'/4 =
+    %% Line 111
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Forms,File,Env,Opts>
+	      when call 'erlang':'is_list'
+		    (Forms) ->
+	      let <_cor4> =
+		  %% Line 112
+		  call 'erl_syntax':'form_list'
+		      (Forms)
+	      in  %% Line 112
+		  apply 'source'/4
+		      (_cor4, File, Env, Opts)
+	  %% Line 113
+	  <Tree,File0,Env,Opts> when 'true' ->
+	      let <TypeDocs> =
+		  %% Line 114
+		  apply 'find_type_docs'/4
+		      (Tree, [], Env, File0)
+	      in  %% Line 115
+		  apply 'source1'/5
+		      (Tree, File0, Env, Opts, TypeDocs)
+	end
+'source1'/5 =
+    %% Line 118
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <Forms> =
+	    %% Line 119
+	    apply 'preprocess_forms'/1
+		(_cor4)
+	in  let <File> =
+		%% Line 120
+		call 'edoc_lib':'filename'
+		    (_cor3)
+	    in  let <Module> =
+		    %% Line 121
+		    apply 'get_module_info'/2
+			(_cor4, File)
+		in  %% Line 122
+		    case apply 'collect'/2
+			     (Forms, Module) of
+		      <{Header,Footer,Entries}> when 'true' ->
+			  %% Line 123
+			  ( case Module of
+			      ( <( {'module',_rec0,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35}
+				   -| ['compiler_generated'] )> when 'true' ->
+				    let <_rec1> =
+					%% Line 127
+					call 'edoc_refs':'relative_package_path'
+					    ('', '')
+				    in  %% Line 125
+					case _cor2 of
+					  <{'env',_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45,_cor46,_cor47}> when 'true' ->
+					      let <_cor15> =
+						  %% Line 127
+						  call 'erlang':'setelement'
+						      (4, _cor2, _rec1)
+					      in  let <_cor16> =
+						      %% Line 126
+						      call 'erlang':'setelement'
+							  (3, _cor15, '')
+						  in  let <_cor18> =
+							  call 'erlang':'setelement'
+							      (2, _cor16, _rec0)
+						      in  let <_cor20> =
+							      %% Line 128
+							      apply 'module_macros'/1
+								  (_cor18)
+							  in  let <Env2> =
+								  %% Line 128
+								  apply 'add_macro_defs'/3
+								      (_cor20, _cor1, _cor18)
+							      in  let <Entries1> =
+								      %% Line 129
+								      apply 'get_tags'/4
+									  ([Header|[Footer|Entries]], Env2, File, _cor0)
+								  in  let <Entries2> =
+									  %% Line 130
+									  call 'edoc_specs':'add_data'
+									      (Entries1, _cor1, File, Module)
+								      in  do  %% Line 131
+									      call 'edoc_tags':'check_types'
+										  (Entries2, _cor1, File)
+									      let <Data> =
+										  %% Line 132
+										  call 'edoc_data':'module'
+										      (Module, Entries2, Env2, _cor1)
+									      in  %% Line 133
+										  {_rec0,Data}
+					  ( <_cor48> when 'true' ->
+						( call ( 'erlang'
+							 -| ['compiler_generated'] ):( 'error'
+										       -| ['compiler_generated'] )
+						      (( {'badrecord','env'}
+							 -| ['compiler_generated'] ))
+						  -| ['compiler_generated'] )
+					    -| ['compiler_generated'] )
+					end
+				-| ['compiler_generated'] )
+			      ( <_cor36> when 'true' ->
+				    ( call ( 'erlang'
+					     -| ['compiler_generated'] ):( 'error'
+									   -| ['compiler_generated'] )
+					  (( {'badrecord','module'}
+					     -| ['compiler_generated'] ))
+				      -| ['compiler_generated'] )
+				-| ['compiler_generated'] )
+			    end
+			    -| ['compiler_generated'] )
+		      ( <_cor8> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor8})
+			-| ['compiler_generated'] )
+		    end
+'header'/3 =
+    %% Line 147
+    fun (_cor2,_cor1,_cor0) ->
+	let <Forms> =
+	    %% Line 148
+	    call 'edoc':'read_source'
+		(_cor2)
+	in  let <Comments> =
+		%% Line 149
+		call 'edoc':'read_comments'
+		    (_cor2)
+	    in  %% Line 150
+		apply 'header'/5
+		    (Forms, Comments, _cor2, _cor1, _cor0)
+'header'/5 =
+    %% Line 167
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Forms,Comments,File,Env,Opts>
+	      when call 'erlang':'is_list'
+		    (Forms) ->
+	      let <Forms1> =
+		  %% Line 168
+		  call 'erl_syntax':'form_list'
+		      (Forms)
+	      in  %% Line 169
+		  apply 'header'/5
+		      (Forms1, Comments, File, Env, Opts)
+	  %% Line 170
+	  <Forms,Comments,File,Env,Opts> when 'true' ->
+	      let <Tree> =
+		  %% Line 171
+		  call 'erl_recomment':'quick_recomment_forms'
+		      (Forms, Comments)
+	      in  %% Line 172
+		  apply 'header'/4
+		      (Tree, File, Env, Opts)
+	end
+'header'/4 =
+    %% Line 190
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Forms,File,Env,Opts>
+	      when call 'erlang':'is_list'
+		    (Forms) ->
+	      let <_cor4> =
+		  %% Line 191
+		  call 'erl_syntax':'form_list'
+		      (Forms)
+	      in  %% Line 191
+		  apply 'header'/4
+		      (_cor4, File, Env, Opts)
+	  %% Line 192
+	  <Tree,File0,Env,_X_Opts> when 'true' ->
+	      let <Forms> =
+		  %% Line 193
+		  apply 'preprocess_forms'/1
+		      (Tree)
+	      in  let <File> =
+		      %% Line 194
+		      call 'edoc_lib':'filename'
+			  (File0)
+		  in  %% Line 195
+		      ( case Env of
+			  ( <( {'env',_rec3,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35}
+			       -| ['compiler_generated'] )> when 'true' ->
+				let <Module> =
+				    {'module',_rec3,'none',[],[],[],[],'latin1'}
+				in  %% Line 199
+				    case apply 'collect'/2
+					     (Forms, Module) of
+				      <{Header,Footer,Entries}> when 'true' ->
+					  do  %% Line 200
+					      case <> of
+						<>
+						    when ( try
+							    ( case <> of
+								( <>
+								      when ( call ( 'erlang'
+										 -| ['compiler_generated'] ):( 'is_record'
+													       -| ['compiler_generated'] )
+									      (Header,
+									       ( 'entry'
+										 -| ['compiler_generated'] ),
+									       ( 6
+										 -| ['compiler_generated'] ))
+									  -| ['compiler_generated'] ) ->
+								      let <_cor15> =
+									  ( call 'erlang':'element'
+										(6, Header)
+									    -| ['compiler_generated'] )
+								      in  ( call 'erlang':'=/='
+										(_cor15, {[],[],[]})
+									    -| ['compiler_generated'] )
+								  -| ['compiler_generated'] )
+								( <> when 'true' ->
+								      'false'
+								  -| ['compiler_generated'] )
+							      end
+							      -| ['compiler_generated'] )
+							of <Try> ->
+							    Try
+							catch <T,R> ->
+							    'false'
+							-| ['compiler_generated'] ) ->
+						    %% Line 201
+						    call 'edoc_report':'warning'
+							(File, [100|[111|[99|[117|[109|[101|[110|[116|[97|[116|[105|[111|[110|[32|[98|[101|[102|[111|[114|[101|[32|[109|[111|[100|[117|[108|[101|[32|[100|[101|[99|[108|[97|[114|[97|[116|[105|[111|[110|[32|[105|[115|[32|[105|[103|[110|[111|[114|[101|[100|[32|[98|[121|[32|[64|[104|[101|[97|[100|[101|[114|[102|[105|[108|[101]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [])
+						%% Line 202
+						<> when 'true' ->
+						    'ok'
+					      end
+					      do  %% Line 204
+						  case <> of
+						    <>
+							when call 'erlang':'=/='
+							      (Entries,
+							       []) ->
+							%% Line 205
+							call 'edoc_report':'warning'
+							    (File, [100|[111|[99|[117|[109|[101|[110|[116|[97|[116|[105|[111|[110|[32|[98|[101|[102|[111|[114|[101|[32|[102|[117|[110|[99|[116|[105|[111|[110|[32|[100|[101|[102|[105|[110|[105|[116|[105|[111|[110|[115|[32|[105|[115|[32|[105|[103|[110|[111|[114|[101|[100|[32|[98|[121|[32|[64|[104|[101|[97|[100|[101|[114|[102|[105|[108|[101]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [])
+						    %% Line 206
+						    <> when 'true' ->
+							'ok'
+						  end
+						  %% Line 208
+						  case Footer of
+						    <{'entry',_cor37,_cor38,_cor39,_cor40,_cor41}> when 'true' ->
+							let <_cor19> =
+							    call 'erlang':'setelement'
+								(2, Footer, 'header')
+							in  case apply 'get_tags'/3
+								     ([_cor19|[]], Env, File) of
+							      <[Entry|[]]> when 'true' ->
+								  %% Line 209
+								  ( case Entry of
+								      ( <( {'entry',_cor43,_cor44,_cor45,_cor46,_rec5}
+									   -| ['compiler_generated'] )> when 'true' ->
+									    _rec5
+									-| ['compiler_generated'] )
+								      ( <_cor47> when 'true' ->
+									    ( call ( 'erlang'
+										     -| ['compiler_generated'] ):( 'error'
+														   -| ['compiler_generated'] )
+										  (( {'badrecord','entry'}
+										     -| ['compiler_generated'] ))
+									      -| ['compiler_generated'] )
+									-| ['compiler_generated'] )
+								    end
+								    -| ['compiler_generated'] )
+							      ( <_cor20> when 'true' ->
+								    primop 'match_fail'
+									({'badmatch',_cor20})
+								-| ['compiler_generated'] )
+							    end
+						    ( <_cor42> when 'true' ->
+							  ( call ( 'erlang'
+								   -| ['compiler_generated'] ):( 'error'
+												 -| ['compiler_generated'] )
+								(( {'badrecord','entry'}
+								   -| ['compiler_generated'] ))
+							    -| ['compiler_generated'] )
+						      -| ['compiler_generated'] )
+						  end
+				      ( <_cor10> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_cor10})
+					-| ['compiler_generated'] )
+				    end
+			    -| ['compiler_generated'] )
+			  ( <_cor36> when 'true' ->
+				( call ( 'erlang'
+					 -| ['compiler_generated'] ):( 'error'
+								       -| ['compiler_generated'] )
+				      (( {'badrecord','env'}
+					 -| ['compiler_generated'] ))
+				  -| ['compiler_generated'] )
+			    -| ['compiler_generated'] )
+			end
+			-| ['compiler_generated'] )
+	end
+'add_macro_defs'/3 =
+    %% Line 214
+    fun (_cor2,_cor1,_cor0) ->
+	let <Defs> =
+	    %% Line 215
+	    call 'proplists':'append_values'
+		('def', _cor1)
+	in  do  %% Line 216
+		call 'edoc_macros':'check_defs'
+		    (Defs)
+		%% Line 217
+		( case _cor0 of
+		    ( <( {'env',_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_rec8,_cor22}
+			 -| ['compiler_generated'] )> when 'true' ->
+			  let <_cor6> =
+			      call 'erlang':'++'
+				  (_cor2, _rec8)
+			  in  let <_rec6> =
+				  call 'erlang':'++'
+				      (Defs, _cor6)
+			      in  call 'erlang':'setelement'
+				      (11, _cor0, _rec6)
+		      -| ['compiler_generated'] )
+		    ( <_cor23> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','env'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+		  -| ['compiler_generated'] )
+'file'/4 =
+    %% Line 235
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 236
+	case call 'file':'read_file'
+		 (_cor3) of
+	  %% Line 237
+	  <{'ok',Bin}> when 'true' ->
+	      let <Enc> =
+		  %% Line 238
+		  call 'edoc_lib':'read_encoding'
+		      (_cor3, [{'in_comment_only','false'}])
+	      in  let <_cor5> =
+		      catch
+			  %% Line 239
+			  call 'unicode':'characters_to_list'
+			      (Bin, Enc)
+		  in  %% Line 239
+		      case _cor5 of
+			%% Line 240
+			<String>
+			    when call 'erlang':'is_list'
+				  (_cor5) ->
+			    let <_cor6> =
+				%% Line 241
+				apply 'text'/5
+				    (String, _cor2, _cor1, _cor0, _cor3)
+			    in  %% Line 241
+				{'ok',_cor6}
+			%% Line 242
+			<_cor13> when 'true' ->
+			    %% Line 243
+			    {'error','invalid_unicode'}
+		      end
+	  %% Line 245
+	  <Error = {'error',_cor14}> when 'true' ->
+	      %% Line 246
+	      Error
+	  ( <_cor8> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor8})
+	    -| ['compiler_generated'] )
+	end
+'text'/4 =
+    %% Line 264
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 265
+	apply 'text'/5
+	    (_cor3, _cor2, _cor1, _cor0, [])
+'text'/5 =
+    %% Line 267
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 268
+	    apply 'file_macros'/2
+		(_cor3, _cor2)
+	in  let <Env1> =
+		%% Line 268
+		apply 'add_macro_defs'/3
+		    (_cor5, _cor1, _cor2)
+	    in  let <Cs> =
+		    %% Line 269
+		    call 'edoc_lib':'lines'
+			(_cor4)
+		in  let <Ts0> =
+			%% Line 270
+			call 'edoc_tags':'scan_lines'
+			    (Cs, 1)
+		    in  let <_cor9> =
+			    %% Line 271
+			    call 'edoc_tags':'tag_names'
+				()
+			in  let <Tags> =
+				%% Line 271
+				call 'sets':'from_list'
+				    (_cor9)
+			    in  let <Ts1> =
+				    %% Line 272
+				    call 'edoc_tags':'filter_tags'
+					(Ts0, Tags, _cor0)
+				in  let <_cor12> =
+					%% Line 273
+					call 'edoc_tags':'tags'
+					    ('single')
+				    in  let <Single> =
+					    %% Line 273
+					    call 'sets':'from_list'
+						(_cor12)
+					in  let <_cor14> =
+						%% Line 274
+						call 'edoc_tags':'tags'
+						    (_cor3)
+					    in  let <Allow> =
+						    %% Line 274
+						    call 'sets':'from_list'
+							(_cor14)
+						in  %% Line 275
+						    case call 'edoc_tags':'check_tags'
+							     (Ts1, Allow, Single, _cor0) of
+						      %% Line 276
+						      <'true'> when 'true' ->
+							  %% Line 277
+							  call 'erlang':'exit'
+							      ('error')
+						      %% Line 278
+						      <'false'> when 'true' ->
+							  let <Ts2> =
+							      %% Line 279
+							      call 'edoc_macros':'expand_tags'
+								  (Ts1, Env1, _cor0)
+							  in  let <_cor17> =
+								  %% Line 280
+								  call 'edoc_tags':'tag_parsers'
+								      ()
+							      in  let <How> =
+								      %% Line 280
+								      call 'dict':'from_list'
+									  (_cor17)
+								  in  %% Line 281
+								      call 'edoc_tags':'parse_tags'
+									  (Ts2, How, Env1, _cor0)
+						      ( <_cor19> when 'true' ->
+							    primop 'match_fail'
+								({'case_clause',_cor19})
+							-| ['compiler_generated'] )
+						    end
+'get_module_info'/2 =
+    %% Line 290
+    fun (_cor1,_cor0) ->
+	let <_cor3> =
+	    catch
+		let <_cor2> =
+		    %% Line 291
+		    call 'erl_syntax_lib':'analyze_forms'
+			(_cor1)
+		in  %% Line 291
+		    {'ok',_cor2}
+	in  let <_cor5> =
+		%% Line 291
+		case _cor3 of
+		  %% Line 292
+		  <{'ok',L1}> when 'true' ->
+		      %% Line 293
+		      L1
+		  %% Line 294
+		  <'syntax_error'> when 'true' ->
+		      do  %% Line 295
+			  call 'edoc_report':'report'
+			      (_cor0, [115|[121|[110|[116|[97|[120|[32|[101|[114|[114|[111|[114|[32|[105|[110|[32|[105|[110|[112|[117|[116|[46]]]]]]]]]]]]]]]]]]]]]], [])
+			  %% Line 296
+			  call 'erlang':'exit'
+			      ('error')
+		  %% Line 297
+		  <{'EXIT',R}> when 'true' ->
+		      %% Line 298
+		      call 'erlang':'exit'
+			  (R)
+		  %% Line 299
+		  <R> when 'true' ->
+		      %% Line 300
+		      call 'erlang':'throw'
+			  (R)
+		end
+	    in  let <_cor8> =
+		    %% Line 302
+		    case call 'lists':'keyfind'
+			     ('module', 1, _cor5) of
+		      %% Line 303
+		      <{'module',N}>
+			  when call 'erlang':'is_atom'
+				(N) ->
+			  %% Line 304
+			  {N,'none'}
+		      %% Line 305
+		      <{'module',Mod = {N,_cor21}}>
+			  when call 'erlang':'is_atom'
+				(N) ->
+			  %% Line 306
+			  Mod
+		      %% Line 307
+		      <_cor22> when 'true' ->
+			  do  %% Line 308
+			      call 'edoc_report':'report'
+				  (_cor0, [109|[111|[100|[117|[108|[101|[32|[110|[97|[109|[101|[32|[109|[105|[115|[115|[105|[110|[103|[46]]]]]]]]]]]]]]]]]]]], [])
+			      %% Line 309
+			      call 'erlang':'exit'
+				  ('error')
+		    end
+		in  %% Line 302
+		    case _cor8 of
+		      <{Name,Vars}> when 'true' ->
+			  let <_cor10> =
+			      %% Line 311
+			      apply 'get_list_keyval'/2
+				  ('functions', _cor5)
+			  in  let <Functions> =
+				  %% Line 311
+				  call 'ordsets':'from_list'
+				      (_cor10)
+			      in  let <_cor12> =
+				      %% Line 312
+				      apply 'get_list_keyval'/2
+					  ('exports', _cor5)
+				  in  let <Exports> =
+					  %% Line 312
+					  call 'ordsets':'from_list'
+					      (_cor12)
+				      in  let <_cor14> =
+					      %% Line 313
+					      apply 'get_list_keyval'/2
+						  ('attributes', _cor5)
+					  in  let <Attributes> =
+						  %% Line 313
+						  call 'ordsets':'from_list'
+						      (_cor14)
+					      in  let <Records> =
+						      %% Line 314
+						      apply 'get_list_keyval'/2
+							  ('records', _cor5)
+						  in  let <Encoding> =
+							  %% Line 315
+							  call 'edoc_lib':'read_encoding'
+							      (_cor0, [])
+						      in  let <_cor18> =
+							      %% Line 319
+							      call 'ordsets':'intersection'
+								  (Exports, Functions)
+							  in  %% Line 316
+							      {'module',Name,%% Line 317
+									     Vars,%% Line 318
+										  Functions,_cor18,%% Line 320
+												   Attributes,%% Line 321
+													      Records,%% Line 322
+														      Encoding}
+		      ( <_cor9> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor9})
+			-| ['compiler_generated'] )
+		    end
+'get_list_keyval'/2 =
+    %% Line 324
+    fun (_cor1,_cor0) ->
+	%% Line 325
+	case call 'lists':'keyfind'
+		 (_cor1, 1, _cor0) of
+	  %% Line 326
+	  <{_cor5,As}>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     _cor1) ->
+	      %% Line 327
+	      call 'ordsets':'from_list'
+		  (As)
+	  %% Line 328
+	  <_cor6> when 'true' ->
+	      %% Line 329
+	      []
+	end
+'preprocess_forms'/1 =
+    %% Line 336
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 338
+	    call 'erl_syntax':'flatten_form_list'
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 337
+		call 'erl_syntax':'form_list_elements'
+		    (_cor1)
+	    in  %% Line 337
+		apply 'preprocess_forms_1'/1
+		    (_cor2)
+'preprocess_forms_1'/1 =
+    %% Line 340
+    fun (_cor0) ->
+	case _cor0 of
+	  <[F|Fs]> when 'true' ->
+	      %% Line 341
+	      case call 'erl_syntax':'get_precomments'
+		       (F) of
+		%% Line 342
+		<[]> when 'true' ->
+		    %% Line 343
+		    apply 'preprocess_forms_2'/2
+			(F, Fs)
+		%% Line 344
+		<Cs> when 'true' ->
+		    let <_cor1> =
+			%% Line 345
+			apply 'preprocess_forms_2'/2
+			    (F, Fs)
+		    in  %% Line 345
+			call 'erlang':'++'
+			    (Cs, _cor1)
+	      end
+	  %% Line 347
+	  <[]> when 'true' ->
+	      %% Line 348
+	      []
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'preprocess_forms_1',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'preprocess_forms_2'/2 =
+    %% Line 350
+    fun (_cor1,_cor0) ->
+	%% Line 351
+	case call 'erl_syntax_lib':'analyze_form'
+		 (_cor1) of
+	  %% Line 352
+	  <'comment'> when 'true' ->
+	      let <_cor2> =
+		  %% Line 353
+		  apply 'preprocess_forms_1'/1
+		      (_cor0)
+	      in  %% Line 353
+		  [_cor1|_cor2]
+	  %% Line 354
+	  <{'function',_cor12}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 355
+		  apply 'preprocess_forms_1'/1
+		      (_cor0)
+	      in  %% Line 355
+		  [_cor1|_cor3]
+	  %% Line 356
+	  <{'rule',_cor13}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 357
+		  apply 'preprocess_forms_1'/1
+		      (_cor0)
+	      in  %% Line 357
+		  [_cor1|_cor4]
+	  %% Line 358
+	  <{'attribute',{'module',_cor14}}> when 'true' ->
+	      let <_cor5> =
+		  %% Line 359
+		  apply 'preprocess_forms_1'/1
+		      (_cor0)
+	      in  %% Line 359
+		  [_cor1|_cor5]
+	  %% Line 360
+	  <'text'> when 'true' ->
+	      let <_cor6> =
+		  %% Line 361
+		  apply 'preprocess_forms_1'/1
+		      (_cor0)
+	      in  %% Line 361
+		  [_cor1|_cor6]
+	  %% Line 362
+	  <{'attribute',{N,_cor15}}> when 'true' ->
+	      %% Line 363
+	      case call 'edoc_specs':'is_tag'
+		       (N) of
+		%% Line 364
+		<'true'> when 'true' ->
+		    let <_cor7> =
+			%% Line 365
+			apply 'preprocess_forms_1'/1
+			    (_cor0)
+		    in  %% Line 365
+			[_cor1|_cor7]
+		%% Line 366
+		<'false'> when 'true' ->
+		    %% Line 367
+		    apply 'preprocess_forms_1'/1
+			(_cor0)
+		( <_cor8> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor8})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 369
+	  <_cor16> when 'true' ->
+	      %% Line 370
+	      apply 'preprocess_forms_1'/1
+		  (_cor0)
+	end
+'collect'/2 =
+    %% Line 379
+    fun (_cor1,_cor0) ->
+	%% Line 380
+	apply 'collect'/7
+	    (_cor1, [], [], [], [], 'undefined', _cor0)
+'collect'/7 =
+    %% Line 382
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[F|Fs],Cs,Ss,Ts,As,Header,Mod> when 'true' ->
+	      %% Line 383
+	      case call 'erl_syntax_lib':'analyze_form'
+		       (F) of
+		%% Line 384
+		<'comment'> when 'true' ->
+		    %% Line 385
+		    apply 'collect'/7
+			(Fs, [F|Cs], Ss, Ts, As, Header, Mod)
+		%% Line 386
+		<{'function',Name}> when 'true' ->
+		    let <L> =
+			%% Line 387
+			call 'erl_syntax':'get_pos'
+			    (F)
+		    in  %% Line 388
+			( case Mod of
+			    ( <( {'module',_cor35,_cor36,_cor37,_rec9,_cor38,_cor39,_cor40}
+				 -| ['compiler_generated'] )> when 'true' ->
+				  let <Export> =
+				      call 'ordsets':'is_element'
+					  (Name, _rec9)
+				  in  let <_cor11> =
+					  %% Line 389
+					  call 'erl_syntax':'function_clauses'
+					      (F)
+				      in  let <Args> =
+					      %% Line 389
+					      apply 'parameters'/1
+						  (_cor11)
+					  in  let <_cor13> =
+						  %% Line 393
+						  apply 'comment_text'/1
+						      (Cs)
+					      in  %% Line 390
+						  apply 'collect'/7
+						      (Fs, [], [], [], %% Line 391
+								       [{'entry',Name,Args,L,%% Line 392
+											     Export,%% Line 393
+												    {_cor13,Ss,Ts}}|%% Line 393
+														    As], %% Line 394
+															 Header, %% Line 394
+																 Mod)
+			      -| ['compiler_generated'] )
+			    ( <_cor41> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','module'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		%% Line 395
+		<{'rule',Name}> when 'true' ->
+		    let <L> =
+			%% Line 396
+			call 'erl_syntax':'get_pos'
+			    (F)
+		    in  %% Line 397
+			( case Mod of
+			    ( <( {'module',_cor42,_cor43,_cor44,_rec10,_cor45,_cor46,_cor47}
+				 -| ['compiler_generated'] )> when 'true' ->
+				  let <Export> =
+				      call 'ordsets':'is_element'
+					  (Name, _rec10)
+				  in  let <_cor18> =
+					  %% Line 398
+					  call 'erl_syntax':'rule_clauses'
+					      (F)
+				      in  let <Args> =
+					      %% Line 398
+					      apply 'parameters'/1
+						  (_cor18)
+					  in  let <_cor20> =
+						  %% Line 402
+						  apply 'comment_text'/1
+						      (Cs)
+					      in  %% Line 399
+						  apply 'collect'/7
+						      (Fs, [], [], [], %% Line 400
+								       [{'entry',Name,Args,L,%% Line 401
+											     Export,%% Line 402
+												    {_cor20,Ss,Ts}}|%% Line 402
+														    As], %% Line 403
+															 Header, %% Line 403
+																 Mod)
+			      -| ['compiler_generated'] )
+			    ( <_cor48> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','module'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		%% Line 404
+		<{'attribute',{'module',_cor49}}>
+		    when call 'erlang':'=:='
+			  (Header,
+			   'undefined') ->
+		    let <L> =
+			%% Line 405
+			call 'erl_syntax':'get_pos'
+			    (F)
+		    in  let <_cor22> =
+			    %% Line 408
+			    apply 'comment_text'/1
+				(Cs)
+			in  %% Line 406
+			    apply 'collect'/7
+				(Fs, [], [], [], As, %% Line 407
+						     {'entry','module',[],L,'undefined',%% Line 408
+											{_cor22,Ss,Ts}}, %% Line 409
+													 Mod)
+		%% Line 410
+		<{'attribute',{N,_cor50}}> when 'true' ->
+		    %% Line 411
+		    case call 'edoc_specs':'tag'
+			     (N) of
+		      %% Line 412
+		      <'spec'> when 'true' ->
+			  %% Line 413
+			  apply 'collect'/7
+			      (Fs, Cs, [F|Ss], Ts, As, Header, Mod)
+		      %% Line 414
+		      <'type'> when 'true' ->
+			  %% Line 415
+			  apply 'collect'/7
+			      (Fs, Cs, Ss, [F|Ts], As, Header, Mod)
+		      %% Line 416
+		      <'unknown'> when 'true' ->
+			  %% Line 418
+			  apply 'collect'/7
+			      (Fs, [], [], [], As, Header, Mod)
+		      ( <_cor23> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor23})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 420
+		<_cor51> when 'true' ->
+		    %% Line 422
+		    apply 'collect'/7
+			(Fs, [], [], [], As, Header, Mod)
+	      end
+	  %% Line 424
+	  <[],Cs,Ss,Ts,As,Header,_X_Mod> when 'true' ->
+	      let <_cor25> =
+		  %% Line 425
+		  apply 'comment_text'/1
+		      (Cs)
+	      in  let <Footer> =
+		      %% Line 425
+		      {'entry','footer',[],0,'undefined',{_cor25,Ss,Ts}}
+		  in  let <As1> =
+			  %% Line 426
+			  call 'lists':'reverse'
+			      (As)
+		      in  %% Line 427
+			  case <> of
+			    <>
+				when call 'erlang':'=:='
+				      (Header,
+				       'undefined') ->
+				%% Line 428
+				{{'entry','module',[],0,'undefined',{[],[],[]}},Footer,As1}
+			    %% Line 429
+			    <> when 'true' ->
+				%% Line 430
+				{Header,Footer,As1}
+			  end
+	  ( <_cor34,_cor33,_cor32,_cor31,_cor30,_cor29,_cor28> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor34,_cor33,_cor32,_cor31,_cor30,_cor29,_cor28})
+		  -| [{'function_name',{'collect',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'comment_text'/1 =
+    %% Line 436
+    fun (_cor0) ->
+	%% Line 437
+	apply 'comment_text'/2
+	    (_cor0, [])
+'comment_text'/2 =
+    %% Line 439
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[C|Cs],Ss> when 'true' ->
+	      let <L> =
+		  %% Line 440
+		  call 'erl_syntax':'get_pos'
+		      (C)
+	      in  let <_cor9> =
+		      %% Line 442
+		      ( letrec
+			    'lc$^0'/1 =
+				fun (_cor6) ->
+				    case _cor6 of
+				      <[%% Line 443
+					S|_cor4]> when 'true' ->
+					  let <_cor7> =
+					      apply 'remove_percent_chars'/1
+						  (S)
+					  in  let <_cor8> =
+						  %% Line 443
+						  apply 'lc$^0'/1
+						      (_cor4)
+					      in  ( [_cor7|_cor8]
+						    -| ['compiler_generated'] )
+				      <[]> when 'true' ->
+					  []
+				      ( <_cor6> when 'true' ->
+					    ( primop 'match_fail'
+						  ({'function_clause',_cor6})
+					      -| [{'function_name',{'lc$^0',1}}] )
+					-| ['compiler_generated'] )
+				    end
+			in  let <_cor5> =
+				%% Line 443
+				call 'erl_syntax':'comment_text'
+				    (C)
+			    in  apply 'lc$^0'/1
+				    (_cor5)
+			-| ['list_comprehension'] )
+		  in  %% Line 441
+		      apply 'comment_text'/2
+			  (Cs, [{'comment',L,_cor9}|%% Line 444
+						    Ss])
+	  %% Line 445
+	  <[],Ss> when 'true' ->
+	      %% Line 446
+	      Ss
+	  ( <_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10})
+		  -| [{'function_name',{'comment_text',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'remove_percent_chars'/1 =
+    %% Line 454
+    fun (_cor0) ->
+	case _cor0 of
+	  <[37|Cs]> when 'true' ->
+	      let <_cor1> =
+		  apply 'remove_percent_chars'/1
+		      (Cs)
+	      in  [32|_cor1]
+	  %% Line 455
+	  <Cs> when 'true' ->
+	      Cs
+	end
+'parameters'/1 =
+    %% Line 461
+    fun (_cor0) ->
+	let <_cor7> =
+	    %% Line 462
+	    ( letrec
+		  'lc$^0'/1 =
+		      fun (_cor4) ->
+			  case _cor4 of
+			    <[Ps|_cor2]> when 'true' ->
+				let <_cor5> =
+				    apply 'find_names'/1
+					(Ps)
+				in  let <_cor6> =
+					apply 'lc$^0'/1
+					    (_cor2)
+				    in  ( [_cor5|_cor6]
+					  -| ['compiler_generated'] )
+			    <[]> when 'true' ->
+				[]
+			    ( <_cor4> when 'true' ->
+				  ( primop 'match_fail'
+					({'function_clause',_cor4})
+				    -| [{'function_name',{'lc$^0',1}}] )
+			      -| ['compiler_generated'] )
+			  end
+	      in  let <_cor3> =
+		      apply 'patterns'/1
+			  (_cor0)
+		  in  apply 'lc$^0'/1
+			  (_cor3)
+	      -| ['list_comprehension'] )
+	in  %% Line 462
+	    apply 'select_names'/1
+		(_cor7)
+'patterns'/1 =
+    %% Line 464
+    fun (_cor0) ->
+	let <_cor6> =
+	    %% Line 465
+	    ( letrec
+		  'lc$^0'/1 =
+		      fun (_cor3) ->
+			  case _cor3 of
+			    <[C|_cor2]> when 'true' ->
+				let <_cor4> =
+				    call 'erl_syntax':'clause_patterns'
+					(C)
+				in  let <_cor5> =
+					apply 'lc$^0'/1
+					    (_cor2)
+				    in  ( [_cor4|_cor5]
+					  -| ['compiler_generated'] )
+			    <[]> when 'true' ->
+				[]
+			    ( <_cor3> when 'true' ->
+				  ( primop 'match_fail'
+					({'function_clause',_cor3})
+				    -| [{'function_name',{'lc$^0',1}}] )
+			      -| ['compiler_generated'] )
+			  end
+	      in  apply 'lc$^0'/1
+		      (_cor0)
+	      -| ['list_comprehension'] )
+	in  %% Line 465
+	    call 'edoc_lib':'transpose'
+		(_cor6)
+'find_names'/1 =
+    %% Line 467
+    fun (_cor0) ->
+	%% Line 468
+	apply 'find_names'/2
+	    (_cor0, [])
+'find_names'/2 =
+    %% Line 470
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[P|Ps],Ns> when 'true' ->
+	      %% Line 471
+	      case call 'erl_syntax':'type'
+		       (P) of
+		%% Line 472
+		<'variable'> when 'true' ->
+		    let <_cor2> =
+			%% Line 473
+			call 'erl_syntax':'variable_name'
+			    (P)
+		    in  let <_cor3> =
+			    %% Line 473
+			    apply 'tidy_name'/1
+				(_cor2)
+			in  %% Line 473
+			    apply 'find_names'/2
+				(Ps, [_cor3|Ns])
+		%% Line 474
+		<'match_expr'> when 'true' ->
+		    let <P1> =
+			%% Line 477
+			call 'erl_syntax':'match_expr_pattern'
+			    (P)
+		    in  let <P2> =
+			    %% Line 478
+			    call 'erl_syntax':'match_expr_body'
+				(P)
+			in  %% Line 479
+			    apply 'find_names'/2
+				([P1|[P2|Ps]], Ns)
+		%% Line 480
+		<'list'> when 'true' ->
+		    let <P1> =
+			%% Line 481
+			call 'erl_syntax':'list_tail'
+			    (P)
+		    in  %% Line 482
+			apply 'find_names'/2
+			    ([P1|Ps], Ns)
+		%% Line 483
+		<'record_expr'> when 'true' ->
+		    let <A> =
+			%% Line 484
+			call 'erl_syntax':'record_expr_type'
+			    (P)
+		    in  let <_cor8> =
+			    %% Line 485
+			    call 'erl_syntax':'atom_name'
+				(A)
+			in  let <_cor9> =
+				%% Line 485
+				apply 'capitalize'/1
+				    (_cor8)
+			    in  let <N> =
+				    %% Line 485
+				    call 'erlang':'list_to_atom'
+					(_cor9)
+				in  %% Line 486
+				    apply 'find_names'/2
+					(Ps, [N|Ns])
+		%% Line 487
+		<'infix_expr'> when 'true' ->
+		    let <P1> =
+			%% Line 489
+			call 'erl_syntax':'infix_expr_right'
+			    (P)
+		    in  %% Line 490
+			apply 'find_names'/2
+			    ([P1|Ps], Ns)
+		%% Line 491
+		<_cor15> when 'true' ->
+		    %% Line 492
+		    apply 'find_names'/2
+			(Ps, Ns)
+	      end
+	  %% Line 494
+	  <[],Ns> when 'true' ->
+	      %% Line 495
+	      call 'lists':'reverse'
+		  (Ns)
+	  ( <_cor14,_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14,_cor13})
+		  -| [{'function_name',{'find_names',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'select_names'/1 =
+    %% Line 497
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 498
+	    call 'sets':'new'
+		()
+	in  %% Line 498
+	    apply 'select_names'/3
+		(_cor0, [], _cor1)
+'select_names'/3 =
+    %% Line 500
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Ns|Ls],As,S> when 'true' ->
+	      let <A> =
+		  %% Line 501
+		  apply 'select_name'/2
+		      (Ns, S)
+	      in  let <_cor4> =
+		      %% Line 502
+		      call 'sets':'add_element'
+			  (A, S)
+		  in  %% Line 502
+		      apply 'select_names'/3
+			  (Ls, [A|As], _cor4)
+	  %% Line 503
+	  <[],As,_cor8> when 'true' ->
+	      %% Line 504
+	      call 'lists':'reverse'
+		  (As)
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'select_names',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'select_name'/2 =
+    %% Line 506
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[A|Ns],S> when 'true' ->
+	      %% Line 507
+	      case call 'sets':'is_element'
+		       (A, S) of
+		%% Line 508
+		<'true'> when 'true' ->
+		    %% Line 509
+		    apply 'select_name'/2
+			(Ns, S)
+		%% Line 510
+		<'false'> when 'true' ->
+		    %% Line 511
+		    A
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 513
+	  <[],_X_S> when 'true' ->
+	      %% Line 514
+	      '_'
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'select_name',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'tidy_name'/1 =
+    %% Line 521
+    fun (_cor0) ->
+	%% Line 522
+	case call 'erlang':'atom_to_list'
+		 (_cor0) of
+	  %% Line 523
+	  <[95|Cs]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 524
+		  apply 'tidy_name_1'/1
+		      (Cs)
+	      in  %% Line 524
+		  call 'erlang':'list_to_atom'
+		      (_cor1)
+	  %% Line 525
+	  <_cor4> when 'true' ->
+	      _cor0
+	end
+'tidy_name_1'/1 =
+    %% Line 529
+    fun (_cor0) ->
+	case _cor0 of
+	  <[95|Cs]> when 'true' ->
+	      apply 'tidy_name_1'/1
+		  (Cs)
+	  %% Line 530
+	  <Cs = [C|_cor8]>
+	      when let <_cor1> =
+		    call 'erlang':'>='
+			(C, 65)
+		in  let <_cor2> =
+			call 'erlang':'=<'
+			    (C, 90)
+		    in  call 'erlang':'and'
+			    (_cor1, _cor2) ->
+	      Cs
+	  %% Line 531
+	  <Cs = [C|_cor9]>
+	      when try
+		    let <_cor3> =
+			call 'erlang':'>='
+			    (C, 192)
+		    in  let <_cor4> =
+			    call 'erlang':'=<'
+				(C, 222)
+			in  let <_cor5> =
+				call 'erlang':'=/='
+				    (C, 215)
+			    in  let <_cor6> =
+				    call 'erlang':'and'
+					(_cor4, _cor5)
+				in  call 'erlang':'and'
+					(_cor3, _cor6)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      Cs
+	  %% Line 532
+	  <Cs> when 'true' ->
+	      [95|Cs]
+	end
+'capitalize'/1 =
+    %% Line 536
+    fun (_cor0) ->
+	case _cor0 of
+	  <[C|Cs]>
+	      when let <_cor1> =
+		    call 'erlang':'>='
+			(C, 97)
+		in  let <_cor2> =
+			call 'erlang':'=<'
+			    (C, 122)
+		    in  call 'erlang':'and'
+			    (_cor1, _cor2) ->
+	      let <_cor3> =
+		  call 'erlang':'-'
+		      (C, 32)
+	      in  [_cor3|Cs]
+	  %% Line 537
+	  <Cs> when 'true' ->
+	      Cs
+	end
+'get_tags'/3 =
+    %% Line 552
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 553
+	    call 'dict':'new'
+		()
+	in  %% Line 553
+	    apply 'get_tags'/4
+		(_cor2, _cor1, _cor0, _cor3)
+'get_tags'/4 =
+    %% Line 555
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor12> =
+	    %% Line 557
+	    call 'edoc_tags':'tag_names'
+		()
+	in  let <_cor13> =
+		%% Line 557
+		call 'sets':'from_list'
+		    (_cor12)
+	    in  let <_cor10> =
+		    %% Line 558
+		    call 'edoc_tags':'tags'
+			('single')
+		in  let <_cor11> =
+			%% Line 558
+			call 'sets':'from_list'
+			    (_cor10)
+		    in  let <_cor8> =
+			    %% Line 559
+			    call 'edoc_tags':'tags'
+				('module')
+			in  let <_cor9> =
+				%% Line 559
+				call 'sets':'from_list'
+				    (_cor8)
+			    in  let <_cor6> =
+				    %% Line 561
+				    call 'edoc_tags':'tags'
+					('function')
+				in  let <_cor7> =
+					%% Line 561
+					call 'sets':'from_list'
+					    (_cor6)
+				    in  let <_cor4> =
+					    %% Line 560
+					    call 'edoc_tags':'tags'
+						('footer')
+					in  let <_cor5> =
+						%% Line 560
+						call 'sets':'from_list'
+						    (_cor4)
+					    in  let <Tags> =
+						    %% Line 557
+						    {'tags',_cor13,_cor11,_cor9,_cor7,_cor5}
+						in  let <_cor15> =
+							%% Line 562
+							call 'edoc_tags':'tag_parsers'
+							    ()
+						    in  let <How> =
+							    %% Line 562
+							    call 'dict':'from_list'
+								(_cor15)
+							in  %% Line 563
+							    apply 'get_tags'/6
+								(_cor3, Tags, _cor2, How, _cor1, _cor0)
+'get_tags'/6 =
+    %% Line 565
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[E = {'entry',Name,_cor31,_cor32,_cor33,{Cs,Specs,Types}}|Es],Tags,Env,%% Line 566
+										  How,%% Line 566
+										      File,%% Line 566
+											   TypeDocs> when 'true' ->
+	      let <Where> = {%% Line 567
+		   File,%% Line 567
+			Name}
+	      in  let <Ts0> =
+		      %% Line 568
+		      apply 'scan_tags'/1
+			  (Cs)
+		  in  %% Line 569
+		      case apply 'select_spec'/3
+			       (Ts0, Where, Specs) of
+			<{Ts1,Specs1}> when 'true' ->
+			    let <Ts2> =
+				%% Line 570
+				apply 'check_tags'/3
+				    (Ts1, Tags, Where)
+			    in  let <Ts3> =
+				    %% Line 571
+				    call 'edoc_macros':'expand_tags'
+					(Ts2, Env, Where)
+				in  let <Ts4> =
+					%% Line 572
+					call 'edoc_tags':'parse_tags'
+					    (Ts3, How, Env, Where)
+				    in  let <Ts> =
+					    %% Line 573
+					    apply 'selected_specs'/2
+						(Specs1, Ts4)
+					in  let <_cor18> =
+						%% Line 574
+						( letrec
+						      'lc$^0'/1 =
+							  fun (_cor15) ->
+							      case _cor15 of
+								<[Type|_cor14]> when 'true' ->
+								    let <_cor16> =
+									call 'edoc_specs':'type'
+									    (Type, TypeDocs)
+								    in  let <_cor17> =
+									    apply 'lc$^0'/1
+										(_cor14)
+									in  ( [_cor16|_cor17]
+									      -| ['compiler_generated'] )
+								<[]> when 'true' ->
+								    []
+								( <_cor15> when 'true' ->
+								      ( primop 'match_fail'
+									    ({'function_clause',_cor15})
+									-| [{'function_name',{'lc$^0',1}}] )
+								  -| ['compiler_generated'] )
+							      end
+						  in  apply 'lc$^0'/1
+							  (Types)
+						  -| ['list_comprehension'] )
+					    in  let <_rec11> =
+						    %% Line 575
+						    call 'erlang':'++'
+							(Ts, _cor18)
+						in  let <_cor23> =
+							%% Line 575
+							call 'erlang':'setelement'
+							    (6, E, _rec11)
+						    in  let <_cor24> =
+							    %% Line 575
+							    apply 'get_tags'/6
+								(Es, Tags, Env, How, File, TypeDocs)
+							in  %% Line 575
+							    [_cor23|_cor24]
+			( <_cor8> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor8})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 576
+	  <[],_cor40,_cor41,_cor42,_cor43,_cor44> when 'true' ->
+	      %% Line 577
+	      []
+	  ( <_cor30,_cor29,_cor28,_cor27,_cor26,_cor25> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor30,_cor29,_cor28,_cor27,_cor26,_cor25})
+		  -| [{'function_name',{'get_tags',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'scan_tags'/1 =
+    %% Line 581
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{'comment',L,Ss}|Es]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 582
+		  call 'edoc_tags':'scan_lines'
+		      (Ss, L)
+	      in  let <_cor1> =
+		      %% Line 582
+		      apply 'scan_tags'/1
+			  (Es)
+		  in  %% Line 582
+		      call 'erlang':'++'
+			  (_cor2, _cor1)
+	  %% Line 583
+	  <[]> when 'true' ->
+	      %% Line 584
+	      []
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'scan_tags',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'check_tags'/3 =
+    %% Line 589
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 590
+	( case _cor1 of
+	    ( <( {'tags',_rec13,_cor10,_cor11,_cor12,_cor13}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <Ts> =
+		      call 'edoc_tags':'filter_tags'
+			  (_cor2, _rec13, _cor0)
+		  in  %% Line 591
+		      case apply 'check_tags_1'/3
+			       (Ts, _cor1, _cor0) of
+			%% Line 592
+			<'false'> when 'true' ->
+			    Ts
+			%% Line 593
+			<'true'> when 'true' ->
+			    call 'erlang':'exit'
+				('error')
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      -| ['compiler_generated'] )
+	    ( <_cor14> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','tags'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'check_tags_1'/3 =
+    %% Line 596
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Ts,Tags,Where = {_cor24,'module'}> when 'true' ->
+	      %% Line 597
+	      ( case Tags of
+		  ( <( {'tags',_cor25,_cor26,_rec14,_cor27,_cor28}
+		       -| ['compiler_generated'] )> when 'true' ->
+			%% Line 599
+			call 'edoc_tags':'check_tags'
+			    (Ts, _rec14, _cor26, Where)
+		    -| ['compiler_generated'] )
+		  ( <_cor29> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','tags'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 600
+	  <Ts,Tags,Where = {_cor35,'footer'}> when 'true' ->
+	      %% Line 601
+	      ( case Tags of
+		  ( <( {'tags',_cor36,_cor37,_cor38,_cor39,_rec16}
+		       -| ['compiler_generated'] )> when 'true' ->
+			%% Line 603
+			call 'edoc_tags':'check_tags'
+			    (Ts, _rec16, _cor37, Where)
+		    -| ['compiler_generated'] )
+		  ( <_cor40> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','tags'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 604
+	  <Ts,Tags,Where> when 'true' ->
+	      %% Line 605
+	      ( case Tags of
+		  ( <( {'tags',_cor46,_cor47,_cor48,_rec18,_cor49}
+		       -| ['compiler_generated'] )> when 'true' ->
+			%% Line 607
+			call 'edoc_tags':'check_tags'
+			    (Ts, _rec18, _cor47, Where)
+		    -| ['compiler_generated'] )
+		  ( <_cor50> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','tags'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	end
+'select_spec'/3 =
+    %% Line 609
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Ts,{_cor14,{_X_F,_X_A}},Specs> when 'true' ->
+	      let <_cor3> =
+		  %% Line 610
+		  call 'sets':'from_list'
+		      (['spec'])
+	      in  %% Line 610
+		  case call 'edoc_tags':'filter_tags'
+			   (Ts, _cor3) of
+		    %% Line 611
+		    <[]> when 'true' ->
+			let <_cor9> =
+			    %% Line 613
+			    ( letrec
+				  'lc$^0'/1 =
+				      fun (_cor6) ->
+					  case _cor6 of
+					    <[S|_cor5]> when 'true' ->
+						let <_cor7> =
+						    call 'edoc_specs':'dummy_spec'
+							(S)
+						in  let <_cor8> =
+							apply 'lc$^0'/1
+							    (_cor5)
+						    in  ( [_cor7|_cor8]
+							  -| ['compiler_generated'] )
+					    <[]> when 'true' ->
+						Ts
+					    ( <_cor6> when 'true' ->
+						  ( primop 'match_fail'
+							({'function_clause',_cor6})
+						    -| [{'function_name',{'lc$^0',1}}] )
+					      -| ['compiler_generated'] )
+					  end
+			      in  apply 'lc$^0'/1
+				      (Specs)
+			      -| ['list_comprehension'] )
+			in  %% Line 613
+			    {_cor9,Specs}
+		    %% Line 614
+		    <_cor15> when 'true' ->
+			%% Line 615
+			{Ts,[]}
+		  end
+	  %% Line 617
+	  <Ts,_X_Where,_X_Specs> when 'true' ->
+	      %% Line 618
+	      {Ts,[]}
+	end
+'selected_specs'/2 =
+    %% Line 620
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Ts> when 'true' ->
+	      %% Line 621
+	      Ts
+	  %% Line 622
+	  <[F|[]],[_cor7|Ts]> when 'true' ->
+	      let <_cor4> =
+		  %% Line 623
+		  call 'edoc_specs':'spec'
+		      (F, 1)
+	      in  %% Line 623
+		  [_cor4|Ts]
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'selected_specs',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_macros'/1 =
+    %% Line 627
+    fun (_cor0) ->
+	%% Line 628
+	( case _cor0 of
+	    ( <( {'env',_rec20,_cor6,_cor7,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <_cor4> =
+		      call 'erlang':'atom_to_list'
+			  (_rec20)
+		  in  let <_cor1> =
+			  %% Line 629
+			  call 'edoc_macros':'std_macros'
+			      (_cor0)
+		      in  [{'module',_cor4}|_cor1]
+	      -| ['compiler_generated'] )
+	    ( <_cor16> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','env'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'file_macros'/2 =
+    %% Line 633
+    fun (_cor1,_cor0) ->
+	%% Line 634
+	call 'edoc_macros':'std_macros'
+	    (_cor0)
+'find_type_docs'/4 =
+    %% Line 646
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <Tree> =
+	    %% Line 647
+	    call 'erl_recomment':'recomment_forms'
+		(_cor3, _cor2)
+	in  let <Forms> =
+		%% Line 648
+		apply 'preprocess_forms'/1
+		    (Tree)
+	    in  let <_cor6> =
+		    %% Line 649
+		    call 'edoc_macros':'std_macros'
+			(_cor1)
+		in  let <Env1> =
+			%% Line 649
+			apply 'add_macro_defs'/3
+			    (_cor6, [], _cor1)
+		    in  let <F> =
+			    %% Line 650
+			    ( fun (_cor9,_cor8) ->
+				  apply 'find_fun'/4
+				      (_cor9, _cor8, Env1, _cor0)
+			      -| [{'id',{0,0,'-find_type_docs/4-fun-0-'}}] )
+			in  %% Line 651
+			    call 'edoc_specs':'docs'
+				(Forms, F)
+'find_fun'/4 =
+    %% Line 653
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <C1> =
+	    %% Line 654
+	    apply 'comment_text'/1
+		(_cor3)
+	in  let <_cor11> =
+		%% Line 655
+		( letrec
+		      'lc$^0'/1 =
+			  fun (_cor7) ->
+			      case _cor7 of
+				<[C|_cor6]> when 'true' ->
+				    ( case C of
+					( <( {'comment',_cor20,_rec21}
+					     -| ['compiler_generated'] )> when 'true' ->
+					      let <_cor10> =
+						  apply 'lc$^0'/1
+						      (_cor6)
+					      in  ( [_rec21|_cor10]
+						    -| ['compiler_generated'] )
+					  -| ['compiler_generated'] )
+					( <_cor21> when 'true' ->
+					      ( call ( 'erlang'
+						       -| ['compiler_generated'] ):( 'error'
+										     -| ['compiler_generated'] )
+						    (( {'badrecord','comment'}
+						       -| ['compiler_generated'] ))
+						-| ['compiler_generated'] )
+					  -| ['compiler_generated'] )
+				      end
+				      -| ['compiler_generated'] )
+				<[]> when 'true' ->
+				    []
+				( <_cor7> when 'true' ->
+				      ( primop 'match_fail'
+					    ({'function_clause',_cor7})
+					-| [{'function_name',{'lc$^0',1}}] )
+				  -| ['compiler_generated'] )
+			      end
+		  in  apply 'lc$^0'/1
+			  (C1)
+		  -| ['list_comprehension'] )
+	    in  let <Text> =
+		    %% Line 655
+		    call 'lists':'append'
+			(_cor11)
+		in  let <Comm> = {%% Line 656
+			 'comment',_cor2,%% Line 656
+					 Text}
+		    in  %% Line 657
+			case apply 'scan_tags'/1
+				 ([Comm|[]]) of
+			  <[Tag|_cor22]> when 'true' ->
+			      %% Line 658
+			      case call 'edoc_macros':'expand_tags'
+				       ([Tag|[]], _cor1, _cor0) of
+				<[Tag1|[]]> when 'true' ->
+				    %% Line 659
+				    Tag1
+				( <_cor15> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor15})
+				  -| ['compiler_generated'] )
+			      end
+			  ( <_cor14> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor14})
+			    -| ['compiler_generated'] )
+			end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('edoc_extract')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('edoc_extract', _cor0)
+end

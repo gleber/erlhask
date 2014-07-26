@@ -1,0 +1,1419 @@
+module 'eval_bits' ['bin_gen'/6,
+		    'expr_grp'/3,
+		    'expr_grp'/5,
+		    'match_bits'/6,
+		    'match_bits'/7,
+		    'module_info'/0,
+		    'module_info'/1]
+    attributes []
+'expr_grp'/5 =
+    %% Line 51
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Fields,Bindings,EvalFun,[],_cor11> when 'true' ->
+	      %% Line 52
+	      apply 'expr_grp'/4
+		  (Fields, Bindings, EvalFun, #{}#)
+	  %% Line 53
+	  <Fields,Bindings,EvalFun,ListOfBits,_cor12> when 'true' ->
+	      let <Bin> =
+		  %% Line 54
+		  apply 'convert_list'/1
+		      (ListOfBits)
+	      in  %% Line 55
+		  apply 'expr_grp'/4
+		      (Fields, Bindings, EvalFun, Bin)
+	end
+'convert_list'/1 =
+    %% Line 57
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 58
+	    call 'erlang':'length'
+		(_cor0)
+	in  let <_cor4> =
+		call 'erlang':'+'
+		    (_cor3, 7)
+	    in  let <_cor2> =
+		    call 'erlang':'bsr'
+			(_cor4, 3)
+		in  let <_cor1> =
+			primop 'bs_init_writable'
+			    (_cor2)
+		    in  %% Line 58
+			( letrec
+			      'lbc$^0'/2 =
+				  fun (_cor9,_cor8) ->
+				      case <_cor9,_cor8> of
+					<[X|_cor7],_cor8> when 'true' ->
+					    let <_cor8> =
+						( #{#<_cor8>('all',1,'binary',[]),
+						    #<X>(1,1,'integer',['unsigned'|['big']])}#
+						  -| ['compiler_generated','single_use'] )
+					    in  apply 'lbc$^0'/2
+						    (_cor7, _cor8)
+					<[],_cor8> when 'true' ->
+					    _cor8
+					( <_cor9,_cor8> when 'true' ->
+					      ( primop 'match_fail'
+						    ({'function_clause',_cor9,_cor8})
+						-| [{'function_name',{'lbc$^0',2}}] )
+					  -| ['compiler_generated'] )
+				      end
+			  in  apply 'lbc$^0'/2
+				  (_cor0, _cor1)
+			  -| ['list_comprehension'] )
+'expr_grp'/3 =
+    %% Line 60
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 61
+	apply 'expr_grp'/4
+	    (_cor2, _cor1, _cor0, #{}#)
+'expr_grp'/4 =
+    %% Line 63
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[Field|FS],Bs0,Lf,Acc> when 'true' ->
+	      %% Line 64
+	      case apply 'eval_field'/3
+		       (Field, Bs0, Lf) of
+		<{Bin,Bs}> when 'true' ->
+		    let <_cor5> =
+			%% Line 65
+			#{#<Acc>('all',1,'binary',['unsigned'|['big']]),
+			  #<Bin>('all',1,'binary',['unsigned'|['big']])}#
+		    in  %% Line 65
+			apply 'expr_grp'/4
+			    (FS, Bs, Lf, _cor5)
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 66
+	  <[],Bs0,_X_Lf,Acc> when 'true' ->
+	      %% Line 67
+	      {'value',Acc,Bs0}
+	  ( <_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'expr_grp',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'eval_field'/3 =
+    %% Line 69
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'bin_element',_cor27,{'string',_cor28,S},'default','default'},Bs0,_X_Fun> when 'true' ->
+	      let <_cor8> =
+		  %% Line 70
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor5) ->
+				case _cor5 of
+				  <[C|_cor4]> when 'true' ->
+				      let <_cor6> =
+					  call 'erlang':'band'
+					      (C, 255)
+				      in  let <_cor7> =
+					      apply 'lc$^0'/1
+						  (_cor4)
+					  in  ( [_cor6|_cor7]
+						-| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor5> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor5})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (S)
+		    -| ['list_comprehension'] )
+	      in  let <_cor10> =
+		      %% Line 71
+		      call 'erlang':'list_to_binary'
+			  (_cor8)
+		  in  %% Line 71
+		      {_cor10,Bs0}
+	  %% Line 72
+	  <{'bin_element',Line,{'string',_cor29,S},Size0,Options0},Bs,_X_Fun> when 'true' ->
+	      %% Line 73
+	      case %% Line 74
+		   apply 'make_bit_type'/3
+		       (Line, Size0, Options0) of
+		<{_X_Size,[Type|[_X_Unit|[_X_Sign|[Endian|[]]]]]}> when 'true' ->
+		    let <_cor12> =
+			primop 'bs_init_writable'
+			    (256)
+		    in  let <_cor18> =
+			    %% Line 75
+			    ( letrec
+				  'lbc$^1'/2 =
+				      fun (_cor16,_cor15) ->
+					  case <_cor16,_cor15> of
+					    <[%% Line 77
+					      C|_cor14],_cor15> when 'true' ->
+						let <_cor17> =
+						    apply 'eval_exp_field1'/6
+							(C, 'no_size', 'no_unit', %% Line 76
+										  Type, %% Line 76
+											Endian, %% Line 76
+												'no_sign')
+						in  let <_cor15> =
+							( #{#<_cor15>('all',1,'binary',[]),
+							    #<_cor17>('all',8,'binary',['unsigned'|['big']])}#
+							  -| ['compiler_generated','single_use'] )
+						    in  %% Line 77
+							apply 'lbc$^1'/2
+							    (_cor14, _cor15)
+					    <[],_cor15> when 'true' ->
+						_cor15
+					    ( <_cor16,_cor15> when 'true' ->
+						  ( primop 'match_fail'
+							({'function_clause',_cor16,_cor15})
+						    -| [{'function_name',{'lbc$^1',2}}] )
+					      -| ['compiler_generated'] )
+					  end
+			      in  apply 'lbc$^1'/2
+				      (%% Line 77
+				       S, _cor12)
+			      -| ['list_comprehension'] )
+			in  %% Line 78
+			    {_cor18,Bs}
+		( <_cor11> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor11})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 79
+	  <{'bin_element',Line,E,Size0,Options0},Bs0,Fun> when 'true' ->
+	      %% Line 80
+	      case apply Fun
+		       (E, Bs0) of
+		<{'value',V,Bs1}> when 'true' ->
+		    %% Line 81
+		    case %% Line 82
+			 apply 'make_bit_type'/3
+			     (Line, Size0, Options0) of
+		      <{Size1,[Type|[{'unit',Unit}|[Sign|[Endian|[]]]]]}> when 'true' ->
+			  %% Line 83
+			  case apply Fun
+				   (Size1, Bs1) of
+			    <{'value',Size,Bs}> when 'true' ->
+				let <_cor23> =
+				    %% Line 84
+				    apply 'eval_exp_field1'/6
+					(V, Size, Unit, Type, Endian, Sign)
+				in  %% Line 84
+				    {_cor23,Bs}
+			    ( <_cor22> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor22})
+			      -| ['compiler_generated'] )
+			  end
+		      ( <_cor21> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor21})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor20> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor20})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor26,_cor25,_cor24> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor26,_cor25,_cor24})
+		  -| [{'function_name',{'eval_field',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'eval_exp_field1'/6 =
+    %% Line 86
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 87
+	try
+	    %% Line 88
+	    apply 'eval_exp_field'/6
+		(_cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+	of <_cor6> ->
+	    _cor6
+	catch <_cor9,_cor8,_cor7> ->
+	    case <_cor9,_cor8,_cor7> of
+	      %% Line 90
+	      <'error','system_limit',_cor16> when 'true' ->
+		  %% Line 91
+		  apply 'error'/1
+		      ('system_limit')
+	      %% Line 92
+	      <'error',_cor17,_cor18> when 'true' ->
+		  %% Line 93
+		  apply 'error'/1
+		      ('badarg')
+	      ( <_cor9,_cor8,_cor7> when 'true' ->
+		    primop 'raise'
+			(_cor7, _cor8)
+		-| ['compiler_generated'] )
+	    end
+'eval_exp_field'/6 =
+    %% Line 96
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Val,Size,Unit,'integer','little','signed'> when 'true' ->
+	      let <_cor6> =
+		  %% Line 97
+		  call 'erlang':'*'
+		      (Size, Unit)
+	      in  %% Line 97
+		  #{#<Val>(_cor6,1,'integer',['signed'|['little']])}#
+	  %% Line 98
+	  <Val,Size,Unit,'integer','little','unsigned'> when 'true' ->
+	      let <_cor7> =
+		  %% Line 99
+		  call 'erlang':'*'
+		      (Size, Unit)
+	      in  %% Line 99
+		  #{#<Val>(_cor7,1,'integer',['unsigned'|['little']])}#
+	  %% Line 100
+	  <Val,Size,Unit,'integer','native','signed'> when 'true' ->
+	      let <_cor8> =
+		  %% Line 101
+		  call 'erlang':'*'
+		      (Size, Unit)
+	      in  %% Line 101
+		  #{#<Val>(_cor8,1,'integer',['signed'|['native']])}#
+	  %% Line 102
+	  <Val,Size,Unit,'integer','native','unsigned'> when 'true' ->
+	      let <_cor9> =
+		  %% Line 103
+		  call 'erlang':'*'
+		      (Size, Unit)
+	      in  %% Line 103
+		  #{#<Val>(_cor9,1,'integer',['unsigned'|['native']])}#
+	  %% Line 104
+	  <Val,Size,Unit,'integer','big','signed'> when 'true' ->
+	      let <_cor10> =
+		  %% Line 105
+		  call 'erlang':'*'
+		      (Size, Unit)
+	      in  %% Line 105
+		  #{#<Val>(_cor10,1,'integer',['signed'|['big']])}#
+	  %% Line 106
+	  <Val,Size,Unit,'integer','big','unsigned'> when 'true' ->
+	      let <_cor11> =
+		  %% Line 107
+		  call 'erlang':'*'
+		      (Size, Unit)
+	      in  %% Line 107
+		  #{#<Val>(_cor11,1,'integer',['unsigned'|['big']])}#
+	  %% Line 108
+	  <Val,_X_Size,_X_Unit,'utf8',_cor24,_cor25> when 'true' ->
+	      %% Line 109
+	      #{#<Val>('undefined','undefined','utf8',['unsigned'|['big']])}#
+	  %% Line 110
+	  <Val,_X_Size,_X_Unit,'utf16','big',_cor26> when 'true' ->
+	      %% Line 111
+	      #{#<Val>('undefined','undefined','utf16',['unsigned'|['big']])}#
+	  %% Line 112
+	  <Val,_X_Size,_X_Unit,'utf16','little',_cor27> when 'true' ->
+	      %% Line 113
+	      #{#<Val>('undefined','undefined','utf16',['unsigned'|['little']])}#
+	  %% Line 114
+	  <Val,_X_Size,_X_Unit,'utf32','big',_cor28> when 'true' ->
+	      %% Line 115
+	      #{#<Val>('undefined','undefined','utf32',['unsigned'|['big']])}#
+	  %% Line 116
+	  <Val,_X_Size,_X_Unit,'utf32','little',_cor29> when 'true' ->
+	      %% Line 117
+	      #{#<Val>('undefined','undefined','utf32',['unsigned'|['little']])}#
+	  %% Line 118
+	  <Val,Size,Unit,'float','little',_cor30> when 'true' ->
+	      let <_cor12> =
+		  %% Line 119
+		  call 'erlang':'*'
+		      (Size, Unit)
+	      in  %% Line 119
+		  #{#<Val>(_cor12,1,'float',['unsigned'|['little']])}#
+	  %% Line 120
+	  <Val,Size,Unit,'float','native',_cor31> when 'true' ->
+	      let <_cor13> =
+		  %% Line 121
+		  call 'erlang':'*'
+		      (Size, Unit)
+	      in  %% Line 121
+		  #{#<Val>(_cor13,1,'float',['unsigned'|['native']])}#
+	  %% Line 122
+	  <Val,Size,Unit,'float','big',_cor32> when 'true' ->
+	      let <_cor14> =
+		  %% Line 123
+		  call 'erlang':'*'
+		      (Size, Unit)
+	      in  %% Line 123
+		  #{#<Val>(_cor14,1,'float',['unsigned'|['big']])}#
+	  %% Line 124
+	  <Val,'all',Unit,'binary',_cor33,_cor34> when 'true' ->
+	      %% Line 125
+	      case call 'erlang':'bit_size'
+		       (Val) of
+		%% Line 126
+		<Size>
+		    when try
+			  let <_cor15> =
+			      call 'erlang':'rem'
+				  (Size, Unit)
+			  in  call 'erlang':'=:='
+				  (_cor15, 0)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 127
+		    #{#<Val>(Size,1,'binary',['unsigned'|['big']])}#
+		%% Line 128
+		<_cor35> when 'true' ->
+		    %% Line 129
+		    apply 'error'/1
+			('badarg')
+	      end
+	  %% Line 131
+	  <Val,Size,Unit,'binary',_cor36,_cor37> when 'true' ->
+	      let <_cor17> =
+		  %% Line 132
+		  call 'erlang':'*'
+		      (Size, Unit)
+	      in  %% Line 132
+		  #{#<Val>(_cor17,1,'binary',['unsigned'|['big']])}#
+	  ( <_cor23,_cor22,_cor21,_cor20,_cor19,_cor18> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor23,_cor22,_cor21,_cor20,_cor19,_cor18})
+		  -| [{'function_name',{'eval_exp_field',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'bin_gen'/6 =
+    %% Line 146
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <{'bin',_cor12,Fs},Bin,Bs0,BBs0,Mfun,Efun> when 'true' ->
+	      %% Line 147
+	      apply 'bin_gen'/7
+		  (Fs, Bin, Bs0, BBs0, Mfun, Efun, 'true')
+	  ( <_cor11,_cor10,_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'bin_gen',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'bin_gen'/7 =
+    %% Line 149
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[F|Fs],Bin,Bs0,BBs0,Mfun,Efun,Flag>
+	      when %% Line 150
+		try
+		    let <_cor7> =
+			call 'erlang':'is_function'
+			    (Mfun, 2)
+		    in  let <_cor8> =
+			    call 'erlang':'is_function'
+				(Efun, 2)
+			in  call 'erlang':'and'
+				(_cor7, _cor8)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 151
+	      case apply 'bin_gen_field'/6
+		       (F, Bin, Bs0, BBs0, Mfun, Efun) of
+		%% Line 152
+		<{'match',Bs,BBs,Rest}> when 'true' ->
+		    %% Line 153
+		    apply 'bin_gen'/7
+			(Fs, Rest, Bs, BBs, Mfun, Efun, Flag)
+		%% Line 154
+		<{'nomatch',Rest}> when 'true' ->
+		    %% Line 155
+		    apply 'bin_gen'/7
+			(Fs, Rest, Bs0, BBs0, Mfun, Efun, 'false')
+		%% Line 156
+		<'done'> when 'true' ->
+		    %% Line 157
+		    'done'
+		( <_cor9> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor9})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 159
+	  <[],Bin,Bs0,_X_BBs0,_X_Mfun,_X_Efun,'true'> when 'true' ->
+	      %% Line 160
+	      {'match',Bin,Bs0}
+	  %% Line 161
+	  <[],Bin,_X_Bs0,_X_BBs0,_X_Mfun,_X_Efun,'false'> when 'true' ->
+	      %% Line 162
+	      {'nomatch',Bin}
+	  ( <_cor16,_cor15,_cor14,_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15,_cor14,_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'bin_gen',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'bin_gen_field'/6 =
+    %% Line 164
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <{'bin_element',_cor35,{'string',_cor36,S},'default','default'},%% Line 165
+									  Bin,%% Line 165
+									      Bs,%% Line 165
+										 BBs,%% Line 165
+										     _X_Mfun,%% Line 165
+											     _X_Efun> when 'true' ->
+	      let <_cor10> =
+		  %% Line 166
+		  try
+		      call 'erlang':'list_to_binary'
+			  (S)
+		  of <_cor6> ->
+		      _cor6
+		  catch <_cor9,_cor8,_cor7> ->
+		      %% Line 167
+		      #{}#
+	      in  let <Size> =
+		      %% Line 169
+		      call 'erlang':'length'
+			  (S)
+		  in  %% Line 170
+		      case ( Bin
+			     -| ['reuse_for_context'] ) of
+			%% Line 171
+			<#{#<_cor40>(Size,8,'binary',['unsigned'|['big']]),
+			   #<Rest>('all',1,'binary',['unsigned'|['big']])}#>
+			    when call 'erlang':'=:='
+				  (_cor40,
+				   _cor10) ->
+			    %% Line 172
+			    {'match',Bs,BBs,Rest}
+			%% Line 173
+			<#{#<_cor41>(Size,8,'binary',['unsigned'|['big']]),
+			   #<Rest>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+			    %% Line 174
+			    {'nomatch',Rest}
+			%% Line 175
+			<_cor42> when 'true' ->
+			    %% Line 176
+			    'done'
+		      end
+	  %% Line 178
+	  <{'bin_element',Line,{'string',SLine,S},Size0,Options0},%% Line 179
+								  Bin0,%% Line 179
+								       Bs0,%% Line 179
+									   BBs0,%% Line 179
+										Mfun,%% Line 179
+										     Efun> when 'true' ->
+	      %% Line 180
+	      case %% Line 181
+		   apply 'make_bit_type'/3
+		       (Line, Size0, Options0) of
+		<{Size1,[Type|[{'unit',Unit}|[Sign|[Endian|[]]]]]}> when 'true' ->
+		    do  %% Line 182
+			apply 'match_check_size'/3
+			    (Mfun, Size1, BBs0)
+			%% Line 183
+			case apply Efun
+				 (Size1, BBs0) of
+			  <{'value',Size,_X_BBs}> when 'true' ->
+			      let <F> =
+				  %% Line 184
+				  ( fun (_cor19,_cor18,_cor17,_cor16) ->
+					%% Line 185
+					apply 'bin_gen_field1'/10
+					    (_cor18, Type, Size, Unit, Sign, Endian, %% Line 186
+										     {'integer',SLine,_cor19}, _cor17, _cor16, %% Line 186
+															       Mfun)
+				    -| [{'id',{0,0,'-bin_gen_field/6-fun-0-'}}] )
+			      in  %% Line 188
+				  apply 'bin_gen_field_string'/5
+				      (S, Bin0, Bs0, BBs0, F)
+			  ( <_cor15> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor15})
+			    -| ['compiler_generated'] )
+			end
+		( <_cor14> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor14})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 189
+	  <{'bin_element',Line,VE,Size0,Options0},%% Line 190
+						  Bin,%% Line 190
+						      Bs0,%% Line 190
+							  BBs0,%% Line 190
+							       Mfun,%% Line 190
+								    Efun> when 'true' ->
+	      %% Line 191
+	      case %% Line 192
+		   apply 'make_bit_type'/3
+		       (Line, Size0, Options0) of
+		<{Size1,[Type|[{'unit',Unit}|[Sign|[Endian|[]]]]]}> when 'true' ->
+		    let <V> =
+			%% Line 193
+			call 'erl_eval':'partial_eval'
+			    (VE)
+		    in  let <NewV> =
+			    %% Line 194
+			    apply 'coerce_to_float'/2
+				(V, Type)
+			in  do  %% Line 195
+				apply 'match_check_size'/4
+				    (Mfun, Size1, BBs0, 'false')
+				%% Line 196
+				case apply Efun
+					 (Size1, BBs0) of
+				  <{'value',Size,_X_BBs}> when 'true' ->
+				      %% Line 197
+				      apply 'bin_gen_field1'/10
+					  (Bin, Type, Size, Unit, Sign, Endian, NewV, Bs0, BBs0, Mfun)
+				  ( <_cor28> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor28})
+				    -| ['compiler_generated'] )
+				end
+		( <_cor25> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor25})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor34,_cor33,_cor32,_cor31,_cor30,_cor29> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor34,_cor33,_cor32,_cor31,_cor30,_cor29})
+		  -| [{'function_name',{'bin_gen_field',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'bin_gen_field_string'/5 =
+    %% Line 199
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],Rest,Bs,BBs,_X_F> when 'true' ->
+	      %% Line 200
+	      {'match',Bs,BBs,Rest}
+	  %% Line 201
+	  <[C|Cs],Bin0,Bs0,BBs0,Fun> when 'true' ->
+	      %% Line 202
+	      case apply Fun
+		       (C, Bin0, Bs0, BBs0) of
+		%% Line 203
+		<{'match',Bs,BBs,Rest}> when 'true' ->
+		    %% Line 204
+		    apply 'bin_gen_field_string'/5
+			(Cs, Rest, Bs, BBs, Fun)
+		%% Line 205
+		<{'nomatch',Rest}> when 'true' ->
+		    %% Line 206
+		    {'nomatch',Rest}
+		%% Line 207
+		<'done'> when 'true' ->
+		    %% Line 208
+		    'done'
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor10,_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'bin_gen_field_string',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'bin_gen_field1'/10 =
+    %% Line 211
+    fun (_cor9,_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor10> =
+	    catch
+		%% Line 212
+		apply 'get_value'/6
+		    (_cor9, _cor8, _cor7, _cor6, _cor5, _cor4)
+	in  %% Line 212
+	    case _cor10 of
+	      %% Line 213
+	      <{Val,Rest = #{#<_cor25>('all',1,'binary',['unsigned'|['big']])}#}> when 'true' ->
+		  let <_cor11> =
+		      catch
+			  %% Line 214
+			  apply _cor0
+			      ('match', {_cor3,Val,_cor2})
+		  in  %% Line 214
+		      case _cor11 of
+			%% Line 215
+			<{'match',Bs}> when 'true' ->
+			    let <BBs> =
+				%% Line 216
+				apply 'add_bin_binding'/4
+				    (_cor0, _cor3, Bs, _cor1)
+			    in  %% Line 217
+				{'match',Bs,BBs,Rest}
+			%% Line 218
+			<_cor26> when 'true' ->
+			    %% Line 219
+			    {'nomatch',Rest}
+		      end
+	      %% Line 221
+	      <_cor27> when 'true' ->
+		  %% Line 222
+		  'done'
+	    end
+'match_bits'/7 =
+    %% Line 236
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 237
+	apply 'match_bits'/6
+	    (_cor6, _cor5, _cor4, _cor3, _cor2, _cor1)
+'match_bits'/6 =
+    %% Line 239
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Fs,Bin,Bs0,BBs,Mfun,Efun>
+	      when %% Line 240
+		try
+		    let <_cor6> =
+			call 'erlang':'is_function'
+			    (Mfun, 2)
+		    in  let <_cor7> =
+			    call 'erlang':'is_function'
+				(Efun, 2)
+			in  call 'erlang':'and'
+				(_cor6, _cor7)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor8> =
+		  catch
+		      %% Line 241
+		      apply 'match_bits_1'/6
+			  (Fs, Bin, Bs0, BBs, Mfun, Efun)
+	      in  %% Line 241
+		  case _cor8 of
+		    %% Line 242
+		    <{'match',Bs}> when 'true' ->
+			{'match',Bs}
+		    %% Line 243
+		    <'invalid'> when 'true' ->
+			call 'erlang':'throw'
+			    ('invalid')
+		    %% Line 244
+		    <_X_Error> when 'true' ->
+			call 'erlang':'throw'
+			    ('nomatch')
+		  end
+	  ( <_cor15,_cor14,_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14,_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'match_bits',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'match_bits_1'/6 =
+    %% Line 247
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],#{}#,Bs,_X_BBs,_X_Mfun,_X_Efun> when 'true' ->
+	      %% Line 248
+	      {'match',Bs}
+	  %% Line 249
+	  <[F|Fs],Bits0,Bs0,BBs0,Mfun,Efun> when 'true' ->
+	      %% Line 250
+	      case apply 'match_field_1'/6
+		       (F, Bits0, Bs0, BBs0, Mfun, Efun) of
+		<{Bs,BBs,Bits}> when 'true' ->
+		    %% Line 251
+		    apply 'match_bits_1'/6
+			(Fs, Bits, Bs, BBs, Mfun, Efun)
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor12,_cor11,_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10,_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'match_bits_1',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'match_field_1'/6 =
+    %% Line 253
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <{'bin_element',_cor32,{'string',_cor33,S},'default','default'},%% Line 254
+									  Bin,%% Line 254
+									      Bs,%% Line 254
+										 BBs,%% Line 254
+										     _X_Mfun,%% Line 254
+											     _X_Efun> when 'true' ->
+	      let <Bits> =
+		  %% Line 255
+		  call 'erlang':'list_to_binary'
+		      (S)
+	      in  let <Size> =
+		      %% Line 256
+		      call 'erlang':'byte_size'
+			  (Bits)
+		  in  %% Line 257
+		      case ( Bin
+			     -| ['reuse_for_context'] ) of
+			<#{#<_cor34>(Size,8,'binary',['unsigned'|['big']]),
+			   #<Rest>('all',1,'binary',['unsigned'|['big']])}#>
+			    when call 'erlang':'=:='
+				  (_cor34,
+				   Bits) ->
+			    %% Line 258
+			    {Bs,BBs,Rest}
+			( <_cor8> when 'true' ->
+			      do  primop 'bs_context_to_binary'
+				      (_cor8)
+				  primop 'match_fail'
+				      ({'badmatch',_cor8})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 259
+	  <{'bin_element',Line,{'string',SLine,S},Size0,Options0},%% Line 260
+								  Bin0,%% Line 260
+								       Bs0,%% Line 260
+									   BBs0,%% Line 260
+										Mfun,%% Line 260
+										     Efun> when 'true' ->
+	      %% Line 261
+	      case %% Line 262
+		   apply 'make_bit_type'/3
+		       (Line, Size0, Options0) of
+		<{Size1,[Type|[{'unit',Unit}|[Sign|[Endian|[]]]]]}> when 'true' ->
+		    let <Size2> =
+			%% Line 263
+			call 'erl_eval':'partial_eval'
+			    (Size1)
+		    in  do  %% Line 264
+			    apply 'match_check_size'/3
+				(Mfun, Size2, BBs0)
+			    %% Line 265
+			    case apply Efun
+				     (Size2, BBs0) of
+			      <{'value',Size,_X_BBs}> when 'true' ->
+				  let <F> =
+				      %% Line 266
+				      ( fun (_cor15,_cor14,_cor13,_cor12) ->
+					    %% Line 267
+					    apply 'match_field'/10
+						(_cor14, Type, Size, Unit, Sign, Endian, %% Line 268
+											 {'integer',SLine,_cor15}, _cor13, _cor12, %% Line 268
+																   Mfun)
+					-| [{'id',{0,0,'-match_field_1/6-fun-0-'}}] )
+				  in  %% Line 270
+				      apply 'match_field_string'/5
+					  (S, Bin0, Bs0, BBs0, F)
+			      ( <_cor11> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor11})
+				-| ['compiler_generated'] )
+			    end
+		( <_cor9> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor9})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 271
+	  <{'bin_element',Line,VE,Size0,Options0},%% Line 272
+						  Bin,%% Line 272
+						      Bs0,%% Line 272
+							  BBs0,%% Line 272
+							       Mfun,%% Line 272
+								    Efun> when 'true' ->
+	      %% Line 273
+	      case %% Line 274
+		   apply 'make_bit_type'/3
+		       (Line, Size0, Options0) of
+		<{Size1,[Type|[{'unit',Unit}|[Sign|[Endian|[]]]]]}> when 'true' ->
+		    let <V> =
+			%% Line 275
+			call 'erl_eval':'partial_eval'
+			    (VE)
+		    in  let <NewV> =
+			    %% Line 276
+			    apply 'coerce_to_float'/2
+				(V, Type)
+			in  let <Size2> =
+				%% Line 277
+				call 'erl_eval':'partial_eval'
+				    (Size1)
+			    in  do  %% Line 278
+				    apply 'match_check_size'/3
+					(Mfun, Size2, BBs0)
+				    %% Line 279
+				    case apply Efun
+					     (Size2, BBs0) of
+				      <{'value',Size,_X_BBs}> when 'true' ->
+					  %% Line 280
+					  apply 'match_field'/10
+					      (Bin, Type, Size, Unit, Sign, Endian, NewV, Bs0, BBs0, Mfun)
+				      ( <_cor25> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_cor25})
+					-| ['compiler_generated'] )
+				    end
+		( <_cor21> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor21})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor31,_cor30,_cor29,_cor28,_cor27,_cor26> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor31,_cor30,_cor29,_cor28,_cor27,_cor26})
+		  -| [{'function_name',{'match_field_1',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'match_field_string'/5 =
+    %% Line 282
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],Rest,Bs,BBs,_X_Fun> when 'true' ->
+	      %% Line 283
+	      {Bs,BBs,Rest}
+	  %% Line 284
+	  <[C|Cs],Bin0,Bs0,BBs0,Fun> when 'true' ->
+	      %% Line 285
+	      case apply Fun
+		       (C, Bin0, Bs0, BBs0) of
+		<{Bs,BBs,Bin}> when 'true' ->
+		    %% Line 286
+		    apply 'match_field_string'/5
+			(Cs, Bin, Bs, BBs, Fun)
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor10,_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'match_field_string',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'match_field'/10 =
+    %% Line 288
+    fun (_cor9,_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 289
+	case apply 'get_value'/6
+		 (_cor9, _cor8, _cor7, _cor6, _cor5, _cor4) of
+	  <{Val,Rest}> when 'true' ->
+	      %% Line 290
+	      case apply _cor0
+		       ('match', {_cor3,Val,_cor2}) of
+		<{'match',Bs}> when 'true' ->
+		    let <BBs> =
+			%% Line 291
+			apply 'add_bin_binding'/4
+			    (_cor0, _cor3, Bs, _cor1)
+		    in  %% Line 292
+			{Bs,BBs,Rest}
+		( <_cor11> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor11})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor10> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor10})
+	    -| ['compiler_generated'] )
+	end
+'coerce_to_float'/2 =
+    %% Line 295
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <E = {'integer',L,I},'float'> when 'true' ->
+	      %% Line 296
+	      try
+		  let <_cor2> =
+		      %% Line 297
+		      call 'erlang':'float'
+			  (I)
+		  in  %% Line 297
+		      {'float',L,_cor2}
+	      of <_cor3> ->
+		  _cor3
+	      catch <_cor6,_cor5,_cor4> ->
+		  case <_cor6,_cor5,_cor4> of
+		    %% Line 299
+		    <'error','badarg',_cor9> when 'true' ->
+			E
+		    %% Line 300
+		    <'error','badarith',_cor10> when 'true' ->
+			E
+		    ( <_cor6,_cor5,_cor4> when 'true' ->
+			  primop 'raise'
+			      (_cor4, _cor5)
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 302
+	  <E,_X_Type> when 'true' ->
+	      %% Line 303
+	      E
+	end
+'add_bin_binding'/4 =
+    %% Line 305
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <_cor9,{'var',_cor10,'_'},_X_Bs,BBs> when 'true' ->
+	      %% Line 306
+	      BBs
+	  %% Line 307
+	  <Mfun,{'var',_cor11,Name},Bs,BBs> when 'true' ->
+	      %% Line 308
+	      case apply Mfun
+		       ('binding', {Name,Bs}) of
+		<{'value',Value}> when 'true' ->
+		    %% Line 309
+		    apply Mfun
+			('add_binding', {Name,Value,BBs})
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 310
+	  <_cor12,_cor13,_X_Bs,BBs> when 'true' ->
+	      %% Line 311
+	      BBs
+	end
+'get_value'/6 =
+    %% Line 313
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Bin,'integer',Size,Unit,Sign,Endian> when 'true' ->
+	      let <_cor6> =
+		  %% Line 314
+		  call 'erlang':'*'
+		      (Size, Unit)
+	      in  %% Line 314
+		  apply 'get_integer'/4
+		      (Bin, _cor6, Sign, Endian)
+	  %% Line 315
+	  <Bin,'float',Size,Unit,_X_Sign,Endian> when 'true' ->
+	      let <_cor7> =
+		  %% Line 316
+		  call 'erlang':'*'
+		      (Size, Unit)
+	      in  %% Line 316
+		  apply 'get_float'/3
+		      (Bin, _cor7, Endian)
+	  %% Line 317
+	  <Bin,'utf8','undefined',_X_Unit,_X_Sign,_X_Endian> when 'true' ->
+	      %% Line 318
+	      case ( Bin
+		     -| ['reuse_for_context'] ) of
+		<#{#<I>('undefined','undefined','utf8',['unsigned'|['big']]),
+		   #<Rest>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+		    %% Line 319
+		    {I,Rest}
+		( <_cor8> when 'true' ->
+		      do  primop 'bs_context_to_binary'
+			      (_cor8)
+			  primop 'match_fail'
+			      ({'badmatch',_cor8})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 320
+	  <Bin,'utf16','undefined',_X_Unit,_X_Sign,'big'> when 'true' ->
+	      %% Line 321
+	      case ( Bin
+		     -| ['reuse_for_context'] ) of
+		<#{#<I>('undefined','undefined','utf16',['unsigned'|['big']]),
+		   #<Rest>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+		    %% Line 322
+		    {I,Rest}
+		( <_cor9> when 'true' ->
+		      do  primop 'bs_context_to_binary'
+			      (_cor9)
+			  primop 'match_fail'
+			      ({'badmatch',_cor9})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 323
+	  <Bin,'utf16','undefined',_X_Unit,_X_Sign,'little'> when 'true' ->
+	      %% Line 324
+	      case ( Bin
+		     -| ['reuse_for_context'] ) of
+		<#{#<I>('undefined','undefined','utf16',['unsigned'|['little']]),
+		   #<Rest>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+		    %% Line 325
+		    {I,Rest}
+		( <_cor10> when 'true' ->
+		      do  primop 'bs_context_to_binary'
+			      (_cor10)
+			  primop 'match_fail'
+			      ({'badmatch',_cor10})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 326
+	  <Bin,'utf32','undefined',_X_Unit,_X_Sign,'big'> when 'true' ->
+	      %% Line 327
+	      case ( Bin
+		     -| ['reuse_for_context'] ) of
+		<#{#<Val>('undefined','undefined','utf32',['unsigned'|['big']]),
+		   #<Rest>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+		    %% Line 328
+		    {Val,Rest}
+		( <_cor11> when 'true' ->
+		      do  primop 'bs_context_to_binary'
+			      (_cor11)
+			  primop 'match_fail'
+			      ({'badmatch',_cor11})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 329
+	  <Bin,'utf32','undefined',_X_Unit,_X_Sign,'little'> when 'true' ->
+	      %% Line 330
+	      case ( Bin
+		     -| ['reuse_for_context'] ) of
+		<#{#<Val>('undefined','undefined','utf32',['unsigned'|['little']]),
+		   #<Rest>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+		    %% Line 331
+		    {Val,Rest}
+		( <_cor12> when 'true' ->
+		      do  primop 'bs_context_to_binary'
+			      (_cor12)
+			  primop 'match_fail'
+			      ({'badmatch',_cor12})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 332
+	  <Bin,'binary','all',Unit,_X_Sign,_X_Endian> when 'true' ->
+	      let <_cor13> =
+		  %% Line 333
+		  call 'erlang':'bit_size'
+		      (Bin)
+	      in  %% Line 333
+		  case call 'erlang':'rem'
+			   (_cor13, Unit) of
+		    <0> when 'true' ->
+			%% Line 334
+			{Bin,#{}#}
+		    ( <_cor14> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor14})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 335
+	  <Bin,'binary',Size,Unit,_X_Sign,_X_Endian> when 'true' ->
+	      let <TotSize> =
+		  %% Line 336
+		  call 'erlang':'*'
+		      (Size, Unit)
+	      in  %% Line 337
+		  case ( Bin
+			 -| ['reuse_for_context'] ) of
+		    <#{#<Val>(TotSize,1,'binary',['unsigned'|['big']]),
+		       #<Rest>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+			%% Line 338
+			{Val,Rest}
+		    ( <_cor16> when 'true' ->
+			  do  primop 'bs_context_to_binary'
+				  (_cor16)
+			      primop 'match_fail'
+				  ({'badmatch',_cor16})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor22,_cor21,_cor20,_cor19,_cor18,_cor17> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor22,_cor21,_cor20,_cor19,_cor18,_cor17})
+		  -| [{'function_name',{'get_value',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_integer'/4 =
+    %% Line 340
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Bin,Size,'signed','little'> when 'true' ->
+	      %% Line 341
+	      case ( Bin
+		     -| ['reuse_for_context'] ) of
+		<#{#<Val>(Size,1,'integer',['signed'|['little']]),
+		   #<Rest>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+		    %% Line 342
+		    {Val,Rest}
+		( <_cor4> when 'true' ->
+		      do  primop 'bs_context_to_binary'
+			      (_cor4)
+			  primop 'match_fail'
+			      ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 343
+	  <Bin,Size,'unsigned','little'> when 'true' ->
+	      %% Line 344
+	      case ( Bin
+		     -| ['reuse_for_context'] ) of
+		<#{#<Val>(Size,1,'integer',['unsigned'|['little']]),
+		   #<Rest>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+		    %% Line 345
+		    {Val,Rest}
+		( <_cor5> when 'true' ->
+		      do  primop 'bs_context_to_binary'
+			      (_cor5)
+			  primop 'match_fail'
+			      ({'badmatch',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 346
+	  <Bin,Size,'signed','native'> when 'true' ->
+	      %% Line 347
+	      case ( Bin
+		     -| ['reuse_for_context'] ) of
+		<#{#<Val>(Size,1,'integer',['signed'|['native']]),
+		   #<Rest>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+		    %% Line 348
+		    {Val,Rest}
+		( <_cor6> when 'true' ->
+		      do  primop 'bs_context_to_binary'
+			      (_cor6)
+			  primop 'match_fail'
+			      ({'badmatch',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 349
+	  <Bin,Size,'unsigned','native'> when 'true' ->
+	      %% Line 350
+	      case ( Bin
+		     -| ['reuse_for_context'] ) of
+		<#{#<Val>(Size,1,'integer',['unsigned'|['native']]),
+		   #<Rest>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+		    %% Line 351
+		    {Val,Rest}
+		( <_cor7> when 'true' ->
+		      do  primop 'bs_context_to_binary'
+			      (_cor7)
+			  primop 'match_fail'
+			      ({'badmatch',_cor7})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 352
+	  <Bin,Size,'signed','big'> when 'true' ->
+	      %% Line 353
+	      case ( Bin
+		     -| ['reuse_for_context'] ) of
+		<#{#<Val>(Size,1,'integer',['signed'|['big']]),
+		   #<Rest>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+		    %% Line 354
+		    {Val,Rest}
+		( <_cor8> when 'true' ->
+		      do  primop 'bs_context_to_binary'
+			      (_cor8)
+			  primop 'match_fail'
+			      ({'badmatch',_cor8})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 355
+	  <Bin,Size,'unsigned','big'> when 'true' ->
+	      %% Line 356
+	      case ( Bin
+		     -| ['reuse_for_context'] ) of
+		<#{#<Val>(Size,1,'integer',['unsigned'|['big']]),
+		   #<Rest>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+		    %% Line 357
+		    {Val,Rest}
+		( <_cor9> when 'true' ->
+		      do  primop 'bs_context_to_binary'
+			      (_cor9)
+			  primop 'match_fail'
+			      ({'badmatch',_cor9})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'get_integer',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_float'/3 =
+    %% Line 359
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Bin,Size,'little'> when 'true' ->
+	      %% Line 360
+	      case ( Bin
+		     -| ['reuse_for_context'] ) of
+		<#{#<Val>(Size,1,'float',['unsigned'|['little']]),
+		   #<Rest>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+		    %% Line 361
+		    {Val,Rest}
+		( <_cor3> when 'true' ->
+		      do  primop 'bs_context_to_binary'
+			      (_cor3)
+			  primop 'match_fail'
+			      ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 362
+	  <Bin,Size,'native'> when 'true' ->
+	      %% Line 363
+	      case ( Bin
+		     -| ['reuse_for_context'] ) of
+		<#{#<Val>(Size,1,'float',['unsigned'|['native']]),
+		   #<Rest>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+		    %% Line 364
+		    {Val,Rest}
+		( <_cor4> when 'true' ->
+		      do  primop 'bs_context_to_binary'
+			      (_cor4)
+			  primop 'match_fail'
+			      ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 365
+	  <Bin,Size,'big'> when 'true' ->
+	      %% Line 366
+	      case ( Bin
+		     -| ['reuse_for_context'] ) of
+		<#{#<Val>(Size,1,'float',['unsigned'|['big']]),
+		   #<Rest>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+		    %% Line 367
+		    {Val,Rest}
+		( <_cor5> when 'true' ->
+		      do  primop 'bs_context_to_binary'
+			      (_cor5)
+			  primop 'match_fail'
+			      ({'badmatch',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'get_float',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'make_bit_type'/3 =
+    %% Line 370
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Line,'default',Type0> when 'true' ->
+	      %% Line 371
+	      case call 'erl_bits':'set_bit_type'
+		       ('default', Type0) of
+		%% Line 372
+		<{'ok','all',Bt}> when 'true' ->
+		    let <_cor3> =
+			call 'erl_bits':'as_list'
+			    (Bt)
+		    in  {{'atom',Line,'all'},_cor3}
+		%% Line 373
+		<{'ok','undefined',Bt}> when 'true' ->
+		    let <_cor4> =
+			call 'erl_bits':'as_list'
+			    (Bt)
+		    in  {{'atom',Line,'undefined'},_cor4}
+		%% Line 374
+		<{'ok',Size,Bt}> when 'true' ->
+		    let <_cor5> =
+			call 'erl_bits':'as_list'
+			    (Bt)
+		    in  {{'integer',Line,Size},_cor5}
+		%% Line 375
+		<{'error',Reason}> when 'true' ->
+		    apply 'error'/1
+			(Reason)
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 377
+	  <_X_Line,Size,Type0> when 'true' ->
+	      %% Line 378
+	      case call 'erl_bits':'set_bit_type'
+		       (Size, Type0) of
+		%% Line 379
+		<{'ok',_cor12,Bt}>
+		    when call 'erlang':'=:='
+			  (_cor12,
+			   Size) ->
+		    let <_cor7> =
+			call 'erl_bits':'as_list'
+			    (Bt)
+		    in  {Size,_cor7}
+		%% Line 380
+		<{'error',Reason}> when 'true' ->
+		    apply 'error'/1
+			(Reason)
+		( <_cor8> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor8})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'match_check_size'/3 =
+    %% Line 383
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 384
+	apply 'match_check_size'/4
+	    (_cor2, _cor1, _cor0, 'true')
+'match_check_size'/4 =
+    %% Line 386
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Mfun,{'var',_cor9,V},Bs,_X_AllowAll> when 'true' ->
+	      %% Line 387
+	      case apply Mfun
+		       ('binding', {V,Bs}) of
+		%% Line 388
+		<{'value',_cor10}> when 'true' ->
+		    'ok'
+		%% Line 389
+		<'unbound'> when 'true' ->
+		    call 'erlang':'throw'
+			('invalid')
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 391
+	  <_cor11,{'atom',_cor12,'all'},_X_Bs,'true'> when 'true' ->
+	      %% Line 392
+	      'ok'
+	  %% Line 393
+	  <_cor13,{'atom',_cor14,'all'},_X_Bs,'false'> when 'true' ->
+	      %% Line 394
+	      call 'erlang':'throw'
+		  ('invalid')
+	  %% Line 395
+	  <_cor15,{'atom',_cor16,'undefined'},_X_Bs,_X_AllowAll> when 'true' ->
+	      %% Line 396
+	      'ok'
+	  %% Line 397
+	  <_cor17,{'integer',_cor18,_cor19},_X_Bs,_X_AllowAll> when 'true' ->
+	      %% Line 398
+	      'ok'
+	  %% Line 399
+	  <_cor20,{'value',_cor21,_cor22},_X_Bs,_X_AllowAll> when 'true' ->
+	      %% Line 400
+	      'ok'
+	  %% Line 401
+	  <_cor23,_cor24,_X_Bs,_X_AllowAll> when 'true' ->
+	      %% Line 402
+	      call 'erlang':'throw'
+		  ('invalid')
+	end
+'error'/1 =
+    %% Line 406
+    fun (_cor0) ->
+	%% Line 407
+	call 'erlang':'raise'
+	    ('error', _cor0, [{'erl_eval','expr',3}])
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('eval_bits')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('eval_bits', _cor0)
+end

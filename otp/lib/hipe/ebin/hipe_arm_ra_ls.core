@@ -1,0 +1,118 @@
+module 'hipe_arm_ra_ls' ['module_info'/0,
+			 'module_info'/1,
+			 'ra'/3]
+    attributes []
+'ra'/3 =
+    %% Line 25
+    fun (_cor2,_cor1,_cor0) ->
+	let <CFG> =
+	    %% Line 27
+	    call 'hipe_arm_cfg':'init'
+		(_cor2)
+	in  let <SpillLimit> =
+		%% Line 28
+		call 'hipe_arm_specific':'number_of_temporaries'
+		    (CFG)
+	    in  %% Line 29
+		apply 'alloc'/4
+		    (_cor2, _cor1, SpillLimit, _cor0)
+'alloc'/4 =
+    %% Line 31
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <CFG> =
+	    %% Line 32
+	    call 'hipe_arm_cfg':'init'
+		(_cor3)
+	in  let <_cor9> =
+		%% Line 36
+		call 'hipe_arm_registers':'allocatable_gpr'
+		    ()
+	    in  let <_cor6> =
+		    %% Line 37
+		    call 'hipe_arm_registers':'temp3'
+			()
+		in  let <_cor7> =
+			%% Line 38
+			call 'hipe_arm_registers':'temp2'
+			    ()
+		    in  let <_cor8> =
+			    %% Line 39
+			    call 'hipe_arm_registers':'temp1'
+				()
+			in  let <_cor10> =
+				%% Line 36
+				call 'erlang':'--'
+				    (_cor9, %% Line 37
+					    [_cor6|%% Line 38
+						   [_cor7|%% Line 39
+							  [_cor8|[]]]])
+			    in  let <_cor5> =
+				    %% Line 40
+				    call 'hipe_arm_cfg':'start_label'
+					(CFG)
+				in  %% Line 33
+				    case %% Line 34
+					 apply 'regalloc'/7
+					     (%% Line 35
+					      CFG, _cor10, %% Line 40
+							   [_cor5|[]], _cor2, _cor1, _cor0, %% Line 42
+											    'hipe_arm_specific') of
+				      <{Coloring,_X_NewSpillIndex}> when 'true' ->
+					  %% Line 43
+					  case %% Line 44
+					       call 'hipe_arm_ra_postconditions':'check_and_rewrite'
+						   (_cor3, %% Line 45
+							   Coloring, %% Line 45
+								     'linearscan') of
+					    <{NewDefun,_X_DidSpill}> when 'true' ->
+						let <TempMap> =
+						    %% Line 46
+						    call 'hipe_temp_map':'cols2tuple'
+							(Coloring, 'hipe_arm_specific')
+						in  %% Line 47
+						    case %% Line 48
+							 call 'hipe_spillmin':'stackalloc'
+							     (CFG, [], _cor2, _cor0, %% Line 49
+										     'hipe_arm_specific', %% Line 49
+													  TempMap) of
+						      <{SpillMap,_X_NewSpillIndex2}> when 'true' ->
+							  let <_cor15> =
+							      %% Line 51
+							      call 'hipe_temp_map':'to_substlist'
+								  (TempMap)
+							  in  let <Coloring2> =
+								  %% Line 51
+								  call 'hipe_spillmin':'mapmerge'
+								      (_cor15, SpillMap)
+							      in  %% Line 52
+								  {NewDefun,Coloring2}
+						      ( <_cor14> when 'true' ->
+							    primop 'match_fail'
+								({'badmatch',_cor14})
+							-| ['compiler_generated'] )
+						    end
+					    ( <_cor12> when 'true' ->
+						  primop 'match_fail'
+						      ({'badmatch',_cor12})
+					      -| ['compiler_generated'] )
+					  end
+				      ( <_cor11> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_cor11})
+					-| ['compiler_generated'] )
+				    end
+'regalloc'/7 =
+    %% Line 54
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 55
+	call 'hipe_ls_regalloc':'regalloc'
+	    (_cor6, _cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_arm_ra_ls')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_arm_ra_ls', _cor0)
+end

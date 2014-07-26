@@ -1,0 +1,2597 @@
+module 'ct_config' ['add_config'/2,
+		    'add_default_callback'/1,
+		    'check_config_files'/1,
+		    'decrypt_config_file'/2,
+		    'decrypt_config_file'/3,
+		    'delete_default_config'/1,
+		    'encrypt_config_file'/2,
+		    'encrypt_config_file'/3,
+		    'get_all_config'/0,
+		    'get_config'/1,
+		    'get_config'/2,
+		    'get_config'/3,
+		    'get_config_file_list'/1,
+		    'get_crypt_key_from_file'/0,
+		    'get_crypt_key_from_file'/1,
+		    'get_key_from_name'/1,
+		    'module_info'/0,
+		    'module_info'/1,
+		    'prepare_config_list'/1,
+		    'read_config_files'/1,
+		    'release_allocated'/0,
+		    'reload_config'/1,
+		    'remove_config'/2,
+		    'require'/1,
+		    'require'/2,
+		    'set_default_config'/2,
+		    'set_default_config'/3,
+		    'start'/1,
+		    'stop'/0,
+		    'update_config'/2]
+    attributes []
+'start'/1 =
+    %% Line 61
+    fun (_cor0) ->
+	%% Line 62
+	case call 'erlang':'whereis'
+		 ('ct_config_server') of
+	  %% Line 63
+	  <'undefined'> when 'true' ->
+	      let <Me> =
+		  %% Line 64
+		  call 'erlang':'self'
+		      ()
+	      in  let <_cor2> =
+		      %% Line 65
+		      ( fun () ->
+			    apply 'do_start'/1
+				(Me)
+			-| [{'id',{0,0,'-start/1-fun-0-'}}] )
+		  in  let <Pid> =
+			  %% Line 65
+			  call 'erlang':'spawn_link'
+			      (_cor2)
+		      in  %% Line 66
+			  receive
+			    %% Line 67
+			    <{_cor7,'started'}>
+				when call 'erlang':'=:='
+				      (_cor7,
+				       Pid) ->
+				Pid
+			    %% Line 68
+			    <{_cor8,Error}>
+				when call 'erlang':'=:='
+				      (_cor8,
+				       Pid) ->
+				call 'erlang':'exit'
+				    (Error)
+			  after 'infinity' ->
+			    'true'
+	  %% Line 70
+	  <Pid> when 'true' ->
+	      %% Line 71
+	      case call 'ct_util':'get_mode'
+		       () of
+		%% Line 72
+		<'interactive'>
+		    when call 'erlang':'=:='
+			  (_cor0,
+			   'interactive') ->
+		    %% Line 73
+		    Pid
+		%% Line 74
+		<'interactive'> when 'true' ->
+		    %% Line 75
+		    {'error','interactive_mode'}
+		%% Line 76
+		<_X_OtherMode> when 'true' ->
+		    %% Line 77
+		    Pid
+	      end
+	end
+'do_start'/1 =
+    %% Line 81
+    fun (_cor0) ->
+	do  %% Line 82
+	    call 'erlang':'process_flag'
+		('trap_exit', 'true')
+	    let <_cor1> =
+		%% Line 83
+		call 'erlang':'self'
+		    ()
+	    in  do  %% Line 83
+		    call 'erlang':'register'
+			('ct_config_server', _cor1)
+		    do  %% Line 84
+			call 'ct_util':'create_table'
+			    ('ct_attributes', 'bag', 2)
+			%% Line 85
+			case call 'file':'get_cwd'
+				 () of
+			  <{'ok',StartDir}> when 'true' ->
+			      let <_cor5> =
+				  %% Line 86
+				  case call 'ct_util':'read_opts'
+					   () of
+				    %% Line 87
+				    <{'ok',Opts1}> when 'true' ->
+					%% Line 88
+					Opts1
+				    %% Line 89
+				    <Error> when 'true' ->
+					let <_cor3> =
+					    %% Line 90
+					    call 'erlang':'self'
+						()
+					in  do  %% Line 90
+						call 'erlang':'!'
+						    (_cor0, {_cor3,Error})
+						%% Line 91
+						call 'erlang':'exit'
+						    (Error)
+				  end
+			      in  %% Line 93
+				  case apply 'read_config_files'/1
+					   (_cor5) of
+				    %% Line 94
+				    <'ok'> when 'true' ->
+					let <_cor7> =
+					    %% Line 95
+					    call 'erlang':'self'
+						()
+					in  do  %% Line 95
+						call 'erlang':'!'
+						    (_cor0, {_cor7,'started'})
+						%% Line 96
+						apply 'loop'/1
+						    (StartDir)
+				    %% Line 97
+				    <ReadError> when 'true' ->
+					let <_cor8> =
+					    %% Line 98
+					    call 'erlang':'self'
+						()
+					in  do  %% Line 98
+						call 'erlang':'!'
+						    (_cor0, {_cor8,ReadError})
+						%% Line 99
+						call 'erlang':'exit'
+						    (ReadError)
+				  end
+			  ( <_cor2> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor2})
+			    -| ['compiler_generated'] )
+			end
+'stop'/0 =
+    %% Line 102
+    fun () ->
+	%% Line 103
+	case call 'erlang':'whereis'
+		 ('ct_config_server') of
+	  %% Line 104
+	  <'undefined'> when 'true' ->
+	      'ok'
+	  %% Line 105
+	  <_cor1> when 'true' ->
+	      apply 'call'/1
+		  ({'stop'})
+	end
+'call'/1 =
+    %% Line 108
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 109
+	    call 'erlang':'whereis'
+		('ct_config_server')
+	in  let <MRef> =
+		%% Line 109
+		call 'erlang':'monitor'
+		    ('process', _cor1)
+	    in  let <Ref> =
+		    %% Line 110
+		    call 'erlang':'make_ref'
+			()
+		in  let <_cor4> =
+			%% Line 111
+			call 'erlang':'self'
+			    ()
+		    in  do  %% Line 111
+			    call 'erlang':'!'
+				('ct_config_server', {_cor0,{_cor4,Ref}})
+			    %% Line 112
+			    receive
+			      %% Line 113
+			      <{_cor6,Result}>
+				  when call 'erlang':'=:='
+					(_cor6,
+					 Ref) ->
+				  do  %% Line 114
+				      call 'erlang':'demonitor'
+					  (MRef, ['flush'])
+				      %% Line 115
+				      Result
+			      %% Line 116
+			      <{'DOWN',_cor7,'process',_cor8,Reason}>
+				  when call 'erlang':'=:='
+					(_cor7,
+					 MRef) ->
+				  %% Line 117
+				  {'error',{'ct_util_server_down',Reason}}
+			    after 'infinity' ->
+			      'true'
+'return'/2 =
+    %% Line 120
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{To,Ref},Result> when 'true' ->
+	      %% Line 121
+	      call 'erlang':'!'
+		  (To, {Ref,Result})
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'return',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'loop'/1 =
+    %% Line 123
+    fun (_cor0) ->
+	%% Line 124
+	receive
+	  %% Line 125
+	  <{{'require',Name,Key},From}> when 'true' ->
+	      let <Result> =
+		  %% Line 126
+		  apply 'do_require'/2
+		      (Name, Key)
+	      in  do  %% Line 127
+		      apply 'return'/2
+			  (From, Result)
+		      %% Line 128
+		      apply 'loop'/1
+			  (_cor0)
+	  %% Line 129
+	  <{{'set_default_config',{Config,Scope}},From}> when 'true' ->
+	      do  %% Line 130
+		  apply 'set_config'/2
+		      (Config, {'true',Scope})
+		  do  %% Line 131
+		      apply 'return'/2
+			  (From, 'ok')
+		      %% Line 132
+		      apply 'loop'/1
+			  (_cor0)
+	  %% Line 133
+	  <{{'set_default_config',{Name,Config,Scope}},From}> when 'true' ->
+	      do  %% Line 134
+		  apply 'set_config'/3
+		      (Name, Config, {'true',Scope})
+		  do  %% Line 135
+		      apply 'return'/2
+			  (From, 'ok')
+		      %% Line 136
+		      apply 'loop'/1
+			  (_cor0)
+	  %% Line 137
+	  <{{'delete_default_config',Scope},From}> when 'true' ->
+	      do  %% Line 138
+		  apply 'delete_config'/1
+		      ({'true',Scope})
+		  do  %% Line 139
+		      apply 'return'/2
+			  (From, 'ok')
+		      %% Line 140
+		      apply 'loop'/1
+			  (_cor0)
+	  %% Line 141
+	  <{{'update_config',{Name,NewConfig}},From}> when 'true' ->
+	      do  %% Line 142
+		  apply 'update_conf'/2
+		      (Name, NewConfig)
+		  do  %% Line 143
+		      apply 'return'/2
+			  (From, 'ok')
+		      %% Line 144
+		      apply 'loop'/1
+			  (_cor0)
+	  %% Line 145
+	  <{{'reload_config',KeyOrName},From}> when 'true' ->
+	      let <NewValue> =
+		  %% Line 146
+		  apply 'reload_conf'/1
+		      (KeyOrName)
+	      in  do  %% Line 147
+		      apply 'return'/2
+			  (From, NewValue)
+		      %% Line 148
+		      apply 'loop'/1
+			  (_cor0)
+	  %% Line 149
+	  <{{'stop'},From}> when 'true' ->
+	      do  %% Line 150
+		  call 'ets':'delete'
+		      ('ct_attributes')
+		  do  %% Line 151
+		      call 'file':'set_cwd'
+			  (_cor0)
+		      %% Line 152
+		      apply 'return'/2
+			  (From, 'ok')
+	after 'infinity' ->
+	  'true'
+'set_default_config'/2 =
+    %% Line 155
+    fun (_cor1,_cor0) ->
+	%% Line 156
+	apply 'call'/1
+	    ({'set_default_config',{_cor1,_cor0}})
+'set_default_config'/3 =
+    %% Line 158
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 159
+	apply 'call'/1
+	    ({'set_default_config',{_cor2,_cor1,_cor0}})
+'delete_default_config'/1 =
+    %% Line 161
+    fun (_cor0) ->
+	%% Line 162
+	apply 'call'/1
+	    ({'delete_default_config',_cor0})
+'update_config'/2 =
+    %% Line 164
+    fun (_cor1,_cor0) ->
+	%% Line 165
+	apply 'call'/1
+	    ({'update_config',{_cor1,_cor0}})
+'reload_config'/1 =
+    %% Line 167
+    fun (_cor0) ->
+	%% Line 168
+	apply 'call'/1
+	    ({'reload_config',_cor0})
+'process_default_configs'/1 =
+    %% Line 170
+    fun (_cor0) ->
+	let <_cor7> =
+	    %% Line 171
+	    ( fun (_cor5) ->
+		  case _cor5 of
+		    <{'config',FileOrFiles = [_cor9|_cor10]}> when 'true' ->
+			let <_cor3> =
+			    %% Line 172
+			    call 'io_lib':'printable_list'
+				(FileOrFiles)
+			in  let <_cor1> =
+				%% Line 173
+				call 'erlang':'hd'
+				    (FileOrFiles)
+			    in  let <_cor2> =
+				    %% Line 173
+				    call 'io_lib':'printable_list'
+					(_cor1)
+				in  %% Line 172
+				    case <_cor3,_cor2> of
+				      %% Line 174
+				      <'false','true'> when 'true' ->
+					  %% Line 175
+					  FileOrFiles
+				      %% Line 176
+				      <'true','false'> when 'true' ->
+					  %% Line 177
+					  [FileOrFiles|[]]
+				      %% Line 178
+				      <_fol13,_fol14> when 'true' ->
+					  %% Line 179
+					  []
+				    end
+		    %% Line 181
+		    <_cor12> when 'true' ->
+			%% Line 182
+			[]
+		  end
+	      -| [{'id',{0,0,'-process_default_configs/1-fun-0-'}}] )
+	in  %% Line 171
+	    call 'lists':'flatmap'
+		(_cor7, _cor0)
+'process_user_configs'/2 =
+    %% Line 185
+    fun (_cor1,_cor0) ->
+	%% Line 186
+	case call 'lists':'keytake'
+		 ('userconfig', 1, _cor1) of
+	  %% Line 187
+	  <'false'> when 'true' ->
+	      %% Line 188
+	      call 'lists':'reverse'
+		  (_cor0)
+	  %% Line 189
+	  <{'value',{'userconfig',Config = [{_cor11,_cor12}|_cor13]},NewOpts}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 190
+		  ( fun (_cor2) ->
+			case _cor2 of
+			  <Cfg = {_X_Callback,[]}> when 'true' ->
+			      %% Line 191
+			      Cfg
+			  %% Line 192
+			  <{Callback,Files = [File|_cor14]}>
+			      when call 'erlang':'is_list'
+				    (File) ->
+			      %% Line 193
+			      {Callback,Files}
+			  %% Line 194
+			  <{Callback,File = [C|_cor15]}>
+			      when call 'erlang':'is_integer'
+				    (C) ->
+			      %% Line 195
+			      {Callback,[File|[]]}
+			  ( <_cor3> when 'true' ->
+				( primop 'match_fail'
+				      ({'function_clause',_cor3})
+				  -| [{'function_name',{'-process_user_configs/2-fun-0-',1}}] )
+			    -| ['compiler_generated'] )
+			end
+		    -| [{'id',{0,0,'-process_user_configs/2-fun-0-'}}] )
+	      in  let <Acc1> =
+		      %% Line 190
+		      call 'lists':'map'
+			  (_cor4, %% Line 196
+				  Config)
+		  in  let <_cor6> =
+			  %% Line 197
+			  call 'lists':'reverse'
+			      (Acc1)
+		      in  let <_cor7> =
+			      %% Line 197
+			      call 'erlang':'++'
+				  (_cor6, _cor0)
+			  in  %% Line 197
+			      apply 'process_user_configs'/2
+				  (NewOpts, _cor7)
+	  %% Line 198
+	  <{'value',{'userconfig',{Callback,[]}},NewOpts}> when 'true' ->
+	      %% Line 199
+	      apply 'process_user_configs'/2
+		  (NewOpts, [{Callback,[]}|_cor0])
+	  %% Line 200
+	  <{'value',{'userconfig',{Callback,Files = [File|_cor16]}},NewOpts}>
+	      when call 'erlang':'is_list'
+		    (File) ->
+	      %% Line 201
+	      apply 'process_user_configs'/2
+		  (NewOpts, [{Callback,Files}|_cor0])
+	  %% Line 202
+	  <{'value',{'userconfig',{Callback,File = [C|_cor17]}},NewOpts}>
+	      when call 'erlang':'is_integer'
+		    (C) ->
+	      %% Line 203
+	      apply 'process_user_configs'/2
+		  (NewOpts, [{Callback,[File|[]]}|_cor0])
+	  ( <_cor8> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor8})
+	    -| ['compiler_generated'] )
+	end
+'get_config_file_list'/1 =
+    %% Line 206
+    fun (_cor0) ->
+	let <DefaultConfigs> =
+	    %% Line 207
+	    apply 'process_default_configs'/1
+		(_cor0)
+	in  let <_cor3> =
+		%% Line 209
+		case <> of
+		  %% Line 210
+		  <>
+		      when call 'erlang':'=:='
+			    (DefaultConfigs,
+			     []) ->
+		      %% Line 211
+		      []
+		  %% Line 212
+		  <> when 'true' ->
+		      %% Line 213
+		      [{'ct_config_plain',DefaultConfigs}|[]]
+		end
+	    in  let <_cor2> =
+		    %% Line 215
+		    apply 'process_user_configs'/2
+			(_cor0, [])
+		in  %% Line 214
+		    call 'erlang':'++'
+			(_cor3, _cor2)
+'add_default_callback'/1 =
+    %% Line 218
+    fun (_cor0) ->
+	%% Line 219
+	case call 'lists':'keytake'
+		 ('config', 1, _cor0) of
+	  %% Line 220
+	  <{'value',{'config',Files = [File|_cor6]},NoConfigOpts}>
+	      when let <_cor1> =
+		    %% Line 221
+		    call 'erlang':'is_integer'
+			(File)
+		in  %% Line 221
+		    call 'erlang':'=/='
+			(_cor1, 'true') ->
+	      let <_cor2> =
+		  %% Line 222
+		  call 'lists':'flatmap'
+		      (( 'add_def_cb'/1
+			 -| [{'id',{0,0,'-add_default_callback/1-fun-0-'}}] ), Files)
+	      in  %% Line 222
+		  [{'config',_cor2}|NoConfigOpts]
+	  %% Line 223
+	  <{'value',{'config',File},NoConfigOpts}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 224
+		  apply 'add_def_cb'/1
+		      (File)
+	      in  %% Line 224
+		  [{'config',_cor3}|NoConfigOpts]
+	  %% Line 225
+	  <'false'> when 'true' ->
+	      _cor0
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'add_def_cb'/1 =
+    %% Line 229
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 230
+	      []
+	  %% Line 231
+	  <Config>
+	      when call 'erlang':'is_tuple'
+		    (_cor0) ->
+	      %% Line 232
+	      [Config|[]]
+	  %% Line 233
+	  <Config = [H|_X_T]>
+	      when call 'erlang':'is_integer'
+		    (H) ->
+	      %% Line 234
+	      [{'ct_config_plain',[Config|[]]}|[]]
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'add_def_cb',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'read_config_files'/1 =
+    %% Line 236
+    fun (_cor0) ->
+	let <AddCallback> =
+	    %% Line 237
+	    ( fun (_cor5,_cor4) ->
+		  case <_cor5,_cor4> of
+		    <CallBack,[]> when 'true' ->
+			%% Line 238
+			[{CallBack,[]}|[]]
+		    %% Line 239
+		    <CallBack,Files = [F|_cor19]>
+			when call 'erlang':'is_integer'
+			      (F) ->
+			%% Line 240
+			[{CallBack,Files}|[]]
+		    %% Line 241
+		    <CallBack,Files = [F|_cor20]>
+			when call 'erlang':'is_list'
+			      (F) ->
+			let <_cor3> =
+			    %% Line 242
+			    ( fun (_cor1) ->
+				  {CallBack,_cor1}
+			      -| [{'id',{0,0,'-read_config_files/1-fun-0-'}}] )
+			in  %% Line 242
+			    call 'lists':'map'
+				(_cor3, Files)
+		    ( <_cor7,_cor6> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor7,_cor6})
+			    -| [{'function_name',{'-read_config_files/1-fun-1-',2}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-read_config_files/1-fun-1-'}}] )
+	in  let <_cor16> =
+		%% Line 245
+		case call 'lists':'keyfind'
+			 ('config', 1, _cor0) of
+		  %% Line 246
+		  <{'config',ConfigLists}> when 'true' ->
+		      let <_cor14> =
+			  %% Line 247
+			  ( fun (_cor11,_cor10) ->
+				case <_cor11,_cor10> of
+				  <{Callback,Files},Acc> when 'true' ->
+				      let <_cor9> =
+					  %% Line 248
+					  apply AddCallback
+					      (Callback, Files)
+				      in  %% Line 249
+					  call 'erlang':'++'
+					      (_cor9, Acc)
+				  ( <_cor13,_cor12> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor13,_cor12})
+					  -| [{'function_name',{'-read_config_files/1-fun-2-',2}}] )
+				    -| ['compiler_generated'] )
+				end
+			    -| [{'id',{0,0,'-read_config_files/1-fun-2-'}}] )
+		      in  %% Line 247
+			  call 'lists':'foldr'
+			      (_cor14, %% Line 250
+				       [], %% Line 250
+					   ConfigLists)
+		  %% Line 251
+		  <'false'> when 'true' ->
+		      %% Line 252
+		      []
+		  ( <_cor15> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor15})
+		    -| ['compiler_generated'] )
+		end
+	    in  %% Line 254
+		apply 'read_config_files_int'/2
+		    (_cor16, ( 'store_config'/3
+			       -| [{'id',{0,0,'-read_config_files/1-fun-3-'}}] ))
+'read_config_files_int'/2 =
+    %% Line 256
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{Callback,File}|Files],FunToSave> when 'true' ->
+	      %% Line 257
+	      case call Callback:'read_config'
+		       (File) of
+		%% Line 258
+		<{'ok',Config}> when 'true' ->
+		    do  %% Line 259
+			apply FunToSave
+			    (Config, Callback, File)
+			%% Line 260
+			apply 'read_config_files_int'/2
+			    (Files, FunToSave)
+		%% Line 261
+		<{'error',{ErrorName,ErrorDetail}}> when 'true' ->
+		    %% Line 262
+		    {'user_error',{ErrorName,File,ErrorDetail}}
+		%% Line 263
+		<{'error',ErrorName,ErrorDetail}> when 'true' ->
+		    %% Line 264
+		    {'user_error',{ErrorName,File,ErrorDetail}}
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 266
+	  <[],_X_FunToSave> when 'true' ->
+	      %% Line 267
+	      'ok'
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'read_config_files_int',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'store_config'/3 =
+    %% Line 269
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Config,Callback,File>
+	      when call 'erlang':'is_tuple'
+		    (Config) ->
+	      %% Line 270
+	      apply 'store_config'/3
+		  ([Config|[]], Callback, File)
+	  %% Line 272
+	  <Config,Callback,File>
+	      when call 'erlang':'is_list'
+		    (Config) ->
+	      %% Line 273
+	      ( letrec
+		    'lc$^0'/1 =
+			fun (_cor5) ->
+			    case _cor5 of
+			      <[%% Line 279
+				{Key,Val}|_cor4]> when 'true' ->
+				  let <_cor6> =
+				      call 'ets':'insert'
+					  ('ct_attributes', %% Line 274
+							    {'ct_conf',Key,%% Line 275
+									   Val,%% Line 276
+									       Callback,%% Line 277
+											File,'_UNDEF',%% Line 278
+												      'false'})
+				  in  let <_cor7> =
+					  %% Line 279
+					  apply 'lc$^0'/1
+					      (_cor4)
+				      in  ( [_cor6|_cor7]
+					    -| ['compiler_generated'] )
+			      ( <[_cor3|_cor4]> when 'true' ->
+				    %% Line 279
+				    apply 'lc$^0'/1
+					(_cor4)
+				-| ['compiler_generated'] )
+			      <[]> when 'true' ->
+				  []
+			      ( <_cor5> when 'true' ->
+				    ( primop 'match_fail'
+					  ({'function_clause',_cor5})
+				      -| [{'function_name',{'lc$^0',1}}] )
+				-| ['compiler_generated'] )
+			    end
+		in  apply 'lc$^0'/1
+			(%% Line 279
+			 Config)
+		-| ['list_comprehension'] )
+	  ( <_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'store_config',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'keyfindall'/3 =
+    %% Line 281
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 282
+	( letrec
+	      'lc$^0'/1 =
+		  fun (_cor6) ->
+		      case _cor6 of
+			<[E|_cor4]>
+			    when try
+				  let <_cor5> =
+				      call 'erlang':'element'
+					  (_cor1, E)
+				  in  call 'erlang':'=:='
+					  (_cor5, _cor2)
+			      of <Try> ->
+				  Try
+			      catch <T,R> ->
+				  'false' ->
+			    let <_cor7> =
+				apply 'lc$^0'/1
+				    (_cor4)
+			    in  ( [E|_cor7]
+				  -| ['compiler_generated'] )
+			( <[E|_cor4]> when 'true' ->
+			      apply 'lc$^0'/1
+				  (_cor4)
+			  -| ['compiler_generated'] )
+			<[]> when 'true' ->
+			    []
+			( <_cor6> when 'true' ->
+			      ( primop 'match_fail'
+				    ({'function_clause',_cor6})
+				-| [{'function_name',{'lc$^0',1}}] )
+			  -| ['compiler_generated'] )
+		      end
+	  in  apply 'lc$^0'/1
+		  (_cor0)
+	  -| ['list_comprehension'] )
+'rewrite_config'/3 =
+    %% Line 284
+    fun (_cor2,_cor1,_cor0) ->
+	let <OldRows> =
+	    %% Line 285
+	    call 'ets':'match_object'
+		('ct_attributes', %% Line 286
+				  {'ct_conf',%% Line 287
+					     '_',%% Line 287
+						 '_',_cor1,_cor0,%% Line 287
+								 '_',%% Line 287
+								     '_'})
+	in  do  %% Line 288
+		call 'ets':'match_delete'
+		    ('ct_attributes', %% Line 289
+				      {'ct_conf',%% Line 290
+						 '_',%% Line 290
+						     '_',_cor1,_cor0,%% Line 290
+								     '_',%% Line 290
+									 '_'})
+		let <Updater> =
+		    %% Line 291
+		    ( fun (_cor11) ->
+			  case _cor11 of
+			    <{Key,Value}> when 'true' ->
+				%% Line 292
+				case apply 'keyfindall'/3
+					 (Key, 2, OldRows) of
+				  %% Line 293
+				  <[]> when 'true' ->
+				      %% Line 294
+				      call 'ets':'insert'
+					  ('ct_attributes', %% Line 295
+							    {'ct_conf',Key,%% Line 296
+									   Value,_cor1,_cor0,'_UNDEF','false'})
+				  %% Line 299
+				  <RowsToUpdate> when 'true' ->
+				      let <Inserter> =
+					  %% Line 300
+					  ( fun (_cor7) ->
+						%% Line 302
+						case _cor7 of
+						  <{'ct_conf',_cor22,_cor23,_cor24,_cor25,_cor26,_cor27}> when 'true' ->
+						      let <_cor6> =
+							  call 'erlang':'setelement'
+							      (3, _cor7, Value)
+						      in  call 'ets':'insert'
+							      ('ct_attributes', _cor6)
+						  ( <_cor28> when 'true' ->
+							( call ( 'erlang'
+								 -| ['compiler_generated'] ):( 'error'
+											       -| ['compiler_generated'] )
+							      (( {'badrecord','ct_conf'}
+								 -| ['compiler_generated'] ))
+							  -| ['compiler_generated'] )
+						    -| ['compiler_generated'] )
+						end
+					    -| [{'id',{0,0,'-rewrite_config/3-fun-0-'}}] )
+				      in  %% Line 304
+					  call 'lists':'foreach'
+					      (Inserter, RowsToUpdate)
+				end
+			    ( <_cor12> when 'true' ->
+				  ( primop 'match_fail'
+					({'function_clause',_cor12})
+				    -| [{'function_name',{'-rewrite_config/3-fun-1-',1}}] )
+			      -| ['compiler_generated'] )
+			  end
+		      -| [{'id',{0,0,'-rewrite_config/3-fun-1-'}}] )
+		in  %% Line 307
+		    ( letrec
+			  'lc$^0'/1 =
+			      fun (_cor16) ->
+				  case _cor16 of
+				    <[{Key,Value}|_cor15]> when 'true' ->
+					let <_cor17> =
+					    apply Updater
+						({Key,Value})
+					in  let <_cor18> =
+						apply 'lc$^0'/1
+						    (_cor15)
+					    in  ( [_cor17|_cor18]
+						  -| ['compiler_generated'] )
+				    ( <[_cor14|_cor15]> when 'true' ->
+					  apply 'lc$^0'/1
+					      (_cor15)
+				      -| ['compiler_generated'] )
+				    <[]> when 'true' ->
+					[]
+				    ( <_cor16> when 'true' ->
+					  ( primop 'match_fail'
+						({'function_clause',_cor16})
+					    -| [{'function_name',{'lc$^0',1}}] )
+				      -| ['compiler_generated'] )
+				  end
+		      in  apply 'lc$^0'/1
+			      (_cor2)
+		      -| ['list_comprehension'] )
+'set_config'/2 =
+    %% Line 309
+    fun (_cor1,_cor0) ->
+	%% Line 310
+	apply 'set_config'/3
+	    ('_UNDEF', _cor1, _cor0)
+'set_config'/3 =
+    %% Line 312
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 313
+	( letrec
+	      'lc$^0'/1 =
+		  fun (_cor5) ->
+		      case _cor5 of
+			<[%% Line 316
+			  {Key,Val}|_cor4]> when 'true' ->
+			    let <_cor6> =
+				call 'ets':'insert'
+				    ('ct_attributes', %% Line 314
+						      {'ct_conf',Key,Val,'undefined','undefined',_cor2,_cor0})
+			    in  let <_cor7> =
+				    %% Line 316
+				    apply 'lc$^0'/1
+					(_cor4)
+				in  ( [_cor6|_cor7]
+				      -| ['compiler_generated'] )
+			( <[_cor3|_cor4]> when 'true' ->
+			      %% Line 316
+			      apply 'lc$^0'/1
+				  (_cor4)
+			  -| ['compiler_generated'] )
+			<[]> when 'true' ->
+			    []
+			( <_cor5> when 'true' ->
+			      ( primop 'match_fail'
+				    ({'function_clause',_cor5})
+				-| [{'function_name',{'lc$^0',1}}] )
+			  -| ['compiler_generated'] )
+		      end
+	  in  apply 'lc$^0'/1
+		  (_cor1)
+	  -| ['list_comprehension'] )
+'get_config'/1 =
+    %% Line 318
+    fun (_cor0) ->
+	%% Line 319
+	apply 'get_config'/3
+	    (_cor0, 'undefined', [])
+'get_config'/2 =
+    %% Line 321
+    fun (_cor1,_cor0) ->
+	%% Line 322
+	apply 'get_config'/3
+	    (_cor1, _cor0, [])
+'get_config'/3 =
+    %% Line 324
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <KeyOrName,Default,Opts>
+	      when call 'erlang':'is_atom'
+		    (KeyOrName) ->
+	      %% Line 325
+	      case apply 'get_config'/3
+		       ({KeyOrName}, Default, Opts) of
+		%% Line 328
+		<{{_cor20},Val}>
+		    when call 'erlang':'=:='
+			  (_cor20,
+			   KeyOrName) ->
+		    %% Line 329
+		    {KeyOrName,Val}
+		%% Line 330
+		<Res = [{{_cor21},_X_Val}|_cor22]>
+		    when call 'erlang':'=:='
+			  (_cor21,
+			   KeyOrName) ->
+		    %% Line 331
+		    ( letrec
+			  'lc$^0'/1 =
+			      fun (_cor5) ->
+				  case _cor5 of
+				    <[{{K},Val}|_cor4]>
+					when call 'erlang':'=='
+					      (K,
+					       KeyOrName) ->
+					let <_cor6> =
+					    apply 'lc$^0'/1
+						(_cor4)
+					in  ( [{K,Val}|_cor6]
+					      -| ['compiler_generated'] )
+				    ( <[_cor3|_cor4]> when 'true' ->
+					  apply 'lc$^0'/1
+					      (_cor4)
+				      -| ['compiler_generated'] )
+				    <[]> when 'true' ->
+					[]
+				    ( <_cor5> when 'true' ->
+					  ( primop 'match_fail'
+						({'function_clause',_cor5})
+					    -| [{'function_name',{'lc$^0',1}}] )
+				      -| ['compiler_generated'] )
+				  end
+		      in  apply 'lc$^0'/1
+			      (Res)
+		      -| ['list_comprehension'] )
+		%% Line 332
+		<Else> when 'true' ->
+		    %% Line 333
+		    Else
+	      end
+	  %% Line 338
+	  <{DeepKey,SubKey},Default,Opts>
+	      when call 'erlang':'is_tuple'
+		    (DeepKey) ->
+	      let <_cor8> =
+		  %% Line 339
+		  call 'erlang':'append_element'
+		      (DeepKey, SubKey)
+	      in  %% Line 339
+		  apply 'get_config'/3
+		      (_cor8, Default, Opts)
+	  %% Line 340
+	  <KeyOrName,Default,Opts>
+	      when call 'erlang':'is_tuple'
+		    (KeyOrName) ->
+	      let <_cor9> =
+		  %% Line 341
+		  call 'erlang':'element'
+		      (1, KeyOrName)
+	      in  %% Line 341
+		  case apply 'lookup_config'/1
+			   (_cor9) of
+		    %% Line 342
+		    <[]> when 'true' ->
+			%% Line 343
+			apply 'format_value'/3
+			    ([Default|[]], KeyOrName, Opts)
+		    %% Line 344
+		    <Vals> when 'true' ->
+			let <_cor14> =
+			    %% Line 347
+			    ( fun (_cor12) ->
+				  case _cor12 of
+				    <{Val}> when 'true' ->
+					let <_cor10> =
+					    %% Line 348
+					    call 'erlang':'tuple_to_list'
+						(KeyOrName)
+					in  let <_cor11> =
+						%% Line 348
+						call 'erlang':'tl'
+						    (_cor10)
+					    in  %% Line 348
+						apply 'get_config'/4
+						    (_cor11, %% Line 349
+							     Val, %% Line 349
+								  Default, %% Line 349
+									   Opts)
+				    ( <_cor13> when 'true' ->
+					  ( primop 'match_fail'
+						({'function_clause',_cor13})
+					    -| [{'function_name',{'-get_config/3-fun-0-',1}}] )
+				      -| ['compiler_generated'] )
+				  end
+			      -| [{'id',{0,0,'-get_config/3-fun-0-'}}] )
+			in  let <NewVals> =
+				%% Line 346
+				call 'lists':'map'
+				    (_cor14, %% Line 350
+					     Vals)
+			    in  %% Line 351
+				apply 'format_value'/3
+				    (NewVals, KeyOrName, Opts)
+		  end
+	  ( <_cor19,_cor18,_cor17> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor19,_cor18,_cor17})
+		  -| [{'function_name',{'get_config',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_config'/4 =
+    %% Line 354
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[],Vals,_X_Default,_X_Opts> when 'true' ->
+	      %% Line 355
+	      Vals
+	  %% Line 356
+	  <[[]],Vals,Default,Opts> when 'true' ->
+	      %% Line 357
+	      apply 'get_config'/4
+		  ([], Vals, Default, Opts)
+	  %% Line 359
+	  <[SubKeys|[]],Vals,Default,_X_Opts>
+	      when call 'erlang':'is_list'
+		    (SubKeys) ->
+	      %% Line 360
+	      case apply 'do_get_config'/3
+		       (SubKeys, Vals, []) of
+		%% Line 361
+		<{'ok',SubVals}> when 'true' ->
+		    %% Line 362
+		    ( letrec
+			  'lc$^0'/1 =
+			      fun (_cor6) ->
+				  case _cor6 of
+				    <[{_cor14,SubVal}|_cor5]> when 'true' ->
+					let <_cor7> =
+					    apply 'lc$^0'/1
+						(_cor5)
+					in  ( [SubVal|_cor7]
+					      -| ['compiler_generated'] )
+				    ( <[_cor4|_cor5]> when 'true' ->
+					  apply 'lc$^0'/1
+					      (_cor5)
+				      -| ['compiler_generated'] )
+				    <[]> when 'true' ->
+					[]
+				    ( <_cor6> when 'true' ->
+					  ( primop 'match_fail'
+						({'function_clause',_cor6})
+					    -| [{'function_name',{'lc$^0',1}}] )
+				      -| ['compiler_generated'] )
+				  end
+		      in  apply 'lc$^0'/1
+			      (SubVals)
+		      -| ['list_comprehension'] )
+		%% Line 364
+		<_cor15> when 'true' ->
+		    %% Line 365
+		    Default
+	      end
+	  %% Line 367
+	  <[Key|Rest],Vals,Default,Opts> when 'true' ->
+	      %% Line 368
+	      case apply 'do_get_config'/3
+		       ([Key|[]], Vals, []) of
+		%% Line 369
+		<{'ok',[{_cor16,NewVals}|[]]}>
+		    when call 'erlang':'=:='
+			  (_cor16,
+			   Key) ->
+		    %% Line 370
+		    apply 'get_config'/4
+			(Rest, NewVals, Default, Opts)
+		%% Line 371
+		<_cor17> when 'true' ->
+		    %% Line 372
+		    Default
+	      end
+	  ( <_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'get_config',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'do_get_config'/3 =
+    %% Line 375
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Key|_cor11],Available,_X_Mapped>
+	      when let <_cor3> =
+		    call 'erlang':'is_list'
+			(Available)
+		in  call 'erlang':'not'
+			(_cor3) ->
+	      %% Line 376
+	      {'error',{'not_available',Key}}
+	  %% Line 377
+	  <[Key|Required],Available,Mapped> when 'true' ->
+	      %% Line 378
+	      case call 'lists':'keysearch'
+		       (Key, 1, Available) of
+		%% Line 379
+		<{'value',{_cor12,Value}}>
+		    when call 'erlang':'=:='
+			  (_cor12,
+			   Key) ->
+		    let <NewAvailable> =
+			%% Line 380
+			call 'lists':'keydelete'
+			    (Key, 1, Available)
+		    in  let <NewMapped> =
+			    %% Line 381
+			    [{Key,Value}|Mapped]
+			in  %% Line 382
+			    apply 'do_get_config'/3
+				(Required, NewAvailable, NewMapped)
+		%% Line 383
+		<'false'> when 'true' ->
+		    %% Line 384
+		    {'error',{'not_available',Key}}
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 386
+	  <[],_X_Available,Mapped> when 'true' ->
+	      let <_cor7> =
+		  %% Line 387
+		  call 'lists':'reverse'
+		      (Mapped)
+	      in  %% Line 387
+		  {'ok',_cor7}
+	  ( <_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'do_get_config',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_all_config'/0 =
+    %% Line 389
+    fun () ->
+	%% Line 390
+	call 'ets':'select'
+	    ('ct_attributes', [{{'ct_conf','$2','$3','_','_','$1','$4'},[],[{{'$1','$2','$3','$4'}}]}])
+'lookup_config'/1 =
+    %% Line 394
+    fun (_cor0) ->
+	%% Line 395
+	case apply 'lookup_name'/1
+		 (_cor0) of
+	  %% Line 396
+	  <[]> when 'true' ->
+	      %% Line 397
+	      apply 'lookup_key'/1
+		  (_cor0)
+	  %% Line 398
+	  <Values> when 'true' ->
+	      %% Line 399
+	      Values
+	end
+'lookup_name'/1 =
+    %% Line 402
+    fun (_cor0) ->
+	%% Line 403
+	call 'ets':'select'
+	    ('ct_attributes', [{{'ct_conf','_','$1','_','_',_cor0,'_'},%% Line 404
+								       [],%% Line 404
+									  [{{'$1'}}]}|%% Line 404
+										      []])
+'lookup_key'/1 =
+    %% Line 405
+    fun (_cor0) ->
+	%% Line 406
+	call 'ets':'select'
+	    ('ct_attributes', [{{'ct_conf',_cor0,'$1','_','_','_UNDEF','_'},%% Line 407
+									    [],%% Line 407
+									       [{{'$1'}}]}|%% Line 407
+											   []])
+'format_value'/3 =
+    %% Line 409
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <SubVals = [SubVal|_cor17],KeyOrName,Opts> when 'true' ->
+	      let <_cor4> =
+		  %% Line 410
+		  call 'lists':'member'
+		      ('all', Opts)
+	      in  let <_cor3> =
+		      %% Line 410
+		      call 'lists':'member'
+			  ('element', Opts)
+		  in  %% Line 410
+		      case <_cor4,_cor3> of
+			%% Line 411
+			<'true','true'> when 'true' ->
+			    %% Line 412
+			    ( letrec
+				  'lc$^0'/1 =
+				      fun (_cor7) ->
+					  case _cor7 of
+					    <[Val|_cor6]> when 'true' ->
+						let <_cor8> =
+						    apply 'lc$^0'/1
+							(_cor6)
+						in  ( [{KeyOrName,Val}|_cor8]
+						      -| ['compiler_generated'] )
+					    <[]> when 'true' ->
+						[]
+					    ( <_cor7> when 'true' ->
+						  ( primop 'match_fail'
+							({'function_clause',_cor7})
+						    -| [{'function_name',{'lc$^0',1}}] )
+					      -| ['compiler_generated'] )
+					  end
+			      in  apply 'lc$^0'/1
+				      (SubVals)
+			      -| ['list_comprehension'] )
+			%% Line 413
+			<'true','false'> when 'true' ->
+			    %% Line 414
+			    ( letrec
+				  'lc$^1'/1 =
+				      fun (_cor11) ->
+					  case _cor11 of
+					    <[Val|_cor10]> when 'true' ->
+						let <_cor12> =
+						    apply 'lc$^1'/1
+							(_cor10)
+						in  ( [Val|_cor12]
+						      -| ['compiler_generated'] )
+					    <[]> when 'true' ->
+						[]
+					    ( <_cor11> when 'true' ->
+						  ( primop 'match_fail'
+							({'function_clause',_cor11})
+						    -| [{'function_name',{'lc$^1',1}}] )
+					      -| ['compiler_generated'] )
+					  end
+			      in  apply 'lc$^1'/1
+				      (SubVals)
+			      -| ['list_comprehension'] )
+			%% Line 415
+			<'false','true'> when 'true' ->
+			    %% Line 416
+			    {KeyOrName,SubVal}
+			%% Line 417
+			<'false','false'> when 'true' ->
+			    %% Line 418
+			    SubVal
+			( <_fol42,_fol43> when 'true' ->
+			      let <_cor13> = {_fol42,_fol43}
+			      in  primop 'match_fail'
+				      ({'case_clause',_cor13})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor16,_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15,_cor14})
+		  -| [{'function_name',{'format_value',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'lookup_handler_for_config'/1 =
+    %% Line 421
+    fun (_cor0) ->
+	case _cor0 of
+	  <{Key,_X_Subkey}> when 'true' ->
+	      %% Line 422
+	      apply 'lookup_handler_for_config'/1
+		  (Key)
+	  %% Line 423
+	  <KeyOrName> when 'true' ->
+	      %% Line 424
+	      case apply 'lookup_handler_for_name'/1
+		       (KeyOrName) of
+		%% Line 425
+		<[]> when 'true' ->
+		    %% Line 426
+		    apply 'lookup_handler_for_key'/1
+			(KeyOrName)
+		%% Line 427
+		<Values> when 'true' ->
+		    %% Line 428
+		    Values
+	      end
+	end
+'lookup_handler_for_name'/1 =
+    %% Line 431
+    fun (_cor0) ->
+	%% Line 432
+	call 'ets':'select'
+	    ('ct_attributes', [{{'ct_conf','_','_','$1','$2',_cor0,'_'},%% Line 433
+									[],%% Line 434
+									   [{{'$1','$2'}}]}|%% Line 434
+											    []])
+'lookup_handler_for_key'/1 =
+    %% Line 436
+    fun (_cor0) ->
+	%% Line 437
+	call 'ets':'select'
+	    ('ct_attributes', [{{'ct_conf',_cor0,'_','$1','$2','_','_'},%% Line 438
+									[],%% Line 439
+									   [{{'$1','$2'}}]}|%% Line 439
+											    []])
+'update_conf'/2 =
+    %% Line 442
+    fun (_cor1,_cor0) ->
+	let <Old> =
+	    %% Line 443
+	    call 'ets':'select'
+		('ct_attributes', [{{'ct_conf','_','_','_','_',_cor1,'_'},[],['$_']}|[]])
+	in  let <_cor9> =
+		%% Line 444
+		( fun (_cor7) ->
+		      %% Line 445
+		      case _cor7 of
+			<{'ct_conf',_cor12,_cor13,_cor14,_cor15,_cor16,_cor17}> when 'true' ->
+			    let <_cor5> =
+				call 'erlang':'setelement'
+				    (3, _cor7, _cor0)
+			    in  do  %% Line 446
+				    call 'ets':'delete_object'
+					('ct_attributes', _cor7)
+				    %% Line 447
+				    call 'ets':'insert'
+					('ct_attributes', _cor5)
+			( <_cor18> when 'true' ->
+			      ( call ( 'erlang'
+				       -| ['compiler_generated'] ):( 'error'
+								     -| ['compiler_generated'] )
+				    (( {'badrecord','ct_conf'}
+				       -| ['compiler_generated'] ))
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+		      end
+		  -| [{'id',{0,0,'-update_conf/2-fun-0-'}}] )
+	    in  do  %% Line 444
+		    call 'lists':'foreach'
+			(_cor9, %% Line 448
+				Old)
+		    %% Line 449
+		    'ok'
+'reload_conf'/1 =
+    %% Line 451
+    fun (_cor0) ->
+	%% Line 452
+	case apply 'lookup_handler_for_config'/1
+		 (_cor0) of
+	  %% Line 453
+	  <[]> when 'true' ->
+	      %% Line 454
+	      'undefined'
+	  %% Line 455
+	  <HandlerList> when 'true' ->
+	      let <HandlerList2> =
+		  %% Line 456
+		  call 'lists':'usort'
+		      (HandlerList)
+	      in  do  %% Line 457
+		      apply 'read_config_files_int'/2
+			  (HandlerList2, ( 'rewrite_config'/3
+					   -| [{'id',{0,0,'-reload_conf/1-fun-0-'}}] ))
+		      %% Line 458
+		      apply 'get_config'/1
+			  (_cor0)
+	end
+'release_allocated'/0 =
+    %% Line 461
+    fun () ->
+	let <Allocated> =
+	    %% Line 462
+	    call 'ets':'select'
+		('ct_attributes', [{{'ct_conf','_','_','_','_','$1','_'},[{'=/=','$1','_UNDEF'}],['$_']}])
+	in  %% Line 465
+	    apply 'release_allocated'/1
+		(Allocated)
+'release_allocated'/1 =
+    %% Line 466
+    fun (_cor0) ->
+	case _cor0 of
+	  <[H|T]> when 'true' ->
+	      do  %% Line 467
+		  call 'ets':'delete_object'
+		      ('ct_attributes', H)
+		  %% Line 468
+		  case H of
+		    <{'ct_conf',_cor5,_cor6,_cor7,_cor8,_cor9,_cor10}> when 'true' ->
+			let <_cor3> =
+			    call 'erlang':'setelement'
+				(6, H, '_UNDEF')
+			in  do  call 'ets':'insert'
+				    ('ct_attributes', _cor3)
+				%% Line 469
+				apply 'release_allocated'/1
+				    (T)
+		    ( <_cor11> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','ct_conf'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 470
+	  <[]> when 'true' ->
+	      %% Line 471
+	      'ok'
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'release_allocated',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'allocate'/2 =
+    %% Line 473
+    fun (_cor1,_cor0) ->
+	let <Ref> =
+	    %% Line 474
+	    call 'erlang':'make_ref'
+		()
+	in  %% Line 475
+	    case apply 'get_config'/3
+		     (_cor0, Ref, ['all'|['element']]) of
+	      %% Line 476
+	      <[{_cor6,_cor7}|[]]>
+		  when call 'erlang':'=:='
+			(_cor7,
+			 Ref) ->
+		  %% Line 477
+		  {'error',{'not_available',_cor0}}
+	      %% Line 478
+	      <Configs> when 'true' ->
+		  do  %% Line 479
+		      apply 'associate'/3
+			  (_cor1, _cor0, Configs)
+		      %% Line 480
+		      'ok'
+	    end
+'associate'/3 =
+    %% Line 484
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'_UNDEF',_X_Key,_X_Configs> when 'true' ->
+	      %% Line 485
+	      'ok'
+	  %% Line 486
+	  <Name,{Key,SubKeys},Configs>
+	      when let <_cor3> =
+		    call 'erlang':'is_atom'
+			(Key)
+		in  let <_cor4> =
+			call 'erlang':'is_list'
+			    (SubKeys)
+		    in  call 'erlang':'and'
+			    (_cor3, _cor4) ->
+	      %% Line 487
+	      apply 'associate_int'/3
+		  (Name, Configs, [116|[114|[117|[101]]]])
+	  %% Line 488
+	  <Name,_X_Key,Configs> when 'true' ->
+	      let <_cor5> =
+		  %% Line 489
+		  call 'os':'getenv'
+		      ([67|[79|[77|[77|[79|[78|[95|[84|[69|[83|[84|[95|[65|[76|[73|[65|[83|[95|[84|[79|[80]]]]]]]]]]]]]]]]]]]]])
+	      in  %% Line 489
+		  apply 'associate_int'/3
+		      (Name, Configs, _cor5)
+	end
+'associate_int'/3 =
+    %% Line 491
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Name,Configs,[116|[114|[117|[101]]]]> when 'true' ->
+	      let <_cor15> =
+		  %% Line 492
+		  ( fun (_cor13) ->
+			case _cor13 of
+			  <{K,_X_Config}> when 'true' ->
+			      let <_cor3> =
+				  %% Line 495
+				  call 'erlang':'element'
+				      (1, K)
+			      in  let <Cs> =
+				      %% Line 493
+				      call 'ets':'match_object'
+					  (%% Line 494
+					   'ct_attributes', %% Line 495
+							    {'ct_conf',_cor3,%% Line 496
+									     '_',%% Line 496
+										 '_',%% Line 496
+										     '_',%% Line 496
+											 '_UNDEF',%% Line 496
+												  '_'})
+				  in  %% Line 497
+				      ( letrec
+					    'lc$^0'/1 =
+						fun (_cor7) ->
+						    case _cor7 of
+						      <[%% Line 498
+							C|_cor6]> when 'true' ->
+							  case C of
+							    <{'ct_conf',_cor34,_cor35,_cor36,_cor37,_cor38,_cor39}> when 'true' ->
+								let <_cor10> =
+								    call 'erlang':'setelement'
+									(6, C, Name)
+								in  let <_cor11> =
+									call 'ets':'insert'
+									    ('ct_attributes', _cor10)
+								    in  let <_cor12> =
+									    %% Line 498
+									    apply 'lc$^0'/1
+										(_cor6)
+									in  ( [_cor11|_cor12]
+									      -| ['compiler_generated'] )
+							    ( <_cor40> when 'true' ->
+								  ( call ( 'erlang'
+									   -| ['compiler_generated'] ):( 'error'
+													 -| ['compiler_generated'] )
+									(( {'badrecord','ct_conf'}
+									   -| ['compiler_generated'] ))
+								    -| ['compiler_generated'] )
+							      -| ['compiler_generated'] )
+							  end
+						      <[]> when 'true' ->
+							  []
+						      ( <_cor7> when 'true' ->
+							    ( primop 'match_fail'
+								  ({'function_clause',_cor7})
+							      -| [{'function_name',{'lc$^0',1}}] )
+							-| ['compiler_generated'] )
+						    end
+					in  apply 'lc$^0'/1
+						(%% Line 498
+						 Cs)
+					-| ['list_comprehension'] )
+			  ( <_cor14> when 'true' ->
+				( primop 'match_fail'
+				      ({'function_clause',_cor14})
+				  -| [{'function_name',{'-associate_int/3-fun-0-',1}}] )
+			    -| ['compiler_generated'] )
+			end
+		    -| [{'id',{0,0,'-associate_int/3-fun-0-'}}] )
+	      in  %% Line 492
+		  call 'lists':'map'
+		      (_cor15, %% Line 499
+			       Configs)
+	  %% Line 500
+	  <Name,Configs,_cor41> when 'true' ->
+	      let <_cor30> =
+		  %% Line 501
+		  ( fun (_cor28) ->
+			case _cor28 of
+			  <{K,Config}> when 'true' ->
+			      let <_cor16> =
+				  %% Line 502
+				  case <> of
+				    <>
+					when call 'erlang':'is_tuple'
+					      (K) ->
+					call 'erlang':'element'
+					    (1, K)
+				    %% Line 503
+				    <>
+					when call 'erlang':'is_atom'
+					      (K) ->
+					K
+				    ( <> when 'true' ->
+					  primop 'match_fail'
+					      ('if_clause')
+				      -| ['compiler_generated'] )
+				  end
+			      in  let <Cs> =
+				      %% Line 506
+				      call 'ets':'match_object'
+					  (%% Line 507
+					   'ct_attributes', %% Line 508
+							    {'ct_conf',_cor16,%% Line 509
+									      '_',%% Line 509
+										  '_',%% Line 509
+										      '_',%% Line 509
+											  '_UNDEF',%% Line 509
+												   '_'})
+				  in  %% Line 510
+				      ( letrec
+					    'lc$^1'/1 =
+						fun (_cor21) ->
+						    case _cor21 of
+						      <[%% Line 512
+							C|_cor20]> when 'true' ->
+							  %% Line 511
+							  case C of
+							    <{'ct_conf',_cor42,_cor43,_cor44,_cor45,_cor46,_cor47}> when 'true' ->
+								let <_cor23> =
+								    call 'erlang':'setelement'
+									(6, C, Name)
+								in  let <_cor25> =
+									call 'erlang':'setelement'
+									    (3, _cor23, Config)
+								    in  let <_cor26> =
+									    call 'ets':'insert'
+										('ct_attributes', _cor25)
+									in  let <_cor27> =
+										%% Line 512
+										apply 'lc$^1'/1
+										    (_cor20)
+									    in  ( [_cor26|_cor27]
+										  -| ['compiler_generated'] )
+							    ( <_cor48> when 'true' ->
+								  ( call ( 'erlang'
+									   -| ['compiler_generated'] ):( 'error'
+													 -| ['compiler_generated'] )
+									(( {'badrecord','ct_conf'}
+									   -| ['compiler_generated'] ))
+								    -| ['compiler_generated'] )
+							      -| ['compiler_generated'] )
+							  end
+						      <[]> when 'true' ->
+							  []
+						      ( <_cor21> when 'true' ->
+							    ( primop 'match_fail'
+								  ({'function_clause',_cor21})
+							      -| [{'function_name',{'lc$^1',1}}] )
+							-| ['compiler_generated'] )
+						    end
+					in  apply 'lc$^1'/1
+						(%% Line 512
+						 Cs)
+					-| ['list_comprehension'] )
+			  ( <_cor29> when 'true' ->
+				( primop 'match_fail'
+				      ({'function_clause',_cor29})
+				  -| [{'function_name',{'-associate_int/3-fun-1-',1}}] )
+			    -| ['compiler_generated'] )
+			end
+		    -| [{'id',{0,0,'-associate_int/3-fun-1-'}}] )
+	      in  %% Line 501
+		  call 'lists':'map'
+		      (_cor30, %% Line 513
+			       Configs)
+	end
+'delete_config'/1 =
+    %% Line 517
+    fun (_cor0) ->
+	do  %% Line 518
+	    call 'ets':'match_delete'
+		('ct_attributes', {'ct_conf','_','_','_','_','_',_cor0})
+	    %% Line 519
+	    'ok'
+'require'/1 =
+    %% Line 521
+    fun (_cor0) ->
+	case _cor0 of
+	  <Key>
+	      when let <_cor1> =
+		    call 'erlang':'is_atom'
+			(_cor0)
+		in  let <_cor2> =
+			call 'erlang':'is_tuple'
+			    (_cor0)
+		    in  call 'erlang':'or'
+			    (_cor1, _cor2) ->
+	      %% Line 522
+	      apply 'allocate'/2
+		  ('_UNDEF', Key)
+	  %% Line 523
+	  <Key> when 'true' ->
+	      %% Line 524
+	      {'error',{'invalid',Key}}
+	end
+'require'/2 =
+    %% Line 526
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Name,Key>
+	      when try
+		    let <_cor2> =
+			call 'erlang':'is_atom'
+			    (Name)
+		    in  ( let <_cor5> =
+			      ( case <> of
+				  ( <>
+					when ( call 'erlang':'is_atom'
+						(Key)
+					    -| ['compiler_generated'] ) ->
+					'true'
+				    -| ['compiler_generated'] )
+				  ( <> when 'true' ->
+					( call 'erlang':'is_tuple'
+					      (Key)
+					  -| ['compiler_generated'] )
+				    -| ['compiler_generated'] )
+				end
+				-| ['compiler_generated'] )
+			  in  ( call 'erlang':'and'
+				    (_cor2, ( _cor5
+					      -| ['compiler_generated'] ))
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 527
+	      apply 'call'/1
+		  ({'require',Name,Key})
+	  %% Line 528
+	  <Name,Keys> when 'true' ->
+	      %% Line 529
+	      {'error',{'invalid',{Name,Keys}}}
+	end
+'do_require'/2 =
+    %% Line 531
+    fun (_cor1,_cor0) ->
+	%% Line 532
+	case apply 'get_key_from_name'/1
+		 (_cor1) of
+	  %% Line 533
+	  <{'error',_cor13}> when 'true' ->
+	      %% Line 534
+	      apply 'allocate'/2
+		  (_cor1, _cor0)
+	  %% Line 535
+	  <{'ok',NameKey}>
+	      when let <_cor2> =
+		    call 'erlang':'=='
+			(NameKey, _cor0)
+		in  let <_cor7> =
+			%% Line 536
+			try
+			    ( case <> of
+				( <>
+				      when call 'erlang':'is_tuple'
+					    (_cor0) ->
+				      let <_cor4> =
+					  call 'erlang':'element'
+					      (1, _cor0)
+				      in  call 'erlang':'=='
+					      (_cor4, NameKey)
+				  -| ['compiler_generated'] )
+				( <> when 'true' ->
+				      'false'
+				  -| ['compiler_generated'] )
+			      end
+			      -| ['compiler_generated'] )
+			of <Try> ->
+			    Try
+			catch <T,R> ->
+			    'false'
+		    in  call 'erlang':'or'
+			    (_cor2, _cor7) ->
+	      let <R> =
+		  %% Line 538
+		  call 'erlang':'make_ref'
+		      ()
+	      in  %% Line 539
+		  case apply 'get_config'/3
+			   (_cor0, R, []) of
+		    %% Line 540
+		    <_cor14>
+			when call 'erlang':'=:='
+			      (_cor14,
+			       R) ->
+			%% Line 541
+			{'error',{'not_available',_cor0}}
+		    %% Line 542
+		    <Error = {'error',_cor15}> when 'true' ->
+			%% Line 543
+			Error
+		    %% Line 544
+		    <_X_Error> when 'true' ->
+			%% Line 545
+			'ok'
+		  end
+	  %% Line 547
+	  <{'ok',OtherKey}> when 'true' ->
+	      %% Line 548
+	      {'error',{'name_in_use',_cor1,OtherKey}}
+	  ( <_cor10> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor10})
+	    -| ['compiler_generated'] )
+	end
+'encrypt_config_file'/2 =
+    %% Line 551
+    fun (_cor1,_cor0) ->
+	%% Line 552
+	case apply 'get_crypt_key_from_file'/0
+		 () of
+	  %% Line 553
+	  <E = {'error',_cor5}> when 'true' ->
+	      %% Line 554
+	      E
+	  %% Line 555
+	  <Key> when 'true' ->
+	      %% Line 556
+	      apply 'encrypt_config_file'/3
+		  (_cor1, _cor0, {'key',Key})
+	end
+'get_key_from_name'/1 =
+    %% Line 559
+    fun (_cor0) ->
+	%% Line 560
+	case call 'ets':'select'
+		 ('ct_attributes', [{{'ct_conf','$1','_','_','_',_cor0,'_'},%% Line 561
+									    [],%% Line 562
+									       ['$1']}|%% Line 562
+										       []]) of
+	  %% Line 563
+	  <[Key|_cor3]> when 'true' ->
+	      %% Line 564
+	      {'ok',Key}
+	  %% Line 565
+	  <_cor4> when 'true' ->
+	      %% Line 566
+	      {'error',{'no_such_name',_cor0}}
+	end
+'encrypt_config_file'/3 =
+    %% Line 569
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <SrcFileName,EncryptFileName,{'file',KeyFile}> when 'true' ->
+	      %% Line 570
+	      case apply 'get_crypt_key_from_file'/1
+		       (KeyFile) of
+		%% Line 571
+		<E = {'error',_cor18}> when 'true' ->
+		    %% Line 572
+		    E
+		%% Line 573
+		<Key> when 'true' ->
+		    %% Line 574
+		    apply 'encrypt_config_file'/3
+			(SrcFileName, EncryptFileName, {'key',Key})
+	      end
+	  %% Line 577
+	  <SrcFileName,EncryptFileName,{'key',Key}> when 'true' ->
+	      do  %% Line 578
+		  call 'crypto':'start'
+		      ()
+		  %% Line 579
+		  case apply 'make_crypto_key'/1
+			   (Key) of
+		    <{_cor19,IVec}>
+			when call 'erlang':'=:='
+			      (_cor19,
+			       Key) ->
+			%% Line 580
+			case call 'file':'read_file'
+				 (SrcFileName) of
+			  %% Line 581
+			  <{'ok',Bin0}> when 'true' ->
+			      let <Bin1> =
+				  %% Line 582
+				  call 'erlang':'term_to_binary'
+				      ({SrcFileName,Bin0})
+			      in  let <_cor6> =
+				      %% Line 583
+				      call 'erlang':'byte_size'
+					  (Bin1)
+				  in  let <_cor10> =
+					  %% Line 583
+					  case call 'erlang':'rem'
+						   (_cor6, 8) of
+					    %% Line 584
+					    <0> when 'true' ->
+						Bin1
+					    %% Line 585
+					    <N> when 'true' ->
+						let <_cor7> =
+						    call 'erlang':'-'
+							(8, N)
+						in  let <_cor8> =
+							apply 'random_bytes'/1
+							    (_cor7)
+						    in  call 'erlang':'list_to_binary'
+							    ([Bin1|[_cor8|[]]])
+					  end
+				      in  let <EncBin> =
+					      %% Line 587
+					      call 'crypto':'block_encrypt'
+						  ('des3_cbc', Key, IVec, _cor10)
+					  in  %% Line 588
+					      case call 'file':'write_file'
+						       (EncryptFileName, EncBin) of
+						%% Line 589
+						<'ok'> when 'true' ->
+						    do  %% Line 590
+							call 'io':'format'
+							    ([126|[116|[115|[32|[45|[45|[40|[101|[110|[99|[114|[121|[112|[116|[41|[45|[45|[62|[32|[126|[116|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]], %% Line 591
+																								    [SrcFileName|[EncryptFileName|[]]])
+							%% Line 592
+							'ok'
+						%% Line 593
+						<{'error',Reason}> when 'true' ->
+						    %% Line 594
+						    {'error',{Reason,EncryptFileName}}
+						( <_cor13> when 'true' ->
+						      primop 'match_fail'
+							  ({'case_clause',_cor13})
+						  -| ['compiler_generated'] )
+					      end
+			  %% Line 596
+			  <{'error',Reason}> when 'true' ->
+			      %% Line 597
+			      {'error',{Reason,SrcFileName}}
+			  ( <_cor14> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor14})
+			    -| ['compiler_generated'] )
+			end
+		    ( <_cor4> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor4})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor17,_cor16,_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor17,_cor16,_cor15})
+		  -| [{'function_name',{'encrypt_config_file',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'decrypt_config_file'/2 =
+    %% Line 600
+    fun (_cor1,_cor0) ->
+	%% Line 601
+	case apply 'get_crypt_key_from_file'/0
+		 () of
+	  %% Line 602
+	  <E = {'error',_cor5}> when 'true' ->
+	      %% Line 603
+	      E
+	  %% Line 604
+	  <Key> when 'true' ->
+	      %% Line 605
+	      apply 'decrypt_config_file'/3
+		  (_cor1, _cor0, {'key',Key})
+	end
+'decrypt_config_file'/3 =
+    %% Line 608
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <EncryptFileName,TargetFileName,{'file',KeyFile}> when 'true' ->
+	      %% Line 609
+	      case apply 'get_crypt_key_from_file'/1
+		       (KeyFile) of
+		%% Line 610
+		<E = {'error',_cor14}> when 'true' ->
+		    %% Line 611
+		    E
+		%% Line 612
+		<Key> when 'true' ->
+		    %% Line 613
+		    apply 'decrypt_config_file'/3
+			(EncryptFileName, TargetFileName, {'key',Key})
+	      end
+	  %% Line 616
+	  <EncryptFileName,TargetFileName,{'key',Key}> when 'true' ->
+	      do  %% Line 617
+		  call 'crypto':'start'
+		      ()
+		  %% Line 618
+		  case apply 'make_crypto_key'/1
+			   (Key) of
+		    <{_cor15,IVec}>
+			when call 'erlang':'=:='
+			      (_cor15,
+			       Key) ->
+			%% Line 619
+			case call 'file':'read_file'
+				 (EncryptFileName) of
+			  %% Line 620
+			  <{'ok',Bin}> when 'true' ->
+			      let <DecBin> =
+				  %% Line 621
+				  call 'crypto':'block_decrypt'
+				      ('des3_cbc', Key, IVec, Bin)
+			      in  let <_cor6> =
+				      catch
+					  %% Line 622
+					  call 'erlang':'binary_to_term'
+					      (DecBin)
+				  in  %% Line 622
+				      case _cor6 of
+					%% Line 623
+					<{'EXIT',_cor16}> when 'true' ->
+					    %% Line 624
+					    {'error','bad_file'}
+					%% Line 625
+					<{_X_SrcFile,SrcBin}> when 'true' ->
+					    %% Line 626
+					    case TargetFileName of
+					      %% Line 627
+					      <'undefined'> when 'true' ->
+						  %% Line 628
+						  {'ok',SrcBin}
+					      %% Line 629
+					      <_cor17> when 'true' ->
+						  %% Line 630
+						  case call 'file':'write_file'
+							   (TargetFileName, SrcBin) of
+						    %% Line 631
+						    <'ok'> when 'true' ->
+							do  %% Line 632
+							    call 'io':'format'
+								([126|[116|[115|[32|[45|[45|[40|[100|[101|[99|[114|[121|[112|[116|[41|[45|[45|[62|[32|[126|[116|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]], %% Line 633
+																									[EncryptFileName|[TargetFileName|[]]])
+							    %% Line 634
+							    'ok'
+						    %% Line 635
+						    <{'error',Reason}> when 'true' ->
+							%% Line 636
+							{'error',{Reason,TargetFileName}}
+						    ( <_cor7> when 'true' ->
+							  primop 'match_fail'
+							      ({'case_clause',_cor7})
+						      -| ['compiler_generated'] )
+						  end
+					    end
+					( <_cor9> when 'true' ->
+					      primop 'match_fail'
+						  ({'case_clause',_cor9})
+					  -| ['compiler_generated'] )
+				      end
+			  %% Line 640
+			  <{'error',Reason}> when 'true' ->
+			      %% Line 641
+			      {'error',{Reason,EncryptFileName}}
+			  ( <_cor10> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor10})
+			    -| ['compiler_generated'] )
+			end
+		    ( <_cor4> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor4})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor13,_cor12,_cor11> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11})
+		  -| [{'function_name',{'decrypt_config_file',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_crypt_key_from_file'/1 =
+    %% Line 644
+    fun (_cor0) ->
+	%% Line 645
+	case call 'file':'read_file'
+		 (_cor0) of
+	  %% Line 646
+	  <{'ok',Bin}> when 'true' ->
+	      let <_cor2> =
+		  catch
+		      let <_cor1> =
+			  %% Line 647
+			  call 'erlang':'binary_to_list'
+			      (Bin)
+		      in  %% Line 647
+			  call 'string':'tokens'
+			      (_cor1, [10|[13]])
+	      in  %% Line 647
+		  case _cor2 of
+		    %% Line 648
+		    <[Key|[]]> when 'true' ->
+			%% Line 649
+			Key
+		    %% Line 650
+		    <_cor6> when 'true' ->
+			%% Line 651
+			{'error',{'bad_crypt_file',_cor0}}
+		  end
+	  %% Line 653
+	  <{'error',Reason}> when 'true' ->
+	      %% Line 654
+	      {'error',{Reason,_cor0}}
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'get_crypt_key_from_file'/0 =
+    %% Line 657
+    fun () ->
+	let <CwdFile> =
+	    %% Line 658
+	    call 'filename':'join'
+		([46], [46|[99|[116|[95|[99|[111|[110|[102|[105|[103|[46|[99|[114|[121|[112|[116]]]]]]]]]]]]]]]])
+	in  let <Result,FullName> =
+		%% Line 660
+		case call 'file':'read_file'
+			 (CwdFile) of
+		  %% Line 661
+		  <{'ok',Bin}> when 'true' ->
+		      %% Line 662
+		      <Bin,CwdFile>
+		  %% Line 663
+		  <_cor11> when 'true' ->
+		      %% Line 664
+		      case call 'init':'get_argument'
+			       ('home') of
+			%% Line 665
+			<{'ok',[[Home|[]]|[]]}> when 'true' ->
+			    let <HomeFile> =
+				%% Line 666
+				call 'filename':'join'
+				    (Home, [46|[99|[116|[95|[99|[111|[110|[102|[105|[103|[46|[99|[114|[121|[112|[116]]]]]]]]]]]]]]]])
+			    in  %% Line 667
+				case call 'file':'read_file'
+					 (HomeFile) of
+				  %% Line 668
+				  <{'ok',Bin}> when 'true' ->
+				      %% Line 669
+				      <Bin,HomeFile>
+				  %% Line 670
+				  <_cor12> when 'true' ->
+				      %% Line 671
+				      <{'error','no_crypt_file'},'noent'>
+				end
+			%% Line 673
+			<_cor13> when 'true' ->
+			    %% Line 674
+			    <{'error','no_crypt_file'},'noent'>
+		      end
+		end
+	    in  %% Line 677
+		case FullName of
+		  %% Line 678
+		  <'noent'> when 'true' ->
+		      %% Line 679
+		      Result
+		  %% Line 680
+		  <_cor14> when 'true' ->
+		      let <_cor8> =
+			  catch
+			      let <_cor7> =
+				  %% Line 681
+				  call 'erlang':'binary_to_list'
+				      (Result)
+			      in  %% Line 681
+				  call 'string':'tokens'
+				      (_cor7, [10|[13]])
+		      in  %% Line 681
+			  case _cor8 of
+			    %% Line 682
+			    <[Key|[]]> when 'true' ->
+				do  %% Line 683
+				    call 'io':'format'
+					([126|[110|[67|[114|[121|[112|[116|[32|[107|[101|[121|[32|[102|[105|[108|[101|[58|[32|[126|[116|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]], [FullName|[]])
+				    %% Line 684
+				    Key
+			    %% Line 685
+			    <_cor15> when 'true' ->
+				%% Line 686
+				{'error',{'bad_crypt_file',FullName}}
+			  end
+		end
+'make_crypto_key'/1 =
+    %% Line 690
+    fun (_cor0) ->
+	%% Line 691
+	case call 'erlang':'md5'
+		 (_cor0) of
+	  <First = #{#<K1>(8,8,'binary',['unsigned'|['big']]),
+		     #<K2>(8,8,'binary',['unsigned'|['big']])}#> when 'true' ->
+	      let <_cor2> =
+		  %% Line 692
+		  call 'lists':'reverse'
+		      (_cor0)
+	      in  %% Line 692
+		  case call 'erlang':'md5'
+			   ([First|_cor2]) of
+		    <#{#<K3>(8,8,'binary',['unsigned'|['big']]),
+		       #<IVec>(8,8,'binary',['unsigned'|['big']])}#> when 'true' ->
+			%% Line 693
+			{[K1|[K2|[K3|[]]]],IVec}
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'random_bytes'/1 =
+    %% Line 695
+    fun (_cor0) ->
+	%% Line 696
+	case call 'erlang':'now'
+		 () of
+	  <{A,B,C}> when 'true' ->
+	      do  %% Line 697
+		  call 'random':'seed'
+		      (A, B, C)
+		  %% Line 698
+		  apply 'random_bytes_1'/2
+		      (_cor0, [])
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'random_bytes_1'/2 =
+    %% Line 700
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <0,Acc> when 'true' ->
+	      Acc
+	  %% Line 701
+	  <N,Acc> when 'true' ->
+	      let <_cor3> =
+		  call 'erlang':'-'
+		      (N, 1)
+	      in  let <_cor2> =
+		      call 'random':'uniform'
+			  (255)
+		  in  apply 'random_bytes_1'/2
+			  (_cor3, [_cor2|Acc])
+	end
+'check_callback_load'/1 =
+    %% Line 703
+    fun (_cor0) ->
+	%% Line 704
+	case call 'code':'is_loaded'
+		 (_cor0) of
+	  %% Line 705
+	  <{'file',_X_Filename}> when 'true' ->
+	      %% Line 706
+	      apply 'check_exports'/1
+		  (_cor0)
+	  %% Line 707
+	  <'false'> when 'true' ->
+	      %% Line 708
+	      case call 'code':'load_file'
+		       (_cor0) of
+		%% Line 709
+		<{'module',_cor4}>
+		    when call 'erlang':'=:='
+			  (_cor4,
+			   _cor0) ->
+		    %% Line 710
+		    apply 'check_exports'/1
+			(_cor0)
+		%% Line 711
+		<{'error',Error}> when 'true' ->
+		    %% Line 712
+		    {'error',Error}
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'check_exports'/1 =
+    %% Line 716
+    fun (_cor0) ->
+	let <Fs> =
+	    %% Line 717
+	    call _cor0:'module_info'
+		('exports')
+	in  let <_cor3> =
+		%% Line 718
+		call 'lists':'member'
+		    ({'check_parameter',1}, Fs)
+	    in  let <_cor2> =
+		    %% Line 719
+		    call 'lists':'member'
+			({'read_config',1}, Fs)
+		in  %% Line 718
+		    case <_cor3,_cor2> of
+		      %% Line 720
+		      <'true','true'> when 'true' ->
+			  %% Line 721
+			  {'ok',_cor0}
+		      %% Line 722
+		      <_fol64,_fol65> when 'true' ->
+			  %% Line 723
+			  {'error','missing_callback_functions'}
+		    end
+'check_config_files'/1 =
+    %% Line 726
+    fun (_cor0) ->
+	let <ConfigChecker> =
+	    %% Line 727
+	    ( fun (_cor6) ->
+		  case _cor6 of
+		    %% Line 728
+		    <{Callback,Files = [F|_X_R]}> when 'true' ->
+			%% Line 729
+			case apply 'check_callback_load'/1
+				 (Callback) of
+			  %% Line 730
+			  <{'ok',_cor12}>
+			      when call 'erlang':'=:='
+				    (_cor12,
+				     Callback) ->
+			      %% Line 731
+			      case <> of
+				<>
+				    when call 'erlang':'is_integer'
+					  (F) ->
+				    %% Line 732
+				    call Callback:'check_parameter'
+					(Files)
+				%% Line 733
+				<>
+				    when call 'erlang':'is_list'
+					  (F) ->
+				    let <_cor3> =
+					%% Line 734
+					( fun (_cor1) ->
+					      %% Line 735
+					      call Callback:'check_parameter'
+						  (_cor1)
+					  -| [{'id',{0,0,'-check_config_files/1-fun-0-'}}] )
+				    in  %% Line 734
+					call 'lists':'map'
+					    (_cor3, %% Line 737
+						    Files)
+				( <> when 'true' ->
+				      primop 'match_fail'
+					  ('if_clause')
+				  -| ['compiler_generated'] )
+			      end
+			  %% Line 739
+			  <{'error',Why}> when 'true' ->
+			      %% Line 740
+			      {'error',{'callback',{Callback,Why}}}
+			  ( <_cor4> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor4})
+			    -| ['compiler_generated'] )
+			end
+		    %% Line 742
+		    <{Callback,[]}> when 'true' ->
+			%% Line 743
+			case apply 'check_callback_load'/1
+				 (Callback) of
+			  %% Line 744
+			  <{'ok',_cor13}>
+			      when call 'erlang':'=:='
+				    (_cor13,
+				     Callback) ->
+			      %% Line 745
+			      call Callback:'check_parameter'
+				  ([])
+			  %% Line 746
+			  <{'error',Why}> when 'true' ->
+			      %% Line 747
+			      {'error',{'callback',{Callback,Why}}}
+			  ( <_cor5> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor5})
+			    -| ['compiler_generated'] )
+			end
+		    ( <_cor7> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor7})
+			    -| [{'function_name',{'-check_config_files/1-fun-1-',1}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-check_config_files/1-fun-1-'}}] )
+	in  let <_cor9> =
+		%% Line 750
+		call 'lists':'map'
+		    (ConfigChecker, _cor0)
+	    in  let <_cor10> =
+		    %% Line 750
+		    call 'lists':'flatten'
+			(_cor9)
+		in  %% Line 750
+		    call 'lists':'keysearch'
+			('error', 1, _cor10)
+'prepare_user_configs'/3 =
+    %% Line 752
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[CallbackMod|UserConfigs],Acc,'new'> when 'true' ->
+	      let <_cor3> =
+		  %% Line 754
+		  call 'erlang':'list_to_atom'
+		      (CallbackMod)
+	      in  %% Line 753
+		  apply 'prepare_user_configs'/3
+		      (UserConfigs, %% Line 754
+				    [{_cor3,[]}|Acc], %% Line 755
+						      'cur')
+	  %% Line 756
+	  <[[97|[110|[100]]]|UserConfigs],Acc,_cor7> when 'true' ->
+	      %% Line 757
+	      apply 'prepare_user_configs'/3
+		  (UserConfigs, Acc, 'new')
+	  %% Line 758
+	  <[ConfigString|UserConfigs],[{LastMod,LastList}|Acc],'cur'> when 'true' ->
+	      %% Line 759
+	      apply 'prepare_user_configs'/3
+		  (UserConfigs, %% Line 760
+				[{LastMod,[ConfigString|LastList]}|Acc], %% Line 761
+									 'cur')
+	  %% Line 762
+	  <[],Acc,_cor8> when 'true' ->
+	      %% Line 763
+	      Acc
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'prepare_user_configs',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'prepare_config_list'/1 =
+    %% Line 765
+    fun (_cor0) ->
+	let <_cor8> =
+	    %% Line 766
+	    case call 'lists':'keysearch'
+		     ('ct_config', 1, _cor0) of
+	      %% Line 767
+	      <{'value',{'ct_config',Files}}> when 'true' ->
+		  let <_cor6> =
+		      %% Line 768
+		      ( letrec
+			    'lc$^0'/1 =
+				fun (_cor3) ->
+				    case _cor3 of
+				      <[F|_cor2]> when 'true' ->
+					  let <_cor4> =
+					      call 'filename':'absname'
+						  (F)
+					  in  let <_cor5> =
+						  apply 'lc$^0'/1
+						      (_cor2)
+					      in  ( [_cor4|_cor5]
+						    -| ['compiler_generated'] )
+				      <[]> when 'true' ->
+					  []
+				      ( <_cor3> when 'true' ->
+					    ( primop 'match_fail'
+						  ({'function_clause',_cor3})
+					      -| [{'function_name',{'lc$^0',1}}] )
+					-| ['compiler_generated'] )
+				    end
+			in  apply 'lc$^0'/1
+				(Files)
+			-| ['list_comprehension'] )
+		  in  %% Line 768
+		      [{'ct_config_plain',_cor6}|[]]
+	      %% Line 769
+	      <'false'> when 'true' ->
+		  %% Line 770
+		  []
+	      ( <_cor7> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor7})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor11> =
+		%% Line 772
+		case call 'lists':'keysearch'
+			 ('userconfig', 1, _cor0) of
+		  %% Line 773
+		  <{'value',{'userconfig',UserConfigFiles}}> when 'true' ->
+		      %% Line 774
+		      apply 'prepare_user_configs'/3
+			  (UserConfigFiles, [], 'new')
+		  %% Line 775
+		  <'false'> when 'true' ->
+		      %% Line 776
+		      []
+		  ( <_cor10> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor10})
+		    -| ['compiler_generated'] )
+		end
+	    in  %% Line 778
+		call 'erlang':'++'
+		    (_cor8, _cor11)
+'add_config'/2 =
+    %% Line 781
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Callback,[]> when 'true' ->
+	      %% Line 782
+	      apply 'read_config_files_int'/2
+		  ([{Callback,[]}|[]], ( 'store_config'/3
+					 -| [{'id',{0,0,'-add_config/2-fun-0-'}}] ))
+	  %% Line 783
+	  <Callback,Config = [File|_X_Files]>
+	      when call 'erlang':'is_list'
+		    (File) ->
+	      let <_cor4> =
+		  %% Line 784
+		  ( fun (_cor2) ->
+			%% Line 785
+			apply 'read_config_files_int'/2
+			    ([{Callback,_cor2}|[]], ( 'store_config'/3
+						      -| [{'id',{0,0,'-add_config/2-fun-1-'}}] ))
+		    -| [{'id',{0,0,'-add_config/2-fun-2-'}}] )
+	      in  %% Line 784
+		  call 'lists':'foreach'
+		      (_cor4, %% Line 786
+			      Config)
+	  %% Line 787
+	  <Callback,Config = [C|_cor7]>
+	      when call 'erlang':'is_integer'
+		    (C) ->
+	      do  %% Line 788
+		  apply 'read_config_files_int'/2
+		      ([{Callback,Config}|[]], ( 'store_config'/3
+						 -| [{'id',{0,0,'-add_config/2-fun-3-'}}] ))
+		  %% Line 789
+		  'ok'
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'add_config',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'remove_config'/2 =
+    %% Line 791
+    fun (_cor1,_cor0) ->
+	do  %% Line 792
+	    call 'ets':'match_delete'
+		('ct_attributes', %% Line 793
+				  {'ct_conf',%% Line 794
+					     '_',%% Line 794
+						 '_',_cor1,_cor0,%% Line 794
+								 '_',%% Line 794
+								     '_'})
+	    %% Line 795
+	    'ok'
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ct_config')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ct_config', _cor0)
+end

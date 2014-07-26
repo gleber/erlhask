@@ -1,0 +1,4885 @@
+module 'dist_ac' ['code_change'/3,
+		  'get_known_nodes'/0,
+		  'handle_call'/3,
+		  'handle_cast'/2,
+		  'handle_info'/2,
+		  'info'/0,
+		  'init'/1,
+		  'load_application'/2,
+		  'module_info'/0,
+		  'module_info'/1,
+		  'permit_application'/2,
+		  'permit_only_loaded_application'/2,
+		  'send_timeout'/3,
+		  'start_link'/0,
+		  'takeover_application'/2,
+		  'terminate'/2]
+    attributes [%% Line 21
+		'behaviour' =
+		    %% Line 21
+		    ['gen_server']]
+'start_link'/0 =
+    %% Line 102
+    fun () ->
+	%% Line 103
+	case call 'gen_server':'start_link'
+		 ({'local','dist_ac'}, 'dist_ac', [], []) of
+	  %% Line 104
+	  <{'ok',Pid}> when 'true' ->
+	      do  %% Line 105
+		  call 'gen_server':'cast'
+		      ('dist_ac', 'init_sync')
+		  %% Line 106
+		  {'ok',Pid}
+	  %% Line 107
+	  <Else> when 'true' ->
+	      %% Line 108
+	      Else
+	end
+'load_application'/2 =
+    %% Line 121
+    fun (_cor1,_cor0) ->
+	%% Line 122
+	call 'gen_server':'call'
+	    ('dist_ac', {'load_application',_cor1,_cor0}, 'infinity')
+'takeover_application'/2 =
+    %% Line 124
+    fun (_cor1,_cor0) ->
+	%% Line 125
+	case apply 'validRestartType'/1
+		 (_cor0) of
+	  %% Line 126
+	  <'true'> when 'true' ->
+	      do  %% Line 127
+		  apply 'wait_for_sync_dacs'/0
+		      ()
+		  let <Nodes> =
+		      %% Line 128
+		      apply 'get_nodes'/1
+			  (_cor1)
+		  in  let <_cor4> =
+			  %% Line 130
+			  call 'erlang':'self'
+			      ()
+		      in  let <_cor3> =
+			      %% Line 131
+			      ( fun () ->
+				    %% Line 132
+				    call 'gen_server':'call'
+					(%% Line 133
+					 'dist_ac', %% Line 134
+						    {'takeover_application',_cor1,_cor0}, %% Line 135
+											  'infinity')
+				-| [{'id',{0,0,'-takeover_application/2-fun-0-'}}] )
+			  in  %% Line 129
+			      call 'global':'trans'
+				  (%% Line 130
+				   {'dist_ac',_cor4}, _cor3, %% Line 137
+							     Nodes)
+	  %% Line 138
+	  <'false'> when 'true' ->
+	      %% Line 139
+	      {'error',{'invalid_restart_type',_cor0}}
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'permit_application'/2 =
+    %% Line 162
+    fun (_cor1,_cor0) ->
+	do  %% Line 163
+	    apply 'wait_for_sync_dacs'/0
+		()
+	    let <_cor2> =
+		%% Line 164
+		call 'erlang':'self'
+		    ()
+	    in  let <LockId> = {%% Line 164
+		     'dist_ac',_cor2}
+		in  let <_cor4> =
+			%% Line 167
+			( fun () ->
+			      %% Line 168
+			      call 'gen_server':'call'
+				  ('dist_ac', %% Line 169
+					      {'permit_application',_cor1,_cor0,LockId,'started'}, %% Line 170
+												   'infinity')
+			  -| [{'id',{0,0,'-permit_application/2-fun-0-'}}] )
+		    in  %% Line 165
+			call 'global':'trans'
+			    (%% Line 166
+			     LockId, _cor4)
+'permit_only_loaded_application'/2 =
+    %% Line 173
+    fun (_cor1,_cor0) ->
+	do  %% Line 174
+	    apply 'wait_for_sync_dacs'/0
+		()
+	    let <_cor2> =
+		%% Line 175
+		call 'erlang':'self'
+		    ()
+	    in  let <LockId> = {%% Line 175
+		     'dist_ac',_cor2}
+		in  let <_cor4> =
+			%% Line 178
+			( fun () ->
+			      %% Line 179
+			      call 'gen_server':'call'
+				  ('dist_ac', %% Line 180
+					      {'permit_application',_cor1,_cor0,LockId,'only_loaded'}, %% Line 181
+												       'infinity')
+			  -| [{'id',{0,0,'-permit_only_loaded_application/2-fun-0-'}}] )
+		    in  %% Line 176
+			call 'global':'trans'
+			    (%% Line 177
+			     LockId, _cor4)
+'get_nodes'/1 =
+    %% Line 184
+    fun (_cor0) ->
+	%% Line 185
+	call 'gen_server':'call'
+	    ('dist_ac', {'get_nodes',_cor0}, 'infinity')
+'get_known_nodes'/0 =
+    %% Line 187
+    fun () ->
+	%% Line 188
+	call 'gen_server':'call'
+	    ('dist_ac', 'get_known_nodes')
+'init'/1 =
+    %% Line 193
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      do  %% Line 194
+		  call 'erlang':'process_flag'
+		      ('trap_exit', 'true')
+		  %% Line 195
+		  {'ok',{'state',[],[],[],[],[],[],[],[],[],[]}}
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'sync_dacs'/1 =
+    %% Line 197
+    fun (_cor0) ->
+	let <_cor4> =
+	    %% Line 199
+	    ( fun () ->
+		  let <_cor1> =
+		      %% Line 200
+		      call 'erlang':'nodes'
+			  ()
+		  in  let <Nodes> =
+			  %% Line 200
+			  apply 'introduce_me'/2
+			      (_cor1, _cor0)
+		      in  let <_cor3> =
+			      %% Line 201
+			      call 'erlang':'node'
+				  ()
+			  in  %% Line 201
+			      apply 'wait_dacs'/4
+				  (Nodes, [_cor3|[]], _cor0, [])
+	      -| [{'id',{0,0,'-sync_dacs/1-fun-0-'}}] )
+	in  let <Res> =
+		%% Line 198
+		call 'global':'trans'
+		    ({'dist_ac','sync_dacs'}, _cor4)
+	    in  do  %% Line 203
+		    call 'ets':'insert'
+			('ac_tab', {'sync_dacs','ok'})
+		    %% Line 204
+		    Res
+'introduce_me'/2 =
+    %% Line 206
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 207
+	    call 'erlang':'node'
+		()
+	in  let <Msg> =
+		%% Line 207
+		{'dist_ac_new_node',1,_cor2,_cor0,[]}
+	    in  let <_cor7> =
+		    %% Line 208
+		    ( fun (_cor5) ->
+			  %% Line 210
+			  case call 'rpc':'call'
+				   (_cor5, 'erlang', 'whereis', ['dist_ac']) of
+			    %% Line 211
+			    <Pid>
+				when call 'erlang':'is_pid'
+				      (Pid) ->
+				do  %% Line 212
+				    call 'erlang':'!'
+					(Pid, Msg)
+				    %% Line 213
+				    'true'
+			    %% Line 214
+			    <_cor10> when 'true' ->
+				%% Line 215
+				'false'
+			  end
+		      -| [{'id',{0,0,'-introduce_me/2-fun-0-'}}] )
+		in  %% Line 208
+		    call 'lists':'filter'
+			(_cor7, _cor1)
+'wait_dacs'/4 =
+    %% Line 219
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[Node|Nodes],KnownNodes,Appls,RStarted> when 'true' ->
+	      do  %% Line 220
+		  call 'erlang':'monitor_node'
+		      (Node, 'true')
+		  %% Line 221
+		  receive
+		    %% Line 228
+		    <{'dist_ac_new_node',_X_Vsn,_cor10,HisAppls,HisStarted}>
+			when call 'erlang':'=:='
+			      (_cor10,
+			       Node) ->
+			do  %% Line 229
+			    call 'erlang':'monitor_node'
+				(Node, 'false')
+			    let <NRStarted> =
+				%% Line 230
+				call 'erlang':'++'
+				    (RStarted, HisStarted)
+			    in  let <NAppls> =
+				    %% Line 231
+				    apply 'dist_merge'/3
+					(Appls, HisAppls, Node)
+				in  %% Line 232
+				    apply 'wait_dacs'/4
+					(Nodes, [Node|KnownNodes], NAppls, NRStarted)
+		    %% Line 233
+		    <{'nodedown',_cor11}>
+			when call 'erlang':'=:='
+			      (_cor11,
+			       Node) ->
+			do  %% Line 234
+			    call 'erlang':'monitor_node'
+				(Node, 'false')
+			    %% Line 235
+			    apply 'wait_dacs'/4
+				(Nodes, KnownNodes, Appls, RStarted)
+		  after 'infinity' ->
+		    'true'
+	  %% Line 237
+	  <[],KnownNodes,Appls,RStarted> when 'true' ->
+	      %% Line 238
+	      {KnownNodes,Appls,RStarted}
+	  ( <_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'wait_dacs',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'info'/0 =
+    %% Line 241
+    fun () ->
+	%% Line 242
+	call 'gen_server':'call'
+	    ('dist_ac', 'info')
+'wait_for_sync_dacs'/0 =
+    %% Line 254
+    fun () ->
+	let <_cor0> =
+	    catch
+		%% Line 255
+		call 'ets':'lookup'
+		    ('ac_tab', 'sync_dacs')
+	in  %% Line 255
+	    case _cor0 of
+	      %% Line 256
+	      <[{'sync_dacs','ok'}]> when 'true' ->
+		  'ok'
+	      %% Line 257
+	      <_cor2> when 'true' ->
+		  do  %% Line 258
+		      receive
+			
+		      after 100 ->
+			'ok'
+		      %% Line 259
+		      apply 'wait_for_sync_dacs'/0
+			  ()
+	    end
+'handle_cast'/2 =
+    %% Line 262
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'init_sync',_X_S> when 'true' ->
+	      %% Line 271
+	      receive
+		%% Line 272
+		<{'go',KernelConfig}> when 'true' ->
+		    let <_cor3> =
+			%% Line 273
+			case call 'application':'get_env'
+				 ('kernel', 'distributed') of
+			  %% Line 274
+			  <{'ok',D}> when 'true' ->
+			      apply 'dist_check'/1
+				  (D)
+			  %% Line 275
+			  <'undefined'> when 'true' ->
+			      []
+			  ( <_cor2> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor2})
+			    -| ['compiler_generated'] )
+			end
+		    in  do  %% Line 278
+			    apply 'dist_take_control'/1
+				(_cor3)
+			    do  %% Line 283
+				call 'erlang':'!'
+				    (KernelConfig, 'dist_ac_took_control')
+				%% Line 286
+				case call 'net_kernel':'monitor_nodes'
+					 ('true') of
+				  <'ok'> when 'true' ->
+				      %% Line 288
+				      case apply 'sync_dacs'/1
+					       (_cor3) of
+					<{Known,NAppls,RStarted}> when 'true' ->
+					    %% Line 290
+					    {'noreply',%% Line 291
+						       {'state',NAppls,[],RStarted,Known,[],[],[],[],[],[]}}
+					( <_cor6> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor6})
+					  -| ['compiler_generated'] )
+				      end
+				  ( <_cor5> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor5})
+				    -| ['compiler_generated'] )
+				end
+	      after 'infinity' ->
+		'true'
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7})
+		  -| [{'function_name',{'handle_cast',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_call'/3 =
+    %% Line 295
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'info',_X_From,S> when 'true' ->
+	      %% Line 296
+	      {'reply',S,S}
+	  %% Line 300
+	  <{'load_application',AppName,DistNodes},_X_From,S> when 'true' ->
+	      %% Line 301
+	      ( case S of
+		  ( <( {'state',_rec0,_cor86,_cor87,_cor88,_cor89,_cor90,_cor91,_cor92,_cor93,_cor94}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor6> =
+			    catch
+				%% Line 302
+				apply 'dist_replace'/3
+				    (DistNodes, AppName, _rec0)
+			in  %% Line 302
+			    case _cor6 of
+			      %% Line 303
+			      <{'error',Error}> when 'true' ->
+				  %% Line 304
+				  {'reply',{'error',Error},S}
+			      %% Line 305
+			      <{'EXIT',R}> when 'true' ->
+				  %% Line 306
+				  {'stop',R,{'error',R},S}
+			      %% Line 307
+			      <NAppls> when 'true' ->
+				  let <_cor12> =
+				      %% Line 308
+				      case apply 'dist_find_nodes'/2
+					       (NAppls, AppName) of
+					%% Line 309
+					<[]> when 'true' ->
+					    %% Line 310
+					    S
+					%% Line 311
+					<_X_Nodes> when 'true' ->
+					    do  %% Line 312
+						apply 'ensure_take_control'/2
+						    (AppName, _rec0)
+						let <_cor9> =
+						    %% Line 313
+						    call 'erlang':'setelement'
+							(2, S, NAppls)
+						in  %% Line 313
+						    case apply 'load'/2
+							     (AppName, _cor9) of
+						      <{'ok',S2}> when 'true' ->
+							  %% Line 314
+							  S2
+						      ( <_cor10> when 'true' ->
+							    primop 'match_fail'
+								({'badmatch',_cor10})
+							-| ['compiler_generated'] )
+						    end
+				      end
+				  in  %% Line 316
+				      {'reply','ok',_cor12}
+			    end
+		    -| ['compiler_generated'] )
+		  ( <_cor95> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 319
+	  <{'takeover_application',AppName,RestartType},From,S> when 'true' ->
+	      %% Line 320
+	      ( case S of
+		  ( <( {'state',_rec2,_cor107,_cor108,_cor109,_cor110,_cor111,_cor112,_cor113,_cor114,_cor115}
+		       -| ['compiler_generated'] )> when 'true' ->
+			%% Line 321
+			case call 'lists':'keysearch'
+				 (AppName, 2, _rec2) of
+			  %% Line 322
+			  <{'value',Appl = {'appl',_cor117,_cor118,_cor119,_cor120,_cor121}}>
+			      when ( try
+				      let <_cor23> =
+					  call 'erlang':'element'
+					      (1, _cor118)
+				      in  call 'erlang':'=:='
+					      (_cor23, 'distributed')
+				  of <Try> ->
+				      Try
+				  catch <T,R> ->
+				      'false'
+				  -| ['compiler_generated'] ) ->
+			      %% Line 323
+			      case _cor118 of
+				<{'distributed',Node}> when 'true' ->
+				    let <_X_> =
+					%% Line 324
+					apply 'ac_takeover'/4
+					    ('req', AppName, Node, RestartType)
+				    in  let <_cor31> =
+					    %% Line 325
+					    call 'erlang':'setelement'
+						(3, Appl, 'takeover')
+					in  let <NAppls> =
+						%% Line 326
+						call 'lists':'keyreplace'
+						    (AppName, 2, _rec2, _cor31)
+					    in  let <_rec6> =
+						    %% Line 329
+						    [{AppName,From}|_cor113]
+						in  let <_cor39> =
+							%% Line 329
+							call 'erlang':'setelement'
+							    (9, S, _rec6)
+						    in  let <_cor41> =
+							    %% Line 328
+							    call 'erlang':'setelement'
+								(2, _cor39, NAppls)
+							in  %% Line 328
+							    {'noreply',_cor41}
+				( <_cor27> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor27})
+				  -| ['compiler_generated'] )
+			      end
+			  %% Line 330
+			  <{'value',{'appl',_cor154,'local',_cor155,_cor156,_cor157}}> when 'true' ->
+			      %% Line 331
+			      {'reply',{'error',{'already_running_locally',AppName}},S}
+			  %% Line 332
+			  <_cor158> when 'true' ->
+			      %% Line 333
+			      {'reply',{'error',{'not_running_distributed',AppName}},S}
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor116> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 336
+	  <{'permit_application',AppName,Bool,LockId,StartInfo},From,S> when 'true' ->
+	      %% Line 337
+	      ( case S of
+		  ( <( {'state',_rec8,_cor159,_cor160,_cor161,_cor162,_cor163,_cor164,_cor165,_cor166,_cor167}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case call 'lists':'keymember'
+				 (AppName, 2, _rec8) of
+			  %% Line 338
+			  <'false'> when 'true' ->
+			      %% Line 342
+			      case call 'application_controller':'get_loaded'
+				       (AppName) of
+				%% Line 343
+				<{'true',_cor169}>
+				    when let <_cor45> =
+					  call 'erlang':'=:='
+					      (Bool, 'false')
+				      in  let <_cor46> =
+					      call 'erlang':'is_boolean'
+						  (Bool)
+					  in  call 'erlang':'and'
+						  (_cor45, _cor46) ->
+				    let <_X_> =
+					%% Line 344
+					apply 'ac_stop_it'/1
+					    (AppName)
+				    in  %% Line 345
+					{'reply','ok',S}
+				%% Line 346
+				<{'true',_cor170}>
+				    when call 'erlang':'=:='
+					  (Bool,
+					   'true') ->
+				    let <_X_> =
+					%% Line 347
+					apply 'ac_start_it'/2
+					    ('req', AppName)
+				    in  %% Line 348
+					{'reply','ok',S}
+				%% Line 349
+				<'false'> when 'true' ->
+				    %% Line 350
+				    {'reply',{'error',{'not_loaded',AppName}},S}
+				( <_cor49> when 'true' ->
+				      primop 'match_fail'
+					  ({'case_clause',_cor49})
+				  -| ['compiler_generated'] )
+			      end
+			  %% Line 352
+			  <'true'> when 'true' ->
+			      let <_cor50> =
+				  %% Line 353
+				  call 'erlang':'node'
+				      ()
+			      in  let <NAppls> =
+				      %% Line 353
+				      apply 'dist_update_run'/4
+					  (_rec8, AppName, _cor50, Bool)
+				  in  let <_cor56> =
+					  %% Line 354
+					  call 'erlang':'setelement'
+					      (2, S, NAppls)
+				      in  let <IsRunning> =
+					      %% Line 356
+					      call 'lists':'keysearch'
+						  (AppName, 2, NAppls)
+					  in  let <_cor60> =
+						  %% Line 357
+						  case IsRunning of
+						    %% Line 358
+						    <{'value',{'appl',_cor192,'local',_cor193,_cor194,_cor195}}> when 'true' ->
+							'true'
+						    %% Line 359
+						    <_cor196> when 'true' ->
+							'false'
+						  end
+					      in  let <Nodes> =
+						      %% Line 362
+						      apply 'dist_flat_nodes'/2
+							  (NAppls, AppName)
+						  in  let <_cor63> =
+							  %% Line 363
+							  call 'erlang':'node'
+							      ()
+						      in  let <Msg> =
+							      %% Line 363
+							      {'dist_ac_new_permission',_cor63,AppName,Bool,_cor60}
+							  in  do  %% Line 364
+								  apply 'send_msg'/2
+								      (Msg, Nodes)
+								  %% Line 365
+								  case StartInfo of
+								    %% Line 366
+								    <'only_loaded'> when 'true' ->
+									%% Line 367
+									{'reply','ok',_cor56}
+								    %% Line 368
+								    <'started'> when 'true' ->
+									%% Line 369
+									apply 'permit'/6
+									    (Bool, IsRunning, AppName, From, _cor56, LockId)
+								    ( <_cor65> when 'true' ->
+									  primop 'match_fail'
+									      ({'case_clause',_cor65})
+								      -| ['compiler_generated'] )
+								  end
+			  ( <_cor66> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor66})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor168> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 378
+	  <{'distribution_changed',NewDistribution},_X_From,S> when 'true' ->
+	      %% Line 379
+	      ( case S of
+		  ( <( {'state',_rec11,_cor197,_cor198,_cor199,_cor200,_cor201,_cor202,_cor203,_cor204,_cor205}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <NewAppls> =
+			    %% Line 380
+			    apply 'dist_change_update'/2
+				(_rec11, NewDistribution)
+			in  let <_cor73> =
+				%% Line 381
+				call 'erlang':'setelement'
+				    (2, S, NewAppls)
+			    in  %% Line 382
+				{'reply','ok',_cor73}
+		    -| ['compiler_generated'] )
+		  ( <_cor206> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 385
+	  <{'get_nodes',AppName},_X_From,S> when 'true' ->
+	      %% Line 386
+	      ( case S of
+		  ( <( {'state',_rec13,_cor218,_cor219,_cor220,_cor221,_cor222,_cor223,_cor224,_cor225,_cor226}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor79> =
+			    apply 'dist_flat_nodes'/2
+				(_rec13, AppName)
+			in  let <Alive> =
+				apply 'intersection'/2
+				    (_cor79, _cor220)
+			    in  %% Line 388
+				{'reply',Alive,S}
+		    -| ['compiler_generated'] )
+		  ( <_cor227> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 390
+	  <'get_known_nodes',_X_From,S> when 'true' ->
+	      %% Line 391
+	      ( case S of
+		  ( <( {'state',_cor238,_cor239,_cor240,_rec15,_cor241,_cor242,_cor243,_cor244,_cor245,_cor246}
+		       -| ['compiler_generated'] )> when 'true' ->
+			{'reply',_rec15,S}
+		    -| ['compiler_generated'] )
+		  ( <_cor247> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  ( <_cor85,_cor84,_cor83> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor85,_cor84,_cor83})
+		  -| [{'function_name',{'handle_call',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_info'/2 =
+    %% Line 394
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'ac_load_application_req',AppName},S> when 'true' ->
+	      %% Line 395
+	      case apply 'load'/2
+		       (AppName, S) of
+		<{'ok',NewS}> when 'true' ->
+		    do  %% Line 396
+			call 'erlang':'!'
+			    ('application_controller', {'ac_load_application_reply',AppName,'ok'})
+			%% Line 397
+			{'noreply',NewS}
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 399
+	  <{'ac_application_unloaded',AppName},S> when 'true' ->
+	      %% Line 400
+	      case apply 'unload'/2
+		       (AppName, S) of
+		<{'ok',NewS}> when 'true' ->
+		    %% Line 401
+		    {'noreply',NewS}
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 403
+	  <{'ac_start_application_req',AppName},S> when 'true' ->
+	      let <_cor4> =
+		  %% Line 405
+		  call 'erlang':'self'
+		      ()
+	      in  let <Lock> = {%% Line 405
+		       'dist_ac',_cor4}
+		  in  let <_cor6> =
+			  %% Line 406
+			  call 'erlang':'node'
+			      ()
+		      in  %% Line 406
+			  case call 'global':'set_lock'
+				   (Lock, [_cor6|[]], 0) of
+			    %% Line 407
+			    <'true'> when 'true' ->
+				let <_cor7> =
+				    catch
+					%% Line 408
+					apply 'start_appl'/3
+					    (AppName, S, 'reply')
+				in  let <_cor9> =
+					%% Line 408
+					case _cor7 of
+					  %% Line 409
+					  <{'ok',NewS,_cor343}> when 'true' ->
+					      %% Line 410
+					      NewS
+					  %% Line 411
+					  <{'error',R}> when 'true' ->
+					      do  %% Line 412
+						  call 'erlang':'!'
+						      ('application_controller', {'ac_start_application_reply',AppName,{'error',R}})
+						  %% Line 413
+						  S
+					  ( <_cor8> when 'true' ->
+						primop 'match_fail'
+						    ({'case_clause',_cor8})
+					    -| ['compiler_generated'] )
+					end
+				    in  do  %% Line 415
+					    call 'global':'del_lock'
+						(Lock)
+					    %% Line 416
+					    {'noreply',_cor9}
+			    %% Line 417
+			    <'false'> when 'true' ->
+				do  %% Line 418
+				    apply 'send_after'/2
+					(100, {'ac_start_application_req',AppName})
+				    %% Line 419
+				    {'noreply',S}
+			    ( <_cor11> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor11})
+			      -| ['compiler_generated'] )
+			  end
+	  %% Line 422
+	  <{'ac_application_run',AppName,Res},S> when 'true' ->
+	      %% Line 424
+	      ( case S of
+		  ( <( {'state',_rec16,_cor344,_cor345,_cor346,_cor347,_cor348,_cor349,_cor350,_cor351,_cor352}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor18> =
+			    %% Line 428
+			    call 'erlang':'node'
+				()
+			in  do  %% Line 428
+				apply 'send_msg'/2
+				    ({'dist_ac_app_started',_cor18,AppName,Res}, _cor346)
+				let <_cor20> =
+				    %% Line 429
+				    case Res of
+				      %% Line 430
+				      <'ok'> when 'true' ->
+					  'local'
+				      %% Line 431
+				      <{'error',_X_R}> when 'true' ->
+					  'undefined'
+				      ( <_cor19> when 'true' ->
+					    primop 'match_fail'
+						({'case_clause',_cor19})
+					-| ['compiler_generated'] )
+				    end
+				in  %% Line 433
+				    case call 'lists':'keysearch'
+					     (AppName, 2, _rec16) of
+				      <{'value',Appl}> when 'true' ->
+					  let <NTReqs> =
+					      %% Line 435
+					      apply 'del_t_reqs'/3
+						  (AppName, _cor350, Res)
+					  in  %% Line 436
+					      case Appl of
+						<{'appl',_cor374,_cor375,_cor376,_cor377,_cor378}> when 'true' ->
+						    let <_cor28> =
+							call 'erlang':'setelement'
+							    (3, Appl, _cor20)
+						    in  let <NAppls> =
+							    %% Line 437
+							    call 'lists':'keyreplace'
+								(AppName, 2, _rec16, _cor28)
+							in  let <_cor32> =
+								%% Line 438
+								call 'erlang':'setelement'
+								    (9, S, NTReqs)
+							    in  let <_cor34> =
+								    %% Line 438
+								    call 'erlang':'setelement'
+									(2, _cor32, NAppls)
+								in  %% Line 438
+								    {'noreply',_cor34}
+						( <_cor379> when 'true' ->
+						      ( call ( 'erlang'
+							       -| ['compiler_generated'] ):( 'error'
+											     -| ['compiler_generated'] )
+							    (( {'badrecord','appl'}
+							       -| ['compiler_generated'] ))
+							-| ['compiler_generated'] )
+						  -| ['compiler_generated'] )
+					      end
+				      ( <_cor22> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_cor22})
+					-| ['compiler_generated'] )
+				    end
+		    -| ['compiler_generated'] )
+		  ( <_cor353> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 441
+	  <{'ac_application_not_run',AppName},S> when 'true' ->
+	      %% Line 443
+	      ( case S of
+		  ( <( {'state',_rec21,_cor391,_cor392,_cor393,_cor394,_cor395,_cor396,_cor397,_cor398,_cor399}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case call 'lists':'keysearch'
+				 (AppName, 2, _rec21) of
+			  <{'value',Appl}> when 'true' ->
+			      let <NTReqs> =
+				  %% Line 446
+				  apply 'del_t_reqs'/3
+				      (AppName, _cor397, {'error','stopped'})
+			      in  let <_cor46> =
+				      %% Line 448
+				      ( fun (_cor44) ->
+					    case _cor44 of
+					      <{Name,From2}>
+						  when call 'erlang':'=:='
+							(Name,
+							 AppName) ->
+						  do  %% Line 449
+						      call 'gen_server':'reply'
+							  (From2, 'ok')
+						      %% Line 450
+						      'false'
+					      %% Line 451
+					      <_cor411> when 'true' ->
+						  %% Line 452
+						  'true'
+					    end
+					-| [{'id',{0,0,'-handle_info/2-fun-0-'}}] )
+				  in  let <SReqs> =
+					  %% Line 448
+					  call 'lists':'filter'
+					      (_cor46, _cor398)
+				      in  %% Line 454
+					  ( case Appl of
+					      ( <( {'appl',_cor422,_rec24,_cor423,_cor424,_cor425}
+						   -| ['compiler_generated'] )> when 'true' ->
+						    let <_cor57> =
+							case _rec24 of
+							  %% Line 455
+							  <'local'> when 'true' ->
+							      do  %% Line 456
+								  apply 'send_msg'/2
+								      ({'dist_ac_app_stopped',AppName}, _cor393)
+								  _cor392
+							  %% Line 458
+							  <{'distributed',Node}> when 'true' ->
+							      %% Line 459
+							      [{Node,AppName}|_cor392]
+							  %% Line 460
+							  <_cor457> when 'true' ->
+							      _cor392
+							end
+						    in  let <_cor61> =
+							    %% Line 463
+							    call 'erlang':'setelement'
+								(3, Appl, 'undefined')
+							in  let <NAppls> =
+								%% Line 464
+								call 'lists':'keyreplace'
+								    (AppName, 2, _rec21, _cor61)
+							    in  let <_cor65> =
+								    %% Line 465
+								    call 'erlang':'setelement'
+									(10, S, SReqs)
+								in  let <_cor66> =
+									%% Line 465
+									call 'erlang':'setelement'
+									    (9, _cor65, NTReqs)
+								    in  let <_cor67> =
+									    %% Line 466
+									    call 'erlang':'setelement'
+										(4, _cor66, _cor57)
+									in  let <_cor69> =
+										%% Line 465
+										call 'erlang':'setelement'
+										    (2, _cor67, NAppls)
+									    in  %% Line 465
+										{'noreply',_cor69}
+						-| ['compiler_generated'] )
+					      ( <_cor426> when 'true' ->
+						    ( call ( 'erlang'
+							     -| ['compiler_generated'] ):( 'error'
+											   -| ['compiler_generated'] )
+							  (( {'badrecord','appl'}
+							     -| ['compiler_generated'] ))
+						      -| ['compiler_generated'] )
+						-| ['compiler_generated'] )
+					    end
+					    -| ['compiler_generated'] )
+			  ( <_cor38> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor38})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor400> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 468
+	  <{'ac_application_stopped',AppName},S> when 'true' ->
+	      %% Line 471
+	      ( case S of
+		  ( <( {'state',_rec31,_cor485,_cor486,_cor487,_cor488,_cor489,_cor490,_cor491,_cor492,_cor493}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case call 'lists':'keysearch'
+				 (AppName, 2, _rec31) of
+			  <{'value',Appl}> when 'true' ->
+			      let <NTReqs> =
+				  %% Line 474
+				  apply 'del_t_reqs'/3
+				      (AppName, _cor491, {'error','stopped'})
+			      in  let <_cor81> =
+				      %% Line 476
+				      ( fun (_cor79) ->
+					    case _cor79 of
+					      <{Name,From2}>
+						  when call 'erlang':'=:='
+							(Name,
+							 AppName) ->
+						  do  %% Line 477
+						      call 'gen_server':'reply'
+							  (From2, 'ok')
+						      %% Line 478
+						      'false'
+					      %% Line 479
+					      <_cor505> when 'true' ->
+						  %% Line 480
+						  'true'
+					    end
+					-| [{'id',{0,0,'-handle_info/2-fun-1-'}}] )
+				  in  let <SReqs> =
+					  %% Line 476
+					  call 'lists':'filter'
+					      (_cor81, _cor492)
+				      in  %% Line 482
+					  ( case Appl of
+					      ( <( {'appl',_cor516,_rec34,_cor517,_cor518,_cor519}
+						   -| ['compiler_generated'] )> when 'true' ->
+						    let <_cor92> =
+							case _rec34 of
+							  %% Line 483
+							  <'local'> when 'true' ->
+							      do  %% Line 484
+								  apply 'send_msg'/2
+								      ({'dist_ac_app_stopped',AppName}, _cor487)
+								  _cor486
+							  %% Line 486
+							  <{'distributed',Node}> when 'true' ->
+							      %% Line 487
+							      [{Node,AppName}|_cor486]
+							  %% Line 488
+							  <_cor551> when 'true' ->
+							      _cor486
+							end
+						    in  let <_cor96> =
+							    %% Line 491
+							    call 'erlang':'setelement'
+								(3, Appl, 'undefined')
+							in  let <NAppls> =
+								%% Line 492
+								call 'lists':'keyreplace'
+								    (AppName, 2, _rec31, _cor96)
+							    in  let <Started> =
+								    %% Line 493
+								    call 'lists':'delete'
+									(AppName, _cor488)
+								in  let <_cor103> =
+									%% Line 495
+									call 'erlang':'setelement'
+									    (10, S, SReqs)
+								    in  let <_cor104> =
+									    %% Line 495
+									    call 'erlang':'setelement'
+										(9, _cor103, NTReqs)
+									in  let <_cor105> =
+										%% Line 494
+										call 'erlang':'setelement'
+										    (6, _cor104, Started)
+									    in  let <_cor106> =
+										    %% Line 496
+										    call 'erlang':'setelement'
+											(4, _cor105, _cor92)
+										in  let <_cor108> =
+											%% Line 494
+											call 'erlang':'setelement'
+											    (2, _cor106, NAppls)
+										    in  %% Line 494
+											{'noreply',_cor108}
+						-| ['compiler_generated'] )
+					      ( <_cor520> when 'true' ->
+						    ( call ( 'erlang'
+							     -| ['compiler_generated'] ):( 'error'
+											   -| ['compiler_generated'] )
+							  (( {'badrecord','appl'}
+							     -| ['compiler_generated'] ))
+						      -| ['compiler_generated'] )
+						-| ['compiler_generated'] )
+					    end
+					    -| ['compiler_generated'] )
+			  ( <_cor73> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor73})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor494> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 503
+	  <{'dist_ac_new_node',_X_Vsn,Node,HisAppls,[]},S> when 'true' ->
+	      %% Line 504
+	      ( case S of
+		  ( <( {'state',_rec42,_cor589,_cor590,_cor591,_cor592,_cor593,_cor594,_cor595,_cor596,_cor597}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor123> =
+			    %% Line 505
+			    ( fun (_cor121) ->
+				  case _cor121 of
+				    <Appl = {'appl',_cor599,_cor600,_cor601,_cor602,_cor603}>
+					when call 'erlang':'=:='
+					      (_cor600,
+					       'local') ->
+					let <_cor120> =
+					    %% Line 506
+					    call 'erlang':'node'
+						()
+					in  %% Line 506
+					    {'true',{_cor120,_cor599}}
+				    %% Line 507
+				    <_cor609> when 'true' ->
+					%% Line 508
+					'false'
+				  end
+			      -| [{'id',{0,0,'-handle_info/2-fun-2-'}}] )
+			in  let <MyStarted> =
+				%% Line 505
+				call 'lists':'zf'
+				    (_cor123, _rec42)
+			    in  let <_cor125> =
+				    %% Line 510
+				    call 'erlang':'node'
+					()
+				in  do  %% Line 510
+					call 'erlang':'!'
+					    ({'dist_ac',Node}, {'dist_ac_new_node',1,_cor125,_rec42,MyStarted})
+					let <NAppls> =
+					    %% Line 511
+					    apply 'dist_merge'/3
+						(_rec42, HisAppls, Node)
+					in  let <_rec44> =
+						%% Line 512
+						[Node|_cor591]
+					    in  let <_cor131> =
+						    %% Line 512
+						    call 'erlang':'setelement'
+							(5, S, _rec44)
+						in  let <_cor133> =
+							%% Line 512
+							call 'erlang':'setelement'
+							    (2, _cor131, NAppls)
+						    in  %% Line 512
+							{'noreply',_cor133}
+		    -| ['compiler_generated'] )
+		  ( <_cor598> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 514
+	  <{'dist_ac_app_started',Node,Name,Res},S> when 'true' ->
+	      %% Line 515
+	      ( case S of
+		  ( <( {'state',_rec47,_cor631,_cor632,_cor633,_cor634,_cor635,_cor636,_cor637,_cor638,_cor639}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor139> =
+			    call 'lists':'keysearch'
+				(Name, 2, _rec47)
+			in  let <_cor136> =
+				call 'lists':'member'
+				    (Name, _cor634)
+			    in  case <_cor139,_cor136> of
+				  %% Line 516
+				  <{'value',Appl},'true'> when 'true' ->
+				      %% Line 518
+				      ( case Appl of
+					  ( <( {'appl',_cor661,_rec50,_cor662,_cor663,_cor664}
+					       -| ['compiler_generated'] )> when 'true' ->
+						let <_cor147> =
+						    case _rec50 of
+						      %% Line 519
+						      <_cor666>
+							  when try
+								let <_cor145> =
+								    call 'erlang':'element'
+									(1, Res)
+								in  call 'erlang':'=:='
+									(_cor145, 'error')
+							    of <Try> ->
+								Try
+							    catch <T,R> ->
+								'false' ->
+							  %% Line 523
+							  'undefined'
+						      %% Line 524
+						      <{'distributed',_cor667}> when 'true' ->
+							  %% Line 527
+							  {'distributed',Node}
+						      %% Line 528
+						      <'local'> when 'true' ->
+							  %% Line 531
+							  {'distributed',Node}
+						      %% Line 532
+						      <_cor668> when 'true' ->
+							  %% Line 534
+							  {'distributed',Node}
+						    end
+						in  let <_X_> =
+							%% Line 536
+							apply 'ac_started'/3
+							    ('req', Name, Node)
+						    in  let <_cor152> =
+							    %% Line 537
+							    call 'erlang':'setelement'
+								(3, Appl, _cor147)
+							in  let <NAppls> =
+								%% Line 538
+								call 'lists':'keyreplace'
+								    (Name, 2, _rec47, _cor152)
+							    in  let <TmpWeights> =
+								    %% Line 539
+								    apply 'keydelete_all'/3
+									(Name, 1, _cor635)
+								in  let <_cor159> =
+									%% Line 540
+									call 'erlang':'setelement'
+									    (7, S, TmpWeights)
+								    in  let <_cor161> =
+									    %% Line 540
+									    call 'erlang':'setelement'
+										(2, _cor159, NAppls)
+									in  %% Line 541
+									    ( case _cor161 of
+										( <( {'state',_cor696,_cor697,_cor698,_cor699,_cor700,_cor701,_cor702,_cor703,_cor704,_rec54}
+										     -| ['compiler_generated'] )> when 'true' ->
+										      let <NPermitReq> =
+											  apply 'req_del_permit_false'/2
+											      (_rec54, Name)
+										      in  let <_cor169> =
+											      catch
+												  let <_cor168> =
+												      %% Line 542
+												      call 'erlang':'setelement'
+													  (11, _cor161, NPermitReq)
+												  in  %% Line 542
+												      apply 'req_start_app'/2
+													  (_cor168, Name)
+											  in  %% Line 542
+											      case _cor169 of
+												%% Line 543
+												<{'error',R}> when 'true' ->
+												    %% Line 544
+												    {'stop',R}
+												%% Line 545
+												<{'ok',NewS2}> when 'true' ->
+												    %% Line 546
+												    {'noreply',NewS2}
+												( <_cor170> when 'true' ->
+												      primop 'match_fail'
+													  ({'case_clause',_cor170})
+												  -| ['compiler_generated'] )
+											      end
+										  -| ['compiler_generated'] )
+										( <_cor705> when 'true' ->
+										      ( call ( 'erlang'
+											       -| ['compiler_generated'] ):( 'error'
+															     -| ['compiler_generated'] )
+											    (( {'badrecord','state'}
+											       -| ['compiler_generated'] ))
+											-| ['compiler_generated'] )
+										  -| ['compiler_generated'] )
+									      end
+									      -| ['compiler_generated'] )
+					    -| ['compiler_generated'] )
+					  ( <_cor665> when 'true' ->
+						( call ( 'erlang'
+							 -| ['compiler_generated'] ):( 'error'
+										       -| ['compiler_generated'] )
+						      (( {'badrecord','appl'}
+							 -| ['compiler_generated'] ))
+						  -| ['compiler_generated'] )
+					    -| ['compiler_generated'] )
+					end
+					-| ['compiler_generated'] )
+				  %% Line 548
+				  <_cor717,_cor718> when 'true' ->
+				      let <NRStarted> =
+					  %% Line 551
+					  [{Node,Name}|_cor632]
+				      in  let <_cor176> =
+					      %% Line 552
+					      call 'erlang':'setelement'
+						  (4, S, NRStarted)
+					  in  %% Line 552
+					      {'noreply',_cor176}
+				end
+		    -| ['compiler_generated'] )
+		  ( <_cor640> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 555
+	  <{'dist_ac_app_stopped',AppName},S> when 'true' ->
+	      %% Line 556
+	      ( case S of
+		  ( <( {'state',_rec58,_cor740,_cor741,_cor742,_cor743,_cor744,_cor745,_cor746,_cor747,_cor748}
+		       -| ['compiler_generated'] )> when 'true' ->
+			%% Line 557
+			case call 'lists':'keysearch'
+				 (AppName, 2, _rec58) of
+			  %% Line 558
+			  <'false'> when 'true' ->
+			      let <RStarted> =
+				  %% Line 559
+				  call 'lists':'keydelete'
+				      (AppName, 2, _cor741)
+			      in  let <_cor186> =
+				      %% Line 560
+				      call 'erlang':'setelement'
+					  (4, S, RStarted)
+				  in  %% Line 560
+				      {'noreply',_cor186}
+			  %% Line 561
+			  <{'value',Appl}> when 'true' ->
+			      %% Line 562
+			      case Appl of
+				<{'appl',_cor771,_cor772,_cor773,_cor774,_cor775}> when 'true' ->
+				    let <_cor189> =
+					call 'erlang':'setelement'
+					    (3, Appl, 'undefined')
+				    in  let <NAppls> =
+					    %% Line 563
+					    call 'lists':'keyreplace'
+						(AppName, 2, _rec58, _cor189)
+					in  let <RStarted> =
+						%% Line 564
+						call 'lists':'keydelete'
+						    (AppName, 2, _cor741)
+					    in  let <_cor196> =
+						    %% Line 565
+						    call 'erlang':'setelement'
+							(4, S, RStarted)
+						in  let <_cor198> =
+							%% Line 565
+							call 'erlang':'setelement'
+							    (2, _cor196, NAppls)
+						    in  %% Line 565
+							{'noreply',_cor198}
+				( <_cor776> when 'true' ->
+				      ( call ( 'erlang'
+					       -| ['compiler_generated'] ):( 'error'
+									     -| ['compiler_generated'] )
+					    (( {'badrecord','appl'}
+					       -| ['compiler_generated'] ))
+					-| ['compiler_generated'] )
+				  -| ['compiler_generated'] )
+			      end
+			  ( <_cor199> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor199})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor749> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 568
+	  <{'dist_ac_weight',Name,Weight,Node},S> when 'true' ->
+	      %% Line 579
+	      ( case S of
+		  ( <( {'state',_rec64,_cor798,_cor799,_cor800,_cor801,_cor802,_cor803,_cor804,_cor805,_cor806}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case call 'lists':'keysearch'
+				 (Name, 2, _rec64) of
+			  %% Line 580
+			  <{'value',Appl}> when 'true' ->
+			      %% Line 581
+			      ( case Appl of
+				  ( <( {'appl',_cor808,_rec65,_cor809,_cor810,_cor811}
+				       -| ['compiler_generated'] )> when 'true' ->
+					%% Line 582
+					case _rec65 of
+					  %% Line 583
+					  <'run_waiting'> when 'true' ->
+					      let <_cor205> =
+						  %% Line 584
+						  call 'erlang':'node'
+						      ()
+					      in  do  %% Line 584
+						      call 'erlang':'!'
+							  ({'dist_ac',Node}, {'dist_ac_weight',Name,0,_cor205})
+						      %% Line 585
+						      {'noreply',S}
+					  %% Line 586
+					  <'undefined'> when 'true' ->
+					      let <_rec66> =
+						  %% Line 588
+						  [{Name,Weight,Node}|_cor798]
+					      in  let <_cor211> =
+						      %% Line 588
+						      call 'erlang':'setelement'
+							  (3, S, _rec66)
+						  in  %% Line 587
+						      {'noreply',_cor211}
+					  %% Line 590
+					  <{'takeover',_cor834}> when 'true' ->
+					      let <_rec69> =
+						  %% Line 592
+						  [{Name,Weight,Node}|_cor798]
+					      in  let <_cor217> =
+						      %% Line 592
+						      call 'erlang':'setelement'
+							  (3, S, _rec69)
+						  in  %% Line 591
+						      {'noreply',_cor217}
+					  %% Line 594
+					  <{'failover',_cor856}> when 'true' ->
+					      let <_rec72> =
+						  %% Line 596
+						  [{Name,Weight,Node}|_cor798]
+					      in  let <_cor223> =
+						      %% Line 596
+						      call 'erlang':'setelement'
+							  (3, S, _rec72)
+						  in  %% Line 595
+						      {'noreply',_cor223}
+					  %% Line 598
+					  <_cor878> when 'true' ->
+					      let <MyWeight> =
+						  %% Line 599
+						  apply 'get_cached_weight'/2
+						      (Name, S)
+					      in  let <_cor225> =
+						      %% Line 600
+						      call 'erlang':'node'
+							  ()
+						  in  do  %% Line 600
+							  call 'erlang':'!'
+							      ({'dist_ac',Node}, {'dist_ac_weight',Name,MyWeight,_cor225})
+							  let <NTWs> =
+							      %% Line 601
+							      apply 'keyreplaceadd'/4
+								  (Name, 1, _cor802, %% Line 602
+										     {Name,MyWeight})
+							  in  let <_cor231> =
+								  %% Line 603
+								  call 'erlang':'setelement'
+								      (7, S, NTWs)
+							      in  %% Line 603
+								  {'noreply',_cor231}
+					end
+				    -| ['compiler_generated'] )
+				  ( <_cor812> when 'true' ->
+					( call ( 'erlang'
+						 -| ['compiler_generated'] ):( 'error'
+									       -| ['compiler_generated'] )
+					      (( {'badrecord','appl'}
+						 -| ['compiler_generated'] ))
+					  -| ['compiler_generated'] )
+				    -| ['compiler_generated'] )
+				end
+				-| ['compiler_generated'] )
+			  %% Line 605
+			  <_cor900> when 'true' ->
+			      let <_rec77> =
+				  %% Line 607
+				  [{Name,Weight,Node}|_cor798]
+			      in  let <_cor238> =
+				      %% Line 607
+				      call 'erlang':'setelement'
+					  (3, S, _rec77)
+				  in  %% Line 606
+				      {'noreply',_cor238}
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor807> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 613
+	  <{'nodedown',Node},S> when 'true' ->
+	      %% Line 614
+	      ( case S of
+		  ( <( {'state',_rec80,_cor922,_cor923,_cor924,_cor925,_cor926,_cor927,_cor928,_cor929,_cor930}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <AppNames> =
+			    apply 'dist_get_runnable'/1
+				(_rec80)
+			in  let <_cor247> =
+				%% Line 615
+				( fun (_cor245) ->
+				      case _cor245 of
+					<{'appl',Name,{'distributed',N},_cor932,_cor933,_cor934}>
+					    when %% Line 616
+					      call 'erlang':'=:='
+						  (Node,
+						   N) ->
+					    %% Line 616
+					    call 'lists':'member'
+						(Name, AppNames)
+					%% Line 617
+					<_cor935> when 'true' ->
+					    'false'
+				      end
+				  -| [{'id',{0,0,'-handle_info/2-fun-3-'}}] )
+			    in  let <HisAppls> =
+				    %% Line 615
+				    call 'lists':'filter'
+					(_cor247, _rec80)
+				in  let <_cor272> =
+					%% Line 620
+					( fun (_cor270) ->
+					      case _cor270 of
+						<Appl = {'appl',_cor946,_cor947,_cor948,_cor949,_cor950}>
+						    when call 'erlang':'=:='
+							  (_cor947,
+							   {'distributed',Node}) ->
+						    %% Line 621
+						    case call 'lists':'member'
+							     (_cor946, AppNames) of
+						      %% Line 622
+						      <'true'> when 'true' ->
+							  let <_rec83> = {%% Line 623
+							       'failover',%% Line 623
+									  Node}
+							  in  let <_cor262> =
+								  %% Line 623
+								  call 'erlang':'setelement'
+								      (3, Appl, _rec83)
+							      in  %% Line 623
+								  {'true',_cor262}
+						      %% Line 624
+						      <'false'> when 'true' ->
+							  let <_X_> =
+							      %% Line 625
+							      apply 'ac_not_running'/1
+								  (_cor946)
+							  in  let <_cor268> =
+								  %% Line 626
+								  call 'erlang':'setelement'
+								      (3, Appl, 'undefined')
+							      in  %% Line 626
+								  {'true',_cor268}
+						      ( <_cor269> when 'true' ->
+							    primop 'match_fail'
+								({'case_clause',_cor269})
+							-| ['compiler_generated'] )
+						    end
+						%% Line 628
+						<_cor973> when 'true' ->
+						    %% Line 629
+						    'true'
+					      end
+					  -| [{'id',{0,0,'-handle_info/2-fun-4-'}}] )
+				    in  let <Appls2> =
+					    %% Line 620
+					    call 'lists':'zf'
+						(_cor272, _rec80)
+					in  let <_cor278> =
+						%% Line 632
+						( fun (_cor276) ->
+						      case _cor276 of
+							<{Node2,_X_Name}>
+							    when call 'erlang':'=:='
+								  (Node2,
+								   Node) ->
+							    'false'
+							%% Line 633
+							<_cor984> when 'true' ->
+							    'true'
+						      end
+						  -| [{'id',{0,0,'-handle_info/2-fun-5-'}}] )
+					    in  let <RStarted> =
+						    %% Line 632
+						    call 'lists':'filter'
+							(_cor278, _cor923)
+						in  let <Appls3> =
+							%% Line 636
+							apply 'dist_del_node'/2
+							    (Appls2, Node)
+						    in  %% Line 637
+							case apply 'req_del_node'/3
+								 (S, Node, Appls3) of
+							  <{NPermitReq,Appls4,SReqs}> when 'true' ->
+							      let <NKnown> =
+								  %% Line 638
+								  call 'lists':'delete'
+								      (Node, _cor924)
+							      in  let <_cor286> =
+								      %% Line 639
+								      call 'erlang':'setelement'
+									  (11, S, NPermitReq)
+								  in  let <_cor287> =
+									  %% Line 640
+									  call 'erlang':'setelement'
+									      (10, _cor286, SReqs)
+								      in  let <_cor288> =
+									      %% Line 639
+									      call 'erlang':'setelement'
+										  (5, _cor287, NKnown)
+									  in  let <_cor289> =
+										  %% Line 641
+										  call 'erlang':'setelement'
+										      (4, _cor288, RStarted)
+									      in  let <_cor291> =
+										      %% Line 639
+										      call 'erlang':'setelement'
+											  (2, _cor289, Appls4)
+										  in  do  %% Line 642
+											  apply 'restart_appls'/1
+											      (HisAppls)
+											  %% Line 643
+											  {'noreply',_cor291}
+							  ( <_cor281> when 'true' ->
+								primop 'match_fail'
+								    ({'badmatch',_cor281})
+							    -| ['compiler_generated'] )
+							end
+		    -| ['compiler_generated'] )
+		  ( <_cor931> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 645
+	  <{'dist_ac_app_loaded',Node,Name,HisNodes,Permission,HeKnowsMe},%% Line 646
+									  S> when 'true' ->
+	      %% Line 647
+	      ( case S of
+		  ( <( {'state',_rec91,_cor1016,_cor1017,_cor1018,_cor1019,_cor1020,_cor1021,_cor1022,_cor1023,_cor1024}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <Nodes> =
+			    apply 'dist_find_nodes'/2
+				(_rec91, Name)
+			in  %% Line 648
+			    case apply 'is_loaded'/2
+				     (Name, S) of
+			      %% Line 649
+			      <'true'> when 'true' ->
+				  %% Line 650
+				  case apply 'equal_nodes'/2
+					   (Nodes, HisNodes) of
+				    %% Line 651
+				    <'true'> when 'true' ->
+					let <NAppls> =
+					    %% Line 652
+					    apply 'dist_update_run'/4
+						(_rec91, Name, Node, Permission)
+					in  do  %% Line 653
+						case <> of
+						  %% Line 654
+						  <>
+						      when let <_cor298> =
+							    call 'erlang':'=:='
+								(HeKnowsMe, 'false')
+							in  let <_cor299> =
+								call 'erlang':'is_boolean'
+								    (HeKnowsMe)
+							    in  call 'erlang':'and'
+								    (_cor298, _cor299) ->
+						      let <_cor301> =
+							  %% Line 657
+							  call 'erlang':'node'
+							      ()
+						      in  let <_cor300> =
+							      %% Line 658
+							      apply 'dist_is_runnable'/2
+								  (_rec91, Name)
+							  in  let <Msg> =
+								  %% Line 657
+								  {'dist_ac_app_loaded',_cor301,Name,%% Line 658
+												     Nodes,_cor300,%% Line 658
+														   'true'}
+							      in  do  %% Line 659
+								      call 'erlang':'!'
+									  ({'dist_ac',Node}, Msg)
+								      'ok'
+						  %% Line 661
+						  <> when 'true' ->
+						      'ok'
+						end
+						let <_cor305> =
+						    %% Line 664
+						    call 'erlang':'setelement'
+							(2, S, NAppls)
+						in  %% Line 664
+						    {'noreply',_cor305}
+				    %% Line 665
+				    <'false'> when 'true' ->
+					%% Line 666
+					apply 'dist_mismatch'/2
+					    (Name, Node)
+				    ( <_cor306> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor306})
+				      -| ['compiler_generated'] )
+				  end
+			      %% Line 668
+			      <'false'> when 'true' ->
+				  let <Load> =
+				      %% Line 669
+				      [{{Name,Node},HisNodes,Permission}|_cor1021]
+				  in  let <_cor312> =
+					  %% Line 670
+					  call 'erlang':'setelement'
+					      (8, S, Load)
+				      in  %% Line 670
+					  {'noreply',_cor312}
+			      ( <_cor313> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor313})
+				-| ['compiler_generated'] )
+			    end
+		    -| ['compiler_generated'] )
+		  ( <_cor1025> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 673
+	  <{'dist_ac_app_unloaded',Node,Name},S> when 'true' ->
+	      %% Line 674
+	      ( case S of
+		  ( <( {'state',_rec95,_cor1058,_cor1059,_cor1060,_cor1061,_cor1062,_cor1063,_cor1064,_cor1065,_cor1066}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <Appls> =
+			    apply 'dist_update_run'/4
+				(_rec95, Name, Node, 'undefined')
+			in  let <Load> =
+				%% Line 675
+				call 'lists':'keydelete'
+				    ({Name,Node}, 1, _cor1063)
+			    in  let <_cor321> =
+				    %% Line 676
+				    call 'erlang':'setelement'
+					(8, S, Load)
+				in  let <_cor323> =
+					%% Line 676
+					call 'erlang':'setelement'
+					    (2, _cor321, Appls)
+				    in  %% Line 676
+					{'noreply',_cor323}
+		    -| ['compiler_generated'] )
+		  ( <_cor1067> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 679
+	  <{'dist_ac_new_permission',Node,AppName,'false',IsHisApp},S> when 'true' ->
+	      %% Line 680
+	      ( case S of
+		  ( <( {'state',_rec98,_cor1089,_cor1090,_cor1091,_cor1092,_cor1093,_cor1094,_cor1095,_cor1096,_cor1097}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <Appls> =
+			    apply 'dist_update_run'/4
+				(_rec98, AppName, Node, 'false')
+			in  let <_cor329> =
+				%% Line 681
+				call 'erlang':'setelement'
+				    (2, S, Appls)
+			    in  %% Line 682
+				case apply 'dist_is_runnable'/2
+					 (Appls, AppName) of
+				  %% Line 683
+				  <'true'>
+				      when call 'erlang':'=:='
+					    (IsHisApp,
+					     'true') ->
+				      let <_cor331> =
+					  catch
+					      %% Line 684
+					      apply 'start_appl'/3
+						  (AppName, _cor329, 'req')
+				      in  %% Line 684
+					  case _cor331 of
+					    %% Line 685
+					    <{'ok',NewS2,_cor1110}> when 'true' ->
+						%% Line 686
+						{'noreply',NewS2}
+					    %% Line 687
+					    <{'error',_X_R}> when 'true' ->
+						%% Line 688
+						{'noreply',_cor329}
+					    ( <_cor332> when 'true' ->
+						  primop 'match_fail'
+						      ({'case_clause',_cor332})
+					      -| ['compiler_generated'] )
+					  end
+				  %% Line 690
+				  <_cor1111> when 'true' ->
+				      %% Line 691
+				      {'noreply',_cor329}
+				end
+		    -| ['compiler_generated'] )
+		  ( <_cor1098> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 693
+	  <{'dist_ac_new_permission',Node,AppName,'true',_X_IsHisApp},S> when 'true' ->
+	      %% Line 694
+	      ( case S of
+		  ( <( {'state',_rec100,_cor1112,_cor1113,_cor1114,_cor1115,_cor1116,_cor1117,_cor1118,_cor1119,_cor1120}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <Appls> =
+			    apply 'dist_update_run'/4
+				(_rec100, AppName, Node, 'true')
+			in  let <_cor339> =
+				%% Line 695
+				call 'erlang':'setelement'
+				    (2, S, Appls)
+			    in  %% Line 695
+				{'noreply',_cor339}
+		    -| ['compiler_generated'] )
+		  ( <_cor1121> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 697
+	  <{'internal_restart_appl',Name},S> when 'true' ->
+	      %% Line 698
+	      case apply 'restart_appl'/2
+		       (Name, S) of
+		%% Line 699
+		<{'error',R}> when 'true' ->
+		    %% Line 700
+		    {'stop',{'error',R},S}
+		%% Line 701
+		<NewS> when 'true' ->
+		    %% Line 702
+		    {'noreply',NewS}
+	      end
+	  %% Line 705
+	  <_cor1133,S> when 'true' ->
+	      %% Line 706
+	      {'noreply',S}
+	end
+'terminate'/2 =
+    %% Line 708
+    fun (_cor1,_cor0) ->
+	%% Line 709
+	'ok'
+'code_change'/3 =
+    %% Line 711
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 712
+	{'ok',_cor1}
+'load'/2 =
+    %% Line 717
+    fun (_cor1,_cor0) ->
+	%% Line 718
+	( case _cor0 of
+	    ( <( {'state',_rec102,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <DistLoaded> =
+		      %% Line 720
+		      apply 'get_dist_loaded'/2
+			  (_cor1, _cor41)
+		  in  let <Nodes> =
+			  %% Line 722
+			  apply 'dist_find_nodes'/2
+			      (_rec102, _cor1)
+		      in  let <FNodes> =
+			      %% Line 723
+			      apply 'flat_nodes'/1
+				  (Nodes)
+			  in  let <Permission> =
+				  %% Line 725
+				  apply 'get_default_permission'/1
+				      (_cor1)
+			      in  let <_cor12> =
+				      %% Line 726
+				      call 'erlang':'node'
+					  ()
+				  in  let <Appls1> =
+					  %% Line 726
+					  apply 'dist_update_run'/4
+					      (_rec102, _cor1, _cor12, Permission)
+				      in  let <_cor20> =
+					      %% Line 731
+					      ( fun (_cor17,_cor16) ->
+						    case <_cor17,_cor16> of
+						      <{Node,HisNodes,HisPermission},Appls> when 'true' ->
+							  %% Line 732
+							  case apply 'equal_nodes'/2
+								   (Nodes, HisNodes) of
+							    %% Line 733
+							    <'true'> when 'true' ->
+								let <_cor14> =
+								    %% Line 734
+								    apply 'dist_update_run'/4
+									(Appls, _cor1, %% Line 735
+										       Node, %% Line 735
+											     HisPermission)
+								in  %% Line 734
+								    {Node,_cor14}
+							    %% Line 736
+							    <_cor56> when 'true' ->
+								%% Line 737
+								apply 'dist_mismatch'/2
+								    (_cor1, Node)
+							  end
+						      ( <_cor19,_cor18> when 'true' ->
+							    ( primop 'match_fail'
+								  ({'function_clause',_cor19,_cor18})
+							      -| [{'function_name',{'-load/2-fun-0-',2}}] )
+							-| ['compiler_generated'] )
+						    end
+						-| [{'id',{0,0,'-load/2-fun-0-'}}] )
+					  in  %% Line 729
+					      case %% Line 730
+						   call 'lists':'mapfoldl'
+						       (_cor20, %% Line 739
+								Appls1, %% Line 739
+									DistLoaded) of
+						<{LoadedNodes,Appls2}> when 'true' ->
+						    let <Load2> =
+							%% Line 740
+							apply 'del_dist_loaded'/2
+							    (_cor1, _cor41)
+						    in  let <_cor29> =
+							    %% Line 742
+							    ( fun (_cor27) ->
+								  case _cor27 of
+								    <Node>
+									when try
+									      let <_cor23> =
+										  call 'erlang':'node'
+										      ()
+									      in  call 'erlang':'=/='
+										      (_cor27, _cor23)
+									  of <Try> ->
+									      Try
+									  catch <T,R> ->
+									      'false' ->
+									let <_cor25> =
+									    %% Line 743
+									    call 'erlang':'node'
+										()
+									in  let <_cor24> =
+										%% Line 744
+										call 'lists':'member'
+										    (Node, LoadedNodes)
+									    in  let <Msg> =
+										    %% Line 743
+										    {'dist_ac_app_loaded',_cor25,_cor1,%% Line 744
+														       Nodes,%% Line 744
+															     Permission,_cor24}
+										in  %% Line 745
+										    call 'erlang':'!'
+											({'dist_ac',Node}, Msg)
+								    %% Line 746
+								    <_cor57> when 'true' ->
+									'ok'
+								  end
+							      -| [{'id',{0,0,'-load/2-fun-1-'}}] )
+							in  do  %% Line 742
+								call 'lists':'foreach'
+								    (_cor29, %% Line 747
+									     FNodes)
+								let <_cor31> =
+								    %% Line 748
+								    call 'erlang':'setelement'
+									(8, _cor0, Load2)
+								in  let <_cor33> =
+									%% Line 748
+									call 'erlang':'setelement'
+									    (2, _cor31, Appls2)
+								    in  %% Line 748
+									{'ok',_cor33}
+						( <_cor21> when 'true' ->
+						      primop 'match_fail'
+							  ({'badmatch',_cor21})
+						  -| ['compiler_generated'] )
+					      end
+	      -| ['compiler_generated'] )
+	    ( <_cor45> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'ensure_take_control'/2 =
+    %% Line 750
+    fun (_cor1,_cor0) ->
+	%% Line 752
+	case call 'lists':'keymember'
+		 (_cor1, 2, _cor0) of
+	  %% Line 753
+	  <'true'> when 'true' ->
+	      %% Line 754
+	      'ok'
+	  %% Line 755
+	  <'false'> when 'true' ->
+	      %% Line 765
+	      call 'application_controller':'control_application'
+		  (_cor1)
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'unload'/2 =
+    %% Line 768
+    fun (_cor1,_cor0) ->
+	%% Line 769
+	( case _cor0 of
+	    ( <( {'state',_rec105,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <Nodes> =
+		      %% Line 770
+		      apply 'dist_flat_nodes'/2
+			  (_rec105, _cor1)
+		  in  let <_cor6> =
+			  %% Line 772
+			  call 'erlang':'node'
+			      ()
+		      in  let <Msg> = {%% Line 772
+			       'dist_ac_app_unloaded',_cor6,_cor1}
+			  in  do  %% Line 773
+				  apply 'send_msg'/2
+				      (Msg, Nodes)
+				  %% Line 774
+				  case call 'lists':'keysearch'
+					   (_cor1, 2, _rec105) of
+				    <{'value',Appl}> when 'true' ->
+					%% Line 775
+					case Appl of
+					  <{'appl',_cor30,_cor31,_cor32,_cor33,_cor34}> when 'true' ->
+					      let <_cor10> =
+						  call 'erlang':'setelement'
+						      (6, Appl, [])
+					      in  let <_cor12> =
+						      call 'erlang':'setelement'
+							  (3, _cor10, 'undefined')
+						  in  let <_rec107> =
+							  %% Line 776
+							  call 'lists':'keyreplace'
+							      (_cor1, 2, _rec105, _cor12)
+						      in  let <_cor17> =
+							      %% Line 776
+							      call 'erlang':'setelement'
+								  (2, _cor0, _rec107)
+							  in  %% Line 776
+							      {'ok',_cor17}
+					  ( <_cor35> when 'true' ->
+						( call ( 'erlang'
+							 -| ['compiler_generated'] ):( 'error'
+										       -| ['compiler_generated'] )
+						      (( {'badrecord','appl'}
+							 -| ['compiler_generated'] ))
+						  -| ['compiler_generated'] )
+					    -| ['compiler_generated'] )
+					end
+				    ( <_cor8> when 'true' ->
+					  primop 'match_fail'
+					      ({'badmatch',_cor8})
+				      -| ['compiler_generated'] )
+				  end
+	      -| ['compiler_generated'] )
+	    ( <_cor29> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'start_appl'/3 =
+    %% Line 778
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 782
+	( case _cor1 of
+	    ( <( {'state',_rec109,_cor45,_cor46,_cor47,_cor48,_cor49,_cor50,_cor51,_cor52,_cor53}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  case call 'lists':'keysearch'
+			   (_cor2, 2, _rec109) of
+		    %% Line 783
+		    <{'value',A}> when 'true' ->
+			%% Line 786
+			( case A of
+			    ( <( {'appl',_cor56,_rec110,_cor57,_cor58,_cor59}
+				 -| ['compiler_generated'] )> when 'true' ->
+				  case _rec110 of
+				    %% Line 787
+				    <'local'> when 'true' ->
+					%% Line 790
+					{'ok',_cor1,'false'}
+				    %% Line 791
+				    <_cor61> when 'true' ->
+					%% Line 792
+					case apply 'dist_get_all_nodes'/1
+						 (A) of
+					  %% Line 793
+					  <{'ok',DistNodes,PermittedNodes}> when 'true' ->
+					      case %% Line 794
+						   apply 'start_distributed'/6
+						       (A, _cor2, DistNodes, %% Line 795
+									     PermittedNodes, _cor1, _cor0) of
+						<{Id,IsWaiting}> when 'true' ->
+						    let <_cor16> =
+							%% Line 798
+							call 'erlang':'setelement'
+							    (3, A, Id)
+						    in  let <NAppls> =
+							    %% Line 799
+							    apply 'keyreplaceadd'/4
+								(_cor2, 2, _rec109, _cor16)
+							in  let <_cor21> =
+								%% Line 800
+								call 'erlang':'setelement'
+								    (2, _cor1, NAppls)
+							    in  %% Line 800
+								case apply 'req_start_app'/2
+									 (_cor21, _cor2) of
+								  <{'ok',NewS}> when 'true' ->
+								      %% Line 801
+								      ( case NewS of
+									  ( <( {'state',_cor79,_rec113,_cor80,_cor81,_cor82,_cor83,_cor84,_cor85,_cor86,_cor87}
+									       -| ['compiler_generated'] )> when 'true' ->
+										let <TmpLocals> =
+										    apply 'keydelete_all'/3
+											(_cor2, 1, _rec113)
+										in  let <TmpWeights> =
+											%% Line 802
+											apply 'keydelete_all'/3
+											    (_cor2, 1, _cor83)
+										    in  let <RStarted> =
+											    %% Line 803
+											    call 'lists':'keydelete'
+												(_cor2, 2, _cor46)
+											in  let <Started> =
+												%% Line 804
+												apply 'replaceadd'/2
+												    (_cor2, _cor82)
+											    in  let <_cor36> =
+												    %% Line 807
+												    call 'erlang':'setelement'
+													(7, NewS, TmpWeights)
+												in  let <_cor37> =
+													%% Line 806
+													call 'erlang':'setelement'
+													    (6, _cor36, Started)
+												    in  let <_cor38> =
+													    %% Line 807
+													    call 'erlang':'setelement'
+														(4, _cor37, RStarted)
+													in  let <_cor40> =
+														%% Line 806
+														call 'erlang':'setelement'
+														    (3, _cor38, TmpLocals)
+													    in  %% Line 805
+														{'ok',_cor40,%% Line 808
+															     IsWaiting}
+									    -| ['compiler_generated'] )
+									  ( <_cor88> when 'true' ->
+										( call ( 'erlang'
+											 -| ['compiler_generated'] ):( 'error'
+														       -| ['compiler_generated'] )
+										      (( {'badrecord','state'}
+											 -| ['compiler_generated'] ))
+										  -| ['compiler_generated'] )
+									    -| ['compiler_generated'] )
+									end
+									-| ['compiler_generated'] )
+								  ( <_cor22> when 'true' ->
+									primop 'match_fail'
+									    ({'badmatch',_cor22})
+								    -| ['compiler_generated'] )
+								end
+						( <_cor13> when 'true' ->
+						      primop 'match_fail'
+							  ({'badmatch',_cor13})
+						  -| ['compiler_generated'] )
+					      end
+					  %% Line 796
+					  <Error> when 'true' ->
+					      call 'erlang':'throw'
+						  (Error)
+					end
+				  end
+			      -| ['compiler_generated'] )
+			    ( <_cor60> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','appl'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		    %% Line 784
+		    <_cor55> when 'true' ->
+			call 'erlang':'throw'
+			    ({'error',{'unknown_application',_cor2}})
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor54> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'start_distributed'/6 =
+    %% Line 812
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 813
+	case apply 'find_start_node'/4
+		 (_cor3, _cor2, _cor4, _cor1) of
+	  %% Line 814
+	  <{'ok',Node}>
+	      when try
+		    let <_cor6> =
+			call 'erlang':'node'
+			    ()
+		    in  call 'erlang':'=:='
+			    (Node, _cor6)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 815
+	      ( case _cor5 of
+		  ( <( {'appl',_cor28,_rec118,_cor29,_cor30,_cor31}
+		       -| ['compiler_generated'] )> when 'true' ->
+			do  case _rec118 of
+			      %% Line 816
+			      <{'failover',FoNode}>
+				  when call 'erlang':'=:='
+					(_cor0,
+					 'req') ->
+				  %% Line 817
+				  apply 'ac_failover'/3
+				      (_cor4, FoNode, 'undefined')
+			      %% Line 818
+			      <{'distributed',Node2}>
+				  when call 'erlang':'=:='
+					(_cor0,
+					 'req') ->
+				  %% Line 819
+				  apply 'ac_takeover'/4
+				      ('req', _cor4, Node2, 'undefined')
+			      %% Line 820
+			      <_cor33>
+				  when call 'erlang':'=:='
+					(_cor0,
+					 'reply') ->
+				  %% Line 821
+				  ( case _cor1 of
+				      ( <( {'state',_cor34,_cor35,_rec119,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,_cor42}
+					   -| ['compiler_generated'] )> when 'true' ->
+					    case ( call 'lists':'keysearch'
+						       (_cor4, 2, _rec119)
+						   -| ['result_not_wanted'] ) of
+					      %% Line 822
+					      <{'value',{Node3,_cor44}}> when 'true' ->
+						  %% Line 823
+						  apply 'ac_takeover'/4
+						      ('reply', _cor4, Node3, 'undefined')
+					      %% Line 824
+					      <_cor45> when 'true' ->
+						  %% Line 825
+						  apply 'ac_start_it'/2
+						      (_cor0, _cor4)
+					    end
+					-| ['compiler_generated'] )
+				      ( <_cor43> when 'true' ->
+					    ( call ( 'erlang'
+						     -| ['compiler_generated'] ):( 'error'
+										   -| ['compiler_generated'] )
+						  (( {'badrecord','state'}
+						     -| ['compiler_generated'] ))
+					      -| ['result_not_wanted','compiler_generated'] )
+					-| ['compiler_generated'] )
+				    end
+				    -| ['compiler_generated'] )
+			      %% Line 827
+			      <_cor46> when 'true' ->
+				  %% Line 828
+				  apply 'ac_start_it'/2
+				      (_cor0, _cor4)
+			    end
+			    %% Line 830
+			    {'run_waiting','true'}
+		    -| ['compiler_generated'] )
+		  ( <_cor32> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','appl'}
+				 -| ['compiler_generated'] ))
+			  -| ['result_not_wanted','compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 831
+	  <{'already_started',Node}> when 'true' ->
+	      let <_X_> =
+		  %% Line 832
+		  apply 'ac_started'/3
+		      (_cor0, _cor4, Node)
+	      in  %% Line 833
+		  {{'distributed',Node},'false'}
+	  %% Line 834
+	  <{'ok',Node}> when 'true' ->
+	      %% Line 835
+	      ( case _cor1 of
+		  ( <( {'state',_rec120,_cor47,_cor48,_cor49,_cor50,_cor51,_cor52,_cor53,_cor54,_cor55}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case call 'lists':'keysearch'
+				 (_cor4, 2, _rec120) of
+			  %% Line 836
+			  <{'value',{'appl',_cor57,{'distributed',_cor58},_cor59,_cor60,_cor61}}>
+			      when call 'erlang':'=:='
+				    (_cor58,
+				     Node) ->
+			      let <_X_> =
+				  %% Line 837
+				  apply 'ac_started'/3
+				      (_cor0, _cor4, Node)
+			      in  %% Line 838
+				  {{'distributed',Node},'false'}
+			  %% Line 839
+			  <_cor62> when 'true' ->
+			      %% Line 840
+			      apply 'wait_dist_start'/7
+				  (Node, _cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor56> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 843
+	  <'not_started'> when 'true' ->
+	      %% Line 844
+	      apply 'wait_dist_start2'/6
+		  (_cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 845
+	  <'no_permission'> when 'true' ->
+	      do  %% Line 846
+		  apply 'ac_not_started'/2
+		      (_cor0, _cor4)
+		  %% Line 847
+		  {'undefined','false'}
+	  ( <_cor21> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor21})
+	    -| ['compiler_generated'] )
+	end
+'wait_dist_start'/7 =
+    %% Line 850
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 851
+	    call 'erlang':'monitor_node'
+		(_cor6, 'true')
+	    %% Line 852
+	    receive
+	      %% Line 853
+	      <{'dist_ac_app_started',_cor33,_cor34,'ok'}>
+		  when let <_cor35> =
+			call 'erlang':'=:='
+			    (_cor33, _cor6)
+		    in  let <_cor36> =
+			    call 'erlang':'=:='
+				(_cor34, _cor4)
+			in  call 'erlang':'and'
+				(_cor35, _cor36) ->
+		  let <_X_> =
+		      %% Line 854
+		      apply 'ac_started'/3
+			  (_cor0, _cor4, _cor6)
+		  in  do  %% Line 855
+			  call 'erlang':'monitor_node'
+			      (_cor6, 'false')
+			  %% Line 856
+			  {{'distributed',_cor6},'false'}
+	      %% Line 857
+	      <{'dist_ac_app_started',_cor37,_cor38,{'error',R}}>
+		  when let <_cor39> =
+			call 'erlang':'=:='
+			    (_cor37, _cor6)
+		    in  let <_cor40> =
+			    call 'erlang':'=:='
+				(_cor38, _cor4)
+			in  call 'erlang':'and'
+				(_cor39, _cor40) ->
+		  let <_X_> =
+		      %% Line 858
+		      apply 'ac_error'/3
+			  (_cor0, _cor4, {_cor6,R})
+		  in  do  %% Line 859
+			  call 'erlang':'monitor_node'
+			      (_cor6, 'false')
+			  %% Line 860
+			  ( case _cor5 of
+			      ( <( {'appl',_cor41,_rec121,_cor42,_cor43,_cor44}
+				   -| ['compiler_generated'] )> when 'true' ->
+				    {_rec121,'false'}
+				-| ['compiler_generated'] )
+			      ( <_cor45> when 'true' ->
+				    ( call ( 'erlang'
+					     -| ['compiler_generated'] ):( 'error'
+									   -| ['compiler_generated'] )
+					  (( {'badrecord','appl'}
+					     -| ['compiler_generated'] ))
+				      -| ['compiler_generated'] )
+				-| ['compiler_generated'] )
+			    end
+			    -| ['compiler_generated'] )
+	      %% Line 861
+	      <{'dist_ac_weight',_cor46,_X_Weigth,_cor47}>
+		  when let <_cor48> =
+			call 'erlang':'=:='
+			    (_cor46, _cor4)
+		    in  let <_cor49> =
+			    call 'erlang':'=:='
+				(_cor47, _cor6)
+			in  call 'erlang':'and'
+				(_cor48, _cor49) ->
+		  do  %% Line 867
+		      call 'erlang':'monitor_node'
+			  (_cor6, 'false')
+		      let <_cor12> =
+			  %% Line 869
+			  apply 'get_cached_weight'/2
+			      (_cor4, _cor1)
+		      in  let <_cor11> =
+			      %% Line 869
+			      call 'erlang':'node'
+				  ()
+			  in  do  %% Line 868
+				  call 'erlang':'!'
+				      ({'dist_ac',_cor6}, %% Line 869
+							  {'dist_ac_weight',_cor4,_cor12,_cor11})
+				  %% Line 870
+				  apply 'wait_dist_start'/7
+				      (_cor6, _cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+	      %% Line 871
+	      <{'nodedown',_cor50}>
+		  when call 'erlang':'=:='
+			(_cor50,
+			 _cor6) ->
+		  do  %% Line 872
+		      call 'erlang':'monitor_node'
+			  (_cor6, 'false')
+		      let <_cor19> =
+			  %% Line 874
+			  ( fun (_cor17) ->
+				case _cor17 of
+				  <{Name2,_X_Weight,Node2}>
+				      when let <_cor15> =
+					    call 'erlang':'=:='
+						(Node2, _cor6)
+					in  let <_cor16> =
+						%% Line 875
+						call 'erlang':'=:='
+						    (Name2, _cor4)
+					    in  call 'erlang':'and'
+						    (_cor15, _cor16) ->
+				      %% Line 875
+				      'false'
+				  %% Line 876
+				  <_cor51> when 'true' ->
+				      'true'
+				end
+			    -| [{'id',{0,0,'-wait_dist_start/7-fun-0-'}}] )
+		      in  %% Line 878
+			  ( case _cor1 of
+			      ( <( {'state',_cor52,_rec122,_cor53,_cor54,_cor55,_cor56,_cor57,_cor58,_cor59,_cor60}
+				   -| ['compiler_generated'] )> when 'true' ->
+				    let <TmpLocals> =
+					call 'lists':'filter'
+					    (_cor19, _rec122)
+				    in  let <_cor23> =
+					    %% Line 879
+					    call 'erlang':'setelement'
+						(3, _cor1, TmpLocals)
+					in  let <_cor25> =
+						%% Line 881
+						call 'lists':'delete'
+						    (_cor6, _cor2)
+					    in  %% Line 880
+						apply 'start_distributed'/6
+						    (_cor5, _cor4, _cor3, _cor25, _cor23, _cor0)
+				-| ['compiler_generated'] )
+			      ( <_cor61> when 'true' ->
+				    ( call ( 'erlang'
+					     -| ['compiler_generated'] ):( 'error'
+									   -| ['compiler_generated'] )
+					  (( {'badrecord','state'}
+					     -| ['compiler_generated'] ))
+				      -| ['compiler_generated'] )
+				-| ['compiler_generated'] )
+			    end
+			    -| ['compiler_generated'] )
+	    after 'infinity' ->
+	      'true'
+'wait_dist_start2'/6 =
+    %% Line 884
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 885
+	receive
+	  %% Line 886
+	  <{'dist_ac_app_started',Node,_cor29,'ok'}>
+	      when call 'erlang':'=:='
+		    (_cor29,
+		     _cor4) ->
+	      let <_X_> =
+		  %% Line 887
+		  apply 'ac_started'/3
+		      (_cor0, _cor4, Node)
+	      in  %% Line 888
+		  {{'distributed',Node},'false'}
+	  %% Line 889
+	  <{'dist_ac_app_started',Node,_cor30,{'error',R}}>
+	      when call 'erlang':'=:='
+		    (_cor30,
+		     _cor4) ->
+	      let <_X_> =
+		  %% Line 890
+		  apply 'ac_error'/3
+		      (_cor0, _cor4, {Node,R})
+	      in  %% Line 891
+		  ( case _cor5 of
+		      ( <( {'appl',_cor31,_rec124,_cor32,_cor33,_cor34}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    {_rec124,'false'}
+			-| ['compiler_generated'] )
+		      ( <_cor35> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','appl'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	  %% Line 892
+	  <{'nodedown',Node}> when 'true' ->
+	      let <_cor16> =
+		  %% Line 896
+		  ( fun (_cor14) ->
+			case _cor14 of
+			  <{Name2,_X_Weight,Node2}>
+			      when let <_cor12> =
+				    call 'erlang':'=:='
+					(Node2, Node)
+				in  let <_cor13> =
+					%% Line 897
+					call 'erlang':'=:='
+					    (Name2, _cor4)
+				    in  call 'erlang':'and'
+					    (_cor12, _cor13) ->
+			      %% Line 897
+			      'false'
+			  %% Line 898
+			  <_cor36> when 'true' ->
+			      'true'
+			end
+		    -| [{'id',{0,0,'-wait_dist_start2/6-fun-0-'}}] )
+	      in  %% Line 900
+		  ( case _cor1 of
+		      ( <( {'state',_cor37,_rec125,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    let <TmpLocals> =
+				call 'lists':'filter'
+				    (_cor16, _rec125)
+			    in  let <_cor20> =
+				    %% Line 901
+				    call 'erlang':'setelement'
+					(3, _cor1, TmpLocals)
+				in  let <_cor22> =
+					%% Line 903
+					call 'lists':'delete'
+					    (Node, _cor2)
+				    in  %% Line 902
+					apply 'start_distributed'/6
+					    (_cor5, _cor4, _cor3, _cor22, _cor20, _cor0)
+			-| ['compiler_generated'] )
+		      ( <_cor46> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	after 'infinity' ->
+	  'true'
+'ac_start_it'/2 =
+    %% Line 907
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'reply',Name> when 'true' ->
+	      %% Line 908
+	      call 'erlang':'!'
+		  ('application_controller', {'ac_start_application_reply',Name,'start_it'})
+	  %% Line 909
+	  <'req',Name> when 'true' ->
+	      %% Line 910
+	      call 'erlang':'!'
+		  ('application_controller', {'ac_change_application_req',Name,'start_it'})
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'ac_start_it',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'ac_started'/3 =
+    %% Line 912
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'reply',Name,Node> when 'true' ->
+	      %% Line 913
+	      call 'erlang':'!'
+		  ('application_controller', {'ac_start_application_reply',Name,{'started',Node}})
+	  %% Line 914
+	  <'req',Name,Node> when 'true' ->
+	      %% Line 915
+	      call 'erlang':'!'
+		  ('application_controller', {'ac_change_application_req',Name,{'started',Node}})
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'ac_started',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'ac_error'/3 =
+    %% Line 917
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'reply',Name,Error> when 'true' ->
+	      %% Line 918
+	      call 'erlang':'!'
+		  ('application_controller', {'ac_start_application_reply',Name,{'error',Error}})
+	  %% Line 919
+	  <'req',_X_Name,_X_Error> when 'true' ->
+	      %% Line 920
+	      'ok'
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'ac_error',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'ac_not_started'/2 =
+    %% Line 922
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'reply',Name> when 'true' ->
+	      %% Line 923
+	      call 'erlang':'!'
+		  ('application_controller', {'ac_start_application_reply',Name,'not_started'})
+	  %% Line 924
+	  <'req',Name> when 'true' ->
+	      %% Line 925
+	      call 'erlang':'!'
+		  ('application_controller', {'ac_change_application_req',Name,'stop_it'})
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'ac_not_started',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'ac_stop_it'/1 =
+    %% Line 927
+    fun (_cor0) ->
+	%% Line 928
+	call 'erlang':'!'
+	    ('application_controller', {'ac_change_application_req',_cor0,'stop_it'})
+'ac_takeover'/4 =
+    %% Line 930
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <'reply',Name,Node,_X_RestartType> when 'true' ->
+	      %% Line 931
+	      call 'erlang':'!'
+		  ('application_controller', {'ac_start_application_reply',Name,{'takeover',Node}})
+	  %% Line 932
+	  <'req',Name,Node,RestartType> when 'true' ->
+	      %% Line 933
+	      call 'erlang':'!'
+		  ('application_controller', {'ac_change_application_req',Name,%% Line 934
+									       {'takeover',Node,RestartType}})
+	  ( <_cor7,_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'ac_takeover',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'ac_failover'/3 =
+    %% Line 936
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 937
+	call 'erlang':'!'
+	    ('application_controller', {'ac_change_application_req',_cor2,%% Line 938
+									  {'failover',_cor1,_cor0}})
+'ac_not_running'/1 =
+    %% Line 940
+    fun (_cor0) ->
+	%% Line 941
+	call 'erlang':'!'
+	    ('application_controller', {'ac_change_application_req',_cor0,'not_running'})
+'restart_appls'/1 =
+    %% Line 943
+    fun (_cor0) ->
+	let <_cor9> =
+	    %% Line 944
+	    ( fun (_cor7) ->
+		  %% Line 945
+		  ( case _cor7 of
+		      ( <( {'appl',_rec127,_cor11,_cor12,_cor13,_cor14}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    %% Line 946
+			    apply 'send_after'/2
+				(_cor12, %% Line 947
+					 {'internal_restart_appl',_rec127})
+			-| ['compiler_generated'] )
+		      ( <_cor15> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','appl'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	      -| [{'id',{0,0,'-restart_appls/1-fun-0-'}}] )
+	in  let <_cor1> =
+		%% Line 948
+		call 'lists':'reverse'
+		    (_cor0)
+	    in  %% Line 944
+		call 'lists':'foreach'
+		    (_cor9, _cor1)
+'restart_appl'/2 =
+    %% Line 950
+    fun (_cor1,_cor0) ->
+	%% Line 951
+	( case _cor0 of
+	    ( <( {'state',_rec129,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  case call 'lists':'keysearch'
+			   (_cor1, 2, _rec129) of
+		    %% Line 952
+		    <{'value',Appl = {'appl',_cor26,_cor27,_cor28,_cor29,_cor30}}>
+			when ( try
+				let <_cor9> =
+				    call 'erlang':'element'
+					(1, _cor27)
+				in  call 'erlang':'=:='
+					(_cor9, 'failover')
+			    of <Try> ->
+				Try
+			    catch <T,R> ->
+				'false'
+			    -| ['compiler_generated'] ) ->
+			let <_cor11> =
+			    catch
+				%% Line 953
+				apply 'start_appl'/3
+				    (_cor1, _cor0, 'req')
+			in  %% Line 953
+			    case _cor11 of
+			      %% Line 954
+			      <{'ok',NewS,_cor31}> when 'true' ->
+				  %% Line 955
+				  NewS
+			      %% Line 956
+			      <{'error',R}> when 'true' ->
+				  do  %% Line 957
+				      apply 'error_msg'/2
+					  ([69|[114|[114|[111|[114|[32|[119|[104|[101|[110|[32|[114|[101|[115|[116|[97|[114|[116|[105|[110|[103|[32|[97|[112|[112|[108|[105|[99|[97|[116|[105|[111|[110|[32|[126|[112|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 958
+																																			     [_cor1|[R|[]]])
+				      _cor0
+			      ( <_cor12> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor12})
+				-| ['compiler_generated'] )
+			    end
+		    %% Line 961
+		    <_cor32> when 'true' ->
+			_cor0
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor25> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'permit'/6 =
+    %% Line 966
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <'false',{'value',{'appl',_cor46,'undefined',_cor47,_cor48,_cor49}},_X_AppName,_X_From,S,_X_LockId> when 'true' ->
+	      %% Line 967
+	      {'reply','ok',S}
+	  %% Line 968
+	  <'false',{'value',{'appl',_cor50,Id,_cor51,_cor52,_cor53}},_X_AppName,_X_From,S,_X_LockId>
+	      when %% Line 969
+		try
+		    let <_cor6> =
+			call 'erlang':'element'
+			    (1, Id)
+		    in  call 'erlang':'=:='
+			    (_cor6, 'distributed')
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 971
+	      {'reply','ok',S}
+	  %% Line 972
+	  <'false',{'value',_cor54},AppName,From,S,_X_LockId> when 'true' ->
+	      %% Line 975
+	      ( case S of
+		  ( <( {'state',_rec130,_cor55,_cor56,_cor57,_cor58,_cor59,_cor60,_cor61,_cor62,_cor63}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case apply 'dist_get_runnable_nodes'/2
+				 (_rec130, AppName) of
+			  %% Line 976
+			  <[]> when 'true' ->
+			      let <_X_> =
+				  %% Line 978
+				  apply 'ac_stop_it'/1
+				      (AppName)
+			      in  let <SReqs> =
+				      %% Line 979
+				      [{AppName,From}|_cor62]
+				  in  let <_cor15> =
+					  %% Line 980
+					  call 'erlang':'setelement'
+					      (10, S, SReqs)
+				      in  %% Line 980
+					  {'noreply',_cor15}
+			  %% Line 981
+			  <Nodes> when 'true' ->
+			      let <PR> =
+				  %% Line 983
+				  apply 'req_del_permit_true'/2
+				      (_cor63, AppName)
+			      in  let <NPReqs> =
+				      %% Line 984
+				      [{From,AppName,'false',Nodes}|PR]
+				  in  let <_cor22> =
+					  %% Line 985
+					  call 'erlang':'setelement'
+					      (11, S, NPReqs)
+				      in  %% Line 985
+					  {'noreply',_cor22}
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor64> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 987
+	  <'true',{'value',{'appl',_cor107,'local',_cor108,_cor109,_cor110}},_X_AppName,_X_From,S,_X_LockId> when 'true' ->
+	      %% Line 988
+	      {'reply','ok',S}
+	  %% Line 989
+	  <'true',_cor111,AppName,From,S,LockId> when 'true' ->
+	      let <_cor24> =
+		  catch
+		      %% Line 990
+		      apply 'start_appl'/3
+			  (AppName, S, 'req')
+	      in  %% Line 990
+		  case _cor24 of
+		    %% Line 991
+		    <{_X_ErrorTag,{'not_running',App}}> when 'true' ->
+			%% Line 993
+			( case S of
+			    ( <( {'state',_cor112,_cor113,_cor114,_cor115,_cor116,_cor117,_cor118,_cor119,_cor120,_rec135}
+				 -| ['compiler_generated'] )> when 'true' ->
+				  let <PR> =
+				      apply 'req_del_permit_false'/2
+					  (_rec135, AppName)
+				  in  let <NPReqs> =
+					  %% Line 994
+					  [{'false',AppName,'true',App}|PR]
+				      in  let <_cor31> =
+					      %% Line 995
+					      call 'erlang':'setelement'
+						  (11, S, NPReqs)
+					  in  %% Line 995
+					      {'reply','ok',_cor31}
+			      -| ['compiler_generated'] )
+			    ( <_cor121> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','state'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		    %% Line 996
+		    <{'ok',NewS,'true'}> when 'true' ->
+			%% Line 999
+			( case NewS of
+			    ( <( {'state',_cor133,_cor134,_cor135,_cor136,_cor137,_cor138,_cor139,_rec137,_cor140,_cor141}
+				 -| ['compiler_generated'] )> when 'true' ->
+				  do  %% Line 1001
+				      call 'global':'del_lock'
+					  (LockId)
+				      let <_rec138> =
+					  %% Line 1002
+					  [{AppName,From}|_rec137]
+				      in  let <_cor38> =
+					      %% Line 1002
+					      call 'erlang':'setelement'
+						  (9, NewS, _rec138)
+					  in  %% Line 1002
+					      {'noreply',_cor38}
+			      -| ['compiler_generated'] )
+			    ( <_cor142> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','state'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		    %% Line 1003
+		    <{'ok',_X_S,'false'}> when 'true' ->
+			%% Line 1006
+			{'reply','ok',S}
+		    %% Line 1007
+		    <{_X_ErrorTag,R}> when 'true' ->
+			%% Line 1008
+			{'stop',R,{'error',R},S}
+		    ( <_cor39> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor39})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor45,_cor44,_cor43,_cor42,_cor41,_cor40> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor45,_cor44,_cor43,_cor42,_cor41,_cor40})
+		  -| [{'function_name',{'permit',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'do_start_appls'/2 =
+    %% Line 1011
+    fun (_cor1,_cor0) ->
+	%% Line 1013
+	( case _cor0 of
+	    ( <( {'state',_rec140,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <_cor16> =
+		      %% Line 1015
+		      ( fun (_cor13,_cor12) ->
+			    let <_cor10> =
+				catch
+				    %% Line 1016
+				    apply 'start_appl'/3
+					(_cor13, _cor12, 'req')
+			    in  %% Line 1016
+				case _cor10 of
+				  %% Line 1017
+				  <{'error',R}> when 'true' ->
+				      %% Line 1018
+				      call 'erlang':'throw'
+					  ({{'error',_cor12},R})
+				  %% Line 1019
+				  <{'ok',NewS2,_cor30}> when 'true' ->
+				      %% Line 1020
+				      NewS2
+				  ( <_cor11> when 'true' ->
+					primop 'match_fail'
+					    ({'case_clause',_cor11})
+				    -| ['compiler_generated'] )
+				end
+			-| [{'id',{0,0,'-do_start_appls/2-fun-0-'}}] )
+		  in  let <_cor9> =
+			  %% Line 1022
+			  call 'erlang':'setelement'
+			      (2, _cor0, _rec140)
+		      in  let <_cor6> =
+			      %% Line 1022
+			      call 'lists':'reverse'
+				  (_cor1)
+			  in  let <_cor17> =
+				  %% Line 1014
+				  call 'lists':'foldl'
+				      (_cor16, _cor9, _cor6)
+			      in  %% Line 1014
+				  {'ok',_cor17}
+	      -| ['compiler_generated'] )
+	    ( <_cor29> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'find_start_node'/4 =
+    %% Line 1033
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 1034
+	    apply 'flat_nodes'/1
+		(_cor3)
+	in  let <AllNodes> =
+		%% Line 1034
+		apply 'intersection'/2
+		    (_cor4, _cor2)
+	    in  let <_cor6> =
+		    %% Line 1035
+		    call 'erlang':'node'
+			()
+		in  %% Line 1035
+		    case call 'lists':'member'
+			     (_cor6, AllNodes) of
+		      %% Line 1036
+		      <'true'> when 'true' ->
+			  let <Weight> =
+			      %% Line 1037
+			      apply 'get_cached_weight'/2
+				  (_cor1, _cor0)
+			  in  %% Line 1038
+			      apply 'find_start_node'/5
+				  (_cor3, _cor1, _cor0, Weight, AllNodes)
+		      %% Line 1039
+		      <'false'> when 'true' ->
+			  %% Line 1040
+			  ( case _cor0 of
+			      ( <( {'state',_cor16,_cor17,_rec142,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24}
+				   -| ['compiler_generated'] )> when 'true' ->
+				    case call 'lists':'keysearch'
+					     (_cor1, 2, _rec142) of
+				      %% Line 1041
+				      <{'value',{Node,_X_Name}}> when 'true' ->
+					  %% Line 1042
+					  {'already_started',Node}
+				      %% Line 1043
+				      <_cor26>
+					  when call 'erlang':'=/='
+						(AllNodes,
+						 []) ->
+					  %% Line 1044
+					  'not_started'
+				      %% Line 1045
+				      <_cor27> when 'true' ->
+					  %% Line 1046
+					  'no_permission'
+				    end
+				-| ['compiler_generated'] )
+			      ( <_cor25> when 'true' ->
+				    ( call ( 'erlang'
+					     -| ['compiler_generated'] ):( 'error'
+									   -| ['compiler_generated'] )
+					  (( {'badrecord','state'}
+					     -| ['compiler_generated'] ))
+				      -| ['compiler_generated'] )
+				-| ['compiler_generated'] )
+			    end
+			    -| ['compiler_generated'] )
+		      ( <_cor11> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor11})
+			-| ['compiler_generated'] )
+		    end
+'find_start_node'/5 =
+    %% Line 1050
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[AnyNodes|Nodes],Name,S,Weight,AllNodes>
+	      when %% Line 1051
+		call 'erlang':'is_tuple'
+		    (AnyNodes) ->
+	      let <_cor5> =
+		  %% Line 1052
+		  call 'erlang':'tuple_to_list'
+		      (AnyNodes)
+	      in  %% Line 1052
+		  case apply 'find_any_node'/5
+			   (_cor5, Name, S, Weight, AllNodes) of
+		    %% Line 1053
+		    <'false'> when 'true' ->
+			apply 'find_start_node'/5
+			    (Nodes, Name, S, Weight, AllNodes)
+		    %% Line 1054
+		    <Res> when 'true' ->
+			Res
+		  end
+	  %% Line 1056
+	  <[Node|Nodes],Name,S,Weight,AllNodes> when 'true' ->
+	      %% Line 1057
+	      case call 'lists':'member'
+		       (Node, AllNodes) of
+		%% Line 1058
+		<'true'> when 'true' ->
+		    %% Line 1059
+		    ( case S of
+			( <( {'state',_rec143,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27}
+			     -| ['compiler_generated'] )> when 'true' ->
+			      case call 'lists':'keysearch'
+				       (Name, 2, _rec143) of
+				%% Line 1060
+				<{'value',{'appl',_cor29,{'distributed',_cor30},_cor31,_cor32,_cor33}}>
+				    when call 'erlang':'=:='
+					  (_cor30,
+					   Node) ->
+				    %% Line 1061
+				    {'already_started',Node}
+				%% Line 1062
+				<_cor34> when 'true' ->
+				    %% Line 1063
+				    case call 'lists':'keysearch'
+					     (Name, 2, _cor20) of
+				      %% Line 1064
+				      <{'value',{_cor45,_X_Name}}>
+					  when call 'erlang':'=:='
+						(_cor45,
+						 Node) ->
+					  %% Line 1065
+					  {'already_started',Node}
+				      %% Line 1066
+				      <_cor46> when 'true' ->
+					  %% Line 1067
+					  {'ok',Node}
+				    end
+			      end
+			  -| ['compiler_generated'] )
+			( <_cor28> when 'true' ->
+			      ( call ( 'erlang'
+				       -| ['compiler_generated'] ):( 'error'
+								     -| ['compiler_generated'] )
+				    (( {'badrecord','state'}
+				       -| ['compiler_generated'] ))
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+		      end
+		      -| ['compiler_generated'] )
+		%% Line 1070
+		<'false'> when 'true' ->
+		    apply 'find_start_node'/5
+			(Nodes, Name, S, Weight, AllNodes)
+		( <_cor13> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor13})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1072
+	  <[],_X_Name,_X_S,_X_Weight,_X_AllNodes> when 'true' ->
+	      %% Line 1073
+	      'not_started'
+	  ( <_cor18,_cor17,_cor16,_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor18,_cor17,_cor16,_cor15,_cor14})
+		  -| [{'function_name',{'find_start_node',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'find_any_node'/5 =
+    %% Line 1079
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 1080
+	    apply 'intersection'/2
+		(_cor4, _cor0)
+	in  %% Line 1080
+	    case apply 'check_running'/3
+		     (_cor3, _cor2, _cor5) of
+	      %% Line 1081
+	      <{'already_started',Node}> when 'true' ->
+		  {'already_started',Node}
+	      %% Line 1082
+	      <'false'> when 'true' ->
+		  let <_cor6> =
+		      %% Line 1084
+		      call 'erlang':'node'
+			  ()
+		  in  do  %% Line 1084
+			  apply 'send_nodes'/2
+			      (_cor0, {'dist_ac_weight',_cor3,_cor1,_cor6})
+			  let <_cor7> =
+			      %% Line 1085
+			      call 'erlang':'node'
+				  ()
+			  in  let <_cor8> =
+				  %% Line 1086
+				  apply 'collect_answers'/4
+				      (_cor0, _cor3, _cor2, [])
+			      in  let <Answers> =
+				      %% Line 1085
+				      [{_cor1,_cor7}|_cor8]
+				  in  let <_cor13> =
+					  %% Line 1088
+					  call 'lists':'sort'
+					      (Answers)
+				      in  %% Line 1089
+					  ( case _cor2 of
+					      ( <( {'state',_cor20,_cor21,_cor22,_rec145,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28}
+						   -| ['compiler_generated'] )> when 'true' ->
+						    let <_cor12> =
+							apply 'intersection'/2
+							    (_cor4, _rec145)
+						    in  apply 'find_alive_node'/2
+							    (_cor13, _cor12)
+						-| ['compiler_generated'] )
+					      ( <_cor29> when 'true' ->
+						    ( call ( 'erlang'
+							     -| ['compiler_generated'] ):( 'error'
+											   -| ['compiler_generated'] )
+							  (( {'badrecord','state'}
+							     -| ['compiler_generated'] ))
+						      -| ['compiler_generated'] )
+						-| ['compiler_generated'] )
+					    end
+					    -| ['compiler_generated'] )
+	      ( <_cor14> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor14})
+		-| ['compiler_generated'] )
+	    end
+'check_running'/3 =
+    %% Line 1096
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Name,{'state',%% Line 1097
+			 Appls,_cor10,RStarted,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17},%% Line 1097
+												 AnyNodes> when 'true' ->
+	      %% Line 1098
+	      case call 'lists':'keysearch'
+		       (Name, 2, RStarted) of
+		%% Line 1099
+		<{'value',{Node,_X_Name}}> when 'true' ->
+		    %% Line 1100
+		    case call 'lists':'member'
+			     (Node, AnyNodes) of
+		      %% Line 1101
+		      <'true'> when 'true' ->
+			  {'already_started',Node}
+		      %% Line 1102
+		      <'false'> when 'true' ->
+			  'false'
+		      ( <_cor3> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor3})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 1104
+		<'false'> when 'true' ->
+		    %% Line 1105
+		    case call 'lists':'keysearch'
+			     (Name, 2, Appls) of
+		      %% Line 1106
+		      <{'value',{'appl',_cor18,{'distributed',Node},_cor19,_cor20,_cor21}}> when 'true' ->
+			  %% Line 1107
+			  case call 'lists':'member'
+				   (Node, AnyNodes) of
+			    %% Line 1108
+			    <'true'> when 'true' ->
+				{'already_started',Node}
+			    %% Line 1109
+			    <'false'> when 'true' ->
+				'false'
+			    ( <_cor4> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor4})
+			      -| ['compiler_generated'] )
+			  end
+		      %% Line 1111
+		      <_cor22> when 'true' ->
+			  %% Line 1112
+			  'false'
+		    end
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'check_running',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'find_alive_node'/2 =
+    %% Line 1116
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{_cor5,Node}|Nodes],AliveNodes> when 'true' ->
+	      %% Line 1117
+	      case call 'lists':'member'
+		       (Node, AliveNodes) of
+		%% Line 1118
+		<'true'> when 'true' ->
+		    {'ok',Node}
+		%% Line 1119
+		<'false'> when 'true' ->
+		    apply 'find_alive_node'/2
+			(Nodes, AliveNodes)
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1121
+	  <[],_X_AliveNodes> when 'true' ->
+	      %% Line 1122
+	      'false'
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'find_alive_node',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'collect_answers'/4 =
+    %% Line 1132
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[Node|Nodes],Name,S,Res>
+	      when try
+		    let <_cor4> =
+			call 'erlang':'node'
+			    ()
+		    in  call 'erlang':'=/='
+			    (Node, _cor4)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 1133
+	      ( case S of
+		  ( <( {'state',_cor12,_rec146,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case call 'lists':'keysearch'
+				 (Node, 3, _rec146) of
+			  %% Line 1134
+			  <{'value',{_cor22,Weight,_cor23}}>
+			      when let <_cor24> =
+				    call 'erlang':'=:='
+					(_cor22, Name)
+				in  let <_cor25> =
+					call 'erlang':'=:='
+					    (_cor23, Node)
+				    in  call 'erlang':'and'
+					    (_cor24, _cor25) ->
+			      %% Line 1135
+			      apply 'collect_answers'/4
+				  (Nodes, Name, S, [{Weight,Node}|Res])
+			  %% Line 1136
+			  <_cor26> when 'true' ->
+			      do  %% Line 1137
+				  call 'erlang':'monitor_node'
+				      (Node, 'true')
+				  %% Line 1138
+				  receive
+				    %% Line 1139
+				    <{'dist_ac_weight',_cor27,Weight,_cor28}>
+					when let <_cor29> =
+					      call 'erlang':'=:='
+						  (_cor27, Name)
+					  in  let <_cor30> =
+						  call 'erlang':'=:='
+						      (_cor28, Node)
+					      in  call 'erlang':'and'
+						      (_cor29, _cor30) ->
+					do  %% Line 1140
+					    call 'erlang':'monitor_node'
+						(Node, 'false')
+					    %% Line 1141
+					    apply 'collect_answers'/4
+						(Nodes, Name, S, [{Weight,Node}|Res])
+				    %% Line 1142
+				    <{'nodedown',_cor31}>
+					when call 'erlang':'=:='
+					      (_cor31,
+					       Node) ->
+					do  %% Line 1143
+					    call 'erlang':'monitor_node'
+						(Node, 'false')
+					    %% Line 1144
+					    apply 'collect_answers'/4
+						(Nodes, Name, S, Res)
+				  after 'infinity' ->
+				    'true'
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor21> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 1147
+	  <[_X_ThisNode|Nodes],Name,S,Res> when 'true' ->
+	      %% Line 1148
+	      apply 'collect_answers'/4
+		  (Nodes, Name, S, Res)
+	  %% Line 1149
+	  <[],_X_Name,_X_S,Res> when 'true' ->
+	      %% Line 1150
+	      Res
+	  ( <_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'collect_answers',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'send_nodes'/2 =
+    %% Line 1152
+    fun (_cor1,_cor0) ->
+	let <FlatNodes> =
+	    %% Line 1153
+	    apply 'flat_nodes'/1
+		(_cor1)
+	in  let <_cor6> =
+		%% Line 1154
+		( fun (_cor4) ->
+		      case _cor4 of
+			<Node>
+			    when try
+				  let <_cor3> =
+				      call 'erlang':'node'
+					  ()
+				  in  call 'erlang':'=/='
+					  (_cor4, _cor3)
+			      of <Try> ->
+				  Try
+			      catch <T,R> ->
+				  'false' ->
+			    call 'erlang':'!'
+				({'dist_ac',Node}, _cor0)
+			%% Line 1155
+			<_X_ThisNode> when 'true' ->
+			    'ok'
+		      end
+		  -| [{'id',{0,0,'-send_nodes/2-fun-0-'}}] )
+	    in  %% Line 1154
+		call 'lists':'foreach'
+		    (_cor6, %% Line 1156
+			    FlatNodes)
+'send_after'/2 =
+    %% Line 1158
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Time,Msg>
+	      when let <_cor2> =
+		    call 'erlang':'is_integer'
+			(Time)
+		in  let <_cor3> =
+			call 'erlang':'>='
+			    (Time, 0)
+		    in  call 'erlang':'and'
+			    (_cor2, _cor3) ->
+	      let <_cor4> =
+		  %% Line 1159
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 1159
+		      call 'erlang':'spawn_link'
+			  ('dist_ac', 'send_timeout', [_cor4|[Time|[Msg|[]]]])
+		      %% Line 1160
+		      'ok'
+	  %% Line 1161
+	  <_cor8,_cor9> when 'true' ->
+	      %% Line 1162
+	      'ok'
+	end
+'send_timeout'/3 =
+    %% Line 1164
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 1165
+	receive
+	  
+	after _cor1 ->
+	  %% Line 1166
+	  call 'erlang':'!'
+	      (_cor2, _cor0)
+'send_msg'/2 =
+    %% Line 1169
+    fun (_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 1170
+	    ( fun (_cor3) ->
+		  case _cor3 of
+		    <Node>
+			when try
+			      let <_cor2> =
+				  call 'erlang':'node'
+				      ()
+			      in  call 'erlang':'=/='
+				      (_cor3, _cor2)
+			  of <Try> ->
+			      Try
+			  catch <T,R> ->
+			      'false' ->
+			call 'erlang':'!'
+			    ({'dist_ac',Node}, _cor1)
+		    %% Line 1171
+		    <_cor8> when 'true' ->
+			'ok'
+		  end
+	      -| [{'id',{0,0,'-send_msg/2-fun-0-'}}] )
+	in  %% Line 1170
+	    call 'lists':'foreach'
+		(_cor5, _cor0)
+'replaceadd'/2 =
+    %% Line 1174
+    fun (_cor1,_cor0) ->
+	%% Line 1175
+	case call 'lists':'member'
+		 (_cor1, _cor0) of
+	  %% Line 1176
+	  <'true'> when 'true' ->
+	      _cor0
+	  %% Line 1177
+	  <'false'> when 'true' ->
+	      [_cor1|_cor0]
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'keyreplaceadd'/4 =
+    %% Line 1180
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 1181
+	case call 'lists':'keymember'
+		 (_cor3, _cor2, _cor1) of
+	  %% Line 1182
+	  <'true'> when 'true' ->
+	      call 'lists':'keyreplace'
+		  (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 1183
+	  <'false'> when 'true' ->
+	      [_cor0|_cor1]
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'keydelete_all'/3 =
+    %% Line 1186
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Key,N,[H|T]>
+	      when try
+		    let <_cor3> =
+			call 'erlang':'element'
+			    (N, H)
+		    in  call 'erlang':'=:='
+			    (_cor3, Key)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 1187
+	      apply 'keydelete_all'/3
+		  (Key, N, T)
+	  %% Line 1188
+	  <Key,N,[H|T]> when 'true' ->
+	      let <_cor4> =
+		  %% Line 1189
+		  apply 'keydelete_all'/3
+		      (Key, N, T)
+	      in  %% Line 1189
+		  [H|_cor4]
+	  %% Line 1190
+	  <_X_Key,_X_N,[]> when 'true' ->
+	      []
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'keydelete_all',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'equal_nodes'/2 =
+    %% Line 1209
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[H|T1],[_cor9|T2]>
+	      when let <_cor10> =
+		    call 'erlang':'=:='
+			(_cor9, H)
+		in  let <_cor11> =
+			call 'erlang':'is_atom'
+			    (H)
+		    in  call 'erlang':'and'
+			    (_cor10, _cor11) ->
+	      %% Line 1210
+	      apply 'equal_nodes'/2
+		  (T1, T2)
+	  %% Line 1211
+	  <[H1|T1],[H2|T2]>
+	      when let <_cor2> =
+		    call 'erlang':'is_tuple'
+			(H1)
+		in  let <_cor3> =
+			call 'erlang':'is_tuple'
+			    (H2)
+		    in  call 'erlang':'and'
+			    (_cor2, _cor3) ->
+	      let <_cor5> =
+		  %% Line 1212
+		  call 'erlang':'tuple_to_list'
+		      (H1)
+	      in  let <_cor4> =
+		      %% Line 1212
+		      call 'erlang':'tuple_to_list'
+			  (H2)
+		  in  %% Line 1212
+		      case apply 'equal'/2
+			       (_cor5, _cor4) of
+			%% Line 1213
+			<'true'> when 'true' ->
+			    apply 'equal_nodes'/2
+				(T1, T2)
+			%% Line 1214
+			<'false'> when 'true' ->
+			    'false'
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 1216
+	  <[],[]> when 'true' ->
+	      'true'
+	  %% Line 1217
+	  <_cor12,_cor13> when 'true' ->
+	      'false'
+	end
+'equal'/2 =
+    %% Line 1219
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[H|T],S> when 'true' ->
+	      %% Line 1220
+	      case call 'lists':'member'
+		       (H, S) of
+		%% Line 1221
+		<'true'> when 'true' ->
+		    let <_cor2> =
+			call 'lists':'delete'
+			    (H, S)
+		    in  apply 'equal'/2
+			    (T, _cor2)
+		%% Line 1222
+		<'false'> when 'true' ->
+		    'false'
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1224
+	  <[],[]> when 'true' ->
+	      'true'
+	  %% Line 1225
+	  <_cor6,_cor7> when 'true' ->
+	      'false'
+	end
+'flat_nodes'/1 =
+    %% Line 1227
+    fun (_cor0) ->
+	case _cor0 of
+	  <Nodes>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      let <_cor6> =
+		  %% Line 1228
+		  ( fun (_cor3,_cor2) ->
+			case <_cor3,_cor2> of
+			  <Node,Res>
+			      when call 'erlang':'is_atom'
+				    (Node) ->
+			      [Node|Res]
+			  %% Line 1229
+			  <Tuple,Res>
+			      when call 'erlang':'is_tuple'
+				    (Tuple) ->
+			      let <_cor1> =
+				  call 'erlang':'tuple_to_list'
+				      (Tuple)
+			      in  call 'erlang':'++'
+				      (_cor1, Res)
+			  ( <_cor5,_cor4> when 'true' ->
+				( primop 'match_fail'
+				      ({'function_clause',_cor5,_cor4})
+				  -| [{'function_name',{'-flat_nodes/1-fun-0-',2}}] )
+			    -| ['compiler_generated'] )
+			end
+		    -| [{'id',{0,0,'-flat_nodes/1-fun-0-'}}] )
+	      in  %% Line 1228
+		  call 'lists':'foldl'
+		      (_cor6, %% Line 1230
+			      [], %% Line 1230
+				  Nodes)
+	  %% Line 1231
+	  <Nodes> when 'true' ->
+	      %% Line 1232
+	      call 'erlang':'throw'
+		  ({'error',{'badarg',Nodes}})
+	end
+'get_cached_weight'/2 =
+    %% Line 1234
+    fun (_cor1,_cor0) ->
+	%% Line 1235
+	( case _cor0 of
+	    ( <( {'state',_cor7,_cor8,_cor9,_cor10,_cor11,_rec147,_cor12,_cor13,_cor14,_cor15}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  case call 'lists':'keysearch'
+			   (_cor1, 1, _rec147) of
+		    %% Line 1236
+		    <{'value',{_cor17,W}}> when 'true' ->
+			W
+		    %% Line 1237
+		    <_cor18> when 'true' ->
+			apply 'get_weight'/0
+			    ()
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor16> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'get_weight'/0 =
+    %% Line 1241
+    fun () ->
+	let <_cor0> =
+	    %% Line 1242
+	    call 'application':'which_applications'
+		()
+	in  %% Line 1242
+	    call 'erlang':'length'
+		(_cor0)
+'get_dist_loaded'/2 =
+    %% Line 1244
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Name,[{{_cor5,Node},HisNodes,Permission}|T]>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     Name) ->
+	      let <_cor2> =
+		  %% Line 1245
+		  apply 'get_dist_loaded'/2
+		      (Name, T)
+	      in  %% Line 1245
+		  [{Node,HisNodes,Permission}|_cor2]
+	  %% Line 1246
+	  <Name,[_X_H|T]> when 'true' ->
+	      %% Line 1247
+	      apply 'get_dist_loaded'/2
+		  (Name, T)
+	  %% Line 1248
+	  <_X_Name,[]> when 'true' ->
+	      %% Line 1249
+	      []
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'get_dist_loaded',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'del_dist_loaded'/2 =
+    %% Line 1251
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Name,[{{_cor5,_X_Node},_X_HisNodes,_X_Permission}|T]>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     Name) ->
+	      %% Line 1252
+	      apply 'del_dist_loaded'/2
+		  (Name, T)
+	  %% Line 1253
+	  <Name,[H|T]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 1254
+		  apply 'del_dist_loaded'/2
+		      (Name, T)
+	      in  %% Line 1254
+		  [H|_cor2]
+	  %% Line 1255
+	  <_X_Name,[]> when 'true' ->
+	      %% Line 1256
+	      []
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'del_dist_loaded',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'req_start_app'/2 =
+    %% Line 1258
+    fun (_cor1,_cor0) ->
+	let <_cor20> =
+	    %% Line 1260
+	    ( fun (_cor17,_cor16) ->
+		  case <_cor17,_cor16> of
+		    <{'false',AppName,'true',Name2},S>
+			when call 'erlang':'=:='
+			      (_cor0,
+			       Name2) ->
+			%% Line 1261
+			( case S of
+			    ( <( {'state',_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31,_cor32,_rec148}
+				 -| ['compiler_generated'] )> when 'true' ->
+				  let <PR> =
+				      call 'lists':'keydelete'
+					  (AppName, 2, _rec148)
+				  in  let <_cor9> =
+					  %% Line 1262
+					  call 'erlang':'setelement'
+					      (11, S, PR)
+				      in  let <_cor11> =
+					      catch
+						  %% Line 1263
+						  apply 'do_start_appls'/2
+						      ([AppName|[]], _cor9)
+					  in  %% Line 1263
+					      case _cor11 of
+						%% Line 1264
+						<{_X_ErrorTag,{'not_running',App}}> when 'true' ->
+						    let <NRequests> =
+							%% Line 1265
+							[{'false',AppName,'true',App}|PR]
+						    in  %% Line 1266
+							call 'erlang':'setelement'
+							    (11, S, NRequests)
+						%% Line 1267
+						<{'ok',NewS}> when 'true' ->
+						    %% Line 1268
+						    NewS
+						%% Line 1269
+						<{_X_ErrorTag,R}> when 'true' ->
+						    %% Line 1270
+						    call 'erlang':'throw'
+							({'error',R})
+						( <_cor15> when 'true' ->
+						      primop 'match_fail'
+							  ({'case_clause',_cor15})
+						  -| ['compiler_generated'] )
+					      end
+			      -| ['compiler_generated'] )
+			    ( <_cor33> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','state'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		    %% Line 1272
+		    <_cor56,S> when 'true' ->
+			%% Line 1273
+			S
+		  end
+	      -| [{'id',{0,0,'-req_start_app/2-fun-0-'}}] )
+	in  %% Line 1274
+	    ( case _cor1 of
+		( <( {'state',_cor57,_cor58,_cor59,_cor60,_cor61,_cor62,_cor63,_cor64,_cor65,_rec151}
+		     -| ['compiler_generated'] )> when 'true' ->
+		      let <_cor21> =
+			  call 'lists':'foldl'
+			      (_cor20, _cor1, _rec151)
+		      in  {'ok',_cor21}
+		  -| ['compiler_generated'] )
+		( <_cor66> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	      -| ['compiler_generated'] )
+'req_del_permit_true'/2 =
+    %% Line 1277
+    fun (_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 1278
+	    ( fun (_cor2) ->
+		  case _cor2 of
+		    <{From,Name2,'true',_cor7}>
+			when call 'erlang':'=:='
+			      (Name2,
+			       _cor0) ->
+			do  %% Line 1279
+			    call 'gen_server':'reply'
+				(From, 'ok')
+			    %% Line 1280
+			    'false'
+		    %% Line 1281
+		    <_cor8> when 'true' ->
+			%% Line 1282
+			'true'
+		  end
+	      -| [{'id',{0,0,'-req_del_permit_true/2-fun-0-'}}] )
+	in  %% Line 1278
+	    call 'lists':'filter'
+		(_cor4, _cor1)
+'req_del_permit_false'/2 =
+    %% Line 1285
+    fun (_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 1286
+	    ( fun (_cor2) ->
+		  case _cor2 of
+		    <{From,Name2,'false',_X_Nodes}>
+			when call 'erlang':'=:='
+			      (Name2,
+			       _cor0) ->
+			do  %% Line 1287
+			    call 'gen_server':'reply'
+				(From, 'ok')
+			    %% Line 1288
+			    'false'
+		    %% Line 1289
+		    <_cor7> when 'true' ->
+			%% Line 1290
+			'true'
+		  end
+	      -| [{'id',{0,0,'-req_del_permit_false/2-fun-0-'}}] )
+	in  %% Line 1286
+	    call 'lists':'filter'
+		(_cor4, _cor1)
+'req_del_node'/3 =
+    %% Line 1293
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 1294
+	( case _cor2 of
+	    ( <( {'state',_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_rec152}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  apply 'check_waiting'/6
+		      (_rec152, _cor2, _cor1, _cor0, [], _cor18)
+	      -| ['compiler_generated'] )
+	    ( <_cor19> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'del_t_reqs'/3 =
+    %% Line 1296
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 1297
+	    ( fun (_cor3) ->
+		  case _cor3 of
+		    <{AN,From}>
+			when call 'erlang':'=:='
+			      (_cor2,
+			       AN) ->
+			do  %% Line 1298
+			    call 'gen_server':'reply'
+				(From, _cor0)
+			    %% Line 1299
+			    'false'
+		    %% Line 1300
+		    <_cor9> when 'true' ->
+			%% Line 1301
+			'true'
+		  end
+	      -| [{'id',{0,0,'-del_t_reqs/3-fun-0-'}}] )
+	in  %% Line 1297
+	    call 'lists':'filter'
+		(_cor5, _cor1)
+'check_waiting'/6 =
+    %% Line 1306
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[{From,AppName,'false',Nodes}|Reqs],%% Line 1307
+					       S,%% Line 1307
+						 Node,%% Line 1307
+						      Appls,%% Line 1307
+							    Res,%% Line 1307
+								SReqs> when 'true' ->
+	      %% Line 1308
+	      case call 'lists':'delete'
+		       (Node, Nodes) of
+		%% Line 1309
+		<[]> when 'true' ->
+		    let <_X_> =
+			%% Line 1310
+			apply 'ac_stop_it'/1
+			    (AppName)
+		    in  let <NSReqs> =
+			    %% Line 1311
+			    [{AppName,From}|SReqs]
+			in  %% Line 1312
+			    apply 'check_waiting'/6
+				(Reqs, Node, S, Appls, Res, NSReqs)
+		%% Line 1313
+		<NNodes> when 'true' ->
+		    %% Line 1314
+		    apply 'check_waiting'/6
+			(Reqs, Node, S, Appls, %% Line 1315
+					       [{From,AppName,'false',NNodes}|Res], %% Line 1315
+										    SReqs)
+	      end
+	  %% Line 1317
+	  <[H|Reqs],S,Node,Appls,Res,SReqs> when 'true' ->
+	      %% Line 1318
+	      apply 'check_waiting'/6
+		  (Reqs, Node, S, Appls, [H|Res], SReqs)
+	  %% Line 1319
+	  <[],_X_Node,_X_S,Appls,Res,SReqs> when 'true' ->
+	      %% Line 1320
+	      {Res,Appls,SReqs}
+	  ( <_cor14,_cor13,_cor12,_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14,_cor13,_cor12,_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'check_waiting',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'intersection'/2 =
+    %% Line 1322
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_cor5> when 'true' ->
+	      %% Line 1323
+	      []
+	  %% Line 1324
+	  <_cor6,[]> when 'true' ->
+	      %% Line 1325
+	      []
+	  %% Line 1326
+	  <L1,L2> when 'true' ->
+	      let <_cor2> =
+		  %% Line 1327
+		  call 'erlang':'--'
+		      (L1, L2)
+	      in  %% Line 1327
+		  call 'erlang':'--'
+		      (L1, _cor2)
+	end
+'get_default_permission'/1 =
+    %% Line 1329
+    fun (_cor0) ->
+	%% Line 1330
+	case call 'application':'get_env'
+		 ('kernel', 'permissions') of
+	  %% Line 1331
+	  <{'ok',Permissions}> when 'true' ->
+	      %% Line 1332
+	      case call 'lists':'keysearch'
+		       (_cor0, 1, Permissions) of
+		%% Line 1333
+		<{'value',{_cor4,'true'}}> when 'true' ->
+		    'true'
+		%% Line 1334
+		<{'value',{_cor5,'false'}}> when 'true' ->
+		    'false'
+		%% Line 1335
+		<{'value',{_cor6,X}}> when 'true' ->
+		    call 'erlang':'exit'
+			({'bad_permission',{_cor0,X}})
+		%% Line 1336
+		<'false'> when 'true' ->
+		    'true'
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1338
+	  <'undefined'> when 'true' ->
+	      'true'
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'dist_check'/1 =
+    %% Line 1350
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{AppName,Nodes}|T]> when 'true' ->
+	      let <P> =
+		  %% Line 1351
+		  apply 'get_default_permission'/1
+		      (AppName)
+	      in  let <_cor2> =
+		      %% Line 1352
+		      call 'erlang':'node'
+			  ()
+		  in  let <_cor3> =
+			  %% Line 1352
+			  apply 'dist_check'/1
+			      (T)
+		      in  %% Line 1352
+			  [{'appl',AppName,'undefined',0,Nodes,[{_cor2,P}|[]]}|_cor3]
+	  %% Line 1353
+	  <[{AppName,Time,Nodes}|T]>
+	      when let <_cor4> =
+		    call 'erlang':'is_integer'
+			(Time)
+		in  let <_cor5> =
+			call 'erlang':'>='
+			    (Time, 0)
+		    in  call 'erlang':'and'
+			    (_cor4, _cor5) ->
+	      let <P> =
+		  %% Line 1354
+		  apply 'get_default_permission'/1
+		      (AppName)
+	      in  let <_cor7> =
+		      %% Line 1356
+		      call 'erlang':'node'
+			  ()
+		  in  let <_cor8> =
+			  %% Line 1356
+			  apply 'dist_check'/1
+			      (T)
+		      in  %% Line 1355
+			  [{'appl',AppName,'undefined',Time,Nodes,%% Line 1356
+								  [{_cor7,P}|[]]}|_cor8]
+	  %% Line 1357
+	  <[{AppName,'infinity',Nodes}|T]> when 'true' ->
+	      let <P> =
+		  %% Line 1358
+		  apply 'get_default_permission'/1
+		      (AppName)
+	      in  let <_cor10> =
+		      %% Line 1360
+		      call 'erlang':'node'
+			  ()
+		  in  let <_cor11> =
+			  %% Line 1361
+			  apply 'dist_check'/1
+			      (T)
+		      in  %% Line 1359
+			  [{'appl',AppName,'undefined','infinity',%% Line 1360
+								  Nodes,%% Line 1360
+									[{_cor10,P}|[]]}|_cor11]
+	  %% Line 1362
+	  <[_cor13|T]> when 'true' ->
+	      %% Line 1363
+	      apply 'dist_check'/1
+		  (T)
+	  %% Line 1364
+	  <[]> when 'true' ->
+	      %% Line 1365
+	      []
+	  ( <_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12})
+		  -| [{'function_name',{'dist_check',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'dist_take_control'/1 =
+    %% Line 1367
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 1368
+	    ( fun (_cor1) ->
+		  case _cor1 of
+		    <{'appl',AppName,_cor5,_cor6,_cor7,_cor8}> when 'true' ->
+			%% Line 1369
+			call 'application_controller':'control_application'
+			    (AppName)
+		    ( <_cor2> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor2})
+			    -| [{'function_name',{'-dist_take_control/1-fun-0-',1}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-dist_take_control/1-fun-0-'}}] )
+	in  %% Line 1368
+	    call 'lists':'foreach'
+		(_cor3, _cor0)
+'dist_replace'/3 =
+    %% Line 1372
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'default',_X_Name,Appls> when 'true' ->
+	      Appls
+	  %% Line 1373
+	  <{AppName,Nodes},_cor22,Appls>
+	      when call 'erlang':'=:='
+		    (_cor22,
+		     AppName) ->
+	      let <_cor8> =
+		  %% Line 1374
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor6) ->
+				case _cor6 of
+				  <[Node|_cor4]> when 'true' ->
+				      let <_cor7> =
+					  apply 'lc$^0'/1
+					      (_cor4)
+				      in  ( [{Node,'undefined'}|_cor7]
+					    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor6> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor6})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  let <_cor5> =
+			    apply 'flat_nodes'/1
+				(Nodes)
+			in  apply 'lc$^0'/1
+				(_cor5)
+		    -| ['list_comprehension'] )
+	      in  %% Line 1375
+		  apply 'keyreplaceadd'/4
+		      (AppName, 2, Appls, %% Line 1376
+					  {'appl',AppName,'undefined',0,%% Line 1377
+									Nodes,_cor8})
+	  %% Line 1378
+	  <{AppName,Time,Nodes},_cor23,Appls>
+	      when let <_cor24> =
+		    call 'erlang':'=:='
+			(_cor23, AppName)
+		in  let <_cor25> =
+			let <_cor10> =
+			    %% Line 1379
+			    call 'erlang':'is_integer'
+				(Time)
+			in  let <_cor11> =
+				%% Line 1379
+				call 'erlang':'>='
+				    (Time, 0)
+			    in  %% Line 1379
+				call 'erlang':'and'
+				    (_cor10, _cor11)
+		    in  call 'erlang':'and'
+			    (_cor24, _cor25) ->
+	      let <_cor17> =
+		  %% Line 1380
+		  ( letrec
+			'lc$^1'/1 =
+			    fun (_cor15) ->
+				case _cor15 of
+				  <[Node|_cor13]> when 'true' ->
+				      let <_cor16> =
+					  apply 'lc$^1'/1
+					      (_cor13)
+				      in  ( [{Node,'undefined'}|_cor16]
+					    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor15> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor15})
+					  -| [{'function_name',{'lc$^1',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  let <_cor14> =
+			    apply 'flat_nodes'/1
+				(Nodes)
+			in  apply 'lc$^1'/1
+				(_cor14)
+		    -| ['list_comprehension'] )
+	      in  %% Line 1381
+		  apply 'keyreplaceadd'/4
+		      (AppName, 2, Appls, %% Line 1382
+					  {'appl',AppName,'undefined',Time,%% Line 1383
+									   Nodes,_cor17})
+	  %% Line 1384
+	  <Bad,_X_Name,_X_Appls> when 'true' ->
+	      %% Line 1385
+	      call 'erlang':'throw'
+		  ({'error',{'bad_distribution_spec',Bad}})
+	end
+'dist_update_run'/4 =
+    %% Line 1387
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor18> =
+	    %% Line 1388
+	    ( fun (_cor16) ->
+		  case _cor16 of
+		    <Appl = {'appl',_cor23,_cor24,_cor25,_cor26,_cor27}>
+			when call 'erlang':'=:='
+			      (_cor23,
+			       _cor2) ->
+			let <NRun> =
+			    %% Line 1390
+			    apply 'keyreplaceadd'/4
+				(_cor1, 1, _cor27, {_cor1,_cor0})
+			in  %% Line 1391
+			    call 'erlang':'setelement'
+				(6, Appl, NRun)
+		    %% Line 1392
+		    <Appl> when 'true' ->
+			%% Line 1393
+			Appl
+		  end
+	      -| [{'id',{0,0,'-dist_update_run/4-fun-0-'}}] )
+	in  %% Line 1388
+	    call 'lists':'map'
+		(_cor18, _cor3)
+'dist_change_update'/2 =
+    %% Line 1398
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Appls,[]> when 'true' ->
+	      %% Line 1399
+	      Appls
+	  %% Line 1400
+	  <Appls,[{AppName,NewNodes}|NewDist]> when 'true' ->
+	      let <NewAppls> =
+		  %% Line 1401
+		  apply 'do_dist_change_update'/4
+		      (Appls, AppName, 0, NewNodes)
+	      in  %% Line 1402
+		  apply 'dist_change_update'/2
+		      (NewAppls, NewDist)
+	  %% Line 1403
+	  <Appls,[{AppName,NewTime,NewNodes}|NewDist]> when 'true' ->
+	      let <NewAppls> =
+		  %% Line 1404
+		  apply 'do_dist_change_update'/4
+		      (Appls, AppName, NewTime, NewNodes)
+	      in  %% Line 1405
+		  apply 'dist_change_update'/2
+		      (NewAppls, NewDist)
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'dist_change_update',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'do_dist_change_update'/4 =
+    %% Line 1407
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor15> =
+	    %% Line 1408
+	    ( fun (_cor13) ->
+		  case _cor13 of
+		    <Appl = {'appl',_cor20,_cor21,_cor22,_cor23,_cor24}>
+			when call 'erlang':'=:='
+			      (_cor20,
+			       _cor2) ->
+			let <_cor11> =
+			    %% Line 1409
+			    call 'erlang':'setelement'
+				(5, Appl, _cor0)
+			in  %% Line 1409
+			    call 'erlang':'setelement'
+				(4, _cor11, _cor1)
+		    %% Line 1410
+		    <Appl> when 'true' ->
+			%% Line 1411
+			Appl
+		  end
+	      -| [{'id',{0,0,'-do_dist_change_update/4-fun-0-'}}] )
+	in  %% Line 1408
+	    call 'lists':'map'
+		(_cor15, _cor3)
+'dist_merge'/3 =
+    %% Line 1415
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor18> =
+	    %% Line 1416
+	    ( fun (_cor16) ->
+		  %% Line 1417
+		  case _cor16 of
+		    <{'appl',AppName,_cor22,_cor23,_cor24,Run}> when 'true' ->
+			%% Line 1421
+			case call 'lists':'keysearch'
+				 (AppName, 2, _cor1) of
+			  %% Line 1422
+			  <{'value',{'appl',_cor25,_cor26,_cor27,_cor28,HisRun}}> when 'true' ->
+			      %% Line 1423
+			      case call 'lists':'keysearch'
+				       (_cor0, 1, HisRun) of
+				%% Line 1424
+				<{'value',Val}> when 'true' ->
+				    let <NRun> =
+					%% Line 1425
+					apply 'keyreplaceadd'/4
+					    (_cor0, 1, Run, Val)
+				    in  let <_cor8> =
+					    %% Line 1426
+					    call 'erlang':'setelement'
+						(6, _cor16, NRun)
+					in  %% Line 1426
+					    {'true',_cor8}
+				%% Line 1427
+				<'false'> when 'true' ->
+				    let <Val> = {_cor0,%% Line 1428
+					       'undefined'}
+				    in  let <_rec158> =
+					    %% Line 1429
+					    [Val|Run]
+					in  let <_cor13> =
+						%% Line 1429
+						call 'erlang':'setelement'
+						    (6, _cor16, _rec158)
+					    in  %% Line 1429
+						{'true',_cor13}
+				( <_cor14> when 'true' ->
+				      primop 'match_fail'
+					  ({'case_clause',_cor14})
+				  -| ['compiler_generated'] )
+			      end
+			  %% Line 1431
+			  <_cor41> when 'true' ->
+			      %% Line 1432
+			      'true'
+			end
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-dist_merge/3-fun-0-'}}] )
+	in  %% Line 1416
+	    call 'lists':'zf'
+		(_cor18, _cor2)
+'dist_get_runnable_nodes'/2 =
+    %% Line 1436
+    fun (_cor1,_cor0) ->
+	%% Line 1437
+	case call 'lists':'keysearch'
+		 (_cor0, 2, _cor1) of
+	  %% Line 1438
+	  <{'value',{'appl',_cor8,_cor9,_cor10,_cor11,Run}}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 1439
+		  ( fun (_cor2) ->
+			case _cor2 of
+			  <{Node,'true'}> when 'true' ->
+			      {'true',Node}
+			  %% Line 1440
+			  <_cor12> when 'true' ->
+			      'false'
+			end
+		    -| [{'id',{0,0,'-dist_get_runnable_nodes/2-fun-0-'}}] )
+	      in  %% Line 1439
+		  call 'lists':'zf'
+		      (_cor4, %% Line 1441
+			      Run)
+	  %% Line 1442
+	  <'false'> when 'true' ->
+	      %% Line 1443
+	      []
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'dist_is_runnable'/2 =
+    %% Line 1446
+    fun (_cor1,_cor0) ->
+	%% Line 1447
+	case call 'lists':'keysearch'
+		 (_cor0, 2, _cor1) of
+	  %% Line 1448
+	  <{'value',{'appl',_cor7,_cor8,_cor9,_cor10,Run}}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 1449
+		  call 'erlang':'node'
+		      ()
+	      in  %% Line 1449
+		  case call 'lists':'keysearch'
+			   (_cor2, 1, Run) of
+		    %% Line 1450
+		    <{'value',{_cor11,'true'}}> when 'true' ->
+			'true'
+		    %% Line 1451
+		    <_cor12> when 'true' ->
+			'false'
+		  end
+	  %% Line 1453
+	  <'false'> when 'true' ->
+	      %% Line 1454
+	      'false'
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'is_loaded'/2 =
+    %% Line 1457
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <AppName,{'state',Appls,_cor7,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15}> when 'true' ->
+	      %% Line 1458
+	      case call 'lists':'keysearch'
+		       (AppName, 2, Appls) of
+		%% Line 1459
+		<{'value',{'appl',_cor16,_cor17,_cor18,_cor19,Run}}> when 'true' ->
+		    let <_cor2> =
+			%% Line 1460
+			call 'erlang':'node'
+			    ()
+		    in  %% Line 1460
+			case call 'lists':'keysearch'
+				 (_cor2, 1, Run) of
+			  %% Line 1461
+			  <{'value',{_X_Node,'undefined'}}> when 'true' ->
+			      'false'
+			  %% Line 1462
+			  <{'value',_cor20}> when 'true' ->
+			      'true'
+			  %% Line 1463
+			  <'false'> when 'true' ->
+			      'false'
+			  ( <_cor3> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor3})
+			    -| ['compiler_generated'] )
+			end
+		%% Line 1465
+		<'false'> when 'true' ->
+		    %% Line 1466
+		    'false'
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'is_loaded',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'dist_get_runnable'/1 =
+    %% Line 1469
+    fun (_cor0) ->
+	let <_cor5> =
+	    %% Line 1470
+	    ( fun (_cor3) ->
+		  case _cor3 of
+		    <{'appl',AppName,_cor7,_cor8,_cor9,Run}> when 'true' ->
+			let <_cor1> =
+			    %% Line 1471
+			    call 'erlang':'node'
+				()
+			in  %% Line 1471
+			    case call 'lists':'keysearch'
+				     (_cor1, 1, Run) of
+			      %% Line 1472
+			      <{'value',{_cor10,'true'}}> when 'true' ->
+				  {'true',AppName}
+			      %% Line 1473
+			      <_cor11> when 'true' ->
+				  'false'
+			    end
+		    ( <_cor4> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor4})
+			    -| [{'function_name',{'-dist_get_runnable/1-fun-0-',1}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-dist_get_runnable/1-fun-0-'}}] )
+	in  %% Line 1470
+	    call 'lists':'zf'
+		(_cor5, _cor0)
+'dist_get_all_nodes'/1 =
+    %% Line 1477
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'appl',AppName,_cor5,_cor6,Nodes,Run}> when 'true' ->
+	      %% Line 1478
+	      case apply 'check_nodes'/3
+		       (Run, [], []) of
+		<{Res,BadNodes}> when 'true' ->
+		    let <_cor2> =
+			%% Line 1479
+			call 'erlang':'nodes'
+			    ('connected')
+		    in  %% Line 1479
+			case apply 'intersection'/2
+				 (BadNodes, _cor2) of
+			  %% Line 1480
+			  <[]> when 'true' ->
+			      {'ok',Nodes,Res}
+			  %% Line 1481
+			  <_cor7> when 'true' ->
+			      {'error',{'app_not_loaded',AppName,BadNodes}}
+			end
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'dist_get_all_nodes',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'check_nodes'/3 =
+    %% Line 1484
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[{Node,'undefined'}|T],Res,BadNodes> when 'true' ->
+	      %% Line 1485
+	      apply 'check_nodes'/3
+		  (T, Res, [Node|BadNodes])
+	  %% Line 1486
+	  <[{Node,'true'}|T],Res,BadNodes> when 'true' ->
+	      %% Line 1487
+	      apply 'check_nodes'/3
+		  (T, [Node|Res], BadNodes)
+	  %% Line 1488
+	  <[{_X_Node,'false'}|T],Res,BadNodes> when 'true' ->
+	      %% Line 1489
+	      apply 'check_nodes'/3
+		  (T, Res, BadNodes)
+	  %% Line 1490
+	  <[],Res,BadNodes> when 'true' ->
+	      %% Line 1491
+	      {Res,BadNodes}
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'check_nodes',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'dist_find_nodes'/2 =
+    %% Line 1501
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'appl',Name,_cor4,_cor5,Nodes,_cor6}|_cor7],_cor8>
+	      when call 'erlang':'=:='
+		    (_cor8,
+		     Name) ->
+	      Nodes
+	  %% Line 1502
+	  <[_cor9|T],Name> when 'true' ->
+	      apply 'dist_find_nodes'/2
+		  (T, Name)
+	  %% Line 1503
+	  <[],_X_Name> when 'true' ->
+	      []
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'dist_find_nodes',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'dist_flat_nodes'/2 =
+    %% Line 1505
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 1506
+	    apply 'dist_find_nodes'/2
+		(_cor1, _cor0)
+	in  %% Line 1506
+	    apply 'flat_nodes'/1
+		(_cor2)
+'dist_del_node'/2 =
+    %% Line 1508
+    fun (_cor1,_cor0) ->
+	let <_cor12> =
+	    %% Line 1509
+	    ( fun (_cor10) ->
+		  let <_cor6> =
+		      %% Line 1510
+		      ( fun (_cor4) ->
+			    case _cor4 of
+			      <{N,_X_Runnable}>
+				  when call 'erlang':'=:='
+					(N,
+					 _cor0) ->
+				  'false'
+			      %% Line 1511
+			      <_cor15> when 'true' ->
+				  'true'
+			    end
+			-| [{'id',{0,0,'-dist_del_node/2-fun-0-'}}] )
+		  in  %% Line 1512
+		      ( case _cor10 of
+			  ( <( {'appl',_cor16,_cor17,_cor18,_cor19,_rec160}
+			       -| ['compiler_generated'] )> when 'true' ->
+				let <NRun> =
+				    call 'lists':'filter'
+					(_cor6, _rec160)
+				in  %% Line 1513
+				    call 'erlang':'setelement'
+					(6, _cor10, NRun)
+			    -| ['compiler_generated'] )
+			  ( <_cor20> when 'true' ->
+				( call ( 'erlang'
+					 -| ['compiler_generated'] ):( 'error'
+								       -| ['compiler_generated'] )
+				      (( {'badrecord','appl'}
+					 -| ['compiler_generated'] ))
+				  -| ['compiler_generated'] )
+			    -| ['compiler_generated'] )
+			end
+			-| ['compiler_generated'] )
+	      -| [{'id',{0,0,'-dist_del_node/2-fun-1-'}}] )
+	in  %% Line 1509
+	    call 'lists':'map'
+		(_cor12, _cor1)
+'validRestartType'/1 =
+    %% Line 1516
+    fun (_cor0) ->
+	case _cor0 of
+	  <'permanent'> when 'true' ->
+	      'true'
+	  %% Line 1517
+	  <'temporary'> when 'true' ->
+	      'true'
+	  %% Line 1518
+	  <'transient'> when 'true' ->
+	      'true'
+	  %% Line 1519
+	  <_X_RestartType> when 'true' ->
+	      'false'
+	end
+'dist_mismatch'/2 =
+    %% Line 1521
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 1523
+	    call 'erlang':'node'
+		()
+	in  do  %% Line 1522
+		apply 'error_msg'/2
+		    ([68|[105|[115|[116|[114|[105|[98|[117|[116|[105|[111|[110|[32|[109|[105|[115|[109|[97|[116|[99|[104|[32|[102|[111|[114|[32|[97|[112|[112|[108|[105|[99|[97|[116|[105|[111|[110|[32|[34|[126|[112|[34|[32|[111|[110|[32|[110|[111|[100|[101|[115|[32|[126|[112|[32|[97|[110|[100|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1523
+																																															     [_cor1|[_cor2|[_cor0|[]]]])
+		%% Line 1524
+		call 'erlang':'exit'
+		    ({'distribution_mismatch',_cor1,_cor0})
+'error_msg'/2 =
+    %% Line 1529
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Format,ArgList>
+	      when let <_cor2> =
+		    call 'erlang':'is_list'
+			(Format)
+		in  let <_cor3> =
+			call 'erlang':'is_list'
+			    (ArgList)
+		    in  call 'erlang':'and'
+			    (_cor2, _cor3) ->
+	      let <_cor5> =
+		  %% Line 1530
+		  call 'erlang':'++'
+		      ([100|[105|[115|[116|[95|[97|[99|[32|[111|[110|[32|[110|[111|[100|[101|[32|[126|[112|[58|[126|[110]]]]]]]]]]]]]]]]]]]]], Format)
+	      in  let <_cor4> =
+		      %% Line 1530
+		      call 'erlang':'node'
+			  ()
+		  in  %% Line 1530
+		      call 'error_logger':'error_msg'
+			  (_cor5, [_cor4|ArgList])
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'error_msg',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('dist_ac')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('dist_ac', _cor0)
+end

@@ -1,0 +1,1155 @@
+module 'asn1ct_tok' ['file'/1,
+		     'get_name'/2,
+		     'module_info'/0,
+		     'module_info'/1,
+		     'tokenise'/4]
+    attributes []
+'file'/1 =
+    %% Line 27
+    fun (_cor0) ->
+	%% Line 28
+	case call 'file':'open'
+		 (_cor0, ['read']) of
+	  %% Line 29
+	  <{'error',Reason}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 30
+		  call 'file':'format_error'
+		      (Reason)
+	      in  %% Line 30
+		  {'error',{_cor0,_cor1}}
+	  %% Line 31
+	  <{'ok',Stream}> when 'true' ->
+	      %% Line 32
+	      apply 'process'/3
+		  (Stream, 0, [])
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'process'/3 =
+    %% Line 35
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 36
+	    call 'io':'get_line'
+		(_cor2, '')
+	in  let <_cor3> =
+		%% Line 36
+		call 'erlang':'+'
+		    (_cor1, 1)
+	    in  %% Line 36
+		apply 'process'/4
+		    (_cor4, _cor2, _cor3, _cor0)
+'process'/4 =
+    %% Line 38
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <'eof',Stream,Lno,R> when 'true' ->
+	      %% Line 39
+	      case call 'file':'close'
+		       (Stream) of
+		<'ok'> when 'true' ->
+		    let <_cor5> =
+			%% Line 40
+			call 'lists':'reverse'
+			    ([{'$end',Lno}|R])
+		    in  %% Line 40
+			call 'lists':'flatten'
+			    (_cor5)
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 43
+	  <L,Stream,Lno,R>
+	      when call 'erlang':'is_list'
+		    (L) ->
+	      let <_cor6> =
+		  catch
+		      %% Line 45
+		      apply 'tokenise'/4
+			  (Stream, L, Lno, [])
+	      in  %% Line 45
+		  case _cor6 of
+		    %% Line 46
+		    <{'ERR',Reason}> when 'true' ->
+			do  %% Line 47
+			    call 'io':'format'
+				([84|[111|[107|[101|[110|[105|[115|[101|[114|[32|[101|[114|[114|[111|[114|[32|[111|[110|[32|[108|[105|[110|[101|[58|[32|[126|[119|[32|[126|[119|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Lno|[Reason|[]]])
+			    %% Line 48
+			    call 'erlang':'exit'
+				(0)
+		    %% Line 49
+		    <{NewLno,T}> when 'true' ->
+			%% Line 51
+			apply 'process'/3
+			    (Stream, NewLno, [T|R])
+		    ( <_cor7> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor7})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'process',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'tokenise'/4 =
+    %% Line 54
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Stream,[H|T],Lno,R>
+	      when let <_cor4> =
+		    call 'erlang':'=<'
+			(97, H)
+		in  let <_cor5> =
+			call 'erlang':'=<'
+			    (H, 122)
+		    in  call 'erlang':'and'
+			    (_cor4, _cor5) ->
+	      %% Line 55
+	      case apply 'get_name'/2
+		       (T, [H|[]]) of
+		<{X,T1}> when 'true' ->
+		    let <_cor7> =
+			%% Line 56
+			call 'erlang':'list_to_atom'
+			    (X)
+		    in  %% Line 56
+			apply 'tokenise'/4
+			    (Stream, T1, Lno, [{'identifier',Lno,_cor7}|R])
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 58
+	  <Stream,[38|[H|T]],Lno,R>
+	      when let <_cor8> =
+		    call 'erlang':'=<'
+			(65, H)
+		in  let <_cor9> =
+			call 'erlang':'=<'
+			    (H, 90)
+		    in  call 'erlang':'and'
+			    (_cor8, _cor9) ->
+	      %% Line 59
+	      case apply 'get_name'/2
+		       (T, [H|[]]) of
+		<{Y,T1}> when 'true' ->
+		    let <X> =
+			%% Line 60
+			call 'erlang':'list_to_atom'
+			    (Y)
+		    in  %% Line 61
+			apply 'tokenise'/4
+			    (Stream, T1, Lno, [{'typefieldreference',Lno,X}|R])
+		( <_cor10> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor10})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 63
+	  <Stream,[38|[H|T]],Lno,R>
+	      when let <_cor12> =
+		    call 'erlang':'=<'
+			(97, H)
+		in  let <_cor13> =
+			call 'erlang':'=<'
+			    (H, 122)
+		    in  call 'erlang':'and'
+			    (_cor12, _cor13) ->
+	      %% Line 64
+	      case apply 'get_name'/2
+		       (T, [H|[]]) of
+		<{Y,T1}> when 'true' ->
+		    let <X> =
+			%% Line 65
+			call 'erlang':'list_to_atom'
+			    (Y)
+		    in  %% Line 66
+			apply 'tokenise'/4
+			    (Stream, T1, Lno, [{'valuefieldreference',Lno,X}|R])
+		( <_cor14> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor14})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 68
+	  <Stream,[H|T],Lno,R>
+	      when let <_cor16> =
+		    call 'erlang':'=<'
+			(65, H)
+		in  let <_cor17> =
+			call 'erlang':'=<'
+			    (H, 90)
+		    in  call 'erlang':'and'
+			    (_cor16, _cor17) ->
+	      %% Line 69
+	      case apply 'get_name'/2
+		       (T, [H|[]]) of
+		<{Y,T1}> when 'true' ->
+		    let <X> =
+			%% Line 70
+			call 'erlang':'list_to_atom'
+			    (Y)
+		    in  %% Line 71
+			case apply 'reserved_word'/1
+				 (X) of
+			  %% Line 72
+			  <'true'> when 'true' ->
+			      %% Line 73
+			      apply 'tokenise'/4
+				  (Stream, T1, Lno, [{X,Lno}|R])
+			  %% Line 74
+			  <'false'> when 'true' ->
+			      %% Line 75
+			      apply 'tokenise'/4
+				  (Stream, T1, Lno, [{'typereference',Lno,X}|R])
+			  %% Line 76
+			  <'rstrtype'> when 'true' ->
+			      %% Line 77
+			      apply 'tokenise'/4
+				  (Stream, T1, Lno, [{'restrictedcharacterstringtype',Lno,X}|R])
+			  ( <_cor20> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor20})
+			    -| ['compiler_generated'] )
+			end
+		( <_cor18> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor18})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 80
+	  <Stream,[45|[H|T]],Lno,R>
+	      when let <_cor21> =
+		    call 'erlang':'=<'
+			(48, H)
+		in  let <_cor22> =
+			call 'erlang':'=<'
+			    (H, 57)
+		    in  call 'erlang':'and'
+			    (_cor21, _cor22) ->
+	      %% Line 81
+	      case apply 'get_number'/2
+		       (T, [H|[]]) of
+		<{X,T1}> when 'true' ->
+		    let <_cor24> =
+			%% Line 82
+			call 'erlang':'list_to_integer'
+			    (X)
+		    in  let <_cor26> =
+			    %% Line 82
+			    call 'erlang':'*'
+				(-1, _cor24)
+			in  %% Line 82
+			    apply 'tokenise'/4
+				(Stream, T1, Lno, [{'number',Lno,_cor26}|R])
+		( <_cor23> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor23})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 84
+	  <Stream,[H|T],Lno,R>
+	      when let <_cor27> =
+		    call 'erlang':'=<'
+			(48, H)
+		in  let <_cor28> =
+			call 'erlang':'=<'
+			    (H, 57)
+		    in  call 'erlang':'and'
+			    (_cor27, _cor28) ->
+	      %% Line 85
+	      case apply 'get_number'/2
+		       (T, [H|[]]) of
+		<{X,T1}> when 'true' ->
+		    let <_cor30> =
+			%% Line 86
+			call 'erlang':'list_to_integer'
+			    (X)
+		    in  %% Line 86
+			apply 'tokenise'/4
+			    (Stream, T1, Lno, [{'number',Lno,_cor30}|R])
+		( <_cor29> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor29})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 88
+	  <Stream,[45|[45|T]],Lno,R> when 'true' ->
+	      let <_cor31> =
+		  %% Line 89
+		  apply 'skip_comment'/1
+		      (T)
+	      in  %% Line 89
+		  apply 'tokenise'/4
+		      (Stream, _cor31, Lno, R)
+	  %% Line 91
+	  <Stream,[47|[42|T]],Lno,R> when 'true' ->
+	      %% Line 92
+	      case apply 'skip_multiline_comment'/4
+		       (Stream, T, Lno, 0) of
+		<{NewLno,T1}> when 'true' ->
+		    %% Line 93
+		    apply 'tokenise'/4
+			(Stream, T1, NewLno, R)
+		( <_cor32> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor32})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 95
+	  <Stream,[58|[58|[61|T]]],Lno,R> when 'true' ->
+	      %% Line 96
+	      apply 'tokenise'/4
+		  (Stream, T, Lno, [{'::=',Lno}|R])
+	  %% Line 98
+	  <Stream,[39|T],Lno,R> when 'true' ->
+	      let <_cor33> =
+		  catch
+		      %% Line 99
+		      apply 'collect_quoted'/3
+			  (T, Lno, [])
+	      in  %% Line 99
+		  case _cor33 of
+		    %% Line 100
+		    <{'ERR',_cor43}> when 'true' ->
+			%% Line 101
+			call 'erlang':'throw'
+			    ({'ERR','bad_quote'})
+		    %% Line 102
+		    <{Thing,T1}> when 'true' ->
+			%% Line 103
+			apply 'tokenise'/4
+			    (Stream, T1, Lno, [Thing|R])
+		    ( <_cor34> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor34})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 106
+	  <Stream,[34|T],Lno,R> when 'true' ->
+	      %% Line 107
+	      case apply 'collect_string'/2
+		       (T, Lno) of
+		<{Str,T1}> when 'true' ->
+		    %% Line 108
+		    apply 'tokenise'/4
+			(Stream, T1, Lno, [Str|R])
+		( <_cor35> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor35})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 110
+	  <Stream,[123|T],Lno,R> when 'true' ->
+	      %% Line 111
+	      apply 'tokenise'/4
+		  (Stream, T, Lno, [{'{',Lno}|R])
+	  %% Line 113
+	  <Stream,[125|T],Lno,R> when 'true' ->
+	      %% Line 114
+	      apply 'tokenise'/4
+		  (Stream, T, Lno, [{'}',Lno}|R])
+	  %% Line 129
+	  <Stream,[93|T],Lno,R> when 'true' ->
+	      %% Line 130
+	      apply 'tokenise'/4
+		  (Stream, T, Lno, [{']',Lno}|R])
+	  %% Line 132
+	  <Stream,[91|T],Lno,R> when 'true' ->
+	      %% Line 133
+	      apply 'tokenise'/4
+		  (Stream, T, Lno, [{'[',Lno}|R])
+	  %% Line 135
+	  <Stream,[44|T],Lno,R> when 'true' ->
+	      %% Line 136
+	      apply 'tokenise'/4
+		  (Stream, T, Lno, [{',',Lno}|R])
+	  %% Line 138
+	  <Stream,[40|T],Lno,R> when 'true' ->
+	      %% Line 139
+	      apply 'tokenise'/4
+		  (Stream, T, Lno, [{'(',Lno}|R])
+	  %% Line 140
+	  <Stream,[41|T],Lno,R> when 'true' ->
+	      %% Line 141
+	      apply 'tokenise'/4
+		  (Stream, T, Lno, [{')',Lno}|R])
+	  %% Line 143
+	  <Stream,[46|[46|[46|T]]],Lno,R> when 'true' ->
+	      %% Line 144
+	      apply 'tokenise'/4
+		  (Stream, T, Lno, [{'...',Lno}|R])
+	  %% Line 146
+	  <Stream,[46|[46|T]],Lno,R> when 'true' ->
+	      %% Line 147
+	      apply 'tokenise'/4
+		  (Stream, T, Lno, [{'..',Lno}|R])
+	  %% Line 149
+	  <Stream,[46|T],Lno,R> when 'true' ->
+	      %% Line 150
+	      apply 'tokenise'/4
+		  (Stream, T, Lno, [{'.',Lno}|R])
+	  %% Line 151
+	  <Stream,[94|T],Lno,R> when 'true' ->
+	      %% Line 152
+	      apply 'tokenise'/4
+		  (Stream, T, Lno, [{'^',Lno}|R])
+	  %% Line 153
+	  <Stream,[33|T],Lno,R> when 'true' ->
+	      %% Line 154
+	      apply 'tokenise'/4
+		  (Stream, T, Lno, [{'!',Lno}|R])
+	  %% Line 155
+	  <Stream,[124|T],Lno,R> when 'true' ->
+	      %% Line 156
+	      apply 'tokenise'/4
+		  (Stream, T, Lno, [{'|',Lno}|R])
+	  %% Line 158
+	  <Stream,[H|T],Lno,R> when 'true' ->
+	      %% Line 159
+	      case apply 'white_space'/1
+		       (H) of
+		%% Line 160
+		<'true'> when 'true' ->
+		    %% Line 161
+		    apply 'tokenise'/4
+			(Stream, T, Lno, R)
+		%% Line 162
+		<'false'> when 'true' ->
+		    let <_cor36> =
+			%% Line 163
+			call 'erlang':'list_to_atom'
+			    ([H|[]])
+		    in  %% Line 163
+			apply 'tokenise'/4
+			    (Stream, T, Lno, [{_cor36,Lno}|R])
+		( <_cor37> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor37})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 165
+	  <_X_Stream,[],Lno,R> when 'true' ->
+	      let <_cor38> =
+		  %% Line 166
+		  call 'lists':'reverse'
+		      (R)
+	      in  %% Line 166
+		  {Lno,_cor38}
+	  ( <_cor42,_cor41,_cor40,_cor39> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor42,_cor41,_cor40,_cor39})
+		  -| [{'function_name',{'tokenise',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'collect_string'/2 =
+    %% Line 169
+    fun (_cor1,_cor0) ->
+	%% Line 170
+	apply 'collect_string'/3
+	    (_cor1, _cor0, [])
+'collect_string'/3 =
+    %% Line 172
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_cor8,_cor9> when 'true' ->
+	      %% Line 173
+	      call 'erlang':'throw'
+		  ({'ERR','bad_quote found eof'})
+	  %% Line 175
+	  <[H|T],Lno,Str> when 'true' ->
+	      %% Line 176
+	      case H of
+		%% Line 177
+		<34> when 'true' ->
+		    let <_cor3> =
+			%% Line 178
+			call 'lists':'reverse'
+			    (Str)
+		    in  %% Line 178
+			{{'cstring',1,_cor3},T}
+		%% Line 179
+		<Ch> when 'true' ->
+		    %% Line 180
+		    apply 'collect_string'/3
+			(T, Lno, [Ch|Str])
+	      end
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'collect_string',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_name'/2 =
+    %% Line 190
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[45|[Char|T]],L> when 'true' ->
+	      %% Line 191
+	      case apply 'isalnum'/1
+		       (Char) of
+		%% Line 192
+		<'true'> when 'true' ->
+		    %% Line 193
+		    apply 'get_name'/2
+			(T, [Char|[45|L]])
+		%% Line 194
+		<'false'> when 'true' ->
+		    let <_cor2> =
+			%% Line 195
+			call 'lists':'reverse'
+			    (L)
+		    in  %% Line 195
+			{_cor2,[45|[Char|T]]}
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 197
+	  <[45|T],L> when 'true' ->
+	      let <_cor4> =
+		  %% Line 198
+		  call 'lists':'reverse'
+		      (L)
+	      in  %% Line 198
+		  {_cor4,[45|T]}
+	  %% Line 199
+	  <[Char|T],L> when 'true' ->
+	      %% Line 200
+	      case apply 'isalnum'/1
+		       (Char) of
+		%% Line 201
+		<'true'> when 'true' ->
+		    %% Line 202
+		    apply 'get_name'/2
+			(T, [Char|L])
+		%% Line 203
+		<'false'> when 'true' ->
+		    let <_cor5> =
+			%% Line 204
+			call 'lists':'reverse'
+			    (L)
+		    in  %% Line 204
+			{_cor5,[Char|T]}
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 206
+	  <[],L> when 'true' ->
+	      let <_cor7> =
+		  %% Line 207
+		  call 'lists':'reverse'
+		      (L)
+	      in  %% Line 207
+		  {_cor7,[]}
+	  ( <_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8})
+		  -| [{'function_name',{'get_name',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'isalnum'/1 =
+    %% Line 210
+    fun (_cor0) ->
+	case _cor0 of
+	  <H>
+	      when let <_cor1> =
+		    call 'erlang':'=<'
+			(65, _cor0)
+		in  let <_cor2> =
+			call 'erlang':'=<'
+			    (_cor0, 90)
+		    in  call 'erlang':'and'
+			    (_cor1, _cor2) ->
+	      %% Line 211
+	      'true'
+	  %% Line 212
+	  <H>
+	      when let <_cor3> =
+		    call 'erlang':'=<'
+			(97, _cor0)
+		in  let <_cor4> =
+			call 'erlang':'=<'
+			    (_cor0, 122)
+		    in  call 'erlang':'and'
+			    (_cor3, _cor4) ->
+	      %% Line 213
+	      'true'
+	  %% Line 214
+	  <H>
+	      when let <_cor5> =
+		    call 'erlang':'=<'
+			(48, _cor0)
+		in  let <_cor6> =
+			call 'erlang':'=<'
+			    (_cor0, 57)
+		    in  call 'erlang':'and'
+			    (_cor5, _cor6) ->
+	      %% Line 215
+	      'true'
+	  %% Line 216
+	  <_cor8> when 'true' ->
+	      %% Line 217
+	      'false'
+	end
+'isdigit'/1 =
+    %% Line 219
+    fun (_cor0) ->
+	case _cor0 of
+	  <H>
+	      when let <_cor1> =
+		    call 'erlang':'=<'
+			(48, _cor0)
+		in  let <_cor2> =
+			call 'erlang':'=<'
+			    (_cor0, 57)
+		    in  call 'erlang':'and'
+			    (_cor1, _cor2) ->
+	      %% Line 220
+	      'true'
+	  %% Line 221
+	  <_cor4> when 'true' ->
+	      %% Line 222
+	      'false'
+	end
+'white_space'/1 =
+    %% Line 224
+    fun (_cor0) ->
+	case _cor0 of
+	  <9> when 'true' ->
+	      'true'
+	  %% Line 225
+	  <10> when 'true' ->
+	      'true'
+	  %% Line 226
+	  <13> when 'true' ->
+	      'true'
+	  %% Line 227
+	  <32> when 'true' ->
+	      'true'
+	  %% Line 228
+	  <_cor2> when 'true' ->
+	      'false'
+	end
+'get_number'/2 =
+    %% Line 231
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[H|T],L> when 'true' ->
+	      %% Line 232
+	      case apply 'isdigit'/1
+		       (H) of
+		%% Line 233
+		<'true'> when 'true' ->
+		    %% Line 234
+		    apply 'get_number'/2
+			(T, [H|L])
+		%% Line 235
+		<'false'> when 'true' ->
+		    let <_cor2> =
+			%% Line 236
+			call 'lists':'reverse'
+			    (L)
+		    in  %% Line 236
+			{_cor2,[H|T]}
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 238
+	  <[],L> when 'true' ->
+	      let <_cor4> =
+		  %% Line 239
+		  call 'lists':'reverse'
+		      (L)
+	      in  %% Line 239
+		  {_cor4,[]}
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'get_number',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'skip_comment'/1 =
+    %% Line 241
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 242
+	      []
+	  %% Line 243
+	  <[45|[45|T]]> when 'true' ->
+	      %% Line 244
+	      T
+	  %% Line 245
+	  <[_cor2|T]> when 'true' ->
+	      %% Line 246
+	      apply 'skip_comment'/1
+		  (T)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'skip_comment',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'skip_multiline_comment'/4 =
+    %% Line 249
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Stream,[],Lno,Level> when 'true' ->
+	      %% Line 250
+	      case call 'io':'get_line'
+		       (Stream, '') of
+		%% Line 251
+		<'eof'> when 'true' ->
+		    do  %% Line 252
+			call 'io':'format'
+			    ([84|[111|[107|[101|[110|[105|[115|[101|[114|[32|[101|[114|[114|[111|[114|[32|[111|[110|[32|[108|[105|[110|[101|[58|[32|[126|[119|[126|[110|[112|[114|[101|[109|[97|[116|[117|[114|[101|[32|[101|[110|[100|[32|[111|[102|[32|[109|[117|[108|[116|[105|[108|[105|[110|[101|[32|[99|[111|[109|[109|[101|[110|[116|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 253
+																																																			[Lno|[]])
+			%% Line 254
+			call 'erlang':'exit'
+			    (0)
+		%% Line 255
+		<Line> when 'true' ->
+		    let <_cor4> =
+			%% Line 256
+			call 'erlang':'+'
+			    (Lno, 1)
+		    in  %% Line 256
+			apply 'skip_multiline_comment'/4
+			    (Stream, Line, _cor4, Level)
+	      end
+	  %% Line 258
+	  <_X_Stream,[42|[47|T]],Lno,0> when 'true' ->
+	      %% Line 259
+	      {Lno,T}
+	  %% Line 260
+	  <Stream,[42|[47|T]],Lno,Level> when 'true' ->
+	      let <_cor6> =
+		  %% Line 261
+		  call 'erlang':'-'
+		      (Level, 1)
+	      in  %% Line 261
+		  apply 'skip_multiline_comment'/4
+		      (Stream, T, Lno, _cor6)
+	  %% Line 262
+	  <Stream,[47|[42|T]],Lno,Level> when 'true' ->
+	      let <_cor7> =
+		  %% Line 263
+		  call 'erlang':'+'
+		      (Level, 1)
+	      in  %% Line 263
+		  apply 'skip_multiline_comment'/4
+		      (Stream, T, Lno, _cor7)
+	  %% Line 264
+	  <Stream,[_cor12|T],Lno,Level> when 'true' ->
+	      %% Line 265
+	      apply 'skip_multiline_comment'/4
+		  (Stream, T, Lno, Level)
+	  ( <_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'skip_multiline_comment',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'collect_quoted'/3 =
+    %% Line 267
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[39|[66|T]],Lno,L> when 'true' ->
+	      %% Line 268
+	      case apply 'check_bin'/1
+		       (L) of
+		%% Line 269
+		<'true'> when 'true' ->
+		    let <_cor3> =
+			%% Line 270
+			call 'lists':'reverse'
+			    (L)
+		    in  %% Line 270
+			{{'bstring',Lno,_cor3},T}
+		%% Line 271
+		<'false'> when 'true' ->
+		    let <_cor4> =
+			%% Line 272
+			call 'lists':'reverse'
+			    (L)
+		    in  %% Line 272
+			call 'erlang':'throw'
+			    ({'ERR',{'invalid_binary_number',_cor4}})
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 274
+	  <[39|[72|T]],Lno,L> when 'true' ->
+	      %% Line 275
+	      case apply 'check_hex'/1
+		       (L) of
+		%% Line 276
+		<'true'> when 'true' ->
+		    let <_cor6> =
+			%% Line 277
+			call 'lists':'reverse'
+			    (L)
+		    in  %% Line 277
+			{{'hstring',Lno,_cor6},T}
+		%% Line 278
+		<'false'> when 'true' ->
+		    let <_cor7> =
+			%% Line 279
+			call 'lists':'reverse'
+			    (L)
+		    in  %% Line 279
+			call 'erlang':'throw'
+			    ({'ERR',{'invalid_binary_number',_cor7}})
+		( <_cor8> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor8})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 281
+	  <[H|T],Lno,L> when 'true' ->
+	      %% Line 282
+	      apply 'collect_quoted'/3
+		  (T, Lno, [H|L])
+	  %% Line 283
+	  <[],_cor12,_cor13> when 'true' ->
+	      %% Line 284
+	      call 'erlang':'throw'
+		  ({'ERR',{'eol_in_token'}})
+	  ( <_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'collect_quoted',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'check_bin'/1 =
+    %% Line 286
+    fun (_cor0) ->
+	case _cor0 of
+	  <[48|T]> when 'true' ->
+	      %% Line 287
+	      apply 'check_bin'/1
+		  (T)
+	  %% Line 288
+	  <[49|T]> when 'true' ->
+	      %% Line 289
+	      apply 'check_bin'/1
+		  (T)
+	  %% Line 290
+	  <[]> when 'true' ->
+	      %% Line 291
+	      'true'
+	  %% Line 292
+	  <_cor2> when 'true' ->
+	      %% Line 293
+	      'false'
+	end
+'check_hex'/1 =
+    %% Line 295
+    fun (_cor0) ->
+	case _cor0 of
+	  <[H|T]>
+	      when let <_cor1> =
+		    call 'erlang':'=<'
+			(48, H)
+		in  let <_cor2> =
+			call 'erlang':'=<'
+			    (H, 57)
+		    in  call 'erlang':'and'
+			    (_cor1, _cor2) ->
+	      %% Line 296
+	      apply 'check_hex'/1
+		  (T)
+	  %% Line 297
+	  <[H|T]>
+	      when let <_cor3> =
+		    call 'erlang':'=<'
+			(65, H)
+		in  let <_cor4> =
+			call 'erlang':'=<'
+			    (H, 70)
+		    in  call 'erlang':'and'
+			    (_cor3, _cor4) ->
+	      %% Line 298
+	      apply 'check_hex'/1
+		  (T)
+	  %% Line 299
+	  <[]> when 'true' ->
+	      %% Line 300
+	      'true'
+	  %% Line 301
+	  <_cor6> when 'true' ->
+	      %% Line 302
+	      'false'
+	end
+'reserved_word'/1 =
+    %% Line 311
+    fun (_cor0) ->
+	case _cor0 of
+	  <'ABSENT'> when 'true' ->
+	      'true'
+	  %% Line 313
+	  <'ALL'> when 'true' ->
+	      'true'
+	  %% Line 314
+	  <'ANY'> when 'true' ->
+	      'true'
+	  %% Line 315
+	  <'APPLICATION'> when 'true' ->
+	      'true'
+	  %% Line 316
+	  <'AUTOMATIC'> when 'true' ->
+	      'true'
+	  %% Line 317
+	  <'BEGIN'> when 'true' ->
+	      'true'
+	  %% Line 318
+	  <'BIT'> when 'true' ->
+	      'true'
+	  %% Line 319
+	  <'BMPString'> when 'true' ->
+	      'rstrtype'
+	  %% Line 320
+	  <'BOOLEAN'> when 'true' ->
+	      'true'
+	  %% Line 321
+	  <'BY'> when 'true' ->
+	      'true'
+	  %% Line 322
+	  <'CHARACTER'> when 'true' ->
+	      'true'
+	  %% Line 323
+	  <'CHOICE'> when 'true' ->
+	      'true'
+	  %% Line 324
+	  <'CLASS'> when 'true' ->
+	      'true'
+	  %% Line 325
+	  <'COMPONENT'> when 'true' ->
+	      'true'
+	  %% Line 326
+	  <'COMPONENTS'> when 'true' ->
+	      'true'
+	  %% Line 327
+	  <'CONSTRAINED'> when 'true' ->
+	      'true'
+	  %% Line 328
+	  <'CONTAINING'> when 'true' ->
+	      'true'
+	  %% Line 329
+	  <'DEFAULT'> when 'true' ->
+	      'true'
+	  %% Line 330
+	  <'DEFINED'> when 'true' ->
+	      'true'
+	  %% Line 331
+	  <'DEFINITIONS'> when 'true' ->
+	      'true'
+	  %% Line 332
+	  <'EMBEDDED'> when 'true' ->
+	      'true'
+	  %% Line 333
+	  <'ENCODED'> when 'true' ->
+	      'true'
+	  %% Line 334
+	  <'END'> when 'true' ->
+	      'true'
+	  %% Line 335
+	  <'ENUMERATED'> when 'true' ->
+	      'true'
+	  %% Line 336
+	  <'EXCEPT'> when 'true' ->
+	      'true'
+	  %% Line 337
+	  <'EXPLICIT'> when 'true' ->
+	      'true'
+	  %% Line 338
+	  <'EXPORTS'> when 'true' ->
+	      'true'
+	  %% Line 339
+	  <'EXTENSIBILITY'> when 'true' ->
+	      'true'
+	  %% Line 340
+	  <'EXTERNAL'> when 'true' ->
+	      'true'
+	  %% Line 341
+	  <'FALSE'> when 'true' ->
+	      'true'
+	  %% Line 342
+	  <'FROM'> when 'true' ->
+	      'true'
+	  %% Line 343
+	  <'GeneralizedTime'> when 'true' ->
+	      'true'
+	  %% Line 344
+	  <'GeneralString'> when 'true' ->
+	      'rstrtype'
+	  %% Line 345
+	  <'GraphicString'> when 'true' ->
+	      'rstrtype'
+	  %% Line 346
+	  <'IA5String'> when 'true' ->
+	      'rstrtype'
+	  %% Line 347
+	  <'IDENTIFIER'> when 'true' ->
+	      'true'
+	  %% Line 348
+	  <'IMPLICIT'> when 'true' ->
+	      'true'
+	  %% Line 349
+	  <'IMPLIED'> when 'true' ->
+	      'true'
+	  %% Line 350
+	  <'IMPORTS'> when 'true' ->
+	      'true'
+	  %% Line 351
+	  <'INCLUDES'> when 'true' ->
+	      'true'
+	  %% Line 352
+	  <'INSTANCE'> when 'true' ->
+	      'true'
+	  %% Line 353
+	  <'INTEGER'> when 'true' ->
+	      'true'
+	  %% Line 354
+	  <'INTERSECTION'> when 'true' ->
+	      'true'
+	  %% Line 355
+	  <'ISO646String'> when 'true' ->
+	      'rstrtype'
+	  %% Line 356
+	  <'MAX'> when 'true' ->
+	      'true'
+	  %% Line 357
+	  <'MIN'> when 'true' ->
+	      'true'
+	  %% Line 358
+	  <'MINUS-INFINITY'> when 'true' ->
+	      'true'
+	  %% Line 359
+	  <'NULL'> when 'true' ->
+	      'true'
+	  %% Line 360
+	  <'NumericString'> when 'true' ->
+	      'rstrtype'
+	  %% Line 361
+	  <'OBJECT'> when 'true' ->
+	      'true'
+	  %% Line 362
+	  <'ObjectDescriptor'> when 'true' ->
+	      'true'
+	  %% Line 363
+	  <'OCTET'> when 'true' ->
+	      'true'
+	  %% Line 364
+	  <'OF'> when 'true' ->
+	      'true'
+	  %% Line 365
+	  <'OPTIONAL'> when 'true' ->
+	      'true'
+	  %% Line 366
+	  <'PATTERN'> when 'true' ->
+	      'true'
+	  %% Line 367
+	  <'PDV'> when 'true' ->
+	      'true'
+	  %% Line 368
+	  <'PLUS-INFINITY'> when 'true' ->
+	      'true'
+	  %% Line 369
+	  <'PRESENT'> when 'true' ->
+	      'true'
+	  %% Line 370
+	  <'PrintableString'> when 'true' ->
+	      'rstrtype'
+	  %% Line 371
+	  <'PRIVATE'> when 'true' ->
+	      'true'
+	  %% Line 372
+	  <'REAL'> when 'true' ->
+	      'true'
+	  %% Line 373
+	  <'RELATIVE-OID'> when 'true' ->
+	      'true'
+	  %% Line 374
+	  <'SEQUENCE'> when 'true' ->
+	      'true'
+	  %% Line 375
+	  <'SET'> when 'true' ->
+	      'true'
+	  %% Line 376
+	  <'SIZE'> when 'true' ->
+	      'true'
+	  %% Line 377
+	  <'STRING'> when 'true' ->
+	      'true'
+	  %% Line 378
+	  <'SYNTAX'> when 'true' ->
+	      'true'
+	  %% Line 379
+	  <'T61String'> when 'true' ->
+	      'rstrtype'
+	  %% Line 380
+	  <'TAGS'> when 'true' ->
+	      'true'
+	  %% Line 381
+	  <'TeletexString'> when 'true' ->
+	      'rstrtype'
+	  %% Line 382
+	  <'TRUE'> when 'true' ->
+	      'true'
+	  %% Line 384
+	  <'UNION'> when 'true' ->
+	      'true'
+	  %% Line 385
+	  <'UNIQUE'> when 'true' ->
+	      'true'
+	  %% Line 386
+	  <'UNIVERSAL'> when 'true' ->
+	      'true'
+	  %% Line 387
+	  <'UniversalString'> when 'true' ->
+	      'rstrtype'
+	  %% Line 388
+	  <'UTCTime'> when 'true' ->
+	      'true'
+	  %% Line 389
+	  <'UTF8String'> when 'true' ->
+	      'rstrtype'
+	  %% Line 390
+	  <'VideotexString'> when 'true' ->
+	      'rstrtype'
+	  %% Line 391
+	  <'VisibleString'> when 'true' ->
+	      'rstrtype'
+	  %% Line 392
+	  <'WITH'> when 'true' ->
+	      'true'
+	  %% Line 393
+	  <_cor2> when 'true' ->
+	      'false'
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('asn1ct_tok')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('asn1ct_tok', _cor0)
+end

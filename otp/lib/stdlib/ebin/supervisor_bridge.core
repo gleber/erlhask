@@ -1,0 +1,243 @@
+module 'supervisor_bridge' ['behaviour_info'/1,
+			    'code_change'/3,
+			    'handle_call'/3,
+			    'handle_cast'/2,
+			    'handle_info'/2,
+			    'init'/1,
+			    'module_info'/0,
+			    'module_info'/1,
+			    'start_link'/2,
+			    'start_link'/3,
+			    'terminate'/2]
+    attributes [%% Line 21
+		'behaviour' =
+		    %% Line 21
+		    ['gen_server'],
+		%% Line 29
+		'callback' =
+		    %% Line 29
+		    [{{'init',1},[{'type',29,'fun',[{'type',29,'product',[{'ann_type',29,[{'var',29,'Args'}|[{'type',29,'term',[]}]]}]}|[{'type',30,'union',[{'type',30,'tuple',[{'atom',30,'ok'}|[{'ann_type',30,[{'var',30,'Pid'}|[{'type',30,'pid',[]}]]}|[{'ann_type',30,[{'var',30,'State'}|[{'type',30,'term',[]}]]}]]]}|[{'atom',30,'ignore'}|[{'type',30,'tuple',[{'atom',30,'error'}|[{'ann_type',30,[{'var',30,'Error'}|[{'type',30,'term',[]}]]}]]}]]]}]]}]}],
+		%% Line 31
+		'callback' =
+		    %% Line 31
+		    [{{'terminate',2},[{'type',31,'fun',[{'type',31,'product',[{'ann_type',31,[{'var',31,'Reason'}|[{'paren_type',31,[{'type',31,'union',[{'atom',31,'shutdown'}|[{'type',31,'term',[]}]]}]}]]}|[{'ann_type',31,[{'var',31,'State'}|[{'type',31,'term',[]}]]}]]}|[{'ann_type',32,[{'var',32,'Ignored'}|[{'type',32,'term',[]}]]}]]}]}],
+		%% Line 49
+		'type' =
+		    %% Line 49
+		    [{{'record','state'},[{'record_field',49,{'atom',49,'mod'}}|[{'record_field',49,{'atom',49,'pid'}}|[{'record_field',49,{'atom',49,'child_state'}}|[{'record_field',49,{'atom',49,'name'}}]]]],[]}],
+		%% Line 51
+		'spec' =
+		    %% Line 51
+		    [{{'start_link',2},[{'type',51,'bounded_fun',[{'type',51,'fun',[{'type',51,'product',[{'var',51,'Module'}|[{'var',51,'Args'}]]}|[{'var',51,'Result'}]]}|[[{'type',52,'constraint',[{'atom',52,'is_subtype'}|[[{'var',52,'Module'}|[{'type',52,'module',[]}]]]]}|[{'type',53,'constraint',[{'atom',53,'is_subtype'}|[[{'var',53,'Args'}|[{'type',53,'term',[]}]]]]}|[{'type',54,'constraint',[{'atom',54,'is_subtype'}|[[{'var',54,'Result'}|[{'type',54,'union',[{'type',54,'tuple',[{'atom',54,'ok'}|[{'var',54,'Pid'}]]}|[{'atom',54,'ignore'}|[{'type',54,'tuple',[{'atom',54,'error'}|[{'var',54,'Error'}]]}]]]}]]]]}|[{'type',55,'constraint',[{'atom',55,'is_subtype'}|[[{'var',55,'Error'}|[{'type',55,'union',[{'type',55,'tuple',[{'atom',55,'already_started'}|[{'var',55,'Pid'}]]}|[{'type',55,'term',[]}]]}]]]]}|[{'type',56,'constraint',[{'atom',56,'is_subtype'}|[[{'var',56,'Pid'}|[{'type',56,'pid',[]}]]]]}]]]]]]]}]}],
+		%% Line 61
+		'spec' =
+		    %% Line 61
+		    [{{'start_link',3},[{'type',61,'bounded_fun',[{'type',61,'fun',[{'type',61,'product',[{'var',61,'SupBridgeName'}|[{'var',61,'Module'}|[{'var',61,'Args'}]]]}|[{'var',61,'Result'}]]}|[[{'type',62,'constraint',[{'atom',62,'is_subtype'}|[[{'var',62,'SupBridgeName'}|[{'type',62,'union',[{'type',62,'tuple',[{'atom',62,'local'}|[{'var',62,'Name'}]]}|[{'type',62,'tuple',[{'atom',62,'global'}|[{'var',62,'Name'}]]}]]}]]]]}|[{'type',63,'constraint',[{'atom',63,'is_subtype'}|[[{'var',63,'Name'}|[{'type',63,'atom',[]}]]]]}|[{'type',64,'constraint',[{'atom',64,'is_subtype'}|[[{'var',64,'Module'}|[{'type',64,'module',[]}]]]]}|[{'type',65,'constraint',[{'atom',65,'is_subtype'}|[[{'var',65,'Args'}|[{'type',65,'term',[]}]]]]}|[{'type',66,'constraint',[{'atom',66,'is_subtype'}|[[{'var',66,'Result'}|[{'type',66,'union',[{'type',66,'tuple',[{'atom',66,'ok'}|[{'var',66,'Pid'}]]}|[{'atom',66,'ignore'}|[{'type',66,'tuple',[{'atom',66,'error'}|[{'var',66,'Error'}]]}]]]}]]]]}|[{'type',67,'constraint',[{'atom',67,'is_subtype'}|[[{'var',67,'Error'}|[{'type',67,'union',[{'type',67,'tuple',[{'atom',67,'already_started'}|[{'var',67,'Pid'}]]}|[{'type',67,'term',[]}]]}]]]]}|[{'type',68,'constraint',[{'atom',68,'is_subtype'}|[[{'var',68,'Pid'}|[{'type',68,'pid',[]}]]]]}]]]]]]]]]}]}]]
+'start_link'/2 =
+    %% Line 58
+    fun (_cor1,_cor0) ->
+	%% Line 59
+	call 'gen_server':'start_link'
+	    ('supervisor_bridge', [_cor1|[_cor0|['self']]], [])
+'start_link'/3 =
+    %% Line 70
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 71
+	call 'gen_server':'start_link'
+	    (_cor2, 'supervisor_bridge', [_cor1|[_cor0|[_cor2|[]]]], [])
+'init'/1 =
+    %% Line 76
+    fun (_cor0) ->
+	case _cor0 of
+	  <[Mod|[StartArgs|[Name0|[]]]]> when 'true' ->
+	      do  %% Line 77
+		  call 'erlang':'process_flag'
+		      ('trap_exit', 'true')
+		  let <Name> =
+		      %% Line 78
+		      apply 'supname'/2
+			  (Name0, Mod)
+		  in  %% Line 79
+		      case call Mod:'init'
+			       (StartArgs) of
+			%% Line 80
+			<{'ok',Pid,ChildState}>
+			    when call 'erlang':'is_pid'
+				  (Pid) ->
+			    do  %% Line 81
+				call 'erlang':'link'
+				    (Pid)
+				do  %% Line 82
+				    apply 'report_progress'/4
+					(Pid, Mod, StartArgs, Name)
+				    %% Line 83
+				    {'ok',{'state',Mod,Pid,%% Line 84
+							   ChildState,%% Line 84
+								      Name}}
+			%% Line 85
+			<'ignore'> when 'true' ->
+			    %% Line 86
+			    'ignore'
+			%% Line 87
+			<{'error',Reason}> when 'true' ->
+			    %% Line 88
+			    {'stop',Reason}
+			( <_cor2> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor2})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'supname'/2 =
+    %% Line 91
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'self',Mod> when 'true' ->
+	      let <_cor2> =
+		  call 'erlang':'self'
+		      ()
+	      in  {_cor2,Mod}
+	  %% Line 92
+	  <N,_cor5> when 'true' ->
+	      N
+	end
+'handle_call'/3 =
+    %% Line 95
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'which_children',_X_From,State> when 'true' ->
+	      %% Line 96
+	      {'reply',[],State}
+	  %% Line 97
+	  <_X_Req,_X_From,State> when 'true' ->
+	      %% Line 98
+	      {'reply',{'error','badcall'},State}
+	end
+'handle_cast'/2 =
+    %% Line 100
+    fun (_cor1,_cor0) ->
+	%% Line 101
+	{'noreply',_cor0}
+'handle_info'/2 =
+    %% Line 103
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'EXIT',Pid,Reason},State = {'state',_cor14,_cor15,_cor16,_cor17}>
+	      when call 'erlang':'=:='
+		    (_cor15,
+		     Pid) ->
+	      do  %% Line 104
+		  case Reason of
+		    %% Line 105
+		    <'normal'> when 'true' ->
+			'ok'
+		    %% Line 107
+		    <'shutdown'> when 'true' ->
+			'ok'
+		    %% Line 109
+		    <{'shutdown',_X_Term}> when 'true' ->
+			'ok'
+		    %% Line 111
+		    <_cor18> when 'true' ->
+			%% Line 112
+			apply 'report_error'/3
+			    ('child_terminated', Reason, State)
+		  end
+		  let <_cor11> =
+		      %% Line 114
+		      call 'erlang':'setelement'
+			  (3, State, 'undefined')
+		  in  %% Line 114
+		      {'stop',Reason,_cor11}
+	  %% Line 115
+	  <_cor24,State> when 'true' ->
+	      %% Line 116
+	      {'noreply',State}
+	end
+'terminate'/2 =
+    %% Line 118
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_Reason,{'state',_cor4,'undefined',_cor5,_cor6}> when 'true' ->
+	      %% Line 119
+	      'ok'
+	  %% Line 120
+	  <Reason,State> when 'true' ->
+	      %% Line 121
+	      apply 'terminate_pid'/2
+		  (Reason, State)
+	end
+'code_change'/3 =
+    %% Line 123
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 124
+	{'ok',_cor1}
+'terminate_pid'/2 =
+    %% Line 127
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Reason,{'state',Mod,_cor4,ChildState,_cor5}> when 'true' ->
+	      %% Line 128
+	      call Mod:'terminate'
+		  (Reason, ChildState)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'terminate_pid',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'report_progress'/4 =
+    %% Line 130
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <Progress> =
+	    %% Line 131
+	    [{'supervisor',_cor0}|%% Line 132
+				  [{'started',[{'pid',_cor3}|[{'mfa',{_cor2,'init',[_cor1|[]]}}|[]]]}|[]]]
+	in  %% Line 133
+	    call 'error_logger':'info_report'
+		('progress', Progress)
+'report_error'/3 =
+    %% Line 135
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Error,Reason,{'state',Mod,Pid,_cor7,Name}> when 'true' ->
+	      let <ErrorMsg> =
+		  %% Line 136
+		  [{'supervisor',Name}|%% Line 137
+				       [{'errorContext',Error}|%% Line 138
+							       [{'reason',Reason}|%% Line 139
+										  [{'offender',[{'pid',Pid}|[{'mod',Mod}|[]]]}|[]]]]]
+	      in  %% Line 140
+		  call 'error_logger':'error_report'
+		      ('supervisor_report', ErrorMsg)
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'report_error',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'behaviour_info'/1 =
+    fun (_cor0) ->
+	case _cor0 of
+	  <'callbacks'> when 'true' ->
+	      [{'init',1}|[{'terminate',2}]]
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'behaviour_info',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('supervisor_bridge')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('supervisor_bridge', _cor0)
+end

@@ -1,0 +1,1676 @@
+module 'bonk' ['bonk_dir'/0,
+	       'module_info'/0,
+	       'module_info'/1,
+	       'run'/0,
+	       'run'/1,
+	       'start'/0]
+    attributes []
+'start'/0 =
+    %% Line 33
+    fun () ->
+	%% Line 34
+	call 'erlang':'spawn'
+	    ('bonk', 'run', [])
+'run'/0 =
+    %% Line 36
+    fun () ->
+	%% Line 37
+	apply 'run'/1
+	    ('color')
+'run'/1 =
+    %% Line 39
+    fun (_cor0) ->
+	case _cor0 of
+	  <[ColorMode|[]]> when 'true' ->
+	      %% Line 40
+	      apply 'run'/1
+		  (ColorMode)
+	  %% Line 42
+	  <ColorMode>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      let <GS> =
+		  %% Line 43
+		  call 'gs':'start'
+		      ()
+	      in  let <SoundPid> =
+		      %% Line 44
+		      call 'erlang':'spawn_link'
+			  ('bonk_sound', 'start', [])
+		  in  %% Line 45
+		      case call 'erlang':'time'
+			       () of
+			<{H,M,S}> when 'true' ->
+			    let <_cor6> =
+				%% Line 46
+				call 'erlang':'*'
+				    (H, 13)
+			    in  let <_cor5> =
+				    %% Line 46
+				    call 'erlang':'*'
+					(M, 7)
+				in  let <_cor4> =
+					%% Line 46
+					call 'erlang':'*'
+					    (S, 3)
+				    in  do  %% Line 46
+					    call 'random':'seed'
+						(_cor6, _cor5, _cor4)
+					    %% Line 47
+					    case apply 'create_board'/2
+						     (GS, ColorMode) of
+					      <{SqrPids,Bmps,Colors}> when 'true' ->
+						  %% Line 48
+						  case apply 'get_highscore'/0
+							   () of
+						    <{ScoreL,_X_File}> when 'true' ->
+							do  %% Line 49
+							    apply 'display_highscore'/1
+								(ScoreL)
+							    do  %% Line 50
+								call 'erlang':'put'
+								    ('colormode', ColorMode)
+								do  %% Line 51
+								    call 'erlang':'!'
+									(SoundPid, 'music')
+								    do  %% Line 52
+									apply 'sleep'/1
+									    (6500)
+									do  %% Line 53
+									    call 'gs':'config'
+										('aboutButton', [{'enable','true'}])
+									    do  %% Line 54
+										call 'gs':'config'
+										    ('newButton', [{'enable','true'}])
+										do  %% Line 55
+										    call 'gs':'config'
+											('quitButton', [{'enable','true'}])
+										    %% Line 56
+										    apply 'idle'/4
+											(SoundPid, SqrPids, Bmps, Colors)
+						    ( <_cor8> when 'true' ->
+							  primop 'match_fail'
+							      ({'badmatch',_cor8})
+						      -| ['compiler_generated'] )
+						  end
+					      ( <_cor7> when 'true' ->
+						    primop 'match_fail'
+							({'badmatch',_cor7})
+						-| ['compiler_generated'] )
+					    end
+			( <_cor3> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor3})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9})
+		  -| [{'function_name',{'run',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'bonk_dir'/0 =
+    %% Line 68
+    fun () ->
+	let <GsPrivDir> =
+	    %% Line 69
+	    call 'code':'priv_dir'
+		('gs')
+	in  let <_cor1> =
+		%% Line 70
+		call 'filename':'join'
+		    (GsPrivDir, [46|[46|[47|[99|[111|[110|[116|[114|[105|[98|[115|[47|[98|[111|[110|[107]]]]]]]]]]]]]]]])
+	    in  %% Line 70
+		call 'erlang':'++'
+		    (_cor1, [47])
+'idle'/4 =
+    %% Line 73
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 74
+	receive
+	  %% Line 75
+	  <{'gs','newButton','click',_X_Data,_X_Args}> when 'true' ->
+	      %% Line 76
+	      apply 'init'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 77
+	  <{'gs','aboutButton','click',_X_Data,_X_Args}> when 'true' ->
+	      do  %% Line 78
+		  apply 'display_about'/0
+		      ()
+		  %% Line 79
+		  apply 'idle'/4
+		      (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 80
+	  <{'gs','quitButton','click',_X_Data,_X_Args}> when 'true' ->
+	      do  %% Line 81
+		  call 'erlang':'!'
+		      (_cor3, 'quit')
+		  %% Line 82
+		  apply 'send_to_all'/2
+		      (_cor2, 'quit')
+	  %% Line 83
+	  <_X_Other> when 'true' ->
+	      %% Line 85
+	      apply 'idle'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	after 'infinity' ->
+	  'true'
+'init'/4 =
+    %% Line 90
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 91
+	    apply 'clear_board'/1
+		(_cor1)
+	    do  %% Line 92
+		call 'erlang':'!'
+		    (_cor3, 'start')
+		do  %% Line 93
+		    call 'gs':'config'
+			('newButton', [{'enable','false'}])
+		    do  %% Line 94
+			call 'gs':'config'
+			    ('endButton', [{'enable','true'}])
+			do  %% Line 95
+			    call 'gs':'config'
+				('aboutButton', [{'enable','false'}])
+			    do  %% Line 97
+				apply 'clear_scores'/1
+				    ({'scores',0,1,0,0,0,10})
+				do  %% Line 98
+				    apply 'flush'/0
+					()
+				    do  %% Line 99
+					apply 'send_to_all'/2
+					    (_cor2, 'start')
+					%% Line 100
+					apply 'game'/5
+					    (_cor3, _cor2, _cor1, _cor0, {'scores',0,1,0,0,0,10})
+'game'/5 =
+    %% Line 103
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 104
+	receive
+	  %% Line 105
+	  <{'gs',_X_Square,'buttonpress',SqrPid,[1|_X_Rest]}>
+	      when call 'erlang':'is_pid'
+		    (SqrPid) ->
+	      do  %% Line 106
+		  call 'erlang':'!'
+		      (SqrPid, 'bonk')
+		  %% Line 107
+		  apply 'game'/5
+		      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 108
+	  <{'gs',_X_Id,'buttonpress',_X_Data,[Butt|_X_Rest]}>
+	      when call 'erlang':'=/='
+		    (Butt,
+		     1) ->
+	      let <NewScores> =
+		  %% Line 109
+		  apply 'bomb'/3
+		      (_cor4, _cor3, _cor0)
+	      in  %% Line 110
+		  apply 'game'/5
+		      (_cor4, _cor3, _cor2, _cor1, NewScores)
+	  %% Line 111
+	  <{'show',Square,Rect}> when 'true' ->
+	      let <NewScores> =
+		  %% Line 112
+		  apply 'show_face'/4
+		      (Square, Rect, _cor1, _cor0)
+	      in  %% Line 113
+		  apply 'game'/5
+		      (_cor4, _cor3, _cor2, _cor1, NewScores)
+	  %% Line 114
+	  <{'hide',Square,Rect}> when 'true' ->
+	      let <NewScores> =
+		  %% Line 115
+		  apply 'hide_face'/4
+		      (Square, Rect, _cor1, _cor0)
+	      in  %% Line 116
+		  apply 'game'/5
+		      (_cor4, _cor3, _cor2, _cor1, NewScores)
+	  %% Line 117
+	  <{'missed',Square,Rect}> when 'true' ->
+	      %% Line 118
+	      case apply 'miss_face'/5
+		       (_cor4, Square, Rect, _cor1, _cor0) of
+		%% Line 119
+		<{'continue',NewScores}> when 'true' ->
+		    %% Line 120
+		    apply 'game'/5
+			(_cor4, _cor3, _cor2, _cor1, NewScores)
+		%% Line 121
+		<{'game_over',NewScores}> when 'true' ->
+		    %% Line 122
+		    apply 'game_over'/5
+			(_cor4, _cor3, _cor2, _cor1, NewScores)
+		( <_cor8> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor8})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 124
+	  <{'bonked',Square,Rect}> when 'true' ->
+	      let <NewScores> =
+		  %% Line 125
+		  apply 'bonked'/6
+		      (_cor4, _cor3, Square, Rect, _cor0, _cor1)
+	      in  %% Line 126
+		  apply 'game'/5
+		      (_cor4, _cor3, _cor2, _cor1, NewScores)
+	  %% Line 127
+	  <{'bombed',Square,Rect}> when 'true' ->
+	      let <NewScores> =
+		  %% Line 128
+		  apply 'bombed'/6
+		      (_cor4, _cor3, Square, Rect, _cor0, _cor1)
+	      in  %% Line 129
+		  apply 'game'/5
+		      (_cor4, _cor3, _cor2, _cor1, NewScores)
+	  %% Line 130
+	  <{'gs','endButton','click',_X_Data,_X_Args}> when 'true' ->
+	      %% Line 131
+	      apply 'game_over'/5
+		  (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 132
+	  <{'gs','quitButton','click',_X_Data,_X_Args}> when 'true' ->
+	      %% Line 133
+	      apply 'quit'/5
+		  (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 134
+	  <_X_Other> when 'true' ->
+	      %% Line 135
+	      apply 'game'/5
+		  (_cor4, _cor3, _cor2, _cor1, _cor0)
+	after 'infinity' ->
+	  'true'
+'game_over'/5 =
+    %% Line 140
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 141
+	    call 'erlang':'!'
+		(_cor4, 'game_over')
+	    do  %% Line 142
+		apply 'send_to_all'/2
+		    (_cor3, 'stop')
+		do  %% Line 143
+		    apply 'flush'/0
+			()
+		    do  %% Line 144
+			apply 'sleep'/1
+			    (2000)
+			do  %% Line 145
+			    apply 'update_scorelist'/2
+				(_cor4, _cor0)
+			    do  %% Line 146
+				call 'gs':'config'
+				    ('newButton', [{'enable','true'}])
+				do  %% Line 147
+				    call 'gs':'config'
+					('endButton', [{'enable','false'}])
+				    do  %% Line 148
+					call 'gs':'config'
+					    ('aboutButton', [{'enable','true'}])
+					%% Line 149
+					apply 'idle'/4
+					    (_cor4, _cor3, _cor2, _cor1)
+'quit'/5 =
+    %% Line 152
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 153
+	    call 'erlang':'!'
+		(_cor4, 'quit')
+	    do  %% Line 154
+		apply 'send_to_all'/2
+		    (_cor3, 'quit')
+		%% Line 155
+		'true'
+'bomb'/3 =
+    %% Line 159
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 160
+	( case _cor0 of
+	    ( <( {'scores',_cor14,_cor15,_rec0,_cor16,_cor17,_cor18}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  case _rec0 of
+		    %% Line 161
+		    <Bombs>
+			when call 'erlang':'>'
+			      (_rec0,
+			       0) ->
+			do  %% Line 162
+			    apply 'send_to_all'/2
+				(_cor1, 'bomb')
+			    do  %% Line 163
+				call 'erlang':'!'
+				    (_cor2, 'bomb')
+				let <_cor5> =
+				    %% Line 164
+				    call 'erlang':'-'
+					(Bombs, 1)
+				in  let <_cor6> =
+					%% Line 164
+					call 'erlang':'integer_to_list'
+					    (_cor5)
+				    in  do  %% Line 164
+					    call 'gs':'config'
+						('bombOut', [{'text',_cor6}|[]])
+					    let <_rec1> =
+						%% Line 165
+						call 'erlang':'-'
+						    (Bombs, 1)
+					    in  %% Line 165
+						call 'erlang':'setelement'
+						    (4, _cor0, _rec1)
+		    %% Line 166
+		    <_X_Other> when 'true' ->
+			_cor0
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor19> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','scores'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'show_face'/4 =
+    %% Line 170
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 171
+	( case _cor0 of
+	    ( <( {'scores',_cor29,_cor30,_cor31,_cor32,_rec3,_cor33}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  %% Line 172
+		  case <> of
+		    %% Line 173
+		    <>
+			when ( try
+				let <_cor12> =
+				    ( call 'erlang':'+'
+					  (_cor30, 1)
+				      -| ['compiler_generated'] )
+				in  ( call 'erlang':'=='
+					  (_rec3, _cor12)
+				      -| ['compiler_generated'] )
+			    of <Try> ->
+				Try
+			    catch <T,R> ->
+				'false'
+			    -| ['compiler_generated'] ) ->
+			do  %% Line 174
+			    call 'erlang':'!'
+				(_cor3, 'sleep')
+			    _cor0
+		    %% Line 176
+		    <> when 'true' ->
+			%% Line 177
+			( case _cor1 of
+			    ( <( {'colors',_cor35,_cor36,_cor37,_rec4}
+				 -| ['compiler_generated'] )> when 'true' ->
+				  let <_cor17> =
+				      %% Line 178
+				      call 'erlang':'length'
+					  (_rec4)
+				  in  let <_cor18> =
+					  %% Line 178
+					  call 'random':'uniform'
+					      (_cor17)
+				      in  let <FaceColor> =
+					      %% Line 178
+					      call 'lists':'nth'
+						  (_cor18, _rec4)
+					  in  let <_cor20> =
+						  %% Line 179
+						  apply 'bonk_dir'/0
+						      ()
+					      in  let <_cor21> =
+						      %% Line 179
+						      call 'lists':'append'
+							  (_cor20, [98|[105|[116|[109|[97|[112|[115|[47|[98|[111|[110|[107|[102|[97|[99|[101]]]]]]]]]]]]]]]])
+						  in  do  %% Line 179
+							  call 'gs':'config'
+							      (_cor2, [{'bitmap',_cor21}|[{'fg',FaceColor}|[]]])
+							  let <_rec5> =
+							      %% Line 180
+							      call 'erlang':'+'
+								  (_rec3, 1)
+							  in  %% Line 180
+							      call 'erlang':'setelement'
+								  (6, _cor0, _rec5)
+			      -| ['compiler_generated'] )
+			    ( <_cor38> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','colors'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor34> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','scores'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'hide_face'/4 =
+    %% Line 183
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 184
+	( case _cor0 of
+	    ( <( {'scores',_cor16,_cor17,_cor18,_cor19,_rec7,_cor20}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <_cor7> =
+		      %% Line 185
+		      apply 'bonk_dir'/0
+			  ()
+		  in  let <_cor8> =
+			  %% Line 185
+			  call 'lists':'append'
+			      (_cor7, [98|[105|[116|[109|[97|[112|[115|[47|[98|[111|[110|[107|[116|[111|[109]]]]]]]]]]]]]]])
+		      in  do  %% Line 185
+			      call 'gs':'config'
+				  (_cor2, [{'bitmap',_cor8}|[]])
+			      let <_rec8> =
+				  %% Line 186
+				  call 'erlang':'-'
+				      (_rec7, 1)
+			      in  %% Line 186
+				  call 'erlang':'setelement'
+				      (6, _cor0, _rec8)
+	      -| ['compiler_generated'] )
+	    ( <_cor21> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','scores'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'miss_face'/5 =
+    %% Line 189
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 190
+	    call 'erlang':'!'
+		(_cor4, 'missed')
+	    let <_cor5> =
+		%% Line 191
+		apply 'bonk_dir'/0
+		    ()
+	    in  let <_cor6> =
+		    %% Line 191
+		    call 'lists':'append'
+			(_cor5, [98|[105|[116|[109|[97|[112|[115|[47|[98|[111|[110|[107|[109|[105|[115|[115]]]]]]]]]]]]]]]])
+		in  %% Line 191
+		    ( case _cor1 of
+			( <( {'colors',_rec10,_cor23,_cor24,_cor25}
+			     -| ['compiler_generated'] )> when 'true' ->
+			      do  call 'gs':'config'
+				      (_cor2, [{'bitmap',_cor6}|[{'fg',_rec10}|[]]])
+				  %% Line 192
+				  ( case _cor0 of
+				      ( <( {'scores',_cor27,_cor28,_cor29,_cor30,_cor31,_rec11}
+					   -| ['compiler_generated'] )> when 'true' ->
+					    %% Line 193
+					    case <> of
+					      %% Line 194
+					      <>
+						  when call 'erlang':'>'
+							(_rec11,
+							 1) ->
+						  let <_cor12> =
+						      %% Line 195
+						      call 'erlang':'-'
+							  (_rec11, 1)
+						  in  let <_cor13> =
+							  %% Line 195
+							  call 'erlang':'integer_to_list'
+							      (_cor12)
+						      in  do  %% Line 195
+							      call 'gs':'config'
+								  ('bonusOut', [{'text',_cor13}|[]])
+							      let <_rec12> =
+								  %% Line 196
+								  call 'erlang':'-'
+								      (_rec11, 1)
+							      in  let <_cor17> =
+								      %% Line 196
+								      call 'erlang':'setelement'
+									  (7, _cor0, _rec12)
+								  in  %% Line 196
+								      {'continue',_cor17}
+					      %% Line 197
+					      <> when 'true' ->
+						  do  %% Line 198
+						      call 'gs':'config'
+							  ('bonusOut', [{'text',[48]}])
+						      %% Line 199
+						      {'game_over',_cor0}
+					    end
+					-| ['compiler_generated'] )
+				      ( <_cor32> when 'true' ->
+					    ( call ( 'erlang'
+						     -| ['compiler_generated'] ):( 'error'
+										   -| ['compiler_generated'] )
+						  (( {'badrecord','scores'}
+						     -| ['compiler_generated'] ))
+					      -| ['compiler_generated'] )
+					-| ['compiler_generated'] )
+				    end
+				    -| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+			( <_cor26> when 'true' ->
+			      ( call ( 'erlang'
+				       -| ['compiler_generated'] ):( 'error'
+								     -| ['compiler_generated'] )
+				    (( {'badrecord','colors'}
+				       -| ['compiler_generated'] ))
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+		      end
+		      -| ['compiler_generated'] )
+'bonked'/6 =
+    %% Line 202
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor6> =
+	    %% Line 203
+	    apply 'bonk_dir'/0
+		()
+	in  let <_cor7> =
+		%% Line 203
+		call 'lists':'append'
+		    (_cor6, [98|[105|[116|[109|[97|[112|[115|[47|[98|[111|[110|[107|[120]]]]]]]]]]]]])
+	    in  %% Line 203
+		( case _cor0 of
+		    ( <( {'colors',_cor16,_rec14,_cor17,_cor18}
+			 -| ['compiler_generated'] )> when 'true' ->
+			  do  call 'gs':'config'
+				  (_cor2, [{'bitmap',_cor7}|[{'fg',_rec14}|[]]])
+			      do  %% Line 204
+				  call 'erlang':'!'
+				      (_cor5, 'bonk')
+				  %% Line 205
+				  apply 'update_score'/3
+				      (_cor5, _cor4, _cor1)
+		      -| ['compiler_generated'] )
+		    ( <_cor19> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','colors'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+		  -| ['compiler_generated'] )
+'bombed'/6 =
+    %% Line 207
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor6> =
+	    %% Line 208
+	    apply 'bonk_dir'/0
+		()
+	in  let <_cor7> =
+		%% Line 208
+		call 'lists':'append'
+		    (_cor6, [98|[105|[116|[109|[97|[112|[115|[47|[98|[111|[110|[107|[98|[111|[109|[98]]]]]]]]]]]]]]]])
+	    in  %% Line 208
+		( case _cor0 of
+		    ( <( {'colors',_cor16,_cor17,_rec15,_cor18}
+			 -| ['compiler_generated'] )> when 'true' ->
+			  do  call 'gs':'config'
+				  (_cor2, [{'bitmap',_cor7}|[{'fg',_rec15}|[]]])
+			      %% Line 209
+			      apply 'update_score'/3
+				  (_cor5, _cor4, _cor1)
+		      -| ['compiler_generated'] )
+		    ( <_cor19> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','colors'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+		  -| ['compiler_generated'] )
+'update_score'/3 =
+    %% Line 212
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 213
+	( case _cor0 of
+	    ( <( {'scores',_rec16,_cor29,_cor30,_cor31,_cor32,_cor33}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <NewPoints> =
+		      %% Line 215
+		      call 'erlang':'+'
+			  (_rec16, _cor29)
+		  in  let <_cor10> =
+			  %% Line 216
+			  call 'erlang':'integer_to_list'
+			      (NewPoints)
+		      in  do  %% Line 216
+			      call 'gs':'config'
+				  ('scoreOut', [{'text',_cor10}|[]])
+			      %% Line 217
+			      case _cor31 of
+				%% Line 218
+				<24> when 'true' ->
+				    do  %% Line 219
+					call 'erlang':'!'
+					    (_cor2, 'new_level')
+					let <NewLevel> =
+					    %% Line 220
+					    call 'erlang':'+'
+						(_cor29, 1)
+					in  let <NewBombs> =
+						%% Line 221
+						call 'erlang':'+'
+						    (_cor30, 1)
+					    in  do  %% Line 222
+						    apply 'send_to_all'/2
+							(_cor1, {'new_level',NewLevel})
+						    let <_cor17> =
+							%% Line 223
+							call 'erlang':'integer_to_list'
+							    (NewLevel)
+						    in  do  %% Line 223
+							    call 'gs':'config'
+								('levelOut', [{'text',_cor17}|[]])
+							    let <_cor18> =
+								%% Line 224
+								call 'erlang':'integer_to_list'
+								    (NewBombs)
+							    in  do  %% Line 224
+								    call 'gs':'config'
+									('bombOut', [{'text',_cor18}|[]])
+								    %% Line 225
+								    {'scores',NewPoints,NewLevel,NewBombs,0,_cor32,_cor33}
+				%% Line 226
+				<Hits> when 'true' ->
+				    let <_rec27> =
+					%% Line 227
+					call 'erlang':'+'
+					    (Hits, 1)
+				    in  let <_cor23> =
+					    %% Line 227
+					    call 'erlang':'setelement'
+						(5, _cor0, _rec27)
+					in  %% Line 227
+					    call 'erlang':'setelement'
+						(2, _cor23, NewPoints)
+			      end
+	      -| ['compiler_generated'] )
+	    ( <_cor34> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','scores'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'send_to_all'/2 =
+    %% Line 231
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_X_Msg> when 'true' ->
+	      %% Line 232
+	      'true'
+	  %% Line 233
+	  <[Pid|Rest],Msg>
+	      when call 'erlang':'is_pid'
+		    (Pid) ->
+	      do  %% Line 234
+		  call 'erlang':'!'
+		      (Pid, Msg)
+		  %% Line 235
+		  apply 'send_to_all'/2
+		      (Rest, Msg)
+	  %% Line 236
+	  <[_X_Else|Rest],Msg> when 'true' ->
+	      %% Line 237
+	      apply 'send_to_all'/2
+		  (Rest, Msg)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'send_to_all',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'create_board'/2 =
+    %% Line 240
+    fun (_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 242
+	    case _cor0 of
+	      %% Line 243
+	      <'bw'> when 'true' ->
+		  {'colors','white','white','white',['white']}
+	      %% Line 244
+	      <_X_Color> when 'true' ->
+		  {'colors','red','green','white',['lightblue'|['orange'|['magenta'|['peachpuff'|['pink']]]]]}
+	    end
+	in  let <_cor5> =
+		%% Line 247
+		case <> of
+		  <>
+		      when call 'erlang':'=:='
+			    (_cor0,
+			     'bw') ->
+		      'black'
+		  <> when 'true' ->
+		      'black'
+		end
+	    in  let <_cor7> =
+		    %% Line 248
+		    case <> of
+		      <>
+			  when call 'erlang':'=:='
+				(_cor0,
+				 'bw') ->
+			  'white'
+		      <> when 'true' ->
+			  'pink'
+		    end
+		in  let <_cor9> =
+			%% Line 249
+			case <> of
+			  <>
+			      when call 'erlang':'=:='
+				    (_cor0,
+				     'bw') ->
+			      'white'
+			  <> when 'true' ->
+			      'purple'
+			end
+		    in  let <_cor11> =
+			    %% Line 250
+			    case <> of
+			      <>
+				  when call 'erlang':'=:='
+					(_cor0,
+					 'bw') ->
+				  'white'
+			      <> when 'true' ->
+				  'green'
+			    end
+			in  let <_cor13> =
+				%% Line 251
+				case <> of
+				  <>
+				      when call 'erlang':'=:='
+					    (_cor0,
+					     'bw') ->
+				      'white'
+				  <> when 'true' ->
+				      'grey'
+				end
+			    in  let <_cor15> =
+				    %% Line 252
+				    case <> of
+				      <>
+					  when call 'erlang':'=:='
+						(_cor0,
+						 'bw') ->
+					  'white'
+				      <> when 'true' ->
+					  'red'
+				    end
+				in  let <_cor17> =
+					%% Line 253
+					case <> of
+					  <>
+					      when call 'erlang':'=:='
+						    (_cor0,
+						     'bw') ->
+					      'white'
+					  <> when 'true' ->
+					      'orange'
+					end
+				    in  let <_cor19> =
+					    %% Line 254
+					    case <> of
+					      <>
+						  when call 'erlang':'=:='
+							(_cor0,
+							 'bw') ->
+						  'white'
+					      <> when 'true' ->
+						  'red'
+					    end
+					in  let <_cor21> =
+						%% Line 255
+						case <> of
+						  <>
+						      when call 'erlang':'=:='
+							    (_cor0,
+							     'bw') ->
+						      'white'
+						  <> when 'true' ->
+						      'cyan'
+						end
+					    in  let <_cor23> =
+						    %% Line 256
+						    case <> of
+						      <>
+							  when call 'erlang':'=:='
+								(_cor0,
+								 'bw') ->
+							  'white'
+						      <> when 'true' ->
+							  'yellow'
+						    end
+						in  let <_cor25> =
+							%% Line 257
+							case <> of
+							  <>
+							      when call 'erlang':'=:='
+								    (_cor0,
+								     'bw') ->
+							      'white'
+							  <> when 'true' ->
+							      'red'
+							end
+						    in  let <_cor27> =
+							    %% Line 258
+							    case <> of
+							      <>
+								  when call 'erlang':'=:='
+									(_cor0,
+									 'bw') ->
+								  'black'
+							      <> when 'true' ->
+								  'white'
+							    end
+							in  let <_cor29> =
+								%% Line 259
+								case <> of
+								  <>
+								      when call 'erlang':'=:='
+									    (_cor0,
+									     'bw') ->
+								      'white'
+								  <> when 'true' ->
+								      'black'
+								end
+							    in  do  %% Line 287
+								    call 'gs':'create'
+									('window', 'bonkWin', _cor1, [{'width',550}|[{'height',550}|%% Line 288
+																    [{'bg',_cor5}|%% Line 289
+																		  [{'title',[66|[111|[110|[107|[32|[116|[104|[101|[32|[103|[97|[109|[101]]]]]]]]]]]]]}|[{'iconname',[66|[111|[110|[107|[33]]]]]}|[{'map','false'}]]]]]])
+								    do  %% Line 292
+									call 'gs':'create'
+									    ('canvas', 'bonkCanvas', 'bonkWin', [{'width',550}|%% Line 293
+															       [{'height',550}|%% Line 294
+																	       [{'bg',_cor5}|[]]]])
+									let <_cor56> =
+									    %% Line 295
+									    apply 'bonk_dir'/0
+										()
+									in  let <_cor57> =
+										%% Line 295
+										call 'lists':'append'
+										    (_cor56, [98|[105|[116|[109|[97|[112|[115|[47|[98|[111|[110|[107|[108|[111|[103|[111]]]]]]]]]]]]]]]])
+									    in  do  %% Line 295
+										    call 'gs':'create'
+											('image', 'bonkCanvas', [{'bitmap',_cor57}|%% Line 296
+																   [{'coords',[{115,32}]}|%% Line 297
+																			  [{'fg',_cor11}|%% Line 298
+																					 [{'bg',_cor5}|[]]]]])
+										    let <_cor58> =
+											%% Line 299
+											apply 'bonk_dir'/0
+											    ()
+										    in  let <_cor59> =
+											    %% Line 299
+											    call 'lists':'append'
+												(_cor58, [98|[105|[116|[109|[97|[112|[115|[47|[101|[114|[108|[45|[101]]]]]]]]]]]]])
+											in  do  %% Line 299
+												call 'gs':'create'
+												    ('image', 'bonkCanvas', [{'bitmap',_cor59}|%% Line 300
+																	       [{'coords',[{315,42}]}|%% Line 301
+																				      [{'fg',_cor25}|%% Line 302
+																						     [{'bg',_cor27}|[]]]]])
+												let <_cor60> =
+												    %% Line 303
+												    apply 'bonk_dir'/0
+													()
+												in  let <_cor61> =
+													%% Line 303
+													call 'lists':'append'
+													    (_cor60, [98|[105|[116|[109|[97|[112|[115|[47|[101|[114|[108|[45|[116|[101|[120|[116]]]]]]]]]]]]]]]])
+												    in  do  %% Line 303
+													    call 'gs':'create'
+														('image', 'bonkCanvas', [{'bitmap',_cor61}|%% Line 304
+																			   [{'coords',[{315,42}]}|%% Line 305
+																						  [{'fg',_cor29}|[]]]])
+													    do  %% Line 306
+														call 'gs':'create'
+														    ('line', 'bLine', 'bonkCanvas', [{'coords',[{0,30}|[{550,30}]]}|%% Line 307
+																						    [{'fg',_cor13}|%% Line 308
+																								   [{'width',2}]]])
+														do  %% Line 309
+														    call 'gs':'create'
+															('line', 'bLine', 'bonkCanvas', [{'coords',[{0,528}|[{550,528}]]}|%% Line 310
+																							  [{'fg',_cor15}|%% Line 311
+																									 [{'width',2}]]])
+														    do  %% Line 312
+															call 'gs':'create'
+															    ('text', 'scoreText', 'bonkCanvas', [{'coords',[{2,530}]}|%% Line 313
+																						      [{'fg',_cor7}|%% Line 314
+																								    [{'text',[83|[99|[111|[114|[101|[58]]]]]]}]]])
+															do  %% Line 315
+															    call 'gs':'create'
+																('text', 'scoreOut', 'bonkCanvas', [{'coords',[{52,530}]}|%% Line 316
+																							  [{'fg',_cor9}|%% Line 317
+																									[{'width',94}|[{'text',[]}]]]])
+															    do  %% Line 319
+																call 'gs':'create'
+																    ('text', 'bombText', 'bonkCanvas', [{'coords',[{146,530}]}|%% Line 320
+																							       [{'fg',_cor7}|%% Line 321
+																									     [{'text',[66|[111|[109|[98|[115|[58]]]]]]}]]])
+																do  %% Line 322
+																    call 'gs':'create'
+																	('text', 'bombOut', 'bonkCanvas', [{'coords',[{196,530}]}|%% Line 323
+																								  [{'fg',_cor9}|%% Line 324
+																										[{'width',94}|[{'text',[]}]]]])
+																    do  %% Line 326
+																	call 'gs':'create'
+																	    ('text', 'bonusText', 'bonkCanvas', [{'coords',[{290,530}]}|%% Line 327
+																									[{'fg',_cor7}|%% Line 328
+																										      [{'text',[66|[111|[110|[117|[115|[58]]]]]]}]]])
+																	do  %% Line 329
+																	    call 'gs':'create'
+																		('text', 'bonusOut', 'bonkCanvas', [{'coords',[{340,530}]}|%% Line 330
+																									   [{'fg',_cor9}|%% Line 331
+																											 [{'width',94}|[{'text',[]}]]]])
+																	    do  %% Line 333
+																		call 'gs':'create'
+																		    ('text', 'levelText', 'bonkCanvas', [{'coords',[{434,530}]}|%% Line 334
+																										[{'fg',_cor7}|%% Line 335
+																											      [{'text',[76|[101|[118|[101|[108|[58]]]]]]}]]])
+																		do  %% Line 336
+																		    call 'gs':'create'
+																			('text', 'levelOut', 'bonkCanvas', [{'coords',[{484,530}]}|%% Line 337
+																										   [{'fg',_cor9}|%% Line 338
+																												 [{'width',94}|[{'text',[]}]]]])
+																		    do  %% Line 340
+																			call 'gs':'create'
+																			    ('text', 'hiScoreText', 'bonkCanvas', [{'coords',[{450,40}]}|%% Line 341
+																											 [{'fg',_cor19}|%% Line 342
+																													[{'text',[72|[105|[103|[104|[32|[83|[99|[111|[114|[101|[115]]]]]]]]]]]}]]])
+																			do  %% Line 343
+																			    call 'gs':'create'
+																				('text', 'hiScoreOut', 'bonkCanvas', [{'coords',[{450,60}]}|%% Line 344
+																											    [{'fg',_cor21}|%% Line 345
+																													   [{'justify','left'}|[{'width',100}]]]])
+																			    do  %% Line 347
+																				call 'gs':'create'
+																				    ('button', 'newButton', 'bonkWin', [{'x',0}|[{'y',0}|%% Line 348
+																											 [{'enable','false'}|%% Line 349
+																													     [{'label',{'text',[78|[101|[119|[32|[71|[97|[109|[101]]]]]]]]}}|%% Line 350
+																																					     [{'click','true'}|%% Line 351
+																																							       [{'fg',_cor17}|%% Line 352
+																																									      [{'bg',_cor5}|%% Line 353
+																																											    [{'relief','flat'}|%% Line 354
+																																													       [{'activefg',_cor17}|%% Line 355
+																																																    [{'activebg',_cor5}|%% Line 356
+																																																			[{'align','center'}]]]]]]]]]]])
+																				do  %% Line 357
+																				    call 'gs':'create'
+																					('button', 'endButton', 'bonkWin', [{'x',100}|[{'y',0}|%% Line 358
+																											       [{'enable','false'}|%% Line 359
+																														   [{'label',{'text',[69|[110|[100|[32|[71|[97|[109|[101]]]]]]]]}}|%% Line 360
+																																						   [{'click','true'}|%% Line 361
+																																								     [{'fg',_cor17}|%% Line 362
+																																										    [{'bg',_cor5}|%% Line 363
+																																												  [{'relief','flat'}|%% Line 364
+																																														     [{'activefg',_cor17}|%% Line 365
+																																																	  [{'activebg',_cor5}|%% Line 366
+																																																			      [{'align','center'}]]]]]]]]]]])
+																				    do  %% Line 367
+																					call 'gs':'create'
+																					    ('button', 'aboutButton', 'bonkWin', [{'x',200}|[{'y',0}|%% Line 368
+																												     [{'enable','false'}|%% Line 369
+																															 [{'label',{'text',[65|[98|[111|[117|[116]]]]]}}|%% Line 370
+																																					 [{'click','true'}|%% Line 371
+																																							   [{'fg',_cor17}|%% Line 372
+																																									  [{'bg',_cor5}|%% Line 373
+																																											[{'relief','flat'}|%% Line 374
+																																													   [{'activefg',_cor17}|%% Line 375
+																																																[{'activebg',_cor5}|%% Line 376
+																																																		    [{'align','center'}]]]]]]]]]]])
+																					do  %% Line 377
+																					    call 'gs':'create'
+																						('button', 'quitButton', 'bonkWin', [{'x',300}|[{'y',0}|%% Line 378
+																													[{'enable','false'}|%% Line 379
+																															    [{'label',{'text',[81|[117|[105|[116]]]]}}|%% Line 380
+																																				       [{'click','true'}|%% Line 381
+																																							 [{'fg',_cor17}|%% Line 382
+																																									[{'bg',_cor5}|%% Line 383
+																																										      [{'relief','flat'}|%% Line 384
+																																													 [{'activefg',_cor17}|%% Line 385
+																																															      [{'activebg',_cor5}|%% Line 386
+																																																		  [{'align','center'}]]]]]]]]]]])
+																					    %% Line 388
+																					    case %% Line 389
+																						 apply 'create_squares'/5
+																						     (40, 65, 76, _cor23, 1) of
+																					      <{SqrPids,Bmps}> when 'true' ->
+																						  do  %% Line 390
+																						      call 'gs':'config'
+																							  ('bonkWin', [{'map','true'}])
+																						      %% Line 391
+																						      {SqrPids,Bmps,_cor3}
+																					      ( <_cor86> when 'true' ->
+																						    primop 'match_fail'
+																							({'badmatch',_cor86})
+																						-| ['compiler_generated'] )
+																					    end
+'create_squares'/5 =
+    %% Line 395
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 396
+	apply 'create_squares'/9
+	    (_cor4, _cor3, _cor2, _cor1, _cor0, 1, 1, [], [])
+'create_squares'/9 =
+    %% Line 399
+    fun (_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <_X_X,_X_Y,_X_Size,_X_Color,_X_Spc,4,5,Pids,Bmps> when 'true' ->
+	      %% Line 400
+	      {Pids,Bmps}
+	  %% Line 402
+	  <X,Y,Size,Color,Spc,Row,5,Pids,Bmps> when 'true' ->
+	      let <_cor9> =
+		  %% Line 403
+		  call 'erlang':'+'
+		      (Row, 1)
+	      in  %% Line 403
+		  apply 'create_squares'/9
+		      (X, Y, Size, Color, Spc, _cor9, 1, Pids, Bmps)
+	  %% Line 405
+	  <X,Y,Size,Color,Spc,Row,Col,Pids,Bmps> when 'true' ->
+	      let <_cor12> =
+		  %% Line 406
+		  call 'erlang':'*'
+		      (Col, Size)
+	      in  let <_cor13> =
+		      %% Line 406
+		      call 'erlang':'+'
+			  (X, _cor12)
+		  in  let <_cor10> =
+			  %% Line 406
+			  call 'erlang':'-'
+			      (Col, 1)
+		      in  let <_cor11> =
+			      %% Line 406
+			      call 'erlang':'*'
+				  (_cor10, Spc)
+			  in  let <Xpos> =
+				  %% Line 406
+				  call 'erlang':'+'
+				      (_cor13, _cor11)
+			      in  let <_cor17> =
+				      %% Line 407
+				      call 'erlang':'*'
+					  (Row, Size)
+				  in  let <_cor18> =
+					  %% Line 407
+					  call 'erlang':'+'
+					      (Y, _cor17)
+				      in  let <_cor15> =
+					      %% Line 407
+					      call 'erlang':'-'
+						  (Row, 1)
+					  in  let <_cor16> =
+						  %% Line 407
+						  call 'erlang':'*'
+						      (_cor15, Spc)
+					      in  let <Ypos> =
+						      %% Line 407
+						      call 'erlang':'+'
+							  (_cor18, _cor16)
+						  in  let <_cor21> =
+							  %% Line 409
+							  call 'erlang':'+'
+							      (Xpos, Size)
+						      in  let <_cor20> =
+							      %% Line 409
+							      call 'erlang':'+'
+								  (Ypos, Size)
+							  in  do  %% Line 408
+								  call 'gs':'create'
+								      ('rectangle', 'bonkCanvas', %% Line 409
+												  [{'coords',[{Xpos,Ypos}|[{_cor21,_cor20}|[]]]}|%% Line 410
+																		 [{'bw',2}|[{'fg',Color}|[{'buttonpress','true'}]]]])
+								  let <_cor23> =
+								      %% Line 412
+								      call 'erlang':'+'
+									  (Xpos, 1)
+								  in  let <_cor22> =
+									  %% Line 412
+									  call 'erlang':'+'
+									      (Ypos, 1)
+								      in  let <_cor24> =
+									      %% Line 413
+									      apply 'bonk_dir'/0
+										  ()
+									  in  let <_cor25> =
+										  %% Line 413
+										  call 'lists':'append'
+										      (_cor24, [98|[105|[116|[109|[97|[112|[115|[47|[98|[111|[110|[107|[116|[111|[109]]]]]]]]]]]]]]])
+									      in  let <Bmp> =
+										      %% Line 411
+										      call 'gs':'create'
+											  ('image', 'bonkCanvas', %% Line 412
+														  [{'coords',[{_cor23,_cor22}|[]]}|%% Line 413
+																		   [{'bitmap',_cor25}|%% Line 414
+																				      [{'buttonpress','true'}|[{'fg',Color}|[]]]]])
+										  in  let <Pid> =
+											  %% Line 415
+											  call 'bonk_square':'start'
+											      (Bmp)
+										      in  do  %% Line 416
+											      call 'gs':'config'
+												  (Bmp, [{'data',Pid}|[]])
+											      let <_cor28> =
+												  %% Line 417
+												  call 'erlang':'+'
+												      (Col, 1)
+											      in  %% Line 417
+												  apply 'create_squares'/9
+												      (X, Y, Size, Color, Spc, Row, _cor28, [Pid|Pids], [Bmp|Bmps])
+	end
+'clear_board'/1 =
+    %% Line 421
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 422
+	      'true'
+	  %% Line 423
+	  <[Square|Rest]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 424
+		  apply 'bonk_dir'/0
+		      ()
+	      in  let <_cor2> =
+		      %% Line 424
+		      call 'lists':'append'
+			  (_cor1, [98|[105|[116|[109|[97|[112|[115|[47|[98|[111|[110|[107|[116|[111|[109]]]]]]]]]]]]]]])
+		  in  do  %% Line 424
+			  call 'gs':'config'
+			      (Square, [{'bitmap',_cor2}|[]])
+			  %% Line 425
+			  apply 'clear_board'/1
+			      (Rest)
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'clear_board',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'display_highscore'/1 =
+    %% Line 431
+    fun (_cor0) ->
+	%% Line 432
+	apply 'display_highscore'/3
+	    ([], _cor0, 0)
+'display_highscore'/3 =
+    %% Line 434
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Scores,[],_X_N> when 'true' ->
+	      %% Line 435
+	      call 'gs':'config'
+		  ('hiScoreOut', [{'text',Scores}|[]])
+	  %% Line 437
+	  <Scores,_X_ScoreList,10> when 'true' ->
+	      %% Line 438
+	      apply 'display_highscore'/3
+		  (Scores, [], 10)
+	  %% Line 440
+	  <Scores,[[Score|[Name|[]]]|Rest],N> when 'true' ->
+	      let <_cor3> =
+		  %% Line 441
+		  call 'lists':'append'
+		      (Score, [32|Name])
+	      in  let <_cor4> =
+		      %% Line 441
+		      call 'lists':'append'
+			  (_cor3, [10])
+		  in  let <NewScores> =
+			  %% Line 441
+			  call 'lists':'append'
+			      (Scores, _cor4)
+		      in  let <_cor6> =
+			      %% Line 442
+			      call 'erlang':'+'
+				  (N, 1)
+			  in  %% Line 442
+			      apply 'display_highscore'/3
+				  (NewScores, Rest, _cor6)
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'display_highscore',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_highscore'/0 =
+    %% Line 448
+    fun () ->
+	%% Line 449
+	case call 'file':'consult'
+		 ([98|[111|[110|[107|[46|[115|[99|[111|[114|[101]]]]]]]]]]) of
+	  %% Line 450
+	  <{'ok',[Score_list|[]]}> when 'true' ->
+	      %% Line 451
+	      {Score_list,[46|[47|[98|[111|[110|[107|[46|[115|[99|[111|[114|[101]]]]]]]]]]]]}
+	  %% Line 452
+	  <{'error',_cor1}> when 'true' ->
+	      %% Line 453
+	      {[],[46|[47|[98|[111|[110|[107|[46|[115|[99|[111|[114|[101]]]]]]]]]]]]}
+	  ( <_cor0> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor0})
+	    -| ['compiler_generated'] )
+	end
+'update_scorelist'/2 =
+    %% Line 460
+    fun (_cor1,_cor0) ->
+	%% Line 461
+	( case _cor0 of
+	    ( <( {'scores',_rec29,_cor10,_cor11,_cor12,_cor13,_cor14}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  case _rec29 of
+		    %% Line 462
+		    <0> when 'true' ->
+			'true'
+		    %% Line 463
+		    <Score> when 'true' ->
+			%% Line 464
+			case apply 'get_highscore'/0
+				 () of
+			  <{ScoreL,FileName}> when 'true' ->
+			      let <New_scorelist> =
+				  %% Line 465
+				  apply 'update_scorelist_2'/4
+				      (ScoreL, Score, 0, _cor1)
+			      in  do  %% Line 466
+				      apply 'display_highscore'/1
+					  (New_scorelist)
+				      %% Line 467
+				      case call 'file':'open'
+					       (FileName, ['write']) of
+					%% Line 468
+					<{'error',_cor16}> when 'true' ->
+					    %% Line 469
+					    'true'
+					%% Line 470
+					<{'ok',FD}> when 'true' ->
+					    do  %% Line 471
+						call 'io':'format'
+						    (FD, [126|[119|[126|[115|[126|[110]]]]]], [New_scorelist|[[46]]])
+						%% Line 472
+						call 'file':'close'
+						    (FD)
+					( <_cor6> when 'true' ->
+					      primop 'match_fail'
+						  ({'case_clause',_cor6})
+					  -| ['compiler_generated'] )
+				      end
+			  ( <_cor4> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor4})
+			    -| ['compiler_generated'] )
+			end
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor15> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','scores'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'update_scorelist_2'/4 =
+    %% Line 477
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[],Score,N,_X_SoundPid>
+	      when call 'erlang':'<'
+		    (N,
+		     10) ->
+	      let <_cor4> =
+		  %% Line 478
+		  call 'erlang':'integer_to_list'
+		      (Score)
+	      in  let <_cor5> =
+		      %% Line 478
+		      apply 'getuser'/0
+			  ()
+		  in  %% Line 478
+		      [[_cor4|[_cor5|[]]]|[]]
+	  %% Line 480
+	  <_cor17,_cor18,N,_X_SoundPid>
+	      when call 'erlang':'>='
+		    (N,
+		     10) ->
+	      %% Line 481
+	      []
+	  %% Line 483
+	  <[[Sc|[Name|[]]]|Rest],Score,N,SoundPid> when 'true' ->
+	      %% Line 484
+	      case call 'erlang':'list_to_integer'
+		       (Sc) of
+		%% Line 485
+		<Sc_int>
+		    when call 'erlang':'<'
+			  (Sc_int,
+			   Score) ->
+		    do  %% Line 486
+			case <> of
+			  %% Line 487
+			  <>
+			      when call 'erlang':'=='
+				    (N,
+				     0) ->
+			      call 'erlang':'!'
+				  (SoundPid, 'best_score')
+			  %% Line 488
+			  <> when 'true' ->
+			      call 'erlang':'!'
+				  (SoundPid, 'high_score')
+			end
+			let <_cor8> =
+			    %% Line 490
+			    call 'erlang':'integer_to_list'
+				(Score)
+			in  let <_cor9> =
+				%% Line 490
+				apply 'getuser'/0
+				    ()
+			    in  let <_cor6> =
+				    %% Line 491
+				    call 'erlang':'+'
+					(N, 1)
+				in  let <_cor7> =
+					%% Line 491
+					apply 'update_scorelist_3'/2
+					    ([[Sc|[Name|[]]]|Rest], _cor6)
+				    in  %% Line 490
+					[[_cor8|[_cor9|[]]]|_cor7]
+		%% Line 492
+		<_X_Other> when 'true' ->
+		    let <_cor10> =
+			%% Line 493
+			call 'erlang':'+'
+			    (N, 1)
+		    in  let <_cor11> =
+			    %% Line 493
+			    apply 'update_scorelist_2'/4
+				(Rest, Score, _cor10, SoundPid)
+			in  %% Line 493
+			    [[Sc|[Name|[]]]|_cor11]
+	      end
+	  ( <_cor16,_cor15,_cor14,_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15,_cor14,_cor13})
+		  -| [{'function_name',{'update_scorelist_2',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'update_scorelist_3'/2 =
+    %% Line 497
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_cor6> when 'true' ->
+	      %% Line 498
+	      []
+	  %% Line 500
+	  <_cor7,N>
+	      when call 'erlang':'>='
+		    (N,
+		     10) ->
+	      %% Line 501
+	      []
+	  %% Line 503
+	  <[Item|Rest],N> when 'true' ->
+	      let <_cor2> =
+		  %% Line 504
+		  call 'erlang':'+'
+		      (N, 1)
+	      in  let <_cor3> =
+		      %% Line 504
+		      apply 'update_scorelist_3'/2
+			  (Rest, _cor2)
+		  in  %% Line 504
+		      [Item|_cor3]
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'update_scorelist_3',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'getuser'/0 =
+    %% Line 506
+    fun () ->
+	%% Line 507
+	case call 'os':'type'
+		 () of
+	  %% Line 508
+	  <{'unix',_cor2}> when 'true' ->
+	      let <_cor0> =
+		  %% Line 509
+		  call 'os':'cmd'
+		      ([119|[104|[111|[97|[109|[105]]]]]])
+	      in  %% Line 509
+		  call 'lists':'delete'
+		      (10, _cor0)
+	  %% Line 510
+	  <_cor3> when 'true' ->
+	      %% Line 511
+	      [85|[110|[107|[110|[111|[119|[110]]]]]]]
+	end
+'clear_scores'/1 =
+    %% Line 516
+    fun (_cor0) ->
+	%% Line 517
+	( case _cor0 of
+	    ( <( {'scores',_rec30,_cor14,_cor15,_cor16,_cor17,_cor18}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <Score> =
+		      call 'erlang':'integer_to_list'
+			  (_rec30)
+		  in  let <Bombs> =
+			  %% Line 518
+			  call 'erlang':'integer_to_list'
+			      (_cor15)
+		      in  let <Bonus> =
+			      %% Line 519
+			      call 'erlang':'integer_to_list'
+				  (_cor18)
+			  in  let <Level> =
+				  %% Line 520
+				  call 'erlang':'integer_to_list'
+				      (_cor14)
+			      in  do  %% Line 521
+				      call 'gs':'config'
+					  ('scoreOut', {'text',Score})
+				      do  %% Line 522
+					  call 'gs':'config'
+					      ('bombOut', {'text',Bombs})
+					  do  %% Line 523
+					      call 'gs':'config'
+						  ('bonusOut', {'text',Bonus})
+					      %% Line 524
+					      call 'gs':'config'
+						  ('levelOut', {'text',Level})
+	      -| ['compiler_generated'] )
+	    ( <_cor19> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','scores'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'flush'/0 =
+    %% Line 529
+    fun () ->
+	%% Line 530
+	receive
+	  %% Line 531
+	  <_X_X> when 'true' ->
+	      %% Line 532
+	      apply 'flush'/0
+		  ()
+	after %% Line 534
+	      0 ->
+	  %% Line 535
+	  'true'
+'sleep'/1 =
+    %% Line 538
+    fun (_cor0) ->
+	%% Line 539
+	receive
+	  
+	after _cor0 ->
+	  'true'
+'display_about'/0 =
+    %% Line 544
+    fun () ->
+	let <BGColor,TextColor,Bfg> =
+	    %% Line 546
+	    case call 'erlang':'get'
+		     ('colormode') of
+	      %% Line 547
+	      <'bw'> when 'true' ->
+		  <'black','white','white'>
+	      %% Line 548
+	      <_X_Color> when 'true' ->
+		  <'black','peachpuff1','orange'>
+	    end
+	in  let <GS> =
+		%% Line 551
+		call 'gs':'start'
+		    ()
+	    in  do  %% Line 552
+		    call 'gs':'create'
+			('window', 'aboutWin', GS, [{'width',500}|[{'height',635}|%% Line 553
+										  [{'map','false'}|%% Line 554
+												   [{'bg',BGColor}|%% Line 555
+														   [{'title',[65|[98|[111|[117|[116|[32|[66|[111|[110|[107|[33]]]]]]]]]]]}]]]]])
+		    do  %% Line 556
+			call 'gs':'create'
+			    ('canvas', 'aboutCan', 'aboutWin', [{'width',500}|[{'height',635}|[{'bg','black'}]]])
+			do  %% Line 558
+			    call 'gs':'create'
+				('button', 'okButton', 'aboutWin', [{'x',200}|[{'y',595}|%% Line 559
+											 [{'label',{'text',[79|[107]]}}|[{'click','true'}|%% Line 560
+																	  [{'fg',Bfg}|[{'bg',BGColor}|%% Line 561
+																				      [{'relief','flat'}|%% Line 562
+																							 [{'activefg',Bfg}|%% Line 563
+																									   [{'activebg',BGColor}|[]]]]]]]]]])
+			    do  %% Line 564
+				call 'gs':'create'
+				    ('text', 'aboutText', 'aboutCan', [{'width',470}|[{'coords',[{15,0}]}|%% Line 565
+													  [{'fg',TextColor}|[{'justify','center'}]]]])
+				let <_cor10> =
+				    %% Line 566
+				    apply 'bonk_dir'/0
+					()
+				in  let <_cor11> =
+					%% Line 566
+					call 'lists':'append'
+					    (_cor10, [98|[111|[110|[107|[46|[116|[120|[116]]]]]]]])
+				    in  do  %% Line 566
+					    case call 'file':'open'
+						     (_cor11, ['read']) of
+					      %% Line 567
+					      <{'ok',Fd}> when 'true' ->
+						  let <_cor12> =
+						      %% Line 568
+						      call 'io':'get_line'
+							  (Fd, [])
+						  in  do  %% Line 568
+							  apply 'write_text'/3
+							      (Fd, [], _cor12)
+							  %% Line 569
+							  call 'file':'close'
+							      (Fd)
+					      %% Line 570
+					      <{'error',_X_Reason}> when 'true' ->
+						  %% Line 571
+						  call 'gs':'config'
+						      ('aboutText', {'text',[69|[114|[114|[111|[114|[58|[32|[99|[111|[117|[108|[100|[32|[110|[111|[116|[32|[114|[101|[97|[100|[32|[116|[104|[101|[32|[97|[98|[111|[117|[116|[32|[102|[105|[108|[101]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]})
+					      ( <_cor13> when 'true' ->
+						    primop 'match_fail'
+							({'case_clause',_cor13})
+						-| ['compiler_generated'] )
+					    end
+					    do  %% Line 574
+						call 'gs':'config'
+						    ('aboutWin', [{'map','true'}])
+						%% Line 575
+						receive
+						  %% Line 576
+						  <{'gs','okButton','click',_cor14,_cor15}> when 'true' ->
+						      %% Line 577
+						      call 'gs':'destroy'
+							  ('aboutWin')
+						after 'infinity' ->
+						  'true'
+'write_text'/3 =
+    %% Line 580
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_X_Fd,Text,'eof'> when 'true' ->
+	      %% Line 581
+	      call 'gs':'config'
+		  ('aboutText', {'text',Text})
+	  %% Line 582
+	  <Fd,Text,More> when 'true' ->
+	      let <_cor4> =
+		  %% Line 583
+		  call 'lists':'append'
+		      (Text, More)
+	      in  let <_cor3> =
+		      %% Line 583
+		      call 'io':'get_line'
+			  (Fd, [])
+		  in  %% Line 583
+		      apply 'write_text'/3
+			  (Fd, _cor4, _cor3)
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('bonk')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('bonk', _cor0)
+end

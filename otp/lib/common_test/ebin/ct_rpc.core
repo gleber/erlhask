@@ -1,0 +1,209 @@
+module 'ct_rpc' ['app_node'/2,
+		 'app_node'/3,
+		 'app_node'/4,
+		 'call'/4,
+		 'call'/5,
+		 'call'/6,
+		 'cast'/4,
+		 'cast'/5,
+		 'module_info'/0,
+		 'module_info'/1]
+    attributes []
+'app_node'/2 =
+    %% Line 43
+    fun (_cor1,_cor0) ->
+	%% Line 44
+	apply 'app_node'/4
+	    (_cor1, _cor0, 'true', [])
+'app_node'/3 =
+    %% Line 57
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 58
+	apply 'app_node'/4
+	    (_cor2, _cor1, _cor0, [])
+'app_node'/4 =
+    %% Line 74
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <App,[],_cor12,_cor13> when 'true' ->
+	      %% Line 75
+	      call 'ct':'fail'
+		  ({'application_not_running',App})
+	  %% Line 80
+	  <App,_X_Candidates = [CandidateNode|Nodes],FailOnBadRPC,Cookie> when 'true' ->
+	      let <Cookie0> =
+		  %% Line 81
+		  apply 'set_the_cookie'/1
+		      (Cookie)
+	      in  let <Result> =
+		      %% Line 82
+		      call 'rpc':'call'
+			  (CandidateNode, 'application', 'which_applications', [])
+		  in  do  %% Line 83
+			  apply 'set_the_cookie'/1
+			      (Cookie0)
+			  %% Line 84
+			  case Result of
+			    %% Line 85
+			    <{'badrpc',Reason}>
+				when call 'erlang':'=:='
+				      (FailOnBadRPC,
+				       'true') ->
+				%% Line 86
+				call 'ct':'fail'
+				    ({Reason,CandidateNode})
+			    %% Line 87
+			    <{'badrpc',_cor14}>
+				when call 'erlang':'=:='
+				      (FailOnBadRPC,
+				       'false') ->
+				%% Line 88
+				apply 'app_node'/3
+				    (App, Nodes, FailOnBadRPC)
+			    %% Line 89
+			    <Apps> when 'true' ->
+				%% Line 90
+				case call 'lists':'keysearch'
+					 (App, 1, Apps) of
+				  %% Line 91
+				  <{'value',_cor15}> when 'true' ->
+				      %% Line 92
+				      CandidateNode
+				  %% Line 93
+				  <_cor16> when 'true' ->
+				      %% Line 94
+				      apply 'app_node'/3
+					  (App, Nodes, FailOnBadRPC)
+				end
+			  end
+	  ( <_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'app_node',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'call'/4 =
+    %% Line 102
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 103
+	apply 'call'/6
+	    (_cor3, _cor2, _cor1, _cor0, 'infinity', [])
+'call'/5 =
+    %% Line 120
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 121
+	apply 'call'/6
+	    (_cor4, _cor3, _cor2, _cor1, _cor0, [])
+'call'/6 =
+    %% Line 141
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <{Fun,FunArgs},Module,Function,Args,TimeOut,Cookie> when 'true' ->
+	      let <Node> =
+		  %% Line 142
+		  apply Fun
+		      (FunArgs)
+	      in  %% Line 143
+		  apply 'call'/6
+		      (Node, Module, Function, Args, TimeOut, Cookie)
+	  %% Line 144
+	  <Node,Module,Function,Args,TimeOut,Cookie>
+	      when call 'erlang':'is_atom'
+		    (Node) ->
+	      let <Cookie0> =
+		  %% Line 145
+		  apply 'set_the_cookie'/1
+		      (Cookie)
+	      in  let <Result> =
+		      %% Line 146
+		      call 'rpc':'call'
+			  (Node, Module, Function, Args, TimeOut)
+		  in  do  %% Line 147
+			  apply 'set_the_cookie'/1
+			      (Cookie0)
+			  %% Line 148
+			  Result
+	  ( <_cor14,_cor13,_cor12,_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14,_cor13,_cor12,_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'call',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'cast'/4 =
+    %% Line 165
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 166
+	apply 'cast'/5
+	    (_cor3, _cor2, _cor1, _cor0, [])
+'cast'/5 =
+    %% Line 186
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <{Fun,FunArgs},Module,Function,Args,Cookie> when 'true' ->
+	      let <Node> =
+		  %% Line 187
+		  apply Fun
+		      (FunArgs)
+	      in  %% Line 188
+		  apply 'cast'/5
+		      (Node, Module, Function, Args, Cookie)
+	  %% Line 189
+	  <Node,Module,Function,Args,Cookie>
+	      when call 'erlang':'is_atom'
+		    (Node) ->
+	      let <Cookie0> =
+		  %% Line 190
+		  apply 'set_the_cookie'/1
+		      (Cookie)
+	      in  %% Line 191
+		  case call 'rpc':'cast'
+			   (Node, Module, Function, Args) of
+		    <'true'> when 'true' ->
+			do  %% Line 192
+			    apply 'set_the_cookie'/1
+				(Cookie0)
+			    %% Line 193
+			    'ok'
+		    ( <_cor7> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor7})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor12,_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'cast',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'set_the_cookie'/1 =
+    %% Line 199
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 200
+	      []
+	  %% Line 201
+	  <Cookie> when 'true' ->
+	      let <Cookie0> =
+		  %% Line 202
+		  call 'erlang':'get_cookie'
+		      ()
+	      in  let <_cor2> =
+		      %% Line 203
+		      call 'erlang':'node'
+			  ()
+		  in  do  %% Line 203
+			  call 'erlang':'set_cookie'
+			      (_cor2, Cookie)
+			  %% Line 204
+			  Cookie0
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ct_rpc')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ct_rpc', _cor0)
+end

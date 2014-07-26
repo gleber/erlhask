@@ -1,0 +1,567 @@
+module 'asn1ct_func' ['call'/3,
+		      'call_gen'/3,
+		      'call_gen'/4,
+		      'generate'/1,
+		      'handle_call'/3,
+		      'handle_cast'/2,
+		      'init'/1,
+		      'is_used'/1,
+		      'module_info'/0,
+		      'module_info'/1,
+		      'need'/1,
+		      'start_link'/0,
+		      'terminate'/2]
+    attributes []
+'start_link'/0 =
+    %% Line 26
+    fun () ->
+	%% Line 27
+	case call 'gen_server':'start_link'
+		 ('asn1ct_func', [], []) of
+	  <{'ok',Pid}> when 'true' ->
+	      do  %% Line 28
+		  call 'erlang':'put'
+		      ('asn1ct_func', Pid)
+		  %% Line 29
+		  'ok'
+	  ( <_cor0> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor0})
+	    -| ['compiler_generated'] )
+	end
+'call'/3 =
+    %% Line 31
+    fun (_cor2,_cor1,_cor0) ->
+	let <A> =
+	    %% Line 32
+	    call 'erlang':'length'
+		(_cor0)
+	in  let <MFA> = {_cor2,_cor1,%% Line 33
+			     A}
+	    in  do  %% Line 34
+		    apply 'need'/1
+			(MFA)
+		    %% Line 35
+		    case _cor2 of
+		      %% Line 36
+		      <'binary'> when 'true' ->
+			  let <_cor5> =
+			      %% Line 37
+			      apply 'call_args'/2
+				  (_cor0, [])
+			  in  %% Line 37
+			      call 'asn1ct_gen':'emit'
+				  ([[98|[105|[110|[97|[114|[121|[58]]]]]]]|[_cor1|[[40]|[_cor5|[[41]]]]]])
+		      %% Line 38
+		      <_cor11> when 'true' ->
+			  let <_cor6> =
+			      %% Line 39
+			      apply 'call_args'/2
+				  (_cor0, [])
+			  in  %% Line 39
+			      call 'asn1ct_gen':'emit'
+				  ([_cor1|[[40]|[_cor6|[[41]]]]])
+		    end
+'need'/1 =
+    %% Line 42
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'binary',_cor2,_cor3}> when 'true' ->
+	      %% Line 43
+	      'ok'
+	  %% Line 44
+	  <{'erlang',_cor4,_cor5}> when 'true' ->
+	      %% Line 45
+	      'ok'
+	  %% Line 46
+	  <MFA> when 'true' ->
+	      do  %% Line 47
+		  call 'asn1ct_rtt':'assert_defined'
+		      (MFA)
+		  %% Line 48
+		  apply 'cast'/1
+		      ({'need',MFA})
+	end
+'call_gen'/4 =
+    %% Line 50
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Prefix,Key,Gen,Args>
+	      when call 'erlang':'is_function'
+		    (Gen,
+		     2) ->
+	      let <F> =
+		  %% Line 51
+		  apply 'req'/1
+		      ({'gen_func',Prefix,Key,Gen})
+	      in  let <_cor5> =
+		      %% Line 52
+		      apply 'call_args'/2
+			  (Args, [])
+		  in  %% Line 52
+		      call 'asn1ct_gen':'emit'
+			  ([{'asis',F}|[[40]|[_cor5|[[41]]]]])
+	  ( <_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'call_gen',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'call_gen'/3 =
+    %% Line 54
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Prefix,Key,Gen>
+	      when call 'erlang':'is_function'
+		    (Gen,
+		     2) ->
+	      %% Line 55
+	      apply 'req'/1
+		  ({'gen_func',Prefix,Key,Gen})
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'call_gen',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'generate'/1 =
+    %% Line 57
+    fun (_cor0) ->
+	do  %% Line 58
+	    apply 'do_generate'/1
+		(_cor0)
+	    let <Used0> =
+		%% Line 59
+		apply 'req'/1
+		    ('get_used')
+	    in  do  %% Line 60
+		    call 'erlang':'erase'
+			('asn1ct_func')
+		    let <Used> =
+			%% Line 61
+			call 'sofs':'set'
+			    (Used0, ['mfa'])
+		    in  let <_cor3> =
+			    %% Line 62
+			    call 'asn1ct_rtt':'code'
+				()
+			in  let <Code> =
+				%% Line 62
+				call 'sofs':'relation'
+				    (_cor3, [{'mfa','code'}])
+			    in  let <Funcs0> =
+				    %% Line 63
+				    call 'sofs':'image'
+					(Code, Used)
+				in  let <Funcs> =
+					%% Line 64
+					call 'sofs':'to_external'
+					    (Funcs0)
+				    in  let <_cor9> =
+					    %% Line 65
+					    call 'file':'write'
+						(_cor0, Funcs)
+					in  %% Line 65
+					    case _cor9 of
+					      <'ok'> when 'true' ->
+						  ( _cor9
+						    -| ['compiler_generated'] )
+					      ( <_cor7> when 'true' ->
+						    primop 'match_fail'
+							({'badmatch',_cor7})
+						-| ['compiler_generated'] )
+					    end
+'is_used'/1 =
+    %% Line 67
+    fun (_cor0) ->
+	case _cor0 of
+	  <MFA = {_cor2,_cor3,_cor4}> when 'true' ->
+	      %% Line 68
+	      apply 'req'/1
+		  ({'is_used',MFA})
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'is_used',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'req'/1 =
+    %% Line 71
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 72
+	    call 'erlang':'get'
+		('asn1ct_func')
+	in  %% Line 72
+	    call 'gen_server':'call'
+		(_cor1, _cor0, 'infinity')
+'cast'/1 =
+    %% Line 74
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 75
+	    call 'erlang':'get'
+		('asn1ct_func')
+	in  %% Line 75
+	    call 'gen_server':'cast'
+		(_cor1, _cor0)
+'init'/1 =
+    %% Line 84
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 85
+		  call 'gb_sets':'empty'
+		      ()
+	      in  let <_cor1> =
+		      %% Line 85
+		      call 'gb_trees':'empty'
+			  ()
+		  in  let <St> =
+			  %% Line 85
+			  {'st',_cor2,_cor1,1}
+		      in  %% Line 86
+			  {'ok',St}
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_cast'/2 =
+    %% Line 88
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'need',MFA},St = {'st',Used0,_cor10,_cor11}> when 'true' ->
+	      %% Line 89
+	      case call 'gb_sets':'is_member'
+		       (MFA, Used0) of
+		%% Line 90
+		<'false'> when 'true' ->
+		    let <_cor2> =
+			%% Line 91
+			call 'gb_sets':'singleton'
+			    (MFA)
+		    in  let <Used> =
+			    %% Line 91
+			    apply 'pull_in_deps'/2
+				(_cor2, Used0)
+			in  let <_cor6> =
+				%% Line 92
+				call 'erlang':'setelement'
+				    (2, St, Used)
+			    in  %% Line 92
+				{'noreply',_cor6}
+		%% Line 93
+		<'true'> when 'true' ->
+		    %% Line 94
+		    {'noreply',St}
+		( <_cor7> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor7})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8})
+		  -| [{'function_name',{'handle_cast',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_call'/3 =
+    %% Line 97
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'get_used',_X_From,St = {'st',Used,_cor23,_cor24}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 98
+		  call 'gb_sets':'to_list'
+		      (Used)
+	      in  %% Line 98
+		  {'stop','normal',_cor3,St}
+	  %% Line 99
+	  <'get_gen',_X_From,St = {'st',_cor25,G0,_cor26}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 100
+		  call 'gb_trees':'to_list'
+		      (G0)
+	      in  %% Line 100
+		  case apply 'do_get_gen'/3
+			   (_cor4, [], []) of
+		    <{L,G}> when 'true' ->
+			let <_rec1> =
+			    %% Line 101
+			    call 'gb_trees':'from_orddict'
+				(G)
+			in  let <_cor9> =
+				%% Line 101
+				call 'erlang':'setelement'
+				    (3, St, _rec1)
+			    in  %% Line 101
+				{'reply',L,_cor9}
+		    ( <_cor5> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor5})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 102
+	  <{'gen_func',Prefix,Key,GenFun},_X_From,St = {'st',_cor31,G0,Gc0}> when 'true' ->
+	      %% Line 103
+	      case call 'gb_trees':'lookup'
+		       (Key, G0) of
+		%% Line 104
+		<'none'> when 'true' ->
+		    let <_cor10> =
+			%% Line 105
+			call 'erlang':'integer_to_list'
+			    (Gc0)
+		    in  let <_cor11> =
+			    %% Line 105
+			    call 'erlang':'++'
+				(Prefix, _cor10)
+			in  let <Name> =
+				%% Line 105
+				call 'erlang':'list_to_atom'
+				    (_cor11)
+			    in  let <Gc> =
+				    %% Line 106
+				    call 'erlang':'+'
+					(Gc0, 1)
+				in  let <G> =
+					%% Line 107
+					call 'gb_trees':'insert'
+					    (Key, {Name,GenFun}, G0)
+				    in  let <_cor17> =
+					    %% Line 108
+					    {'st',_cor31,G,Gc}
+					in  %% Line 108
+					    {'reply',Name,_cor17}
+		%% Line 109
+		<{'value',{Name,_cor33}}> when 'true' ->
+		    %% Line 110
+		    {'reply',Name,St}
+		( <_cor18> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor18})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 112
+	  <{'is_used',MFA},_X_From,St = {'st',Used,_cor34,_cor35}> when 'true' ->
+	      let <_cor19> =
+		  %% Line 113
+		  call 'gb_sets':'is_member'
+		      (MFA, Used)
+	      in  %% Line 113
+		  {'reply',_cor19,St}
+	  ( <_cor22,_cor21,_cor20> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor22,_cor21,_cor20})
+		  -| [{'function_name',{'handle_call',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'terminate'/2 =
+    %% Line 116
+    fun (_cor1,_cor0) ->
+	%% Line 117
+	'ok'
+'call_args'/2 =
+    %% Line 119
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[A|As],Sep> when 'true' ->
+	      let <_cor2> =
+		  %% Line 120
+		  apply 'call_args'/2
+		      (As, [44|[32]])
+	      in  %% Line 120
+		  [Sep|[A|_cor2]]
+	  %% Line 121
+	  <[],_cor5> when 'true' ->
+	      []
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'call_args',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'pull_in_deps'/2 =
+    %% Line 123
+    fun (_cor1,_cor0) ->
+	%% Line 124
+	case call 'gb_sets':'is_empty'
+		 (_cor1) of
+	  %% Line 125
+	  <'true'> when 'true' ->
+	      _cor0
+	  %% Line 127
+	  <'false'> when 'true' ->
+	      %% Line 128
+	      case call 'gb_sets':'take_smallest'
+		       (_cor1) of
+		<{MFA,Ws1}> when 'true' ->
+		    let <Used> =
+			%% Line 129
+			call 'gb_sets':'add'
+			    (MFA, _cor0)
+		    in  let <Needs> =
+			    %% Line 130
+			    call 'asn1ct_rtt':'dependencies'
+				(MFA)
+			in  let <Ws> =
+				%% Line 131
+				apply 'update_worklist'/3
+				    (Needs, Used, Ws1)
+			    in  %% Line 132
+				apply 'pull_in_deps'/2
+				    (Ws, Used)
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor6> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor6})
+	    -| ['compiler_generated'] )
+	end
+'update_worklist'/3 =
+    %% Line 135
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[H|T],Used,Ws> when 'true' ->
+	      %% Line 136
+	      case call 'gb_sets':'is_member'
+		       (H, Used) of
+		%% Line 137
+		<'false'> when 'true' ->
+		    let <_cor3> =
+			%% Line 138
+			call 'gb_sets':'add'
+			    (H, Ws)
+		    in  %% Line 138
+			apply 'update_worklist'/3
+			    (T, Used, _cor3)
+		%% Line 139
+		<'true'> when 'true' ->
+		    %% Line 140
+		    apply 'update_worklist'/3
+			(T, Used, Ws)
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 142
+	  <[],_cor8,Ws> when 'true' ->
+	      Ws
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'update_worklist',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'do_get_gen'/3 =
+    %% Line 144
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Keep = {_cor8,{_cor9,'done'}}|T],Gacc,Kacc> when 'true' ->
+	      %% Line 145
+	      apply 'do_get_gen'/3
+		  (T, Gacc, [Keep|Kacc])
+	  %% Line 146
+	  <[{K,V = {Name,_cor10}}|T],Gacc,Kacc> when 'true' ->
+	      %% Line 147
+	      apply 'do_get_gen'/3
+		  (T, [V|Gacc], [{K,{Name,'done'}}|Kacc])
+	  %% Line 148
+	  <[],Gacc,Kacc> when 'true' ->
+	      let <_cor4> =
+		  %% Line 149
+		  call 'lists':'sort'
+		      (Gacc)
+	      in  let <_cor3> =
+		      %% Line 149
+		      call 'lists':'reverse'
+			  (Kacc)
+		  in  %% Line 149
+		      {_cor4,_cor3}
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'do_get_gen',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'do_generate'/1 =
+    %% Line 151
+    fun (_cor0) ->
+	%% Line 152
+	case apply 'req'/1
+		 ('get_gen') of
+	  %% Line 153
+	  <[]> when 'true' ->
+	      %% Line 154
+	      'ok'
+	  %% Line 155
+	  <Gen = [_cor11|_cor12]> when 'true' ->
+	      let <_cor7> =
+		  %% Line 156
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor3) ->
+				case _cor3 of
+				  <[%% Line 159
+				    {Name,GenFun}|_cor2]> when 'true' ->
+				      %% Line 157
+				      case ( call 'file':'write'
+						 (_cor0, [10])
+					     -| ['result_not_wanted'] ) of
+					<'ok'> when 'true' ->
+					    let <_cor5> =
+						%% Line 158
+						apply GenFun
+						    (_cor0, Name)
+					    in  let <_cor6> =
+						    %% Line 159
+						    apply 'lc$^0'/1
+							(_cor2)
+						in  ( [_cor5|_cor6]
+						      -| ['compiler_generated'] )
+					( <_cor4> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor4})
+					  -| ['compiler_generated'] )
+				      end
+				  ( <[_cor1|_cor2]> when 'true' ->
+					%% Line 159
+					apply 'lc$^0'/1
+					    (_cor2)
+				    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor3> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor3})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (%% Line 159
+			     Gen)
+		    -| ['list_comprehension'] )
+	      in  %% Line 160
+		  apply 'do_generate'/1
+		      (_cor0)
+	  ( <_cor9> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor9})
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('asn1ct_func')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('asn1ct_func', _cor0)
+end

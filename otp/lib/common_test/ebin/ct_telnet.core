@@ -1,0 +1,3089 @@
+module 'ct_telnet' ['close'/1,
+		    'cmd'/2,
+		    'cmd'/3,
+		    'cmdf'/3,
+		    'cmdf'/4,
+		    'end_gen_log'/0,
+		    'expect'/2,
+		    'expect'/3,
+		    'format_data'/2,
+		    'get_data'/1,
+		    'handle_msg'/2,
+		    'init'/3,
+		    'log'/3,
+		    'log'/4,
+		    'module_info'/0,
+		    'module_info'/1,
+		    'open'/1,
+		    'open'/2,
+		    'open'/3,
+		    'open'/4,
+		    'reconnect'/2,
+		    'send'/2,
+		    'sendf'/3,
+		    'silent_teln_expect'/6,
+		    'start_gen_log'/1,
+		    'teln_receive_until_prompt'/3,
+		    'terminate'/2]
+    attributes []
+'open'/1 =
+    %% Line 180
+    fun (_cor0) ->
+	%% Line 181
+	apply 'open'/2
+	    (_cor0, 'telnet')
+'open'/2 =
+    %% Line 191
+    fun (_cor1,_cor0) ->
+	%% Line 192
+	case call 'ct_util':'get_key_from_name'
+		 (_cor1) of
+	  %% Line 193
+	  <{'ok','unix'}> when 'true' ->
+	      %% Line 194
+	      apply 'open'/4
+		  (_cor1, _cor0, 'unix_telnet', _cor1)
+	  %% Line 195
+	  <{'ok',Key}> when 'true' ->
+	      %% Line 196
+	      apply 'open'/4
+		  (_cor1, _cor0, Key, _cor1)
+	  %% Line 197
+	  <Error> when 'true' ->
+	      %% Line 198
+	      Error
+	end
+'open'/3 =
+    %% Line 205
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 206
+	apply 'open'/4
+	    (_cor2, _cor1, _cor0, _cor2)
+'open'/4 =
+    %% Line 239
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 240
+	case call 'ct':'get_config'
+		 ({_cor3,_cor2}) of
+	  %% Line 241
+	  <'undefined'> when 'true' ->
+	      do  %% Line 242
+		  apply 'log'/4
+		      ('undefined', 'open', [70|[97|[105|[108|[101|[100|[58|[32|[126|[112]]]]]]]]]], [{'not_available',_cor3}|[]])
+		  %% Line 243
+		  {'error',{'not_available',_cor3,_cor2}}
+	  %% Line 244
+	  <Addr> when 'true' ->
+	      let <_cor6> =
+		  %% Line 246
+		  case Addr of
+		    %% Line 247
+		    <{_X_IP,_X_Port}> when 'true' ->
+			%% Line 248
+			Addr
+		    %% Line 249
+		    <IP> when 'true' ->
+			%% Line 250
+			case call 'ct':'get_config'
+				 ({_cor3,'port'}) of
+			  %% Line 251
+			  <'undefined'> when 'true' ->
+			      IP
+			  %% Line 252
+			  <P> when 'true' ->
+			      {IP,P}
+			end
+		  end
+	      in  let <_cor10> =
+		      %% Line 256
+		      case call 'ct':'get_config'
+			       ({_cor3,'keep_alive'}) of
+			%% Line 257
+			<'undefined'> when 'true' ->
+			    %% Line 258
+			    case call 'ct':'get_config'
+				     ({'telnet_settings','keep_alive'}) of
+			      %% Line 259
+			      <'undefined'> when 'true' ->
+				  'true'
+			      %% Line 260
+			      <Bool> when 'true' ->
+				  Bool
+			    end
+			%% Line 262
+			<Bool> when 'true' ->
+			    Bool
+		      end
+		  in  do  %% Line 264
+			  apply 'log'/4
+			      ('undefined', 'open', [67|[111|[110|[110|[101|[99|[116|[105|[110|[103|[32|[116|[111|[32|[126|[112|[40|[126|[112|[41]]]]]]]]]]]]]]]]]]]], %% Line 265
+																				       [_cor3|[_cor6|[]]])
+			  let <_cor13> =
+			      %% Line 267
+			      case call 'ct':'get_config'
+				       ({'telnet_settings','reconnection_attempts'}) of
+				%% Line 268
+				<0> when 'true' ->
+				    'false'
+				%% Line 269
+				<_cor21> when 'true' ->
+				    'true'
+			      end
+			  in  let <_cor15> =
+				  %% Line 271
+				  apply 'full_addr'/2
+				      (_cor6, _cor2)
+			      in  %% Line 271
+				  call 'ct_gen_conn':'start'
+				      (_cor15, %% Line 272
+					       {_cor1,_cor10,_cor0}, %% Line 273
+								     'ct_telnet', %% Line 273
+										  [{'name',_cor3}|%% Line 274
+												  [{'reconnect',_cor13}|%% Line 275
+															[{'old','true'}]]])
+	end
+'close'/1 =
+    %% Line 289
+    fun (_cor0) ->
+	%% Line 290
+	case apply 'get_handle'/1
+		 (_cor0) of
+	  %% Line 291
+	  <{'ok',Pid}> when 'true' ->
+	      do  %% Line 292
+		  apply 'log'/4
+		      ('undefined', 'close', [67|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[99|[108|[111|[115|[101|[100|[44|[32|[104|[97|[110|[100|[108|[101|[58|[32|[126|[119]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Pid|[]])
+		  %% Line 293
+		  case call 'ct_gen_conn':'stop'
+			   (Pid) of
+		    %% Line 294
+		    <{'error',{'process_down',_cor4,_cor5}}>
+			when call 'erlang':'=:='
+			      (_cor4,
+			       Pid) ->
+			%% Line 295
+			{'error','already_closed'}
+		    %% Line 296
+		    <Result> when 'true' ->
+			%% Line 297
+			Result
+		  end
+	  %% Line 299
+	  <Error> when 'true' ->
+	      %% Line 300
+	      Error
+	end
+'cmd'/2 =
+    %% Line 308
+    fun (_cor1,_cor0) ->
+	%% Line 309
+	apply 'cmd'/3
+	    (_cor1, _cor0, 'default')
+'cmd'/3 =
+    %% Line 318
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 319
+	case apply 'get_handle'/1
+		 (_cor2) of
+	  %% Line 320
+	  <{'ok',Pid}> when 'true' ->
+	      %% Line 321
+	      apply 'call'/2
+		  (Pid, {'cmd',_cor1,_cor0})
+	  %% Line 322
+	  <Error> when 'true' ->
+	      %% Line 323
+	      Error
+	end
+'cmdf'/3 =
+    %% Line 328
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 329
+	apply 'cmdf'/4
+	    (_cor2, _cor1, _cor0, 'default')
+'cmdf'/4 =
+    %% Line 340
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Connection,CmdFormat,Args,Timeout>
+	      when call 'erlang':'is_list'
+		    (Args) ->
+	      let <_cor4> =
+		  %% Line 341
+		  call 'io_lib':'format'
+		      (CmdFormat, Args)
+	      in  let <Cmd> =
+		      %% Line 341
+		      call 'lists':'flatten'
+			  (_cor4)
+		  in  %% Line 342
+		      apply 'cmd'/3
+			  (Connection, Cmd, Timeout)
+	  ( <_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'cmdf',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_data'/1 =
+    %% Line 351
+    fun (_cor0) ->
+	%% Line 352
+	case apply 'get_handle'/1
+		 (_cor0) of
+	  %% Line 353
+	  <{'ok',Pid}> when 'true' ->
+	      %% Line 354
+	      apply 'call'/2
+		  (Pid, 'get_data')
+	  %% Line 355
+	  <Error> when 'true' ->
+	      %% Line 356
+	      Error
+	end
+'send'/2 =
+    %% Line 368
+    fun (_cor1,_cor0) ->
+	%% Line 369
+	case apply 'get_handle'/1
+		 (_cor1) of
+	  %% Line 370
+	  <{'ok',Pid}> when 'true' ->
+	      %% Line 371
+	      apply 'call'/2
+		  (Pid, {'send',_cor0})
+	  %% Line 372
+	  <Error> when 'true' ->
+	      %% Line 373
+	      Error
+	end
+'sendf'/3 =
+    %% Line 384
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Connection,CmdFormat,Args>
+	      when call 'erlang':'is_list'
+		    (Args) ->
+	      let <_cor3> =
+		  %% Line 385
+		  call 'io_lib':'format'
+		      (CmdFormat, Args)
+	      in  let <Cmd> =
+		      %% Line 385
+		      call 'lists':'flatten'
+			  (_cor3)
+		  in  %% Line 386
+		      apply 'send'/2
+			  (Connection, Cmd)
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'sendf',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'expect'/2 =
+    %% Line 391
+    fun (_cor1,_cor0) ->
+	%% Line 392
+	apply 'expect'/3
+	    (_cor1, _cor0, [])
+'expect'/3 =
+    %% Line 492
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 493
+	case apply 'get_handle'/1
+		 (_cor2) of
+	  %% Line 494
+	  <{'ok',Pid}> when 'true' ->
+	      %% Line 495
+	      apply 'call'/2
+		  (Pid, {'expect',_cor1,_cor0})
+	  %% Line 496
+	  <Error> when 'true' ->
+	      %% Line 497
+	      Error
+	end
+'init'/3 =
+    %% Line 503
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Name,{Ip,Port,Type},{TargetMod,KeepAlive,Extra}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 504
+		  case call 'ct':'get_config'
+			   ('telnet_settings') of
+		    %% Line 505
+		    <'undefined'> when 'true' ->
+			%% Line 506
+			{'state','undefined','undefined','undefined','undefined',[],'false','undefined','undefined','undefined','undefined','undefined',10000,10000,3,5000}
+		    %% Line 507
+		    <Settings> when 'true' ->
+			%% Line 508
+			apply 'set_telnet_defaults'/2
+			    (Settings, {'state','undefined','undefined','undefined','undefined',[],'false','undefined','undefined','undefined','undefined','undefined',10000,10000,3,5000})
+		  end
+	      in  let <_cor8> =
+		      catch
+			  %% Line 510
+			  ( case _cor4 of
+			      ( <( {'state',_cor27,_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,_rec0,_cor38,_cor39,_cor40}
+				   -| ['compiler_generated'] )> when 'true' ->
+				    call TargetMod:'connect'
+					(Name, Ip, Port, _rec0, %% Line 511
+								KeepAlive, %% Line 511
+									   Extra)
+				-| ['compiler_generated'] )
+			      ( <_cor41> when 'true' ->
+				    ( call ( 'erlang'
+					     -| ['compiler_generated'] ):( 'error'
+									   -| ['compiler_generated'] )
+					  (( {'badrecord','state'}
+					     -| ['compiler_generated'] ))
+				      -| ['compiler_generated'] )
+				-| ['compiler_generated'] )
+			    end
+			    -| ['compiler_generated'] )
+		  in  %% Line 510
+		      case _cor8 of
+			%% Line 512
+			<{'ok',TelnPid}> when 'true' ->
+			    do  %% Line 513
+				call 'erlang':'put'
+				    ({'ct_telnet_pid2name',TelnPid}, Name)
+				let <_rec1> =
+				    %% Line 518
+				    apply 'type'/1
+					(Type)
+				in  let <_rec2> =
+					%% Line 522
+					call TargetMod:'get_prompt_regexp'
+					    ()
+				    in  %% Line 522
+					case _cor4 of
+					  <{'state',_rec4,_rec5,_rec6,_rec7,_rec8,_rec9,_rec10,_rec11,_rec12,_rec13,_rec14,_rec15,_rec16,_rec17,_rec18}> when 'true' ->
+					      let <_cor13> =
+						  {'state',Ip,Port,TelnPid,_rec2,_rec8,_rec9,Name,_rec1,TargetMod,KeepAlive,Extra,_rec15,_rec16,_rec17,_rec18}
+					      in  %% Line 532
+						  ( case _cor13 of
+						      ( <( {'state',_cor43,_cor44,_cor45,_cor46,_cor47,_cor48,_cor49,_cor50,_cor51,_cor52,_cor53,_cor54,_rec19,_cor55,_cor56}
+							   -| ['compiler_generated'] )> when 'true' ->
+							    do  apply 'log'/4
+								    (_cor13, 'open', [79|[112|[101|[110|[101|[100|[32|[116|[101|[108|[110|[101|[116|[32|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110|[10|[73|[80|[58|[32|[126|[112|[10|[80|[111|[114|[116|[58|[32|[126|[112|[10|[67|[111|[109|[109|[97|[110|[100|[32|[116|[105|[109|[101|[111|[117|[116|[58|[32|[126|[112|[10|[82|[101|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[97|[116|[116|[101|[109|[112|[116|[115|[58|[32|[126|[112|[10|[82|[101|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[105|[110|[116|[101|[114|[118|[97|[108|[58|[32|[126|[112|[10|[67|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[116|[105|[109|[101|[111|[117|[116|[58|[32|[126|[112|[10|[75|[101|[101|[112|[32|[97|[108|[105|[118|[101|[58|[32|[126|[119]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Ip|[Port|[_rec19|[_cor55|%% Line 533
+																																																																																																																								    [_cor56|[_cor54|[KeepAlive|[]]]]]]]])
+								%% Line 534
+								{'ok',TelnPid,_cor13}
+							-| ['compiler_generated'] )
+						      ( <_cor57> when 'true' ->
+							    ( call ( 'erlang'
+								     -| ['compiler_generated'] ):( 'error'
+												   -| ['compiler_generated'] )
+								  (( {'badrecord','state'}
+								     -| ['compiler_generated'] ))
+							      -| ['compiler_generated'] )
+							-| ['compiler_generated'] )
+						    end
+						    -| ['compiler_generated'] )
+					  ( <_cor42> when 'true' ->
+						( call ( 'erlang'
+							 -| ['compiler_generated'] ):( 'error'
+										       -| ['compiler_generated'] )
+						      (( {'badrecord','state'}
+							 -| ['compiler_generated'] ))
+						  -| ['compiler_generated'] )
+					    -| ['compiler_generated'] )
+					end
+			%% Line 535
+			<{'EXIT',Reason}> when 'true' ->
+			    %% Line 536
+			    {'error',Reason}
+			%% Line 537
+			<Error> when 'true' ->
+			    %% Line 538
+			    Error
+		      end
+	  ( <_cor26,_cor25,_cor24> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor26,_cor25,_cor24})
+		  -| [{'function_name',{'init',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'type'/1 =
+    %% Line 541
+    fun (_cor0) ->
+	case _cor0 of
+	  <'telnet'> when 'true' ->
+	      'ip'
+	  %% Line 542
+	  <TS>
+	      when let <_cor1> =
+		    call 'erlang':'=:='
+			(_cor0, 'ts1')
+		in  let <_cor2> =
+			call 'erlang':'=:='
+			    (_cor0, 'ts2')
+		    in  call 'erlang':'or'
+			    (_cor1, _cor2) ->
+	      'ts'
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'type',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'set_telnet_defaults'/2 =
+    %% Line 544
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'connect_timeout',CnTo}|Ss],S> when 'true' ->
+	      %% Line 545
+	      case S of
+		<{'state',_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30}> when 'true' ->
+		    let <_cor4> =
+			call 'erlang':'setelement'
+			    (13, S, CnTo)
+		    in  apply 'set_telnet_defaults'/2
+			    (Ss, _cor4)
+		( <_cor31> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 546
+	  <[{'command_timeout',CmTo}|Ss],S> when 'true' ->
+	      %% Line 547
+	      case S of
+		<{'state',_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45,_cor46}> when 'true' ->
+		    let <_cor7> =
+			call 'erlang':'setelement'
+			    (14, S, CmTo)
+		    in  apply 'set_telnet_defaults'/2
+			    (Ss, _cor7)
+		( <_cor47> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 548
+	  <[{'reconnection_attempts',Rs}|Ss],S> when 'true' ->
+	      %% Line 549
+	      case S of
+		<{'state',_cor48,_cor49,_cor50,_cor51,_cor52,_cor53,_cor54,_cor55,_cor56,_cor57,_cor58,_cor59,_cor60,_cor61,_cor62}> when 'true' ->
+		    let <_cor10> =
+			call 'erlang':'setelement'
+			    (15, S, Rs)
+		    in  apply 'set_telnet_defaults'/2
+			    (Ss, _cor10)
+		( <_cor63> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 550
+	  <[{'reconnection_interval',RInt}|Ss],S> when 'true' ->
+	      %% Line 551
+	      case S of
+		<{'state',_cor64,_cor65,_cor66,_cor67,_cor68,_cor69,_cor70,_cor71,_cor72,_cor73,_cor74,_cor75,_cor76,_cor77,_cor78}> when 'true' ->
+		    let <_cor13> =
+			call 'erlang':'setelement'
+			    (16, S, RInt)
+		    in  apply 'set_telnet_defaults'/2
+			    (Ss, _cor13)
+		( <_cor79> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 552
+	  <[{'keep_alive',_cor80}|Ss],S> when 'true' ->
+	      %% Line 553
+	      apply 'set_telnet_defaults'/2
+		  (Ss, S)
+	  %% Line 554
+	  <[Unknown|Ss],S> when 'true' ->
+	      do  %% Line 555
+		  apply 'force_log'/4
+		      (S, 'error', %% Line 556
+				   [66|[97|[100|[32|[101|[108|[101|[109|[101|[110|[116|[32|[105|[110|[32|[116|[101|[108|[110|[101|[116|[95|[115|[101|[116|[116|[105|[110|[103|[115|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 556
+																													[Unknown|[]])
+		  %% Line 557
+		  apply 'set_telnet_defaults'/2
+		      (Ss, S)
+	  %% Line 558
+	  <[],S> when 'true' ->
+	      %% Line 559
+	      S
+	  ( <_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14})
+		  -| [{'function_name',{'set_telnet_defaults',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_msg'/2 =
+    %% Line 562
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'cmd',Cmd,Timeout},State> when 'true' ->
+	      %% Line 563
+	      ( case State of
+		  ( <( {'state',_cor127,_cor128,_cor129,_cor130,_cor131,_cor132,_rec27,_cor133,_cor134,_cor135,_cor136,_cor137,_cor138,_cor139,_cor140}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor4> =
+			    apply 'heading'/2
+				('cmd', _rec27)
+			in  do  apply 'start_gen_log'/1
+				    (_cor4)
+				do  %% Line 564
+				    apply 'log'/4
+					(State, 'cmd', [67|[109|[100|[58|[32|[126|[112]]]]]]], [Cmd|[]])
+				    do  %% Line 566
+					apply 'debug_cont_gen_log'/2
+					    ([84|[104|[114|[111|[119|[105|[110|[103|[32|[66|[117|[102|[102|[101|[114|[58]]]]]]]]]]]]]]]], [])
+					do  %% Line 567
+					    apply 'debug_log_lines'/1
+						(_cor131)
+					    do  %% Line 569
+						case <_cor133,_cor132> of
+						  %% Line 570
+						  <'ts',_cor187> when 'true' ->
+						      %% Line 571
+						      apply 'silent_teln_expect'/6
+							  (_rec27, _cor129, _cor131, %% Line 574
+										     'prompt', _cor130, %% Line 576
+													[{'idle_timeout',2000}])
+						  %% Line 577
+						  <'ip','false'> when 'true' ->
+						      %% Line 578
+						      apply 'silent_teln_expect'/6
+							  (_rec27, _cor129, _cor131, %% Line 581
+										     'prompt', _cor130, %% Line 583
+													[{'idle_timeout',200}])
+						  %% Line 584
+						  <'ip','true'> when 'true' ->
+						      'ok'
+						  ( <_fol275,_fol276> when 'true' ->
+							let <_cor27> = {_fol275,_fol276}
+							in  primop 'match_fail'
+								({'case_clause',_cor27})
+						    -| ['compiler_generated'] )
+						end
+						let <_cor29> =
+						    %% Line 587
+						    case <> of
+						      <>
+							  when call 'erlang':'=:='
+								(Timeout,
+								 'default') ->
+							  _cor138
+						      %% Line 588
+						      <> when 'true' ->
+							  Timeout
+						    end
+						in  let <Return,NewBuffer,Prompt> =
+							%% Line 591
+							case apply 'teln_cmd'/4
+								 (_cor129, Cmd, _cor130, _cor29) of
+							  %% Line 592
+							  <{'ok',Data,_X_PromptType,Rest}> when 'true' ->
+							      do  %% Line 593
+								  apply 'log'/4
+								      (State, 'recv', [82|[101|[116|[117|[114|[110|[58|[32|[126|[112]]]]]]]]]], [{'ok',Data}|[]])
+								  %% Line 594
+								  <{'ok',Data},Rest,'true'>
+							  %% Line 595
+							  <Error> when 'true' ->
+							      let <Retry> =
+								  %% Line 596
+								  {'retry',{Error,%% Line 597
+										  {_rec27,_cor133},_cor129,%% Line 600
+													   {'cmd',Cmd,_cor29}}}
+							      in  do  %% Line 601
+								      apply 'log'/4
+									  (State, 'recv', [82|[101|[116|[117|[114|[110|[58|[32|[126|[112]]]]]]]]]], [Error|[]])
+								      %% Line 602
+								      <Retry,[],'false'>
+							end
+						    in  do  %% Line 604
+							    apply 'end_gen_log'/0
+								()
+							    let <_cor46> =
+								%% Line 605
+								call 'erlang':'setelement'
+								    (7, State, Prompt)
+							    in  let <_cor48> =
+								    %% Line 605
+								    call 'erlang':'setelement'
+									(6, _cor46, NewBuffer)
+								in  %% Line 605
+								    {Return,_cor48}
+		    -| ['compiler_generated'] )
+		  ( <_cor141> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 606
+	  <{'send',Cmd},State> when 'true' ->
+	      %% Line 607
+	      ( case State of
+		  ( <( {'state',_cor414,_cor415,_cor416,_cor417,_cor418,_cor419,_rec46,_cor420,_cor421,_cor422,_cor423,_cor424,_cor425,_cor426,_cor427}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor51> =
+			    apply 'heading'/2
+				('send', _rec46)
+			in  do  apply 'start_gen_log'/1
+				    (_cor51)
+				do  %% Line 608
+				    apply 'log'/4
+					(State, 'send', [83|[101|[110|[100|[105|[110|[103|[58|[32|[126|[112]]]]]]]]]]], [Cmd|[]])
+				    do  %% Line 610
+					apply 'debug_cont_gen_log'/2
+					    ([84|[104|[114|[111|[119|[105|[110|[103|[32|[66|[117|[102|[102|[101|[114|[58]]]]]]]]]]]]]]]], [])
+					do  %% Line 611
+					    apply 'debug_log_lines'/1
+						(_cor418)
+					    do  %% Line 613
+						case <_cor420,_cor419> of
+						  %% Line 614
+						  <'ts',_cor474> when 'true' ->
+						      %% Line 615
+						      apply 'silent_teln_expect'/6
+							  (_rec46, _cor416, _cor418, %% Line 618
+										     'prompt', _cor417, %% Line 620
+													[{'idle_timeout',2000}])
+						  %% Line 621
+						  <'ip','false'> when 'true' ->
+						      %% Line 622
+						      apply 'silent_teln_expect'/6
+							  (_rec46, _cor416, _cor418, %% Line 625
+										     'prompt', _cor417, %% Line 627
+													[{'idle_timeout',200}])
+						  %% Line 628
+						  <'ip','true'> when 'true' ->
+						      'ok'
+						  ( <_fol711,_fol712> when 'true' ->
+							let <_cor74> = {_fol711,_fol712}
+							in  primop 'match_fail'
+								({'case_clause',_cor74})
+						    -| ['compiler_generated'] )
+						end
+						do  %% Line 631
+						    call 'ct_telnet_client':'send_data'
+							(_cor416, Cmd)
+						    do  %% Line 632
+							apply 'end_gen_log'/0
+							    ()
+							let <_cor78> =
+							    %% Line 633
+							    call 'erlang':'setelement'
+								(7, State, 'false')
+							in  let <_cor80> =
+								%% Line 633
+								call 'erlang':'setelement'
+								    (6, _cor78, [])
+							    in  %% Line 633
+								{'ok',_cor80}
+		    -| ['compiler_generated'] )
+		  ( <_cor428> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 634
+	  <'get_data',State> when 'true' ->
+	      %% Line 635
+	      ( case State of
+		  ( <( {'state',_cor626,_cor627,_cor628,_cor629,_cor630,_cor631,_rec60,_cor632,_cor633,_cor634,_cor635,_cor636,_cor637,_cor638,_cor639}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor83> =
+			    apply 'heading'/2
+				('get_data', _rec60)
+			in  do  apply 'start_gen_log'/1
+				    (_cor83)
+				do  %% Line 636
+				    apply 'log'/4
+					(State, 'cmd', [82|[101|[97|[100|[105|[110|[103|[32|[100|[97|[116|[97|[46|[46|[46]]]]]]]]]]]]]]], [])
+				    %% Line 637
+				    case apply 'teln_get_all_data'/5
+					     (_cor628, _cor629, _cor630, %% Line 640
+									 [], %% Line 640
+									     []) of
+				      <{'ok',Data,Buffer}> when 'true' ->
+					  do  %% Line 641
+					      apply 'log'/4
+						  (State, 'recv', [82|[101|[116|[117|[114|[110|[58|[32|[126|[112]]]]]]]]]], [{'ok',Data}|[]])
+					      do  %% Line 642
+						  apply 'end_gen_log'/0
+						      ()
+						  let <_cor93> =
+						      %% Line 643
+						      call 'erlang':'setelement'
+							  (6, State, Buffer)
+						  in  %% Line 643
+						      {{'ok',Data},_cor93}
+				      ( <_cor90> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_cor90})
+					-| ['compiler_generated'] )
+				    end
+		    -| ['compiler_generated'] )
+		  ( <_cor640> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 644
+	  <{'expect',Pattern,Opts},State> when 'true' ->
+	      %% Line 645
+	      ( case State of
+		  ( <( {'state',_cor702,_cor703,_cor704,_cor705,_cor706,_cor707,_rec65,_cor708,_cor709,_cor710,_cor711,_cor712,_cor713,_cor714,_cor715}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor96> =
+			    apply 'heading'/2
+				('expect', _rec65)
+			in  do  apply 'start_gen_log'/1
+				    (_cor96)
+				do  %% Line 646
+				    apply 'log'/4
+					(State, 'expect', [69|[120|[112|[101|[99|[116|[58|[32|[126|[112|[10|[79|[112|[116|[115|[32|[61|[32|[126|[112|[10]]]]]]]]]]]]]]]]]]]]], [Pattern|[Opts|[]]])
+				    let <Return,NewBuffer,Prompt> =
+					%% Line 648
+					case apply 'teln_expect'/6
+						 (_rec65, _cor704, _cor706, %% Line 651
+									    Pattern, _cor705, %% Line 653
+											      Opts) of
+					  %% Line 654
+					  <{'ok',Data,Rest}> when 'true' ->
+					      let <P> =
+						  %% Line 655
+						  apply 'check_if_prompt_was_reached'/2
+						      (Data, [])
+					      in  %% Line 656
+						  <{'ok',Data},Rest,P>
+					  %% Line 657
+					  <{'ok',Data,HaltReason,Rest}> when 'true' ->
+					      do  %% Line 658
+						  apply 'force_log'/4
+						      (State, 'expect', [72|[97|[108|[116|[82|[101|[97|[115|[111|[110|[58|[32|[126|[112]]]]]]]]]]]]]], [HaltReason|[]])
+						  let <P> =
+						      %% Line 659
+						      apply 'check_if_prompt_was_reached'/2
+							  (Data, HaltReason)
+						  in  %% Line 660
+						      <{'ok',Data,HaltReason},Rest,P>
+					  %% Line 661
+					  <{'error',Reason,Rest}> when 'true' ->
+					      do  %% Line 662
+						  apply 'force_log'/4
+						      (State, 'expect', [69|[120|[112|[101|[99|[116|[32|[102|[97|[105|[108|[101|[100|[10|[126|[112]]]]]]]]]]]]]]]], [{'error',Reason}|[]])
+						  let <P> =
+						      %% Line 663
+						      apply 'check_if_prompt_was_reached'/2
+							  ([], Reason)
+						  in  %% Line 664
+						      <{'error',Reason},Rest,P>
+					  %% Line 665
+					  <{'error',Reason}> when 'true' ->
+					      do  %% Line 666
+						  apply 'force_log'/4
+						      (State, 'expect', [69|[120|[112|[101|[99|[116|[32|[102|[97|[105|[108|[101|[100|[10|[126|[112]]]]]]]]]]]]]]]], [{'error',Reason}|[]])
+						  let <P> =
+						      %% Line 667
+						      apply 'check_if_prompt_was_reached'/2
+							  ([], Reason)
+						  in  %% Line 668
+						      <{'error',Reason},[],P>
+					  ( <_cor109> when 'true' ->
+						primop 'match_fail'
+						    ({'case_clause',_cor109})
+					    -| ['compiler_generated'] )
+					end
+				    in  do  %% Line 670
+					    apply 'end_gen_log'/0
+						()
+					    let <_cor119> =
+						%% Line 671
+						case Return of
+						  %% Line 672
+						  <{'error',_cor777}> when 'true' ->
+						      {'retry',{Return,%% Line 673
+								       {_rec65,_cor708},_cor704,%% Line 676
+												{'expect',Pattern,Opts}}}
+						  %% Line 677
+						  <_cor823> when 'true' ->
+						      Return
+						end
+					    in  let <_cor122> =
+						    %% Line 679
+						    call 'erlang':'setelement'
+							(7, State, Prompt)
+						in  let <_cor124> =
+							%% Line 679
+							call 'erlang':'setelement'
+							    (6, _cor122, NewBuffer)
+						    in  %% Line 679
+							{_cor119,_cor124}
+		    -| ['compiler_generated'] )
+		  ( <_cor716> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  ( <_cor126,_cor125> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor126,_cor125})
+		  -| [{'function_name',{'handle_msg',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'reconnect'/2 =
+    %% Line 683
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Ip,Port,_X_Type},State> when 'true' ->
+	      %% Line 684
+	      ( case State of
+		  ( <( {'state',_cor6,_cor7,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_rec74,_cor19}
+		       -| ['compiler_generated'] )> when 'true' ->
+			apply 'reconnect'/4
+			    (Ip, Port, _rec74, State)
+		    -| ['compiler_generated'] )
+		  ( <_cor20> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'reconnect',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'reconnect'/4 =
+    %% Line 685
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Ip,Port,N,State = {'state',_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,Name,_cor19,%% Line 686
+											    TargetMod,%% Line 687
+												      KeepAlive,%% Line 688
+														Extra,%% Line 689
+														      ConnTo,_cor20,_cor21,%% Line 690
+																	   ReconnInt}> when 'true' ->
+	      %% Line 691
+	      case call TargetMod:'connect'
+		       (Name, Ip, Port, ConnTo, KeepAlive, Extra) of
+		%% Line 692
+		<{'ok',NewPid}> when 'true' ->
+		    do  %% Line 693
+			call 'erlang':'put'
+			    ({'ct_telnet_pid2name',NewPid}, Name)
+			let <_cor6> =
+			    %% Line 694
+			    call 'erlang':'setelement'
+				(4, State, NewPid)
+			in  %% Line 694
+			    {'ok',NewPid,_cor6}
+		%% Line 695
+		<Error>
+		    when call 'erlang':'=='
+			  (N,
+			   0) ->
+		    %% Line 696
+		    Error
+		%% Line 697
+		<_X_Error> when 'true' ->
+		    do  %% Line 698
+			apply 'log'/5
+			    (State, 'reconnect', [82|[101|[99|[111|[110|[110|[101|[99|[116|[32|[102|[97|[105|[108|[101|[100|[33]]]]]]]]]]]]]]]]], [82|[101|[116|[114|[105|[101|[115|[32|[108|[101|[102|[116|[58|[32|[126|[119]]]]]]]]]]]]]]]], [N|[]])
+			do  %% Line 699
+			    call 'timer':'sleep'
+				(ReconnInt)
+			    let <_cor7> =
+				%% Line 700
+				call 'erlang':'-'
+				    (N, 1)
+			    in  %% Line 700
+				apply 'reconnect'/4
+				    (Ip, Port, _cor7, State)
+	      end
+	  ( <_cor12,_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'reconnect',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'terminate'/2 =
+    %% Line 705
+    fun (_cor1,_cor0) ->
+	let <Result> =
+	    %% Line 706
+	    call 'ct_telnet_client':'close'
+		(_cor1)
+	in  do  %% Line 707
+		apply 'log'/4
+		    (_cor0, 'close', [84|[101|[108|[110|[101|[116|[32|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[102|[111|[114|[32|[126|[119|[32|[99|[108|[111|[115|[101|[100|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [_cor1|[]])
+		%% Line 708
+		Result
+'get_handle'/1 =
+    %% Line 712
+    fun (_cor0) ->
+	case _cor0 of
+	  <Pid>
+	      when call 'erlang':'is_pid'
+		    (_cor0) ->
+	      %% Line 713
+	      {'ok',Pid}
+	  %% Line 714
+	  <{Name,Type}>
+	      when let <_cor1> =
+		    call 'erlang':'=:='
+			(Type, 'telnet')
+		in  let <_cor2> =
+			call 'erlang':'=:='
+			    (Type, 'ts1')
+		    in  let <_cor3> =
+			    call 'erlang':'=:='
+				(Type, 'ts2')
+			in  let <_cor4> =
+				call 'erlang':'or'
+				    (_cor2, _cor3)
+			    in  call 'erlang':'or'
+				    (_cor1, _cor4) ->
+	      %% Line 715
+	      case call 'ct_util':'get_connection'
+		       (Name, 'ct_telnet') of
+		%% Line 716
+		<{'ok',Conn}> when 'true' ->
+		    %% Line 717
+		    case apply 'get_handle'/2
+			     (Type, Conn) of
+		      %% Line 718
+		      <{'ok',Pid}> when 'true' ->
+			  %% Line 719
+			  {'ok',Pid}
+		      %% Line 720
+		      <_X_Error> when 'true' ->
+			  %% Line 721
+			  case call 'ct_util':'get_key_from_name'
+				   (Name) of
+			    %% Line 722
+			    <{'ok','node'}> when 'true' ->
+				%% Line 723
+				apply 'open'/3
+				    (Name, Type, 'ct_telnet_cello_node')
+			    %% Line 724
+			    <{'ok','unix'}> when 'true' ->
+				%% Line 725
+				apply 'open'/4
+				    (Name, Type, 'unix_telnet', Name)
+			    %% Line 726
+			    <{'ok',Key}> when 'true' ->
+				%% Line 727
+				apply 'open'/4
+				    (Name, Type, Key, Name)
+			    %% Line 728
+			    <Error> when 'true' ->
+				%% Line 729
+				Error
+			  end
+		    end
+		%% Line 732
+		<Error> when 'true' ->
+		    %% Line 733
+		    Error
+	      end
+	  %% Line 735
+	  <Name> when 'true' ->
+	      %% Line 736
+	      apply 'get_handle'/1
+		  ({Name,'telnet'})
+	end
+'get_handle'/2 =
+    %% Line 738
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Type,{Pid,{_cor4,_cor5,_cor6}}>
+	      when call 'erlang':'=:='
+		    (_cor6,
+		     Type) ->
+	      %% Line 739
+	      {'ok',Pid}
+	  %% Line 740
+	  <Type,_cor7> when 'true' ->
+	      %% Line 741
+	      {'error',{'no_such_connection',Type}}
+	end
+'full_addr'/2 =
+    %% Line 743
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Ip,Port},Type> when 'true' ->
+	      %% Line 744
+	      {Ip,Port,Type}
+	  %% Line 745
+	  <Ip,Type> when 'true' ->
+	      %% Line 746
+	      {Ip,23,Type}
+	end
+'call'/2 =
+    %% Line 748
+    fun (_cor1,_cor0) ->
+	%% Line 749
+	call 'ct_gen_conn':'call'
+	    (_cor1, _cor0)
+'check_if_prompt_was_reached'/2 =
+    %% Line 751
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'prompt',_cor4},_cor5> when 'true' ->
+	      %% Line 752
+	      'true'
+	  %% Line 753
+	  <_cor6,{'prompt',_cor7}> when 'true' ->
+	      %% Line 754
+	      'true'
+	  %% Line 755
+	  <Data,_cor8>
+	      when call 'erlang':'is_list'
+		    (Data) ->
+	      %% Line 756
+	      call 'lists':'keymember'
+		  ('prompt', 1, Data)
+	  %% Line 757
+	  <_cor9,_cor10> when 'true' ->
+	      %% Line 758
+	      'false'
+	end
+'heading'/2 =
+    %% Line 763
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Action,'undefined'> when 'true' ->
+	      %% Line 764
+	      call 'io_lib':'format'
+		  ([126|[119|[32|[126|[119]]]]], ['ct_telnet'|[Action|[]]])
+	  %% Line 765
+	  <Action,Name> when 'true' ->
+	      %% Line 766
+	      call 'io_lib':'format'
+		  ([126|[119|[32|[126|[119|[32|[102|[111|[114|[32|[126|[112]]]]]]]]]]]], ['ct_telnet'|[Action|[Name|[]]]])
+	end
+'force_log'/4 =
+    %% Line 768
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 769
+	apply 'log'/5
+	    (_cor3, _cor2, _cor1, _cor0, 'true')
+'log'/4 =
+    %% Line 773
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <State = {'state',_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22},Action,String,Args> when ( 'true'
+																			       -| ['compiler_generated'] ) ->
+	      %% Line 774
+	      apply 'log'/5
+		  (State, Action, String, Args, 'false')
+	  %% Line 775
+	  <Name,Action,String,Args>
+	      when call 'erlang':'is_atom'
+		    (Name) ->
+	      %% Line 776
+	      apply 'log'/5
+		  ({'state','undefined','undefined','undefined','undefined',[],'false',Name,'undefined','undefined','undefined','undefined',10000,10000,3,5000}, Action, String, Args, 'false')
+	  %% Line 777
+	  <TelnPid,Action,String,Args>
+	      when call 'erlang':'is_pid'
+		    (TelnPid) ->
+	      %% Line 778
+	      apply 'log'/5
+		  ({'state','undefined','undefined',TelnPid,'undefined',[],'false','undefined','undefined','undefined','undefined','undefined',10000,10000,3,5000}, Action, String, Args, 'false')
+	  ( <_cor7,_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'log',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'log'/3 =
+    %% Line 782
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'undefined',String,Args> when 'true' ->
+	      %% Line 783
+	      apply 'log'/5
+		  ({'state','undefined','undefined','undefined','undefined',[],'false','undefined','undefined','undefined','undefined','undefined',10000,10000,3,5000}, 'undefined', String, Args, 'false')
+	  %% Line 784
+	  <Name,String,Args>
+	      when call 'erlang':'is_atom'
+		    (Name) ->
+	      %% Line 785
+	      apply 'log'/5
+		  ({'state','undefined','undefined','undefined','undefined',[],'false',Name,'undefined','undefined','undefined','undefined',10000,10000,3,5000}, 'undefined', String, Args, 'false')
+	  %% Line 786
+	  <TelnPid,String,Args>
+	      when call 'erlang':'is_pid'
+		    (TelnPid) ->
+	      %% Line 787
+	      apply 'log'/4
+		  ({'state','undefined','undefined',TelnPid,'undefined',[],'false','undefined','undefined','undefined','undefined','undefined',10000,10000,3,5000}, 'undefined', String, Args)
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'log',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'log'/5 =
+    %% Line 791
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <{'state',Host,Port,TelnPid,_cor31,_cor32,_cor33,Name,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41},%% Line 792
+															 Action,%% Line 792
+																String,%% Line 792
+																       Args,%% Line 792
+																	    ForcePrint> when 'true' ->
+	      let <_cor5> =
+		  %% Line 793
+		  case <> of
+		    <>
+			when call 'erlang':'=:='
+			      (Name,
+			       'undefined') ->
+			call 'erlang':'get'
+			    ({'ct_telnet_pid2name',TelnPid})
+		    %% Line 794
+		    <> when 'true' ->
+			Name
+		  end
+	      in  let <Silent> =
+		      %% Line 796
+		      call 'erlang':'get'
+			  ('silent')
+		  in  %% Line 798
+		      case <> of
+			<>
+			    when call 'erlang':'=:='
+				  (Action,
+				   'general_io') ->
+			    %% Line 799
+			    case call 'ct_util':'get_testdata'
+				     ({'cth_conn_log','ct_telnet'}) of
+			      %% Line 800
+			      <HookMode>
+				  when try
+					let <_cor8> =
+					    call 'erlang':'=/='
+						(HookMode, 'undefined')
+					in  let <_cor9> =
+						call 'erlang':'=/='
+						    (HookMode, 'silent')
+					    in  let <_cor10> =
+						    %% Line 801
+						    call 'erlang':'=/='
+							(Silent, 'true')
+						in  let <_cor11> =
+							call 'erlang':'and'
+							    (_cor9, _cor10)
+						    in  call 'erlang':'and'
+							    (_cor8, _cor11)
+				    of <Try> ->
+					Try
+				    catch <T,R> ->
+					'false' ->
+				  let <_cor12> =
+				      %% Line 803
+				      call 'erlang':'self'
+					  ()
+				  in  %% Line 802
+				      call 'error_logger':'info_report'
+					  ({'conn_log','false',_cor12,_cor5,%% Line 805
+									    {Host,Port},%% Line 804
+											TelnPid,%% Line 807
+												Action,%% Line 808
+												       'ct_telnet'}, %% Line 809
+														     {String,Args})
+			      %% Line 810
+			      <_cor42> when 'true' ->
+				  %% Line 811
+				  'ok'
+			    end
+			%% Line 814
+			<> when 'true' ->
+			    %% Line 815
+			    case <> of
+			      <>
+				  when let <_cor14> =
+					call 'erlang':'=:='
+					    (Action, 'open')
+				    in  let <_cor15> =
+					    call 'erlang':'=:='
+						(Action, 'close')
+					in  let <_cor16> =
+						call 'erlang':'=:='
+						    (Action, 'reconnect')
+					    in  let <_cor17> =
+						    %% Line 816
+						    call 'erlang':'=:='
+							(Action, 'info')
+						in  let <_cor18> =
+							%% Line 816
+							call 'erlang':'=:='
+							    (Action, 'error')
+						    in  let <_cor19> =
+							    %% Line 816
+							    call 'erlang':'or'
+								(_cor17, _cor18)
+							in  let <_cor20> =
+								call 'erlang':'or'
+								    (_cor16, _cor19)
+							    in  let <_cor21> =
+								    call 'erlang':'or'
+									(_cor15, _cor20)
+								in  call 'erlang':'or'
+									(_cor14, _cor21) ->
+				  let <_cor22> =
+				      %% Line 817
+				      apply 'heading'/2
+					  (Action, _cor5)
+				  in  %% Line 817
+				      call 'ct_gen_conn':'log'
+					  (_cor22, String, Args)
+			      %% Line 819
+			      <>
+				  when call 'erlang':'=:='
+					(ForcePrint,
+					 'false') ->
+				  %% Line 820
+				  case call 'ct_util':'is_silenced'
+					   ('telnet') of
+				    %% Line 821
+				    <'true'> when 'true' ->
+					%% Line 822
+					'ok'
+				    %% Line 823
+				    <'false'> when 'true' ->
+					%% Line 824
+					call 'ct_gen_conn':'cont_log'
+					    (String, Args)
+				    ( <_cor23> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor23})
+				      -| ['compiler_generated'] )
+				  end
+			      %% Line 827
+			      <>
+				  when call 'erlang':'=:='
+					(ForcePrint,
+					 'true') ->
+				  %% Line 828
+				  case call 'ct_util':'is_silenced'
+					   ('telnet') of
+				    %% Line 829
+				    <'true'> when 'true' ->
+					let <_cor24> =
+					    %% Line 833
+					    apply 'heading'/2
+						(Action, _cor5)
+					in  %% Line 833
+					    call 'ct_gen_conn':'log'
+						(_cor24, String, Args)
+				    %% Line 834
+				    <'false'> when 'true' ->
+					%% Line 835
+					call 'ct_gen_conn':'cont_log'
+					    (String, Args)
+				    ( <_cor25> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor25})
+				      -| ['compiler_generated'] )
+				  end
+			      ( <> when 'true' ->
+				    primop 'match_fail'
+					('if_clause')
+				-| ['compiler_generated'] )
+			    end
+		      end
+	  ( <_cor30,_cor29,_cor28,_cor27,_cor26> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor30,_cor29,_cor28,_cor27,_cor26})
+		  -| [{'function_name',{'log',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'start_gen_log'/1 =
+    %% Line 842
+    fun (_cor0) ->
+	%% Line 844
+	case call 'ct_util':'is_silenced'
+		 ('telnet') of
+	  %% Line 845
+	  <'true'> when 'true' ->
+	      'ok'
+	  %% Line 846
+	  <'false'> when 'true' ->
+	      call 'ct_gen_conn':'start_log'
+		  (_cor0)
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'end_gen_log'/0 =
+    %% Line 851
+    fun () ->
+	%% Line 853
+	case call 'ct_util':'is_silenced'
+		 ('telnet') of
+	  %% Line 854
+	  <'true'> when 'true' ->
+	      'ok'
+	  %% Line 855
+	  <'false'> when 'true' ->
+	      call 'ct_gen_conn':'end_log'
+		  ()
+	  ( <_cor0> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor0})
+	    -| ['compiler_generated'] )
+	end
+'debug_cont_gen_log'/2 =
+    %% Line 860
+    fun (_cor1,_cor0) ->
+	let <Old> =
+	    %% Line 861
+	    call 'erlang':'put'
+		('silent', 'true')
+	in  do  %% Line 862
+		call 'ct_gen_conn':'cont_log'
+		    (_cor1, _cor0)
+		%% Line 863
+		call 'erlang':'put'
+		    ('silent', Old)
+'format_data'/2 =
+    %% Line 866
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_How,{String,Args}> when 'true' ->
+	      %% Line 867
+	      call 'io_lib':'format'
+		  (String, Args)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'format_data',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'teln_cmd'/4 =
+    %% Line 871
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 872
+	    call 'ct_telnet_client':'send_data'
+		(_cor3, _cor2)
+	    %% Line 873
+	    apply 'teln_receive_until_prompt'/3
+		(_cor3, _cor1, _cor0)
+'teln_get_all_data'/5 =
+    %% Line 875
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 876
+	    call 'erlang':'++'
+		(_cor0, _cor2)
+	in  %% Line 876
+	    case apply 'check_for_prompt'/2
+		     (_cor3, _cor5) of
+	      %% Line 877
+	      <{'prompt',Lines,_X_PromptType,Rest}> when 'true' ->
+		  %% Line 878
+		  apply 'teln_get_all_data'/5
+		      (_cor4, _cor3, Rest, [Lines|_cor1], [])
+	      %% Line 879
+	      <{'noprompt',Lines,LastLine1}> when 'true' ->
+		  %% Line 880
+		  case call 'ct_telnet_client':'get_data'
+			   (_cor4) of
+		    %% Line 881
+		    <{'ok',[]}> when 'true' ->
+			let <_cor6> =
+			    %% Line 882
+			    call 'lists':'append'
+				([Lines|_cor1])
+			in  let <_cor7> =
+				%% Line 882
+				call 'lists':'reverse'
+				    (_cor6)
+			    in  %% Line 882
+				{'ok',_cor7,LastLine1}
+		    %% Line 883
+		    <{'ok',Data1}> when 'true' ->
+			%% Line 884
+			apply 'teln_get_all_data'/5
+			    (_cor4, _cor3, Data1, [Lines|_cor1], LastLine1)
+		    ( <_cor8> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor8})
+		      -| ['compiler_generated'] )
+		  end
+	      ( <_cor9> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor9})
+		-| ['compiler_generated'] )
+	    end
+'silent_teln_expect'/6 =
+    %% Line 903
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <Old> =
+	    %% Line 904
+	    call 'erlang':'put'
+		('silent', 'true')
+	in  let <Result> =
+		%% Line 905
+		apply 'teln_expect'/6
+		    (_cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+	    in  do  %% Line 906
+		    call 'erlang':'put'
+			('silent', Old)
+		    %% Line 907
+		    Result
+'teln_expect'/6 =
+    %% Line 921
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor8> =
+	    %% Line 923
+	    case apply 'get_ignore_prompt'/1
+		     (_cor0) of
+	      %% Line 924
+	      <'true'> when 'true' ->
+		  %% Line 925
+		  apply 'get_haltpatterns'/1
+		      (_cor0)
+	      %% Line 926
+	      <'false'> when 'true' ->
+		  let <_cor6> =
+		      %% Line 927
+		      apply 'get_haltpatterns'/1
+			  (_cor0)
+		  in  %% Line 927
+		      ['prompt'|_cor6]
+	      ( <_cor7> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor7})
+		-| ['compiler_generated'] )
+	    end
+	in  let <PromptCheck> =
+		%% Line 930
+		apply 'get_prompt_check'/1
+		    (_cor0)
+	    in  let <Seq> =
+		    %% Line 931
+		    apply 'get_seq'/1
+			(_cor0)
+		in  let <Pattern> =
+			%% Line 932
+			apply 'convert_pattern'/2
+			    (_cor2, Seq)
+		    in  %% Line 934
+			case apply 'get_timeouts'/1
+				 (_cor0) of
+			  <{IdleTimeout,TotalTimeout}> when 'true' ->
+			      let <EO> =
+				  %% Line 936
+				  {'eo',_cor4,_cor1,%% Line 938
+						    IdleTimeout,%% Line 939
+								TotalTimeout,_cor8,%% Line 940
+										   Seq,'false','false',%% Line 942
+												       PromptCheck}
+			      in  %% Line 944
+				  case apply 'get_repeat'/1
+					   (_cor0) of
+				    %% Line 945
+				    <'false'> when 'true' ->
+					%% Line 946
+					case apply 'teln_expect1'/6
+						 (_cor5, _cor4, _cor3, Pattern, [], EO) of
+					  %% Line 947
+					  <{'ok',Matched,Rest}> when 'true' ->
+					      %% Line 948
+					      {'ok',Matched,Rest}
+					  %% Line 949
+					  <{'halt',Why,Rest}> when 'true' ->
+					      %% Line 950
+					      {'error',Why,Rest}
+					  %% Line 951
+					  <{'error',Reason}> when 'true' ->
+					      %% Line 952
+					      {'error',Reason}
+					  ( <_cor15> when 'true' ->
+						primop 'match_fail'
+						    ({'case_clause',_cor15})
+					    -| ['compiler_generated'] )
+					end
+				    %% Line 954
+				    <N> when 'true' ->
+					%% Line 955
+					case EO of
+					  <{'eo',_cor27,_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35}> when 'true' ->
+					      let <_cor18> =
+						  call 'erlang':'setelement'
+						      (8, EO, N)
+					      in  %% Line 956
+						  apply 'repeat_expect'/6
+						      (_cor5, _cor4, _cor3, Pattern, [], _cor18)
+					  ( <_cor36> when 'true' ->
+						( call ( 'erlang'
+							 -| ['compiler_generated'] ):( 'error'
+										       -| ['compiler_generated'] )
+						      (( {'badrecord','eo'}
+							 -| ['compiler_generated'] ))
+						  -| ['compiler_generated'] )
+					    -| ['compiler_generated'] )
+					end
+				  end
+			  ( <_cor13> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor13})
+			    -| ['compiler_generated'] )
+			end
+'convert_pattern'/2 =
+    %% Line 959
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Pattern,Seq>
+	      when %% Line 960
+		try
+		    let <_cor2> =
+			call 'erlang':'is_list'
+			    (Pattern)
+		    in  let <_cor3> =
+			    call 'erlang':'hd'
+				(Pattern)
+			in  let <_cor4> =
+				call 'erlang':'is_integer'
+				    (_cor3)
+			    in  let <_cor5> =
+				    call 'erlang':'not'
+					(_cor4)
+				in  call 'erlang':'and'
+					(_cor2, _cor5)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 961
+	      case Seq of
+		%% Line 962
+		<'true'> when 'true' ->
+		    Pattern
+		%% Line 963
+		<'false'> when 'true' ->
+		    apply 'rm_dupl'/2
+			(Pattern, [])
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 965
+	  <Pattern,_X_Seq> when 'true' ->
+	      %% Line 966
+	      [Pattern|[]]
+	end
+'rm_dupl'/2 =
+    %% Line 968
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[P|Ps],Acc> when 'true' ->
+	      %% Line 969
+	      case call 'lists':'member'
+		       (P, Acc) of
+		%% Line 970
+		<'true'> when 'true' ->
+		    %% Line 971
+		    apply 'rm_dupl'/2
+			(Ps, Acc)
+		%% Line 972
+		<'false'> when 'true' ->
+		    %% Line 973
+		    apply 'rm_dupl'/2
+			(Ps, [P|Acc])
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 975
+	  <[],Acc> when 'true' ->
+	      %% Line 976
+	      call 'lists':'reverse'
+		  (Acc)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'rm_dupl',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_timeouts'/1 =
+    %% Line 978
+    fun (_cor0) ->
+	let <_cor5> =
+	    %% Line 979
+	    case call 'lists':'keysearch'
+		     ('idle_timeout', 1, _cor0) of
+	      %% Line 980
+	      <{'value',{_cor7,T}}> when 'true' ->
+		  %% Line 981
+		  T
+	      %% Line 982
+	      <'false'> when 'true' ->
+		  %% Line 984
+		  case call 'lists':'keysearch'
+			   ('timeout', 1, _cor0) of
+		    %% Line 985
+		    <{'value',{_cor8,T}}> when 'true' ->
+			T
+		    %% Line 986
+		    <'false'> when 'true' ->
+			10000
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor4})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor2> =
+		%% Line 989
+		case call 'lists':'keysearch'
+			 ('total_timeout', 1, _cor0) of
+		  %% Line 990
+		  <{'value',{_cor9,T}}> when 'true' ->
+		      T
+		  %% Line 991
+		  <'false'> when 'true' ->
+		      'infinity'
+		  ( <_cor1> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor1})
+		    -| ['compiler_generated'] )
+		end
+	    in  %% Line 979
+		{_cor5,_cor2}
+'get_repeat'/1 =
+    %% Line 994
+    fun (_cor0) ->
+	%% Line 995
+	case call 'lists':'keysearch'
+		 ('repeat', 1, _cor0) of
+	  %% Line 996
+	  <{'value',{'repeat',N}}>
+	      when call 'erlang':'is_integer'
+		    (N) ->
+	      %% Line 997
+	      N
+	  %% Line 998
+	  <'false'> when 'true' ->
+	      %% Line 999
+	      case call 'lists':'member'
+		       ('repeat', _cor0) of
+		%% Line 1000
+		<'true'> when 'true' ->
+		    -1
+		%% Line 1002
+		<'false'> when 'true' ->
+		    %% Line 1003
+		    'false'
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'get_seq'/1 =
+    %% Line 1006
+    fun (_cor0) ->
+	%% Line 1007
+	call 'lists':'member'
+	    ('sequence', _cor0)
+'get_haltpatterns'/1 =
+    %% Line 1008
+    fun (_cor0) ->
+	%% Line 1009
+	case call 'lists':'keysearch'
+		 ('halt', 1, _cor0) of
+	  %% Line 1010
+	  <{'value',{'halt',HaltPatterns}}> when 'true' ->
+	      %% Line 1011
+	      apply 'convert_pattern'/2
+		  (HaltPatterns, 'false')
+	  %% Line 1012
+	  <'false'> when 'true' ->
+	      %% Line 1013
+	      []
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'get_ignore_prompt'/1 =
+    %% Line 1015
+    fun (_cor0) ->
+	%% Line 1016
+	call 'lists':'member'
+	    ('ignore_prompt', _cor0)
+'get_prompt_check'/1 =
+    %% Line 1017
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 1018
+	    call 'lists':'member'
+		('no_prompt_check', _cor0)
+	in  %% Line 1018
+	    call 'erlang':'not'
+		(_cor1)
+'repeat_expect'/6 =
+    %% Line 1022
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <_X_Name,_X_Pid,Rest,_X_Pattern,Acc,{'eo',_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,0,_cor28,_cor29}> when 'true' ->
+	      let <_cor6> =
+		  %% Line 1023
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  %% Line 1023
+		  {'ok',_cor6,'done',Rest}
+	  %% Line 1024
+	  <Name,Pid,Data,Pattern,Acc,EO> when 'true' ->
+	      %% Line 1025
+	      case apply 'teln_expect1'/6
+		       (Name, Pid, Data, Pattern, [], EO) of
+		%% Line 1026
+		<{'ok',Matched,Rest}> when 'true' ->
+		    %% Line 1027
+		    ( case EO of
+			( <( {'eo',_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_rec79,_cor36,_cor37}
+			     -| ['compiler_generated'] )> when 'true' ->
+			      let <_rec77> =
+				  call 'erlang':'-'
+				      (_rec79, 1)
+			      in  let <_cor12> =
+				      call 'erlang':'setelement'
+					  (8, EO, _rec77)
+				  in  %% Line 1028
+				      apply 'repeat_expect'/6
+					  (Name, Pid, Rest, Pattern, [Matched|Acc], _cor12)
+			  -| ['compiler_generated'] )
+			( <_cor38> when 'true' ->
+			      ( call ( 'erlang'
+				       -| ['compiler_generated'] ):( 'error'
+								     -| ['compiler_generated'] )
+				    (( {'badrecord','eo'}
+				       -| ['compiler_generated'] ))
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+		      end
+		      -| ['compiler_generated'] )
+		%% Line 1029
+		<{'halt',Why,Rest}> when 'true' ->
+		    let <_cor14> =
+			%% Line 1030
+			call 'lists':'reverse'
+			    (Acc)
+		    in  %% Line 1030
+			{'ok',_cor14,Why,Rest}
+		%% Line 1031
+		<{'error',Reason}> when 'true' ->
+		    %% Line 1032
+		    {'error',Reason}
+		( <_cor15> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor15})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'teln_expect1'/6 =
+    %% Line 1035
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Name,Pid,Data,Pattern,Acc,EO = {'eo',_cor35,_cor36,IdleTO,%% Line 1036
+								     TotalTO,_cor37,_cor38,_cor39,_cor40,_cor41}> when 'true' ->
+	      let <_cor9> =
+		  %% Line 1037
+		  case _cor38 of
+		    %% Line 1038
+		    <'true'> when 'true' ->
+			( fun () ->
+			      %% Line 1039
+			      apply 'seq_expect'/6
+				  (Name, Pid, Data, Pattern, Acc, EO)
+			  -| [{'id',{0,0,'-teln_expect1/6-fun-0-'}}] )
+		    %% Line 1041
+		    <'false'> when 'true' ->
+			( fun () ->
+			      %% Line 1042
+			      apply 'one_expect'/5
+				  (Name, Pid, Data, Pattern, EO)
+			  -| [{'id',{0,0,'-teln_expect1/6-fun-1-'}}] )
+		    ( <_cor8> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor8})
+		      -| ['compiler_generated'] )
+		  end
+	      in  %% Line 1045
+		  case apply _cor9
+			   () of
+		    %% Line 1046
+		    <{'match',Match,Rest}> when 'true' ->
+			%% Line 1047
+			{'ok',Match,Rest}
+		    %% Line 1048
+		    <{'halt',Why,Rest}> when 'true' ->
+			%% Line 1049
+			{'halt',Why,Rest}
+		    %% Line 1050
+		    <NotFinished> when 'true' ->
+			let <Fun> =
+			    %% Line 1052
+			    ( fun () ->
+				  apply 'get_data1'/1
+				      (_cor35)
+			      -| [{'id',{0,0,'-teln_expect1/6-fun-2-'}}] )
+			in  %% Line 1053
+			    case call 'timer':'tc'
+				     ('ct_gen_conn', 'do_within_time', [Fun|[IdleTO|[]]]) of
+			      %% Line 1054
+			      <{_cor60,{'error',Reason}}> when 'true' ->
+				  %% Line 1057
+				  {'error',Reason}
+			      %% Line 1058
+			      <{_cor61,{'ok',Data1}}>
+				  when call 'erlang':'=:='
+					(TotalTO,
+					 'infinity') ->
+				  %% Line 1059
+				  case NotFinished of
+				    %% Line 1060
+				    <{'nomatch',Rest}> when 'true' ->
+					let <_cor14> =
+					    %% Line 1062
+					    call 'erlang':'++'
+						(Rest, Data1)
+					in  %% Line 1062
+					    apply 'teln_expect1'/6
+						(Name, Pid, _cor14, Pattern, [], EO)
+				    %% Line 1063
+				    <{'continue',Patterns1,Acc1,Rest}> when 'true' ->
+					let <_cor15> =
+					    %% Line 1065
+					    call 'erlang':'++'
+						(Rest, Data1)
+					in  %% Line 1065
+					    apply 'teln_expect1'/6
+						(Name, Pid, _cor15, Patterns1, Acc1, EO)
+				    ( <_cor16> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor16})
+				      -| ['compiler_generated'] )
+				  end
+			      %% Line 1067
+			      <{Elapsed,{'ok',Data1}}> when 'true' ->
+				  let <_cor17> =
+				      %% Line 1068
+				      call 'erlang':'/'
+					  (Elapsed, 1000)
+				  in  let <_cor18> =
+					  %% Line 1068
+					  call 'erlang':'-'
+					      (TotalTO, _cor17)
+				      in  let <TVal> =
+					      %% Line 1068
+					      call 'erlang':'trunc'
+						  (_cor18)
+					  in  %% Line 1069
+					      case <> of
+						<>
+						    when call 'erlang':'=<'
+							  (TVal,
+							   0) ->
+						    %% Line 1070
+						    {'error','timeout'}
+						%% Line 1071
+						<> when 'true' ->
+						    let <_cor22> =
+							%% Line 1072
+							call 'erlang':'setelement'
+							    (5, EO, TVal)
+						    in  %% Line 1073
+							case NotFinished of
+							  %% Line 1074
+							  <{'nomatch',Rest}> when 'true' ->
+							      let <_cor24> =
+								  %% Line 1076
+								  call 'erlang':'++'
+								      (Rest, Data1)
+							      in  %% Line 1076
+								  apply 'teln_expect1'/6
+								      (Name, Pid, _cor24, Pattern, [], _cor22)
+							  %% Line 1077
+							  <{'continue',Patterns1,Acc1,Rest}> when 'true' ->
+							      let <_cor25> =
+								  %% Line 1079
+								  call 'erlang':'++'
+								      (Rest, Data1)
+							      in  %% Line 1079
+								  apply 'teln_expect1'/6
+								      (Name, Pid, _cor25, Patterns1, Acc1, _cor22)
+							  ( <_cor26> when 'true' ->
+								primop 'match_fail'
+								    ({'case_clause',_cor26})
+							    -| ['compiler_generated'] )
+							end
+					      end
+			      ( <_cor27> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor27})
+				-| ['compiler_generated'] )
+			    end
+		  end
+	  ( <_cor34,_cor33,_cor32,_cor31,_cor30,_cor29> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor34,_cor33,_cor32,_cor31,_cor30,_cor29})
+		  -| [{'function_name',{'teln_expect1',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_data1'/1 =
+    %% Line 1085
+    fun (_cor0) ->
+	%% Line 1086
+	case call 'ct_telnet_client':'get_data'
+		 (_cor0) of
+	  %% Line 1087
+	  <{'ok',[]}> when 'true' ->
+	      %% Line 1088
+	      apply 'get_data1'/1
+		  (_cor0)
+	  %% Line 1089
+	  <{'ok',Data}> when 'true' ->
+	      %% Line 1090
+	      {'ok',Data}
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'one_expect'/5 =
+    %% Line 1100
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Name,Pid,Data,Pattern,EO = {'eo',_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45}>
+	      when call 'erlang':'=:='
+		    (_cor45,
+		     'false') ->
+	      let <_cor13> =
+		  %% Line 1102
+		  call 'erlang':'setelement'
+		      (9, EO, 'false')
+	      in  %% Line 1102
+		  apply 'one_expect1'/6
+		      (Name, Pid, Data, Pattern, [], _cor13)
+	  %% Line 1103
+	  <Name,Pid,Data,Pattern,EO> when 'true' ->
+	      %% Line 1104
+	      ( case EO of
+		  ( <( {'eo',_cor56,_rec84,_cor57,_cor58,_cor59,_cor60,_cor61,_cor62,_cor63}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case apply 'match_prompt'/2
+				 (Data, _rec84) of
+			  %% Line 1105
+			  <{'prompt',UptoPrompt,PromptType,Rest}> when 'true' ->
+			      %% Line 1106
+			      case Pattern of
+				%% Line 1107
+				<[Prompt|[]]>
+				    when let <_cor16> =
+					  call 'erlang':'=:='
+					      (Prompt, 'prompt')
+				      in  let <_cor17> =
+					      call 'erlang':'=='
+						  (Prompt, {'prompt',PromptType})
+					  in  call 'erlang':'or'
+						  (_cor16, _cor17) ->
+				    do  %% Line 1109
+					apply 'log_lines'/3
+					    (Name, Pid, UptoPrompt)
+					let <_cor18> =
+					    %% Line 1110
+					    apply 'name_or_pid'/2
+						(Name, Pid)
+					in  do  %% Line 1110
+						apply 'log'/3
+						    (_cor18, [80|[82|[79|[77|[80|[84|[58|[32|[126|[116|[115]]]]]]]]]]], [PromptType|[]])
+						%% Line 1111
+						{'match',{'prompt',PromptType},Rest}
+				%% Line 1112
+				<[{'prompt',_X_OtherPromptType}|[]]> when 'true' ->
+				    do  %% Line 1114
+					apply 'log_lines'/3
+					    (Name, Pid, UptoPrompt)
+					%% Line 1115
+					{'nomatch',Rest}
+				%% Line 1116
+				<_cor65> when 'true' ->
+				    let <_cor21> =
+					%% Line 1118
+					call 'erlang':'setelement'
+					    (9, EO, PromptType)
+				    in  %% Line 1117
+					apply 'one_expect1'/6
+					    (Name, Pid, UptoPrompt, Pattern, Rest, _cor21)
+			      end
+			  %% Line 1120
+			  <'noprompt'> when 'true' ->
+			      %% Line 1121
+			      case Pattern of
+				%% Line 1122
+				<[Prompt|[]]>
+				    when let <_cor23> =
+					  call 'erlang':'=:='
+					      (Prompt, 'prompt')
+				      in  let <_cor25> =
+					      try
+						  let <_cor24> =
+						      call 'erlang':'element'
+							  (1, Prompt)
+						  in  call 'erlang':'=:='
+							  (_cor24, 'prompt')
+					      of <Try> ->
+						  Try
+					      catch <T,R> ->
+						  'false'
+					  in  call 'erlang':'or'
+						  (_cor23, _cor25) ->
+				    let <LastLine> =
+					%% Line 1124
+					apply 'log_lines_not_last'/3
+					    (Name, Pid, Data)
+				    in  %% Line 1125
+					{'nomatch',LastLine}
+				%% Line 1126
+				<_cor76> when 'true' ->
+				    let <_cor29> =
+					%% Line 1128
+					call 'erlang':'setelement'
+					    (9, EO, 'false')
+				    in  %% Line 1127
+					apply 'one_expect1'/6
+					    (Name, Pid, Data, Pattern, [], _cor29)
+			      end
+			  ( <_cor31> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor31})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor64> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','eo'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	end
+'one_expect1'/6 =
+    %% Line 1133
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 1134
+	case apply 'match_lines'/5
+		 (_cor5, _cor4, _cor3, _cor2, _cor0) of
+	  %% Line 1135
+	  <{'match',Match,MatchRest}> when 'true' ->
+	      let <_cor6> =
+		  %% Line 1136
+		  call 'erlang':'++'
+		      (MatchRest, _cor1)
+	      in  %% Line 1136
+		  {'match',Match,_cor6}
+	  %% Line 1137
+	  <{'nomatch','prompt'}> when 'true' ->
+	      %% Line 1138
+	      apply 'one_expect'/5
+		  (_cor5, _cor4, _cor1, _cor2, _cor0)
+	  %% Line 1139
+	  <{'nomatch',NoMatchRest}> when 'true' ->
+	      let <_cor7> =
+		  %% Line 1140
+		  call 'erlang':'++'
+		      (NoMatchRest, _cor1)
+	      in  %% Line 1140
+		  {'nomatch',_cor7}
+	  %% Line 1141
+	  <{'halt',Why,HaltRest}> when 'true' ->
+	      let <_cor8> =
+		  %% Line 1142
+		  call 'erlang':'++'
+		      (HaltRest, _cor1)
+	      in  %% Line 1142
+		  {'halt',Why,_cor8}
+	  ( <_cor9> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor9})
+	    -| ['compiler_generated'] )
+	end
+'seq_expect'/6 =
+    %% Line 1155
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <_X_Name,_X_Pid,Data,[],Acc,_X_EO> when 'true' ->
+	      let <_cor6> =
+		  %% Line 1156
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  %% Line 1156
+		  {'match',_cor6,Data}
+	  %% Line 1157
+	  <_X_Name,_X_Pid,[],Patterns,Acc,_X_EO> when 'true' ->
+	      let <_cor7> =
+		  %% Line 1158
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  %% Line 1158
+		  {'continue',Patterns,_cor7,[]}
+	  %% Line 1159
+	  <Name,Pid,Data,Patterns,Acc,EO = {'eo',_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40}>
+	      when call 'erlang':'=:='
+		    (_cor40,
+		     'false') ->
+	      let <_cor16> =
+		  %% Line 1160
+		  call 'erlang':'setelement'
+		      (9, EO, 'false')
+	      in  %% Line 1160
+		  apply 'seq_expect1'/7
+		      (Name, Pid, Data, Patterns, Acc, [], _cor16)
+	  %% Line 1161
+	  <Name,Pid,Data,Patterns,Acc,EO> when 'true' ->
+	      %% Line 1162
+	      ( case EO of
+		  ( <( {'eo',_cor51,_rec88,_cor52,_cor53,_cor54,_cor55,_cor56,_cor57,_cor58}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case apply 'match_prompt'/2
+				 (Data, _rec88) of
+			  %% Line 1163
+			  <{'prompt',UptoPrompt,PromptType,Rest}> when 'true' ->
+			      let <_cor21> =
+				  %% Line 1165
+				  call 'erlang':'setelement'
+				      (9, EO, PromptType)
+			      in  %% Line 1164
+				  apply 'seq_expect1'/7
+				      (Name, Pid, UptoPrompt, Patterns, Acc, Rest, _cor21)
+			  %% Line 1166
+			  <'noprompt'> when 'true' ->
+			      let <_cor24> =
+				  %% Line 1167
+				  call 'erlang':'setelement'
+				      (9, EO, 'false')
+			      in  %% Line 1167
+				  apply 'seq_expect1'/7
+				      (Name, Pid, Data, Patterns, Acc, [], _cor24)
+			  ( <_cor25> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor25})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor59> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','eo'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	end
+'seq_expect1'/7 =
+    %% Line 1172
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Name,Pid,Data,['prompt'|Patterns],Acc,Rest,EO> when 'true' ->
+	      %% Line 1173
+	      ( case EO of
+		  ( <( {'eo',_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_rec91,_cor35}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case _rec91 of
+			  %% Line 1174
+			  <'false'> when 'true' ->
+			      let <LastLine> =
+				  %% Line 1175
+				  apply 'log_lines_not_last'/3
+				      (Name, Pid, Data)
+			      in  %% Line 1177
+				  {'continue',['prompt'|Patterns],Acc,LastLine}
+			  %% Line 1178
+			  <PromptType> when 'true' ->
+			      do  %% Line 1179
+				  apply 'log_lines'/3
+				      (Name, Pid, Data)
+				  let <_cor10> =
+				      %% Line 1180
+				      apply 'name_or_pid'/2
+					  (Name, Pid)
+				  in  do  %% Line 1180
+					  apply 'log'/3
+					      (_cor10, [80|[82|[79|[77|[80|[84|[58|[32|[126|[116|[115]]]]]]]]]]], [PromptType|[]])
+					  %% Line 1181
+					  apply 'seq_expect'/6
+					      (Name, Pid, Rest, Patterns, [{'prompt',PromptType}|Acc], EO)
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor36> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','eo'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 1183
+	  <Name,Pid,Data,[{'prompt',PromptType}|Patterns],Acc,Rest,EO> when 'true' ->
+	      %% Line 1184
+	      ( case EO of
+		  ( <( {'eo',_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_rec92,_cor44}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case _rec92 of
+			  %% Line 1185
+			  <'false'> when 'true' ->
+			      let <LastLine> =
+				  %% Line 1186
+				  apply 'log_lines_not_last'/3
+				      (Name, Pid, Data)
+			      in  %% Line 1188
+				  {'continue',[{'prompt',PromptType}|Patterns],Acc,LastLine}
+			  %% Line 1189
+			  <_cor46>
+			      when call 'erlang':'=:='
+				    (_rec92,
+				     PromptType) ->
+			      do  %% Line 1190
+				  apply 'log_lines'/3
+				      (Name, Pid, Data)
+				  let <_cor15> =
+				      %% Line 1191
+				      apply 'name_or_pid'/2
+					  (Name, Pid)
+				  in  do  %% Line 1191
+					  apply 'log'/3
+					      (_cor15, [80|[82|[79|[77|[80|[84|[58|[32|[126|[116|[115]]]]]]]]]]], [PromptType|[]])
+					  %% Line 1192
+					  apply 'seq_expect'/6
+					      (Name, Pid, Rest, Patterns, [{'prompt',PromptType}|Acc], EO)
+			  %% Line 1193
+			  <_X_OtherPromptType> when 'true' ->
+			      do  %% Line 1194
+				  apply 'log_lines'/3
+				      (Name, Pid, Data)
+				  %% Line 1195
+				  apply 'seq_expect'/6
+				      (Name, Pid, Rest, [{'prompt',PromptType}|Patterns], Acc, EO)
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor45> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','eo'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 1197
+	  <Name,Pid,Data,[Pattern|Patterns],Acc,Rest,EO> when 'true' ->
+	      %% Line 1198
+	      case apply 'match_lines'/5
+		       (Name, Pid, Data, [Pattern|[]], EO) of
+		%% Line 1199
+		<{'match',Match,MatchRest}> when 'true' ->
+		    %% Line 1200
+		    apply 'seq_expect1'/7
+			(Name, Pid, MatchRest, Patterns, [Match|Acc], Rest, EO)
+		%% Line 1201
+		<{'nomatch','prompt'}> when 'true' ->
+		    %% Line 1202
+		    apply 'seq_expect'/6
+			(Name, Pid, Rest, [Pattern|Patterns], Acc, EO)
+		%% Line 1203
+		<{'nomatch',NoMatchRest}>
+		    when call 'erlang':'=:='
+			  (Rest,
+			   []) ->
+		    %% Line 1205
+		    {'continue',[Pattern|Patterns],Acc,NoMatchRest}
+		%% Line 1206
+		<{'halt',Why,HaltRest}> when 'true' ->
+		    let <_cor17> =
+			%% Line 1207
+			call 'erlang':'++'
+			    (HaltRest, Rest)
+		    in  %% Line 1207
+			{'halt',Why,_cor17}
+		( <_cor18> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor18})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1209
+	  <_X_Name,_X_Pid,Data,[],Acc,Rest,_X_EO> when 'true' ->
+	      let <_cor20> =
+		  %% Line 1210
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  let <_cor19> =
+		      %% Line 1210
+		      call 'erlang':'++'
+			  (Data, Rest)
+		  in  %% Line 1210
+		      {'match',_cor20,_cor19}
+	  ( <_cor27,_cor26,_cor25,_cor24,_cor23,_cor22,_cor21> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor27,_cor26,_cor25,_cor24,_cor23,_cor22,_cor21})
+		  -| [{'function_name',{'seq_expect1',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'match_lines'/5 =
+    %% Line 1213
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 1214
+	( case _cor0 of
+	    ( <( {'eo',_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_rec93,_cor30}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  %% Line 1215
+		  case apply 'one_line'/2
+			   (_cor2, []) of
+		    %% Line 1216
+		    <{'noline',Rest}>
+			when call 'erlang':'=/='
+			      (_rec93,
+			       'false') ->
+			%% Line 1218
+			case apply 'match_line'/6
+				 (_cor4, _cor3, Rest, _cor1, _rec93, _cor0) of
+			  %% Line 1219
+			  <'nomatch'> when 'true' ->
+			      %% Line 1220
+			      {'nomatch','prompt'}
+			  %% Line 1221
+			  <{Tag,Match}> when 'true' ->
+			      %% Line 1222
+			      {Tag,Match,[]}
+			  ( <_cor8> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor8})
+			    -| ['compiler_generated'] )
+			end
+		    %% Line 1224
+		    <{'noline',Rest}>
+			when ( call 'erlang':'=:='
+				(_cor30,
+				 'false')
+			    -| ['compiler_generated'] ) ->
+			%% Line 1225
+			case apply 'match_line'/6
+				 (_cor4, _cor3, Rest, _cor1, 'false', _cor0) of
+			  %% Line 1226
+			  <'nomatch'> when 'true' ->
+			      %% Line 1227
+			      {'nomatch',Rest}
+			  %% Line 1228
+			  <{Tag,Match}> when 'true' ->
+			      %% Line 1229
+			      {Tag,Match,[]}
+			  ( <_cor15> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor15})
+			    -| ['compiler_generated'] )
+			end
+		    %% Line 1231
+		    <{'noline',Rest}> when 'true' ->
+			%% Line 1232
+			{'nomatch',Rest}
+		    %% Line 1233
+		    <{Line,Rest}> when 'true' ->
+			%% Line 1234
+			case apply 'match_line'/6
+				 (_cor4, _cor3, Line, _cor1, 'false', _cor0) of
+			  %% Line 1235
+			  <'nomatch'> when 'true' ->
+			      %% Line 1236
+			      apply 'match_lines'/5
+				  (_cor4, _cor3, Rest, _cor1, _cor0)
+			  %% Line 1237
+			  <{Tag,Match}> when 'true' ->
+			      %% Line 1238
+			      {Tag,Match,Rest}
+			  ( <_cor16> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor16})
+			    -| ['compiler_generated'] )
+			end
+		    ( <_cor17> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor17})
+		      -| ['compiler_generated'] )
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor31> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','eo'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'match_line'/6 =
+    %% Line 1244
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 1245
+	apply 'match_line'/7
+	    (_cor5, _cor4, _cor3, _cor2, _cor1, _cor0, 'match')
+'match_line'/7 =
+    %% Line 1247
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Name,Pid,Line,['prompt'|Patterns],'false',EO,RetTag> when 'true' ->
+	      %% Line 1248
+	      apply 'match_line'/7
+		  (Name, Pid, Line, Patterns, 'false', EO, RetTag)
+	  %% Line 1249
+	  <Name,Pid,Line,['prompt'|_X_Patterns],FoundPrompt,_X_EO,RetTag> when 'true' ->
+	      let <_cor7> =
+		  %% Line 1250
+		  apply 'name_or_pid'/2
+		      (Name, Pid)
+	      in  do  %% Line 1250
+		      apply 'log'/3
+			  (_cor7, [32|[32|[32|[32|[32|[32|[32|[126|[116|[115]]]]]]]]]], [Line|[]])
+		      let <_cor8> =
+			  %% Line 1251
+			  apply 'name_or_pid'/2
+			      (Name, Pid)
+		      in  do  %% Line 1251
+			      apply 'log'/3
+				  (_cor8, [80|[82|[79|[77|[80|[84|[58|[32|[126|[116|[115]]]]]]]]]]], [FoundPrompt|[]])
+			      %% Line 1252
+			      {RetTag,{'prompt',FoundPrompt}}
+	  %% Line 1253
+	  <Name,Pid,Line,[{'prompt',PromptType}|_X_Patterns],FoundPrompt,_X_EO,RetTag>
+	      when %% Line 1254
+		call 'erlang':'=='
+		    (PromptType,
+		     FoundPrompt) ->
+	      let <_cor9> =
+		  %% Line 1255
+		  apply 'name_or_pid'/2
+		      (Name, Pid)
+	      in  do  %% Line 1255
+		      apply 'log'/3
+			  (_cor9, [32|[32|[32|[32|[32|[32|[32|[126|[116|[115]]]]]]]]]], [Line|[]])
+		      let <_cor10> =
+			  %% Line 1256
+			  apply 'name_or_pid'/2
+			      (Name, Pid)
+		      in  do  %% Line 1256
+			      apply 'log'/3
+				  (_cor10, [80|[82|[79|[77|[80|[84|[58|[32|[126|[116|[115]]]]]]]]]]], [FoundPrompt|[]])
+			      %% Line 1257
+			      {RetTag,{'prompt',FoundPrompt}}
+	  %% Line 1258
+	  <Name,Pid,Line,[{'prompt',PromptType}|Patterns],FoundPrompt,EO,RetTag>
+	      when %% Line 1259
+		call 'erlang':'=/='
+		    (PromptType,
+		     FoundPrompt) ->
+	      %% Line 1260
+	      apply 'match_line'/7
+		  (Name, Pid, Line, Patterns, FoundPrompt, EO, RetTag)
+	  %% Line 1261
+	  <Name,Pid,Line,[{Tag,Pattern}|Patterns],FoundPrompt,EO,RetTag> when 'true' ->
+	      %% Line 1262
+	      case call 're':'run'
+		       (Line, Pattern, [{'capture','all','list'}]) of
+		%% Line 1263
+		<'nomatch'> when 'true' ->
+		    %% Line 1264
+		    apply 'match_line'/7
+			(Name, Pid, Line, Patterns, FoundPrompt, EO, RetTag)
+		%% Line 1265
+		<{'match',Match}> when 'true' ->
+		    let <_cor11> =
+			%% Line 1266
+			apply 'name_or_pid'/2
+			    (Name, Pid)
+		    in  do  %% Line 1266
+			    apply 'log'/3
+				(_cor11, [77|[65|[84|[67|[72|[58|[32|[126|[116|[115]]]]]]]]]], [Line|[]])
+			    %% Line 1267
+			    {RetTag,{Tag,Match}}
+		( <_cor12> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor12})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1269
+	  <Name,Pid,Line,[Pattern|Patterns],FoundPrompt,EO,RetTag> when 'true' ->
+	      %% Line 1270
+	      case call 're':'run'
+		       (Line, Pattern, [{'capture','all','list'}]) of
+		%% Line 1271
+		<'nomatch'> when 'true' ->
+		    %% Line 1272
+		    apply 'match_line'/7
+			(Name, Pid, Line, Patterns, FoundPrompt, EO, RetTag)
+		%% Line 1273
+		<{'match',Match}> when 'true' ->
+		    let <_cor13> =
+			%% Line 1274
+			apply 'name_or_pid'/2
+			    (Name, Pid)
+		    in  do  %% Line 1274
+			    apply 'log'/3
+				(_cor13, [77|[65|[84|[67|[72|[58|[32|[126|[116|[115]]]]]]]]]], [Line|[]])
+			    %% Line 1275
+			    {RetTag,Match}
+		( <_cor14> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor14})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1277
+	  <Name,Pid,Line,[],FoundPrompt,EO,'match'> when 'true' ->
+	      %% Line 1278
+	      ( case EO of
+		  ( <( {'eo',_cor25,_cor26,_cor27,_cor28,_rec94,_cor29,_cor30,_cor31,_cor32}
+		       -| ['compiler_generated'] )> when 'true' ->
+			apply 'match_line'/7
+			    (Name, Pid, Line, _rec94, FoundPrompt, EO, 'halt')
+		    -| ['compiler_generated'] )
+		  ( <_cor33> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','eo'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 1279
+	  <Name,Pid,Line,[],_X_FoundPrompt,_X_EO,'halt'> when 'true' ->
+	      let <_cor17> =
+		  %% Line 1280
+		  apply 'name_or_pid'/2
+		      (Name, Pid)
+	      in  do  %% Line 1280
+		      apply 'log'/3
+			  (_cor17, [32|[32|[32|[32|[32|[32|[32|[126|[116|[115]]]]]]]]]], [Line|[]])
+		      %% Line 1281
+		      'nomatch'
+	  ( <_cor24,_cor23,_cor22,_cor21,_cor20,_cor19,_cor18> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor24,_cor23,_cor22,_cor21,_cor20,_cor19,_cor18})
+		  -| [{'function_name',{'match_line',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'one_line'/2 =
+    %% Line 1283
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[10|Rest],Line> when 'true' ->
+	      let <_cor2> =
+		  %% Line 1284
+		  call 'lists':'reverse'
+		      (Line)
+	      in  %% Line 1284
+		  {_cor2,Rest}
+	  %% Line 1285
+	  <[13|Rest],Line> when 'true' ->
+	      %% Line 1286
+	      apply 'one_line'/2
+		  (Rest, Line)
+	  %% Line 1287
+	  <[0|Rest],Line> when 'true' ->
+	      %% Line 1288
+	      apply 'one_line'/2
+		  (Rest, Line)
+	  %% Line 1289
+	  <[Char|Rest],Line> when 'true' ->
+	      %% Line 1290
+	      apply 'one_line'/2
+		  (Rest, [Char|Line])
+	  %% Line 1291
+	  <[],Line> when 'true' ->
+	      let <_cor3> =
+		  %% Line 1292
+		  call 'lists':'reverse'
+		      (Line)
+	      in  %% Line 1292
+		  {'noline',_cor3}
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'one_line',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'debug_log_lines'/1 =
+    %% Line 1294
+    fun (_cor0) ->
+	let <Old> =
+	    %% Line 1295
+	    call 'erlang':'put'
+		('silent', 'true')
+	in  do  %% Line 1296
+		apply 'log_lines'/3
+		    ('undefined', 'undefined', _cor0)
+		%% Line 1297
+		call 'erlang':'put'
+		    ('silent', Old)
+'log_lines'/3 =
+    %% Line 1299
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 1300
+	case apply 'log_lines_not_last'/3
+		 (_cor2, _cor1, _cor0) of
+	  %% Line 1301
+	  <[]> when 'true' ->
+	      %% Line 1302
+	      'ok'
+	  %% Line 1303
+	  <LastLine> when 'true' ->
+	      let <_cor3> =
+		  %% Line 1304
+		  apply 'name_or_pid'/2
+		      (_cor2, _cor1)
+	      in  %% Line 1304
+		  apply 'log'/3
+		      (_cor3, [32|[32|[32|[32|[32|[32|[32|[126|[116|[115]]]]]]]]]], [LastLine|[]])
+	end
+'log_lines_not_last'/3 =
+    %% Line 1307
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 1308
+	case apply 'add_tabs'/3
+		 (_cor0, [], []) of
+	  %% Line 1309
+	  <{[],LastLine}> when 'true' ->
+	      %% Line 1310
+	      LastLine
+	  %% Line 1311
+	  <{String1,LastLine}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 1312
+		  apply 'name_or_pid'/2
+		      (_cor2, _cor1)
+	      in  do  %% Line 1312
+		      apply 'log'/3
+			  (_cor3, [126|[116|[115]]], [String1|[]])
+		      %% Line 1313
+		      LastLine
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'name_or_pid'/2 =
+    %% Line 1316
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'undefined',Pid> when 'true' ->
+	      Pid
+	  %% Line 1317
+	  <Name,_cor4> when 'true' ->
+	      Name
+	end
+'add_tabs'/3 =
+    %% Line 1319
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[0|Rest],Acc,LastLine> when 'true' ->
+	      %% Line 1320
+	      apply 'add_tabs'/3
+		  (Rest, Acc, LastLine)
+	  %% Line 1321
+	  <[13|Rest],Acc,LastLine> when 'true' ->
+	      %% Line 1322
+	      apply 'add_tabs'/3
+		  (Rest, Acc, LastLine)
+	  %% Line 1323
+	  <[10|Rest],Acc,LastLine> when 'true' ->
+	      let <_cor3> =
+		  %% Line 1324
+		  [10|call 'erlang':'++'
+			  (LastLine, [32|[32|[32|[32|[32|[32|[32|Acc]]]]]]])]
+	      in  %% Line 1324
+		  apply 'add_tabs'/3
+		      (Rest, _cor3, [])
+	  %% Line 1325
+	  <[Ch|Rest],Acc,LastLine> when 'true' ->
+	      %% Line 1326
+	      apply 'add_tabs'/3
+		  (Rest, Acc, [Ch|LastLine])
+	  %% Line 1327
+	  <[],[10|Acc],LastLine> when 'true' ->
+	      let <_cor5> =
+		  %% Line 1328
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  let <_cor4> =
+		      %% Line 1328
+		      call 'lists':'reverse'
+			  (LastLine)
+		  in  %% Line 1328
+		      {_cor5,_cor4}
+	  %% Line 1329
+	  <[],[],LastLine> when 'true' ->
+	      let <_cor6> =
+		  %% Line 1330
+		  call 'lists':'reverse'
+		      (LastLine)
+	      in  %% Line 1330
+		  {[],_cor6}
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'add_tabs',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'teln_receive_until_prompt'/3 =
+    %% Line 1334
+    fun (_cor2,_cor1,_cor0) ->
+	let <Fun> =
+	    %% Line 1335
+	    ( fun () ->
+		  apply 'teln_receive_until_prompt'/4
+		      (_cor2, _cor1, [], [])
+	      -| [{'id',{0,0,'-teln_receive_until_prompt/3-fun-0-'}}] )
+	in  %% Line 1336
+	    call 'ct_gen_conn':'do_within_time'
+		(Fun, _cor0)
+'teln_receive_until_prompt'/4 =
+    %% Line 1338
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 1339
+	case call 'ct_telnet_client':'get_data'
+		 (_cor3) of
+	  <{'ok',Data}> when 'true' ->
+	      let <_cor5> =
+		  %% Line 1340
+		  call 'erlang':'++'
+		      (_cor0, Data)
+	      in  %% Line 1340
+		  case apply 'check_for_prompt'/2
+			   (_cor2, _cor5) of
+		    %% Line 1341
+		    <{'prompt',Lines,PromptType,Rest}> when 'true' ->
+			let <_cor6> =
+			    %% Line 1342
+			    call 'lists':'append'
+				([Lines|_cor1])
+			in  let <Return> =
+				%% Line 1342
+				call 'lists':'reverse'
+				    (_cor6)
+			    in  %% Line 1343
+				{'ok',Return,PromptType,Rest}
+		    %% Line 1344
+		    <{'noprompt',Lines,LastLine1}> when 'true' ->
+			%% Line 1345
+			apply 'teln_receive_until_prompt'/4
+			    (_cor3, _cor2, [Lines|_cor1], LastLine1)
+		    ( <_cor8> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor8})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'check_for_prompt'/2 =
+    %% Line 1348
+    fun (_cor1,_cor0) ->
+	%% Line 1349
+	case apply 'match_prompt'/2
+		 (_cor0, _cor1) of
+	  %% Line 1350
+	  <{'prompt',UptoPrompt,PromptType,Rest}> when 'true' ->
+	      %% Line 1351
+	      case apply 'split_lines'/1
+		       (UptoPrompt) of
+		<{RevLines,LastLine}> when 'true' ->
+		    %% Line 1352
+		    {'prompt',[LastLine|RevLines],PromptType,Rest}
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1353
+	  <'noprompt'> when 'true' ->
+	      %% Line 1354
+	      case apply 'split_lines'/1
+		       (_cor0) of
+		<{RevLines,Rest}> when 'true' ->
+		    %% Line 1355
+		    {'noprompt',RevLines,Rest}
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'split_lines'/1 =
+    %% Line 1358
+    fun (_cor0) ->
+	%% Line 1359
+	apply 'split_lines'/3
+	    (_cor0, [], [])
+'split_lines'/3 =
+    %% Line 1360
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[10|Rest],Line,Lines> when 'true' ->
+	      let <_cor3> =
+		  %% Line 1361
+		  call 'lists':'reverse'
+		      (Line)
+	      in  %% Line 1361
+		  apply 'split_lines'/3
+		      (Rest, [], [_cor3|Lines])
+	  %% Line 1362
+	  <[13|Rest],Line,Lines> when 'true' ->
+	      %% Line 1363
+	      apply 'split_lines'/3
+		  (Rest, Line, Lines)
+	  %% Line 1364
+	  <[0|Rest],Line,Lines> when 'true' ->
+	      %% Line 1365
+	      apply 'split_lines'/3
+		  (Rest, Line, Lines)
+	  %% Line 1366
+	  <[Char|Rest],Line,Lines> when 'true' ->
+	      %% Line 1367
+	      apply 'split_lines'/3
+		  (Rest, [Char|Line], Lines)
+	  %% Line 1368
+	  <[],Line,Lines> when 'true' ->
+	      let <_cor4> =
+		  %% Line 1369
+		  call 'lists':'reverse'
+		      (Line)
+	      in  %% Line 1369
+		  {Lines,_cor4}
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'split_lines',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'match_prompt'/2 =
+    %% Line 1372
+    fun (_cor1,_cor0) ->
+	%% Line 1373
+	apply 'match_prompt'/3
+	    (_cor1, _cor0, [])
+'match_prompt'/3 =
+    %% Line 1374
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 1375
+	case call 're':'run'
+		 (_cor2, _cor1) of
+	  %% Line 1376
+	  <'nomatch'> when 'true' ->
+	      %% Line 1377
+	      'noprompt'
+	  %% Line 1378
+	  <{'match',[{Start,Len}|[]]}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 1379
+		  call 'erlang':'+'
+		      (Start, 1)
+	      in  let <_cor3> =
+		      %% Line 1379
+		      call 'erlang':'+'
+			  (Start, Len)
+		  in  %% Line 1379
+		      case apply 'split_prompt_string'/6
+			       (_cor2, _cor4, _cor3, 1, [], []) of
+			%% Line 1380
+			<{'noprompt',Done,Rest}> when 'true' ->
+			    %% Line 1381
+			    apply 'match_prompt'/3
+				(Rest, _cor1, Done)
+			%% Line 1382
+			<{'prompt',UptoPrompt,Prompt,Rest}> when 'true' ->
+			    let <_cor6> =
+				%% Line 1383
+				call 'erlang':'++'
+				    (UptoPrompt, _cor0)
+			    in  let <_cor7> =
+				    %% Line 1383
+				    call 'lists':'reverse'
+					(_cor6)
+				in  let <_cor5> =
+					%% Line 1384
+					call 'lists':'reverse'
+					    (Prompt)
+				    in  %% Line 1383
+					{'prompt',_cor7,_cor5,%% Line 1384
+							      Rest}
+			( <_cor8> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor8})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor9> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor9})
+	    -| ['compiler_generated'] )
+	end
+'split_prompt_string'/6 =
+    %% Line 1388
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[Ch|Str],Start,End,N,UptoPrompt,Prompt>
+	      when call 'erlang':'<'
+		    (N,
+		     Start) ->
+	      let <_cor6> =
+		  %% Line 1389
+		  call 'erlang':'+'
+		      (N, 1)
+	      in  %% Line 1389
+		  apply 'split_prompt_string'/6
+		      (Str, Start, End, _cor6, [Ch|UptoPrompt], Prompt)
+	  %% Line 1390
+	  <[Ch|Str],Start,End,N,UptoPrompt,Prompt>
+	      when let <_cor7> =
+		    %% Line 1391
+		    call 'erlang':'>='
+			(N, Start)
+		in  let <_cor8> =
+			%% Line 1391
+			call 'erlang':'<'
+			    (N, End)
+		    in  %% Line 1391
+			call 'erlang':'and'
+			    (_cor7, _cor8) ->
+	      let <_cor9> =
+		  %% Line 1392
+		  call 'erlang':'+'
+		      (N, 1)
+	      in  %% Line 1392
+		  apply 'split_prompt_string'/6
+		      (Str, Start, End, _cor9, UptoPrompt, [Ch|Prompt])
+	  %% Line 1393
+	  <[Ch|Rest],_X_Start,End,N,UptoPrompt,Prompt>
+	      when call 'erlang':'=='
+		    (N,
+		     End) ->
+	      %% Line 1394
+	      case UptoPrompt of
+		%% Line 1395
+		<[34|[61|[84|[80|[77|[79|[82|[80|_cor20]]]]]]]]> when 'true' ->
+		    let <_cor10> =
+			%% Line 1397
+			[Ch|call 'erlang':'++'
+				(Prompt, UptoPrompt)]
+		    in  %% Line 1397
+			{'noprompt',_cor10,Rest}
+		%% Line 1398
+		<[32|[116|[115|[97|_cor21]]]]>
+		    when call 'erlang':'=='
+			  (Prompt,
+			   [58|[110|[105|[103|[111|[108]]]]]]) ->
+		    let <_cor11> =
+			%% Line 1401
+			[Ch|call 'erlang':'++'
+				(Prompt, UptoPrompt)]
+		    in  %% Line 1401
+			{'noprompt',_cor11,Rest}
+		%% Line 1402
+		<_cor22> when 'true' ->
+		    let <_cor12> =
+			%% Line 1403
+			[Ch|call 'erlang':'++'
+				(Prompt, UptoPrompt)]
+		    in  %% Line 1403
+			{'prompt',_cor12,[Ch|Prompt],Rest}
+	      end
+	  ( <_cor19,_cor18,_cor17,_cor16,_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor19,_cor18,_cor17,_cor16,_cor15,_cor14})
+		  -| [{'function_name',{'split_prompt_string',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ct_telnet')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ct_telnet', _cor0)
+end

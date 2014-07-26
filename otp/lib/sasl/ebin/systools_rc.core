@@ -1,0 +1,3028 @@
+module 'systools_rc' ['format_error'/1,
+		      'module_info'/0,
+		      'module_info'/1,
+		      'translate_scripts'/3,
+		      'translate_scripts'/4]
+    attributes []
+'translate_scripts'/3 =
+    %% Line 71
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 72
+	apply 'translate_scripts'/4
+	    ('up', _cor2, _cor1, _cor0)
+'translate_scripts'/4 =
+    %% Line 74
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <Scripts2> =
+	    %% Line 75
+	    apply 'expand_scripts'/1
+		(_cor2)
+	in  let <_cor5> =
+		catch
+		    %% Line 76
+		    apply 'do_translate_scripts'/4
+			(_cor3, Scripts2, _cor1, _cor0)
+	    in  %% Line 76
+		case _cor5 of
+		  %% Line 77
+		  <{'ok',NewScript}> when 'true' ->
+		      {'ok',NewScript}
+		  %% Line 78
+		  <{'error',Reason}> when 'true' ->
+		      {'error','systools_rc',Reason}
+		  %% Line 79
+		  <{'EXIT',Reason}> when 'true' ->
+		      {'error','systools_rc',Reason}
+		  ( <_cor6> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor6})
+		    -| ['compiler_generated'] )
+		end
+'expand_scripts'/1 =
+    %% Line 82
+    fun (_cor0) ->
+	case _cor0 of
+	  <[Script|Scripts]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 83
+		  apply 'expand_script'/1
+		      (Script)
+	      in  let <_cor2> =
+		      %% Line 83
+		      apply 'expand_scripts'/1
+			  (Scripts)
+		  in  %% Line 83
+		      [_cor1|_cor2]
+	  %% Line 84
+	  <[]> when 'true' ->
+	      %% Line 85
+	      []
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'expand_scripts',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'expand_script'/1 =
+    %% Line 87
+    fun (_cor0) ->
+	case _cor0 of
+	  <[I|Script]> when 'true' ->
+	      let <_cor6> =
+		  %% Line 88
+		  case I of
+		    %% Line 89
+		    <{'load_module',Mod}> when 'true' ->
+			%% Line 90
+			{'load_module',Mod,'brutal_purge','brutal_purge',[]}
+		    %% Line 91
+		    <{'load_module',Mod,Mods}>
+			when call 'erlang':'is_list'
+			      (Mods) ->
+			%% Line 92
+			{'load_module',Mod,'brutal_purge','brutal_purge',Mods}
+		    %% Line 93
+		    <{'update',Mod}> when 'true' ->
+			%% Line 94
+			{'update',Mod,'soft','brutal_purge','brutal_purge',[]}
+		    %% Line 95
+		    <{'update',Mod,'supervisor'}> when 'true' ->
+			%% Line 96
+			{'update',Mod,'static','default',{'advanced',[]},%% Line 97
+									 'brutal_purge',%% Line 97
+											'brutal_purge',%% Line 97
+												       []}
+		    %% Line 98
+		    <{'update',Mod,Change}>
+			when call 'erlang':'is_tuple'
+			      (Change) ->
+			%% Line 99
+			{'update',Mod,Change,'brutal_purge','brutal_purge',[]}
+		    %% Line 100
+		    <{'update',Mod,Change}>
+			when call 'erlang':'=:='
+			      (Change,
+			       'soft') ->
+			%% Line 101
+			{'update',Mod,Change,'brutal_purge','brutal_purge',[]}
+		    %% Line 102
+		    <{'update',Mod,Mods}>
+			when call 'erlang':'is_list'
+			      (Mods) ->
+			%% Line 103
+			{'update',Mod,'soft','brutal_purge','brutal_purge',Mods}
+		    %% Line 104
+		    <{'update',Mod,Change,Mods}>
+			when let <_cor1> =
+			      call 'erlang':'is_tuple'
+				  (Change)
+			  in  let <_cor2> =
+				  %% Line 105
+				  call 'erlang':'is_list'
+				      (Mods)
+			      in  call 'erlang':'and'
+				      (_cor1, _cor2) ->
+			%% Line 106
+			{'update',Mod,Change,'brutal_purge','brutal_purge',Mods}
+		    %% Line 107
+		    <{'update',Mod,Change,Mods}>
+			when let <_cor3> =
+			      call 'erlang':'=:='
+				  (Change, 'soft')
+			  in  let <_cor4> =
+				  %% Line 108
+				  call 'erlang':'is_list'
+				      (Mods)
+			      in  call 'erlang':'and'
+				      (_cor3, _cor4) ->
+			%% Line 109
+			{'update',Mod,Change,'brutal_purge','brutal_purge',Mods}
+		    %% Line 110
+		    <{'delete_module',Mod}> when 'true' ->
+			%% Line 111
+			[{'remove',{Mod,'brutal_purge','brutal_purge'}}|%% Line 112
+									[{'purge',[Mod|[]]}|[]]]
+		    %% Line 113
+		    <{'add_application',Application}> when 'true' ->
+			%% Line 114
+			{'add_application',Application,'permanent'}
+		    %% Line 115
+		    <_cor11> when 'true' ->
+			%% Line 116
+			I
+		  end
+	      in  %% Line 118
+		  case <> of
+		    %% Line 119
+		    <>
+			when call 'erlang':'is_list'
+			      (_cor6) ->
+			let <_cor8> =
+			    %% Line 120
+			    apply 'expand_script'/1
+				(Script)
+			in  %% Line 120
+			    call 'erlang':'++'
+				(_cor6, _cor8)
+		    %% Line 121
+		    <> when 'true' ->
+			let <_cor9> =
+			    %% Line 122
+			    apply 'expand_script'/1
+				(Script)
+			in  %% Line 122
+			    [_cor6|_cor9]
+		  end
+	  %% Line 124
+	  <[]> when 'true' ->
+	      %% Line 125
+	      []
+	  ( <_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10})
+		  -| [{'function_name',{'expand_script',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'do_translate_scripts'/4 =
+    %% Line 127
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <MergedScript> =
+	    %% Line 128
+	    apply 'merge_scripts'/1
+		(_cor2)
+	in  %% Line 129
+	    apply 'translate_merged_script'/4
+		(_cor3, MergedScript, _cor1, _cor0)
+'translate_merged_script'/4 =
+    %% Line 138
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 139
+	    apply 'check_syntax'/1
+		(_cor2)
+	    let <Script1> =
+		%% Line 140
+		apply 'normalize_instrs'/1
+		    (_cor2)
+	    in  %% Line 141
+		case apply 'split_script'/1
+			 (Script1) of
+		  <{Before,After}> when 'true' ->
+		      do  %% Line 142
+			  apply 'check_script'/2
+			      (Before, After)
+			  %% Line 144
+			  case apply 'translate_independent_instrs'/4
+				   (Before, After, _cor1, _cor0) of
+			    <{Before1,After1}> when 'true' ->
+				%% Line 145
+				case apply 'translate_dependent_instrs'/4
+					 (_cor3, Before1, After1, _cor1) of
+				  <{Before2,After2}> when 'true' ->
+				      let <Before3> =
+					  %% Line 147
+					  apply 'merge_load_object_code'/1
+					      (Before2)
+				      in  %% Line 149
+					  case apply 'sort_emulator_restart'/3
+						   (_cor3, Before3, After2) of
+					    <{Before4,After4}> when 'true' ->
+						let <NewScript> =
+						    %% Line 150
+						    call 'erlang':'++'
+							(Before4, ['point_of_no_return'|After4])
+						in  do  %% Line 152
+							apply 'check_syntax'/1
+							    (NewScript)
+							%% Line 153
+							{'ok',NewScript}
+					    ( <_cor9> when 'true' ->
+						  primop 'match_fail'
+						      ({'badmatch',_cor9})
+					      -| ['compiler_generated'] )
+					  end
+				  ( <_cor7> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor7})
+				    -| ['compiler_generated'] )
+				end
+			    ( <_cor6> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor6})
+			      -| ['compiler_generated'] )
+			  end
+		  ( <_cor5> when 'true' ->
+			primop 'match_fail'
+			    ({'badmatch',_cor5})
+		    -| ['compiler_generated'] )
+		end
+'merge_scripts'/1 =
+    %% Line 165
+    fun (_cor0) ->
+	let <_cor8> =
+	    %% Line 168
+	    ( fun (_cor5,_cor4) ->
+		  case <_cor5,_cor4> of
+		    <Script,{B1,A1}> when 'true' ->
+			%% Line 169
+			case apply 'split_script'/1
+				 (Script) of
+			  <{B2,A2}> when 'true' ->
+			      let <_cor3> =
+				  %% Line 170
+				  call 'erlang':'++'
+				      (B1, B2)
+			      in  let <_cor2> =
+				      %% Line 170
+				      call 'erlang':'++'
+					  (A1, A2)
+				  in  %% Line 170
+				      {_cor3,_cor2}
+			  ( <_cor1> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor1})
+			    -| ['compiler_generated'] )
+			end
+		    ( <_cor7,_cor6> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor7,_cor6})
+			    -| [{'function_name',{'-merge_scripts/1-fun-0-',2}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-merge_scripts/1-fun-0-'}}] )
+	in  %% Line 166
+	    case %% Line 167
+		 call 'lists':'foldl'
+		     (_cor8, %% Line 171
+			     {[],[]}, _cor0) of
+	      <{Before,After}> when 'true' ->
+		  %% Line 172
+		  call 'erlang':'++'
+		      (Before, ['point_of_no_return'|After])
+	      ( <_cor9> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor9})
+		-| ['compiler_generated'] )
+	    end
+'split_script'/1 =
+    %% Line 183
+    fun (_cor0) ->
+	%% Line 184
+	case apply 'split_instrs'/1
+		 (_cor0) of
+	  <{Before,After}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 186
+		  ( fun (_cor2) ->
+			case _cor2 of
+			  <{'load_object_code',_cor11}> when 'true' ->
+			      'ok'
+			  %% Line 187
+			  <{'apply',_cor12}> when 'true' ->
+			      'ok'
+			  %% Line 188
+			  <Instruction> when 'true' ->
+			      %% Line 189
+			      call 'erlang':'throw'
+				  ({'error',{'bad_op_before_point_of_no_return',%% Line 190
+										Instruction}})
+			end
+		    -| [{'id',{0,0,'-split_script/1-fun-0-'}}] )
+	      in  do  %% Line 185
+		      call 'lists':'foreach'
+			  (_cor4, %% Line 191
+				  Before)
+		      let <_cor7> =
+			  %% Line 192
+			  ( fun (_cor5) ->
+				case _cor5 of
+				  <{'load_object_code',_cor13}> when 'true' ->
+				      'true'
+				  %% Line 193
+				  <_cor14> when 'true' ->
+				      'false'
+				end
+			    -| [{'id',{0,0,'-split_script/1-fun-1-'}}] )
+		      in  %% Line 192
+			  case apply 'split'/2
+				   (_cor7, %% Line 194
+					   After) of
+			    <{Found,Rest}> when 'true' ->
+				let <_cor9> =
+				    %% Line 195
+				    call 'erlang':'++'
+					(Before, Found)
+				in  %% Line 195
+				    {_cor9,Rest}
+			    ( <_cor8> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor8})
+			      -| ['compiler_generated'] )
+			  end
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'split_instrs'/1 =
+    %% Line 202
+    fun (_cor0) ->
+	%% Line 203
+	apply 'split_instrs'/2
+	    (_cor0, [])
+'split_instrs'/2 =
+    %% Line 204
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <['point_of_no_return'|T],Before> when 'true' ->
+	      %% Line 205
+	      case call 'lists':'member'
+		       ('point_of_no_return', T) of
+		%% Line 206
+		<'true'> when 'true' ->
+		    call 'erlang':'throw'
+			({'error','too_many_point_of_no_return'})
+		%% Line 207
+		<'false'> when 'true' ->
+		    let <_cor2> =
+			call 'lists':'reverse'
+			    (Before)
+		    in  {_cor2,T}
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 209
+	  <[H|T],Before> when 'true' ->
+	      %% Line 210
+	      apply 'split_instrs'/2
+		  (T, [H|Before])
+	  %% Line 211
+	  <[],Before> when 'true' ->
+	      let <_cor4> =
+		  %% Line 212
+		  call 'lists':'reverse'
+		      (Before)
+	      in  %% Line 212
+		  {[],_cor4}
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'split_instrs',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'check_script'/2 =
+    %% Line 218
+    fun (_cor1,_cor0) ->
+	do  %% Line 219
+	    apply 'check_load'/2
+		(_cor1, _cor0)
+	    do  %% Line 220
+		apply 'check_suspend_resume'/1
+		    (_cor0)
+		%% Line 221
+		apply 'check_start_stop'/1
+		    (_cor0)
+'check_load'/2 =
+    %% Line 226
+    fun (_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 228
+	    ( fun (_cor3) ->
+		  case _cor3 of
+		    <{'load',{Mod,_cor8,_cor9}}> when 'true' ->
+			%% Line 229
+			case apply 'find_object_code'/2
+				 (Mod, _cor1) of
+			  %% Line 230
+			  <'true'> when 'true' ->
+			      'ok'
+			  %% Line 231
+			  <'false'> when 'true' ->
+			      call 'erlang':'throw'
+				  ({'error',{'no_object_code',Mod}})
+			  ( <_cor2> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor2})
+			    -| ['compiler_generated'] )
+			end
+		    %% Line 233
+		    <_cor10> when 'true' ->
+			'ok'
+		  end
+	      -| [{'id',{0,0,'-check_load/2-fun-0-'}}] )
+	in  %% Line 227
+	    call 'lists':'foreach'
+		(_cor5, _cor0)
+'find_object_code'/2 =
+    %% Line 236
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Mod,[{'load_object_code',{_cor5,_cor6,Mods}}|T]> when 'true' ->
+	      %% Line 237
+	      case call 'lists':'member'
+		       (Mod, Mods) of
+		%% Line 238
+		<'true'> when 'true' ->
+		    'true'
+		%% Line 239
+		<'false'> when 'true' ->
+		    apply 'find_object_code'/2
+			(Mod, T)
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 241
+	  <Mod,[_cor7|T]> when 'true' ->
+	      %% Line 242
+	      apply 'find_object_code'/2
+		  (Mod, T)
+	  %% Line 243
+	  <_X_Mod,[]> when 'true' ->
+	      %% Line 244
+	      'false'
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'find_object_code',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'check_suspend_resume'/1 =
+    %% Line 250
+    fun (_cor0) ->
+	let <_cor9> =
+	    %% Line 251
+	    ( fun (_cor7) ->
+		  case _cor7 of
+		    <{Mod,_X_Timeout}> when 'true' ->
+			Mod
+		    %% Line 252
+		    <Mod> when 'true' ->
+			Mod
+		  end
+	      -| [{'id',{0,0,'-check_suspend_resume/1-fun-0-'}}] )
+	in  let <_cor5> =
+		%% Line 254
+		( letrec
+		      'lc$^0'/1 =
+			  fun (_cor3) ->
+			      case _cor3 of
+				<[{'suspend',X}|_cor2]> when 'true' ->
+				    let <_cor4> =
+					apply 'lc$^0'/1
+					    (_cor2)
+				    in  ( [X|_cor4]
+					  -| ['compiler_generated'] )
+				( <[_cor1|_cor2]> when 'true' ->
+				      apply 'lc$^0'/1
+					  (_cor2)
+				  -| ['compiler_generated'] )
+				<[]> when 'true' ->
+				    []
+				( <_cor3> when 'true' ->
+				      ( primop 'match_fail'
+					    ({'function_clause',_cor3})
+					-| [{'function_name',{'lc$^0',1}}] )
+				  -| ['compiler_generated'] )
+			      end
+		  in  apply 'lc$^0'/1
+			  (_cor0)
+		  -| ['list_comprehension'] )
+	    in  let <_cor6> =
+		    %% Line 254
+		    call 'lists':'flatten'
+			(_cor5)
+		in  let <Suspended> =
+			%% Line 251
+			call 'lists':'map'
+			    (_cor9, _cor6)
+		    in  let <_cor15> =
+			    %% Line 255
+			    ( letrec
+				  'lc$^1'/1 =
+				      fun (_cor13) ->
+					  case _cor13 of
+					    <[{'resume',X}|_cor12]> when 'true' ->
+						let <_cor14> =
+						    apply 'lc$^1'/1
+							(_cor12)
+						in  ( [X|_cor14]
+						      -| ['compiler_generated'] )
+					    ( <[_cor11|_cor12]> when 'true' ->
+						  apply 'lc$^1'/1
+						      (_cor12)
+					      -| ['compiler_generated'] )
+					    <[]> when 'true' ->
+						[]
+					    ( <_cor13> when 'true' ->
+						  ( primop 'match_fail'
+							({'function_clause',_cor13})
+						    -| [{'function_name',{'lc$^1',1}}] )
+					      -| ['compiler_generated'] )
+					  end
+			      in  apply 'lc$^1'/1
+				      (_cor0)
+			      -| ['list_comprehension'] )
+			in  let <Resumed> =
+				%% Line 255
+				call 'lists':'flatten'
+				    (_cor15)
+			    in  let <_cor21> =
+				    %% Line 256
+				    ( letrec
+					  'lc$^2'/1 =
+					      fun (_cor19) ->
+						  case _cor19 of
+						    <[{'code_change',_cor27,{X,_cor28}}|_cor18]> when 'true' ->
+							let <_cor20> =
+							    apply 'lc$^2'/1
+								(_cor18)
+							in  ( [X|_cor20]
+							      -| ['compiler_generated'] )
+						    ( <[_cor17|_cor18]> when 'true' ->
+							  apply 'lc$^2'/1
+							      (_cor18)
+						      -| ['compiler_generated'] )
+						    <[]> when 'true' ->
+							[]
+						    ( <_cor19> when 'true' ->
+							  ( primop 'match_fail'
+								({'function_clause',_cor19})
+							    -| [{'function_name',{'lc$^2',1}}] )
+						      -| ['compiler_generated'] )
+						  end
+				      in  apply 'lc$^2'/1
+					      (_cor0)
+				      -| ['list_comprehension'] )
+				in  let <CodeChanged> =
+					%% Line 256
+					call 'lists':'flatten'
+					    (_cor21)
+				    in  do  %% Line 257
+					    case apply 'difference'/2
+						     (Suspended, Resumed) of
+					      %% Line 258
+					      <[]> when 'true' ->
+						  'ok'
+					      %% Line 259
+					      <S2> when 'true' ->
+						  call 'erlang':'throw'
+						      ({'error',{'suspended_not_resumed',S2}})
+					    end
+					    do  %% Line 261
+						case apply 'difference'/2
+							 (Resumed, Suspended) of
+						  %% Line 262
+						  <[]> when 'true' ->
+						      'ok'
+						  %% Line 263
+						  <R2> when 'true' ->
+						      call 'erlang':'throw'
+							  ({'error',{'resumed_not_suspended',R2}})
+						end
+						%% Line 265
+						case apply 'difference'/2
+							 (CodeChanged, Suspended) of
+						  %% Line 266
+						  <[]> when 'true' ->
+						      'ok'
+						  %% Line 267
+						  <C2> when 'true' ->
+						      call 'erlang':'throw'
+							  ({'error',{'code_change_not_suspended',C2}})
+						end
+'check_start_stop'/1 =
+    %% Line 274
+    fun (_cor0) ->
+	let <_cor5> =
+	    %% Line 275
+	    ( letrec
+		  'lc$^0'/1 =
+		      fun (_cor3) ->
+			  case _cor3 of
+			    <[{'start',X}|_cor2]> when 'true' ->
+				let <_cor4> =
+				    apply 'lc$^0'/1
+					(_cor2)
+				in  ( [X|_cor4]
+				      -| ['compiler_generated'] )
+			    ( <[_cor1|_cor2]> when 'true' ->
+				  apply 'lc$^0'/1
+				      (_cor2)
+			      -| ['compiler_generated'] )
+			    <[]> when 'true' ->
+				[]
+			    ( <_cor3> when 'true' ->
+				  ( primop 'match_fail'
+					({'function_clause',_cor3})
+				    -| [{'function_name',{'lc$^0',1}}] )
+			      -| ['compiler_generated'] )
+			  end
+	      in  apply 'lc$^0'/1
+		      (_cor0)
+	      -| ['list_comprehension'] )
+	in  let <Start> =
+		%% Line 275
+		call 'lists':'flatten'
+		    (_cor5)
+	    in  let <_cor11> =
+		    %% Line 276
+		    ( letrec
+			  'lc$^1'/1 =
+			      fun (_cor9) ->
+				  case _cor9 of
+				    <[{'stop',X}|_cor8]> when 'true' ->
+					let <_cor10> =
+					    apply 'lc$^1'/1
+						(_cor8)
+					in  ( [X|_cor10]
+					      -| ['compiler_generated'] )
+				    ( <[_cor7|_cor8]> when 'true' ->
+					  apply 'lc$^1'/1
+					      (_cor8)
+				      -| ['compiler_generated'] )
+				    <[]> when 'true' ->
+					[]
+				    ( <_cor9> when 'true' ->
+					  ( primop 'match_fail'
+						({'function_clause',_cor9})
+					    -| [{'function_name',{'lc$^1',1}}] )
+				      -| ['compiler_generated'] )
+				  end
+		      in  apply 'lc$^1'/1
+			      (_cor0)
+		      -| ['list_comprehension'] )
+		in  let <Stop> =
+			%% Line 276
+			call 'lists':'flatten'
+			    (_cor11)
+		    in  do  %% Line 277
+			    case apply 'difference'/2
+				     (Start, Stop) of
+			      %% Line 278
+			      <[]> when 'true' ->
+				  'ok'
+			      %% Line 279
+			      <S2> when 'true' ->
+				  call 'erlang':'throw'
+				      ({'error',{'start_not_stop',S2}})
+			    end
+			    %% Line 281
+			    case apply 'difference'/2
+				     (Stop, Start) of
+			      %% Line 282
+			      <[]> when 'true' ->
+				  'ok'
+			      %% Line 283
+			      <S3> when 'true' ->
+				  call 'erlang':'throw'
+				      ({'error',{'stop_not_start',S3}})
+			    end
+'normalize_instrs'/1 =
+    %% Line 294
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 295
+	    ( fun (_cor1) ->
+		  case _cor1 of
+		    <{'update',Mod,Change,PrePurge,PostPurge,Mods}> when 'true' ->
+			%% Line 296
+			{'update',Mod,'dynamic','default',Change,PrePurge,%% Line 297
+									  PostPurge,%% Line 297
+										    Mods}
+		    %% Line 298
+		    <{'update',Mod,Timeout,Change,PrePurge,PostPurge,%% Line 299
+								     Mods}> when 'true' ->
+			%% Line 300
+			{'update',Mod,'dynamic',Timeout,Change,PrePurge,%% Line 301
+									PostPurge,%% Line 301
+										  Mods}
+		    %% Line 302
+		    <{'add_module',Mod}> when 'true' ->
+			%% Line 303
+			{'add_module',Mod,[]}
+		    %% Line 304
+		    <I> when 'true' ->
+			%% Line 305
+			I
+		  end
+	      -| [{'id',{0,0,'-normalize_instrs/1-fun-0-'}}] )
+	in  %% Line 295
+	    call 'lists':'map'
+		(_cor3, _cor0)
+'translate_independent_instrs'/4 =
+    %% Line 315
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <After1> =
+	    %% Line 316
+	    apply 'translate_application_instrs'/3
+		(_cor2, _cor1, _cor0)
+	in  %% Line 317
+	    apply 'translate_add_module_instrs'/2
+		(_cor3, After1)
+'translate_application_instrs'/3 =
+    %% Line 323
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor51> =
+	    %% Line 326
+	    ( fun (_cor49) ->
+		  case _cor49 of
+		    <{'add_application',Appl,Type}> when 'true' ->
+			%% Line 327
+			case call 'lists':'keysearch'
+				 (Appl, 2, _cor1) of
+			  %% Line 328
+			  <{'value',Application}> when 'true' ->
+			      %% Line 329
+			      ( case Application of
+				  ( <( {'application',_cor56,_cor57,_cor58,_cor59,_cor60,_rec0,_cor61,_cor62,_cor63,_cor64,_cor65,_cor66,_cor67,_cor68,_cor69}
+				       -| ['compiler_generated'] )> when 'true' ->
+					let <_cor7> =
+					    %% Line 330
+					    case Type of
+					      %% Line 331
+					      <'none'> when 'true' ->
+						  []
+					      %% Line 332
+					      <'load'> when 'true' ->
+						  [{'apply',{'application','load',[Appl|[]]}}|[]]
+					      %% Line 333
+					      <_cor71> when 'true' ->
+						  [{'apply',{'application','start',[Appl|[Type|[]]]}}|[]]
+					    end
+					in  %% Line 335
+					    ( letrec
+						  'lc$^0'/1 =
+						      fun (_cor11) ->
+							  case _cor11 of
+							    <[M|_cor10]> when 'true' ->
+								let <_cor12> =
+								    apply 'lc$^0'/1
+									(_cor10)
+								in  ( [{'add_module',M,[]}|_cor12]
+								      -| ['compiler_generated'] )
+							    <[]> when 'true' ->
+								_cor7
+							    ( <_cor11> when 'true' ->
+								  ( primop 'match_fail'
+									({'function_clause',_cor11})
+								    -| [{'function_name',{'lc$^0',1}}] )
+							      -| ['compiler_generated'] )
+							  end
+					      in  apply 'lc$^0'/1
+						      (_rec0)
+					      -| ['list_comprehension'] )
+				    -| ['compiler_generated'] )
+				  ( <_cor70> when 'true' ->
+					( call ( 'erlang'
+						 -| ['compiler_generated'] ):( 'error'
+									       -| ['compiler_generated'] )
+					      (( {'badrecord','application'}
+						 -| ['compiler_generated'] ))
+					  -| ['compiler_generated'] )
+				    -| ['compiler_generated'] )
+				end
+				-| ['compiler_generated'] )
+			  %% Line 337
+			  <'false'> when 'true' ->
+			      %% Line 338
+			      call 'erlang':'throw'
+				  ({'error',{'no_such_application',Appl}})
+			  ( <_cor13> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor13})
+			    -| ['compiler_generated'] )
+			end
+		    %% Line 341
+		    <{'remove_application',Appl}> when 'true' ->
+			do  %% Line 342
+			    case call 'lists':'keysearch'
+				     (Appl, 2, _cor1) of
+			      %% Line 343
+			      <{'value',_X_Application}> when 'true' ->
+				  %% Line 344
+				  call 'erlang':'throw'
+				      ({'error',{'removed_application_present',%% Line 345
+									       Appl}})
+			      %% Line 346
+			      <'false'> when 'true' ->
+				  'ok'
+			      ( <_cor14> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor14})
+				-| ['compiler_generated'] )
+			    end
+			    %% Line 349
+			    case call 'lists':'keysearch'
+				     (Appl, 2, _cor0) of
+			      %% Line 350
+			      <{'value',RemApplication}> when 'true' ->
+				  %% Line 351
+				  ( case RemApplication of
+				      ( <( {'application',_cor72,_cor73,_cor74,_cor75,_cor76,_rec1,_cor77,_cor78,_cor79,_cor80,_cor81,_cor82,_cor83,_cor84,_cor85}
+					   -| ['compiler_generated'] )> when 'true' ->
+					    let <_cor22> =
+						%% Line 354
+						( letrec
+						      'lc$^1'/1 =
+							  fun (_cor20) ->
+							      case _cor20 of
+								<[%% Line 355
+								  M|_cor19]> when 'true' ->
+								    let <_cor21> =
+									%% Line 355
+									apply 'lc$^1'/1
+									    (_cor19)
+								    in  ( [{'remove',{M,'brutal_purge','brutal_purge'}}|_cor21]
+									  -| ['compiler_generated'] )
+								<[]> when 'true' ->
+								    %% Line 356
+								    [{'purge',_rec1}|%% Line 357
+										     [{'apply',{'application','unload',[Appl|[]]}}|[]]]
+								( <_cor20> when 'true' ->
+								      ( primop 'match_fail'
+									    ({'function_clause',_cor20})
+									-| [{'function_name',{'lc$^1',1}}] )
+								  -| ['compiler_generated'] )
+							      end
+						  in  apply 'lc$^1'/1
+							  (_rec1)
+						  -| ['list_comprehension'] )
+					    in  %% Line 353
+						[{'apply',{'application','stop',[Appl|[]]}}|_cor22]
+					-| ['compiler_generated'] )
+				      ( <_cor86> when 'true' ->
+					    ( call ( 'erlang'
+						     -| ['compiler_generated'] ):( 'error'
+										   -| ['compiler_generated'] )
+						  (( {'badrecord','application'}
+						     -| ['compiler_generated'] ))
+					      -| ['compiler_generated'] )
+					-| ['compiler_generated'] )
+				    end
+				    -| ['compiler_generated'] )
+			      %% Line 358
+			      <'false'> when 'true' ->
+				  %% Line 359
+				  call 'erlang':'throw'
+				      ({'error',{'no_such_application',Appl}})
+			      ( <_cor23> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor23})
+				-| ['compiler_generated'] )
+			    end
+		    %% Line 361
+		    <{'restart_application',Appl}> when 'true' ->
+			%% Line 362
+			case call 'lists':'keysearch'
+				 (Appl, 2, _cor0) of
+			  %% Line 363
+			  <{'value',PreApplication}> when 'true' ->
+			      %% Line 364
+			      ( case PreApplication of
+				  ( <( {'application',_cor87,_cor88,_cor89,_cor90,_cor91,_rec2,_cor92,_cor93,_cor94,_cor95,_cor96,_cor97,_cor98,_cor99,_cor100}
+				       -| ['compiler_generated'] )> when 'true' ->
+					%% Line 365
+					case call 'lists':'keysearch'
+						 (Appl, 2, _cor1) of
+					  %% Line 366
+					  <{'value',PostApplication}> when 'true' ->
+					      %% Line 367
+					      ( case PostApplication of
+						  ( <( {'application',_cor102,_cor103,_cor104,_cor105,_cor106,_rec3,_cor107,_cor108,_cor109,_cor110,_cor111,_cor112,_cor113,_cor114,_cor115}
+						       -| ['compiler_generated'] )> when 'true' ->
+							let <_cor34> =
+							    %% Line 370
+							    case _cor103 of
+							      %% Line 371
+							      <'none'> when 'true' ->
+								  []
+							      %% Line 372
+							      <'load'> when 'true' ->
+								  [{'apply',{'application','load',%% Line 373
+												  [Appl|[]]}}|%% Line 373
+													      []]
+							      %% Line 374
+							      <_cor132> when 'true' ->
+								  [{'apply',{'application','start',%% Line 375
+												   [Appl|[_cor103|[]]]}}|%% Line 375
+															 []]
+							    end
+							in  let <_cor40> =
+								%% Line 382
+								( letrec
+								      'lc$^2'/1 =
+									  fun (_cor38) ->
+									      case _cor38 of
+										<[M|_cor37]> when 'true' ->
+										    let <_cor39> =
+											apply 'lc$^2'/1
+											    (_cor37)
+										    in  ( [{'add_module',M,[]}|_cor39]
+											  -| ['compiler_generated'] )
+										<[]> when 'true' ->
+										    _cor34
+										( <_cor38> when 'true' ->
+										      ( primop 'match_fail'
+											    ({'function_clause',_cor38})
+											-| [{'function_name',{'lc$^2',1}}] )
+										  -| ['compiler_generated'] )
+									      end
+								  in  apply 'lc$^2'/1
+									  (_rec3)
+								  -| ['list_comprehension'] )
+							    in  let <_cor41> =
+								    %% Line 381
+								    [{'purge',_rec2}|_cor40]
+								in  let <_cor46> =
+									%% Line 379
+									( letrec
+									      'lc$^3'/1 =
+										  fun (_cor44) ->
+										      case _cor44 of
+											<[%% Line 380
+											  M|_cor43]> when 'true' ->
+											    let <_cor45> =
+												%% Line 380
+												apply 'lc$^3'/1
+												    (_cor43)
+											    in  ( [{'remove',{M,'brutal_purge','brutal_purge'}}|_cor45]
+												  -| ['compiler_generated'] )
+											<[]> when 'true' ->
+											    _cor41
+											( <_cor44> when 'true' ->
+											      ( primop 'match_fail'
+												    ({'function_clause',_cor44})
+												-| [{'function_name',{'lc$^3',1}}] )
+											  -| ['compiler_generated'] )
+										      end
+									  in  apply 'lc$^3'/1
+										  (_rec2)
+									  -| ['list_comprehension'] )
+								    in  %% Line 378
+									[{'apply',{'application','stop',[Appl|[]]}}|_cor46]
+						    -| ['compiler_generated'] )
+						  ( <_cor116> when 'true' ->
+							( call ( 'erlang'
+								 -| ['compiler_generated'] ):( 'error'
+											       -| ['compiler_generated'] )
+							      (( {'badrecord','application'}
+								 -| ['compiler_generated'] ))
+							  -| ['compiler_generated'] )
+						    -| ['compiler_generated'] )
+						end
+						-| ['compiler_generated'] )
+					  %% Line 384
+					  <'false'> when 'true' ->
+					      %% Line 385
+					      call 'erlang':'throw'
+						  ({'error',{'no_such_application',Appl}})
+					  ( <_cor47> when 'true' ->
+						primop 'match_fail'
+						    ({'case_clause',_cor47})
+					    -| ['compiler_generated'] )
+					end
+				    -| ['compiler_generated'] )
+				  ( <_cor101> when 'true' ->
+					( call ( 'erlang'
+						 -| ['compiler_generated'] ):( 'error'
+									       -| ['compiler_generated'] )
+					      (( {'badrecord','application'}
+						 -| ['compiler_generated'] ))
+					  -| ['compiler_generated'] )
+				    -| ['compiler_generated'] )
+				end
+				-| ['compiler_generated'] )
+			  %% Line 388
+			  <'false'> when 'true' ->
+			      %% Line 389
+			      call 'erlang':'throw'
+				  ({'error',{'no_such_application',Appl}})
+			  ( <_cor48> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor48})
+			    -| ['compiler_generated'] )
+			end
+		    %% Line 391
+		    <X> when 'true' ->
+			X
+		  end
+	      -| [{'id',{0,0,'-translate_application_instrs/3-fun-0-'}}] )
+	in  let <L> =
+		%% Line 325
+		call 'lists':'map'
+		    (_cor51, _cor2)
+	    in  %% Line 393
+		call 'lists':'flatten'
+		    (L)
+'translate_add_module_instrs'/2 =
+    %% Line 398
+    fun (_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 400
+	    ( fun (_cor2) ->
+		  case _cor2 of
+		    <{'add_module',Mod,Mods}> when 'true' ->
+			%% Line 403
+			{'load_module',Mod,'brutal_purge','brutal_purge',Mods}
+		    %% Line 404
+		    <I> when 'true' ->
+			%% Line 405
+			I
+		  end
+	      -| [{'id',{0,0,'-translate_add_module_instrs/2-fun-0-'}}] )
+	in  let <NAfter> =
+		%% Line 399
+		call 'lists':'map'
+		    (_cor4, _cor0)
+	    in  %% Line 407
+		{_cor1,NAfter}
+'translate_dependent_instrs'/4 =
+    %% Line 419
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <G> =
+	    %% Line 422
+	    apply 'make_dependency_graph'/1
+		(_cor1)
+	in  let <WCs> =
+		%% Line 423
+		call 'digraph_utils':'components'
+		    (G)
+	    in  %% Line 424
+		case apply 'translate_dep_loop'/7
+			 (G, WCs, _cor1, _cor0, %% Line 425
+						[], %% Line 425
+						    [], _cor3) of
+		  <{NBefore,NAfter}> when 'true' ->
+		      do  %% Line 426
+			  call 'digraph':'delete'
+			      (G)
+			  let <_cor7> =
+			      %% Line 427
+			      call 'erlang':'++'
+				  (_cor2, NBefore)
+			  in  %% Line 427
+			      {_cor7,NAfter}
+		  ( <_cor6> when 'true' ->
+			primop 'match_fail'
+			    ({'badmatch',_cor6})
+		    -| ['compiler_generated'] )
+		end
+'translate_dep_loop'/7 =
+    %% Line 429
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <G,WCs,[I|Is],Appls,Before,After,Mode>
+	      when %% Line 430
+		try
+		    let <_cor7> =
+			call 'erlang':'is_tuple'
+			    (I)
+		    in  let <_cor8> =
+			    call 'erlang':'size'
+				(I)
+			in  let <_cor9> =
+				call 'erlang':'>'
+				    (_cor8, 1)
+			    in  call 'erlang':'and'
+				    (_cor7, _cor9)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <IName> =
+		  %% Line 431
+		  call 'erlang':'element'
+		      (1, I)
+	      in  %% Line 432
+		  case call 'lists':'member'
+			   (IName, ['update'|['load_module'|['add_module'|['remove_module']]]]) of
+		    %% Line 433
+		    <'true'> when 'true' ->
+			let <Mod> =
+			    %% Line 434
+			    call 'erlang':'element'
+				(2, I)
+			in  let <DepIs> =
+				%% Line 435
+				apply 'get_dependent_instructions'/3
+				    (G, WCs, Mod)
+			    in  %% Line 436
+				case apply 'translate_dep_to_low'/3
+					 (Mode, DepIs, Appls) of
+				  <{B2,A2}> when 'true' ->
+				      let <RemIs> =
+					  %% Line 437
+					  apply 'difference'/2
+					      ([I|Is], DepIs)
+				      in  let <_cor16> =
+					      %% Line 438
+					      call 'erlang':'++'
+						  (Before, B2)
+					  in  let <_cor15> =
+						  %% Line 439
+						  call 'erlang':'++'
+						      (After, A2)
+					      in  %% Line 438
+						  apply 'translate_dep_loop'/7
+						      (G, WCs, RemIs, Appls, _cor16, _cor15, %% Line 439
+											     Mode)
+				  ( <_cor13> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor13})
+				    -| ['compiler_generated'] )
+				end
+		    %% Line 440
+		    <'false'> when 'true' ->
+			let <_cor17> =
+			    %% Line 442
+			    call 'erlang':'++'
+				(After, [I|[]])
+			in  %% Line 441
+			    apply 'translate_dep_loop'/7
+				(G, WCs, Is, Appls, Before, _cor17, %% Line 442
+								    Mode)
+		    ( <_cor18> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor18})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 444
+	  <G,WCs,[I|Is],Appls,Before,After,Mode> when 'true' ->
+	      let <_cor19> =
+		  %% Line 445
+		  call 'erlang':'++'
+		      (After, [I|[]])
+	      in  %% Line 445
+		  apply 'translate_dep_loop'/7
+		      (G, WCs, Is, Appls, Before, _cor19, Mode)
+	  %% Line 446
+	  <_X_G,_X_WCs,[],_X_Appls,Before,After,_X_Mode> when 'true' ->
+	      %% Line 447
+	      {Before,After}
+	  ( <_cor26,_cor25,_cor24,_cor23,_cor22,_cor21,_cor20> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor26,_cor25,_cor24,_cor23,_cor22,_cor21,_cor20})
+		  -| [{'function_name',{'translate_dep_loop',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'make_dependency_graph'/1 =
+    %% Line 458
+    fun (_cor0) ->
+	let <_cor4> =
+	    %% Line 460
+	    ( fun (_cor2) ->
+		  case _cor2 of
+		    <I>
+			when call 'erlang':'is_tuple'
+			      (_cor2) ->
+			let <IName> =
+			    %% Line 461
+			    call 'erlang':'element'
+				(1, I)
+			in  %% Line 462
+			    call 'lists':'member'
+				(IName, ['update'|['load_module'|['add_module'|['remove_module']]]])
+		    %% Line 463
+		    <_cor29> when 'true' ->
+			%% Line 464
+			'false'
+		  end
+	      -| [{'id',{0,0,'-make_dependency_graph/1-fun-0-'}}] )
+	in  let <DepIs> =
+		%% Line 460
+		call 'lists':'filter'
+		    (_cor4, _cor0)
+	    in  let <_cor14> =
+		    %% Line 467
+		    ( fun (_cor11,_cor10) ->
+			  let <Mod> =
+			      %% Line 468
+			      call 'erlang':'element'
+				  (2, _cor11)
+			  in  let <_cor7> =
+				  %% Line 469
+				  call 'erlang':'size'
+				      (_cor11)
+			      in  let <Mods> =
+				      %% Line 469
+				      call 'erlang':'element'
+					  (_cor7, _cor11)
+				  in  let <_cor9> =
+					  %% Line 470
+					  call 'erlang':'+'
+					      (_cor10, 1)
+				      in  %% Line 470
+					  {{Mod,Mods,{_cor10,_cor11}},_cor9}
+		      -| [{'id',{0,0,'-make_dependency_graph/1-fun-1-'}}] )
+		in  %% Line 466
+		    case call 'lists':'mapfoldl'
+			     (_cor14, %% Line 471
+				      1, %% Line 471
+					 DepIs) of
+		      <{VDs,_cor30}> when 'true' ->
+			  let <G> =
+			      %% Line 472
+			      call 'digraph':'new'
+				  ()
+			  in  let <_cor20> =
+				  %% Line 475
+				  ( fun (_cor18) ->
+					case _cor18 of
+					  <{Mod,_X_Mods,Data}> when 'true' ->
+					      %% Line 476
+					      case call 'digraph':'vertex'
+						       (G, Mod) of
+						%% Line 477
+						<'false'> when 'true' ->
+						    %% Line 478
+						    call 'digraph':'add_vertex'
+							(G, Mod, Data)
+						%% Line 479
+						<_cor31> when 'true' ->
+						    %% Line 480
+						    call 'erlang':'throw'
+							({'error',{'muldef_module',Mod}})
+					      end
+					  ( <_cor19> when 'true' ->
+						( primop 'match_fail'
+						      ({'function_clause',_cor19})
+						  -| [{'function_name',{'-make_dependency_graph/1-fun-2-',1}}] )
+					    -| ['compiler_generated'] )
+					end
+				    -| [{'id',{0,0,'-make_dependency_graph/1-fun-2-'}}] )
+			      in  do  %% Line 474
+				      call 'lists':'foreach'
+					  (_cor20, %% Line 482
+						   VDs)
+				      let <_cor27> =
+					  %% Line 485
+					  ( fun (_cor25) ->
+						case _cor25 of
+						  <{Mod,Mods,_X_Data}> when 'true' ->
+						      let <_cor24> =
+							  %% Line 487
+							  ( fun (_cor22) ->
+								%% Line 488
+								case call 'digraph':'add_edge'
+									 (G, Mod, _cor22) of
+								  %% Line 489
+								  <{'error',_X_Reason}> when 'true' ->
+								      %% Line 490
+								      call 'erlang':'throw'
+									  ({'error',{'undef_module',_cor22}})
+								  %% Line 491
+								  <_cor32> when 'true' ->
+								      %% Line 492
+								      'ok'
+								end
+							    -| [{'id',{0,0,'-make_dependency_graph/1-fun-3-'}}] )
+						      in  %% Line 486
+							  call 'lists':'foreach'
+							      (_cor24, %% Line 494
+								       Mods)
+						  ( <_cor26> when 'true' ->
+							( primop 'match_fail'
+							      ({'function_clause',_cor26})
+							  -| [{'function_name',{'-make_dependency_graph/1-fun-4-',1}}] )
+						    -| ['compiler_generated'] )
+						end
+					    -| [{'id',{0,0,'-make_dependency_graph/1-fun-4-'}}] )
+				      in  do  %% Line 484
+					      call 'lists':'foreach'
+						  (_cor27, %% Line 495
+							   VDs)
+					      %% Line 496
+					      G
+		      ( <_cor15> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor15})
+			-| ['compiler_generated'] )
+		    end
+'get_dependent_instructions'/3 =
+    %% Line 505
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 506
+	    ( fun (_cor3) ->
+		  call 'lists':'member'
+		      (_cor0, _cor3)
+	      -| [{'id',{0,0,'-get_dependent_instructions/3-fun-0-'}}] )
+	in  %% Line 506
+	    case call 'lists':'filter'
+		     (_cor5, _cor1) of
+	      %% Line 507
+	      <[WC|[]]> when 'true' ->
+		  let <H> =
+		      %% Line 509
+		      apply 'restriction'/2
+			  (WC, _cor2)
+		  in  let <S> =
+			  %% Line 511
+			  apply 'condensation'/1
+			      (H)
+		      in  let <Ts> =
+			      %% Line 512
+			      call 'digraph_utils':'topsort'
+				  (S)
+			  in  let <_cor20> =
+				  %% Line 514
+				  ( fun (_cor18) ->
+					let <_cor12> =
+					    %% Line 516
+					    ( fun (_cor10) ->
+						  %% Line 517
+						  case %% Line 518
+						       call 'digraph':'vertex'
+							   (H, _cor10) of
+						    <{_cor27,Data}> when 'true' ->
+							%% Line 519
+							Data
+						    ( <_cor9> when 'true' ->
+							  primop 'match_fail'
+							      ({'badmatch',_cor9})
+						      -| ['compiler_generated'] )
+						  end
+					      -| [{'id',{0,0,'-get_dependent_instructions/3-fun-1-'}}] )
+					in  let <NIs> =
+						%% Line 515
+						call 'lists':'map'
+						    (_cor12, _cor18)
+					    in  let <SortedNIs> =
+						    %% Line 522
+						    call 'lists':'keysort'
+							(1, NIs)
+						in  let <_cor17> =
+							%% Line 523
+							( fun (_cor15) ->
+							      case _cor15 of
+								<{_X_N,I}> when 'true' ->
+								    I
+								( <_cor16> when 'true' ->
+								      ( primop 'match_fail'
+									    ({'function_clause',_cor16})
+									-| [{'function_name',{'-get_dependent_instructions/3-fun-2-',1}}] )
+								  -| ['compiler_generated'] )
+							      end
+							  -| [{'id',{0,0,'-get_dependent_instructions/3-fun-2-'}}] )
+						    in  %% Line 523
+							call 'lists':'map'
+							    (_cor17, SortedNIs)
+				    -| [{'id',{0,0,'-get_dependent_instructions/3-fun-3-'}}] )
+			      in  let <DepIss> =
+				      %% Line 513
+				      call 'lists':'map'
+					  (_cor20, %% Line 524
+						   Ts)
+				  in  let <DepIs> =
+					  %% Line 525
+					  call 'lists':'flatten'
+					      (DepIss)
+				      in  do  %% Line 526
+					      call 'digraph':'delete'
+						  (H)
+					      do  %% Line 527
+						  call 'digraph':'delete'
+						      (S)
+						  %% Line 528
+						  DepIs
+	      %% Line 529
+	      <[]> when 'true' ->
+		  %% Line 530
+		  call 'erlang':'throw'
+		      ({'error',{'undef_module',_cor0}})
+	      %% Line 531
+	      <_cor28> when 'true' ->
+		  %% Line 532
+		  call 'erlang':'throw'
+		      ({'error',{'muldef_module',_cor0}})
+	    end
+'translate_dep_to_low'/3 =
+    %% Line 549
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 551
+	    ( fun (_cor3) ->
+		  case _cor3 of
+		    <{'update',Mod,_cor58,'default',_cor59,_cor60,_cor61,_cor62}> when 'true' ->
+			%% Line 552
+			{'true',Mod}
+		    %% Line 553
+		    <{'update',Mod,_cor63,T,_cor64,_cor65,_cor66,_cor67}> when 'true' ->
+			%% Line 554
+			{'true',{Mod,T}}
+		    %% Line 555
+		    <_cor68> when 'true' ->
+			%% Line 556
+			'false'
+		  end
+	      -| [{'id',{0,0,'-translate_dep_to_low/3-fun-0-'}}] )
+	in  let <UpdateMods> =
+		%% Line 551
+		apply 'filtermap'/2
+		    (_cor5, _cor1)
+	    in  let <RevUpdateMods> =
+		    %% Line 559
+		    call 'lists':'reverse'
+			(UpdateMods)
+		in  let <_cor8> =
+			%% Line 563
+			case <> of
+			  %% Line 564
+			  <>
+			      when call 'erlang':'=:='
+				    (UpdateMods,
+				     []) ->
+			      []
+			  %% Line 565
+			  <> when 'true' ->
+			      [{'suspend',UpdateMods}|[]]
+			end
+		    in  let <_cor14> =
+			    %% Line 571
+			    case <> of
+			      %% Line 572
+			      <>
+				  when call 'erlang':'=:='
+					(UpdateMods,
+					 []) ->
+				  []
+			      %% Line 573
+			      <> when 'true' ->
+				  let <_cor12> =
+				      %% Line 574
+				      ( fun (_cor10) ->
+					    case _cor10 of
+					      <{Mod,_X_T}> when 'true' ->
+						  Mod
+					      %% Line 575
+					      <Mod> when 'true' ->
+						  Mod
+					    end
+					-| [{'id',{0,0,'-translate_dep_to_low/3-fun-1-'}}] )
+				  in  let <_cor13> =
+					  %% Line 574
+					  call 'lists':'map'
+					      (_cor12, %% Line 576
+						       RevUpdateMods)
+				      in  [{'resume',_cor13}|%% Line 576
+							     []]
+			    end
+			in  let <_cor18> =
+				%% Line 580
+				( fun (_cor16) ->
+				      case _cor16 of
+					<{'update',Mod,_cor69,_cor70,_cor71,PreP,PostP,_cor72}> when 'true' ->
+					    %% Line 581
+					    {'true',{'load',{Mod,PreP,PostP}}}
+					%% Line 582
+					<{'load_module',Mod,PreP,PostP,_cor73}> when 'true' ->
+					    %% Line 583
+					    {'true',{'load',{Mod,PreP,PostP}}}
+					%% Line 584
+					<{'remove_module',Mod,PreP,PostP,_cor74}> when 'true' ->
+					    %% Line 585
+					    {'true',{'remove',{Mod,PreP,PostP}}}
+					%% Line 586
+					<_cor75> when 'true' ->
+					    'false'
+				      end
+				  -| [{'id',{0,0,'-translate_dep_to_low/3-fun-2-'}}] )
+			    in  let <LoadRemoveInstrs> =
+				    %% Line 580
+				    apply 'filtermap'/2
+					(_cor18, _cor1)
+				in  let <RevLoadRemoveInstrs> =
+					%% Line 589
+					call 'lists':'reverse'
+					    (LoadRemoveInstrs)
+				    in  let <_cor24> =
+					    %% Line 594
+					    ( fun (_cor22) ->
+						  case _cor22 of
+						    <{'load',{Mod,_cor76,_cor77}}> when 'true' ->
+							%% Line 595
+							case apply 'get_lib'/2
+								 (Mod, _cor0) of
+							  <{Lib,LibVsn}> when 'true' ->
+							      %% Line 596
+							      {'true',{'load_object_code',{Lib,LibVsn,[Mod|[]]}}}
+							  ( <_cor21> when 'true' ->
+								primop 'match_fail'
+								    ({'badmatch',_cor21})
+							    -| ['compiler_generated'] )
+							end
+						    %% Line 597
+						    <_cor78> when 'true' ->
+							'false'
+						  end
+					      -| [{'id',{0,0,'-translate_dep_to_low/3-fun-3-'}}] )
+					in  let <LoadObjCodeInstrs> =
+						%% Line 594
+						apply 'filtermap'/2
+						    (_cor24, %% Line 598
+							     LoadRemoveInstrs)
+					    in  %% Line 599
+						case <> of
+						  %% Line 600
+						  <>
+						      when call 'erlang':'=:='
+							    (_cor2,
+							     'up') ->
+						      let <_cor28> =
+							  %% Line 605
+							  ( fun (_cor26) ->
+								case _cor26 of
+								  <{'update',Mod,_cor79,_cor80,%% Line 606
+											       {'advanced',Extra},_cor81,_cor82,_cor83}> when 'true' ->
+								      %% Line 607
+								      {'true',{Mod,Extra}}
+								  %% Line 608
+								  <_cor84> when 'true' ->
+								      %% Line 609
+								      'false'
+								end
+							    -| [{'id',{0,0,'-translate_dep_to_low/3-fun-4-'}}] )
+						      in  let <CodeChangeMods> =
+							      %% Line 605
+							      apply 'filtermap'/2
+								  (_cor28, _cor1)
+							  in  let <_cor30> =
+								  %% Line 612
+								  case <> of
+								    %% Line 613
+								    <>
+									when call 'erlang':'=:='
+									      (CodeChangeMods,
+									       []) ->
+									[]
+								    %% Line 614
+								    <> when 'true' ->
+									[{'code_change','up',CodeChangeMods}|[]]
+								  end
+							      in  let <_cor32> =
+								      %% Line 619
+								      call 'erlang':'++'
+									  (_cor30, _cor14)
+								  in  let <_cor33> =
+									  %% Line 619
+									  call 'erlang':'++'
+									      (RevLoadRemoveInstrs, _cor32)
+								      in  let <_cor34> =
+									      %% Line 619
+									      call 'erlang':'++'
+										  (_cor8, _cor33)
+									  in  %% Line 618
+									      {LoadObjCodeInstrs,_cor34}
+						  %% Line 622
+						  <>
+						      when call 'erlang':'=:='
+							    (_cor2,
+							     'dn') ->
+						      let <_cor39> =
+							  %% Line 629
+							  ( letrec
+								'lc$^0'/1 =
+								    fun (_cor37) ->
+									case _cor37 of
+									  <[%% Line 630
+									    {'update',Mod,'dynamic',_cor85,{'advanced',Extra},_cor86,_cor87,_cor88}|_cor36]> when 'true' ->
+									      let <_cor38> =
+										  %% Line 631
+										  apply 'lc$^0'/1
+										      (_cor36)
+									      in  ( [{Mod,Extra}|_cor38]
+										    -| ['compiler_generated'] )
+									  ( <[_cor35|_cor36]> when 'true' ->
+										%% Line 631
+										apply 'lc$^0'/1
+										    (_cor36)
+									    -| ['compiler_generated'] )
+									  <[]> when 'true' ->
+									      []
+									  ( <_cor37> when 'true' ->
+										( primop 'match_fail'
+										      ({'function_clause',_cor37})
+										  -| [{'function_name',{'lc$^0',1}}] )
+									    -| ['compiler_generated'] )
+									end
+							    in  apply 'lc$^0'/1
+								    (_cor1)
+							    -| ['list_comprehension'] )
+						      in  let <_cor41> =
+							      %% Line 633
+							      case <> of
+								%% Line 634
+								<>
+								    when call 'erlang':'=:='
+									  (_cor39,
+									   []) ->
+								    []
+								%% Line 635
+								<> when 'true' ->
+								    [{'code_change','down',_cor39}|[]]
+							      end
+							  in  let <_cor47> =
+								  %% Line 643
+								  ( letrec
+									'lc$^1'/1 =
+									    fun (_cor45) ->
+										case _cor45 of
+										  <[%% Line 644
+										    {'update',Mod,'static',_cor89,{'advanced',Extra},_cor90,_cor91,_cor92}|_cor44]> when 'true' ->
+										      let <_cor46> =
+											  %% Line 645
+											  apply 'lc$^1'/1
+											      (_cor44)
+										      in  ( [{Mod,Extra}|_cor46]
+											    -| ['compiler_generated'] )
+										  ( <[_cor43|_cor44]> when 'true' ->
+											%% Line 645
+											apply 'lc$^1'/1
+											    (_cor44)
+										    -| ['compiler_generated'] )
+										  <[]> when 'true' ->
+										      []
+										  ( <_cor45> when 'true' ->
+											( primop 'match_fail'
+											      ({'function_clause',_cor45})
+											  -| [{'function_name',{'lc$^1',1}}] )
+										    -| ['compiler_generated'] )
+										end
+								    in  apply 'lc$^1'/1
+									    (_cor1)
+								    -| ['list_comprehension'] )
+							      in  let <_cor49> =
+								      %% Line 647
+								      case <> of
+									%% Line 648
+									<>
+									    when call 'erlang':'=:='
+										  (_cor47,
+										   []) ->
+									    []
+									%% Line 649
+									<> when 'true' ->
+									    [{'code_change','down',_cor47}|[]]
+								      end
+								  in  let <_cor51> =
+									  %% Line 655
+									  call 'erlang':'++'
+									      (_cor49, _cor14)
+								      in  let <_cor52> =
+									      %% Line 655
+									      call 'erlang':'++'
+										  (LoadRemoveInstrs, _cor51)
+									  in  let <_cor53> =
+										  %% Line 654
+										  call 'erlang':'++'
+										      (_cor41, _cor52)
+									      in  let <_cor54> =
+										      %% Line 654
+										      call 'erlang':'++'
+											  (_cor8, _cor53)
+										  in  %% Line 653
+										      {LoadObjCodeInstrs,_cor54}
+						  ( <> when 'true' ->
+							primop 'match_fail'
+							    ('if_clause')
+						    -| ['compiler_generated'] )
+						end
+'get_lib'/2 =
+    %% Line 658
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Mod,[{'application',Name,_cor5,Vsn,_cor6,_cor7,Modules,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16}|T]> when 'true' ->
+	      %% Line 659
+	      case call 'lists':'member'
+		       (Mod, Modules) of
+		%% Line 660
+		<'true'> when 'true' ->
+		    {Name,Vsn}
+		%% Line 661
+		<'false'> when 'true' ->
+		    apply 'get_lib'/2
+			(Mod, T)
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 663
+	  <Mod,[]> when 'true' ->
+	      %% Line 664
+	      call 'erlang':'throw'
+		  ({'error',{'no_such_module',Mod}})
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'get_lib',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'merge_load_object_code'/1 =
+    %% Line 673
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 674
+	    ( fun (_cor1) ->
+		  case _cor1 of
+		    <{'load_object_code',_cor7}> when 'true' ->
+			'true'
+		    %% Line 675
+		    <_cor8> when 'true' ->
+			'false'
+		  end
+	      -| [{'id',{0,0,'-merge_load_object_code/1-fun-0-'}}] )
+	in  %% Line 674
+	    case apply 'split'/2
+		     (_cor3, _cor0) of
+	      <{Found,Rest}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 677
+		      apply 'mlo'/1
+			  (Found)
+		  in  %% Line 677
+		      call 'erlang':'++'
+			  (_cor5, Rest)
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mlo'/1 =
+    %% Line 679
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{'load_object_code',{Lib,LibVsn,Mods}}|T]> when 'true' ->
+	      let <_cor5> =
+		  %% Line 680
+		  ( fun (_cor3) ->
+			case _cor3 of
+			  <{'load_object_code',{Lib2,LibVsn2,_X_Mods2}}>
+			      when let <_cor1> =
+				    %% Line 681
+				    call 'erlang':'=='
+					(Lib, Lib2)
+				in  let <_cor2> =
+					%% Line 681
+					call 'erlang':'=='
+					    (LibVsn, LibVsn2)
+				    in  %% Line 681
+					call 'erlang':'and'
+					    (_cor1, _cor2) ->
+			      %% Line 681
+			      'true'
+			  %% Line 682
+			  <{'load_object_code',{Lib2,LibVsn2,_X_Mods2}}>
+			      when %% Line 683
+				call 'erlang':'=='
+				    (Lib,
+				     Lib2) ->
+			      %% Line 684
+			      call 'erlang':'throw'
+				  ({'error',{'conflicting_versions',%% Line 685
+								    Lib,%% Line 685
+									LibVsn,%% Line 685
+									       LibVsn2}})
+			  %% Line 686
+			  <_cor17> when 'true' ->
+			      'false'
+			end
+		    -| [{'id',{0,0,'-mlo/1-fun-0-'}}] )
+	      in  %% Line 680
+		  case apply 'split'/2
+			   (_cor5, %% Line 687
+				   T) of
+		    <{Same,Other}> when 'true' ->
+			let <_cor12> =
+			    %% Line 690
+			    ( fun (_cor9,_cor8) ->
+				  case <_cor9,_cor8> of
+				    <{'load_object_code',{_cor18,_cor19,Ms}},Res> when 'true' ->
+					%% Line 691
+					apply 'union'/2
+					    (Ms, Res)
+				    ( <_cor11,_cor10> when 'true' ->
+					  ( primop 'match_fail'
+						({'function_clause',_cor11,_cor10})
+					    -| [{'function_name',{'-mlo/1-fun-1-',2}}] )
+				      -| ['compiler_generated'] )
+				  end
+			      -| [{'id',{0,0,'-mlo/1-fun-1-'}}] )
+			in  let <OCode0> =
+				%% Line 690
+				call 'lists':'foldr'
+				    (_cor12, %% Line 695
+					     [], %% Line 695
+						 Same)
+			    in  let <OCode1> =
+				    %% Line 696
+				    apply 'union'/2
+					(Mods, OCode0)
+				in  let <_cor15> =
+					%% Line 698
+					apply 'mlo'/1
+					    (Other)
+				    in  %% Line 698
+					[{'load_object_code',{Lib,LibVsn,OCode1}}|_cor15]
+		    ( <_cor6> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor6})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 699
+	  <[]> when 'true' ->
+	      []
+	  ( <_cor16> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16})
+		  -| [{'function_name',{'mlo',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'sort_emulator_restart'/3 =
+    %% Line 711
+    fun (_cor2,_cor1,_cor0) ->
+	let <Before1,After1> =
+	    %% Line 713
+	    case apply 'filter_out'/2
+		     ('restart_new_emulator', _cor0) of
+	      %% Line 714
+	      <_cor13>
+		  when call 'erlang':'=:='
+			(_cor13,
+			 _cor0) ->
+		  %% Line 715
+		  <_cor1,_cor0>
+	      %% Line 716
+	      <A1>
+		  when call 'erlang':'=:='
+			(_cor2,
+			 'up') ->
+		  %% Line 717
+		  <['restart_new_emulator'|_cor1],A1>
+	      %% Line 718
+	      <A1>
+		  when call 'erlang':'=:='
+			(_cor2,
+			 'dn') ->
+		  let <_cor3> =
+		      %% Line 719
+		      call 'erlang':'++'
+			  (A1, ['restart_emulator'])
+		  in  %% Line 719
+		      <_cor1,_cor3>
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor4})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor8> =
+		%% Line 722
+		case apply 'filter_out'/2
+			 ('restart_emulator', After1) of
+		  %% Line 723
+		  <_cor14>
+		      when call 'erlang':'=:='
+			    (_cor14,
+			     After1) ->
+		      %% Line 724
+		      After1
+		  %% Line 725
+		  <A2> when 'true' ->
+		      %% Line 726
+		      call 'erlang':'++'
+			  (A2, ['restart_emulator'])
+		end
+	    in  %% Line 728
+		{Before1,_cor8}
+'filter_out'/2 =
+    %% Line 731
+    fun (_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 732
+	    ( fun (_cor2) ->
+		  case _cor2 of
+		    <X>
+			when call 'erlang':'=:='
+			      (_cor2,
+			       _cor1) ->
+			'false'
+		    <_cor7> when 'true' ->
+			'true'
+		  end
+	      -| [{'id',{0,0,'-filter_out/2-fun-0-'}}] )
+	in  %% Line 732
+	    call 'lists':'filter'
+		(_cor4, _cor0)
+'check_syntax'/1 =
+    %% Line 740
+    fun (_cor0) ->
+	case _cor0 of
+	  <[H|T]> when 'true' ->
+	      do  %% Line 741
+		  apply 'check_op'/1
+		      (H)
+		  %% Line 742
+		  apply 'check_syntax'/1
+		      (T)
+	  %% Line 743
+	  <[]> when 'true' ->
+	      'ok'
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'check_syntax',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'check_op'/1 =
+    %% Line 745
+    fun (_cor0) ->
+	case _cor0 of
+	  <'mnesia_backup'> when 'true' ->
+	      %% Line 746
+	      call 'erlang':'throw'
+		  ({'error',{'not_yet_implemented','mnesia_backup'}})
+	  %% Line 747
+	  <{'update',Mod,Change,PrePurge,PostPurge,Mods}> when 'true' ->
+	      do  %% Line 748
+		  apply 'check_mod'/1
+		      (Mod)
+		  do  %% Line 749
+		      apply 'check_change'/1
+			  (Change)
+		      do  %% Line 750
+			  apply 'check_purge'/1
+			      (PrePurge)
+			  do  %% Line 751
+			      apply 'check_purge'/1
+				  (PostPurge)
+			      do  %% Line 752
+				  apply 'check_list'/1
+				      (Mods)
+				  let <_cor3> =
+				      %% Line 753
+				      ( fun (_cor1) ->
+					    apply 'check_mod'/1
+						(_cor1)
+					-| [{'id',{0,0,'-check_op/1-fun-0-'}}] )
+				  in  %% Line 753
+				      call 'lists':'foreach'
+					  (_cor3, Mods)
+	  %% Line 754
+	  <{'update',Mod,Timeout,Change,PrePurge,PostPurge,Mods}> when 'true' ->
+	      do  %% Line 755
+		  apply 'check_mod'/1
+		      (Mod)
+		  do  %% Line 756
+		      apply 'check_timeout'/1
+			  (Timeout)
+		      do  %% Line 757
+			  apply 'check_change'/1
+			      (Change)
+			  do  %% Line 758
+			      apply 'check_purge'/1
+				  (PrePurge)
+			      do  %% Line 759
+				  apply 'check_purge'/1
+				      (PostPurge)
+				  do  %% Line 760
+				      apply 'check_list'/1
+					  (Mods)
+				      let <_cor6> =
+					  %% Line 761
+					  ( fun (_cor4) ->
+						apply 'check_mod'/1
+						    (_cor4)
+					    -| [{'id',{0,0,'-check_op/1-fun-1-'}}] )
+				      in  %% Line 761
+					  call 'lists':'foreach'
+					      (_cor6, Mods)
+	  %% Line 762
+	  <{'update',Mod,ModType,Timeout,Change,PrePurge,PostPurge,%% Line 763
+								   Mods}> when 'true' ->
+	      do  %% Line 764
+		  apply 'check_mod'/1
+		      (Mod)
+		  do  %% Line 765
+		      apply 'check_mod_type'/1
+			  (ModType)
+		      do  %% Line 766
+			  apply 'check_timeout'/1
+			      (Timeout)
+			  do  %% Line 767
+			      apply 'check_change'/1
+				  (Change)
+			      do  %% Line 768
+				  apply 'check_purge'/1
+				      (PrePurge)
+				  do  %% Line 769
+				      apply 'check_purge'/1
+					  (PostPurge)
+				      do  %% Line 770
+					  apply 'check_list'/1
+					      (Mods)
+					  let <_cor9> =
+					      %% Line 771
+					      ( fun (_cor7) ->
+						    apply 'check_mod'/1
+							(_cor7)
+						-| [{'id',{0,0,'-check_op/1-fun-2-'}}] )
+					  in  %% Line 771
+					      call 'lists':'foreach'
+						  (_cor9, Mods)
+	  %% Line 772
+	  <{'load_module',Mod,PrePurge,PostPurge,Mods}> when 'true' ->
+	      do  %% Line 773
+		  apply 'check_mod'/1
+		      (Mod)
+		  do  %% Line 774
+		      apply 'check_purge'/1
+			  (PrePurge)
+		      do  %% Line 775
+			  apply 'check_purge'/1
+			      (PostPurge)
+			  do  %% Line 776
+			      apply 'check_list'/1
+				  (Mods)
+			      let <_cor12> =
+				  %% Line 777
+				  ( fun (_cor10) ->
+					apply 'check_mod'/1
+					    (_cor10)
+				    -| [{'id',{0,0,'-check_op/1-fun-3-'}}] )
+			      in  %% Line 777
+				  call 'lists':'foreach'
+				      (_cor12, Mods)
+	  %% Line 778
+	  <{'add_module',Mod}> when 'true' ->
+	      %% Line 779
+	      apply 'check_mod'/1
+		  (Mod)
+	  %% Line 780
+	  <{'add_module',Mod,Mods}> when 'true' ->
+	      do  %% Line 781
+		  apply 'check_mod'/1
+		      (Mod)
+		  do  %% Line 782
+		      apply 'check_list'/1
+			  (Mods)
+		      let <_cor15> =
+			  %% Line 783
+			  ( fun (_cor13) ->
+				apply 'check_mod'/1
+				    (_cor13)
+			    -| [{'id',{0,0,'-check_op/1-fun-4-'}}] )
+		      in  %% Line 783
+			  call 'lists':'foreach'
+			      (_cor15, Mods)
+	  %% Line 784
+	  <{'remove_module',Mod,PrePurge,PostPurge,Mods}> when 'true' ->
+	      do  %% Line 785
+		  apply 'check_mod'/1
+		      (Mod)
+		  do  %% Line 786
+		      apply 'check_purge'/1
+			  (PrePurge)
+		      do  %% Line 787
+			  apply 'check_purge'/1
+			      (PostPurge)
+			  do  %% Line 788
+			      apply 'check_list'/1
+				  (Mods)
+			      let <_cor18> =
+				  %% Line 789
+				  ( fun (_cor16) ->
+					apply 'check_mod'/1
+					    (_cor16)
+				    -| [{'id',{0,0,'-check_op/1-fun-5-'}}] )
+			      in  %% Line 789
+				  call 'lists':'foreach'
+				      (_cor18, Mods)
+	  %% Line 790
+	  <{'remove_application',Appl}> when 'true' ->
+	      %% Line 791
+	      apply 'check_appl'/1
+		  (Appl)
+	  %% Line 792
+	  <{'add_application',Appl,Type}> when 'true' ->
+	      do  %% Line 793
+		  apply 'check_appl'/1
+		      (Appl)
+		  %% Line 794
+		  apply 'check_start_type'/1
+		      (Type)
+	  %% Line 795
+	  <{'restart_application',Appl}> when 'true' ->
+	      %% Line 796
+	      apply 'check_appl'/1
+		  (Appl)
+	  %% Line 797
+	  <'restart'> when 'true' ->
+	      'ok'
+	  %% Line 798
+	  <'reboot'> when 'true' ->
+	      'ok'
+	  %% Line 799
+	  <{'load_object_code',{Lib,LibVsn,Mods}}> when 'true' ->
+	      do  %% Line 800
+		  apply 'check_lib'/1
+		      (Lib)
+		  do  %% Line 801
+		      apply 'check_lib_vsn'/1
+			  (LibVsn)
+		      do  %% Line 802
+			  apply 'check_list'/1
+			      (Mods)
+			  let <_cor21> =
+			      %% Line 803
+			      ( fun (_cor19) ->
+				    apply 'check_mod'/1
+					(_cor19)
+				-| [{'id',{0,0,'-check_op/1-fun-6-'}}] )
+			  in  %% Line 803
+			      call 'lists':'foreach'
+				  (_cor21, Mods)
+	  %% Line 804
+	  <'point_of_no_return'> when 'true' ->
+	      'ok'
+	  %% Line 805
+	  <{'load',{Mod,PrePurge,PostPurge}}> when 'true' ->
+	      do  %% Line 806
+		  apply 'check_mod'/1
+		      (Mod)
+		  do  %% Line 807
+		      apply 'check_purge'/1
+			  (PrePurge)
+		      %% Line 808
+		      apply 'check_purge'/1
+			  (PostPurge)
+	  %% Line 809
+	  <{'remove',{Mod,PrePurge,PostPurge}}> when 'true' ->
+	      do  %% Line 810
+		  apply 'check_mod'/1
+		      (Mod)
+		  do  %% Line 811
+		      apply 'check_purge'/1
+			  (PrePurge)
+		      %% Line 812
+		      apply 'check_purge'/1
+			  (PostPurge)
+	  %% Line 813
+	  <{'purge',Mods}> when 'true' ->
+	      do  %% Line 814
+		  apply 'check_list'/1
+		      (Mods)
+		  let <_cor24> =
+		      %% Line 815
+		      ( fun (_cor22) ->
+			    apply 'check_mod'/1
+				(_cor22)
+			-| [{'id',{0,0,'-check_op/1-fun-7-'}}] )
+		  in  %% Line 815
+		      call 'lists':'foreach'
+			  (_cor24, Mods)
+	  %% Line 816
+	  <{'suspend',Mods}> when 'true' ->
+	      do  %% Line 817
+		  apply 'check_list'/1
+		      (Mods)
+		  let <_cor27> =
+		      %% Line 818
+		      ( fun (_cor25) ->
+			    case _cor25 of
+			      <{M,T}> when 'true' ->
+				  do  apply 'check_mod'/1
+					  (M)
+				      apply 'check_timeout'/1
+					  (T)
+			      %% Line 819
+			      <M> when 'true' ->
+				  apply 'check_mod'/1
+				      (M)
+			    end
+			-| [{'id',{0,0,'-check_op/1-fun-8-'}}] )
+		  in  %% Line 818
+		      call 'lists':'foreach'
+			  (_cor27, %% Line 820
+				   Mods)
+	  %% Line 821
+	  <{'resume',Mods}> when 'true' ->
+	      do  %% Line 822
+		  apply 'check_list'/1
+		      (Mods)
+		  let <_cor30> =
+		      %% Line 823
+		      ( fun (_cor28) ->
+			    apply 'check_mod'/1
+				(_cor28)
+			-| [{'id',{0,0,'-check_op/1-fun-9-'}}] )
+		  in  %% Line 823
+		      call 'lists':'foreach'
+			  (_cor30, Mods)
+	  %% Line 824
+	  <{'code_change',Mods}> when 'true' ->
+	      do  %% Line 825
+		  apply 'check_list'/1
+		      (Mods)
+		  let <_cor33> =
+		      %% Line 826
+		      ( fun (_cor31) ->
+			    case _cor31 of
+			      <{M,_X_Extra}> when 'true' ->
+				  apply 'check_mod'/1
+				      (M)
+			      %% Line 827
+			      <X> when 'true' ->
+				  call 'erlang':'throw'
+				      ({'error',{'bad_code_change',X}})
+			    end
+			-| [{'id',{0,0,'-check_op/1-fun-10-'}}] )
+		  in  %% Line 826
+		      call 'lists':'foreach'
+			  (_cor33, %% Line 828
+				   Mods)
+	  %% Line 829
+	  <{'code_change',Mode,Mods}> when 'true' ->
+	      do  %% Line 830
+		  apply 'check_list'/1
+		      (Mods)
+		  do  %% Line 831
+		      apply 'check_mode'/1
+			  (Mode)
+		      let <_cor36> =
+			  %% Line 832
+			  ( fun (_cor34) ->
+				case _cor34 of
+				  <{M,_X_Extra}> when 'true' ->
+				      apply 'check_mod'/1
+					  (M)
+				  %% Line 833
+				  <X> when 'true' ->
+				      call 'erlang':'throw'
+					  ({'error',{'bad_code_change',X}})
+				end
+			    -| [{'id',{0,0,'-check_op/1-fun-11-'}}] )
+		      in  %% Line 832
+			  call 'lists':'foreach'
+			      (_cor36, %% Line 834
+				       Mods)
+	  %% Line 835
+	  <{'stop',Mods}> when 'true' ->
+	      do  %% Line 836
+		  apply 'check_list'/1
+		      (Mods)
+		  let <_cor39> =
+		      %% Line 837
+		      ( fun (_cor37) ->
+			    apply 'check_mod'/1
+				(_cor37)
+			-| [{'id',{0,0,'-check_op/1-fun-12-'}}] )
+		  in  %% Line 837
+		      call 'lists':'foreach'
+			  (_cor39, Mods)
+	  %% Line 838
+	  <{'start',Mods}> when 'true' ->
+	      do  %% Line 839
+		  apply 'check_list'/1
+		      (Mods)
+		  let <_cor42> =
+		      %% Line 840
+		      ( fun (_cor40) ->
+			    apply 'check_mod'/1
+				(_cor40)
+			-| [{'id',{0,0,'-check_op/1-fun-13-'}}] )
+		  in  %% Line 840
+		      call 'lists':'foreach'
+			  (_cor42, Mods)
+	  %% Line 841
+	  <{'sync_nodes',_X_Id,{M,F,A}}> when 'true' ->
+	      do  %% Line 842
+		  apply 'check_mod'/1
+		      (M)
+		  do  %% Line 843
+		      apply 'check_func'/1
+			  (F)
+		      %% Line 844
+		      apply 'check_args'/1
+			  (A)
+	  %% Line 845
+	  <{'sync_nodes',_X_Id,Nodes}> when 'true' ->
+	      do  %% Line 846
+		  apply 'check_list'/1
+		      (Nodes)
+		  let <_cor45> =
+		      %% Line 847
+		      ( fun (_cor43) ->
+			    apply 'check_node'/1
+				(_cor43)
+			-| [{'id',{0,0,'-check_op/1-fun-14-'}}] )
+		  in  %% Line 847
+		      call 'lists':'foreach'
+			  (_cor45, Nodes)
+	  %% Line 848
+	  <{'apply',{M,F,A}}> when 'true' ->
+	      do  %% Line 849
+		  apply 'check_mod'/1
+		      (M)
+		  do  %% Line 850
+		      apply 'check_func'/1
+			  (F)
+		      %% Line 851
+		      apply 'check_args'/1
+			  (A)
+	  %% Line 852
+	  <'restart_new_emulator'> when 'true' ->
+	      'ok'
+	  %% Line 853
+	  <'restart_emulator'> when 'true' ->
+	      'ok'
+	  %% Line 854
+	  <X> when 'true' ->
+	      call 'erlang':'throw'
+		  ({'error',{'bad_instruction',X}})
+	end
+'check_mod'/1 =
+    %% Line 856
+    fun (_cor0) ->
+	case _cor0 of
+	  <Mod>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      'ok'
+	  %% Line 857
+	  <Mod> when 'true' ->
+	      call 'erlang':'throw'
+		  ({'error',{'bad_module',Mod}})
+	end
+'check_change'/1 =
+    %% Line 859
+    fun (_cor0) ->
+	case _cor0 of
+	  <'soft'> when 'true' ->
+	      'ok'
+	  %% Line 860
+	  <{'advanced',_cor2}> when 'true' ->
+	      'ok'
+	  %% Line 861
+	  <Change> when 'true' ->
+	      call 'erlang':'throw'
+		  ({'error',{'bad_change',Change}})
+	end
+'check_mod_type'/1 =
+    %% Line 863
+    fun (_cor0) ->
+	case _cor0 of
+	  <'static'> when 'true' ->
+	      'ok'
+	  %% Line 864
+	  <'dynamic'> when 'true' ->
+	      'ok'
+	  %% Line 865
+	  <ModType> when 'true' ->
+	      call 'erlang':'throw'
+		  ({'error',{'bad_mod_type',ModType}})
+	end
+'check_purge'/1 =
+    %% Line 867
+    fun (_cor0) ->
+	case _cor0 of
+	  <'soft_purge'> when 'true' ->
+	      'ok'
+	  %% Line 868
+	  <'brutal_purge'> when 'true' ->
+	      'ok'
+	  %% Line 869
+	  <Purge> when 'true' ->
+	      call 'erlang':'throw'
+		  ({'error',{'bad_purge_method',Purge}})
+	end
+'check_list'/1 =
+    %% Line 871
+    fun (_cor0) ->
+	case _cor0 of
+	  <List>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      'ok'
+	  %% Line 872
+	  <List> when 'true' ->
+	      call 'erlang':'throw'
+		  ({'error',{'bad_list',List}})
+	end
+'check_args'/1 =
+    %% Line 874
+    fun (_cor0) ->
+	case _cor0 of
+	  <Args>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      'ok'
+	  %% Line 875
+	  <Args> when 'true' ->
+	      call 'erlang':'throw'
+		  ({'error',{'bad_args_list',Args}})
+	end
+'check_node'/1 =
+    %% Line 877
+    fun (_cor0) ->
+	case _cor0 of
+	  <Node>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      'ok'
+	  %% Line 878
+	  <Node> when 'true' ->
+	      call 'erlang':'throw'
+		  ({'error',{'bad_node',Node}})
+	end
+'check_appl'/1 =
+    %% Line 880
+    fun (_cor0) ->
+	case _cor0 of
+	  <Appl>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      'ok'
+	  %% Line 881
+	  <Appl> when 'true' ->
+	      call 'erlang':'throw'
+		  ({'error',{'bad_application',Appl}})
+	end
+'check_start_type'/1 =
+    %% Line 883
+    fun (_cor0) ->
+	case _cor0 of
+	  <'none'> when 'true' ->
+	      'ok'
+	  %% Line 884
+	  <'load'> when 'true' ->
+	      'ok'
+	  %% Line 885
+	  <'temporary'> when 'true' ->
+	      'ok'
+	  %% Line 886
+	  <'transient'> when 'true' ->
+	      'ok'
+	  %% Line 887
+	  <'permanent'> when 'true' ->
+	      'ok'
+	  %% Line 888
+	  <T> when 'true' ->
+	      call 'erlang':'throw'
+		  ({'error',{'bad_start_type',T}})
+	end
+'check_func'/1 =
+    %% Line 890
+    fun (_cor0) ->
+	case _cor0 of
+	  <Func>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      'ok'
+	  %% Line 891
+	  <Func> when 'true' ->
+	      call 'erlang':'throw'
+		  ({'error',{'bad_func',Func}})
+	end
+'check_lib'/1 =
+    %% Line 893
+    fun (_cor0) ->
+	case _cor0 of
+	  <Lib>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      'ok'
+	  %% Line 894
+	  <Lib> when 'true' ->
+	      call 'erlang':'throw'
+		  ({'error',{'bad_lib',Lib}})
+	end
+'check_lib_vsn'/1 =
+    %% Line 896
+    fun (_cor0) ->
+	case _cor0 of
+	  <LibVsn>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      'ok'
+	  %% Line 897
+	  <LibVsn> when 'true' ->
+	      call 'erlang':'throw'
+		  ({'error',{'bad_lib_vsn',LibVsn}})
+	end
+'check_timeout'/1 =
+    %% Line 899
+    fun (_cor0) ->
+	case _cor0 of
+	  <'default'> when 'true' ->
+	      'ok'
+	  %% Line 900
+	  <'infinity'> when 'true' ->
+	      'ok'
+	  %% Line 901
+	  <Int>
+	      when let <_cor1> =
+		    call 'erlang':'is_integer'
+			(_cor0)
+		in  let <_cor2> =
+			call 'erlang':'>'
+			    (_cor0, 0)
+		    in  call 'erlang':'and'
+			    (_cor1, _cor2) ->
+	      'ok'
+	  %% Line 902
+	  <T> when 'true' ->
+	      call 'erlang':'throw'
+		  ({'error',{'bad_timeout',T}})
+	end
+'check_mode'/1 =
+    %% Line 904
+    fun (_cor0) ->
+	case _cor0 of
+	  <'up'> when 'true' ->
+	      'ok'
+	  %% Line 905
+	  <'down'> when 'true' ->
+	      'ok'
+	  %% Line 906
+	  <Mode> when 'true' ->
+	      call 'erlang':'throw'
+		  ({'error',{'bad_mode',Mode}})
+	end
+'format_error'/1 =
+    %% Line 911
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'bad_op_before_point_of_no_return',Instruction}> when 'true' ->
+	      %% Line 912
+	      call 'io_lib':'format'
+		  ([66|[97|[100|[32|[105|[110|[115|[116|[114|[117|[99|[116|[105|[111|[110|[32|[126|[112|[126|[110|[98|[101|[102|[111|[114|[101|[32|[112|[111|[105|[110|[116|[95|[111|[102|[95|[110|[111|[95|[114|[101|[116|[117|[114|[110|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 913
+																																				    [Instruction|[]])
+	  %% Line 914
+	  <{'no_object_code',Mod}> when 'true' ->
+	      %% Line 915
+	      call 'io_lib':'format'
+		  ([78|[111|[32|[108|[111|[97|[100|[95|[111|[98|[106|[101|[99|[116|[95|[99|[111|[100|[101|[32|[102|[111|[117|[110|[100|[32|[102|[111|[114|[32|[109|[111|[100|[117|[108|[101|[58|[32|[126|[119|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Mod|[]])
+	  %% Line 916
+	  <{'suspended_not_resumed',Mods}> when 'true' ->
+	      %% Line 917
+	      call 'io_lib':'format'
+		  ([83|[117|[115|[112|[101|[110|[100|[101|[100|[32|[98|[117|[116|[32|[110|[111|[116|[32|[114|[101|[115|[117|[109|[101|[100|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Mods|[]])
+	  %% Line 918
+	  <{'resumed_not_suspended',Mods}> when 'true' ->
+	      %% Line 919
+	      call 'io_lib':'format'
+		  ([82|[101|[115|[117|[109|[101|[100|[32|[98|[117|[116|[32|[110|[111|[116|[32|[115|[117|[115|[112|[101|[110|[100|[101|[100|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Mods|[]])
+	  %% Line 920
+	  <{'code_change_not_suspended',Mods}> when 'true' ->
+	      %% Line 921
+	      call 'io_lib':'format'
+		  ([67|[111|[100|[101|[32|[99|[104|[97|[110|[103|[101|[100|[32|[98|[117|[116|[32|[110|[111|[116|[32|[115|[117|[115|[112|[101|[110|[100|[101|[100|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Mods|[]])
+	  %% Line 922
+	  <{'start_not_stop',Mods}> when 'true' ->
+	      %% Line 923
+	      call 'io_lib':'format'
+		  ([83|[116|[97|[114|[116|[101|[100|[32|[98|[117|[116|[32|[110|[111|[116|[32|[115|[116|[111|[112|[112|[101|[100|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Mods|[]])
+	  %% Line 924
+	  <{'stop_not_start',Mods}> when 'true' ->
+	      %% Line 925
+	      call 'io_lib':'format'
+		  ([83|[116|[111|[112|[112|[101|[100|[32|[98|[117|[116|[32|[110|[111|[116|[32|[115|[116|[97|[114|[116|[101|[100|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Mods|[]])
+	  %% Line 926
+	  <{'no_such_application',App}> when 'true' ->
+	      %% Line 927
+	      call 'io_lib':'format'
+		  ([83|[116|[97|[114|[116|[101|[100|[32|[117|[110|[100|[101|[102|[105|[110|[101|[100|[32|[97|[112|[112|[108|[105|[99|[97|[116|[105|[111|[110|[58|[32|[126|[119|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [App|[]])
+	  %% Line 928
+	  <{'removed_application_present',App}> when 'true' ->
+	      %% Line 929
+	      call 'io_lib':'format'
+		  ([82|[101|[109|[111|[118|[101|[100|[32|[97|[112|[112|[108|[105|[99|[97|[116|[105|[111|[110|[32|[112|[114|[101|[115|[101|[110|[116|[58|[32|[126|[119|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [App|[]])
+	  %% Line 930
+	  <'dup_mnesia_backup'> when 'true' ->
+	      %% Line 931
+	      call 'io_lib':'format'
+		  ([68|[117|[112|[108|[105|[99|[97|[116|[101|[32|[109|[110|[101|[115|[105|[97|[95|[98|[97|[99|[107|[117|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [])
+	  %% Line 932
+	  <'bad_mnesia_backup'> when 'true' ->
+	      %% Line 933
+	      call 'io_lib':'format'
+		  ([109|[110|[101|[115|[105|[97|[95|[98|[97|[99|[107|[117|[112|[32|[105|[110|[32|[98|[97|[100|[32|[112|[111|[115|[105|[116|[105|[111|[110|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [])
+	  %% Line 934
+	  <{'conflicting_versions',Lib,V1,V2}> when 'true' ->
+	      %% Line 935
+	      call 'io_lib':'format'
+		  ([67|[111|[110|[102|[108|[105|[99|[116|[105|[110|[103|[32|[118|[101|[114|[115|[105|[111|[110|[115|[32|[102|[111|[114|[32|[126|[119|[44|[32|[126|[116|[115|[32|[97|[110|[100|[32|[126|[116|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Lib|[V1|[V2|[]]]])
+	  %% Line 936
+	  <{'no_appl_vsn',Appl}> when 'true' ->
+	      %% Line 937
+	      call 'io_lib':'format'
+		  ([78|[111|[32|[118|[101|[114|[115|[105|[111|[110|[32|[115|[112|[101|[99|[105|[102|[105|[101|[100|[32|[102|[111|[114|[32|[97|[112|[112|[108|[105|[99|[97|[116|[105|[111|[110|[58|[32|[126|[119|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Appl|[]])
+	  %% Line 938
+	  <{'no_such_module',Mod}> when 'true' ->
+	      %% Line 939
+	      call 'io_lib':'format'
+		  ([78|[111|[32|[115|[117|[99|[104|[32|[109|[111|[100|[117|[108|[101|[58|[32|[126|[119|[126|[110]]]]]]]]]]]]]]]]]]]], [Mod|[]])
+	  %% Line 940
+	  <'too_many_point_of_no_return'> when 'true' ->
+	      %% Line 941
+	      call 'io_lib':'format'
+		  ([84|[111|[111|[32|[109|[97|[110|[121|[32|[112|[111|[105|[110|[116|[95|[111|[102|[95|[110|[111|[95|[114|[101|[116|[117|[114|[110|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [])
+	  %% Line 943
+	  <{'bad_instruction',X}> when 'true' ->
+	      %% Line 944
+	      call 'io_lib':'format'
+		  ([66|[97|[100|[32|[105|[110|[115|[116|[114|[117|[99|[116|[105|[111|[110|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]], [X|[]])
+	  %% Line 945
+	  <{'bad_module',X}> when 'true' ->
+	      %% Line 946
+	      call 'io_lib':'format'
+		  ([66|[97|[100|[32|[109|[111|[100|[117|[108|[101|[58|[32|[126|[112|[40|[115|[104|[111|[117|[108|[100|[32|[98|[101|[32|[97|[116|[111|[109|[40|[41|[41|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [X|[]])
+	  %% Line 947
+	  <{'bad_code_change',X}> when 'true' ->
+	      %% Line 948
+	      call 'io_lib':'format'
+		  ([66|[97|[100|[32|[99|[111|[100|[101|[95|[99|[104|[97|[110|[103|[101|[58|[32|[126|[112|[40|[115|[104|[111|[117|[108|[100|[32|[98|[101|[32|[123|[77|[111|[100|[44|[32|[69|[120|[116|[114|[97|[125|[41|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [X|[]])
+	  %% Line 949
+	  <{'bad_change',X}> when 'true' ->
+	      %% Line 950
+	      call 'io_lib':'format'
+		  ([66|[97|[100|[32|[99|[104|[97|[110|[103|[101|[32|[115|[112|[101|[99|[58|[32|[126|[112|[40|[115|[104|[111|[117|[108|[100|[32|[98|[101|[32|[115|[111|[102|[116|[32|[124|[32|[123|[97|[100|[118|[97|[110|[99|[101|[100|[44|[32|[69|[125|[41|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [X|[]])
+	  %% Line 951
+	  <{'bad_mod_type',X}> when 'true' ->
+	      %% Line 952
+	      call 'io_lib':'format'
+		  ([66|[97|[100|[32|[109|[111|[100|[117|[108|[101|[32|[116|[121|[112|[101|[58|[32|[126|[112|[40|[115|[104|[111|[117|[108|[100|[32|[98|[101|[32|[115|[116|[97|[116|[105|[99|[32|[124|[32|[100|[121|[110|[97|[109|[105|[99|[41|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [X|[]])
+	  %% Line 953
+	  <{'bad_purge_method',X}> when 'true' ->
+	      %% Line 954
+	      call 'io_lib':'format'
+		  ([66|[97|[100|[32|[112|[117|[114|[103|[101|[32|[109|[101|[116|[104|[111|[100|[58|[32|[126|[112|[40|[115|[104|[111|[117|[108|[100|[32|[98|[101|[32|[115|[111|[102|[116|[95|[112|[117|[114|[103|[101|[32|[124|[32|[98|[114|[117|[116|[97|[108|[95|[112|[117|[114|[103|[101|[41|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 955
+																																												     [X|[]])
+	  %% Line 956
+	  <{'bad_list',X}> when 'true' ->
+	      %% Line 957
+	      call 'io_lib':'format'
+		  ([66|[97|[100|[32|[108|[105|[115|[116|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]], [X|[]])
+	  %% Line 958
+	  <{'bad_args_list',X}> when 'true' ->
+	      %% Line 959
+	      call 'io_lib':'format'
+		  ([66|[97|[100|[32|[97|[114|[103|[117|[109|[101|[110|[116|[32|[108|[105|[115|[116|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]], [X|[]])
+	  %% Line 960
+	  <{'bad_node',X}> when 'true' ->
+	      %% Line 961
+	      call 'io_lib':'format'
+		  ([66|[97|[100|[32|[110|[111|[100|[101|[58|[32|[126|[112|[40|[115|[104|[111|[117|[108|[100|[32|[98|[101|[32|[97|[116|[111|[109|[40|[41|[41|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [X|[]])
+	  %% Line 962
+	  <{'bad_application',X}> when 'true' ->
+	      %% Line 963
+	      call 'io_lib':'format'
+		  ([66|[97|[100|[32|[97|[112|[112|[108|[105|[99|[97|[116|[105|[111|[110|[58|[32|[126|[112|[40|[115|[104|[111|[117|[108|[100|[32|[98|[101|[32|[97|[116|[111|[109|[40|[41|[41|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [X|[]])
+	  %% Line 964
+	  <{'bad_func',X}> when 'true' ->
+	      %% Line 965
+	      call 'io_lib':'format'
+		  ([66|[97|[100|[32|[102|[117|[110|[99|[116|[105|[111|[110|[58|[32|[126|[112|[40|[115|[104|[111|[117|[108|[100|[32|[98|[101|[32|[97|[116|[111|[109|[40|[41|[41|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [X|[]])
+	  %% Line 966
+	  <{'bad_lib',X}> when 'true' ->
+	      %% Line 967
+	      call 'io_lib':'format'
+		  ([66|[97|[100|[32|[108|[105|[98|[114|[97|[114|[121|[58|[32|[126|[112|[40|[115|[104|[111|[117|[108|[100|[32|[98|[101|[32|[97|[116|[111|[109|[40|[41|[41|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [X|[]])
+	  %% Line 968
+	  <{'bad_lib_vsn',X}> when 'true' ->
+	      %% Line 969
+	      call 'io_lib':'format'
+		  ([66|[97|[100|[32|[108|[105|[98|[114|[97|[114|[121|[32|[118|[101|[114|[115|[105|[111|[110|[58|[32|[126|[112|[40|[115|[104|[111|[117|[108|[100|[32|[98|[101|[32|[115|[116|[114|[105|[110|[103|[40|[41|[41|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [X|[]])
+	  %% Line 970
+	  <{'bad_timeout',X}> when 'true' ->
+	      %% Line 971
+	      call 'io_lib':'format'
+		  ([66|[97|[100|[32|[116|[105|[109|[101|[111|[117|[116|[58|[32|[126|[112|[40|[115|[104|[111|[117|[108|[100|[32|[98|[101|[32|[105|[110|[102|[105|[110|[105|[116|[121|[32|[124|[32|[105|[110|[116|[40|[41|[32|[62|[32|[48|[41|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [X|[]])
+	  %% Line 973
+	  <{'undef_module',Mod}> when 'true' ->
+	      %% Line 974
+	      call 'io_lib':'format'
+		  ([85|[110|[100|[101|[102|[105|[110|[101|[100|[32|[109|[111|[100|[117|[108|[101|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]], [Mod|[]])
+	  %% Line 975
+	  <{'muldef_module',Mod}> when 'true' ->
+	      %% Line 976
+	      call 'io_lib':'format'
+		  ([77|[117|[108|[116|[105|[112|[108|[121|[32|[100|[101|[102|[105|[110|[101|[100|[32|[109|[111|[100|[117|[108|[101|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Mod|[]])
+	  %% Line 977
+	  <E> when 'true' ->
+	      %% Line 978
+	      call 'io_lib':'format'
+		  ([126|[112|[126|[110]]]], [E|[]])
+	end
+'filtermap'/2 =
+    %% Line 987
+    fun (_cor1,_cor0) ->
+	%% Line 988
+	call 'lists':'zf'
+	    (_cor1, _cor0)
+'split'/2 =
+    %% Line 992
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Fun,[H|T]> when 'true' ->
+	      %% Line 993
+	      case apply 'split'/2
+		       (Fun, T) of
+		<{Found,Rest}> when 'true' ->
+		    %% Line 994
+		    case apply Fun
+			     (H) of
+		      %% Line 995
+		      <'true'> when 'true' ->
+			  {[H|Found],Rest}
+		      %% Line 996
+		      <'false'> when 'true' ->
+			  {Found,[H|Rest]}
+		      ( <_cor3> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor3})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 998
+	  <_X_Fun,[]> when 'true' ->
+	      %% Line 999
+	      {[],[]}
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'split',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'union'/2 =
+    %% Line 1001
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[H|T],L> when 'true' ->
+	      %% Line 1002
+	      case call 'lists':'member'
+		       (H, L) of
+		%% Line 1003
+		<'true'> when 'true' ->
+		    apply 'union'/2
+			(T, L)
+		%% Line 1004
+		<'false'> when 'true' ->
+		    let <_cor2> =
+			apply 'union'/2
+			    (T, L)
+		    in  [H|_cor2]
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1006
+	  <[],L> when 'true' ->
+	      L
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'union',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'difference'/2 =
+    %% Line 1008
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[H|T],L> when 'true' ->
+	      %% Line 1009
+	      case call 'lists':'member'
+		       (H, L) of
+		%% Line 1010
+		<'true'> when 'true' ->
+		    apply 'difference'/2
+			(T, L)
+		%% Line 1011
+		<'false'> when 'true' ->
+		    let <_cor2> =
+			apply 'difference'/2
+			    (T, L)
+		    in  [H|_cor2]
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1013
+	  <[],_cor6> when 'true' ->
+	      []
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'difference',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'condensation'/1 =
+    %% Line 1032
+    fun (_cor0) ->
+	let <H> =
+	    %% Line 1033
+	    call 'digraph':'new'
+		()
+	in  let <HVs> =
+		%% Line 1034
+		call 'digraph_utils':'strong_components'
+		    (_cor0)
+	    in  let <_cor5> =
+		    %% Line 1036
+		    ( fun (_cor3) ->
+			  call 'digraph':'add_vertex'
+			      (H, _cor3)
+		      -| [{'id',{0,0,'-condensation/1-fun-0-'}}] )
+		in  do  %% Line 1036
+			call 'lists':'foreach'
+			    (_cor5, HVs)
+			let <_cor14> =
+			    %% Line 1039
+			    ( fun (_cor12) ->
+				  let <GRs> =
+				      %% Line 1040
+				      call 'digraph_utils':'reachable'
+					  (_cor12, _cor0)
+				  in  let <_cor11> =
+					  %% Line 1042
+					  ( fun (_cor9) ->
+						%% Line 1043
+						case <> of
+						  %% Line 1044
+						  <>
+						      when call 'erlang':'/='
+							    (_cor12,
+							     _cor9) ->
+						      let <_cor7> =
+							  %% Line 1045
+							  call 'erlang':'hd'
+							      (_cor9)
+						      in  %% Line 1045
+							  case call 'lists':'member'
+								   (_cor7, GRs) of
+							    %% Line 1046
+							    <'true'> when 'true' ->
+								%% Line 1047
+								call 'digraph':'add_edge'
+								    (H, _cor12, _cor9)
+							    %% Line 1048
+							    <_cor16> when 'true' ->
+								%% Line 1049
+								'ok'
+							  end
+						  %% Line 1051
+						  <> when 'true' ->
+						      %% Line 1052
+						      'ok'
+						end
+					    -| [{'id',{0,0,'-condensation/1-fun-1-'}}] )
+				      in  %% Line 1041
+					  call 'lists':'foreach'
+					      (_cor11, %% Line 1054
+						       HVs)
+			      -| [{'id',{0,0,'-condensation/1-fun-2-'}}] )
+			in  do  %% Line 1038
+				call 'lists':'foreach'
+				    (_cor14, %% Line 1055
+					     HVs)
+				%% Line 1056
+				H
+'restriction'/2 =
+    %% Line 1066
+    fun (_cor1,_cor0) ->
+	let <H> =
+	    %% Line 1067
+	    call 'digraph':'new'
+		()
+	in  let <_cor6> =
+		%% Line 1070
+		( fun (_cor4) ->
+		      %% Line 1071
+		      case call 'digraph':'vertex'
+			       (_cor0, _cor4) of
+			%% Line 1072
+			<{_cor17,Data}>
+			    when call 'erlang':'=:='
+				  (_cor17,
+				   _cor4) ->
+			    %% Line 1073
+			    call 'digraph':'add_vertex'
+				(H, _cor4, Data)
+			%% Line 1074
+			<_cor18> when 'true' ->
+			    %% Line 1075
+			    'ok'
+		      end
+		  -| [{'id',{0,0,'-restriction/2-fun-0-'}}] )
+	    in  do  %% Line 1069
+		    call 'lists':'foreach'
+			(_cor6, _cor1)
+		    let <GEs> =
+			%% Line 1079
+			call 'digraph':'edges'
+			    (_cor0)
+		    in  let <_cor14> =
+			    %% Line 1081
+			    ( fun (_cor12) ->
+				  %% Line 1082
+				  case call 'digraph':'edge'
+					   (_cor0, _cor12) of
+				    <{_cor19,GV1,GV2,GData}> when 'true' ->
+					let <_cor10> =
+					    %% Line 1083
+					    call 'digraph':'vertex'
+						(H, GV1)
+					in  let <_cor9> =
+						%% Line 1083
+						call 'digraph':'vertex'
+						    (H, GV2)
+					    in  %% Line 1083
+						case <_cor10,_cor9> of
+						  %% Line 1084
+						  <{_cor20,_cor21},{_cor22,_cor23}>
+						      when let <_cor24> =
+							    call 'erlang':'=:='
+								(_cor20, GV1)
+							in  let <_cor25> =
+								call 'erlang':'=:='
+								    (_cor22, GV2)
+							    in  call 'erlang':'and'
+								    (_cor24, _cor25) ->
+						      %% Line 1085
+						      call 'digraph':'add_edge'
+							  (H, _cor12, GV1, GV2, GData)
+						  %% Line 1086
+						  <_fol107,_fol108> when 'true' ->
+						      %% Line 1087
+						      'ok'
+						end
+				    ( <_cor8> when 'true' ->
+					  primop 'match_fail'
+					      ({'badmatch',_cor8})
+				      -| ['compiler_generated'] )
+				  end
+			      -| [{'id',{0,0,'-restriction/2-fun-1-'}}] )
+			in  do  %% Line 1080
+				call 'lists':'foreach'
+				    (_cor14, %% Line 1089
+					     GEs)
+				%% Line 1090
+				H
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('systools_rc')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('systools_rc', _cor0)
+end

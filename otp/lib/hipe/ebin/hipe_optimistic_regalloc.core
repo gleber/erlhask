@@ -1,0 +1,2007 @@
+module 'hipe_optimistic_regalloc' ['module_info'/0,
+				   'module_info'/1,
+				   'regalloc'/5]
+    attributes [%% Line 301
+		'type' =
+		    %% Line 301
+		    [{{'record','comp_servers'},[{'typed_record_field',{'record_field',301,{'atom',301,'pp_server'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'range'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'type'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}]]],[]}],
+		%% Line 307
+		'type' =
+		    %% Line 307
+		    [{'comp_option',{'type',307,'union',[{'type',307,'atom',[]}|[{'type',307,'tuple',[{'type',307,'atom',[]}|[{'type',307,'atom',[]}]]}]]},[]}],
+		%% Line 308
+		'type' =
+		    %% Line 308
+		    [{'comp_options',{'type',308,'list',[{'type',308,'comp_option',[]}]},[]}],
+		%% Line 310
+		'type' =
+		    %% Line 310
+		    [{'hipe_architecture',{'type',311,'union',[{'atom',311,'amd64'}|[{'atom',311,'arm'}|[{'atom',311,'powerpc'}|[{'atom',311,'ppc64'}|[{'atom',311,'ultrasparc'}|[{'atom',311,'x86'}]]]]]]},[]}],
+		%% Line 313
+		'type' =
+		    %% Line 313
+		    [{'hipe_map',{'type',313,'list',[{'type',313,'tuple',[{'type',313,'non_neg_integer',[]}|[{'type',314,'union',[{'atom',314,'unknown'}|[{'type',314,'tuple',[{'type',314,'union',[{'atom',314,'reg'}|[{'atom',314,'fp_reg'}|[{'atom',314,'spill'}]]]}|[{'type',315,'non_neg_integer',[]}]]}]]}]]}]},[]}],
+		%% Line 316
+		'type' =
+		    %% Line 316
+		    [{'hipe_temp_map',{'type',316,'tuple','any'},[]}],
+		%% Line 317
+		'type' =
+		    %% Line 317
+		    [{'hipe_spill_map',{'type',317,'list',[{'type',317,'tuple',[{'type',317,'non_neg_integer',[]}|[{'type',317,'tuple',[{'atom',317,'spill'}|[{'type',317,'non_neg_integer',[]}]]}]]}]},[]}]]
+'regalloc'/5 =
+    %% Line 221
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <IG> =
+	    %% Line 226
+	    call 'hipe_ig':'build'
+		(_cor4, _cor1)
+	in  let <SavedSpillCosts> =
+		%% Line 233
+		call 'hipe_ig':'spill_costs'
+		    (IG)
+	    in  let <SavedAdjList> =
+		    %% Line 234
+		    call 'hipe_ig':'adj_list'
+			(IG)
+		in  let <No_temporaries> =
+			%% Line 237
+			call _cor1:'number_of_temporaries'
+			    (_cor4)
+		    in  let <Allocatable> =
+			    %% Line 239
+			    call _cor1:'allocatable'
+				()
+			in  let <K> =
+				%% Line 240
+				call 'erlang':'length'
+				    (Allocatable)
+			    in  let <All_colors> =
+				    %% Line 241
+				    apply 'colset_from_list'/1
+					(Allocatable)
+				in  let <Move_sets> =
+					%% Line 246
+					call 'hipe_moves':'new'
+					    (IG)
+				    in  let <Worklists> =
+					    %% Line 252
+					    call 'hipe_reg_worklists':'new'
+						(IG, _cor1, _cor4, K, No_temporaries)
+					in  let <Alias> =
+						%% Line 256
+						apply 'initAlias'/1
+						    (No_temporaries)
+					    in  %% Line 259
+						case %% Line 260
+						     apply 'do_coalescing'/6
+							 (IG, Worklists, Move_sets, Alias, K, _cor1) of
+						  <{IG0,Moves0,Alias0,Worklists0}> when 'true' ->
+						      %% Line 271
+						      case %% Line 272
+							   apply 'do_simplify_or_spill'/7
+							       (IG0, Worklists0, Moves0, Alias0, %% Line 273
+												 K, _cor2, _cor1) of
+							<{IG1,Worklists1,_X_Moves1,Alias1}> when 'true' ->
+							    let <Node_sets> =
+								%% Line 293
+								call 'hipe_node_sets':'new'
+								    ()
+							    in  let <_cor19> =
+								    %% Line 297
+								    call _cor1:'all_precoloured'
+									()
+								in  let <_cor18> =
+									%% Line 298
+									apply 'initColor'/1
+									    (No_temporaries)
+								    in  %% Line 296
+									case %% Line 297
+									     apply 'defaultColoring'/4
+										 (_cor19, _cor18, %% Line 298
+												  Node_sets, _cor1) of
+									  <{Color0,Node_sets1}> when 'true' ->
+									      let <Stack> =
+										  %% Line 304
+										  call 'hipe_reg_worklists':'stack'
+										      (Worklists1)
+									      in  %% Line 311
+										  case %% Line 312
+										       apply 'assignColors'/11
+											   (Worklists1, Stack, Node_sets1, Color0, %% Line 313
+																   No_temporaries, %% Line 313
+																		   SavedAdjList, %% Line 313
+																				 SavedSpillCosts, %% Line 313
+																						  IG1, %% Line 313
+																						       Alias1, %% Line 313
+																							       All_colors, _cor1) of
+										    <{Color1,Node_sets2,Alias2}> when 'true' ->
+											%% Line 318
+											apply 'build_namelist'/4
+											    (Node_sets2, _cor3, Alias2, Color1)
+										    ( <_cor22> when 'true' ->
+											  primop 'match_fail'
+											      ({'badmatch',_cor22})
+										      -| ['compiler_generated'] )
+										  end
+									  ( <_cor20> when 'true' ->
+										primop 'match_fail'
+										    ({'badmatch',_cor20})
+									    -| ['compiler_generated'] )
+									end
+							( <_cor16> when 'true' ->
+							      primop 'match_fail'
+								  ({'badmatch',_cor16})
+							  -| ['compiler_generated'] )
+						      end
+						  ( <_cor15> when 'true' ->
+							primop 'match_fail'
+							    ({'badmatch',_cor15})
+						    -| ['compiler_generated'] )
+						end
+'do_coalescing'/6 =
+    %% Line 395
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 396
+	case call 'hipe_moves':'is_empty_worklist'
+		 (_cor3) of
+	  %% Line 397
+	  <'true'> when 'true' ->
+	      %% Line 398
+	      {_cor5,_cor3,_cor2,_cor4}
+	  %% Line 399
+	  <_cor14> when 'true' ->
+	      %% Line 400
+	      case %% Line 401
+		   apply 'coalesce'/6
+		       (_cor3, _cor5, _cor4, _cor2, _cor1, _cor0) of
+		<{Moves0,IG0,Alias0,Worklists0}> when 'true' ->
+		    %% Line 402
+		    apply 'do_coalescing'/6
+			(IG0, Worklists0, Moves0, Alias0, _cor1, _cor0)
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'do_simplify_or_spill'/7 =
+    %% Line 426
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor7> =
+	    %% Line 427
+	    call 'hipe_reg_worklists':'is_empty_simplify'
+		(_cor5)
+	in  let <Simplify> =
+		%% Line 427
+		call 'erlang':'not'
+		    (_cor7)
+	    in  let <_cor9> =
+		    %% Line 428
+		    call 'hipe_reg_worklists':'is_empty_spill'
+			(_cor5)
+		in  let <Spill> =
+			%% Line 428
+			call 'erlang':'not'
+			    (_cor9)
+		    in  %% Line 429
+			case <> of
+			  <>
+			      when Simplify ->
+			      let <_cor11> =
+				  %% Line 431
+				  call 'hipe_reg_worklists':'simplify'
+				      (_cor5)
+			      in  %% Line 430
+				  case %% Line 431
+				       apply 'simplify'/5
+					   (_cor11, _cor6, _cor5, _cor4, _cor2) of
+				    <{IG0,Worklists0,Moves0}> when 'true' ->
+					%% Line 436
+					apply 'do_simplify_or_spill'/7
+					    (IG0, Worklists0, Moves0, _cor3, _cor2, _cor1, _cor0)
+				    ( <_cor12> when 'true' ->
+					  primop 'match_fail'
+					      ({'badmatch',_cor12})
+				      -| ['compiler_generated'] )
+				  end
+			  %% Line 438
+			  <>
+			      when Spill ->
+			      let <Worklists0> =
+				  %% Line 440
+				  apply 'selectSpill'/3
+				      (_cor5, _cor6, _cor1)
+			      in  %% Line 441
+				  apply 'do_simplify_or_spill'/7
+				      (_cor6, Worklists0, _cor4, _cor3, _cor2, _cor1, _cor0)
+			  %% Line 443
+			  <> when 'true' ->
+			      %% Line 444
+			      {_cor6,_cor5,_cor4,_cor3}
+			end
+'adjacent'/3 =
+    %% Line 461
+    fun (_cor2,_cor1,_cor0) ->
+	let <Adjacent_edges> =
+	    %% Line 462
+	    call 'hipe_ig':'node_adj_list'
+		(_cor2, _cor1)
+	in  %% Line 463
+	    call 'hipe_reg_worklists':'non_stacked_or_coalesced_nodes'
+		(Adjacent_edges, _cor0)
+'simplify'/5 =
+    %% Line 514
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],IG,Worklists,Moves,_X_K> when 'true' ->
+	      %% Line 515
+	      {IG,Worklists,Moves}
+	  %% Line 516
+	  <[Node|Nodes],IG,Worklists,Moves,K> when 'true' ->
+	      let <Worklists0> =
+		  %% Line 517
+		  call 'hipe_reg_worklists':'remove_simplify'
+		      (Node, Worklists)
+	      in  let <Adjacent> =
+		      %% Line 519
+		      apply 'adjacent'/3
+			  (Node, IG, Worklists0)
+		  in  let <Worklists01> =
+			  %% Line 520
+			  call 'hipe_reg_worklists':'push_stack'
+			      (Node, Adjacent, Worklists0)
+		      in  %% Line 521
+			  case apply 'decrement_degree'/4
+				   (Adjacent, IG, Worklists01, K) of
+			    <{New_ig,Worklists1}> when 'true' ->
+				%% Line 522
+				apply 'simplify'/5
+				    (Nodes, New_ig, Worklists1, Moves, K)
+			    ( <_cor8> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor8})
+			      -| ['compiler_generated'] )
+			  end
+	  ( <_cor13,_cor12,_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'simplify',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'decrement_degree'/4 =
+    %% Line 589
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[],IG,Worklists,_X_K> when 'true' ->
+	      %% Line 590
+	      {IG,Worklists}
+	  %% Line 591
+	  <[Node|Nodes],IG,Worklists,K> when 'true' ->
+	      let <PrevDegree> =
+		  %% Line 592
+		  call 'hipe_ig':'get_node_degree'
+		      (Node, IG)
+	      in  let <IG0> =
+		      %% Line 593
+		      call 'hipe_ig':'dec_node_degree'
+			  (Node, IG)
+		  in  %% Line 594
+		      case call 'erlang':'=:='
+			       (PrevDegree, K) of
+			%% Line 595
+			<'true'> when 'true' ->
+			    let <Worklists0> =
+				%% Line 596
+				call 'hipe_reg_worklists':'remove_spill'
+				    (Node, Worklists)
+			    in  let <Worklists1> =
+				    %% Line 597
+				    call 'hipe_reg_worklists':'add_simplify'
+					(Node, Worklists0)
+				in  %% Line 598
+				    apply 'decrement_degree'/4
+					(Nodes, IG0, Worklists1, K)
+			%% Line 599
+			<_cor13> when 'true' ->
+			    %% Line 600
+			    apply 'decrement_degree'/4
+				(Nodes, IG0, Worklists, K)
+		      end
+	  ( <_cor12,_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'decrement_degree',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'build_namelist'/4 =
+    %% Line 719
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 724
+	    apply 'aliasToList'/1
+		(_cor1)
+	in  let <AliasList> =
+		%% Line 724
+		apply 'build_alias_list'/3
+		    (_cor4, %% Line 725
+			    0, %% Line 726
+			       [])
+	    in  let <NL1> =
+		    %% Line 729
+		    apply 'build_coalescedlist'/4
+			(AliasList, _cor0, _cor1, [])
+		in  let <ColoredNodes> =
+			%% Line 732
+			call 'hipe_node_sets':'colored'
+			    (_cor3)
+		    in  let <NL2> =
+			    %% Line 734
+			    apply 'build_reglist_N'/4
+				(ColoredNodes, _cor0, NL1, NL1)
+			in  let <_cor9> =
+				%% Line 737
+				call 'hipe_node_sets':'spilled'
+				    (_cor3)
+			    in  %% Line 737
+				apply 'build_spillist'/3
+				    (_cor9, _cor2, NL2)
+'build_spillist'/3 =
+    %% Line 739
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],Index,List> when 'true' ->
+	      %% Line 740
+	      {List,Index}
+	  %% Line 741
+	  <[Node|Nodes],Index,List> when 'true' ->
+	      let <_cor3> =
+		  %% Line 743
+		  call 'erlang':'+'
+		      (Index, 1)
+	      in  %% Line 743
+		  apply 'build_spillist'/3
+		      (Nodes, _cor3, [{Node,{'spill',Index}}|List])
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'build_spillist',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'build_coalescedlist'/4 =
+    %% Line 745
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_Color,_X_Alias,List> when 'true' ->
+	      %% Line 746
+	      List
+	  %% Line 747
+	  <[Node|Ns],Color,Alias,List>
+	      when call 'erlang':'is_integer'
+		    (Node) ->
+	      let <_cor4> =
+		  %% Line 749
+		  apply 'getAlias'/2
+		      (Node, Alias)
+	      in  let <AC> =
+		      %% Line 749
+		      apply 'getColor'/2
+			  (_cor4, Color)
+		  in  %% Line 750
+		      apply 'build_coalescedlist'/4
+			  (Ns, Color, Alias, [{Node,{'reg',AC}}|List])
+	  ( <_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'build_coalescedlist',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'build_reglist_N'/4 =
+    %% Line 759
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_Color,List,_X_OrgList> when 'true' ->
+	      %% Line 760
+	      List
+	  %% Line 761
+	  <[Node|Ns],Color,List,OrgList> when 'true' ->
+	      %% Line 763
+	      case apply 'is_already_in_list'/2
+		       (Node, OrgList) of
+		%% Line 764
+		<'true'> when 'true' ->
+		    apply 'build_reglist_N'/4
+			(Ns, Color, List, OrgList)
+		%% Line 765
+		<_cor10> when 'true' ->
+		    let <_cor4> =
+			apply 'getColor'/2
+			    (Node, Color)
+		    in  apply 'build_reglist_N'/4
+			    (Ns, Color, [{Node,{'reg',_cor4}}|List], OrgList)
+	      end
+	  ( <_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'build_reglist_N',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'is_already_in_list'/2 =
+    %% Line 768
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_Node,[]> when 'true' ->
+	      %% Line 769
+	      'false'
+	  %% Line 770
+	  <Node,[L|List]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 772
+		  call 'erlang':'element'
+		      (1, L)
+	      in  %% Line 772
+		  case call 'erlang':'=:='
+			   (Node, _cor2) of
+		    %% Line 773
+		    <'true'> when 'true' ->
+			'true'
+		    %% Line 774
+		    <_cor6> when 'true' ->
+			apply 'is_already_in_list'/2
+			    (Node, List)
+		  end
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'is_already_in_list',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'build_alias_list'/3 =
+    %% Line 777
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_X_I,List> when 'true' ->
+	      %% Line 778
+	      List
+	  %% Line 779
+	  <[Alias|Aliases],I,List>
+	      when call 'erlang':'is_integer'
+		    (Alias) ->
+	      let <_cor3> =
+		  %% Line 780
+		  call 'erlang':'+'
+		      (I, 1)
+	      in  %% Line 780
+		  apply 'build_alias_list'/3
+		      (Aliases, _cor3, [I|List])
+	  %% Line 781
+	  <[_X_Alias|Aliases],I,List> when 'true' ->
+	      let <_cor4> =
+		  %% Line 782
+		  call 'erlang':'+'
+		      (I, 1)
+	      in  %% Line 782
+		  apply 'build_alias_list'/3
+		      (Aliases, _cor4, List)
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'build_alias_list',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'assignColors'/11 =
+    %% Line 844
+    fun (_cor10,_cor9,_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 846
+	case _cor9 of
+	  %% Line 847
+	  <[]> when 'true' ->
+	      %% Line 848
+	      {_cor7,_cor8,_cor2}
+	  %% Line 849
+	  <[{Node,Edges}|Stack1]> when 'true' ->
+	      let <OkColors> =
+		  %% Line 859
+		  apply 'findOkColors'/4
+		      (Edges, _cor1, _cor7, _cor2)
+	      in  %% Line 860
+		  case apply 'colset_is_empty'/1
+			   (OkColors) of
+		    %% Line 861
+		    <'true'> when 'true' ->
+			%% Line 862
+			case call 'hipe_reg_worklists':'member_coalesced_to'
+				 (Node, _cor10) of
+			  %% Line 863
+			  <'true'> when 'true' ->
+			      %% Line 865
+			      case apply 'tryPrimitiveNodes'/11
+				       (Node, Stack1, _cor8, _cor1, _cor7, _cor6, _cor5, _cor4, _cor3, _cor2, _cor0) of
+				<{Alias1,IG1,NodeSets1,Color1,Stack2}> when 'true' ->
+				    %% Line 867
+				    apply 'assignColors'/11
+					(_cor10, Stack2, NodeSets1, Color1, _cor6, _cor5, _cor4, IG1, Alias1, _cor1, _cor0)
+				( <_cor12> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor12})
+				  -| ['compiler_generated'] )
+			      end
+			  %% Line 868
+			  <'false'> when 'true' ->
+			      let <NodeSets1> =
+				  %% Line 870
+				  call 'hipe_node_sets':'add_spilled'
+				      (Node, _cor8)
+			      in  %% Line 871
+				  apply 'assignColors'/11
+				      (_cor10, Stack1, NodeSets1, _cor7, _cor6, _cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+			  ( <_cor14> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor14})
+			    -| ['compiler_generated'] )
+			end
+		    %% Line 873
+		    <'false'> when 'true' ->
+			let <Col> =
+			    %% Line 874
+			    apply 'colset_smallest'/1
+				(OkColors)
+			in  let <NodeSets1> =
+				%% Line 875
+				call 'hipe_node_sets':'add_colored'
+				    (Node, _cor8)
+			    in  let <_cor17> =
+				    %% Line 876
+				    call _cor0:'physical_name'
+					(Col)
+				in  let <Color1> =
+					%% Line 876
+					apply 'setColor'/3
+					    (Node, _cor17, _cor7)
+				    in  %% Line 878
+					apply 'assignColors'/11
+					    (_cor10, Stack1, NodeSets1, Color1, _cor6, _cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+		    ( <_cor19> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor19})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor20> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor20})
+	    -| ['compiler_generated'] )
+	end
+'tryPrimitiveNodes'/11 =
+    %% Line 915
+    fun (_cor10,_cor9,_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 917
+	case apply 'undoCoalescing'/6
+		 (_cor10, _cor5, _cor1, _cor4, _cor2, _cor0) of
+	  <{PrimitiveNodes,Alias1,IG1}> when 'true' ->
+	      %% Line 919
+	      case apply 'spillNonColorablePrimitives'/7
+		       ([], PrimitiveNodes, _cor8, _cor7, _cor6, _cor4, Alias1) of
+		<{ColorableNodes,NodeSets1}> when 'true' ->
+		    let <Splits> =
+			%% Line 921
+			apply 'splits'/2
+			    (ColorableNodes, _cor3)
+		    in  %% Line 922
+			case apply 'processSplits'/8
+				 (Splits, _cor7, IG1, _cor6, NodeSets1, Alias1, _cor0, _cor9) of
+			  <{NodeSets2,Color1,Stack1}> when 'true' ->
+			      %% Line 923
+			      {Alias1,IG1,NodeSets2,Color1,Stack1}
+			  ( <_cor14> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor14})
+			    -| ['compiler_generated'] )
+			end
+		( <_cor12> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor12})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor11> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor11})
+	    -| ['compiler_generated'] )
+	end
+'spillNonColorablePrimitives'/7 =
+    %% Line 927
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <ColorableNodes,[],NodeSets,_X_AllColors,_X_Color,_X_SavedAdjList,_X_Alias> when 'true' ->
+	      %% Line 928
+	      {ColorableNodes,NodeSets}
+	  %% Line 929
+	  <ColorableNodes,[Primitive|Primitives],NodeSets,AllColors,Color,SavedAdjList,Alias> when 'true' ->
+	      let <_cor7> =
+		  %% Line 930
+		  call 'hipe_adj_list':'edges'
+		      (Primitive, SavedAdjList)
+	      in  let <OkColors> =
+		      %% Line 930
+		      apply 'findOkColors'/4
+			  (_cor7, AllColors, Color, Alias)
+		  in  %% Line 931
+		      case apply 'colset_is_empty'/1
+			       (OkColors) of
+			%% Line 932
+			<'true'> when 'true' ->
+			    let <NodeSets1> =
+				%% Line 934
+				call 'hipe_node_sets':'add_spilled'
+				    (Primitive, NodeSets)
+			    in  %% Line 935
+				apply 'spillNonColorablePrimitives'/7
+				    (ColorableNodes, Primitives, NodeSets1, AllColors, Color, SavedAdjList, Alias)
+			%% Line 936
+			<'false'> when 'true' ->
+			    %% Line 938
+			    apply 'spillNonColorablePrimitives'/7
+				([Primitive|ColorableNodes], Primitives, NodeSets, AllColors, Color, SavedAdjList, Alias)
+			( <_cor10> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor10})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor17,_cor16,_cor15,_cor14,_cor13,_cor12,_cor11> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor17,_cor16,_cor15,_cor14,_cor13,_cor12,_cor11})
+		  -| [{'function_name',{'spillNonColorablePrimitives',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'splits'/2 =
+    %% Line 943
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_X_SavedSpillCosts> when 'true' ->
+	      %% Line 944
+	      [{[],[],0}]
+	  %% Line 945
+	  <[L|Ls],SavedSpillCosts> when 'true' ->
+	      let <Spl> =
+		  %% Line 946
+		  apply 'splits'/2
+		      (Ls, SavedSpillCosts)
+	      in  let <SpillCost> =
+		      %% Line 947
+		      call 'hipe_spillcost':'spill_cost'
+			  (L, SavedSpillCosts)
+		  in  let <_cor9> =
+			  %% Line 948
+			  ( letrec
+				'lc$^0'/1 =
+				    fun (_cor6) ->
+					case _cor6 of
+					  <[S|_cor5]> when 'true' ->
+					      let <_cor7> =
+						  apply 'splits_1'/2
+						      (S, L)
+					      in  let <_cor8> =
+						      apply 'lc$^0'/1
+							  (_cor5)
+						  in  ( [_cor7|_cor8]
+							-| ['compiler_generated'] )
+					  <[]> when 'true' ->
+					      []
+					  ( <_cor6> when 'true' ->
+						( primop 'match_fail'
+						      ({'function_clause',_cor6})
+						  -| [{'function_name',{'lc$^0',1}}] )
+					    -| ['compiler_generated'] )
+					end
+			    in  apply 'lc$^0'/1
+				    (Spl)
+			    -| ['list_comprehension'] )
+		      in  let <_cor16> =
+			      %% Line 949
+			      ( letrec
+				    'lc$^1'/1 =
+					fun (_cor13) ->
+					    case _cor13 of
+					      <[S|_cor12]> when 'true' ->
+						  let <_cor14> =
+						      apply 'splits_2'/3
+							  (S, L, SpillCost)
+						  in  let <_cor15> =
+							  apply 'lc$^1'/1
+							      (_cor12)
+						      in  ( [_cor14|_cor15]
+							    -| ['compiler_generated'] )
+					      <[]> when 'true' ->
+						  []
+					      ( <_cor13> when 'true' ->
+						    ( primop 'match_fail'
+							  ({'function_clause',_cor13})
+						      -| [{'function_name',{'lc$^1',1}}] )
+						-| ['compiler_generated'] )
+					    end
+				in  apply 'lc$^1'/1
+					(Spl)
+				-| ['list_comprehension'] )
+			  in  %% Line 950
+			      apply 'spillCostOrderedMerge'/3
+				  (_cor9, _cor16, [])
+	  ( <_cor19,_cor18> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor19,_cor18})
+		  -| [{'function_name',{'splits',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'splits_1'/2 =
+    %% Line 952
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Cols,NonCols,OldSpillCost},L> when 'true' ->
+	      %% Line 953
+	      {[L|Cols],NonCols,OldSpillCost}
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'splits_1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'splits_2'/3 =
+    %% Line 955
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{Cols,NonCols,OldSpillCost},L,SpillCost> when 'true' ->
+	      let <_cor3> =
+		  %% Line 956
+		  call 'erlang':'+'
+		      (OldSpillCost, SpillCost)
+	      in  %% Line 956
+		  {Cols,[L|NonCols],_cor3}
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'splits_2',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'spillCostOrderedMerge'/3 =
+    %% Line 960
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Spl1,[],Spl> when 'true' ->
+	      %% Line 961
+	      call 'lists':'reverse'
+		  (Spl, Spl1)
+	  %% Line 962
+	  <[],Spl2,Spl> when 'true' ->
+	      %% Line 963
+	      call 'lists':'reverse'
+		  (Spl, Spl2)
+	  %% Line 964
+	  <Spl1,Spl2,Spl> when 'true' ->
+	      %% Line 965
+	      case call 'erlang':'hd'
+		       (Spl1) of
+		<{_cor13,_cor14,SpillCost1}> when 'true' ->
+		    %% Line 966
+		    case call 'erlang':'hd'
+			     (Spl2) of
+		      <{_cor15,_cor16,SpillCost2}> when 'true' ->
+			  %% Line 967
+			  case <> of
+			    %% Line 968
+			    <>
+				when call 'erlang':'=<'
+				      (SpillCost1,
+				       SpillCost2) ->
+				let <_cor6> =
+				    %% Line 969
+				    call 'erlang':'tl'
+					(Spl1)
+				in  let <_cor5> =
+					%% Line 969
+					call 'erlang':'hd'
+					    (Spl1)
+				    in  %% Line 969
+					apply 'spillCostOrderedMerge'/3
+					    (_cor6, Spl2, [_cor5|Spl])
+			    %% Line 970
+			    <> when 'true' ->
+				let <_cor8> =
+				    %% Line 971
+				    call 'erlang':'tl'
+					(Spl2)
+				in  let <_cor7> =
+					%% Line 971
+					call 'erlang':'hd'
+					    (Spl2)
+				    in  %% Line 971
+					apply 'spillCostOrderedMerge'/3
+					    (Spl1, _cor8, [_cor7|Spl])
+			  end
+		      ( <_cor4> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor4})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'processSplits'/8 =
+    %% Line 977
+    fun (_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_AllColors,_X_IG,Color,NodeSets,_X_Alias,_X_Target,Stack> when 'true' ->
+	      %% Line 978
+	      {NodeSets,Color,Stack}
+	  %% Line 979
+	  <[{Cols,NonCols,_X_SpillCost}|Splits],AllColors,IG,Color,NodeSets,Alias,Target,Stack> when 'true' ->
+	      let <OkColors> =
+		  %% Line 980
+		  apply 'findCommonColors'/5
+		      (Cols, IG, Color, Alias, AllColors)
+	      in  %% Line 981
+		  case apply 'colset_is_empty'/1
+			   (OkColors) of
+		    %% Line 982
+		    <'false'> when 'true' ->
+			let <Col> =
+			    %% Line 984
+			    apply 'colset_smallest'/1
+				(OkColors)
+			in  %% Line 985
+			    case apply 'colorSplit'/5
+				     (Cols, Col, NodeSets, Color, Target) of
+			      <{NodeSets1,Color1}> when 'true' ->
+				  let <Stack1> =
+				      %% Line 986
+				      apply 'enqueueSplit'/3
+					  (NonCols, IG, Stack)
+				  in  %% Line 987
+				      {NodeSets1,Color1,Stack1}
+			      ( <_cor10> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor10})
+				-| ['compiler_generated'] )
+			    end
+		    %% Line 988
+		    <'true'> when 'true' ->
+			%% Line 990
+			apply 'processSplits'/8
+			    (Splits, AllColors, IG, Color, NodeSets, Alias, Target, Stack)
+		    ( <_cor12> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor12})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor20,_cor19,_cor18,_cor17,_cor16,_cor15,_cor14,_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor20,_cor19,_cor18,_cor17,_cor16,_cor15,_cor14,_cor13})
+		  -| [{'function_name',{'processSplits',8}}] )
+	    -| ['compiler_generated'] )
+	end
+'findCommonColors'/5 =
+    %% Line 995
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_IG,_X_Color,_X_Alias,OkColors> when 'true' ->
+	      %% Line 996
+	      OkColors
+	  %% Line 997
+	  <[Primitive|Primitives],IG,Color,Alias,OkColors> when 'true' ->
+	      let <_cor5> =
+		  %% Line 998
+		  call 'hipe_ig':'node_adj_list'
+		      (Primitive, IG)
+	      in  let <OkColors1> =
+		      %% Line 998
+		      apply 'findOkColors'/4
+			  (_cor5, OkColors, Color, Alias)
+		  in  %% Line 999
+		      apply 'findCommonColors'/5
+			  (Primitives, IG, Color, Alias, OkColors1)
+	  ( <_cor11,_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'findCommonColors',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'colorSplit'/5 =
+    %% Line 1003
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_Col,NodeSets,Color,_X_Target> when 'true' ->
+	      %% Line 1004
+	      {NodeSets,Color}
+	  %% Line 1005
+	  <[Node|Nodes],Col,NodeSets,Color,Target> when 'true' ->
+	      let <NodeSets1> =
+		  %% Line 1007
+		  call 'hipe_node_sets':'add_colored'
+		      (Node, NodeSets)
+	      in  let <_cor6> =
+		      %% Line 1008
+		      call Target:'physical_name'
+			  (Col)
+		  in  let <Color1> =
+			  %% Line 1008
+			  apply 'setColor'/3
+			      (Node, _cor6, Color)
+		      in  %% Line 1009
+			  apply 'colorSplit'/5
+			      (Nodes, Col, NodeSets1, Color1, Target)
+	  ( <_cor12,_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'colorSplit',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'enqueueSplit'/3 =
+    %% Line 1013
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_X_IG,Stack> when 'true' ->
+	      %% Line 1014
+	      Stack
+	  %% Line 1015
+	  <[Node|Nodes],IG,Stack> when 'true' ->
+	      let <Edges> =
+		  %% Line 1017
+		  call 'hipe_ig':'node_adj_list'
+		      (Node, IG)
+	      in  let <Stack1> =
+		      %% Line 1018
+		      call 'erlang':'++'
+			  (Stack, [{Node,Edges}|[]])
+		  in  %% Line 1019
+		      apply 'enqueueSplit'/3
+			  (Nodes, IG, Stack1)
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'enqueueSplit',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'defaultColoring'/4 =
+    %% Line 1088
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[],Color,NodeSets,_X_Target> when 'true' ->
+	      %% Line 1089
+	      {Color,NodeSets}
+	  %% Line 1090
+	  <[Reg|Regs],Color,NodeSets,Target> when 'true' ->
+	      let <_cor4> =
+		  %% Line 1091
+		  call Target:'physical_name'
+		      (Reg)
+	      in  let <Color1> =
+		      %% Line 1091
+		      apply 'setColor'/3
+			  (Reg, _cor4, Color)
+		  in  let <NodeSets1> =
+			  %% Line 1092
+			  call 'hipe_node_sets':'add_colored'
+			      (Reg, NodeSets)
+		      in  %% Line 1093
+			  apply 'defaultColoring'/4
+			      (Regs, Color1, NodeSets1, Target)
+	  ( <_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'defaultColoring',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'findOkColors'/4 =
+    %% Line 1097
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 1098
+	apply 'find'/4
+	    (_cor3, _cor2, _cor1, _cor0)
+'find'/4 =
+    %% Line 1103
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[],OkColors,_X_Color,_X_Alias> when 'true' ->
+	      %% Line 1104
+	      OkColors
+	  %% Line 1105
+	  <[Node0|Nodes],OkColors,Color,Alias> when 'true' ->
+	      let <Node> =
+		  %% Line 1106
+		  apply 'getAlias'/2
+		      (Node0, Alias)
+	      in  %% Line 1107
+		  case apply 'getColor'/2
+			   (Node, Color) of
+		    %% Line 1108
+		    <[]> when 'true' ->
+			%% Line 1109
+			apply 'find'/4
+			    (Nodes, OkColors, Color, Alias)
+		    %% Line 1110
+		    <Col> when 'true' ->
+			let <OkColors1> =
+			    %% Line 1111
+			    apply 'colset_del_element'/2
+				(Col, OkColors)
+			in  %% Line 1112
+			    apply 'find'/4
+				(Nodes, OkColors1, Color, Alias)
+		  end
+	  ( <_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'find',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'colset_from_list'/1 =
+    %% Line 1153
+    fun (_cor0) ->
+	%% Line 1154
+	apply 'colset_from_list'/2
+	    (_cor0, 0)
+'colset_from_list'/2 =
+    %% Line 1156
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],ColSet> when 'true' ->
+	      %% Line 1157
+	      ColSet
+	  %% Line 1158
+	  <[Colour|Allocatable],ColSet> when 'true' ->
+	      let <_cor2> =
+		  %% Line 1159
+		  call 'erlang':'bsl'
+		      (1, Colour)
+	      in  let <_cor3> =
+		      %% Line 1159
+		      call 'erlang':'bor'
+			  (ColSet, _cor2)
+		  in  %% Line 1159
+		      apply 'colset_from_list'/2
+			  (Allocatable, _cor3)
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'colset_from_list',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'colset_del_element'/2 =
+    %% Line 1161
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 1162
+	    call 'erlang':'bsl'
+		(1, _cor1)
+	in  let <_cor3> =
+		%% Line 1162
+		call 'erlang':'bnot'
+		    (_cor2)
+	    in  %% Line 1162
+		call 'erlang':'band'
+		    (_cor0, _cor3)
+'colset_is_empty'/1 =
+    %% Line 1164
+    fun (_cor0) ->
+	case _cor0 of
+	  <0> when 'true' ->
+	      'true'
+	  %% Line 1165
+	  <_cor2> when 'true' ->
+	      'false'
+	end
+'colset_smallest'/1 =
+    %% Line 1167
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 1168
+	    call 'erlang':'-'
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 1168
+		call 'erlang':'band'
+		    (_cor0, _cor1)
+	    in  %% Line 1168
+		apply 'bitN_log2'/2
+		    (_cor2, 0)
+'bitN_log2'/2 =
+    %% Line 1170
+    fun (_cor1,_cor0) ->
+	%% Line 1171
+	case call 'erlang':'>'
+		 (_cor1, 65535) of
+	  %% Line 1172
+	  <'true'> when 'true' ->
+	      let <_cor3> =
+		  %% Line 1173
+		  call 'erlang':'bsr'
+		      (_cor1, 16)
+	      in  let <_cor2> =
+		      %% Line 1173
+		      call 'erlang':'+'
+			  (_cor0, 16)
+		  in  %% Line 1173
+		      apply 'bitN_log2'/2
+			  (_cor3, _cor2)
+	  %% Line 1174
+	  <_cor9> when 'true' ->
+	      let <_cor4> =
+		  %% Line 1175
+		  call 'erlang':'-'
+		      (_cor1, 1)
+	      in  let <_cor5> =
+		      %% Line 1175
+		      apply 'hweight16'/1
+			  (_cor4)
+		  in  %% Line 1175
+		      call 'erlang':'+'
+			  (_cor0, _cor5)
+	end
+'hweight16'/1 =
+    %% Line 1178
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 1179
+	    call 'erlang':'band'
+		(_cor0, 21845)
+	in  let <_cor1> =
+		%% Line 1179
+		call 'erlang':'bsr'
+		    (_cor0, 1)
+	    in  let <_cor2> =
+		    %% Line 1179
+		    call 'erlang':'band'
+			(_cor1, 21845)
+		in  let <Res1> =
+			%% Line 1179
+			call 'erlang':'+'
+			    (_cor3, _cor2)
+		    in  let <_cor7> =
+			    %% Line 1180
+			    call 'erlang':'band'
+				(Res1, 13107)
+			in  let <_cor5> =
+				%% Line 1180
+				call 'erlang':'bsr'
+				    (Res1, 2)
+			    in  let <_cor6> =
+				    %% Line 1180
+				    call 'erlang':'band'
+					(_cor5, 13107)
+				in  let <Res2> =
+					%% Line 1180
+					call 'erlang':'+'
+					    (_cor7, _cor6)
+				    in  let <_cor11> =
+					    %% Line 1181
+					    call 'erlang':'band'
+						(Res2, 3855)
+					in  let <_cor9> =
+						%% Line 1181
+						call 'erlang':'bsr'
+						    (Res2, 4)
+					    in  let <_cor10> =
+						    %% Line 1181
+						    call 'erlang':'band'
+							(_cor9, 3855)
+						in  let <Res3> =
+							%% Line 1181
+							call 'erlang':'+'
+							    (_cor11, _cor10)
+						    in  let <_cor15> =
+							    %% Line 1182
+							    call 'erlang':'band'
+								(Res3, 255)
+							in  let <_cor13> =
+								%% Line 1182
+								call 'erlang':'bsr'
+								    (Res3, 8)
+							    in  let <_cor14> =
+								    %% Line 1182
+								    call 'erlang':'band'
+									(_cor13, 255)
+								in  %% Line 1182
+								    call 'erlang':'+'
+									(_cor15, _cor14)
+'initColor'/1 =
+    %% Line 1189
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 1190
+	    call 'hipe_bifs':'array'
+		(_cor0, [])
+	in  %% Line 1190
+	    {'colmap',_cor1}
+'getColor'/2 =
+    %% Line 1192
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Node,{'colmap',ColMap}> when 'true' ->
+	      %% Line 1193
+	      call 'hipe_bifs':'array_sub'
+		  (ColMap, Node)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'getColor',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'setColor'/3 =
+    %% Line 1195
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Node,Color,C = {'colmap',ColMap}> when 'true' ->
+	      do  %% Line 1196
+		  call 'hipe_bifs':'array_update'
+		      (ColMap, Node, Color)
+		  %% Line 1197
+		  C
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'setColor',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'initAlias'/1 =
+    %% Line 1212
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 1213
+	    call 'hipe_bifs':'array'
+		(_cor0, [])
+	in  %% Line 1213
+	    {'alias',_cor1}
+'getAlias'/2 =
+    %% Line 1219
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Node,Alias = {'alias',AliasMap}> when 'true' ->
+	      %% Line 1220
+	      case call 'hipe_bifs':'array_sub'
+		       (AliasMap, Node) of
+		%% Line 1221
+		<[]> when 'true' ->
+		    %% Line 1222
+		    Node
+		%% Line 1223
+		<_cor5>
+		    when call 'erlang':'=:='
+			  (_cor5,
+			   Node) ->
+		    %% Line 1224
+		    Node
+		%% Line 1225
+		<AliasNode> when 'true' ->
+		    %% Line 1226
+		    apply 'getAlias'/2
+			(AliasNode, Alias)
+	      end
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'getAlias',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'setAlias'/3 =
+    %% Line 1241
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Node,AliasNode,Alias = {'alias',AliasMap}> when 'true' ->
+	      do  %% Line 1242
+		  call 'hipe_bifs':'array_update'
+		      (AliasMap, Node, AliasNode)
+		  %% Line 1243
+		  Alias
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'setAlias',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'aliasToList'/1 =
+    %% Line 1245
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'alias',AliasMap}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 1246
+		  call 'hipe_bifs':'array_length'
+		      (AliasMap)
+	      in  %% Line 1246
+		  apply 'aliasToList'/3
+		      (AliasMap, _cor1, [])
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'aliasToList',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'aliasToList'/3 =
+    %% Line 1248
+    fun (_cor2,_cor1,_cor0) ->
+	let <I0> =
+	    %% Line 1249
+	    call 'erlang':'-'
+		(_cor1, 1)
+	in  %% Line 1250
+	    case call 'erlang':'>='
+		     (I0, 0) of
+	      %% Line 1251
+	      <'true'> when 'true' ->
+		  let <_cor4> =
+		      %% Line 1252
+		      call 'hipe_bifs':'array_sub'
+			  (_cor2, I0)
+		  in  %% Line 1252
+		      apply 'aliasToList'/3
+			  (_cor2, I0, [_cor4|_cor0])
+	      %% Line 1253
+	      <_cor9> when 'true' ->
+		  _cor0
+	    end
+'coalesce'/6 =
+    %% Line 1273
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 1274
+	case call 'hipe_moves':'worklist_get_and_remove'
+		 (_cor5) of
+	  %% Line 1275
+	  <{[],Moves0}> when 'true' ->
+	      %% Line 1279
+	      {Moves0,_cor4,_cor2}
+	  %% Line 1280
+	  <{Move,Moves0}> when 'true' ->
+	      %% Line 1281
+	      case call 'hipe_moves':'get_move'
+		       (Move, Moves0) of
+		<{Dest,Source}> when 'true' ->
+		    let <Alias_src> =
+			%% Line 1283
+			apply 'getAlias'/2
+			    (Source, _cor2)
+		    in  let <Alias_dst> =
+			    %% Line 1284
+			    apply 'getAlias'/2
+				(Dest, _cor2)
+			in  let <U,V> =
+				%% Line 1285
+				case call _cor0:'is_precoloured'
+					 (Alias_dst) of
+				  %% Line 1286
+				  <'true'> when 'true' ->
+				      <Alias_dst,Alias_src>
+				  %% Line 1287
+				  <'false'> when 'true' ->
+				      <Alias_src,Alias_dst>
+				  ( <_cor9> when 'true' ->
+					primop 'match_fail'
+					    ({'case_clause',_cor9})
+				    -| ['compiler_generated'] )
+				end
+			    in  %% Line 1290
+				case call 'erlang':'=:='
+					 (U, V) of
+				  %% Line 1291
+				  <'true'> when 'true' ->
+				      %% Line 1293
+				      {Moves0,_cor4,_cor2,_cor3}
+				  %% Line 1294
+				  <_cor32> when 'true' ->
+				      let <_cor14> =
+					  %% Line 1295
+					  ( case call _cor0:'is_precoloured'
+						     (V) of
+					      ( <( 'true'
+						   -| ['compiler_generated'] )> when 'true' ->
+						    'true'
+						-| ['compiler_generated'] )
+					      ( <( 'false'
+						   -| ['compiler_generated'] )> when 'true' ->
+						    %% Line 1296
+						    call 'hipe_ig':'nodes_are_adjacent'
+							(U, V, _cor4)
+						-| ['compiler_generated'] )
+					      ( <_cor12> when 'true' ->
+						    ( call ( 'erlang'
+							     -| ['compiler_generated'] ):( 'error'
+											   -| ['compiler_generated'] )
+							  (( {( 'badarg'
+								-| ['compiler_generated'] ),_cor12}
+							     -| ['compiler_generated'] ))
+						      -| ['compiler_generated'] )
+						-| ['compiler_generated'] )
+					    end
+					    -| ['compiler_generated'] )
+				      in  %% Line 1295
+					  case _cor14 of
+					    %% Line 1297
+					    <'true'> when 'true' ->
+						%% Line 1299
+						{Moves0,_cor4,_cor2,_cor3}
+					    %% Line 1300
+					    <'false'> when 'true' ->
+						let <_cor19> =
+						    %% Line 1301
+						    case call _cor0:'is_precoloured'
+							     (U) of
+						      %% Line 1302
+						      <'true'> when 'true' ->
+							  let <AdjV> =
+							      %% Line 1303
+							      call 'hipe_ig':'node_adj_list'
+								  (V, _cor4)
+							  in  %% Line 1304
+							      apply 'all_adjacent_ok'/6
+								  (AdjV, U, _cor3, _cor4, _cor1, _cor0)
+						      %% Line 1305
+						      <'false'> when 'true' ->
+							  let <AdjV> =
+							      %% Line 1306
+							      call 'hipe_ig':'node_adj_list'
+								  (V, _cor4)
+							  in  let <AdjU> =
+								  %% Line 1307
+								  call 'hipe_ig':'node_adj_list'
+								      (U, _cor4)
+							      in  %% Line 1308
+								  apply 'conservative'/6
+								      (AdjU, AdjV, U, _cor3, _cor4, _cor1)
+						      ( <_cor18> when 'true' ->
+							    primop 'match_fail'
+								({'case_clause',_cor18})
+							-| ['compiler_generated'] )
+						    end
+						in  %% Line 1301
+						    case _cor19 of
+						      %% Line 1310
+						      <'true'> when 'true' ->
+							  %% Line 1312
+							  case %% Line 1313
+							       apply 'combine'/7
+								   (U, V, _cor4, _cor2, _cor3, _cor1, _cor0) of
+							    <{IG1,Alias1,Worklists1}> when 'true' ->
+								%% Line 1314
+								{Moves0,IG1,Alias1,Worklists1}
+							    ( <_cor20> when 'true' ->
+								  primop 'match_fail'
+								      ({'badmatch',_cor20})
+							      -| ['compiler_generated'] )
+							  end
+						      %% Line 1315
+						      <'false'> when 'true' ->
+							  let <Moves1> =
+							      %% Line 1316
+							      call 'hipe_moves':'add_active'
+								  (Move, Moves0)
+							  in  %% Line 1317
+							      {Moves1,_cor4,_cor2,_cor3}
+						      ( <_cor22> when 'true' ->
+							    primop 'match_fail'
+								({'case_clause',_cor22})
+							-| ['compiler_generated'] )
+						    end
+					    ( <_cor23> when 'true' ->
+						  primop 'match_fail'
+						      ({'case_clause',_cor23})
+					      -| ['compiler_generated'] )
+					  end
+				end
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor25> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor25})
+	    -| ['compiler_generated'] )
+	end
+'combine'/7 =
+    %% Line 1496
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <Worklists1> =
+	    %% Line 1498
+	    call 'hipe_reg_worklists':'add_coalesced'
+		(_cor5, _cor6, _cor2)
+	in  let <Alias1> =
+		%% Line 1499
+		apply 'setAlias'/3
+		    (_cor5, _cor6, _cor3)
+	    in  let <AdjV> =
+		    %% Line 1500
+		    call 'hipe_ig':'node_adj_list'
+			(_cor5, _cor4)
+		in  let <IG1> =
+			%% Line 1501
+			apply 'combine_edges'/6
+			    (AdjV, _cor6, _cor4, Worklists1, _cor1, _cor0)
+		    in  %% Line 1502
+			{IG1,Alias1,Worklists1}
+'combine_edges'/6 =
+    %% Line 1524
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_U,IG,_X_Worklists,_X_K,_X_Target> when 'true' ->
+	      %% Line 1525
+	      IG
+	  %% Line 1526
+	  <[T|Ts],U,IG,Worklists,K,Target> when 'true' ->
+	      %% Line 1527
+	      case call 'hipe_reg_worklists':'member_stack_or_coalesced'
+		       (T, Worklists) of
+		%% Line 1528
+		<'true'> when 'true' ->
+		    apply 'combine_edges'/6
+			(Ts, U, IG, Worklists, K, Target)
+		%% Line 1529
+		<_cor17> when 'true' ->
+		    let <IG1> =
+			%% Line 1530
+			call 'hipe_ig':'add_edge'
+			    (T, U, IG, Target)
+		    in  let <_cor8> =
+			    %% Line 1531
+			    case call Target:'is_precoloured'
+				     (T) of
+			      %% Line 1532
+			      <'true'> when 'true' ->
+				  IG1
+			      %% Line 1533
+			      <'false'> when 'true' ->
+				  call 'hipe_ig':'dec_node_degree'
+				      (T, IG1)
+			      ( <_cor7> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor7})
+				-| ['compiler_generated'] )
+			    end
+			in  %% Line 1535
+			    apply 'combine_edges'/6
+				(Ts, U, _cor8, Worklists, K, Target)
+	      end
+	  ( <_cor16,_cor15,_cor14,_cor13,_cor12,_cor11> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15,_cor14,_cor13,_cor12,_cor11})
+		  -| [{'function_name',{'combine_edges',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'undoCoalescing'/6 =
+    %% Line 1619
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <Primitives> =
+	    %% Line 1620
+	    apply 'findPrimitiveNodes'/3
+		(_cor4, _cor5, _cor3)
+	in  let <Alias1> =
+		%% Line 1621
+		apply 'restoreAliases'/2
+		    (Primitives, _cor3)
+	    in  let <IG1> =
+		    %% Line 1622
+		    apply 'fixAdj'/4
+			(_cor5, _cor2, _cor1, _cor0)
+		in  %% Line 1623
+		    {Primitives,Alias1,IG1}
+'restoreAliases'/2 =
+    %% Line 1630
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Alias> when 'true' ->
+	      %% Line 1631
+	      Alias
+	  %% Line 1632
+	  <[Primitive|Primitives],Alias> when 'true' ->
+	      let <Alias1> =
+		  %% Line 1633
+		  apply 'setAlias'/3
+		      (Primitive, Primitive, Alias)
+	      in  %% Line 1634
+		  apply 'restoreAliases'/2
+		      (Primitives, Alias1)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'restoreAliases',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'findPrimitiveNodes'/3 =
+    %% Line 1638
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 1639
+	apply 'findPrimitiveNodes'/4
+	    (_cor2, _cor1, _cor0, [])
+'findPrimitiveNodes'/4 =
+    %% Line 1641
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <0,_X_N,_X_Alias,PrimitiveNodes> when 'true' ->
+	      %% Line 1642
+	      PrimitiveNodes
+	  %% Line 1643
+	  <Node,N,Alias,PrimitiveNodes> when 'true' ->
+	      let <NextNode> =
+		  %% Line 1644
+		  call 'erlang':'-'
+		      (Node, 1)
+	      in  let <_cor5> =
+		      %% Line 1645
+		      apply 'getAlias'/2
+			  (NextNode, Alias)
+		  in  %% Line 1645
+		      case call 'erlang':'=:='
+			       (_cor5, N) of
+			%% Line 1646
+			<'true'> when 'true' ->
+			    apply 'findPrimitiveNodes'/4
+				(NextNode, N, Alias, [NextNode|PrimitiveNodes])
+			%% Line 1647
+			<_cor11> when 'true' ->
+			    apply 'findPrimitiveNodes'/4
+				(NextNode, N, Alias, PrimitiveNodes)
+		      end
+	end
+'fixAdj'/4 =
+    %% Line 1683
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <Saved> =
+	    %% Line 1685
+	    call 'hipe_adj_list':'edges'
+		(_cor3, _cor2)
+	in  let <Adj> =
+		%% Line 1687
+		call 'hipe_ig':'node_adj_list'
+		    (_cor3, _cor1)
+	    in  let <New> =
+		    %% Line 1689
+		    apply 'findNew'/2
+			(Adj, Saved)
+		in  do  %% Line 1691
+			apply 'removeAdj'/4
+			    (New, _cor3, _cor1, _cor0)
+			_cor1
+'removeAdj'/4 =
+    %% Line 1702
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_N,_X_IG,_X_Target> when 'true' ->
+	      %% Line 1703
+	      'true'
+	  %% Line 1704
+	  <[V|New],N,IG,Target> when 'true' ->
+	      do  %% Line 1705
+		  call 'hipe_ig':'remove_edge'
+		      (V, N, IG, Target)
+		  %% Line 1706
+		  apply 'removeAdj'/4
+		      (New, N, IG, Target)
+	  ( <_cor7,_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'removeAdj',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'findNew'/2 =
+    %% Line 1719
+    fun (_cor1,_cor0) ->
+	%% Line 1720
+	apply 'findNew'/3
+	    (_cor1, _cor0, [])
+'findNew'/3 =
+    %% Line 1722
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_X_Saved,New> when 'true' ->
+	      %% Line 1723
+	      New
+	  %% Line 1724
+	  <[A|Adj],Saved,New> when 'true' ->
+	      %% Line 1725
+	      case call 'lists':'member'
+		       (A, Saved) of
+		%% Line 1726
+		<'true'> when 'true' ->
+		    apply 'findNew'/3
+			(Adj, Saved, New)
+		%% Line 1727
+		<_cor7> when 'true' ->
+		    apply 'findNew'/3
+			(Adj, Saved, [A|New])
+	      end
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'findNew',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'ok'/5 =
+    %% Line 1752
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 1754
+	( case call 'hipe_ig':'is_trivially_colourable'
+		   (_cor4, _cor1, _cor2) of
+	    ( <( 'true'
+		 -| ['compiler_generated'] )> when 'true' ->
+		  'true'
+	      -| ['compiler_generated'] )
+	    ( <( 'false'
+		 -| ['compiler_generated'] )> when 'true' ->
+		  %% Line 1755
+		  ( case call _cor0:'is_precoloured'
+			     (_cor4) of
+		      ( <( 'true'
+			   -| ['compiler_generated'] )> when 'true' ->
+			    'true'
+			-| ['compiler_generated'] )
+		      ( <( 'false'
+			   -| ['compiler_generated'] )> when 'true' ->
+			    call 'hipe_ig':'nodes_are_adjacent'
+				(_cor4, _cor3, _cor2)
+			-| ['compiler_generated'] )
+		      ( <_cor6> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {( 'badarg'
+					-| ['compiler_generated'] ),_cor6}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	    ( <_cor5> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {( 'badarg'
+			      -| ['compiler_generated'] ),_cor5}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'all_adjacent_ok'/6 =
+    %% Line 1773
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_U,_X_Worklists,_X_IG,_X_K,_X_Target> when 'true' ->
+	      'true'
+	  %% Line 1774
+	  <[T|Ts],U,Worklists,IG,K,Target> when 'true' ->
+	      %% Line 1775
+	      case call 'hipe_reg_worklists':'member_stack_or_coalesced'
+		       (T, Worklists) of
+		%% Line 1776
+		<'true'> when 'true' ->
+		    apply 'all_adjacent_ok'/6
+			(Ts, U, Worklists, IG, K, Target)
+		%% Line 1777
+		<_cor14> when 'true' ->
+		    %% Line 1779
+		    case apply 'ok'/5
+			     (T, U, IG, K, Target) of
+		      %% Line 1780
+		      <'true'> when 'true' ->
+			  apply 'all_adjacent_ok'/6
+			      (Ts, U, Worklists, IG, K, Target)
+		      %% Line 1781
+		      <'false'> when 'true' ->
+			  'false'
+		      ( <_cor6> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor6})
+			-| ['compiler_generated'] )
+		    end
+	      end
+	  ( <_cor13,_cor12,_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11,_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'all_adjacent_ok',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'conservative'/6 =
+    %% Line 1800
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 1801
+	apply 'conservative_countU'/7
+	    (_cor5, _cor4, _cor3, _cor2, _cor1, _cor0, 0)
+'conservative_countU'/7 =
+    %% Line 1818
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],AdjV,U,Worklists,IG,K,Cnt> when 'true' ->
+	      %% Line 1819
+	      apply 'conservative_countV'/6
+		  (AdjV, U, Worklists, IG, K, Cnt)
+	  %% Line 1820
+	  <[Node|AdjU],AdjV,U,Worklists,IG,K,Cnt> when 'true' ->
+	      %% Line 1821
+	      case call 'hipe_reg_worklists':'member_stack_or_coalesced'
+		       (Node, Worklists) of
+		%% Line 1822
+		<'true'> when 'true' ->
+		    apply 'conservative_countU'/7
+			(AdjU, AdjV, U, Worklists, IG, K, Cnt)
+		%% Line 1823
+		<_cor17> when 'true' ->
+		    %% Line 1824
+		    case call 'hipe_ig':'is_trivially_colourable'
+			     (Node, K, IG) of
+		      %% Line 1825
+		      <'true'> when 'true' ->
+			  apply 'conservative_countU'/7
+			      (AdjU, AdjV, U, Worklists, IG, K, Cnt)
+		      %% Line 1826
+		      <_cor18> when 'true' ->
+			  let <Cnt1> =
+			      %% Line 1827
+			      call 'erlang':'+'
+				  (Cnt, 1)
+			  in  %% Line 1828
+			      case <> of
+				<>
+				    when call 'erlang':'<'
+					  (Cnt1,
+					   K) ->
+				    apply 'conservative_countU'/7
+					(AdjU, AdjV, U, Worklists, IG, K, Cnt1)
+				%% Line 1829
+				<> when 'true' ->
+				    'false'
+			      end
+		    end
+	      end
+	  ( <_cor16,_cor15,_cor14,_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15,_cor14,_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'conservative_countU',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'conservative_countV'/6 =
+    %% Line 1834
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_U,_X_Worklists,_X_IG,_X_K,_X_Cnt> when 'true' ->
+	      'true'
+	  %% Line 1835
+	  <[Node|AdjV],U,Worklists,IG,K,Cnt> when 'true' ->
+	      %% Line 1836
+	      case call 'hipe_reg_worklists':'member_stack_or_coalesced'
+		       (Node, Worklists) of
+		%% Line 1837
+		<'true'> when 'true' ->
+		    apply 'conservative_countV'/6
+			(AdjV, U, Worklists, IG, K, Cnt)
+		%% Line 1838
+		<_cor16> when 'true' ->
+		    %% Line 1839
+		    case call 'hipe_ig':'nodes_are_adjacent'
+			     (Node, U, IG) of
+		      %% Line 1840
+		      <'true'> when 'true' ->
+			  apply 'conservative_countV'/6
+			      (AdjV, U, Worklists, IG, K, Cnt)
+		      %% Line 1841
+		      <_cor17> when 'true' ->
+			  %% Line 1842
+			  case call 'hipe_ig':'is_trivially_colourable'
+				   (Node, K, IG) of
+			    %% Line 1843
+			    <'true'> when 'true' ->
+				apply 'conservative_countV'/6
+				    (AdjV, U, Worklists, IG, K, Cnt)
+			    %% Line 1844
+			    <_cor18> when 'true' ->
+				let <Cnt1> =
+				    %% Line 1845
+				    call 'erlang':'+'
+					(Cnt, 1)
+				in  %% Line 1846
+				    case <> of
+				      <>
+					  when call 'erlang':'<'
+						(Cnt1,
+						 K) ->
+					  apply 'conservative_countV'/6
+					      (AdjV, U, Worklists, IG, K, Cnt1)
+				      %% Line 1847
+				      <> when 'true' ->
+					  'false'
+				    end
+			  end
+		    end
+	      end
+	  ( <_cor15,_cor14,_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14,_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'conservative_countV',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'selectSpill'/3 =
+    %% Line 1868
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 1869
+	case call 'hipe_reg_worklists':'spill'
+		 (_cor2) of
+	  <[CAR|CDR]> when 'true' ->
+	      let <SpillCost> =
+		  %% Line 1870
+		  apply 'getCost'/3
+		      (CAR, _cor1, _cor0)
+	      in  let <M> =
+		      %% Line 1871
+		      apply 'findCheapest'/5
+			  (CDR, _cor1, SpillCost, CAR, _cor0)
+		  in  let <WorkLists1> =
+			  %% Line 1872
+			  call 'hipe_reg_worklists':'remove_spill'
+			      (M, _cor2)
+		      in  %% Line 1873
+			  call 'hipe_reg_worklists':'add_simplify'
+			      (M, WorkLists1)
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'findCheapest'/5 =
+    %% Line 1910
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_IG,_X_Cost,Cheapest,_X_SpillLimit> when 'true' ->
+	      %% Line 1911
+	      Cheapest
+	  %% Line 1912
+	  <[Node|Nodes],IG,Cost,Cheapest,SpillLimit> when 'true' ->
+	      let <ThisCost> =
+		  %% Line 1913
+		  apply 'getCost'/3
+		      (Node, IG, SpillLimit)
+	      in  %% Line 1914
+		  case <> of
+		    %% Line 1915
+		    <>
+			when call 'erlang':'<'
+			      (ThisCost,
+			       Cost) ->
+			%% Line 1916
+			apply 'findCheapest'/5
+			    (Nodes, IG, ThisCost, Node, SpillLimit)
+		    %% Line 1917
+		    <> when 'true' ->
+			%% Line 1918
+			apply 'findCheapest'/5
+			    (Nodes, IG, Cost, Cheapest, SpillLimit)
+		  end
+	  ( <_cor11,_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'findCheapest',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'getCost'/3 =
+    %% Line 1924
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 1925
+	case <> of
+	  %% Line 1926
+	  <>
+	      when call 'erlang':'>'
+		    (_cor2,
+		     _cor0) ->
+	      'inf'
+	  %% Line 1927
+	  <> when 'true' ->
+	      %% Line 1928
+	      call 'hipe_ig':'node_spill_cost'
+		  (_cor2, _cor1)
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_optimistic_regalloc')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_optimistic_regalloc', _cor0)
+end

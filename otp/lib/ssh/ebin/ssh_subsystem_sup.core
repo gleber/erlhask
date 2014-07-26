@@ -1,0 +1,178 @@
+module 'ssh_subsystem_sup' ['channel_supervisor'/1,
+			    'connection_supervisor'/1,
+			    'init'/1,
+			    'module_info'/0,
+			    'module_info'/1,
+			    'start_link'/1]
+    attributes [%% Line 26
+		'behaviour' =
+		    %% Line 26
+		    ['supervisor']]
+'start_link'/1 =
+    %% Line 39
+    fun (_cor0) ->
+	%% Line 40
+	call 'supervisor':'start_link'
+	    ('ssh_subsystem_sup', [_cor0|[]])
+'connection_supervisor'/1 =
+    %% Line 42
+    fun (_cor0) ->
+	let <Children> =
+	    %% Line 43
+	    call 'supervisor':'which_children'
+		(_cor0)
+	in  %% Line 44
+	    apply 'ssh_connection_sup'/1
+		(Children)
+'channel_supervisor'/1 =
+    %% Line 46
+    fun (_cor0) ->
+	let <Children> =
+	    %% Line 47
+	    call 'supervisor':'which_children'
+		(_cor0)
+	in  %% Line 48
+	    apply 'ssh_channel_sup'/1
+		(Children)
+'init'/1 =
+    %% Line 53
+    fun (_cor0) ->
+	case _cor0 of
+	  <[Opts|[]]> when 'true' ->
+	      let <Children> =
+		  %% Line 57
+		  apply 'child_specs'/1
+		      (Opts)
+	      in  %% Line 58
+		  {'ok',{{'one_for_all',0,3600},Children}}
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'child_specs'/1 =
+    %% Line 63
+    fun (_cor0) ->
+	%% Line 64
+	case call 'proplists':'get_value'
+		 ('role', _cor0) of
+	  %% Line 65
+	  <'client'> when 'true' ->
+	      %% Line 66
+	      []
+	  %% Line 67
+	  <'server'> when 'true' ->
+	      let <_cor1> =
+		  %% Line 68
+		  apply 'ssh_channel_child_spec'/1
+		      (_cor0)
+	      in  let <_cor2> =
+		      %% Line 68
+		      apply 'ssh_connectinon_child_spec'/1
+			  (_cor0)
+		  in  %% Line 68
+		      [_cor1|[_cor2|[]]]
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'ssh_connectinon_child_spec'/1 =
+    %% Line 71
+    fun (_cor0) ->
+	let <Address> =
+	    %% Line 72
+	    call 'proplists':'get_value'
+		('address', _cor0)
+	in  let <Port> =
+		%% Line 73
+		call 'proplists':'get_value'
+		    ('port', _cor0)
+	    in  let <Role> =
+		    %% Line 74
+		    call 'proplists':'get_value'
+			('role', _cor0)
+		in  let <Name> =
+			%% Line 75
+			apply 'id'/4
+			    (Role, 'ssh_connection_sup', Address, Port)
+		    in  let <StartFunc> =
+			    %% Line 76
+			    {'ssh_connection_sup','start_link',[_cor0|[]]}
+			in  %% Line 81
+			    {Name,StartFunc,'temporary',5000,'supervisor',['ssh_connection_sup']}
+'ssh_channel_child_spec'/1 =
+    %% Line 83
+    fun (_cor0) ->
+	let <Address> =
+	    %% Line 84
+	    call 'proplists':'get_value'
+		('address', _cor0)
+	in  let <Port> =
+		%% Line 85
+		call 'proplists':'get_value'
+		    ('port', _cor0)
+	    in  let <Role> =
+		    %% Line 86
+		    call 'proplists':'get_value'
+			('role', _cor0)
+		in  let <Name> =
+			%% Line 87
+			apply 'id'/4
+			    (Role, 'ssh_channel_sup', Address, Port)
+		    in  let <StartFunc> =
+			    %% Line 88
+			    {'ssh_channel_sup','start_link',[_cor0|[]]}
+			in  %% Line 93
+			    {Name,StartFunc,'temporary','infinity','supervisor',['ssh_channel_sup']}
+'id'/4 =
+    %% Line 95
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 96
+	{_cor3,_cor2,_cor1,_cor0}
+'ssh_connection_sup'/1 =
+    %% Line 98
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{_cor2,Child,_cor3,['ssh_connection_sup']}|_cor4]> when 'true' ->
+	      %% Line 99
+	      Child
+	  %% Line 100
+	  <[_cor5|Rest]> when 'true' ->
+	      %% Line 101
+	      apply 'ssh_connection_sup'/1
+		  (Rest)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'ssh_connection_sup',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'ssh_channel_sup'/1 =
+    %% Line 103
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{_cor2,Child,_cor3,['ssh_channel_sup']}|_cor4]> when 'true' ->
+	      %% Line 104
+	      Child
+	  %% Line 105
+	  <[_cor5|Rest]> when 'true' ->
+	      %% Line 106
+	      apply 'ssh_channel_sup'/1
+		  (Rest)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'ssh_channel_sup',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ssh_subsystem_sup')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ssh_subsystem_sup', _cor0)
+end

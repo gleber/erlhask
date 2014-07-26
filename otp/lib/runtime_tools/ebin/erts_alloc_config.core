@@ -1,0 +1,2017 @@
+module 'erts_alloc_config' ['make_config'/0,
+			    'make_config'/1,
+			    'module_info'/0,
+			    'module_info'/1,
+			    'save_scenario'/0,
+			    'state'/0,
+			    'stop'/0]
+    attributes []
+'save_scenario'/0 =
+    %% Line 120
+    fun () ->
+	%% Line 121
+	apply 'req'/1
+	    ('save_scenario')
+'make_config'/0 =
+    %% Line 123
+    fun () ->
+	let <_cor0> =
+	    %% Line 124
+	    call 'erlang':'group_leader'
+		()
+	in  %% Line 124
+	    apply 'make_config'/1
+		(_cor0)
+'make_config'/1 =
+    %% Line 126
+    fun (_cor0) ->
+	case _cor0 of
+	  <FileName>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      %% Line 127
+	      case call 'file':'open'
+		       (FileName, ['write']) of
+		%% Line 128
+		<{'ok',IODev}> when 'true' ->
+		    let <Res> =
+			%% Line 129
+			apply 'req'/1
+			    ({'make_config',IODev})
+		    in  do  %% Line 130
+			    call 'file':'close'
+				(IODev)
+			    %% Line 131
+			    Res
+		%% Line 132
+		<Error> when 'true' ->
+		    %% Line 133
+		    Error
+	      end
+	  %% Line 135
+	  <IODev> when 'true' ->
+	      %% Line 136
+	      apply 'req'/1
+		  ({'make_config',IODev})
+	end
+'stop'/0 =
+    %% Line 138
+    fun () ->
+	%% Line 139
+	apply 'req'/1
+	    ('stop')
+'state'/0 =
+    %% Line 145
+    fun () ->
+	%% Line 146
+	apply 'req'/1
+	    ('state')
+'req'/1 =
+    %% Line 152
+    fun (_cor0) ->
+	let <Ref> =
+	    %% Line 153
+	    call 'erlang':'make_ref'
+		()
+	in  let <_cor2> =
+		%% Line 154
+		call 'erlang':'self'
+		    ()
+	    in  let <ReqMsg> =
+		    %% Line 154
+		    {'request',_cor2,Ref,_cor0}
+		in  %% Line 155
+		    apply 'req'/3
+			(ReqMsg, Ref, 'true')
+'req'/3 =
+    %% Line 157
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 158
+	    call 'erlang':'monitor'
+		('process', '__erts_alloc_config__')
+	in  %% Line 158
+	    apply 'req'/4
+		(_cor2, _cor1, _cor0, _cor3)
+'req'/4 =
+    %% Line 160
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  catch
+		%% Line 161
+		call 'erlang':'!'
+		    ('__erts_alloc_config__', _cor3)
+	    %% Line 162
+	    receive
+	      %% Line 163
+	      <{'response',_cor9,Res}>
+		  when call 'erlang':'=:='
+			(_cor9,
+			 _cor2) ->
+		  do  %% Line 164
+		      call 'erlang':'demonitor'
+			  (_cor0, ['flush'])
+		      %% Line 165
+		      Res
+	      %% Line 166
+	      <{'DOWN',_cor10,_cor11,_cor12,'noproc'}>
+		  when call 'erlang':'=:='
+			(_cor10,
+			 _cor0) ->
+		  %% Line 167
+		  case _cor1 of
+		    %% Line 168
+		    <'true'> when 'true' ->
+			apply 'start_server'/2
+			    (_cor2, _cor3)
+		    %% Line 169
+		    <'false'> when 'true' ->
+			{'error','server_died'}
+		    ( <_cor4> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor4})
+		      -| ['compiler_generated'] )
+		  end
+	      %% Line 171
+	      <{'DOWN',_cor13,_cor14,_cor15,Reason}>
+		  when call 'erlang':'=:='
+			(_cor13,
+			 _cor0) ->
+		  %% Line 172
+		  {'error',Reason}
+	    after 'infinity' ->
+	      'true'
+'start_server'/2 =
+    %% Line 175
+    fun (_cor1,_cor0) ->
+	let <Starter> =
+	    %% Line 176
+	    call 'erlang':'self'
+		()
+	in  let <_cor6> =
+		%% Line 177
+		( fun () ->
+		      let <_cor3> =
+			  %% Line 178
+			  call 'erlang':'self'
+			      ()
+		      in  do  %% Line 178
+			      call 'erlang':'register'
+				  ('__erts_alloc_config__', _cor3)
+			      let <_cor4> =
+				  %% Line 179
+				  call 'erlang':'self'
+				      ()
+			      in  do  %% Line 179
+				      call 'erlang':'!'
+					  (Starter, {_cor1,_cor4,'started'})
+				      let <_cor5> =
+					  %% Line 180
+					  apply 'make_state'/0
+					      ()
+				      in  %% Line 180
+					  apply 'server_loop'/1
+					      (_cor5)
+		  -| [{'id',{0,0,'-start_server/2-fun-0-'}}] )
+	    in  let <Pid> =
+		    %% Line 177
+		    call 'erlang':'spawn'
+			(_cor6)
+		in  let <Mon> =
+			%% Line 182
+			call 'erlang':'monitor'
+			    ('process', Pid)
+		    in  %% Line 183
+			receive
+			  %% Line 184
+			  <{_cor11,_cor12,'started'}>
+			      when let <_cor13> =
+				    call 'erlang':'=:='
+					(_cor11, _cor1)
+				in  let <_cor14> =
+					call 'erlang':'=:='
+					    (_cor12, Pid)
+				    in  call 'erlang':'and'
+					    (_cor13, _cor14) ->
+			      %% Line 185
+			      apply 'req'/4
+				  (_cor0, _cor1, 'false', Mon)
+			  %% Line 186
+			  <{'DOWN',_cor15,_cor16,_cor17,_cor18}>
+			      when call 'erlang':'=:='
+				    (_cor15,
+				     Mon) ->
+			      %% Line 187
+			      apply 'req'/3
+				  (_cor0, _cor1, 'false')
+			after 'infinity' ->
+			  'true'
+'server_loop'/1 =
+    %% Line 190
+    fun (_cor0) ->
+	let <_cor13> =
+	    %% Line 191
+	    receive
+	      %% Line 192
+	      <{'request',From,Ref,'save_scenario'}> when 'true' ->
+		  %% Line 193
+		  ( case _cor0 of
+		      ( <( {'state',_cor16,_rec0}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    let <Alloc> =
+				apply 'save_scenario'/1
+				    (_rec0)
+			    in  do  %% Line 194
+				    call 'erlang':'!'
+					(From, {'response',Ref,'ok'})
+				    %% Line 195
+				    {'state','true',Alloc}
+			-| ['compiler_generated'] )
+		      ( <_cor17> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	      %% Line 196
+	      <{'request',From,Ref,{'make_config',IODev}}> when 'true' ->
+		  %% Line 197
+		  ( case _cor0 of
+		      ( <( {'state',_rec4,_cor19}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    do  case _rec4 of
+				  %% Line 198
+				  <'true'> when 'true' ->
+				      let <Conf> = {%% Line 199
+					   'conf',%% Line 199
+						  150,%% Line 200
+						      IODev}
+				      in  let <Res> =
+					      %% Line 201
+					      apply 'mk_config'/2
+						  (Conf, _cor19)
+					  in  %% Line 202
+					      call 'erlang':'!'
+						  (From, {'response',Ref,Res})
+				  %% Line 203
+				  <_cor23> when 'true' ->
+				      %% Line 204
+				      call 'erlang':'!'
+					  (From, {'response',Ref,'no_scenario_saved'})
+				end
+				_cor0
+			-| ['compiler_generated'] )
+		      ( <_cor20> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	      %% Line 207
+	      <{'request',From,Ref,'stop'}> when 'true' ->
+		  do  %% Line 208
+		      call 'erlang':'!'
+			  (From, {'response',Ref,'ok'})
+		      %% Line 209
+		      call 'erlang':'exit'
+			  ('normal')
+	      %% Line 210
+	      <{'request',From,Ref,'state'}> when 'true' ->
+		  do  %% Line 211
+		      call 'erlang':'!'
+			  (From, {'response',Ref,_cor0})
+		      _cor0
+	      %% Line 213
+	      <{'request',From,Ref,Req}> when 'true' ->
+		  do  %% Line 214
+		      call 'erlang':'!'
+			  (From, {'response',Ref,{'unknown_request',Req}})
+		      _cor0
+	      %% Line 216
+	      <_cor24> when 'true' ->
+		  _cor0
+	    after 'infinity' ->
+	      'true'
+	in  %% Line 219
+	    apply 'server_loop'/1
+		(_cor13)
+'carrier_migration_support'/1 =
+    %% Line 221
+    fun (_cor0) ->
+	case _cor0 of
+	  <'aoff'> when 'true' ->
+	      %% Line 222
+	      'true'
+	  %% Line 223
+	  <'aoffcbf'> when 'true' ->
+	      %% Line 224
+	      'true'
+	  %% Line 225
+	  <'aoffcaobf'> when 'true' ->
+	      %% Line 226
+	      'true'
+	  %% Line 227
+	  <_cor2> when 'true' ->
+	      %% Line 228
+	      'false'
+	end
+'allocator_instances'/2 =
+    %% Line 230
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'ll_alloc',Strategy> when 'true' ->
+	      %% Line 231
+	      case apply 'carrier_migration_support'/1
+		       (Strategy) of
+		%% Line 232
+		<'true'> when 'true' ->
+		    call 'erlang':'system_info'
+			('schedulers')
+		%% Line 233
+		<'false'> when 'true' ->
+		    1
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 235
+	  <_X_A,'undefined'> when 'true' ->
+	      %% Line 236
+	      1
+	  %% Line 237
+	  <_X_A,_X_Strategy> when 'true' ->
+	      %% Line 238
+	      call 'erlang':'system_info'
+		  ('schedulers')
+	end
+'strategy'/2 =
+    %% Line 240
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'temp_alloc',_X_AI> when 'true' ->
+	      %% Line 241
+	      'af'
+	  %% Line 242
+	  <A,AI> when 'true' ->
+	      %% Line 243
+	      try
+		  %% Line 244
+		  case call 'lists':'keyfind'
+			   (A, 1, AI) of
+		    <{_cor10,OptList}>
+			when call 'erlang':'=:='
+			      (_cor10,
+			       A) ->
+			%% Line 245
+			case call 'lists':'keyfind'
+				 ('as', 1, OptList) of
+			  <{'as',S}> when 'true' ->
+			      %% Line 246
+			      S
+			  ( <_cor3> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor3})
+			    -| ['compiler_generated'] )
+			end
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor2})
+		      -| ['compiler_generated'] )
+		  end
+	      of <_cor4> ->
+		  _cor4
+	      catch <_cor7,_cor6,_cor5> ->
+		  %% Line 249
+		  'undefined'
+	end
+'strategy_str'/1 =
+    %% Line 252
+    fun (_cor0) ->
+	case _cor0 of
+	  <'af'> when 'true' ->
+	      %% Line 253
+	      [65|[32|[102|[105|[116]]]]]
+	  %% Line 254
+	  <'gf'> when 'true' ->
+	      %% Line 255
+	      [71|[111|[111|[100|[32|[102|[105|[116]]]]]]]]
+	  %% Line 256
+	  <'bf'> when 'true' ->
+	      %% Line 257
+	      [66|[101|[115|[116|[32|[102|[105|[116]]]]]]]]
+	  %% Line 258
+	  <'aobf'> when 'true' ->
+	      %% Line 259
+	      [65|[100|[100|[114|[101|[115|[115|[32|[111|[114|[100|[101|[114|[32|[98|[101|[115|[116|[32|[102|[105|[116]]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 260
+	  <'aoff'> when 'true' ->
+	      %% Line 261
+	      [65|[100|[100|[114|[101|[115|[115|[32|[111|[114|[100|[101|[114|[32|[102|[105|[114|[115|[116|[32|[102|[105|[116]]]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 262
+	  <'aoffcbf'> when 'true' ->
+	      %% Line 263
+	      [65|[100|[100|[114|[101|[115|[115|[32|[111|[114|[100|[101|[114|[32|[102|[105|[114|[115|[116|[32|[102|[105|[116|[32|[99|[97|[114|[114|[105|[101|[114|[32|[98|[101|[115|[116|[32|[102|[105|[116]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+	  %% Line 264
+	  <'aoffcaobf'> when 'true' ->
+	      %% Line 265
+	      [65|[100|[100|[114|[101|[115|[115|[32|[111|[114|[100|[101|[114|[32|[102|[105|[114|[115|[116|[32|[102|[105|[116|[32|[99|[97|[114|[114|[105|[101|[114|[32|[97|[100|[114|[101|[115|[115|[32|[111|[114|[100|[101|[114|[32|[98|[101|[115|[116|[32|[102|[105|[116]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'strategy_str',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'default_acul'/2 =
+    %% Line 267
+    fun (_cor1,_cor0) ->
+	%% Line 268
+	case apply 'carrier_migration_support'/1
+		 (_cor0) of
+	  %% Line 269
+	  <'false'> when 'true' ->
+	      %% Line 270
+	      0
+	  %% Line 271
+	  <'true'> when 'true' ->
+	      %% Line 272
+	      case _cor1 of
+		%% Line 273
+		<'ll_alloc'> when 'true' ->
+		    85
+		%% Line 274
+		<'eheap_alloc'> when 'true' ->
+		    45
+		%% Line 275
+		<_cor6> when 'true' ->
+		    60
+	      end
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'make_state'/0 =
+    %% Line 279
+    fun () ->
+	%% Line 280
+	case call 'erlang':'system_info'
+		 ('allocator') of
+	  <{_cor8,_cor9,_cor10,AI}> when 'true' ->
+	      let <_cor6> =
+		  %% Line 281
+		  ( fun (_cor4) ->
+			let <S> =
+			    %% Line 282
+			    apply 'strategy'/2
+				(_cor4, AI)
+			in  let <_cor3> =
+				%% Line 286
+				apply 'allocator_instances'/2
+				    (_cor4, S)
+			    in  let <_cor2> =
+				    %% Line 285
+				    apply 'default_acul'/2
+					(_cor4, S)
+				in  %% Line 283
+				    {'alloc',_cor4,'undefined','undefined','undefined',_cor3,%% Line 284
+											     S,_cor2,'undefined','undefined','undefined','undefined'}
+		    -| [{'id',{0,0,'-make_state/0-fun-0-'}}] )
+	      in  let <_cor7> =
+		      %% Line 281
+		      call 'lists':'map'
+			  (_cor6, %% Line 288
+				  ['binary_alloc'|['ets_alloc'|['eheap_alloc'|['fix_alloc'|['ll_alloc'|['mseg_alloc'|['sl_alloc'|['std_alloc'|['sys_alloc'|['temp_alloc'|['driver_alloc']]]]]]]]]]])
+		  in  %% Line 281
+		      {'state','false',_cor7}
+	  ( <_cor0> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor0})
+	    -| ['compiler_generated'] )
+	end
+'ai_value'/3 =
+    %% Line 294
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 295
+	case call 'lists':'keysearch'
+		 (_cor2, 1, _cor0) of
+	  %% Line 296
+	  <{'value',{_cor8,Value1}}>
+	      when call 'erlang':'=:='
+		    (_cor8,
+		     _cor2) ->
+	      %% Line 297
+	      case call 'lists':'keysearch'
+		       (_cor1, 1, Value1) of
+		%% Line 298
+		<{'value',Result}> when 'true' ->
+		    Result
+		%% Line 299
+		<_cor9> when 'true' ->
+		    'undefined'
+	      end
+	  %% Line 301
+	  <_cor10> when 'true' ->
+	      'undefined'
+	end
+'chk_mbcs_blocks_size'/3 =
+    %% Line 305
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Alc = {'alloc',_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,'undefined',%% Line 306
+										       'undefined',_cor27,_cor28},%% Line 307
+														  Min,%% Line 308
+														      Max> when 'true' ->
+	      let <_cor4> =
+		  %% Line 310
+		  call 'erlang':'setelement'
+		      (10, Alc, Max)
+	      in  let <_cor5> =
+		      %% Line 309
+		      call 'erlang':'setelement'
+			  (9, _cor4, Min)
+		  in  %% Line 311
+		      call 'erlang':'setelement'
+			  (3, _cor5, 'true')
+	  %% Line 312
+	  <Alc = {'alloc',_cor41,_cor42,_cor43,_cor44,_cor45,_cor46,_cor47,LowBS,%% Line 313
+										 HighBS,_cor48,_cor49},%% Line 314
+												       Min,%% Line 315
+													   Max> when 'true' ->
+	      %% Line 316
+	      case call 'erlang':'is_integer'
+		       (LowBS) of
+		<'true'> when 'true' ->
+		    %% Line 317
+		    case call 'erlang':'is_integer'
+			     (HighBS) of
+		      <'true'> when 'true' ->
+			  let <_cor12> =
+			      %% Line 318
+			      case <> of
+				%% Line 319
+				<>
+				    when call 'erlang':'<'
+					  (Min,
+					   LowBS) ->
+				    call 'erlang':'setelement'
+					(9, Alc, Min)
+				%% Line 320
+				<> when 'true' ->
+				    Alc
+			      end
+			  in  %% Line 322
+			      case <> of
+				%% Line 323
+				<>
+				    when call 'erlang':'>'
+					  (Max,
+					   HighBS) ->
+				    case _cor12 of
+				      <{'alloc',_cor62,_cor63,_cor64,_cor65,_cor66,_cor67,_cor68,_cor69,_cor70,_cor71,_cor72}> when 'true' ->
+					  call 'erlang':'setelement'
+					      (10, _cor12, Max)
+				      ( <_cor73> when 'true' ->
+					    ( call ( 'erlang'
+						     -| ['compiler_generated'] ):( 'error'
+										   -| ['compiler_generated'] )
+						  (( {'badrecord','alloc'}
+						     -| ['compiler_generated'] ))
+					      -| ['compiler_generated'] )
+					-| ['compiler_generated'] )
+				    end
+				%% Line 324
+				<> when 'true' ->
+				    _cor12
+			      end
+		      ( <_cor8> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor8})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor7> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor7})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor19,_cor18,_cor17> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor19,_cor18,_cor17})
+		  -| [{'function_name',{'chk_mbcs_blocks_size',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'set_alloc_util'/2 =
+    %% Line 327
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Alc = {'alloc',_cor6,_cor7,_cor8,AU,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15},_cor16>
+	      when call 'erlang':'=:='
+		    (_cor16,
+		     AU) ->
+	      %% Line 328
+	      Alc
+	  %% Line 329
+	  <Alc,Val> when 'true' ->
+	      %% Line 330
+	      case Alc of
+		<{'alloc',_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27}> when 'true' ->
+		    call 'erlang':'setelement'
+			(5, Alc, Val)
+		( <_cor28> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','alloc'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	end
+'chk_sbct'/2 =
+    %% Line 332
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Alc = {'alloc',_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,'undefined',_cor17},AI> when 'true' ->
+	      %% Line 333
+	      case apply 'ai_value'/3
+		       ('options', 'sbct', AI) of
+		%% Line 334
+		<{'sbct',Bytes}>
+		    when call 'erlang':'is_integer'
+			  (Bytes) ->
+		    let <_rec10> =
+			apply 'b2kb'/1
+			    (Bytes)
+		    in  call 'erlang':'setelement'
+			    (11, Alc, _rec10)
+		%% Line 335
+		<_cor30> when 'true' ->
+		    Alc
+	      end
+	  %% Line 337
+	  <Alc,_X_AI> when 'true' ->
+	      %% Line 338
+	      Alc
+	end
+'save_scenario'/1 =
+    %% Line 340
+    fun (_cor0) ->
+	let <OP> =
+	    %% Line 345
+	    call 'erlang':'process_flag'
+		('priority', 'high')
+	in  let <Res> =
+		%% Line 346
+		apply 'do_save_scenario'/1
+		    (_cor0)
+	    in  do  %% Line 347
+		    call 'erlang':'process_flag'
+			('priority', OP)
+		    %% Line 348
+		    Res
+'save_ai2'/2 =
+    %% Line 350
+    fun (_cor1,_cor0) ->
+	let <Alc1> =
+	    %% Line 351
+	    apply 'chk_sbct'/2
+		(_cor1, _cor0)
+	in  %% Line 352
+	    case apply 'ai_value'/3
+		     ('mbcs', 'blocks_size', _cor0) of
+	      %% Line 353
+	      <{'blocks_size',MinBS,_cor7,MaxBS}> when 'true' ->
+		  let <_cor3> =
+		      %% Line 354
+		      apply 'chk_mbcs_blocks_size'/3
+			  (Alc1, MinBS, MaxBS)
+		  in  %% Line 354
+		      apply 'set_alloc_util'/2
+			  (_cor3, 'true')
+	      %% Line 355
+	      <_cor8> when 'true' ->
+		  %% Line 356
+		  apply 'set_alloc_util'/2
+		      (_cor1, 'false')
+	    end
+'save_ai'/2 =
+    %% Line 359
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Alc,[{'instance',0,AI}|[]]> when 'true' ->
+	      %% Line 360
+	      apply 'save_ai2'/2
+		  (Alc, AI)
+	  %% Line 361
+	  <Alc,[{'instance',_cor7,_cor8}|[{'instance',_cor9,_cor10}|_cor11]]> when 'true' ->
+	      %% Line 362
+	      case Alc of
+		<{'alloc',_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22}> when 'true' ->
+		    let <_cor3> =
+			call 'erlang':'setelement'
+			    (4, Alc, 'true')
+		    in  call 'erlang':'setelement'
+			    (3, _cor3, 'true')
+		( <_cor23> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','alloc'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 363
+	  <Alc,AI> when 'true' ->
+	      %% Line 364
+	      apply 'save_ai2'/2
+		  (Alc, AI)
+	end
+'do_save_scenario'/1 =
+    %% Line 366
+    fun (_cor0) ->
+	let <_cor6> =
+	    %% Line 367
+	    ( fun (_cor4) ->
+		  case _cor4 of
+		    <Alc = {'alloc',_cor8,'false',_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17}> when 'true' ->
+			%% Line 368
+			Alc
+		    %% Line 369
+		    <Alc = {'alloc',Name,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27}> when 'true' ->
+			%% Line 370
+			case call 'erlang':'system_info'
+				 ({'allocator',Name}) of
+			  %% Line 371
+			  <'undefined'> when 'true' ->
+			      %% Line 372
+			      call 'erlang':'exit'
+				  ({'bad_allocator_name',Name})
+			  %% Line 373
+			  <'false'> when 'true' ->
+			      %% Line 374
+			      call 'erlang':'setelement'
+				  (3, Alc, 'false')
+			  %% Line 375
+			  <AI>
+			      when call 'erlang':'is_list'
+				    (AI) ->
+			      %% Line 376
+			      apply 'save_ai'/2
+				  (Alc, AI)
+			  ( <_cor3> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor3})
+			    -| ['compiler_generated'] )
+			end
+		    ( <_cor5> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor5})
+			    -| [{'function_name',{'-do_save_scenario/1-fun-0-',1}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-do_save_scenario/1-fun-0-'}}] )
+	in  %% Line 367
+	    call 'lists':'map'
+		(_cor6, _cor0)
+'conf_size'/1 =
+    %% Line 385
+    fun (_cor0) ->
+	case _cor0 of
+	  <Bytes>
+	      when let <_cor1> =
+		    call 'erlang':'is_integer'
+			(_cor0)
+		in  let <_cor2> =
+			call 'erlang':'<'
+			    (_cor0, 0)
+		    in  call 'erlang':'and'
+			    (_cor1, _cor2) ->
+	      %% Line 386
+	      call 'erlang':'exit'
+		  ({'bad_value',Bytes})
+	  %% Line 387
+	  <Bytes>
+	      when let <_cor3> =
+		    call 'erlang':'is_integer'
+			(_cor0)
+		in  let <_cor5> =
+			call 'erlang':'<'
+			    (_cor0, 1048576)
+		    in  call 'erlang':'and'
+			    (_cor3, _cor5) ->
+	      let <_cor6> =
+		  %% Line 388
+		  call 'erlang':'-'
+		      (Bytes, 1)
+	      in  let <_cor7> =
+		      %% Line 388
+		      call 'erlang':'div'
+			  (_cor6, 1024)
+		  in  let <_cor8> =
+			  %% Line 388
+			  call 'erlang':'+'
+			      (_cor7, 1)
+		      in  let <_cor9> =
+			      %% Line 388
+			      call 'erlang':'-'
+				  (_cor8, 1)
+			  in  let <_cor10> =
+				  %% Line 388
+				  call 'erlang':'div'
+				      (_cor9, 256)
+			      in  let <_cor11> =
+				      %% Line 388
+				      call 'erlang':'+'
+					  (_cor10, 1)
+				  in  %% Line 388
+				      call 'erlang':'*'
+					  (_cor11, 256)
+	  %% Line 389
+	  <Bytes>
+	      when let <_cor12> =
+		    call 'erlang':'is_integer'
+			(_cor0)
+		in  let <_cor14> =
+			call 'erlang':'<'
+			    (_cor0, 10485760)
+		    in  call 'erlang':'and'
+			    (_cor12, _cor14) ->
+	      let <_cor23> =
+		  %% Line 390
+		  call 'erlang':'-'
+		      (Bytes, 1)
+	      in  let <_cor24> =
+		      %% Line 390
+		      call 'erlang':'div'
+			  (_cor23, 1024)
+		  in  let <_cor25> =
+			  %% Line 390
+			  call 'erlang':'+'
+			      (_cor24, 1)
+		      in  let <_cor26> =
+			      %% Line 390
+			      call 'erlang':'-'
+				  (_cor25, 1)
+			  in  let <_cor27> =
+				  %% Line 390
+				  call 'erlang':'div'
+				      (_cor26, 1024)
+			      in  let <_cor28> =
+				      %% Line 390
+				      call 'erlang':'+'
+					  (_cor27, 1)
+				  in  %% Line 390
+				      call 'erlang':'*'
+					  (_cor28, 1024)
+	  %% Line 391
+	  <Bytes>
+	      when let <_cor29> =
+		    call 'erlang':'is_integer'
+			(_cor0)
+		in  let <_cor31> =
+			call 'erlang':'<'
+			    (_cor0, 104857600)
+		    in  call 'erlang':'and'
+			    (_cor29, _cor31) ->
+	      let <_cor40> =
+		  %% Line 392
+		  call 'erlang':'-'
+		      (Bytes, 1)
+	      in  let <_cor41> =
+		      %% Line 392
+		      call 'erlang':'div'
+			  (_cor40, 1024)
+		  in  let <_cor42> =
+			  %% Line 392
+			  call 'erlang':'+'
+			      (_cor41, 1)
+		      in  let <_cor43> =
+			      %% Line 392
+			      call 'erlang':'-'
+				  (_cor42, 1)
+			  in  let <_cor44> =
+				  %% Line 392
+				  call 'erlang':'div'
+				      (_cor43, 2048)
+			      in  let <_cor45> =
+				      %% Line 392
+				      call 'erlang':'+'
+					  (_cor44, 1)
+				  in  %% Line 392
+				      call 'erlang':'*'
+					  (_cor45, 2048)
+	  %% Line 393
+	  <Bytes>
+	      when let <_cor46> =
+		    call 'erlang':'is_integer'
+			(_cor0)
+		in  let <_cor48> =
+			call 'erlang':'<'
+			    (_cor0, 268435456)
+		    in  call 'erlang':'and'
+			    (_cor46, _cor48) ->
+	      let <_cor57> =
+		  %% Line 394
+		  call 'erlang':'-'
+		      (Bytes, 1)
+	      in  let <_cor58> =
+		      %% Line 394
+		      call 'erlang':'div'
+			  (_cor57, 1024)
+		  in  let <_cor59> =
+			  %% Line 394
+			  call 'erlang':'+'
+			      (_cor58, 1)
+		      in  let <_cor60> =
+			      %% Line 394
+			      call 'erlang':'-'
+				  (_cor59, 1)
+			  in  let <_cor61> =
+				  %% Line 394
+				  call 'erlang':'div'
+				      (_cor60, 5120)
+			      in  let <_cor62> =
+				      %% Line 394
+				      call 'erlang':'+'
+					  (_cor61, 1)
+				  in  %% Line 394
+				      call 'erlang':'*'
+					  (_cor62, 5120)
+	  %% Line 395
+	  <Bytes>
+	      when call 'erlang':'is_integer'
+		    (_cor0) ->
+	      let <_cor71> =
+		  %% Line 396
+		  call 'erlang':'-'
+		      (Bytes, 1)
+	      in  let <_cor72> =
+		      %% Line 396
+		      call 'erlang':'div'
+			  (_cor71, 1024)
+		  in  let <_cor73> =
+			  %% Line 396
+			  call 'erlang':'+'
+			      (_cor72, 1)
+		      in  let <_cor74> =
+			      %% Line 396
+			      call 'erlang':'-'
+				  (_cor73, 1)
+			  in  let <_cor75> =
+				  %% Line 396
+				  call 'erlang':'div'
+				      (_cor74, 10240)
+			      in  let <_cor76> =
+				      %% Line 396
+				      call 'erlang':'+'
+					  (_cor75, 1)
+				  in  %% Line 396
+				      call 'erlang':'*'
+					  (_cor76, 10240)
+	  ( <_cor77> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor77})
+		  -| [{'function_name',{'conf_size',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'sbct'/2 =
+    %% Line 398
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'conf',_cor5,FTO},{'alloc',A,_cor6,_cor7,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,SBCT,_cor14}> when 'true' ->
+	      do  %% Line 399
+		  apply 'fc'/3
+		      (FTO, [83|[98|[99|[32|[116|[104|[114|[101|[115|[104|[111|[108|[100|[32|[115|[105|[122|[101|[32|[111|[102|[32|[126|[112|[32|[107|[105|[108|[111|[98|[121|[116|[101|[115|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [SBCT|[]])
+		  let <_cor2> =
+		      %% Line 400
+		      apply 'alloc_char'/1
+			  (A)
+		  in  %% Line 400
+		      apply 'format'/3
+			  (FTO, [32|[43|[77|[126|[99|[115|[98|[99|[116|[32|[126|[112|[126|[110]]]]]]]]]]]]]], [_cor2|[SBCT|[]]])
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'sbct',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'default_mmbcs'/2 =
+    %% Line 402
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <A = 'temp_alloc',_X_Insts> when 'true' ->
+	      %% Line 403
+	      case call 'lists':'keysearch'
+		       (A, 1, [{'binary_alloc',131072}|[{'std_alloc',131072}|[{'ets_alloc',131072}|[{'fix_alloc',131072}|[{'eheap_alloc',524288}|[{'ll_alloc',131072}|[{'sl_alloc',131072}|[{'temp_alloc',131072}|[{'driver_alloc',131072}]]]]]]]]]) of
+		<{'value',{_cor21,MMBCS_Default}}>
+		    when call 'erlang':'=:='
+			  (_cor21,
+			   A) ->
+		    %% Line 404
+		    MMBCS_Default
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 405
+	  <A,Insts> when 'true' ->
+	      %% Line 406
+	      case call 'lists':'keysearch'
+		       (A, 1, [{'binary_alloc',131072}|[{'std_alloc',131072}|[{'ets_alloc',131072}|[{'fix_alloc',131072}|[{'eheap_alloc',524288}|[{'ll_alloc',131072}|[{'sl_alloc',131072}|[{'temp_alloc',131072}|[{'driver_alloc',131072}]]]]]]]]]) of
+		<{'value',{_cor22,MMBCS_Default}}>
+		    when call 'erlang':'=:='
+			  (_cor22,
+			   A) ->
+		    let <_cor5> =
+			%% Line 407
+			case call 'erlang':'>'
+				 (Insts, 4) of
+			  %% Line 408
+			  <'true'> when 'true' ->
+			      4
+			  %% Line 409
+			  <_cor23> when 'true' ->
+			      Insts
+			end
+		    in  let <_cor15> =
+			    %% Line 411
+			    call 'erlang':'div'
+				(MMBCS_Default, _cor5)
+			in  let <_cor16> =
+				%% Line 411
+				call 'erlang':'-'
+				    (_cor15, 1)
+			    in  let <_cor17> =
+				    %% Line 411
+				    call 'erlang':'div'
+					(_cor16, 1)
+				in  let <_cor18> =
+					%% Line 411
+					call 'erlang':'+'
+					    (_cor17, 1)
+				    in  %% Line 411
+					call 'erlang':'*'
+					    (_cor18, 1)
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'mmbcs'/2 =
+    %% Line 413
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'conf',_cor16,FTO},%% Line 414
+			       {'alloc',A,_cor17,_cor18,_cor19,Insts,_cor20,_cor21,BlocksSize,_cor22,_cor23,_cor24}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 415
+		  case A of
+		    %% Line 416
+		    <'temp_alloc'> when 'true' ->
+			BlocksSize
+		    %% Line 417
+		    <_cor25> when 'true' ->
+			call 'erlang':'div'
+			    (BlocksSize, Insts)
+		  end
+	      in  let <DefMMBCS> =
+		      %% Line 419
+		      apply 'default_mmbcs'/2
+			  (A, Insts)
+		  in  let <_cor6> =
+			  %% Line 420
+			  call 'erlang':'>'
+			      (_cor3, DefMMBCS)
+		      in  %% Line 420
+			  case <Insts,_cor6> of
+			    %% Line 421
+			    <1,'true'> when 'true' ->
+				let <MMBCS> =
+				    %% Line 422
+				    apply 'conf_size'/1
+					(_cor3)
+				in  do  %% Line 423
+					apply 'fc'/3
+					    (FTO, [77|[97|[105|[110|[32|[109|[98|[99|[32|[115|[105|[122|[101|[32|[111|[102|[32|[126|[112|[32|[107|[105|[108|[111|[98|[121|[116|[101|[115|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [MMBCS|[]])
+					let <_cor8> =
+					    %% Line 424
+					    apply 'alloc_char'/1
+						(A)
+					in  %% Line 424
+					    apply 'format'/3
+						(FTO, [32|[43|[77|[126|[99|[109|[109|[98|[99|[115|[32|[126|[112|[126|[110]]]]]]]]]]]]]]], [_cor8|[MMBCS|[]]])
+			    %% Line 425
+			    <_fol171,_fol172> when 'true' ->
+				let <_cor9> =
+				    %% Line 426
+				    call 'erlang':'-'
+					(DefMMBCS, 1)
+				in  let <_cor10> =
+					%% Line 426
+					call 'erlang':'div'
+					    (_cor9, 1024)
+				    in  let <MMBCS> =
+					    %% Line 426
+					    call 'erlang':'+'
+						(_cor10, 1)
+					in  do  %% Line 427
+						apply 'fc'/3
+						    (FTO, [77|[97|[105|[110|[32|[109|[98|[99|[32|[115|[105|[122|[101|[32|[111|[102|[32|[126|[112|[32|[107|[105|[108|[111|[98|[121|[116|[101|[115|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [MMBCS|[]])
+						let <_cor12> =
+						    %% Line 428
+						    apply 'alloc_char'/1
+							(A)
+						in  do  %% Line 428
+							apply 'format'/3
+							    (FTO, [32|[43|[77|[126|[99|[109|[109|[98|[99|[115|[32|[126|[112|[126|[110]]]]]]]]]]]]]]], [_cor12|[MMBCS|[]]])
+							%% Line 429
+							'ok'
+			  end
+	  ( <_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14})
+		  -| [{'function_name',{'mmbcs',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'smbcs_lmbcs'/2 =
+    %% Line 432
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'conf',_cor8,FTO},%% Line 433
+			      {'alloc',A,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,Segments}> when 'true' ->
+	      %% Line 434
+	      ( case Segments of
+		  ( <( {'segment',_rec14,_cor18}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <AC> =
+			    %% Line 435
+			    apply 'alloc_char'/1
+				(A)
+			in  do  %% Line 436
+				apply 'fc'/3
+				    (FTO, [77|[115|[101|[103|[32|[109|[98|[99|[32|[115|[105|[122|[101|[32|[111|[102|[32|[126|[112|[32|[107|[105|[108|[111|[98|[121|[116|[101|[115|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [_rec14|[]])
+				do  %% Line 437
+				    apply 'format'/3
+					(FTO, [32|[43|[77|[126|[99|[115|[109|[98|[99|[115|[32|[126|[112|[32|[43|[77|[126|[99|[108|[109|[98|[99|[115|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]], [AC|[_rec14|[AC|[_rec14|[]]]]])
+				    %% Line 438
+				    'ok'
+		    -| ['compiler_generated'] )
+		  ( <_cor19> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','segment'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'smbcs_lmbcs',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'alloc_char'/1 =
+    %% Line 440
+    fun (_cor0) ->
+	case _cor0 of
+	  <'binary_alloc'> when 'true' ->
+	      66
+	  %% Line 441
+	  <'std_alloc'> when 'true' ->
+	      68
+	  %% Line 442
+	  <'ets_alloc'> when 'true' ->
+	      69
+	  %% Line 443
+	  <'fix_alloc'> when 'true' ->
+	      70
+	  %% Line 444
+	  <'eheap_alloc'> when 'true' ->
+	      72
+	  %% Line 445
+	  <'ll_alloc'> when 'true' ->
+	      76
+	  %% Line 446
+	  <'mseg_alloc'> when 'true' ->
+	      77
+	  %% Line 447
+	  <'driver_alloc'> when 'true' ->
+	      82
+	  %% Line 448
+	  <'sl_alloc'> when 'true' ->
+	      83
+	  %% Line 449
+	  <'temp_alloc'> when 'true' ->
+	      84
+	  %% Line 450
+	  <'sys_alloc'> when 'true' ->
+	      89
+	  %% Line 451
+	  <Alloc> when 'true' ->
+	      %% Line 452
+	      call 'erlang':'exit'
+		  ({'bad_allocator',Alloc})
+	end
+'conf_alloc'/2 =
+    %% Line 454
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'conf',_cor5,FTO},%% Line 455
+			      {'alloc',A,'false',_cor6,_cor7,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14}> when 'true' ->
+	      do  %% Line 456
+		  apply 'fcl'/2
+		      (FTO, A)
+		  let <_cor2> =
+		      %% Line 461
+		      apply 'alloc_char'/1
+			  (A)
+		  in  %% Line 457
+		      apply 'fcp'/3
+			  (FTO, %% Line 458
+				[87|[65|[82|[78|[73|[78|[71|[58|[32|[126|[112|[32|[104|[97|[115|[32|[98|[101|[101|[110|[32|[100|[105|[115|[97|[98|[108|[101|[100|[46|[32|[67|[111|[110|[115|[105|[100|[101|[114|[32|[101|[110|[97|[98|[108|[105|[110|[103|[32|[126|[112|[32|[98|[121|[32|[112|[97|[115|[115|[105|[110|[103|[32|[116|[104|[101|[32|[34|[43|[77|[126|[99|[101|[32|[116|[114|[117|[101|[34|[32|[99|[111|[109|[109|[97|[110|[100|[32|[108|[105|[110|[101|[32|[97|[114|[103|[117|[109|[101|[110|[116|[32|[97|[110|[100|[32|[114|[101|[114|[117|[110|[32|[101|[114|[116|[115|[95|[97|[108|[108|[111|[99|[95|[99|[111|[110|[102|[105|[103|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 461
+																																																																																															  [A|[A|[_cor2|[]]]])
+	  %% Line 462
+	  <{'conf',_cor15,FTO},%% Line 463
+			       {'alloc',A,_cor16,'true',_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24}> when 'true' ->
+	      do  %% Line 464
+		  apply 'fcl'/2
+		      (FTO, A)
+		  %% Line 465
+		  apply 'fcp'/3
+		      (FTO, %% Line 466
+			    [87|[65|[82|[78|[73|[78|[71|[58|[32|[126|[112|[32|[104|[97|[115|[32|[98|[101|[101|[110|[32|[99|[111|[110|[102|[105|[103|[117|[114|[101|[100|[32|[105|[110|[32|[97|[32|[119|[97|[121|[32|[116|[104|[97|[116|[32|[112|[114|[101|[118|[101|[110|[116|[115|[32|[101|[114|[116|[115|[95|[97|[108|[108|[111|[99|[95|[99|[111|[110|[102|[105|[103|[32|[102|[114|[111|[109|[32|[99|[114|[101|[97|[116|[105|[110|[103|[32|[97|[32|[99|[111|[110|[102|[105|[103|[117|[114|[97|[116|[105|[111|[110|[46|[32|[84|[104|[101|[32|[99|[111|[110|[102|[105|[103|[117|[114|[97|[116|[105|[111|[110|[32|[119|[105|[108|[108|[32|[98|[101|[32|[97|[117|[116|[111|[109|[97|[116|[105|[99|[97|[108|[108|[121|[32|[97|[100|[106|[117|[115|[116|[101|[100|[32|[116|[111|[32|[102|[105|[116|[32|[101|[114|[116|[115|[95|[97|[108|[108|[111|[99|[95|[99|[111|[110|[102|[105|[103|[32|[105|[102|[32|[121|[111|[117|[32|[117|[115|[101|[32|[116|[104|[101|[32|[34|[43|[77|[101|[97|[32|[99|[111|[110|[102|[105|[103|[34|[32|[99|[111|[109|[109|[97|[110|[100|[32|[108|[105|[110|[101|[32|[97|[114|[103|[117|[109|[101|[110|[116|[32|[119|[104|[105|[108|[101|[32|[114|[117|[110|[110|[105|[110|[103|[32|[101|[114|[116|[115|[95|[97|[108|[108|[111|[99|[95|[99|[111|[110|[102|[105|[103|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 471
+																																																																																																																																																																																												  [A|[]])
+	  %% Line 472
+	  <Conf = {'conf',_cor25,FTO},Alc = %% Line 473
+					    {'alloc',A,_cor26,_cor27,'true',_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34}> when 'true' ->
+	      do  %% Line 474
+		  apply 'fcl'/2
+		      (FTO, A)
+		  do  %% Line 475
+		      apply 'chk_xnote'/2
+			  (Conf, Alc)
+		      do  %% Line 476
+			  apply 'au_conf_alloc'/2
+			      (Conf, Alc)
+			  %% Line 477
+			  apply 'format'/3
+			      (FTO, [35|[126|[110]]], [])
+	  %% Line 478
+	  <Conf = {'conf',_cor35,FTO},Alc = {'alloc',A,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45}> when 'true' ->
+	      do  %% Line 479
+		  apply 'fcl'/2
+		      (FTO, A)
+		  %% Line 480
+		  apply 'chk_xnote'/2
+		      (Conf, Alc)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'conf_alloc',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'chk_xnote'/2 =
+    %% Line 482
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'conf',_cor4,FTO},%% Line 483
+			      {'alloc','sys_alloc',_cor5,_cor6,_cor7,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14}> when 'true' ->
+	      %% Line 484
+	      apply 'fcp'/2
+		  (FTO, [67|[97|[110|[110|[111|[116|[32|[98|[101|[32|[99|[111|[110|[102|[105|[103|[117|[114|[101|[100|[46|[32|[68|[101|[102|[97|[117|[108|[116|[32|[109|[97|[108|[108|[111|[99|[32|[105|[109|[112|[108|[101|[109|[101|[110|[116|[97|[116|[105|[111|[110|[32|[117|[115|[101|[100|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+	  %% Line 485
+	  <{'conf',_cor15,FTO},%% Line 486
+			       {'alloc','mseg_alloc',_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25}> when 'true' ->
+	      %% Line 487
+	      apply 'fcp'/2
+		  (FTO, [68|[101|[102|[97|[117|[108|[116|[32|[99|[111|[110|[102|[105|[103|[117|[114|[97|[116|[105|[111|[110|[32|[117|[115|[101|[100|[46]]]]]]]]]]]]]]]]]]]]]]]]]]])
+	  %% Line 488
+	  <{'conf',_cor26,FTO},%% Line 489
+			       {'alloc','ll_alloc',_cor27,_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36}> when 'true' ->
+	      %% Line 490
+	      apply 'fcp'/2
+		  (FTO, %% Line 491
+			[78|[111|[116|[101|[44|[32|[98|[108|[111|[99|[107|[115|[32|[97|[108|[108|[111|[99|[97|[116|[101|[100|[32|[119|[105|[116|[104|[32|[108|[108|[95|[97|[108|[108|[111|[99|[32|[97|[114|[101|[32|[118|[101|[114|[121|[32|[115|[101|[108|[100|[111|[109|[32|[100|[101|[97|[108|[108|[111|[99|[97|[116|[101|[100|[46|[32|[80|[108|[97|[99|[105|[110|[103|[32|[98|[108|[111|[99|[107|[115|[32|[105|[110|[32|[109|[115|[101|[103|[32|[99|[97|[114|[114|[105|[101|[114|[115|[32|[105|[115|[32|[116|[104|[101|[114|[101|[102|[111|[114|[101|[32|[118|[101|[114|[121|[32|[108|[105|[107|[101|[108|[121|[32|[111|[110|[108|[121|[32|[97|[32|[119|[97|[115|[116|[101|[32|[111|[102|[32|[114|[101|[115|[111|[117|[114|[99|[101|[115|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+	  %% Line 495
+	  <{'conf',_cor37,_cor38},{'alloc',_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45,_cor46,_cor47,_cor48,_cor49}> when 'true' ->
+	      %% Line 496
+	      'ok'
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'chk_xnote',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'au_conf_alloc'/2 =
+    %% Line 498
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Conf = {'conf',_cor19,FTO},Alc = %% Line 499
+					    {'alloc',A,_cor20,_cor21,%% Line 500
+								     'true',%% Line 501
+									    Insts,%% Line 503
+										  Strategy,%% Line 502
+											   Acul,%% Line 504
+												Low,%% Line 505
+												    High,_cor22,_cor23}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 506
+		  call 'erlang':'-'
+		      (Low, 1)
+	      in  let <_cor3> =
+		      %% Line 506
+		      call 'erlang':'div'
+			  (_cor2, 1024)
+		  in  let <_cor4> =
+			  %% Line 506
+			  call 'erlang':'+'
+			      (_cor3, 1)
+		      in  let <_cor5> =
+			      %% Line 506
+			      call 'erlang':'-'
+				  (High, 1)
+			  in  let <_cor6> =
+				  %% Line 506
+				  call 'erlang':'div'
+				      (_cor5, 1024)
+			      in  let <_cor7> =
+				      %% Line 506
+				      call 'erlang':'+'
+					  (_cor6, 1)
+				  in  do  %% Line 506
+					  apply 'fcp'/3
+					      (FTO, [85|[115|[97|[103|[101|[32|[111|[102|[32|[109|[98|[99|[115|[58|[32|[126|[112|[32|[45|[32|[126|[112|[32|[107|[105|[108|[111|[98|[121|[116|[101|[115]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [_cor4|[_cor7|[]]])
+					  do  %% Line 507
+					      case Insts of
+						%% Line 508
+						<1> when 'true' ->
+						    do  %% Line 509
+							apply 'fc'/2
+							    (FTO, [79|[110|[101|[32|[105|[110|[115|[116|[97|[110|[99|[101|[32|[117|[115|[101|[100|[46]]]]]]]]]]]]]]]]]])
+							let <_cor8> =
+							    %% Line 510
+							    apply 'alloc_char'/1
+								(A)
+							in  %% Line 510
+							    apply 'format'/3
+								(FTO, [32|[43|[77|[126|[99|[116|[32|[102|[97|[108|[115|[101|[126|[110]]]]]]]]]]]]]], [_cor8|[]])
+						%% Line 511
+						<_cor24> when 'true' ->
+						    do  %% Line 512
+							apply 'fc'/3
+							    (FTO, [126|[112|[32|[43|[32|[49|[32|[105|[110|[115|[116|[97|[110|[99|[101|[115|[32|[117|[115|[101|[100|[46]]]]]]]]]]]]]]]]]]]]]], %% Line 513
+																							      [Insts|[]])
+							let <_cor9> =
+							    %% Line 514
+							    apply 'alloc_char'/1
+								(A)
+							in  do  %% Line 514
+								apply 'format'/3
+								    (FTO, [32|[43|[77|[126|[99|[116|[32|[116|[114|[117|[101|[126|[110]]]]]]]]]]]]], [_cor9|[]])
+								do  %% Line 515
+								    case Strategy of
+								      %% Line 516
+								      <'undefined'> when 'true' ->
+									  'ok'
+								      %% Line 518
+								      <_cor25> when 'true' ->
+									  let <_cor10> =
+									      %% Line 520
+									      apply 'strategy_str'/1
+										  (Strategy)
+									  in  do  %% Line 519
+										  apply 'fc'/3
+										      (FTO, [65|[108|[108|[111|[99|[97|[116|[105|[111|[110|[32|[115|[116|[114|[97|[116|[101|[103|[121|[58|[32|[126|[115|[46]]]]]]]]]]]]]]]]]]]]]]]], %% Line 520
+																												     [_cor10|[]])
+										  let <_cor11> =
+										      %% Line 521
+										      apply 'alloc_char'/1
+											  (A)
+										  in  let <_cor12> =
+											  %% Line 522
+											  call 'erlang':'atom_to_list'
+											      (Strategy)
+										      in  %% Line 521
+											  apply 'format'/3
+											      (FTO, [32|[43|[77|[126|[99|[97|[115|[32|[126|[115|[126|[110]]]]]]]]]]]], [_cor11|%% Line 522
+																					       [_cor12|[]]])
+								    end
+								    %% Line 524
+								    case apply 'carrier_migration_support'/1
+									     (Strategy) of
+								      %% Line 525
+								      <'false'> when 'true' ->
+									  'ok'
+								      %% Line 527
+								      <'true'> when 'true' ->
+									  do  %% Line 528
+									      apply 'fc'/3
+										  (FTO, [65|[98|[97|[110|[100|[111|[110|[32|[99|[97|[114|[114|[105|[101|[114|[32|[117|[116|[105|[108|[105|[122|[97|[116|[105|[111|[110|[32|[108|[105|[109|[105|[116|[32|[111|[102|[32|[126|[112|[37|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Acul|[]])
+									      let <_cor14> =
+										  %% Line 529
+										  apply 'alloc_char'/1
+										      (A)
+									      in  %% Line 529
+										  apply 'format'/3
+										      (FTO, [32|[43|[77|[126|[99|[97|[99|[117|[108|[32|[126|[112|[126|[110]]]]]]]]]]]]]], [_cor14|[Acul|[]]])
+								      ( <_cor15> when 'true' ->
+									    primop 'match_fail'
+										({'case_clause',_cor15})
+									-| ['compiler_generated'] )
+								    end
+					      end
+					      do  %% Line 532
+						  apply 'mmbcs'/2
+						      (Conf, Alc)
+						  do  %% Line 533
+						      apply 'smbcs_lmbcs'/2
+							  (Conf, Alc)
+						      %% Line 534
+						      apply 'sbct'/2
+							  (Conf, Alc)
+	  ( <_cor18,_cor17> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor18,_cor17})
+		  -| [{'function_name',{'au_conf_alloc',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'calc_seg_size'/2 =
+    %% Line 536
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 537
+	    call 'erlang':'*'
+		(_cor1, 1.25000000000000000000e+00)
+	in  let <_cor3> =
+		%% Line 537
+		call 'erlang':'*'
+		    (_cor2, 2)
+	    in  let <_cor4> =
+		    %% Line 537
+		    call 'erlang':'round'
+			(_cor3)
+		in  let <_cor5> =
+			%% Line 537
+			call 'erlang':'div'
+			    (_cor4, _cor0)
+		    in  %% Line 537
+			apply 'conf_size'/1
+			    (_cor5)
+'calc_growth_segments'/2 =
+    %% Line 539
+    fun (_cor1,_cor0) ->
+	let <CalcSmall> =
+	    %% Line 540
+	    ( fun (_cor22,_cor21) ->
+		  case <_cor22,_cor21> of
+		    <Alc = {'alloc','ll_alloc',_cor47,_cor48,_cor49,1,_cor50,_cor51,_cor52,_cor53,_cor54,_cor55},Acc> when 'true' ->
+			let <_cor2> =
+			    %% Line 541
+			    apply 'conf_size'/1
+				(0)
+			in  let <_rec15> = {%% Line 541
+				 'segment',_cor2,%% Line 542
+						 0}
+			    in  let <_cor6> =
+				    %% Line 541
+				    call 'erlang':'setelement'
+					(12, Alc, _rec15)
+				in  %% Line 541
+				    {_cor6,%% Line 543
+					   Acc}
+		    %% Line 544
+		    <Alc = {'alloc',_cor68,_cor69,_cor70,'true',%% Line 545
+								Insts,_cor71,_cor72,%% Line 546
+										    LowMBC,%% Line 547
+											   High,_cor73,_cor74},%% Line 548
+													       {SL,AL}> when 'true' ->
+			let <_cor8> =
+			    %% Line 549
+			    case Insts of
+			      %% Line 550
+			      <1> when 'true' ->
+				  LowMBC
+			      %% Line 551
+			      <_cor75> when 'true' ->
+				  0
+			    end
+			in  let <Growth> =
+				%% Line 553
+				call 'erlang':'-'
+				    (High, _cor8)
+			    in  %% Line 554
+				case <> of
+				  %% Line 555
+				  <>
+				      when call 'erlang':'>='
+					    (Growth,
+					     20971520) ->
+				      let <_cor12> =
+					  %% Line 556
+					  call 'erlang':'+'
+					      (AL, 1)
+				      in  %% Line 556
+					  {Alc,{SL,_cor12}}
+				  %% Line 557
+				  <> when 'true' ->
+				      let <SegSize> =
+					  %% Line 559
+					  apply 'calc_seg_size'/2
+					      (Growth, 5)
+				      in  let <_rec17> = {%% Line 561
+					       'segment',%% Line 561
+							 SegSize,%% Line 558
+								 5}
+					  in  let <_cor19> =
+						  %% Line 560
+						  call 'erlang':'setelement'
+						      (12, Alc, _rec17)
+					      in  let <_cor15> =
+						      %% Line 563
+						      call 'erlang':'-'
+							  (SL, 5)
+						  in  %% Line 560
+						      {_cor19,%% Line 563
+							      {_cor15,AL}}
+				end
+		    %% Line 566
+		    <Alc,Acc> when 'true' ->
+			{Alc,Acc}
+		  end
+	      -| [{'id',{0,0,'-calc_growth_segments/2-fun-0-'}}] )
+	in  %% Line 569
+	    ( case _cor1 of
+		( <( {'conf',_rec19,_cor88}
+		     -| ['compiler_generated'] )> when 'true' ->
+		      case call 'lists':'mapfoldl'
+			       (CalcSmall, {_rec19,0}, _cor0) of
+			<{AlcList1,{SegsLeft,AllocsLeft}}> when 'true' ->
+			    %% Line 570
+			    case AllocsLeft of
+			      %% Line 571
+			      <0> when 'true' ->
+				  %% Line 572
+				  AlcList1
+			      %% Line 573
+			      <_cor90> when 'true' ->
+				  let <_cor29> =
+				      %% Line 574
+				      call 'erlang':'div'
+					  (SegsLeft, AllocsLeft)
+				  in  let <_cor31> =
+					  %% Line 574
+					  case call 'erlang':'+'
+						   (_cor29, 1) of
+					    %% Line 575
+					    <SPA>
+						when call 'erlang':'<'
+						      (SPA,
+						       5) ->
+						%% Line 576
+						5
+					    %% Line 577
+					    <SPA> when 'true' ->
+						%% Line 578
+						SPA
+					  end
+				      in  let <CalcLarge> =
+					      %% Line 580
+					      ( fun (_cor41) ->
+						    case _cor41 of
+						      <Alc = {'alloc',_cor91,_cor92,_cor93,'true',%% Line 582
+												  Insts,_cor94,_cor95,%% Line 583
+														      LowMBC,%% Line 584
+															     High,_cor96,%% Line 581
+																	 'undefined'}> when 'true' ->
+							  let <_cor34> =
+							      %% Line 585
+							      case Insts of
+								%% Line 586
+								<1> when 'true' ->
+								    LowMBC
+								%% Line 587
+								<_cor97> when 'true' ->
+								    0
+							      end
+							  in  let <Growth> =
+								  %% Line 589
+								  call 'erlang':'-'
+								      (High, _cor34)
+							      in  let <SegSize> =
+								      %% Line 590
+								      apply 'calc_seg_size'/2
+									  (Growth, _cor31)
+								  in  let <_rec20> = {%% Line 593
+									   'segment',%% Line 593
+										     SegSize,_cor31}
+								      in  %% Line 592
+									  call 'erlang':'setelement'
+									      (12, Alc, _rec20)
+						      %% Line 595
+						      <Alc> when 'true' ->
+							  %% Line 596
+							  Alc
+						    end
+						-| [{'id',{0,0,'-calc_growth_segments/2-fun-1-'}}] )
+					  in  %% Line 598
+					      call 'lists':'map'
+						  (CalcLarge, AlcList1)
+			    end
+			( <_cor28> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor28})
+			  -| ['compiler_generated'] )
+		      end
+		  -| ['compiler_generated'] )
+		( <_cor89> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','conf'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	      -| ['compiler_generated'] )
+'mk_config'/2 =
+    %% Line 601
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Conf = {'conf',_cor9,FTO},AlcList> when 'true' ->
+	      do  %% Line 602
+		  apply 'format_header'/1
+		      (FTO)
+		  let <_cor5> =
+		      %% Line 603
+		      ( fun (_cor3) ->
+			    apply 'conf_alloc'/2
+				(Conf, _cor3)
+			-| [{'id',{0,0,'-mk_config/2-fun-0-'}}] )
+		  in  let <_cor2> =
+			  %% Line 604
+			  apply 'calc_growth_segments'/2
+			      (Conf, AlcList)
+		      in  let <Res> =
+			      %% Line 603
+			      call 'lists':'foreach'
+				  (_cor5, _cor2)
+			  in  do  %% Line 605
+				  apply 'format_footer'/1
+				      (FTO)
+				  %% Line 606
+				  Res
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7})
+		  -| [{'function_name',{'mk_config',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'format_header'/1 =
+    %% Line 608
+    fun (_cor0) ->
+	%% Line 609
+	case call 'erlang':'date'
+		 () of
+	  <{Y,Mo,D}> when 'true' ->
+	      %% Line 610
+	      case call 'erlang':'time'
+		       () of
+		<{H,Mi,S}> when 'true' ->
+		    do  %% Line 611
+			apply 'fcl'/1
+			    (_cor0)
+			do  %% Line 612
+			    apply 'fcl'/2
+				(_cor0, [101|[114|[116|[115|[95|[97|[108|[108|[111|[99|[32|[99|[111|[110|[102|[105|[103|[117|[114|[97|[116|[105|[111|[110]]]]]]]]]]]]]]]]]]]]]]]])
+			    do  %% Line 613
+				apply 'fcl'/1
+				    (_cor0)
+				do  %% Line 614
+				    apply 'fcp'/3
+					(_cor0, %% Line 615
+						[84|[104|[105|[115|[32|[101|[114|[116|[115|[95|[97|[108|[108|[111|[99|[32|[99|[111|[110|[102|[105|[103|[117|[114|[97|[116|[105|[111|[110|[32|[119|[97|[115|[32|[97|[117|[116|[111|[109|[97|[116|[105|[99|[97|[108|[108|[121|[32|[103|[101|[110|[101|[114|[97|[116|[101|[100|[32|[97|[116|[32|[126|[119|[45|[126|[50|[46|[46|[48|[119|[45|[126|[50|[46|[46|[48|[119|[32|[126|[50|[46|[46|[48|[119|[58|[126|[50|[46|[46|[48|[119|[46|[126|[50|[46|[46|[48|[119|[32|[98|[121|[32|[101|[114|[116|[115|[95|[97|[108|[108|[111|[99|[95|[99|[111|[110|[102|[105|[103|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 618
+																																																																																									   [Y|[Mo|[D|[H|[Mi|[S|[]]]]]]])
+				    let <_cor3> =
+					%% Line 621
+					call 'erlang':'system_info'
+					    ('system_version')
+				    in  let <_cor4> =
+					    %% Line 621
+					    call 'string':'strip'
+						(_cor3, 'both', 10)
+					in  do  %% Line 619
+						apply 'fcp'/3
+						    (_cor0, %% Line 620
+							    [126|[115|[32|[119|[97|[115|[32|[117|[115|[101|[100|[32|[119|[104|[101|[110|[32|[103|[101|[110|[101|[114|[97|[116|[105|[110|[103|[32|[116|[104|[101|[32|[99|[111|[110|[102|[105|[103|[117|[114|[97|[116|[105|[111|[110|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 621
+																																								      [_cor4|[]])
+						do  %% Line 622
+						    case call 'erlang':'system_info'
+							     ('schedulers') of
+						      %% Line 623
+						      <1> when 'true' ->
+							  'ok'
+						      %% Line 624
+						      <Schdlrs> when 'true' ->
+							  %% Line 625
+							  apply 'fcp'/3
+							      (_cor0, %% Line 626
+								      [78|[79|[84|[69|[58|[32|[84|[104|[105|[115|[32|[99|[111|[110|[102|[105|[103|[117|[114|[97|[116|[105|[111|[110|[32|[119|[97|[115|[32|[109|[97|[100|[101|[32|[102|[111|[114|[32|[126|[112|[32|[115|[99|[104|[101|[100|[117|[108|[101|[114|[115|[46|[32|[73|[116|[32|[105|[115|[32|[118|[101|[114|[121|[32|[105|[109|[112|[111|[114|[116|[97|[110|[116|[32|[116|[104|[97|[116|[32|[126|[112|[32|[115|[99|[104|[101|[100|[117|[108|[101|[114|[115|[32|[97|[114|[101|[32|[117|[115|[101|[100|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 628
+																																																																																	 [Schdlrs|[Schdlrs|[]]])
+						    end
+						    do  %% Line 630
+							apply 'fcp'/2
+							    (_cor0, %% Line 631
+								    [84|[104|[105|[115|[32|[99|[111|[110|[102|[105|[103|[117|[114|[97|[116|[105|[111|[110|[32|[105|[115|[32|[105|[110|[116|[101|[110|[100|[101|[100|[32|[97|[115|[32|[97|[32|[115|[117|[103|[103|[101|[115|[116|[105|[111|[110|[32|[97|[110|[100|[32|[109|[97|[121|[32|[110|[101|[101|[100|[32|[116|[111|[32|[98|[101|[32|[97|[100|[106|[117|[115|[116|[101|[100|[32|[109|[97|[110|[117|[97|[108|[108|[121|[46|[32|[73|[110|[115|[116|[101|[97|[100|[32|[111|[102|[32|[109|[111|[100|[105|[102|[121|[105|[110|[103|[32|[116|[104|[105|[115|[32|[102|[105|[108|[101|[44|[32|[121|[111|[117|[32|[97|[114|[101|[32|[97|[100|[118|[105|[115|[101|[100|[32|[116|[111|[32|[119|[114|[105|[116|[101|[32|[97|[110|[111|[116|[104|[101|[114|[32|[99|[111|[110|[102|[105|[103|[117|[114|[97|[116|[105|[111|[110|[32|[102|[105|[108|[101|[32|[97|[110|[100|[32|[111|[118|[101|[114|[114|[105|[100|[101|[32|[118|[97|[108|[117|[101|[115|[32|[116|[104|[97|[116|[32|[121|[111|[117|[32|[119|[97|[110|[116|[32|[116|[111|[32|[99|[104|[97|[110|[103|[101|[46|[32|[68|[111|[105|[110|[103|[32|[105|[116|[32|[116|[104|[105|[115|[32|[119|[97|[121|[32|[115|[105|[109|[112|[108|[105|[102|[105|[101|[115|[32|[116|[104|[105|[110|[103|[115|[32|[119|[104|[101|[110|[32|[121|[111|[117|[32|[119|[97|[110|[116|[32|[116|[111|[32|[114|[101|[114|[117|[110|[32|[101|[114|[116|[115|[95|[97|[108|[108|[111|[99|[95|[99|[111|[110|[102|[105|[103|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+							do  %% Line 637
+							    apply 'fcp'/2
+								(_cor0, %% Line 638
+									[84|[104|[105|[115|[32|[99|[111|[110|[102|[105|[103|[117|[114|[97|[116|[105|[111|[110|[32|[105|[115|[32|[98|[97|[115|[101|[100|[32|[111|[110|[32|[116|[104|[101|[32|[97|[99|[116|[117|[97|[108|[32|[117|[115|[101|[32|[111|[102|[32|[109|[117|[108|[116|[105|[45|[98|[108|[111|[99|[107|[32|[99|[97|[114|[114|[105|[101|[114|[115|[32|[40|[109|[98|[99|[115|[41|[32|[102|[111|[114|[32|[97|[32|[115|[101|[116|[32|[111|[102|[32|[100|[105|[102|[102|[101|[114|[101|[110|[116|[32|[114|[117|[110|[116|[105|[109|[101|[32|[115|[99|[101|[110|[97|[114|[105|[111|[115|[46|[32|[78|[111|[116|[101|[32|[116|[104|[97|[116|[32|[116|[104|[105|[115|[32|[99|[111|[110|[102|[105|[103|[117|[114|[97|[116|[105|[111|[110|[32|[109|[97|[121|[32|[112|[101|[114|[102|[111|[114|[109|[32|[98|[97|[100|[44|[32|[101|[118|[101|[114|[32|[104|[111|[114|[114|[105|[98|[108|[101|[44|[32|[102|[111|[114|[32|[111|[116|[104|[101|[114|[32|[114|[117|[110|[116|[105|[109|[101|[32|[115|[99|[101|[110|[97|[114|[105|[111|[115|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+							    do  %% Line 643
+								apply 'fcp'/2
+								    (_cor0, %% Line 644
+									    [89|[111|[117|[32|[97|[114|[101|[32|[97|[100|[118|[105|[115|[101|[100|[32|[116|[111|[32|[114|[101|[114|[117|[110|[32|[101|[114|[116|[115|[95|[97|[108|[108|[111|[99|[95|[99|[111|[110|[102|[105|[103|[32|[105|[102|[32|[116|[104|[101|[32|[97|[112|[112|[108|[105|[99|[97|[116|[105|[111|[110|[115|[32|[114|[117|[110|[32|[119|[104|[101|[110|[32|[116|[104|[101|[32|[99|[111|[110|[102|[105|[103|[117|[114|[97|[116|[105|[111|[110|[32|[119|[97|[115|[32|[109|[97|[100|[101|[32|[97|[114|[101|[32|[99|[104|[97|[110|[103|[101|[100|[44|[32|[111|[114|[32|[105|[102|[32|[116|[104|[101|[32|[108|[111|[97|[100|[32|[111|[110|[32|[116|[104|[101|[32|[97|[112|[112|[108|[105|[99|[97|[116|[105|[111|[110|[115|[32|[104|[97|[118|[101|[32|[99|[104|[97|[110|[103|[101|[100|[32|[115|[105|[110|[99|[101|[32|[116|[104|[101|[32|[99|[111|[110|[102|[105|[103|[117|[114|[97|[116|[105|[111|[110|[32|[119|[97|[115|[32|[109|[97|[100|[101|[46|[32|[89|[111|[117|[32|[97|[114|[101|[32|[97|[108|[115|[111|[32|[97|[100|[118|[105|[115|[101|[100|[32|[116|[111|[32|[114|[101|[114|[117|[110|[32|[101|[114|[116|[115|[95|[97|[108|[108|[111|[99|[95|[99|[111|[110|[102|[105|[103|[32|[105|[102|[32|[116|[104|[101|[32|[69|[114|[108|[97|[110|[103|[32|[114|[117|[110|[116|[105|[109|[101|[32|[115|[121|[115|[116|[101|[109|[32|[117|[115|[101|[100|[32|[105|[115|[32|[99|[104|[97|[110|[103|[101|[100|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+								do  %% Line 650
+								    apply 'fcp'/2
+									(_cor0, %% Line 651
+										[78|[111|[116|[101|[44|[32|[116|[104|[97|[116|[32|[116|[104|[101|[32|[115|[105|[110|[103|[101|[108|[45|[98|[108|[111|[99|[107|[32|[99|[97|[114|[114|[105|[101|[114|[32|[40|[115|[98|[99|[41|[32|[112|[97|[114|[97|[109|[101|[116|[101|[114|[115|[32|[118|[101|[114|[121|[32|[109|[117|[99|[104|[32|[101|[102|[102|[101|[99|[116|[115|[32|[116|[104|[101|[32|[117|[115|[101|[32|[111|[102|[32|[109|[98|[99|[115|[46|[32|[84|[104|[101|[114|[101|[102|[111|[114|[101|[44|[32|[105|[102|[32|[121|[111|[117|[32|[99|[104|[97|[110|[103|[101|[32|[116|[104|[101|[32|[115|[98|[99|[32|[112|[97|[114|[97|[109|[101|[116|[101|[114|[115|[44|[32|[121|[111|[117|[32|[97|[114|[101|[32|[97|[100|[118|[105|[115|[101|[100|[32|[116|[111|[32|[114|[101|[114|[117|[110|[32|[101|[114|[116|[115|[95|[97|[108|[108|[111|[99|[95|[99|[111|[110|[102|[105|[103|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+								    do  %% Line 655
+									apply 'fcp'/2
+									    (_cor0, %% Line 656
+										    [70|[111|[114|[32|[109|[111|[114|[101|[32|[105|[110|[102|[111|[114|[109|[97|[116|[105|[111|[110|[32|[115|[101|[101|[32|[116|[104|[101|[32|[101|[114|[116|[115|[95|[97|[108|[108|[111|[99|[95|[99|[111|[110|[102|[105|[103|[40|[51|[41|[32|[100|[111|[99|[117|[109|[101|[110|[116|[97|[116|[105|[111|[110|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+									%% Line 658
+									'ok'
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'format_footer'/1 =
+    %% Line 660
+    fun (_cor0) ->
+	%% Line 661
+	apply 'fcl'/1
+	    (_cor0)
+'b2kb'/1 =
+    %% Line 667
+    fun (_cor0) ->
+	case _cor0 of
+	  <B>
+	      when call 'erlang':'is_integer'
+		    (_cor0) ->
+	      let <_cor1> =
+		  %% Line 668
+		  call 'erlang':'system_info'
+		      ('wordsize')
+	      in  let <_cor2> =
+		      %% Line 668
+		      call 'erlang':'*'
+			  (_cor1, 8)
+		  in  let <_cor3> =
+			  %% Line 668
+			  call 'erlang':'bsl'
+			      (1, _cor2)
+		      in  let <MaxKB> =
+			      %% Line 668
+			      call 'erlang':'div'
+				  (_cor3, 1024)
+			  in  let <_cor5> =
+				  %% Line 669
+				  call 'erlang':'-'
+				      (B, 1)
+			      in  let <_cor6> =
+				      %% Line 669
+				      call 'erlang':'div'
+					  (_cor5, 1024)
+				  in  %% Line 669
+				      case call 'erlang':'+'
+					       (_cor6, 1) of
+					%% Line 670
+					<KB>
+					    when call 'erlang':'>'
+						  (KB,
+						   MaxKB) ->
+					    MaxKB
+					%% Line 671
+					<KB> when 'true' ->
+					    KB
+				      end
+	  ( <_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8})
+		  -| [{'function_name',{'b2kb',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'format'/2 =
+    %% Line 674
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'false',_X_Frmt> when 'true' ->
+	      %% Line 675
+	      'ok'
+	  %% Line 676
+	  <IODev,Frmt> when 'true' ->
+	      %% Line 677
+	      call 'io':'format'
+		  (IODev, Frmt, [])
+	end
+'format'/3 =
+    %% Line 679
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'false',_X_Frmt,_X_Args> when 'true' ->
+	      %% Line 680
+	      'ok'
+	  %% Line 681
+	  <IODev,Frmt,Args> when 'true' ->
+	      %% Line 682
+	      call 'io':'format'
+		  (IODev, Frmt, Args)
+	end
+'fcp'/3 =
+    %% Line 685
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 686
+	    apply 'fc'/3
+		(_cor2, _cor1, _cor0)
+	    %% Line 687
+	    apply 'format'/2
+		(_cor2, [35|[126|[110]]])
+'fcp'/2 =
+    %% Line 689
+    fun (_cor1,_cor0) ->
+	do  %% Line 690
+	    apply 'fc'/2
+		(_cor1, _cor0)
+	    %% Line 691
+	    apply 'format'/2
+		(_cor1, [35|[126|[110]]])
+'fc'/3 =
+    %% Line 694
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 695
+	    call 'io_lib':'format'
+		(_cor1, _cor0)
+	in  let <_cor4> =
+		%% Line 695
+		call 'lists':'flatten'
+		    (_cor3)
+	    in  %% Line 695
+		apply 'fc'/2
+		    (_cor2, _cor4)
+'fc'/2 =
+    %% Line 697
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 698
+	    call 'string':'tokens'
+		(_cor0, [32])
+	in  %% Line 698
+	    apply 'fc_aux'/3
+		(_cor1, _cor2, 0)
+'fc_aux'/3 =
+    %% Line 700
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_X_IODev,[],0> when 'true' ->
+	      %% Line 701
+	      'ok'
+	  %% Line 702
+	  <IODev,[],_X_Len> when 'true' ->
+	      %% Line 703
+	      apply 'format'/2
+		  (IODev, [126|[110]])
+	  %% Line 704
+	  <IODev,[T|Ts],0> when 'true' ->
+	      let <_cor3> =
+		  %% Line 705
+		  call 'erlang':'length'
+		      (T)
+	      in  let <Len> =
+		      %% Line 705
+		      call 'erlang':'+'
+			  (2, _cor3)
+		  in  do  %% Line 706
+			  apply 'format'/3
+			      (IODev, [35|[32|[126|[115]]]], [T|[]])
+			  %% Line 707
+			  apply 'fc_aux'/3
+			      (IODev, Ts, Len)
+	  %% Line 708
+	  <IODev,ATs = [T|_X_Ts],Len>
+	      when try
+		    let <_cor5> =
+			call 'erlang':'length'
+			    (T)
+		    in  let <_cor6> =
+			    call 'erlang':'+'
+				(_cor5, Len)
+			in  call 'erlang':'>='
+				(_cor6, 76)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      do  %% Line 709
+		  apply 'format'/2
+		      (IODev, [126|[110]])
+		  %% Line 710
+		  apply 'fc_aux'/3
+		      (IODev, ATs, 0)
+	  %% Line 711
+	  <IODev,[T|Ts],Len> when 'true' ->
+	      let <_cor8> =
+		  %% Line 712
+		  call 'erlang':'+'
+		      (Len, 1)
+	      in  let <_cor7> =
+		      %% Line 712
+		      call 'erlang':'length'
+			  (T)
+		  in  let <NewLen> =
+			  %% Line 712
+			  call 'erlang':'+'
+			      (_cor8, _cor7)
+		      in  do  %% Line 713
+			      apply 'format'/3
+				  (IODev, [32|[126|[115]]], [T|[]])
+			      %% Line 714
+			      apply 'fc_aux'/3
+				  (IODev, Ts, NewLen)
+	  ( <_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'fc_aux',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'fcl'/1 =
+    %% Line 717
+    fun (_cor0) ->
+	%% Line 721
+	apply 'format'/3
+	    (_cor0, [126|[42|[46|[42|[46|[42|[115|[126|[110]]]]]]]]], [-76|[2|[45|[[35|[32]]]]]])
+'fcl'/2 =
+    %% Line 723
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <FTO,A>
+	      when call 'erlang':'is_atom'
+		    (A) ->
+	      let <_cor2> =
+		  %% Line 724
+		  call 'erlang':'atom_to_list'
+		      (A)
+	      in  %% Line 724
+		  apply 'fcl'/2
+		      (FTO, _cor2)
+	  %% Line 725
+	  <FTO,Str>
+	      when call 'erlang':'is_list'
+		    (Str) ->
+	      let <_cor3> =
+		  %% Line 726
+		  call 'erlang':'++'
+		      (Str, [32])
+	      in  let <Str2> =
+		      %% Line 726
+		      call 'erlang':'++'
+			  ([35|[32|[45|[45|[45|[32]]]]]], _cor3)
+		  in  let <Precision> =
+			  %% Line 727
+			  call 'erlang':'length'
+			      (Str2)
+		      in  %% Line 729
+			  apply 'format'/3
+			      (FTO, [126|[42|[46|[42|[46|[42|[115|[126|[110]]]]]]]]], [-76|[Precision|[45|[Str2|[]]]]])
+	  ( <_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8})
+		  -| [{'function_name',{'fcl',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('erts_alloc_config')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('erts_alloc_config', _cor0)
+end

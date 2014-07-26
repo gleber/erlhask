@@ -1,0 +1,865 @@
+module 'megaco_simple_mg' ['handle_connect'/2,
+			   'handle_disconnect'/3,
+			   'handle_message_error'/3,
+			   'handle_syntax_error'/3,
+			   'handle_trans_ack'/4,
+			   'handle_trans_long_request'/3,
+			   'handle_trans_reply'/4,
+			   'handle_trans_request'/3,
+			   'handle_trans_request_abort'/4,
+			   'handle_unexpected_trans'/3,
+			   'init_batch'/4,
+			   'module_info'/0,
+			   'module_info'/1,
+			   'start'/0,
+			   'start'/3,
+			   'start'/4,
+			   'start_batch'/0,
+			   'start_batch'/1,
+			   'start_tcp_binary'/2,
+			   'start_tcp_text'/2,
+			   'start_udp_binary'/2,
+			   'start_udp_text'/2,
+			   'stop'/0,
+			   'stop'/1]
+    attributes [%% Line 33
+		'behaviour' =
+		    %% Line 33
+		    ['megaco_user']]
+'start_batch'/0 =
+    %% Line 66
+    fun () ->
+	%% Line 67
+	apply 'start_batch'/1
+	    ([])
+'start_batch'/1 =
+    %% Line 69
+    fun (_cor0) ->
+	case _cor0 of
+	  <Args0>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      %% Line 70
+	      case call 'inet':'gethostname'
+		       () of
+		<{'ok',LocalHost}> when 'true' ->
+		    let <Defs> =
+			%% Line 71
+			[{'mgc_host',LocalHost}|[{'trace','false'}|[{'debug','false'}]]]
+		    in  let <Args> =
+			    %% Line 72
+			    apply 'parse_args'/2
+				(Args0, Defs)
+			in  let <MgcHost> =
+				%% Line 73
+				apply 'get_arg'/2
+				    ('mgc_host', Args)
+			    in  let <Trace> =
+				    %% Line 74
+				    apply 'get_arg'/2
+					('trace', Args)
+				in  let <Debug> =
+					%% Line 75
+					apply 'get_arg'/2
+					    ('debug', Args)
+				    in  let <_cor7> =
+					    %% Line 76
+					    call 'erlang':'self'
+						()
+					in  let <Pid> =
+						%% Line 76
+						call 'erlang':'spawn'
+						    ('megaco_simple_mg', 'init_batch', [_cor7|[MgcHost|[Trace|[Debug|[]]]]])
+					    in  %% Line 77
+						receive
+						  %% Line 78
+						  <{'init_batch',_cor10,Res}>
+						      when call 'erlang':'=:='
+							    (_cor10,
+							     Pid) ->
+						      do  %% Line 79
+							  call 'io':'format'
+							      ([126|[112|[40|[126|[112|[41|[58|[32|[126|[112|[126|[110]]]]]]]]]]]], ['megaco_simple_mg'|[79|[Res|[]]]])
+							  %% Line 80
+							  Res
+						after 'infinity' ->
+						  'true'
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9})
+		  -| [{'function_name',{'start_batch',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'parse_args'/2 =
+    %% Line 83
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Acc> when 'true' ->
+	      %% Line 84
+	      Acc
+	  %% Line 85
+	  <[Arg|Args],Acc>
+	      when call 'erlang':'is_atom'
+		    (Arg) ->
+	      let <_cor2> =
+		  %% Line 86
+		  call 'erlang':'atom_to_list'
+		      (Arg)
+	      in  %% Line 86
+		  case call 'string':'tokens'
+			   (_cor2, [123|[125|[44]]]) of
+		    %% Line 87
+		    <[[109|[103|[99|[95|[104|[111|[115|[116]]]]]]]]|[Host|[]]]>
+			when call 'erlang':'is_list'
+			      (Host) ->
+			let <_cor3> =
+			    %% Line 88
+			    apply 'parse_args'/3
+				('mgc_host', Host, Acc)
+			in  %% Line 88
+			    apply 'parse_args'/2
+				(Args, _cor3)
+		    %% Line 89
+		    <[[116|[114|[97|[99|[101]]]]]|[Trace|[]]]> when 'true' ->
+			let <_cor4> =
+			    %% Line 90
+			    call 'erlang':'list_to_atom'
+				(Trace)
+			in  let <_cor5> =
+				%% Line 90
+				apply 'parse_args'/3
+				    ('trace', _cor4, Acc)
+			    in  %% Line 90
+				apply 'parse_args'/2
+				    (Args, _cor5)
+		    %% Line 91
+		    <[[100|[101|[98|[117|[103]]]]]|[Debug|[]]]> when 'true' ->
+			let <_cor6> =
+			    %% Line 92
+			    call 'erlang':'list_to_atom'
+				(Debug)
+			in  let <_cor7> =
+				%% Line 92
+				apply 'parse_args'/3
+				    ('debug', _cor6, Acc)
+			    in  %% Line 92
+				apply 'parse_args'/2
+				    (Args, _cor7)
+		    %% Line 93
+		    <_X_Invalid> when 'true' ->
+			%% Line 94
+			apply 'parse_args'/2
+			    (Args, Acc)
+		  end
+	  ( <_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9})
+		  -| [{'function_name',{'parse_args',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'parse_args'/3 =
+    %% Line 97
+    fun (_cor2,_cor1,_cor0) ->
+	let <Entry> = {_cor2,_cor1}
+	in  %% Line 99
+	    case call 'lists':'keyreplace'
+		     (_cor2, 1, _cor0, {_cor2,_cor1}) of
+	      %% Line 100
+	      <_cor8>
+		  when call 'erlang':'=:='
+			(_cor8,
+			 _cor0) ->
+		  %% Line 101
+		  [Entry|_cor0]
+	      %% Line 102
+	      <Args2> when 'true' ->
+		  %% Line 103
+		  Args2
+	    end
+'get_arg'/2 =
+    %% Line 106
+    fun (_cor1,_cor0) ->
+	%% Line 107
+	case call 'lists':'keysearch'
+		 (_cor1, 1, _cor0) of
+	  <{'value',{_cor5,Val}}>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     _cor1) ->
+	      %% Line 108
+	      Val
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'init_batch'/4 =
+    %% Line 110
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 111
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 111
+		call 'erlang':'register'
+		    ('megaco_simple_mg', _cor4)
+		let <Res> =
+		    %% Line 112
+		    apply 'start'/3
+			(_cor2, _cor1, _cor0)
+		in  let <_cor6> =
+			%% Line 113
+			call 'erlang':'self'
+			    ()
+		    in  do  %% Line 113
+			    call 'erlang':'!'
+				(_cor3, {'init_batch',_cor6,Res})
+			    %% Line 114
+			    receive
+			      
+			    after %% Line 115
+				  'infinity' ->
+			      %% Line 115
+			      Res
+'init_inline_trace'/1 =
+    %% Line 125
+    fun (_cor0) ->
+	case _cor0 of
+	  <'true'> when 'true' ->
+	      %% Line 126
+	      call 'megaco':'enable_trace'
+		  ('max', 'io')
+	  %% Line 127
+	  <_cor2> when 'true' ->
+	      %% Line 128
+	      'ok'
+	end
+'start'/0 =
+    %% Line 133
+    fun () ->
+	%% Line 134
+	case call 'inet':'gethostname'
+		 () of
+	  <{'ok',LocalHost}> when 'true' ->
+	      %% Line 135
+	      apply 'start'/3
+		  (LocalHost, 'false', 'false')
+	  ( <_cor0> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor0})
+	    -| ['compiler_generated'] )
+	end
+'start'/3 =
+    %% Line 138
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <MgcHost,Trace,Debug>
+	      when %% Line 139
+		try
+		    ( case <> of
+			( <>
+			      when call 'erlang':'is_atom'
+				    (MgcHost) ->
+			      ( case <> of
+				  ( <>
+					when call 'erlang':'is_atom'
+					      (Trace) ->
+					call 'erlang':'is_atom'
+					    (Debug)
+				    -| ['compiler_generated'] )
+				  ( <> when 'true' ->
+					'false'
+				    -| ['compiler_generated'] )
+				end
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+			( <> when 'true' ->
+			      'false'
+			  -| ['compiler_generated'] )
+		      end
+		      -| ['compiler_generated'] )
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor8> =
+		  %% Line 140
+		  call 'erlang':'atom_to_list'
+		      (MgcHost)
+	      in  %% Line 140
+		  apply 'start'/3
+		      (_cor8, Trace, Debug)
+	  %% Line 142
+	  <MgcHost,Trace,Debug>
+	      when %% Line 143
+		try
+		    ( case <> of
+			( <>
+			      when call 'erlang':'is_list'
+				    (MgcHost) ->
+			      ( case <> of
+				  ( <>
+					when call 'erlang':'is_atom'
+					      (Trace) ->
+					call 'erlang':'is_atom'
+					    (Debug)
+				    -| ['compiler_generated'] )
+				  ( <> when 'true' ->
+					'false'
+				    -| ['compiler_generated'] )
+				end
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+			( <> when 'true' ->
+			      'false'
+			  -| ['compiler_generated'] )
+		      end
+		      -| ['compiler_generated'] )
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      do  %% Line 144
+		  call 'erlang':'put'
+		      ('debug', Debug)
+		  do  %% Line 145
+		      apply 'd'/2
+			  ([115|[116|[97|[114|[116|[32|[45|[62|[32|[101|[110|[116|[114|[121|[32|[119|[105|[116|[104|[126|[110|[32|[32|[32|[77|[103|[99|[72|[111|[115|[116|[58|[32|[126|[115|[126|[110|[32|[32|[32|[84|[114|[97|[99|[101|[58|[32|[32|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 147
+																																						      [MgcHost|[Trace|[]]])
+		      do  %% Line 148
+			  apply 'init_inline_trace'/1
+			      (Trace)
+			  let <Starters> =
+			      %% Line 149
+			      [( 'start_tcp_text'/2
+				 -| [{'id',{0,0,'-start/3-fun-0-'}}] )|%% Line 150
+								       [( 'start_tcp_binary'/2
+									  -| [{'id',{0,0,'-start/3-fun-1-'}}] )|%% Line 151
+														[( 'start_udp_text'/2
+														   -| [{'id',{0,0,'-start/3-fun-2-'}}] )|%% Line 152
+																			 [( 'start_udp_binary'/2
+																			    -| [{'id',{0,0,'-start/3-fun-3-'}}] )|[]]]]]
+			  in  %% Line 153
+			      ( letrec
+				    'lc$^0'/1 =
+					fun (_cor17) ->
+					    case _cor17 of
+					      <[Fun|_cor16]> when 'true' ->
+						  let <_cor18> =
+						      apply Fun
+							  (MgcHost, [])
+						  in  let <_cor19> =
+							  apply 'lc$^0'/1
+							      (_cor16)
+						      in  ( [_cor18|_cor19]
+							    -| ['compiler_generated'] )
+					      <[]> when 'true' ->
+						  []
+					      ( <_cor17> when 'true' ->
+						    ( primop 'match_fail'
+							  ({'function_clause',_cor17})
+						      -| [{'function_name',{'lc$^0',1}}] )
+						-| ['compiler_generated'] )
+					    end
+				in  apply 'lc$^0'/1
+					(Starters)
+				-| ['list_comprehension'] )
+	  ( <_cor22,_cor21,_cor20> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor22,_cor21,_cor20})
+		  -| [{'function_name',{'start',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'start_tcp_text'/2 =
+    %% Line 155
+    fun (_cor1,_cor0) ->
+	do  %% Line 156
+	    apply 'd'/2
+		([115|[116|[97|[114|[116|[95|[116|[99|[112|[95|[116|[101|[120|[116|[32|[45|[62|[32|[101|[110|[116|[114|[121|[32|[119|[105|[116|[104|[126|[110|[32|[32|[32|[77|[103|[99|[72|[111|[115|[116|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 157
+																																	 [_cor1|[]])
+	    let <Config> =
+		%% Line 158
+		[{'encoding_mod','megaco_pretty_text_encoder'}|%% Line 159
+							       [{'encoding_config',[]}|%% Line 160
+										       [{'send_mod','megaco_tcp'}|_cor0]]]
+	    in  let <_cor4> =
+		    %% Line 162
+		    apply 'start'/4
+			(_cor1, 2944, {'deviceName',[103|[97|[116|[101|[119|[97|[121|[95|[116|[116]]]]]]]]]]}, Config)
+		in  %% Line 162
+		    {{'deviceName',[103|[97|[116|[101|[119|[97|[121|[95|[116|[116]]]]]]]]]]},_cor4}
+'start_tcp_binary'/2 =
+    %% Line 164
+    fun (_cor1,_cor0) ->
+	do  %% Line 165
+	    apply 'd'/2
+		([115|[116|[97|[114|[116|[95|[116|[99|[112|[95|[98|[105|[110|[97|[114|[121|[32|[45|[62|[32|[101|[110|[116|[114|[121|[32|[119|[105|[116|[104|[126|[110|[32|[32|[32|[77|[103|[99|[72|[111|[115|[116|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 166
+																																		   [_cor1|[]])
+	    let <Config> =
+		%% Line 167
+		[{'encoding_mod','megaco_binary_encoder'}|%% Line 168
+							  [{'encoding_config',[]}|%% Line 169
+										  [{'send_mod','megaco_tcp'}|_cor0]]]
+	    in  let <_cor4> =
+		    %% Line 171
+		    apply 'start'/4
+			(_cor1, 2945, {'deviceName',[103|[97|[116|[101|[119|[97|[121|[95|[116|[98]]]]]]]]]]}, Config)
+		in  %% Line 171
+		    {{'deviceName',[103|[97|[116|[101|[119|[97|[121|[95|[116|[98]]]]]]]]]]},_cor4}
+'start_udp_text'/2 =
+    %% Line 173
+    fun (_cor1,_cor0) ->
+	do  %% Line 174
+	    apply 'd'/2
+		([115|[116|[97|[114|[116|[95|[117|[100|[112|[95|[116|[101|[120|[116|[32|[45|[62|[32|[101|[110|[116|[114|[121|[32|[119|[105|[116|[104|[126|[110|[32|[32|[32|[77|[103|[99|[72|[111|[115|[116|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 175
+																																	  [_cor1|[]])
+	    let <Config> =
+		%% Line 176
+		[{'encoding_mod','megaco_pretty_text_encoder'}|%% Line 177
+							       [{'encoding_config',[]}|%% Line 178
+										       [{'send_mod','megaco_udp'}|_cor0]]]
+	    in  let <_cor4> =
+		    %% Line 180
+		    apply 'start'/4
+			(_cor1, 2944, {'deviceName',[103|[97|[116|[101|[119|[97|[121|[95|[117|[116]]]]]]]]]]}, Config)
+		in  %% Line 180
+		    {{'deviceName',[103|[97|[116|[101|[119|[97|[121|[95|[117|[116]]]]]]]]]]},_cor4}
+'start_udp_binary'/2 =
+    %% Line 182
+    fun (_cor1,_cor0) ->
+	do  %% Line 183
+	    apply 'd'/2
+		([115|[116|[97|[114|[116|[95|[117|[100|[112|[95|[98|[105|[110|[97|[114|[121|[32|[45|[62|[32|[101|[110|[116|[114|[121|[32|[119|[105|[116|[104|[126|[110|[32|[32|[32|[77|[103|[99|[72|[111|[115|[116|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 184
+																																		    [_cor1|[]])
+	    let <Config> =
+		%% Line 185
+		[{'encoding_mod','megaco_binary_encoder'}|%% Line 186
+							  [{'encoding_config',[]}|%% Line 187
+										  [{'send_mod','megaco_udp'}|_cor0]]]
+	    in  let <_cor4> =
+		    %% Line 189
+		    apply 'start'/4
+			(_cor1, 2945, {'deviceName',[103|[97|[116|[101|[119|[97|[121|[95|[117|[98]]]]]]]]]]}, Config)
+		in  %% Line 189
+		    {{'deviceName',[103|[97|[116|[101|[119|[97|[121|[95|[117|[98]]]]]]]]]]},_cor4}
+'start'/4 =
+    %% Line 191
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 192
+	case call 'megaco':'start_user'
+		 (_cor1, [{'user_mod','megaco_simple_mg'}|_cor0]) of
+	  %% Line 193
+	  <'ok'> when 'true' ->
+	      %% Line 194
+	      case apply 'start_transport'/3
+		       (_cor3, _cor2, _cor1) of
+		%% Line 195
+		<{'ok',ConnHandle}> when 'true' ->
+		    %% Line 196
+		    apply 'service_change'/1
+			(ConnHandle)
+		%% Line 197
+		<{'error',Reason}> when 'true' ->
+		    %% Line 198
+		    {'error',Reason}
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 200
+	  <{'error',Reason}> when 'true' ->
+	      %% Line 201
+	      {'error',{'start_user',Reason}}
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'start_transport'/3 =
+    %% Line 204
+    fun (_cor2,_cor1,_cor0) ->
+	let <RecHandle> =
+	    %% Line 205
+	    call 'megaco':'user_info'
+		(_cor0, 'receive_handle')
+	in  %% Line 206
+	    ( case RecHandle of
+		( <( {'megaco_receive_handle',_cor10,_cor11,_cor12,_rec0,_cor13}
+		     -| ['compiler_generated'] )> when 'true' ->
+		      case _rec0 of
+			%% Line 207
+			<'megaco_tcp'> when 'true' ->
+			    apply 'start_tcp'/3
+				(_cor2, _cor1, RecHandle)
+			%% Line 208
+			<'megaco_udp'> when 'true' ->
+			    apply 'start_udp'/3
+				(_cor2, _cor1, RecHandle)
+			%% Line 209
+			<SendMod> when 'true' ->
+			    {'error',{'bad_send_mod',SendMod}}
+		      end
+		  -| ['compiler_generated'] )
+		( <_cor14> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','megaco_receive_handle'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	      -| ['compiler_generated'] )
+'start_tcp'/3 =
+    %% Line 212
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 213
+	    apply 'd'/1
+		([115|[116|[97|[114|[116|[95|[116|[99|[112|[32|[45|[62|[32|[115|[116|[97|[114|[116|[32|[116|[114|[97|[110|[115|[112|[111|[114|[116]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+	    %% Line 214
+	    case call 'megaco_tcp':'start_transport'
+		     () of
+	      %% Line 215
+	      <{'ok',Pid}> when 'true' ->
+		  do  %% Line 216
+		      apply 'd'/2
+			  ([115|[116|[97|[114|[116|[95|[116|[99|[112|[32|[45|[62|[32|[116|[114|[97|[110|[115|[112|[111|[114|[116|[32|[115|[116|[97|[114|[116|[101|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Pid|[]])
+		      let <Options> =
+			  %% Line 217
+			  [{'host',_cor2}|%% Line 218
+					  [{'port',_cor1}|%% Line 219
+							  [{'receive_handle',_cor0}|[]]]]
+		      in  %% Line 220
+			  case call 'megaco_tcp':'connect'
+				   (Pid, Options) of
+			    %% Line 221
+			    <{'ok',SendHandle,ControlPid}> when 'true' ->
+				do  %% Line 222
+				    apply 'd'/2
+					([115|[116|[97|[114|[116|[95|[116|[99|[112|[32|[45|[62|[32|[99|[111|[110|[110|[101|[99|[116|[101|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]], [ControlPid|[]])
+				    %% Line 224
+				    call 'megaco':'connect'
+					(_cor0, 'preliminary_mid', SendHandle, ControlPid)
+			    %% Line 225
+			    <{'error',Reason}> when 'true' ->
+				do  %% Line 226
+				    apply 'd'/2
+					([115|[116|[97|[114|[116|[95|[116|[99|[112|[32|[45|[62|[32|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[102|[97|[105|[108|[101|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Reason|[]])
+				    %% Line 227
+				    {'error',{'megaco_tcp_connect',Reason}}
+			    ( <_cor5> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor5})
+			      -| ['compiler_generated'] )
+			  end
+	      %% Line 229
+	      <{'error',Reason}> when 'true' ->
+		  do  %% Line 230
+		      apply 'd'/2
+			  ([115|[116|[97|[114|[116|[95|[116|[99|[112|[32|[45|[62|[32|[102|[97|[105|[108|[101|[100|[32|[115|[116|[97|[114|[116|[105|[110|[103|[32|[116|[114|[97|[110|[115|[112|[111|[114|[116|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Reason|[]])
+		      %% Line 231
+		      {'error',{'megaco_tcp_start_transport',Reason}}
+	      ( <_cor6> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor6})
+		-| ['compiler_generated'] )
+	    end
+'start_udp'/3 =
+    %% Line 234
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 235
+	    apply 'd'/1
+		([115|[116|[97|[114|[116|[95|[117|[100|[112|[32|[45|[62|[32|[115|[116|[97|[114|[116|[32|[116|[114|[97|[110|[115|[112|[111|[114|[116]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+	    %% Line 236
+	    case call 'megaco_udp':'start_transport'
+		     () of
+	      %% Line 237
+	      <{'ok',SupPid}> when 'true' ->
+		  do  %% Line 238
+		      apply 'd'/2
+			  ([115|[116|[97|[114|[116|[95|[117|[100|[112|[32|[45|[62|[32|[116|[114|[97|[110|[115|[112|[111|[114|[116|[32|[115|[116|[97|[114|[116|[101|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [SupPid|[]])
+		      let <Options> =
+			  %% Line 239
+			  [{'port',0}|[{'receive_handle',_cor0}|[]]]
+		      in  %% Line 240
+			  case call 'megaco_udp':'open'
+				   (SupPid, Options) of
+			    %% Line 241
+			    <{'ok',Handle,ControlPid}> when 'true' ->
+				do  %% Line 242
+				    apply 'd'/2
+					([115|[116|[97|[114|[116|[95|[117|[100|[112|[32|[45|[62|[32|[112|[111|[114|[116|[32|[111|[112|[101|[110|[101|[100|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]], [ControlPid|[]])
+				    let <SendHandle> =
+					%% Line 246
+					call 'megaco_udp':'create_send_handle'
+					    (Handle, _cor2, _cor1)
+				    in  %% Line 249
+					call 'megaco':'connect'
+					    (_cor0, 'preliminary_mid', SendHandle, ControlPid)
+			    %% Line 250
+			    <{'error',Reason}> when 'true' ->
+				do  %% Line 251
+				    apply 'd'/2
+					([115|[116|[97|[114|[116|[95|[117|[100|[112|[32|[45|[62|[32|[102|[97|[105|[108|[101|[100|[32|[111|[112|[101|[110|[32|[112|[111|[114|[116|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Reason|[]])
+				    %% Line 252
+				    {'error',{'megaco_udp_open',Reason}}
+			    ( <_cor6> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor6})
+			      -| ['compiler_generated'] )
+			  end
+	      %% Line 254
+	      <{'error',Reason}> when 'true' ->
+		  do  %% Line 255
+		      apply 'd'/2
+			  ([115|[116|[97|[114|[116|[95|[117|[100|[112|[32|[45|[62|[32|[102|[97|[105|[108|[101|[100|[32|[115|[116|[97|[114|[116|[105|[110|[103|[32|[116|[114|[97|[110|[115|[112|[111|[114|[116|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Reason|[]])
+		      %% Line 256
+		      {'error',{'megaco_udp_start_transport',Reason}}
+	      ( <_cor7> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor7})
+		-| ['compiler_generated'] )
+	    end
+'service_change'/1 =
+    %% Line 259
+    fun (_cor0) ->
+	%% Line 260
+	apply 'service_change'/3
+	    (_cor0, 'restart', [57|[48|[49]]])
+'service_change'/3 =
+    %% Line 262
+    fun (_cor2,_cor1,_cor0) ->
+	let <SCP> =
+	    %% Line 263
+	    {'ServiceChangeParm',_cor1,%% Line 387
+				       'asn1_NOVALUE',%% Line 388
+						      'asn1_NOVALUE',%% Line 389
+								     'asn1_NOVALUE',%% Line 264
+										    [_cor0|[]],%% Line 391
+											       'asn1_NOVALUE',%% Line 392
+													      'asn1_NOVALUE',%% Line 393
+															     'asn1_NOVALUE',%% Line 394
+																	    'asn1_NOVALUE'}
+	in  let <SCR> =
+		%% Line 266
+		{'ServiceChangeRequest',[{'megaco_term_id','false',[[114|[111|[111|[116]]]]]}],%% Line 267
+											       SCP}
+	    in  let <CR> =
+		    %% Line 268
+		    {'CommandRequest',{'serviceChangeReq',SCR},'asn1_NOVALUE','asn1_NOVALUE'}
+		in  let <AR> =
+			%% Line 269
+			{'ActionRequest',0,'asn1_NOVALUE','asn1_NOVALUE',%% Line 270
+									 [CR|[]]}
+		    in  %% Line 271
+			call 'megaco':'call'
+			    (_cor2, [AR|[]], [])
+'stop'/0 =
+    %% Line 277
+    fun () ->
+	%% Line 278
+	( letrec
+	      'lc$^0'/1 =
+		  fun (_cor3) ->
+		      case _cor3 of
+			<[Mid|_cor1]> when 'true' ->
+			    let <_cor4> =
+				apply 'stop'/1
+				    (Mid)
+			    in  let <_cor5> =
+				    apply 'lc$^0'/1
+					(_cor1)
+				in  ( [{Mid,_cor4}|_cor5]
+				      -| ['compiler_generated'] )
+			<[]> when 'true' ->
+			    []
+			( <_cor3> when 'true' ->
+			      ( primop 'match_fail'
+				    ({'function_clause',_cor3})
+				-| [{'function_name',{'lc$^0',1}}] )
+			  -| ['compiler_generated'] )
+		      end
+	  in  let <_cor2> =
+		  call 'megaco':'system_info'
+		      ('users')
+	      in  apply 'lc$^0'/1
+		      (_cor2)
+	  -| ['list_comprehension'] )
+'stop'/1 =
+    %% Line 280
+    fun (_cor0) ->
+	let <Disco> =
+	    %% Line 282
+	    ( fun (_cor3) ->
+		  let <Pid> =
+		      %% Line 283
+		      call 'megaco':'conn_info'
+			  (_cor3, 'control_pid')
+		  in  do  %% Line 284
+			  call 'megaco':'disconnect'
+			      (_cor3, 'stopped_by_user')
+			  do  %% Line 285
+			      call 'megaco':'cancel'
+				  (_cor3, 'stopped_by_user')
+			      %% Line 286
+			      call 'erlang':'exit'
+				  (Pid, 'stopped_by_user')
+	      -| [{'id',{0,0,'-stop/1-fun-0-'}}] )
+	in  let <_cor6> =
+		%% Line 288
+		call 'megaco':'user_info'
+		    (_cor0, 'connections')
+	    in  do  %% Line 288
+		    call 'lists':'map'
+			(Disco, _cor6)
+		    %% Line 289
+		    call 'megaco':'stop_user'
+			(_cor0)
+'handle_connect'/2 =
+    %% Line 295
+    fun (_cor1,_cor0) ->
+	do  %% Line 296
+	    apply 'd'/2
+		([104|[97|[110|[100|[108|[101|[95|[99|[111|[110|[110|[101|[99|[116|[32|[45|[62|[32|[101|[110|[116|[114|[121|[32|[119|[105|[116|[104|[126|[110|[32|[32|[32|[67|[111|[110|[110|[72|[97|[110|[100|[108|[101|[58|[32|[32|[32|[32|[32|[32|[126|[112|[126|[110|[32|[32|[32|[80|[114|[111|[116|[111|[99|[111|[108|[86|[101|[114|[115|[105|[111|[110|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 298
+																																																							    [_cor1|[_cor0|[]]])
+	    %% Line 299
+	    'ok'
+'handle_disconnect'/3 =
+    %% Line 305
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 306
+	    apply 'd'/2
+		([104|[97|[110|[100|[108|[101|[95|[100|[105|[115|[99|[111|[110|[110|[101|[99|[116|[32|[45|[62|[32|[101|[110|[116|[114|[121|[32|[119|[105|[116|[104|[126|[110|[32|[32|[32|[67|[111|[110|[110|[72|[97|[110|[100|[108|[101|[58|[32|[32|[32|[32|[32|[32|[126|[112|[126|[110|[32|[32|[32|[80|[114|[111|[116|[111|[99|[111|[108|[86|[101|[114|[115|[105|[111|[110|[58|[32|[126|[112|[126|[110|[32|[32|[32|[82|[101|[97|[115|[111|[110|[58|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 309
+																																																																									      [_cor2|[_cor1|[_cor0|[]]]])
+	    do  %% Line 310
+		call 'megaco':'cancel'
+		    (_cor2, _cor0)
+		do  %% Line 311
+		    apply 'd'/2
+			([104|[97|[110|[100|[108|[101|[95|[100|[105|[115|[99|[111|[110|[110|[101|[99|[116|[32|[45|[62|[32|[100|[111|[110|[101]]]]]]]]]]]]]]]]]]]]]]]]], [])
+		    %% Line 312
+		    'ok'
+'handle_syntax_error'/3 =
+    %% Line 318
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 319
+	    apply 'd'/2
+		([104|[97|[110|[100|[108|[101|[95|[115|[121|[110|[116|[97|[120|[95|[101|[114|[114|[111|[114|[32|[45|[62|[32|[101|[110|[116|[114|[121|[32|[119|[105|[116|[104|[126|[110|[32|[32|[32|[82|[101|[99|[101|[105|[118|[101|[72|[97|[110|[100|[108|[101|[58|[32|[32|[32|[126|[112|[126|[110|[32|[32|[32|[80|[114|[111|[116|[111|[99|[111|[108|[86|[101|[114|[115|[105|[111|[110|[58|[32|[126|[112|[126|[110|[32|[32|[32|[69|[114|[114|[111|[114|[68|[101|[115|[99|[114|[105|[112|[116|[111|[114|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 323
+																																																																												    [_cor2|[_cor1|[_cor0|[]]]])
+	    %% Line 324
+	    'reply'
+'handle_message_error'/3 =
+    %% Line 330
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 331
+	    apply 'd'/2
+		([104|[97|[110|[100|[108|[101|[95|[109|[101|[115|[115|[97|[103|[101|[95|[101|[114|[114|[111|[114|[32|[45|[62|[32|[101|[110|[116|[114|[121|[32|[119|[105|[116|[104|[126|[110|[32|[32|[32|[67|[111|[110|[110|[72|[97|[110|[100|[108|[101|[58|[32|[32|[32|[32|[32|[32|[126|[112|[126|[110|[32|[32|[32|[80|[114|[111|[116|[111|[99|[111|[108|[86|[101|[114|[115|[105|[111|[110|[58|[32|[126|[112|[126|[110|[32|[32|[32|[69|[114|[114|[111|[114|[68|[101|[115|[99|[114|[105|[112|[116|[111|[114|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 335
+																																																																													[_cor2|[_cor1|[_cor0|[]]]])
+	    %% Line 336
+	    'no_reply'
+'handle_trans_request'/3 =
+    %% Line 342
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 343
+	    apply 'd'/2
+		([104|[97|[110|[100|[108|[101|[95|[116|[114|[97|[110|[115|[95|[114|[101|[113|[117|[101|[115|[116|[32|[45|[62|[32|[101|[110|[116|[114|[121|[32|[119|[105|[116|[104|[126|[110|[32|[32|[32|[67|[111|[110|[110|[72|[97|[110|[100|[108|[101|[58|[32|[32|[32|[32|[32|[32|[126|[112|[126|[110|[32|[32|[32|[80|[114|[111|[116|[111|[99|[111|[108|[86|[101|[114|[115|[105|[111|[110|[58|[32|[126|[112|[126|[110|[32|[32|[32|[65|[99|[116|[105|[111|[110|[82|[101|[113|[117|[101|[115|[116|[115|[58|[32|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 347
+																																																																												       [_cor2|[_cor1|[_cor0|[]]]])
+	    %% Line 350
+	    {'discard_ack',{'ErrorDescriptor',501,[84|[114|[97|[110|[115|[97|[99|[116|[105|[111|[110|[32|[114|[101|[113|[117|[101|[115|[116|[115|[32|[110|[111|[116|[32|[104|[97|[110|[100|[108|[101|[100]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}}
+'handle_trans_long_request'/3 =
+    %% Line 356
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 357
+	    apply 'd'/2
+		([104|[97|[110|[100|[108|[101|[95|[116|[114|[97|[110|[115|[95|[108|[111|[110|[103|[95|[114|[101|[113|[117|[101|[115|[116|[32|[45|[62|[32|[101|[110|[116|[114|[121|[32|[119|[105|[116|[104|[126|[110|[32|[32|[32|[67|[111|[110|[110|[72|[97|[110|[100|[108|[101|[58|[32|[32|[32|[32|[32|[32|[126|[112|[126|[110|[32|[32|[32|[80|[114|[111|[116|[111|[99|[111|[108|[86|[101|[114|[115|[105|[111|[110|[58|[32|[126|[112|[126|[110|[32|[32|[32|[82|[101|[113|[68|[97|[116|[97|[58|[32|[32|[32|[32|[32|[32|[32|[32|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 360
+																																																																															    [_cor2|[_cor1|[_cor0|[]]]])
+	    %% Line 363
+	    {'discard_ack',{'ErrorDescriptor',501,[76|[111|[110|[103|[32|[116|[114|[97|[110|[115|[97|[99|[116|[105|[111|[110|[32|[114|[101|[113|[117|[101|[115|[116|[115|[32|[110|[111|[116|[32|[104|[97|[110|[100|[108|[101|[100]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}}
+'handle_trans_reply'/4 =
+    %% Line 369
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 370
+	    apply 'd'/2
+		([104|[97|[110|[100|[108|[101|[95|[116|[114|[97|[110|[115|[95|[114|[101|[112|[108|[121|[32|[45|[62|[32|[101|[110|[116|[114|[121|[32|[119|[105|[116|[104|[126|[110|[32|[32|[32|[67|[111|[110|[110|[72|[97|[110|[100|[108|[101|[58|[32|[32|[32|[32|[32|[32|[126|[112|[126|[110|[32|[32|[32|[80|[114|[111|[116|[111|[99|[111|[108|[86|[101|[114|[115|[105|[111|[110|[58|[32|[126|[112|[126|[110|[32|[32|[32|[65|[99|[116|[117|[97|[108|[82|[101|[112|[108|[121|[58|[32|[32|[32|[32|[32|[126|[112|[126|[110|[32|[32|[32|[82|[101|[112|[108|[121|[68|[97|[116|[97|[58|[32|[32|[32|[32|[32|[32|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 375
+																																																																																											[_cor3|[_cor2|[_cor1|[_cor0|[]]]]])
+	    %% Line 376
+	    'ok'
+'handle_trans_ack'/4 =
+    %% Line 382
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 383
+	    apply 'd'/2
+		([104|[97|[110|[100|[108|[101|[95|[116|[114|[97|[110|[115|[95|[97|[99|[107|[32|[45|[62|[32|[101|[110|[116|[114|[121|[32|[119|[105|[116|[104|[126|[110|[32|[32|[32|[67|[111|[110|[110|[72|[97|[110|[100|[108|[101|[58|[32|[32|[32|[32|[32|[32|[126|[112|[126|[110|[32|[32|[32|[80|[114|[111|[116|[111|[99|[111|[108|[86|[101|[114|[115|[105|[111|[110|[58|[32|[126|[112|[126|[110|[32|[32|[32|[65|[99|[107|[83|[116|[97|[116|[117|[115|[58|[32|[32|[32|[32|[32|[32|[32|[126|[112|[126|[110|[32|[32|[32|[65|[99|[107|[68|[97|[116|[97|[58|[32|[32|[32|[32|[32|[32|[32|[32|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 388
+																																																																																								     [_cor3|[_cor2|[_cor1|[_cor0|[]]]]])
+	    %% Line 389
+	    'ok'
+'handle_unexpected_trans'/3 =
+    %% Line 396
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 397
+	    apply 'd'/2
+		([104|[97|[110|[100|[108|[101|[95|[117|[110|[101|[120|[112|[101|[99|[116|[101|[100|[95|[116|[114|[97|[110|[115|[32|[45|[62|[32|[101|[110|[116|[114|[121|[32|[119|[105|[116|[104|[126|[110|[32|[32|[32|[67|[111|[110|[110|[72|[97|[110|[100|[108|[101|[58|[32|[32|[32|[32|[32|[32|[126|[112|[126|[110|[32|[32|[32|[80|[114|[111|[116|[111|[99|[111|[108|[86|[101|[114|[115|[105|[111|[110|[58|[32|[126|[112|[126|[110|[32|[32|[32|[65|[99|[107|[83|[116|[97|[116|[117|[115|[58|[32|[32|[32|[32|[32|[32|[32|[126|[112|[126|[110|[32|[32|[32|[65|[99|[107|[68|[97|[116|[97|[58|[32|[32|[32|[32|[32|[32|[32|[32|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 402
+																																																																																														[_cor2|[_cor1|[_cor0|[]]]])
+	    %% Line 403
+	    'ok'
+'handle_trans_request_abort'/4 =
+    %% Line 410
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 411
+	    apply 'd'/2
+		([104|[97|[110|[100|[108|[101|[95|[116|[114|[97|[110|[115|[95|[114|[101|[113|[117|[101|[115|[116|[95|[97|[98|[111|[114|[116|[32|[45|[62|[32|[101|[110|[116|[114|[121|[32|[119|[105|[116|[104|[126|[110|[32|[32|[32|[67|[111|[110|[110|[72|[97|[110|[100|[108|[101|[58|[32|[32|[32|[32|[32|[32|[126|[112|[126|[110|[32|[32|[32|[80|[114|[111|[116|[111|[99|[111|[108|[86|[101|[114|[115|[105|[111|[110|[58|[32|[126|[112|[126|[110|[32|[32|[32|[84|[114|[97|[110|[115|[73|[100|[58|[32|[32|[32|[32|[32|[32|[32|[32|[32|[126|[112|[126|[110|[32|[32|[32|[80|[105|[100|[58|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 416
+																																																																																															       [_cor3|[_cor2|[_cor1|[_cor0|[]]]]])
+	    %% Line 417
+	    'ok'
+'d'/1 =
+    %% Line 424
+    fun (_cor0) ->
+	%% Line 425
+	apply 'd'/2
+	    (_cor0, [])
+'d'/2 =
+    %% Line 427
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 428
+	    call 'erlang':'get'
+		('debug')
+	in  %% Line 428
+	    apply 'd'/3
+		(_cor2, _cor1, _cor0)
+'d'/3 =
+    %% Line 430
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'true',F,A> when 'true' ->
+	      let <_cor3> =
+		  %% Line 431
+		  call 'erlang':'++'
+		      (F, [126|[110]])
+	      in  let <_cor4> =
+		      %% Line 431
+		      call 'erlang':'++'
+			  ([83|[73|[77|[80|[76|[69|[95|[77|[71|[58|[32]]]]]]]]]]], _cor3)
+		  in  %% Line 431
+		      call 'io':'format'
+			  (_cor4, A)
+	  %% Line 432
+	  <_cor8,_X_F,_X_A> when 'true' ->
+	      %% Line 433
+	      'ok'
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('megaco_simple_mg')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('megaco_simple_mg', _cor0)
+end

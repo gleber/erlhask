@@ -1,0 +1,444 @@
+module 'man' ['browser'/1,
+	      'browser_init'/2,
+	      'init'/0,
+	      'man_list'/0,
+	      'module_info'/0,
+	      'module_info'/1,
+	      'start'/0]
+    attributes []
+'start'/0 =
+    %% Line 41
+    fun () ->
+	%% Line 42
+	case call 'erlang':'whereis'
+		 ('man') of
+	  %% Line 43
+	  <'undefined'> when 'true' ->
+	      let <_cor1> =
+		  %% Line 44
+		  call 'erlang':'spawn'
+		      ('man', 'init', [])
+	      in  do  %% Line 44
+		      call 'erlang':'register'
+			  ('man', _cor1)
+		      _cor1
+	  %% Line 46
+	  <Pid> when 'true' ->
+	      %% Line 47
+	      Pid
+	end
+'dirManual'/0 =
+    %% Line 52
+    fun () ->
+	let <_cor0> =
+	    %% Line 53
+	    call 'code':'root_dir'
+		()
+	in  %% Line 53
+	    call 'filename':'join'
+		([_cor0|[[109|[97|[110]]]|[[99|[97|[116|[51]]]]]]])
+'init'/0 =
+    %% Line 57
+    fun () ->
+	let <S> =
+	    %% Line 58
+	    call 'gs':'start'
+		()
+	in  do  %% Line 60
+		call 'gs':'create'
+		    ('window', 'win', S, [{'title',[77|[97|[110|[117|[97|[108|[32|[66|[114|[111|[119|[115|[101|[114]]]]]]]]]]]]]]}|[{'width',520}|[{'height',520}]]])
+		do  %% Line 62
+		    call 'gs':'create'
+			('button', 'quit', 'win', [{'width',60}|[{'label',{'text',[81|[117|[105|[116]]]]}}]])
+		    do  %% Line 63
+			call 'gs':'create'
+			    ('button', 'select', 'win', [{'x',60}|[{'label',{'text',[83|[101|[108|[101|[99|[116|[32|[80|[97|[103|[101]]]]]]]]]]]}}]])
+			do  %% Line 64
+			    call 'gs':'create'
+				('editor', 'editor', 'win', [{'y',30}|[{'width',520}|[{'height',490}|[{'hscroll','false'}|[{'vscroll','left'}]]]]])
+			    do  %% Line 66
+				call 'gs':'config'
+				    ('win', [{'map','true'}|[{'configure','true'}]])
+				%% Line 67
+				apply 'man_loop'/2
+				    (520, 520)
+'man_loop'/2 =
+    %% Line 69
+    fun (_cor1,_cor0) ->
+	%% Line 70
+	receive
+	  %% Line 71
+	  <{'gs',_X_Win,'configure',_cor7,[_cor8|[_cor9|_cor10]]}>
+	      when let <_cor11> =
+		    call 'erlang':'=:='
+			(_cor8, _cor1)
+		in  let <_cor12> =
+			call 'erlang':'=:='
+			    (_cor9, _cor0)
+		    in  call 'erlang':'and'
+			    (_cor11, _cor12) ->
+	      %% Line 72
+	      apply 'man_loop'/2
+		  (_cor1, _cor0)
+	  %% Line 73
+	  <{'gs',_X_Win,'configure',_cor13,[Width|[Height|_cor14]]}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 75
+		  call 'erlang':'-'
+		      (Height, 30)
+	      in  do  %% Line 75
+		      call 'gs':'config'
+			  ('editor', [{'width',Width}|[{'height',_cor2}|[]]])
+		      %% Line 76
+		      apply 'man_loop'/2
+			  (Width, Height)
+	  %% Line 77
+	  <{'gs','quit','click',_cor15,_cor16}> when 'true' ->
+	      %% Line 79
+	      call 'erlang':'exit'
+		  ('normal')
+	  %% Line 80
+	  <{'gs','select','click',_cor17,_cor18}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 81
+		  apply 'man_list'/0
+		      ()
+	      in  do  %% Line 81
+		      case apply 'browser'/1
+			       (_cor3) of
+			%% Line 82
+			<'cancel'> when 'true' ->
+			    'ok'
+			%% Line 83
+			<{'ok',Page}> when 'true' ->
+			    apply 'load_page'/1
+				(Page)
+			%% Line 84
+			<O> when 'true' ->
+			    call 'io':'format'
+				([109|[97|[110|[58|[32|[98|[97|[100|[32|[98|[114|[111|[119|[115|[101|[114|[32|[114|[101|[115|[117|[108|[116|[58|[32|[126|[119|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [O|[]])
+		      end
+		      %% Line 86
+		      apply 'man_loop'/2
+			  (_cor1, _cor0)
+	  %% Line 87
+	  <{'gs',_cor19,'destroy',_cor20,_cor21}> when 'true' ->
+	      %% Line 88
+	      call 'erlang':'exit'
+		  ('normal')
+	  %% Line 89
+	  <X> when 'true' ->
+	      do  %% Line 90
+		  call 'io':'format'
+		      ([109|[97|[110|[58|[32|[103|[111|[116|[32|[111|[116|[104|[101|[114|[58|[32|[126|[119|[126|[110]]]]]]]]]]]]]]]]]]]], [X|[]])
+		  %% Line 91
+		  apply 'man_loop'/2
+		      (_cor1, _cor0)
+	after 'infinity' ->
+	  'true'
+'man_list'/0 =
+    %% Line 97
+    fun () ->
+	let <_cor0> =
+	    %% Line 98
+	    apply 'dirManual'/0
+		()
+	in  %% Line 98
+	    case call 'file':'list_dir'
+		     (_cor0) of
+	      <{'ok',FirstList}> when 'true' ->
+		  let <_cor6> =
+		      %% Line 100
+		      ( fun (_cor4) ->
+			    %% Line 101
+			    case call 'filename':'extension'
+				     (_cor4) of
+			      %% Line 102
+			      <[46|[51]]> when 'true' ->
+				  let <_cor2> =
+				      %% Line 103
+				      call 'filename':'basename'
+					  (_cor4, [46|[51]])
+				  in  %% Line 103
+				      {'true',_cor2}
+			      %% Line 104
+			      <_cor8> when 'true' ->
+				  'false'
+			    end
+			-| [{'id',{0,0,'-man_list/0-fun-0-'}}] )
+		  in  let <SecondList> =
+			  %% Line 100
+			  apply 'mapfilter'/2
+			      (_cor6, %% Line 107
+				      FirstList)
+		      in  %% Line 108
+			  call 'lists':'sort'
+			      (SecondList)
+	      ( <_cor1> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor1})
+		-| ['compiler_generated'] )
+	    end
+'mapfilter'/2 =
+    %% Line 110
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Fun,[H|T]> when 'true' ->
+	      %% Line 111
+	      case apply Fun
+		       (H) of
+		%% Line 112
+		<{'true',Val}> when 'true' ->
+		    let <_cor2> =
+			%% Line 113
+			apply 'mapfilter'/2
+			    (Fun, T)
+		    in  %% Line 113
+			[Val|_cor2]
+		%% Line 114
+		<'false'> when 'true' ->
+		    %% Line 115
+		    apply 'mapfilter'/2
+			(Fun, T)
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 117
+	  <_X_Fun,[]> when 'true' ->
+	      %% Line 118
+	      []
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'mapfilter',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'load_page'/1 =
+    %% Line 124
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 126
+	    apply 'dirManual'/0
+		()
+	in  let <_cor2> =
+		%% Line 126
+		call 'erlang':'++'
+		    (_cor0, [46|[51]])
+	    in  let <Filename> =
+		    %% Line 126
+		    call 'filename':'join'
+			([_cor1|[_cor2|[]]])
+		in  %% Line 127
+		    case call 'file':'read_file'
+			     (Filename) of
+		      <{'ok',Bin}> when 'true' ->
+			  let <_X_Txt> =
+			      %% Line 128
+			      call 'erlang':'binary_to_list'
+				  (Bin)
+			  in  do  %% Line 129
+				  call 'gs':'config'
+				      ('editor', {'enable','true'})
+				  do  %% Line 130
+				      call 'gs':'config'
+					  ('editor', {'load',Filename})
+				      do  %% Line 131
+					  call 'gs':'config'
+					      ('editor', {'enable','false'})
+					  %% Line 133
+					  'true'
+		      ( <_cor4> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor4})
+			-| ['compiler_generated'] )
+		    end
+'browser'/1 =
+    %% Line 140
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 141
+	    call 'erlang':'self'
+		()
+	in  let <Browser> =
+		%% Line 141
+		call 'erlang':'spawn_link'
+		    ('man', 'browser_init', [_cor1|[_cor0|[]]])
+	    in  %% Line 142
+		apply 'await_reply'/1
+		    (Browser)
+'await_reply'/1 =
+    %% Line 144
+    fun (_cor0) ->
+	%% Line 145
+	receive
+	  %% Line 146
+	  <{'browser',Result}> when 'true' ->
+	      %% Line 147
+	      Result
+	  %% Line 148
+	  <{'gs',_cor2,'destroy',_cor3,_cor4}> when 'true' ->
+	      call 'erlang':'exit'
+		  ('normal')
+	  %% Line 149
+	  <{'gs','quit','click',_cor5,_cor6}> when 'true' ->
+	      call 'erlang':'exit'
+		  ('normal')
+	  %% Line 150
+	  <{'gs','select','click',_cor7,_cor8}> when 'true' ->
+	      do  %% Line 151
+		  call 'erlang':'!'
+		      (_cor0, 'wake_up')
+		  %% Line 152
+		  apply 'await_reply'/1
+		      (_cor0)
+	after 'infinity' ->
+	  'true'
+'browser_init'/2 =
+    %% Line 155
+    fun (_cor1,_cor0) ->
+	do  %% Line 156
+	    call 'erlang':'process_flag'
+		('trap_exit', 'true')
+	    let <S> =
+		%% Line 157
+		call 'gs':'start'
+		    ()
+	    in  let <Win> =
+		    %% Line 158
+		    call 'gs':'window'
+			('win', S, [{'width',250}|[{'height',270}|[{'title',[66|[114|[111|[119|[115|[101|[114]]]]]]]}]]])
+		in  let <_X_Lbl> =
+			%% Line 159
+			call 'gs':'label'
+			    (Win, [{'label',{'text',[83|[101|[108|[101|[99|[116|[32|[97|[32|[77|[97|[110|[117|[97|[108|[32|[80|[97|[103|[101]]]]]]]]]]]]]]]]]]]]}}|[{'width',250}]])
+		    in  do  %% Line 160
+			    call 'gs':'label'
+				(Win, [{'width',40}|[{'y',35}|[{'label',{'text',[80|[97|[103|[101|[58]]]]]}}]]])
+			    let <Entry> =
+				%% Line 161
+				call 'gs':'entry'
+				    (Win, [{'y',35}|[{'width',205}|[{'x',40}|[{'keypress','true'}|[{'focus','true'}]]]]])
+			    in  let <Lb> =
+				    %% Line 163
+				    call 'gs':'listbox'
+					(Win, [{'x',5}|[{'y',65}|[{'width',160}|[{'height',195}|[{'vscroll','right'}|[{'click','true'}|[{'doubleclick','true'}]]]]]]])
+				in  let <Ok> =
+					%% Line 165
+					call 'gs':'button'
+					    (Win, [{'label',{'text',[79|[75]]}}|[{'width',40}|[{'x',185}|[{'y',175}]]]])
+				    in  let <Cancel> =
+					    %% Line 166
+					    call 'gs':'button'
+						(Win, [{'label',{'text',[67|[97|[110|[99|[101|[108]]]]]]}}|[{'x',175}|[{'y',225}|[{'width',65}]]]])
+					in  do  %% Line 167
+						call 'gs':'config'
+						    (Lb, [{'items',_cor0}|[]])
+						do  %% Line 168
+						    call 'gs':'config'
+							(Win, {'map','true'})
+						    %% Line 169
+						    apply 'browser_loop'/5
+							(_cor1, Ok, Cancel, Entry, Lb)
+'browser_loop'/5 =
+    %% Line 171
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 172
+	receive
+	  %% Line 173
+	  <{'gs',_cor12,'click',_cor13,_cor14}>
+	      when call 'erlang':'=:='
+		    (_cor12,
+		     _cor3) ->
+	      let <Txt> =
+		  %% Line 174
+		  call 'gs':'read'
+		      (_cor1, 'text')
+	      in  %% Line 175
+		  call 'erlang':'!'
+		      (_cor4, {'browser',{'ok',Txt}})
+	  %% Line 176
+	  <{'gs',_cor15,'click',_cor16,_cor17}>
+	      when call 'erlang':'=:='
+		    (_cor15,
+		     _cor2) ->
+	      %% Line 177
+	      call 'erlang':'!'
+		  (_cor4, {'browser','cancel'})
+	  %% Line 178
+	  <{'gs',_cor18,'keypress',_cor19,['Return'|_cor20]}>
+	      when call 'erlang':'=:='
+		    (_cor18,
+		     _cor1) ->
+	      let <Txt> =
+		  %% Line 179
+		  call 'gs':'read'
+		      (_cor1, 'text')
+	      in  %% Line 180
+		  call 'erlang':'!'
+		      (_cor4, {'browser',{'ok',Txt}})
+	  %% Line 181
+	  <{'gs',_cor21,'keypress',_cor22,_cor23}>
+	      when call 'erlang':'=:='
+		    (_cor21,
+		     _cor1) ->
+	      %% Line 182
+	      apply 'browser_loop'/5
+		  (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 183
+	  <{'gs',_cor24,'click',_cor25,[_X_Idx|[Txt|_X_Rest]]}>
+	      when call 'erlang':'=:='
+		    (_cor24,
+		     _cor0) ->
+	      do  %% Line 184
+		  call 'gs':'config'
+		      (_cor1, {'text',Txt})
+		  %% Line 185
+		  apply 'browser_loop'/5
+		      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 186
+	  <{'gs',_cor26,'doubleclick',_cor27,[_X_Idx|[Txt|_X_Rest]]}>
+	      when call 'erlang':'=:='
+		    (_cor26,
+		     _cor0) ->
+	      %% Line 187
+	      call 'erlang':'!'
+		  (_cor4, {'browser',{'ok',Txt}})
+	  %% Line 188
+	  <{'gs',_cor28,'destroy',_cor29,_cor30}> when 'true' ->
+	      %% Line 189
+	      call 'erlang':'!'
+		  (_cor4, {'browser','cancel'})
+	  %% Line 190
+	  <'wake_up'> when 'true' ->
+	      do  %% Line 191
+		  call 'gs':'config'
+		      ('win', [{'iconify','false'}|['raise']])
+		  %% Line 192
+		  apply 'browser_loop'/5
+		      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 193
+	  <{'EXIT',_X_Man,Why}> when 'true' ->
+	      %% Line 194
+	      call 'erlang':'exit'
+		  (Why)
+	  %% Line 195
+	  <X> when 'true' ->
+	      do  %% Line 196
+		  call 'io':'format'
+		      ([109|[97|[110|[58|[32|[98|[114|[111|[119|[115|[101|[114|[32|[103|[111|[116|[32|[111|[116|[104|[101|[114|[58|[32|[126|[119|[46|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [X|[]])
+		  %% Line 197
+		  apply 'browser_loop'/5
+		      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	after 'infinity' ->
+	  'true'
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('man')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('man', _cor0)
+end

@@ -1,0 +1,937 @@
+module 'ct_slave' ['module_info'/0,
+		   'module_info'/1,
+		   'monitor_master'/1,
+		   'slave_ready'/2,
+		   'slave_started'/2,
+		   'start'/1,
+		   'start'/2,
+		   'start'/3,
+		   'stop'/1,
+		   'stop'/2]
+    attributes []
+'start'/1 =
+    %% Line 56
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 57
+	    apply 'gethostname'/0
+		()
+	in  %% Line 57
+	    apply 'start'/2
+		(_cor1, _cor0)
+'start'/2 =
+    %% Line 78
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_HostOrNode = Node,_X_NodeOrOpts = Opts>
+	      when %% Line 79
+		call 'erlang':'is_list'
+		    (Opts) ->
+	      let <_cor2> =
+		  %% Line 80
+		  apply 'gethostname'/0
+		      ()
+	      in  %% Line 80
+		  apply 'start'/3
+		      (_cor2, Node, Opts)
+	  %% Line 82
+	  <Host,Node> when 'true' ->
+	      %% Line 83
+	      apply 'start'/3
+		  (Host, Node, [])
+	end
+'start'/3 =
+    %% Line 183
+    fun (_cor2,_cor1,_cor0) ->
+	let <ENode> =
+	    %% Line 184
+	    apply 'enodename'/2
+		(_cor2, _cor1)
+	in  %% Line 185
+	    case call 'erlang':'is_alive'
+		     () of
+	      %% Line 186
+	      <'false'> when 'true' ->
+		  let <_cor4> =
+		      %% Line 187
+		      call 'erlang':'node'
+			  ()
+		  in  %% Line 187
+		      {'error','not_alive',_cor4}
+	      %% Line 188
+	      <'true'> when 'true' ->
+		  %% Line 189
+		  case apply 'is_started'/1
+			   (ENode) of
+		    %% Line 190
+		    <'false'> when 'true' ->
+			let <OptionsRec> =
+			    %% Line 191
+			    apply 'fetch_options'/1
+				(_cor0)
+			in  %% Line 192
+			    apply 'do_start'/3
+				(_cor2, _cor1, OptionsRec)
+		    %% Line 193
+		    <{'true','not_connected'}> when 'true' ->
+			%% Line 194
+			{'error','started_not_connected',ENode}
+		    %% Line 195
+		    <{'true','connected'}> when 'true' ->
+			%% Line 196
+			{'error','already_started',ENode}
+		    ( <_cor6> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor6})
+		      -| ['compiler_generated'] )
+		  end
+	      ( <_cor7> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor7})
+		-| ['compiler_generated'] )
+	    end
+'stop'/1 =
+    %% Line 211
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 212
+	    apply 'gethostname'/0
+		()
+	in  %% Line 212
+	    apply 'stop'/2
+		(_cor1, _cor0)
+'stop'/2 =
+    %% Line 225
+    fun (_cor1,_cor0) ->
+	let <ENode> =
+	    %% Line 226
+	    apply 'enodename'/2
+		(_cor1, _cor0)
+	in  %% Line 227
+	    case apply 'is_started'/1
+		     (ENode) of
+	      %% Line 228
+	      <{'true','connected'}> when 'true' ->
+		  %% Line 229
+		  apply 'do_stop'/1
+		      (ENode)
+	      %% Line 230
+	      <{'true','not_connected'}> when 'true' ->
+		  %% Line 231
+		  {'error','not_connected',ENode}
+	      %% Line 232
+	      <'false'> when 'true' ->
+		  %% Line 233
+		  {'error','not_started',ENode}
+	      ( <_cor3> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor3})
+		-| ['compiler_generated'] )
+	    end
+'get_option_value'/3 =
+    %% Line 237
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 238
+	case call 'lists':'keyfind'
+		 (_cor2, 1, _cor1) of
+	  %% Line 239
+	  <'false'> when 'true' ->
+	      _cor0
+	  %% Line 241
+	  <{_cor7,Value}>
+	      when call 'erlang':'=:='
+		    (_cor7,
+		     _cor2) ->
+	      %% Line 242
+	      Value
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'fetch_options'/1 =
+    %% Line 246
+    fun (_cor0) ->
+	let <UserName> =
+	    %% Line 247
+	    apply 'get_option_value'/3
+		('username', _cor0, [])
+	in  let <Password> =
+		%% Line 248
+		apply 'get_option_value'/3
+		    ('password', _cor0, [])
+	    in  let <BootTimeout> =
+		    %% Line 249
+		    apply 'get_option_value'/3
+			('boot_timeout', _cor0, 3)
+		in  let <InitTimeout> =
+			%% Line 250
+			apply 'get_option_value'/3
+			    ('init_timeout', _cor0, 1)
+		    in  let <StartupTimeout> =
+			    %% Line 251
+			    apply 'get_option_value'/3
+				('startup_timeout', _cor0, 1)
+			in  let <StartupFunctions> =
+				%% Line 252
+				apply 'get_option_value'/3
+				    ('startup_functions', _cor0, [])
+			    in  let <Monitor> =
+				    %% Line 253
+				    apply 'get_option_value'/3
+					('monitor_master', _cor0, 'false')
+				in  let <KillIfFail> =
+					%% Line 254
+					apply 'get_option_value'/3
+					    ('kill_if_fail', _cor0, 'true')
+				    in  let <ErlFlags> =
+					    %% Line 255
+					    apply 'get_option_value'/3
+						('erl_flags', _cor0, [])
+					in  let <EnvVars> =
+						%% Line 256
+						apply 'get_option_value'/3
+						    ('env', _cor0, [])
+					    in  %% Line 257
+						{'options',UserName,Password,%% Line 258
+									     BootTimeout,%% Line 258
+											 InitTimeout,%% Line 259
+												     StartupTimeout,%% Line 259
+														    StartupFunctions,%% Line 260
+																     Monitor,%% Line 260
+																	     KillIfFail,%% Line 261
+																			ErlFlags,%% Line 261
+																				 EnvVars}
+'slave_started'/2 =
+    %% Line 265
+    fun (_cor1,_cor0) ->
+	do  %% Line 266
+	    call 'erlang':'!'
+		(_cor0, {'node_started',_cor1})
+	    %% Line 267
+	    'ok'
+'slave_ready'/2 =
+    %% Line 271
+    fun (_cor1,_cor0) ->
+	do  %% Line 272
+	    call 'erlang':'!'
+		(_cor0, {'node_ready',_cor1})
+	    %% Line 273
+	    'ok'
+'monitor_master'/1 =
+    %% Line 277
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 278
+	    ( fun () ->
+		  apply 'monitor_master_int'/1
+		      (_cor0)
+	      -| [{'id',{0,0,'-monitor_master/1-fun-0-'}}] )
+	in  %% Line 278
+	    call 'erlang':'spawn'
+		(_cor1)
+'monitor_master_int'/1 =
+    %% Line 281
+    fun (_cor0) ->
+	do  %% Line 282
+	    call 'erlang':'monitor_node'
+		(_cor0, 'true')
+	    %% Line 283
+	    receive
+	      %% Line 284
+	      <{'nodedown',_cor2}>
+		  when call 'erlang':'=:='
+			(_cor2,
+			 _cor0) ->
+		  %% Line 285
+		  call 'init':'stop'
+		      ()
+	    after 'infinity' ->
+	      'true'
+'is_connected'/1 =
+    %% Line 289
+    fun (_cor0) ->
+	let <_cor6> =
+	    %% Line 290
+	    ( letrec
+		  'lc$^0'/1 =
+		      fun (_cor4) ->
+			  case _cor4 of
+			    <[N|_cor2]>
+				when call 'erlang':'=='
+				      (N,
+				       _cor0) ->
+				let <_cor5> =
+				    apply 'lc$^0'/1
+					(_cor2)
+				in  ( [N|_cor5]
+				      -| ['compiler_generated'] )
+			    ( <[N|_cor2]> when 'true' ->
+				  apply 'lc$^0'/1
+				      (_cor2)
+			      -| ['compiler_generated'] )
+			    <[]> when 'true' ->
+				[]
+			    ( <_cor4> when 'true' ->
+				  ( primop 'match_fail'
+					({'function_clause',_cor4})
+				    -| [{'function_name',{'lc$^0',1}}] )
+			      -| ['compiler_generated'] )
+			  end
+	      in  let <_cor3> =
+		      call 'erlang':'nodes'
+			  ()
+		  in  apply 'lc$^0'/1
+			  (_cor3)
+	      -| ['list_comprehension'] )
+	in  %% Line 290
+	    call 'erlang':'=='
+		(_cor6, [_cor0|[]])
+'is_started'/1 =
+    %% Line 293
+    fun (_cor0) ->
+	%% Line 294
+	case apply 'is_connected'/1
+		 (_cor0) of
+	  %% Line 295
+	  <'true'> when 'true' ->
+	      %% Line 296
+	      {'true','connected'}
+	  %% Line 297
+	  <'false'> when 'true' ->
+	      %% Line 298
+	      case call 'net_adm':'ping'
+		       (_cor0) of
+		%% Line 299
+		<'pang'> when 'true' ->
+		    %% Line 300
+		    'false'
+		%% Line 301
+		<'pong'> when 'true' ->
+		    do  %% Line 302
+			call 'erlang':'disconnect_node'
+			    (_cor0)
+			%% Line 303
+			{'true','not_connected'}
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'enodename'/2 =
+    %% Line 308
+    fun (_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 309
+	    call 'erlang':'atom_to_list'
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 309
+		call 'erlang':'atom_to_list'
+		    (_cor1)
+	    in  let <_cor3> =
+		    %% Line 309
+		    [64|_cor2]
+		in  let <_cor5> =
+			%% Line 309
+			call 'erlang':'++'
+			    (_cor4, _cor3)
+		    in  %% Line 309
+			call 'erlang':'list_to_atom'
+			    (_cor5)
+'do_start'/3 =
+    %% Line 312
+    fun (_cor2,_cor1,_cor0) ->
+	let <ENode> =
+	    %% Line 313
+	    apply 'enodename'/2
+		(_cor2, _cor1)
+	in  let <_cor4> =
+		%% Line 315
+		call 'erlang':'self'
+		    ()
+	    in  %% Line 316
+		( case _cor0 of
+		    ( <( {'options',_cor47,_cor48,_cor49,_cor50,_cor51,_rec0,_cor52,_cor53,_cor54,_cor55}
+			 -| ['compiler_generated'] )> when 'true' ->
+			  let <_cor7> =
+			      %% Line 317
+			      call 'erlang':'self'
+				  ()
+			  in  let <Functions> =
+				  call 'lists':'concat'
+				      ([[{'ct_slave','slave_started',[ENode|[_cor4|[]]]}|[]]|[_rec0|%% Line 317
+												    [[{'ct_slave','slave_ready',[ENode|[_cor7|[]]]}|[]]|[]]]])
+			      in  let <_cor16> =
+				      %% Line 318
+				      case <> of
+					%% Line 319
+					<>
+					    when ( call 'erlang':'=:='
+						    (_cor52,
+						     'true')
+						-| ['compiler_generated'] ) ->
+					    let <_cor15> =
+						%% Line 320
+						call 'erlang':'node'
+						    ()
+					    in  %% Line 320
+						[{'ct_slave','monitor_master',[_cor15|[]]}|Functions]
+					%% Line 321
+					<> when 'true' ->
+					    %% Line 322
+					    Functions
+				      end
+				  in  let <MasterHost> =
+					  %% Line 324
+					  apply 'gethostname'/0
+					      ()
+				      in  do  %% Line 325
+					      case <> of
+						%% Line 326
+						<>
+						    when call 'erlang':'=='
+							  (MasterHost,
+							   _cor2) ->
+						    %% Line 327
+						    apply 'spawn_local_node'/2
+							(_cor1, _cor0)
+						%% Line 328
+						<> when 'true' ->
+						    %% Line 329
+						    apply 'spawn_remote_node'/3
+							(_cor2, _cor1, _cor0)
+					      end
+					      let <_cor31> =
+						  %% Line 335
+						  case apply 'wait_for_node_alive'/2
+							   (ENode, _cor49) of
+						    %% Line 336
+						    <'pong'> when 'true' ->
+							do  %% Line 337
+							    case call 'test_server':'is_cover'
+								     () of
+							      %% Line 338
+							      <'true'> when 'true' ->
+								  let <MainCoverNode> =
+								      %% Line 339
+								      call 'cover':'get_main_node'
+									  ()
+								  in  %% Line 340
+								      call 'rpc':'call'
+									  (MainCoverNode, 'cover', 'start', [ENode|[]])
+							      %% Line 341
+							      <'false'> when 'true' ->
+								  'ok'
+							      ( <_cor29> when 'true' ->
+								    primop 'match_fail'
+									({'case_clause',_cor29})
+								-| ['compiler_generated'] )
+							    end
+							    do  %% Line 344
+								apply 'call_functions'/2
+								    (ENode, _cor16)
+								%% Line 345
+								receive
+								  %% Line 346
+								  <{'node_started',_cor87}>
+								      when call 'erlang':'=:='
+									    (_cor87,
+									     ENode) ->
+								      %% Line 347
+								      receive
+									%% Line 348
+									<{'node_ready',_cor88}>
+									    when call 'erlang':'=:='
+										  (_cor88,
+										   ENode) ->
+									    %% Line 349
+									    {'ok',ENode}
+								      after %% Line 350
+									    call 'erlang':'*'
+										(_cor51, 1000) ->
+									%% Line 351
+									{'error','startup_timeout',ENode}
+								after %% Line 353
+								      call 'erlang':'*'
+									  (_cor50, 1000) ->
+								  %% Line 354
+								  {'error','init_timeout',ENode}
+						    %% Line 356
+						    <'pang'> when 'true' ->
+							%% Line 357
+							{'error','boot_timeout',ENode}
+						    ( <_cor30> when 'true' ->
+							  primop 'match_fail'
+							      ({'case_clause',_cor30})
+						      -| ['compiler_generated'] )
+						  end
+					      in  do  %% Line 359
+						      case _cor31 of
+							%% Line 360
+							<{'ok',_cor89}>
+							    when call 'erlang':'=:='
+								  (_cor89,
+								   ENode) ->
+							    'ok'
+							%% Line 362
+							<{'error',Timeout,_cor90}>
+							    when let <_cor91> =
+								  call 'erlang':'=:='
+								      (_cor90, ENode)
+							      in  let <_cor92> =
+								      %% Line 363
+								      try
+									  let <_cor33> =
+									      call 'erlang':'=:='
+										  (Timeout, 'init_timeout')
+									  in  let <_cor34> =
+										  call 'erlang':'=:='
+										      (Timeout, 'startup_timeout')
+									      in  let <_cor35> =
+										      call 'erlang':'or'
+											  (_cor33, _cor34)
+										  in  let <_cor41> =
+											  %% Line 364
+											  ( call 'erlang':'=:='
+												(_cor53, 'true')
+											    -| ['compiler_generated'] )
+										      in  ( call 'erlang':'and'
+												(_cor35, _cor41)
+											    -| ['compiler_generated'] )
+								      of <Try> ->
+									  Try
+								      catch <T,R> ->
+									  'false'
+								  in  call 'erlang':'and'
+									  (_cor91, _cor92) ->
+							    %% Line 365
+							    apply 'do_stop'/1
+								(ENode)
+							%% Line 366
+							<_cor93> when 'true' ->
+							    'ok'
+						      end
+						      _cor31
+		      -| ['compiler_generated'] )
+		    ( <_cor56> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','options'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+		  -| ['compiler_generated'] )
+'long_or_short'/0 =
+    %% Line 371
+    fun () ->
+	%% Line 372
+	case call 'net_kernel':'longnames'
+		 () of
+	  %% Line 373
+	  <'true'> when 'true' ->
+	      %% Line 374
+	      [32|[45|[110|[97|[109|[101|[32]]]]]]]
+	  %% Line 375
+	  <'false'> when 'true' ->
+	      %% Line 376
+	      [32|[45|[115|[110|[97|[109|[101|[32]]]]]]]]
+	  ( <_cor0> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor0})
+	    -| ['compiler_generated'] )
+	end
+'gethostname'/0 =
+    %% Line 380
+    fun () ->
+	let <_cor2> =
+	    %% Line 381
+	    case call 'net_kernel':'longnames'
+		     () of
+	      %% Line 382
+	      <'true'> when 'true' ->
+		  %% Line 383
+		  call 'net_adm':'localhost'
+		      ()
+	      %% Line 384
+	      <_cor4> when 'true' ->
+		  %% Line 385
+		  case call 'inet':'gethostname'
+			   () of
+		    <{'ok',Name}> when 'true' ->
+			%% Line 386
+			Name
+		    ( <_cor0> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor0})
+		      -| ['compiler_generated'] )
+		  end
+	    end
+	in  %% Line 388
+	    call 'erlang':'list_to_atom'
+		(_cor2)
+'get_cmd'/2 =
+    %% Line 391
+    fun (_cor1,_cor0) ->
+	let <Cookie> =
+	    %% Line 392
+	    call 'erlang':'get_cookie'
+		()
+	in  let <_cor8> =
+		%% Line 393
+		call 'erlang':'atom_to_list'
+		    (Cookie)
+	    in  let <_cor6> =
+		    %% Line 394
+		    apply 'long_or_short'/0
+			()
+		in  let <_cor4> =
+			%% Line 394
+			call 'erlang':'atom_to_list'
+			    (_cor1)
+		    in  let <_cor3> =
+			    %% Line 394
+			    [32|_cor0]
+			in  let <_cor5> =
+				%% Line 394
+				call 'erlang':'++'
+				    (_cor4, _cor3)
+			    in  let <_cor7> =
+				    %% Line 394
+				    call 'erlang':'++'
+					(_cor6, _cor5)
+				in  let <_cor9> =
+					%% Line 393
+					call 'erlang':'++'
+					    (_cor8, _cor7)
+				    in  %% Line 393
+					call 'erlang':'++'
+					    ([101|[114|[108|[32|[45|[100|[101|[116|[97|[99|[104|[101|[100|[32|[45|[110|[111|[105|[110|[112|[117|[116|[32|[45|[115|[101|[116|[99|[111|[111|[107|[105|[101|[32]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], _cor9)
+'spawn_local_node'/2 =
+    %% Line 397
+    fun (_cor1,_cor0) ->
+	%% Line 398
+	case _cor0 of
+	  <{'options',_cor6,_cor7,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,ErlFlags,Env}> when 'true' ->
+	      let <Cmd> =
+		  %% Line 399
+		  apply 'get_cmd'/2
+		      (_cor1, ErlFlags)
+	      in  %% Line 400
+		  call 'erlang':'open_port'
+		      ({'spawn',Cmd}, ['stream'|[{'env',Env}|[]]])
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'check_for_ssh_running'/0 =
+    %% Line 403
+    fun () ->
+	%% Line 404
+	case call 'application':'get_application'
+		 ('crypto') of
+	  %% Line 405
+	  <'undefined'> when 'true' ->
+	      do  %% Line 406
+		  call 'application':'start'
+		      ('crypto')
+		  %% Line 407
+		  case call 'application':'get_application'
+			   ('ssh') of
+		    %% Line 408
+		    <'undefined'> when 'true' ->
+			%% Line 409
+			call 'application':'start'
+			    ('ssh')
+		    %% Line 410
+		    <{'ok','ssh'}> when 'true' ->
+			%% Line 411
+			'ok'
+		    ( <_cor0> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor0})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 413
+	  <{'ok','crypto'}> when 'true' ->
+	      %% Line 414
+	      'ok'
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'spawn_remote_node'/3 =
+    %% Line 418
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 422
+	case _cor0 of
+	  <{'options',Username,Password,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,ErlFlags,Env}> when 'true' ->
+	      let <_cor5> =
+		  %% Line 423
+		  case <Username,Password> of
+		    %% Line 424
+		    <[],[]> when 'true' ->
+			%% Line 425
+			[]
+		    %% Line 426
+		    <_cor20,[]> when 'true' ->
+			%% Line 427
+			[{'user',Username}|[]]
+		    %% Line 428
+		    <_cor21,_cor22> when 'true' ->
+			%% Line 429
+			[{'user',Username}|[{'password',Password}|[]]]
+		  end
+	      in  let <SSHOptions> =
+		      %% Line 430
+		      call 'erlang':'++'
+			  (_cor5, [{'silently_accept_hosts','true'}])
+		  in  do  %% Line 431
+			  apply 'check_for_ssh_running'/0
+			      ()
+			  let <_cor7> =
+			      %% Line 432
+			      call 'erlang':'atom_to_list'
+				  (_cor2)
+			  in  %% Line 432
+			      case call 'ssh':'connect'
+				       (_cor7, 22, SSHOptions) of
+				<{'ok',SSHConnRef}> when 'true' ->
+				    %% Line 433
+				    case call 'ssh_connection':'session_channel'
+					     (SSHConnRef, 'infinity') of
+				      <{'ok',SSHChannelId}> when 'true' ->
+					  do  %% Line 434
+					      apply 'ssh_setenv'/3
+						  (SSHConnRef, SSHChannelId, Env)
+					      let <_cor10> =
+						  %% Line 435
+						  apply 'get_cmd'/2
+						      (_cor1, ErlFlags)
+					      in  %% Line 435
+						  call 'ssh_connection':'exec'
+						      (SSHConnRef, SSHChannelId, _cor10, 'infinity')
+				      ( <_cor9> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_cor9})
+					-| ['compiler_generated'] )
+				    end
+				( <_cor8> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor8})
+				  -| ['compiler_generated'] )
+			      end
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'ssh_setenv'/3 =
+    %% Line 438
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <SSHConnRef,SSHChannelId,[{Var,Value}|Vars]>
+	      when let <_cor3> =
+		    %% Line 439
+		    call 'erlang':'is_list'
+			(Var)
+		in  let <_cor4> =
+			%% Line 439
+			call 'erlang':'is_list'
+			    (Value)
+		    in  %% Line 439
+			call 'erlang':'and'
+			    (_cor3, _cor4) ->
+	      %% Line 440
+	      case call 'ssh_connection':'setenv'
+		       (SSHConnRef, SSHChannelId, %% Line 441
+						  Var, %% Line 441
+						       Value, %% Line 441
+							      'infinity') of
+		<'success'> when 'true' ->
+		    %% Line 442
+		    apply 'ssh_setenv'/3
+			(SSHConnRef, SSHChannelId, Vars)
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 443
+	  <_X_SSHConnRef,_X_SSHChannelId,[]> when 'true' ->
+	      'ok'
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'ssh_setenv',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'call_functions'/2 =
+    %% Line 446
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_Node,[]> when 'true' ->
+	      %% Line 447
+	      'ok'
+	  %% Line 448
+	  <Node,[{M,F,A}|Functions]> when 'true' ->
+	      do  %% Line 449
+		  call 'rpc':'call'
+		      (Node, M, F, A)
+		  %% Line 450
+		  apply 'call_functions'/2
+		      (Node, Functions)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'call_functions',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'wait_for_node_alive'/2 =
+    %% Line 453
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_Node,0> when 'true' ->
+	      %% Line 454
+	      'pang'
+	  %% Line 455
+	  <Node,N> when 'true' ->
+	      do  %% Line 456
+		  call 'timer':'sleep'
+		      (1000)
+		  %% Line 457
+		  case call 'net_adm':'ping'
+			   (Node) of
+		    %% Line 458
+		    <'pong'> when 'true' ->
+			%% Line 459
+			'pong'
+		    %% Line 460
+		    <'pang'> when 'true' ->
+			let <_cor2> =
+			    %% Line 461
+			    call 'erlang':'-'
+				(N, 1)
+			in  %% Line 461
+			    apply 'wait_for_node_alive'/2
+				(Node, _cor2)
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	end
+'do_stop'/1 =
+    %% Line 465
+    fun (_cor0) ->
+	let <Cover,MainCoverNode> =
+	    %% Line 467
+	    case call 'test_server':'is_cover'
+		     () of
+	      %% Line 468
+	      <'true'> when 'true' ->
+		  let <Main> =
+		      %% Line 469
+		      call 'cover':'get_main_node'
+			  ()
+		  in  do  %% Line 470
+			  call 'rpc':'call'
+			      (Main, 'cover', 'flush', [_cor0|[]])
+			  %% Line 471
+			  <'true',Main>
+	      %% Line 472
+	      <'false'> when 'true' ->
+		  %% Line 473
+		  <'false','undefined'>
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor2})
+		-| ['compiler_generated'] )
+	    end
+	in  do  %% Line 475
+		call 'erlang':'spawn'
+		    (_cor0, 'init', 'stop', [])
+		%% Line 476
+		case apply 'wait_for_node_dead'/2
+			 (_cor0, 5) of
+		  %% Line 477
+		  <{'ok',_cor7}>
+		      when call 'erlang':'=:='
+			    (_cor7,
+			     _cor0) ->
+		      do  %% Line 478
+			  case <> of
+			    <>
+				when call 'erlang':'=:='
+				      (Cover,
+				       'true') ->
+				%% Line 481
+				call 'rpc':'call'
+				    (MainCoverNode, 'cover', 'stop', [_cor0|[]])
+			    %% Line 482
+			    <> when 'true' ->
+				'ok'
+			  end
+			  %% Line 485
+			  {'ok',_cor0}
+		  %% Line 486
+		  <Error> when 'true' ->
+		      %% Line 487
+		      Error
+		end
+'wait_for_node_dead'/2 =
+    %% Line 491
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Node,0> when 'true' ->
+	      %% Line 492
+	      {'error','stop_timeout',Node}
+	  %% Line 493
+	  <Node,N> when 'true' ->
+	      do  %% Line 494
+		  call 'timer':'sleep'
+		      (1000)
+		  let <_cor2> =
+		      %% Line 495
+		      call 'erlang':'nodes'
+			  ()
+		  in  %% Line 495
+		      case call 'lists':'member'
+			       (Node, _cor2) of
+			%% Line 496
+			<'true'> when 'true' ->
+			    let <_cor3> =
+				%% Line 497
+				call 'erlang':'-'
+				    (N, 1)
+			    in  %% Line 497
+				apply 'wait_for_node_dead'/2
+				    (Node, _cor3)
+			%% Line 498
+			<'false'> when 'true' ->
+			    %% Line 499
+			    {'ok',Node}
+			( <_cor4> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor4})
+			  -| ['compiler_generated'] )
+		      end
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ct_slave')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ct_slave', _cor0)
+end

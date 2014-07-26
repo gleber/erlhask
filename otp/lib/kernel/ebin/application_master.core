@@ -1,0 +1,1115 @@
+module 'application_master' ['get_child'/1,
+			     'init'/4,
+			     'module_info'/0,
+			     'module_info'/1,
+			     'start_it'/4,
+			     'start_link'/2,
+			     'start_type'/0,
+			     'stop'/1]
+    attributes []
+'start_link'/2 =
+    %% Line 40
+    fun (_cor1,_cor0) ->
+	let <Parent> =
+	    %% Line 41
+	    call 'erlang':'whereis'
+		('application_controller')
+	in  let <_cor3> =
+		%% Line 43
+		call 'erlang':'self'
+		    ()
+	    in  %% Line 42
+		call 'proc_lib':'start_link'
+		    ('application_master', 'init', %% Line 43
+						   [Parent|[_cor3|[_cor1|[_cor0|[]]]]])
+'start_type'/0 =
+    %% Line 45
+    fun () ->
+	let <_cor1> =
+	    %% Line 46
+	    call 'erlang':'group_leader'
+		()
+	in  let <_cor0> =
+		%% Line 46
+		call 'erlang':'self'
+		    ()
+	    in  do  %% Line 46
+		    call 'erlang':'!'
+			(_cor1, {'start_type',_cor0})
+		    %% Line 47
+		    receive
+		      %% Line 48
+		      <{'start_type',Type}> when 'true' ->
+			  %% Line 49
+			  Type
+		    after %% Line 50
+			  5000 ->
+		      %% Line 51
+		      {'error','timeout'}
+'stop'/1 =
+    %% Line 62
+    fun (_cor0) ->
+	apply 'call'/2
+	    (_cor0, 'stop')
+'get_child'/1 =
+    %% Line 69
+    fun (_cor0) ->
+	apply 'call'/2
+	    (_cor0, 'get_child')
+'call'/2 =
+    %% Line 71
+    fun (_cor1,_cor0) ->
+	let <Tag> =
+	    %% Line 72
+	    call 'erlang':'make_ref'
+		()
+	in  let <Ref> =
+		%% Line 73
+		call 'erlang':'monitor'
+		    ('process', _cor1)
+	    in  let <_cor4> =
+		    %% Line 74
+		    call 'erlang':'self'
+			()
+		in  do  %% Line 74
+			call 'erlang':'!'
+			    (_cor1, {_cor0,Tag,_cor4})
+			%% Line 75
+			receive
+			  %% Line 76
+			  <{'DOWN',_cor7,'process',_cor8,_X_Info}>
+			      when call 'erlang':'=:='
+				    (_cor7,
+				     Ref) ->
+			      %% Line 77
+			      'ok'
+			  %% Line 78
+			  <{_cor9,Res}>
+			      when call 'erlang':'=:='
+				    (_cor9,
+				     Tag) ->
+			      do  %% Line 79
+				  call 'erlang':'demonitor'
+				      (Ref, ['flush'])
+				  %% Line 80
+				  Res
+			after 'infinity' ->
+			  'true'
+'init'/4 =
+    %% Line 116
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 117
+	    call 'erlang':'link'
+		(_cor3)
+	    do  %% Line 118
+		call 'erlang':'process_flag'
+		    ('trap_exit', 'true')
+		let <OldGleader> =
+		    %% Line 119
+		    call 'erlang':'group_leader'
+			()
+		in  let <_cor6> =
+			%% Line 120
+			call 'erlang':'self'
+			    ()
+		    in  let <_cor5> =
+			    %% Line 120
+			    call 'erlang':'self'
+				()
+			in  do  %% Line 120
+				call 'erlang':'group_leader'
+				    (_cor6, _cor5)
+				%% Line 123
+				( case _cor1 of
+				    ( <( {'appl_data',_rec0,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30}
+					 -| ['compiler_generated'] )> when 'true' ->
+					  let <_cor10> =
+					      %% Line 124
+					      call 'erlang':'self'
+						  ()
+					  in  do  %% Line 124
+						  call 'ets':'insert'
+						      ('ac_tab', {{'application_master',_rec0},_cor10})
+						  let <State> =
+						      %% Line 125
+						      {'state','undefined',_cor1,[],0,OldGleader,[]}
+						  in  %% Line 126
+						      case apply 'start_it'/2
+							       (State, _cor0) of
+							%% Line 127
+							<{'ok',Pid}> when 'true' ->
+							    %% Line 128
+							    case apply 'set_timer'/1
+								     (_cor30) of
+							      <'ok'> when 'true' ->
+								  do  %% Line 129
+								      call 'erlang':'unlink'
+									  (_cor2)
+								      let <_cor15> =
+									  %% Line 130
+									  call 'erlang':'self'
+									      ()
+								      in  do  %% Line 130
+									      call 'proc_lib':'init_ack'
+										  (_cor2, {'ok',_cor15})
+									      %% Line 131
+									      case State of
+										<{'state',_cor40,_cor41,_cor42,_cor43,_cor44,_cor45}> when 'true' ->
+										    let <_cor18> =
+											call 'erlang':'setelement'
+											    (2, State, Pid)
+										    in  apply 'main_loop'/2
+											    (_cor3, _cor18)
+										( <_cor46> when 'true' ->
+										      ( call ( 'erlang'
+											       -| ['compiler_generated'] ):( 'error'
+															     -| ['compiler_generated'] )
+											    (( {'badrecord','state'}
+											       -| ['compiler_generated'] ))
+											-| ['compiler_generated'] )
+										  -| ['compiler_generated'] )
+									      end
+							      ( <_cor14> when 'true' ->
+								    primop 'match_fail'
+									({'badmatch',_cor14})
+								-| ['compiler_generated'] )
+							    end
+							%% Line 132
+							<{'error',Reason}> when 'true' ->
+							    %% Line 133
+							    call 'erlang':'exit'
+								(Reason)
+							%% Line 134
+							<Else> when 'true' ->
+							    %% Line 135
+							    call 'erlang':'exit'
+								(Else)
+						      end
+				      -| ['compiler_generated'] )
+				    ( <_cor31> when 'true' ->
+					  ( call ( 'erlang'
+						   -| ['compiler_generated'] ):( 'error'
+										 -| ['compiler_generated'] )
+						(( {'badrecord','appl_data'}
+						   -| ['compiler_generated'] ))
+					    -| ['compiler_generated'] )
+				      -| ['compiler_generated'] )
+				  end
+				  -| ['compiler_generated'] )
+'start_it'/2 =
+    %% Line 143
+    fun (_cor1,_cor0) ->
+	let <Tag> =
+	    %% Line 144
+	    call 'erlang':'make_ref'
+		()
+	in  let <_cor3> =
+		%% Line 145
+		call 'erlang':'self'
+		    ()
+	    in  let <Pid> =
+		    %% Line 145
+		    call 'erlang':'spawn_link'
+			('application_master', 'start_it', [Tag|[_cor1|[_cor3|[_cor0|[]]]]])
+		in  %% Line 146
+		    apply 'init_loop'/4
+			(Pid, Tag, _cor1, _cor0)
+'init_loop'/4 =
+    %% Line 153
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 154
+	receive
+	  %% Line 155
+	  <IoReq>
+	      when try
+		    let <_cor4> =
+			call 'erlang':'element'
+			    (1, IoReq)
+		    in  call 'erlang':'=:='
+			    (_cor4, 'io_request')
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 156
+	      ( case _cor1 of
+		  ( <( {'state',_cor12,_cor13,_cor14,_cor15,_rec3,_cor16}
+		       -| ['compiler_generated'] )> when 'true' ->
+			do  call 'erlang':'!'
+				(_rec3, IoReq)
+			    %% Line 157
+			    apply 'init_loop'/4
+				(_cor3, _cor2, _cor1, _cor0)
+		    -| ['compiler_generated'] )
+		  ( <_cor17> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 158
+	  <{_cor18,Res}>
+	      when call 'erlang':'=:='
+		    (_cor18,
+		     _cor2) ->
+	      %% Line 159
+	      Res
+	  %% Line 160
+	  <{'EXIT',_cor19,Reason}>
+	      when call 'erlang':'=:='
+		    (_cor19,
+		     _cor3) ->
+	      %% Line 161
+	      {'error',Reason}
+	  %% Line 162
+	  <{'start_type',From}> when 'true' ->
+	      do  %% Line 163
+		  call 'erlang':'!'
+		      (From, {'start_type',_cor0})
+		  %% Line 164
+		  apply 'init_loop'/4
+		      (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 165
+	  <Other> when 'true' ->
+	      let <NewState> =
+		  %% Line 166
+		  apply 'handle_msg'/2
+		      (Other, _cor1)
+	      in  %% Line 167
+		  apply 'init_loop'/4
+		      (_cor3, _cor2, NewState, _cor0)
+	after 'infinity' ->
+	  'true'
+'main_loop'/2 =
+    %% Line 170
+    fun (_cor1,_cor0) ->
+	%% Line 171
+	receive
+	  %% Line 172
+	  <IoReq>
+	      when try
+		    let <_cor2> =
+			call 'erlang':'element'
+			    (1, IoReq)
+		    in  call 'erlang':'=:='
+			    (_cor2, 'io_request')
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 173
+	      ( case _cor0 of
+		  ( <( {'state',_cor27,_cor28,_cor29,_cor30,_rec4,_cor31}
+		       -| ['compiler_generated'] )> when 'true' ->
+			do  call 'erlang':'!'
+				(_rec4, IoReq)
+			    %% Line 174
+			    apply 'main_loop'/2
+				(_cor1, _cor0)
+		    -| ['compiler_generated'] )
+		  ( <_cor32> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 175
+	  <{'EXIT',_cor33,Reason}>
+	      when call 'erlang':'=:='
+		    (_cor33,
+		     _cor1) ->
+	      %% Line 176
+	      apply 'terminate'/2
+		  (Reason, _cor0)
+	  %% Line 177
+	  <{'EXIT',Child,Reason}>
+	      when ( try
+		      ( case <> of
+			  ( <>
+				when ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'is_record'
+									 -| ['compiler_generated'] )
+					(_cor0,
+					 ( 'state'
+					   -| ['compiler_generated'] ),
+					 ( 7
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] ) ->
+				let <_cor9> =
+				    ( call 'erlang':'element'
+					  (2, _cor0)
+				      -| ['compiler_generated'] )
+				in  ( call 'erlang':'=:='
+					  (_cor9, Child)
+				      -| ['compiler_generated'] )
+			    -| ['compiler_generated'] )
+			  ( <> when 'true' ->
+				'false'
+			    -| ['compiler_generated'] )
+			end
+			-| ['compiler_generated'] )
+		  of <Try> ->
+		      Try
+		  catch <T,R> ->
+		      'false'
+		  -| ['compiler_generated'] ) ->
+	      %% Line 178
+	      case _cor0 of
+		<{'state',_cor34,_cor35,_cor36,_cor37,_cor38,_cor39}> when 'true' ->
+		    let <_cor13> =
+			call 'erlang':'setelement'
+			    (2, _cor0, 'undefined')
+		    in  apply 'terminate'/2
+			    (Reason, _cor13)
+		( <_cor40> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 179
+	  <{'EXIT',_cor41,'timeout'}> when 'true' ->
+	      %% Line 180
+	      apply 'terminate'/2
+		  ('normal', _cor0)
+	  %% Line 181
+	  <{'EXIT',Pid,_X_Reason}> when 'true' ->
+	      %% Line 182
+	      ( case _cor0 of
+		  ( <( {'state',_cor42,_cor43,_rec6,_cor44,_cor45,_cor46}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <Children> =
+			    call 'lists':'delete'
+				(Pid, _rec6)
+			in  let <Procs> =
+				%% Line 183
+				call 'erlang':'-'
+				    (_cor44, 1)
+			    in  let <_cor21> =
+				    %% Line 184
+				    call 'erlang':'setelement'
+					(5, _cor0, Procs)
+				in  let <_cor23> =
+					%% Line 184
+					call 'erlang':'setelement'
+					    (4, _cor21, Children)
+				    in  %% Line 184
+					apply 'main_loop'/2
+					    (_cor1, _cor23)
+		    -| ['compiler_generated'] )
+		  ( <_cor47> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 185
+	  <{'start_type',From}> when 'true' ->
+	      do  %% Line 186
+		  call 'erlang':'!'
+		      (From, {'start_type','local'})
+		  %% Line 187
+		  apply 'main_loop'/2
+		      (_cor1, _cor0)
+	  %% Line 188
+	  <Other> when 'true' ->
+	      let <NewState> =
+		  %% Line 189
+		  apply 'handle_msg'/2
+		      (Other, _cor0)
+	      in  %% Line 190
+		  apply 'main_loop'/2
+		      (_cor1, NewState)
+	after 'infinity' ->
+	  'true'
+'terminate_loop'/2 =
+    %% Line 193
+    fun (_cor1,_cor0) ->
+	%% Line 194
+	receive
+	  %% Line 195
+	  <IoReq>
+	      when try
+		    let <_cor2> =
+			call 'erlang':'element'
+			    (1, IoReq)
+		    in  call 'erlang':'=:='
+			    (_cor2, 'io_request')
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 196
+	      ( case _cor0 of
+		  ( <( {'state',_cor8,_cor9,_cor10,_cor11,_rec9,_cor12}
+		       -| ['compiler_generated'] )> when 'true' ->
+			do  call 'erlang':'!'
+				(_rec9, IoReq)
+			    %% Line 197
+			    apply 'terminate_loop'/2
+				(_cor1, _cor0)
+		    -| ['compiler_generated'] )
+		  ( <_cor13> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 198
+	  <{'EXIT',_cor14,_cor15}>
+	      when call 'erlang':'=:='
+		    (_cor14,
+		     _cor1) ->
+	      %% Line 199
+	      'ok'
+	  %% Line 200
+	  <Other> when 'true' ->
+	      let <NewState> =
+		  %% Line 201
+		  apply 'handle_msg'/2
+		      (Other, _cor0)
+	      in  %% Line 202
+		  apply 'terminate_loop'/2
+		      (_cor1, NewState)
+	after 'infinity' ->
+	  'true'
+'handle_msg'/2 =
+    %% Line 210
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'get_child',Tag,From},State> when 'true' ->
+	      %% Line 211
+	      apply 'get_child_i'/3
+		  (State, Tag, From)
+	  %% Line 212
+	  <{'stop',Tag,From},State> when 'true' ->
+	      do  catch
+		      %% Line 213
+		      apply 'terminate'/2
+			  ('normal', State)
+		  do  %% Line 214
+		      call 'erlang':'!'
+			  (From, {Tag,'ok'})
+		      %% Line 215
+		      call 'erlang':'exit'
+			  ('normal')
+	  %% Line 216
+	  <{'child',Ref,GrandChild,Mod},State = {'state',_cor7,_cor8,_cor9,_cor10,_cor11,Reqs0}> when 'true' ->
+	      %% Line 217
+	      case call 'lists':'keytake'
+		       (Ref, 1, Reqs0) of
+		<{'value',{_cor12,Tag,From},Reqs}> when 'true' ->
+		    do  %% Line 218
+			call 'erlang':'!'
+			    (From, {Tag,{GrandChild,Mod}})
+			%% Line 219
+			call 'erlang':'setelement'
+			    (7, State, Reqs)
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 220
+	  <_cor20,State> when 'true' ->
+	      %% Line 221
+	      State
+	end
+'terminate'/2 =
+    %% Line 223
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Reason,State = {'state',Child,_cor11,Children,_cor12,_cor13,Reqs}> when 'true' ->
+	      let <_cor7> =
+		  %% Line 224
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor4) ->
+				case _cor4 of
+				  <[{_cor14,Tag,From}|_cor3]> when 'true' ->
+				      let <_cor5> =
+					  call 'erlang':'!'
+					      (From, {Tag,'error'})
+				      in  let <_cor6> =
+					      apply 'lc$^0'/1
+						  (_cor3)
+					  in  ( [_cor5|_cor6]
+						-| ['compiler_generated'] )
+				  ( <[_cor2|_cor3]> when 'true' ->
+					apply 'lc$^0'/1
+					    (_cor3)
+				    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor4> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor4})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (Reqs)
+		    -| ['list_comprehension'] )
+	      in  do  %% Line 225
+		      apply 'terminate_child'/2
+			  (Child, State)
+		      do  %% Line 226
+			  apply 'kill_children'/1
+			      (Children)
+			  %% Line 227
+			  call 'erlang':'exit'
+			      (Reason)
+	  ( <_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9})
+		  -| [{'function_name',{'terminate',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'start_it'/4 =
+    %% Line 249
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 250
+	    call 'erlang':'process_flag'
+		('trap_exit', 'true')
+	    %% Line 251
+	    ( case _cor2 of
+		( <( {'state',_cor20,_rec11,_cor21,_cor22,_cor23,_cor24}
+		     -| ['compiler_generated'] )> when 'true' ->
+		      %% Line 252
+		      ( case _rec11 of
+			  ( <( {'appl_data',_cor26,_cor27,_rec12,_cor28,_cor29,_cor30,_cor31,_cor32}
+			       -| ['compiler_generated'] )> when 'true' ->
+				case <_rec12,_cor28> of
+				  %% Line 253
+				  <'undefined',_cor42> when 'true' ->
+				      %% Line 254
+				      apply 'start_it_old'/4
+					  (_cor3, _cor1, _cor0, _rec11)
+				  %% Line 255
+				  <Phases,{'application_starter',[M|[A|[]]]}> when 'true' ->
+				      %% Line 256
+				      apply 'start_it_new'/7
+					  (_cor3, _cor1, _cor0, M, A, Phases, %% Line 257
+									      [_cor26|[]])
+				  %% Line 258
+				  <Phases,{M,A}> when 'true' ->
+				      %% Line 259
+				      apply 'start_it_new'/7
+					  (_cor3, _cor1, _cor0, M, A, Phases, %% Line 260
+									      [_cor26|[]])
+				  %% Line 261
+				  <OtherP,OtherM> when 'true' ->
+				      %% Line 262
+				      call 'erlang':'!'
+					  (_cor1, {_cor3,{'error',{'bad_keys',{{'mod',OtherM},%% Line 263
+											      {'start_phases',OtherP}}}}})
+				end
+			    -| ['compiler_generated'] )
+			  ( <_cor33> when 'true' ->
+				( call ( 'erlang'
+					 -| ['compiler_generated'] ):( 'error'
+								       -| ['compiler_generated'] )
+				      (( {'badrecord','appl_data'}
+					 -| ['compiler_generated'] ))
+				  -| ['compiler_generated'] )
+			    -| ['compiler_generated'] )
+			end
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+		( <_cor25> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	      -| ['compiler_generated'] )
+'start_it_old'/4 =
+    %% Line 270
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 271
+	( case _cor0 of
+	    ( <( {'appl_data',_cor15,_cor16,_cor17,_rec16,_cor18,_cor19,_cor20,_cor21}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  case _rec16 of
+		    <{M,A}> when 'true' ->
+			let <_cor7> =
+			    catch
+				%% Line 272
+				call M:'start'
+				    (_cor1, A)
+			in  %% Line 272
+			    case _cor7 of
+			      %% Line 273
+			      <{'ok',Pid}> when 'true' ->
+				  do  %% Line 274
+				      call 'erlang':'link'
+					  (Pid)
+				      let <_cor8> =
+					  %% Line 275
+					  call 'erlang':'self'
+					      ()
+				      in  do  %% Line 275
+					      call 'erlang':'!'
+						  (_cor2, {_cor3,{'ok',_cor8}})
+					      %% Line 276
+					      apply 'loop_it'/4
+						  (_cor2, Pid, M, [])
+			      %% Line 277
+			      <{'ok',Pid,AppState}> when 'true' ->
+				  do  %% Line 278
+				      call 'erlang':'link'
+					  (Pid)
+				      let <_cor9> =
+					  %% Line 279
+					  call 'erlang':'self'
+					      ()
+				      in  do  %% Line 279
+					      call 'erlang':'!'
+						  (_cor2, {_cor3,{'ok',_cor9}})
+					      %% Line 280
+					      apply 'loop_it'/4
+						  (_cor2, Pid, M, AppState)
+			      %% Line 281
+			      <{'EXIT','normal'}> when 'true' ->
+				  %% Line 282
+				  call 'erlang':'!'
+				      (_cor2, {_cor3,{'error',{{'EXIT','normal'},{M,'start',[_cor1|[A|[]]]}}}})
+			      %% Line 283
+			      <{'error',Reason}> when 'true' ->
+				  %% Line 284
+				  call 'erlang':'!'
+				      (_cor2, {_cor3,{'error',{Reason,{M,'start',[_cor1|[A|[]]]}}}})
+			      %% Line 285
+			      <Other> when 'true' ->
+				  %% Line 286
+				  call 'erlang':'!'
+				      (_cor2, {_cor3,{'error',{'bad_return',{{M,'start',[_cor1|[A|[]]]},Other}}}})
+			    end
+		    ( <_cor6> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor6})
+		      -| ['compiler_generated'] )
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor22> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','appl_data'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'start_it_new'/7 =
+    %% Line 293
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor7> =
+	    catch
+		%% Line 294
+		apply 'start_the_app'/5
+		    (_cor4, _cor3, _cor2, _cor1, _cor0)
+	in  %% Line 294
+	    case _cor7 of
+	      %% Line 295
+	      <{'ok',Pid,AppState}> when 'true' ->
+		  let <_cor8> =
+		      %% Line 296
+		      call 'erlang':'self'
+			  ()
+		  in  do  %% Line 296
+			  call 'erlang':'!'
+			      (_cor5, {_cor6,{'ok',_cor8}})
+			  %% Line 297
+			  apply 'loop_it'/4
+			      (_cor5, Pid, _cor3, AppState)
+	      %% Line 298
+	      <Error> when 'true' ->
+		  %% Line 299
+		  call 'erlang':'!'
+		      (_cor5, {_cor6,Error})
+	    end
+'start_the_app'/5 =
+    %% Line 307
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 308
+	case apply 'start_supervisor'/3
+		 (_cor4, _cor3, _cor2) of
+	  %% Line 309
+	  <{'ok',Pid,AppState}> when 'true' ->
+	      do  %% Line 310
+		  call 'erlang':'link'
+		      (Pid)
+		  %% Line 311
+		  case call 'application_starter':'start'
+			   (_cor1, _cor4, _cor0) of
+		    %% Line 312
+		    <'ok'> when 'true' ->
+			%% Line 313
+			{'ok',Pid,AppState}
+		    %% Line 314
+		    <Error2> when 'true' ->
+			do  %% Line 315
+			    call 'erlang':'unlink'
+				(Pid)
+			    %% Line 316
+			    Error2
+		  end
+	  %% Line 318
+	  <Error> when 'true' ->
+	      %% Line 319
+	      Error
+	end
+'start_supervisor'/3 =
+    %% Line 325
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    catch
+		%% Line 326
+		call _cor1:'start'
+		    (_cor2, _cor0)
+	in  %% Line 326
+	    case _cor3 of
+	      %% Line 327
+	      <{'ok',Pid}> when 'true' ->
+		  %% Line 328
+		  {'ok',Pid,[]}
+	      %% Line 329
+	      <{'ok',Pid,AppState}> when 'true' ->
+		  %% Line 330
+		  {'ok',Pid,AppState}
+	      %% Line 331
+	      <{'error',Reason}> when 'true' ->
+		  %% Line 332
+		  {'error',{Reason,{_cor1,'start',[_cor2|[_cor0|[]]]}}}
+	      %% Line 333
+	      <{'EXIT','normal'}> when 'true' ->
+		  %% Line 334
+		  {'error',{{'EXIT','normal'},{_cor1,'start',[_cor2|[_cor0|[]]]}}}
+	      %% Line 335
+	      <Other> when 'true' ->
+		  %% Line 336
+		  {'error',{'bad_return',{{_cor1,'start',[_cor2|[_cor0|[]]]},Other}}}
+	    end
+'loop_it'/4 =
+    %% Line 346
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 347
+	receive
+	  %% Line 348
+	  <{_cor11,'get_child',Ref}>
+	      when call 'erlang':'=:='
+		    (_cor11,
+		     _cor3) ->
+	      do  %% Line 349
+		  call 'erlang':'!'
+		      (_cor3, {'child',Ref,_cor2,_cor1})
+		  %% Line 350
+		  apply 'loop_it'/4
+		      (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 351
+	  <{_cor12,'terminate'}>
+	      when call 'erlang':'=:='
+		    (_cor12,
+		     _cor3) ->
+	      let <NewAppState> =
+		  %% Line 352
+		  apply 'prep_stop'/2
+		      (_cor1, _cor0)
+	      in  do  %% Line 353
+		      call 'erlang':'exit'
+			  (_cor2, 'shutdown')
+		      do  %% Line 354
+			  receive
+			    %% Line 355
+			    <{'EXIT',_cor13,_cor14}>
+				when call 'erlang':'=:='
+				      (_cor13,
+				       _cor2) ->
+				'ok'
+			  after 'infinity' ->
+			    'ok'
+			  do  catch
+				  %% Line 357
+				  call _cor1:'stop'
+				      (NewAppState)
+			      %% Line 358
+			      call 'erlang':'exit'
+				  ('normal')
+	  %% Line 359
+	  <{'EXIT',_cor15,Reason}>
+	      when call 'erlang':'=:='
+		    (_cor15,
+		     _cor3) ->
+	      let <NewAppState> =
+		  %% Line 360
+		  apply 'prep_stop'/2
+		      (_cor1, _cor0)
+	      in  do  %% Line 361
+		      call 'erlang':'exit'
+			  (_cor2, Reason)
+		      do  %% Line 362
+			  receive
+			    %% Line 363
+			    <{'EXIT',_cor16,Reason2}>
+				when call 'erlang':'=:='
+				      (_cor16,
+				       _cor2) ->
+				%% Line 364
+				call 'erlang':'exit'
+				    (Reason2)
+			  after 'infinity' ->
+			    'ok'
+			  catch
+			      %% Line 366
+			      call _cor1:'stop'
+				  (NewAppState)
+	  %% Line 367
+	  <{'EXIT',_cor17,Reason}>
+	      when call 'erlang':'=:='
+		    (_cor17,
+		     _cor2) ->
+	      let <NewAppState> =
+		  %% Line 368
+		  apply 'prep_stop'/2
+		      (_cor1, _cor0)
+	      in  do  catch
+			  %% Line 369
+			  call _cor1:'stop'
+			      (NewAppState)
+		      %% Line 370
+		      call 'erlang':'exit'
+			  (Reason)
+	  %% Line 371
+	  <_cor18> when 'true' ->
+	      %% Line 372
+	      apply 'loop_it'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	after 'infinity' ->
+	  'true'
+'prep_stop'/2 =
+    %% Line 375
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    catch
+		%% Line 376
+		call _cor1:'prep_stop'
+		    (_cor0)
+	in  %% Line 376
+	    case _cor2 of
+	      %% Line 377
+	      <{'EXIT',{'undef',_cor6}}> when 'true' ->
+		  _cor0
+	      %% Line 379
+	      <{'EXIT',Reason}> when 'true' ->
+		  do  %% Line 380
+		      call 'error_logger':'error_report'
+			  ([{'application_master','shutdown_error'}|%% Line 381
+								    [{_cor1,{'prep_stop',[_cor0|[]]}}|%% Line 382
+												      [{'error_info',Reason}|[]]]])
+		      _cor0
+	      %% Line 384
+	      <NewAppState> when 'true' ->
+		  %% Line 385
+		  NewAppState
+	    end
+'get_child_i'/3 =
+    %% Line 388
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <State = {'state',Child,_cor12,_cor13,_cor14,_cor15,Reqs},Tag,From> when 'true' ->
+	      let <Ref> =
+		  %% Line 389
+		  call 'erlang':'make_ref'
+		      ()
+	      in  %% Line 390
+		  case call 'erlang':'is_process_alive'
+			   (Child) of
+		    %% Line 391
+		    <'true'> when 'true' ->
+			let <_cor4> =
+			    %% Line 392
+			    call 'erlang':'self'
+				()
+			in  do  %% Line 392
+				call 'erlang':'!'
+				    (Child, {_cor4,'get_child',Ref})
+				let <_rec17> =
+				    %% Line 393
+				    [{Ref,Tag,From}|Reqs]
+				in  %% Line 393
+				    call 'erlang':'setelement'
+					(7, State, _rec17)
+		    %% Line 394
+		    <'false'> when 'true' ->
+			do  %% Line 395
+			    call 'erlang':'!'
+				(From, {Tag,'error'})
+			    %% Line 396
+			    State
+		    ( <_cor8> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor8})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'get_child_i',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'terminate_child_i'/2 =
+    %% Line 399
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 400
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 400
+		call 'erlang':'!'
+		    (_cor1, {_cor2,'terminate'})
+		%% Line 401
+		apply 'terminate_loop'/2
+		    (_cor1, _cor0)
+'terminate_child'/2 =
+    %% Line 404
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'undefined',_cor4> when 'true' ->
+	      'ok'
+	  %% Line 405
+	  <Child,State> when 'true' ->
+	      %% Line 406
+	      apply 'terminate_child_i'/2
+		  (Child, State)
+	end
+'kill_children'/1 =
+    %% Line 408
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 409
+	    ( fun (_cor1) ->
+		  call 'erlang':'exit'
+		      (_cor1, 'kill')
+	      -| [{'id',{0,0,'-kill_children/1-fun-0-'}}] )
+	in  do  %% Line 409
+		call 'lists':'foreach'
+		    (_cor3, _cor0)
+		%% Line 410
+		apply 'kill_all_procs'/0
+		    ()
+'kill_all_procs'/0 =
+    %% Line 412
+    fun () ->
+	let <_cor1> =
+	    %% Line 413
+	    call 'erlang':'processes'
+		()
+	in  let <_cor0> =
+		%% Line 413
+		call 'erlang':'self'
+		    ()
+	    in  %% Line 413
+		apply 'kill_all_procs_1'/3
+		    (_cor1, _cor0, 0)
+'kill_all_procs_1'/3 =
+    %% Line 415
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Self|Ps],_cor8,N>
+	      when call 'erlang':'=:='
+		    (_cor8,
+		     Self) ->
+	      %% Line 416
+	      apply 'kill_all_procs_1'/3
+		  (Ps, Self, N)
+	  %% Line 417
+	  <[P|Ps],Self,N> when 'true' ->
+	      %% Line 418
+	      case call 'erlang':'process_info'
+		       (P, 'group_leader') of
+		%% Line 419
+		<{'group_leader',_cor9}>
+		    when call 'erlang':'=:='
+			  (_cor9,
+			   Self) ->
+		    do  %% Line 420
+			call 'erlang':'exit'
+			    (P, 'kill')
+			let <_cor3> =
+			    %% Line 421
+			    call 'erlang':'+'
+				(N, 1)
+			in  %% Line 421
+			    apply 'kill_all_procs_1'/3
+				(Ps, Self, _cor3)
+		%% Line 422
+		<_cor10> when 'true' ->
+		    %% Line 423
+		    apply 'kill_all_procs_1'/3
+			(Ps, Self, N)
+	      end
+	  %% Line 425
+	  <[],_cor11,0> when 'true' ->
+	      'ok'
+	  %% Line 426
+	  <[],_cor12,_cor13> when 'true' ->
+	      apply 'kill_all_procs'/0
+		  ()
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'kill_all_procs_1',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'set_timer'/1 =
+    %% Line 428
+    fun (_cor0) ->
+	case _cor0 of
+	  <'infinity'> when 'true' ->
+	      'ok'
+	  %% Line 429
+	  <Time> when 'true' ->
+	      %% Line 430
+	      case call 'timer':'exit_after'
+		       (Time, 'timeout') of
+		<{'ok',_cor3}> when 'true' ->
+		    %% Line 431
+		    'ok'
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('application_master')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('application_master', _cor0)
+end

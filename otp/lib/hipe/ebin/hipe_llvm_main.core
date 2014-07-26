@@ -1,0 +1,1509 @@
+module 'hipe_llvm_main' ['module_info'/0,
+			 'module_info'/1,
+			 'rtl_to_native'/4]
+    attributes [%% Line 452
+		'spec' =
+		    %% Line 452
+		    [{{'open_object_file',1},[{'type',452,'fun',[{'type',452,'product',[{'type',452,'string',[]}]}|[{'type',452,'binary',[]}]]}]}],
+		%% Line 497
+		'spec' =
+		    %% Line 497
+		    [{{'split_list',2},[{'type',497,'fun',[{'type',497,'product',[{'type',497,'list',[{'type',497,'integer',[]}]}|[{'type',497,'list',[{'type',497,'integer',[]}]}]]}|[{'type',497,'list',[{'type',497,'list',[{'type',497,'integer',[]}]}]}]]}]}],
+		%% Line 501
+		'spec' =
+		    %% Line 501
+		    [{{'split_list',3},[{'type',501,'fun',[{'type',501,'product',[{'type',501,'list',[{'type',501,'integer',[]}]}|[{'type',501,'list',[{'type',501,'integer',[]}]}|[{'type',501,'list',[{'type',501,'list',[{'type',501,'integer',[]}]}]}]]]}|[{'type',501,'list',[{'type',501,'list',[{'type',501,'integer',[]}]}]}]]}]}]]
+'rtl_to_native'/4 =
+    %% Line 14
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_1775> =
+	    %% Line 17
+	    call 'hipe_rtl_to_llvm':'translate'
+		(_cor2, _cor1)
+	in  %% Line 16
+	    case _1775 of
+	      <{LLVMCode,RelocsDict,ConstTab}> when 'true' ->
+		  let <_3037> =
+		      %% Line 19
+		      call 'hipe_rtl_to_llvm':'fix_mfa_name'
+			  (_cor3)
+		  in  %% Line 19
+		      case _3037 of
+			<{_X_Module,Fun,Arity}> when 'true' ->
+			    let <_3819> =
+				%% Line 22
+				apply 'compile_with_llvm'/5
+				    (Fun, Arity, LLVMCode, _cor0, 'false')
+			    in  %% Line 21
+				case _3819 of
+				  <{'ok',Dir,ObjectFile}> when 'true' ->
+				      let <ObjBin> =
+					  %% Line 26
+					  apply 'open_object_file'/1
+					      (ObjectFile)
+				      in  do  %% Line 28
+					      call 'elf_format':'set_architecture_flag'
+						  (ObjBin)
+					      let <Labels> =
+						  %% Line 30
+						  call 'elf_format':'get_rodata_relocs'
+						      (ObjBin)
+					      in  let <Triples> =
+						      %% Line 163
+						      call 'elf_format':'get_tab_entries'
+							  (ObjBin)
+						  in  let <_cor6> =
+							  %% Line 164
+							  ( letrec
+								'lc$^0'/1 =
+								    fun (_cor4) ->
+									case _cor4 of
+									  <[T = {[116|[97|[98|[108|[101|[95|_cor15]]]]]],_cor16,_cor17}|_3536]> when 'true' ->
+									      let <_cor5> =
+										  apply 'lc$^0'/1
+										      (_3536)
+									      in  ( [T|_cor5]
+										    -| ['compiler_generated'] )
+									  ( <[_373|_2812]> when 'true' ->
+										apply 'lc$^0'/1
+										    (_2812)
+									    -| ['compiler_generated'] )
+									  <[]> when 'true' ->
+									      []
+									  ( <_1379> when 'true' ->
+										primop 'match_fail'
+										    ({'function_clause',_cor4})
+									    -| ['compiler_generated'] )
+									end
+							    in  apply 'lc$^0'/1
+								    (Triples)
+							    -| ['list_comprehension'] )
+						      in  let <_cor12> =
+							      %% Line 165
+							      ( letrec
+								    'lc$^1'/1 =
+									fun (_cor10) ->
+									    case _cor10 of
+									      <[T = {[116|[97|[98|[108|[101|[95|[99|[108|[111|[115|[117|[114|[101|[115|_cor18]]]]]]]]]]]]]],_cor19,_cor20}|_cor9]> when 'true' ->
+										  let <_cor11> =
+										      apply 'lc$^1'/1
+											  (_cor9)
+										  in  ( [T|_cor11]
+											-| ['compiler_generated'] )
+									      ( <[_cor8|_cor9]> when 'true' ->
+										    apply 'lc$^1'/1
+											(_cor9)
+										-| ['compiler_generated'] )
+									      <[]> when 'true' ->
+										  []
+									      ( <_2278> when 'true' ->
+										    primop 'match_fail'
+											({'function_clause',_cor10})
+										-| ['compiler_generated'] )
+									    end
+								in  apply 'lc$^1'/1
+									(_cor6)
+								-| ['list_comprehension'] )
+							  in  let <Switches,Closures> = <_cor6,_cor12>
+							      in  let <_cor10> =
+								      %% Line 34
+								      call 'erlang':'++'
+									  (Switches, Closures)
+								  in  let <_3804> =
+									  %% Line 34
+									  apply 'correlate_labels'/2
+									      (_cor10, Labels)
+								      in  %% Line 33
+									  case _3804 of
+									    <{SwitchInfos,ExposedClosures}> when 'true' ->
+										let <_2599> =
+										    %% Line 193
+										    call 'gb_trees':'empty'
+											()
+										in  let <LabelMap> =
+											%% Line 193
+											apply 'create_labelmap'/4
+											    (_cor3, SwitchInfos, RelocsDict, _2599)
+										    in  let <TextRelocs> =
+											    %% Line 42
+											    call 'elf_format':'get_text_relocs'
+												(ObjBin)
+											in  let <AccRefs> =
+												%% Line 219
+												apply 'fix_relocs'/4
+												    (TextRelocs, RelocsDict, _cor3, [])
+											    in  let <SDescs> =
+												    %% Line 47
+												    apply 'get_sdescs'/1
+													(ObjBin)
+												in  let <FixedSDescs> =
+													%% Line 51
+													apply 'fix_stack_descriptors'/4
+													    (RelocsDict, AccRefs, SDescs, ExposedClosures)
+												    in  let <Refs> =
+													    %% Line 52
+													    call 'erlang':'++'
+														(AccRefs, FixedSDescs)
+													in  let <BinCode> =
+														%% Line 54
+														call 'elf_format':'extract_text'
+														    (ObjBin)
+													    in  let <_2345> =
+														    %% Line 56
+														    apply 'remove_temp_folder'/2
+															(Dir, _cor0)
+														in  %% Line 56
+														    case _2345 of
+														      <'ok'> when 'true' ->
+															  let <_cor20> =
+															      %% Line 60
+															      call 'erlang':'byte_size'
+																  (BinCode)
+															  in  %% Line 60
+															      {_cor3,BinCode,_cor20,ConstTab,Refs,LabelMap}
+														      ( <_cor19> when 'true' ->
+															    primop 'match_fail'
+																({'badmatch',_2345})
+															-| ['compiler_generated'] )
+														    end
+									    ( <_cor11> when 'true' ->
+										  primop 'match_fail'
+										      ({'badmatch',_3804})
+									      -| ['compiler_generated'] )
+									  end
+				  ( <_cor6> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_3819})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor5> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_3037})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_1775})
+		-| ['compiler_generated'] )
+	    end
+'compile_with_llvm'/5 =
+    %% Line 69
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor7> =
+	    %% Line 70
+	    call 'erlang':'atom_to_list'
+		(_cor4)
+	in  let <_cor5> =
+		%% Line 70
+		call 'erlang':'integer_to_list'
+		    (_cor3)
+	    in  let <_cor6> =
+		    %% Line 70
+		    [95|_cor5]
+		in  let <Filename> =
+			%% Line 70
+			call 'erlang':'++'
+			    (_cor7, _cor6)
+		    in  let <Dir> =
+			    %% Line 72
+			    apply 'unique_folder'/3
+				(_cor4, _cor3, _cor1)
+			in  let <_208> =
+				%% Line 73
+				call 'file':'make_dir'
+				    (Dir)
+			    in  %% Line 73
+				case _208 of
+				  <'ok'> when 'true' ->
+				      %% Line 76
+				      case _cor0 of
+					%% Line 78
+					<'false'> when 'true' ->
+					    let <_cor14> =
+						%% Line 80
+						call 'erlang':'++'
+						    (Filename, [46|[108|[108]]])
+					    in  let <_cor15> =
+						    %% Line 80
+						    call 'erlang':'++'
+							(Dir, _cor14)
+						in  let <_4446> =
+							%% Line 80
+							call 'file':'open'
+							    (_cor15, ['append'|['raw']])
+						    in  %% Line 80
+							case _4446 of
+							  <{'ok',File_llvm}> when 'true' ->
+							      do  %% Line 81
+								  call 'hipe_llvm':'pp_ins_list'
+								      (File_llvm, _cor2)
+								  let <_2584> =
+								      %% Line 83
+								      call 'file':'close'
+									  (File_llvm)
+								  in  %% Line 83
+								      case _2584 of
+									<'ok'> when 'true' ->
+									    do  do  %% Line 84
+										    call 'file':'close'
+											(File_llvm)
+										    do  %% Line 86
+											apply 'llvm_opt'/3
+											    (Dir, Filename, _cor1)
+											do  %% Line 87
+											    apply 'llvm_llc'/3
+												(Dir, Filename, _cor1)
+											    %% Line 88
+											    apply 'compile'/3
+												(Dir, Filename, [103|[99|[99]]])
+										let <_cor19> =
+										    %% Line 89
+										    call 'erlang':'++'
+											(Filename, [46|[111]])
+										in  let <_cor20> =
+											%% Line 89
+											call 'erlang':'++'
+											    (Dir, _cor19)
+										    in  %% Line 89
+											{'ok',Dir,_cor20}
+									( <_cor17> when 'true' ->
+									      primop 'match_fail'
+										  ({'badmatch',_2584})
+									  -| ['compiler_generated'] )
+								      end
+							  ( <_cor16> when 'true' ->
+								primop 'match_fail'
+								    ({'badmatch',_4446})
+							    -| ['compiler_generated'] )
+							end
+					( <_cor11> when 'true' ->
+					      primop 'match_fail'
+						  ({'case_clause',_cor0})
+					  -| ['compiler_generated'] )
+				      end
+				  ( <_cor10> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_208})
+				    -| ['compiler_generated'] )
+				end
+'llvm_opt'/3 =
+    %% Line 92
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 93
+	    call 'erlang':'++'
+		(_cor1, [46|[108|[108]]])
+	in  let <Source> =
+		%% Line 93
+		call 'erlang':'++'
+		    (_cor2, _cor3)
+	    in  let <_cor5> =
+		    %% Line 94
+		    call 'erlang':'++'
+			(_cor1, [46|[98|[99]]])
+		in  let <Dest> =
+			%% Line 94
+			call 'erlang':'++'
+			    (_cor2, _cor5)
+		    in  let <OptLevel> =
+			    %% Line 95
+			    apply 'trans_optlev_flag'/2
+				('opt', _cor0)
+			in  let <OptFlags> =
+				%% Line 96
+				[OptLevel|[[45|[109|[101|[109|[50|[114|[101|[103]]]]]]]]|[[45|[115|[116|[114|[105|[112]]]]]]]]]
+			    in  let <_cor12> =
+				    %% Line 140
+				    call 'string':'join'
+					(OptFlags, [32])
+				in  let <_cor9> =
+					%% Line 97
+					[32|[45|[111|[32|Dest]]]]
+				    in  let <_cor10> =
+					    %% Line 97
+					    call 'erlang':'++'
+						(Source, _cor9)
+					in  let <_cor11> =
+						%% Line 97
+						[32|_cor10]
+					    in  let <_cor13> =
+						    %% Line 97
+						    call 'erlang':'++'
+							(_cor12, _cor11)
+						in  let <Command> =
+							%% Line 97
+							[111|[112|[116|[32|_cor13]]]]
+						    in  let <_2932> =
+							    %% Line 99
+							    call 'os':'cmd'
+								(Command)
+							in  %% Line 99
+							    case _2932 of
+							      %% Line 100
+							      <[]> when 'true' ->
+								  'ok'
+							      %% Line 101
+							      <Error> when 'true' ->
+								  call 'erlang':'exit'
+								      ({'hipe_llvm_main','opt',_2932})
+							    end
+'llvm_llc'/3 =
+    %% Line 106
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 107
+	    call 'erlang':'++'
+		(_cor1, [46|[98|[99]]])
+	in  let <Source> =
+		%% Line 107
+		call 'erlang':'++'
+		    (_cor2, _cor3)
+	    in  let <OptLevel> =
+		    %% Line 108
+		    apply 'trans_optlev_flag'/2
+			('llc', _cor0)
+		in  let <_1032> =
+			%% Line 132
+			call 'erlang':'get'
+			    ('hipe_target_arch')
+		    in  let <Align> =
+			    %% Line 132
+			    case _1032 of
+			      %% Line 133
+			      <'x86'> when 'true' ->
+				  [52]
+			      %% Line 134
+			      <'amd64'> when 'true' ->
+				  [56]
+			      %% Line 135
+			      <_2455> when 'true' ->
+				  call 'erlang':'exit'
+				      ({'hipe_llvm_main','find_stack_alignment',[85|[110|[105|[109|[112|[108|[101|[109|[101|[110|[116|[101|[100|[32|[97|[114|[99|[104|[105|[116|[101|[99|[116|[117|[114|[101]]]]]]]]]]]]]]]]]]]]]]]]]]})
+			    end
+			in  let <_cor7> =
+				%% Line 110
+				call 'erlang':'++'
+				    ([45|[115|[116|[97|[99|[107|[45|[97|[108|[105|[103|[110|[109|[101|[110|[116|[61]]]]]]]]]]]]]]]]], Align)
+			    in  let <LlcFlags> =
+				    %% Line 110
+				    [OptLevel|[[45|[99|[111|[100|[101|[45|[109|[111|[100|[101|[108|[61|[109|[101|[100|[105|[117|[109]]]]]]]]]]]]]]]]]]|[_cor7|%% Line 111
+																			      [[45|[116|[97|[105|[108|[99|[97|[108|[108|[111|[112|[116]]]]]]]]]]]]|[[45|[102|[105|[108|[101|[116|[121|[112|[101|[61|[97|[115|[109]]]]]]]]]]]]]]]]]]
+				in  let <_cor10> =
+					%% Line 140
+					call 'string':'join'
+					    (LlcFlags, [32])
+				    in  let <_cor9> =
+					    %% Line 112
+					    [32|Source]
+					in  let <_cor11> =
+						%% Line 112
+						call 'erlang':'++'
+						    (_cor10, _cor9)
+					    in  let <Command> =
+						    %% Line 112
+						    [108|[108|[99|[32|_cor11]]]]
+						in  let <_4128> =
+							%% Line 114
+							call 'os':'cmd'
+							    (Command)
+						    in  %% Line 114
+							case _4128 of
+							  %% Line 115
+							  <[]> when 'true' ->
+							      'ok'
+							  %% Line 116
+							  <Error> when 'true' ->
+							      call 'erlang':'exit'
+								  ({'hipe_llvm_main','llc',_4128})
+							end
+'compile'/3 =
+    %% Line 121
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 122
+	    call 'erlang':'++'
+		(_cor1, [46|[115]])
+	in  let <Source> =
+		%% Line 122
+		call 'erlang':'++'
+		    (_cor2, _cor3)
+	    in  let <_cor5> =
+		    %% Line 123
+		    call 'erlang':'++'
+			(_cor1, [46|[111]])
+		in  let <Dest> =
+			%% Line 123
+			call 'erlang':'++'
+			    (_cor2, _cor5)
+		    in  let <_cor7> =
+			    %% Line 124
+			    [32|[45|[111|[32|Dest]]]]
+			in  let <_cor8> =
+				%% Line 124
+				call 'erlang':'++'
+				    (Source, _cor7)
+			    in  let <_cor9> =
+				    %% Line 124
+				    [32|[45|[99|[32|_cor8]]]]
+				in  let <Command> =
+					%% Line 124
+					call 'erlang':'++'
+					    (_cor0, _cor9)
+				    in  let <_225> =
+					    %% Line 126
+					    call 'os':'cmd'
+						(Command)
+					in  %% Line 126
+					    case _225 of
+					      %% Line 127
+					      <[]> when 'true' ->
+						  'ok'
+					      %% Line 128
+					      <Error> when 'true' ->
+						  call 'erlang':'exit'
+						      ({'hipe_llvm_main','cc',_225})
+					    end
+'trans_optlev_flag'/2 =
+    %% Line 143
+    fun (_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 144
+	    case _cor1 of
+	      %% Line 145
+	      <'opt'> when 'true' ->
+		  'llvm_opt'
+	      %% Line 146
+	      <'llc'> when 'true' ->
+		  'llvm_llc'
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor1})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_3461> =
+		%% Line 148
+		call 'proplists':'get_value'
+		    (_cor3, _cor0)
+	    in  %% Line 148
+		case _3461 of
+		  %% Line 149
+		  <'o0'> when 'true' ->
+		      []
+		  %% Line 150
+		  <'o1'> when 'true' ->
+		      [45|[79|[49]]]
+		  %% Line 151
+		  <'o2'> when 'true' ->
+		      [45|[79|[50]]]
+		  %% Line 152
+		  <'o3'> when 'true' ->
+		      [45|[79|[51]]]
+		  %% Line 153
+		  <'undefined'> when 'true' ->
+		      [45|[79|[50]]]
+		  ( <_cor5> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_3461})
+		    -| ['compiler_generated'] )
+		end
+'correlate_labels'/2 =
+    %% Line 172
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_X_L> when 'true' ->
+	      {[],[]}
+	  %% Line 173
+	  <Tables,Labels> when 'true' ->
+	      let <OffsetSortedTb> =
+		  %% Line 175
+		  call 'lists':'ukeysort'
+		      (2, _cor1)
+	      in  let <_1336> =
+		      %% Line 177
+		      call 'lists':'unzip3'
+			  (OffsetSortedTb)
+		  in  %% Line 177
+		      case _1336 of
+			<{Names,_X_Offsets,TablesSizeList}> when 'true' ->
+			    let <L> =
+				%% Line 499
+				apply 'split_list'/3
+				    (_cor0, TablesSizeList, [])
+			    in  let <NamesValues> =
+				    %% Line 181
+				    call 'lists':'zip'
+					(Names, L)
+				in  let <_121> =
+					%% Line 182
+					call 'lists':'keytake'
+					    ([116|[97|[98|[108|[101|[95|[99|[108|[111|[115|[117|[114|[101|[115]]]]]]]]]]]]]], 1, NamesValues)
+				    in  %% Line 182
+					case _121 of
+					  %% Line 183
+					  <'false'> when 'true' ->
+					      %% Line 184
+					      {NamesValues,[]}
+					  %% Line 185
+					  <{'value',ClosureTableNV,SwitchesNV}> when 'true' ->
+					      %% Line 186
+					      {SwitchesNV,ClosureTableNV}
+					  ( <_cor6> when 'true' ->
+						primop 'match_fail'
+						    ({'case_clause',_121})
+					    -| ['compiler_generated'] )
+					end
+			( <_cor3> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_1336})
+			  -| ['compiler_generated'] )
+		      end
+	end
+'create_labelmap'/4 =
+    %% Line 195
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <_cor12,[],_cor13,LabelMap> when 'true' ->
+	      _cor0
+	  %% Line 196
+	  <MFA,[{Name,Offsets}|Rest],RelocsDict,LabelMap> when 'true' ->
+	      %% Line 197
+	      case call 'dict':'fetch'
+		       (Name, _cor1) of
+		%% Line 198
+		<{'switch',{_X_TableType,LabelList,_X_NrLabels,_X_SortOrder},_X_JTabLab}> when 'true' ->
+		    let <_cor4> =
+			%% Line 199
+			call 'lists':'zip'
+			    (LabelList, Offsets)
+		    in  let <KVDict> =
+			    %% Line 199
+			    call 'lists':'ukeysort'
+				(1, _cor4)
+			in  let <NewLabelMap> =
+				%% Line 200
+				apply 'insert_to_labelmap'/2
+				    (KVDict, _cor0)
+			    in  %% Line 201
+				apply 'create_labelmap'/4
+				    (_cor3, Rest, _cor1, NewLabelMap)
+		%% Line 202
+		<_cor14> when 'true' ->
+		    %% Line 203
+		    call 'erlang':'exit'
+			({'hipe_llvm_main','create_labelmap',[78|[111|[116|[32|[97|[32|[106|[117|[109|[112|[32|[116|[97|[98|[108|[101|[33]]]]]]]]]]]]]]]]]})
+	      end
+	  ( <_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'create_labelmap',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'insert_to_labelmap'/2 =
+    %% Line 207
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],LabelMap> when 'true' ->
+	      _cor0
+	  %% Line 208
+	  <[{Key,Value}|Rest],LabelMap> when 'true' ->
+	      let <_3126> =
+		  %% Line 209
+		  call 'gb_trees':'lookup'
+		      (Key, _cor0)
+	      in  %% Line 209
+		  case _3126 of
+		    %% Line 210
+		    <'none'> when 'true' ->
+			let <_cor2> =
+			    %% Line 211
+			    call 'gb_trees':'insert'
+				(Key, Value, _cor0)
+			in  %% Line 211
+			    apply 'insert_to_labelmap'/2
+				(Rest, _cor2)
+		    %% Line 212
+		    <{'value',_cor6}>
+			when call 'erlang':'=:='
+			      (_cor6,
+			       Value) ->
+			%% Line 213
+			apply 'insert_to_labelmap'/2
+			    (Rest, _cor0)
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_3126})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'insert_to_labelmap',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'fix_relocs'/4 =
+    %% Line 221
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[],_cor9,_cor10,RelocAcc> when 'true' ->
+	      _cor0
+	  %% Line 222
+	  <[{Name,Offset}|Rs],RelocsDict,MFA = {ModName,_cor11,_cor12},RelocAcc> when 'true' ->
+	      let <_4225> =
+		  %% Line 223
+		  call 'dict':'fetch'
+		      (Name, _cor2)
+	      in  %% Line 223
+		  case _4225 of
+		    %% Line 224
+		    <{'atom',AtomName}> when 'true' ->
+			%% Line 225
+			apply 'fix_relocs'/4
+			    (Rs, _cor2, _cor1, %% Line 226
+					       [{0,Offset,AtomName}|_cor0])
+		    %% Line 227
+		    <{'constant',Label}> when 'true' ->
+			%% Line 228
+			apply 'fix_relocs'/4
+			    (Rs, _cor2, _cor1, %% Line 229
+					       [{1,Offset,{'constant',Label}}|_cor0])
+		    %% Line 230
+		    <{'switch',_cor13,JTabLab}> when 'true' ->
+			%% Line 231
+			apply 'fix_relocs'/4
+			    (Rs, _cor2, _cor1, %% Line 232
+					       [{1,Offset,{'constant',JTabLab}}|_cor0])
+		    %% Line 233
+		    <Closure = {'closure',_cor14}> when 'true' ->
+			%% Line 234
+			apply 'fix_relocs'/4
+			    (Rs, _cor2, _cor1, %% Line 235
+					       [{1,Offset,_4225}|_cor0])
+		    %% Line 236
+		    <{'call',{'bif',BifName,_cor15}}> when 'true' ->
+			%% Line 237
+			apply 'fix_relocs'/4
+			    (Rs, _cor2, _cor1, %% Line 238
+					       [{3,Offset,BifName}|_cor0])
+		    %% Line 241
+		    <{'call',CallMFA = {_cor16,_X_F,_X_A}}>
+			when call 'erlang':'=:='
+			      (_cor16,
+			       ModName) ->
+			%% Line 242
+			apply 'fix_relocs'/4
+			    (Rs, _cor2, _cor1, %% Line 243
+					       [{3,Offset,CallMFA}|_cor0])
+		    %% Line 244
+		    <{'call',CallMFA}> when 'true' ->
+			%% Line 245
+			apply 'fix_relocs'/4
+			    (Rs, _cor2, _cor1, %% Line 246
+					       [{2,Offset,CallMFA}|_cor0])
+		    %% Line 247
+		    <Other> when 'true' ->
+			%% Line 248
+			call 'erlang':'exit'
+			    ({'hipe_llvm_main','fix_relocs',%% Line 249
+							    {[82|[101|[108|[111|[99|[97|[116|[105|[111|[110|[32|[110|[111|[116|[32|[105|[110|[32|[114|[101|[108|[111|[99|[97|[116|[105|[111|[110|[32|[100|[105|[99|[116|[105|[111|[110|[97|[114|[121]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],_4225}})
+		  end
+	  ( <_cor8,_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'fix_relocs',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_sdescs'/1 =
+    %% Line 263
+    fun (_cor0) ->
+	let <_2193> =
+	    %% Line 264
+	    call 'elf_format':'extract_note'
+		(_cor0, [46|[103|[99]]])
+	in  %% Line 264
+	    case _2193 of
+	      %% Line 265
+	      <#{}#> when 'true' ->
+		  %% Line 266
+		  []
+	      %% Line 267
+	      <NoteGC_bin> when 'true' ->
+		  let <RelaNoteGC> =
+		      %% Line 269
+		      call 'elf_format':'extract_rela'
+			  (_cor0, [46|[110|[111|[116|[101|[46|[103|[99]]]]]]]])
+		  in  let <SPCount> =
+			  %% Line 270
+			  call 'erlang':'length'
+			      (RelaNoteGC)
+		      in  let <T> =
+			      %% Line 271
+			      call 'erlang':'*'
+				  (SPCount, 4)
+			  in  %% Line 278
+			      case ( _2193
+				     -| ['reuse_for_context'] ) of
+				<#{#<_cor14>(16,1,'integer',['unsigned'|['little']]),
+				   #<SPAddrs>(T,8,'binary',['unsigned'|['big']]),
+				   #<StkFrameSize>(16,1,'integer',['unsigned'|['little']]),
+				   #<StkArity>(16,1,'integer',['unsigned'|['little']]),
+				   #<_X_LiveRootCount>(16,1,'integer',['unsigned'|['little']]),
+				   #<Roots>('all',8,'binary',['unsigned'|['big']])}#>
+				    when call 'erlang':'=:='
+					  (_cor14,
+					   SPCount) ->
+				    let <LiveRoots> =
+					%% Line 279
+					apply 'get_liveroots'/2
+					    (Roots, [])
+				    in  let <_149> =
+					    %% Line 282
+					    call 'elf_format':'is64bit'
+						()
+					in  let <_cor8> =
+						%% Line 282
+						case _149 of
+						  %% Line 283
+						  <'true'> when 'true' ->
+						      %% Line 284
+						      call 'elf_format':'get_rela_addends'
+							  (RelaNoteGC)
+						  %% Line 285
+						  <'false'> when 'true' ->
+						      %% Line 286
+						      apply 'get_spoffs'/2
+							  (SPAddrs, [])
+						  ( <_cor7> when 'true' ->
+							primop 'match_fail'
+							    ({'case_clause',_149})
+						    -| ['compiler_generated'] )
+						end
+					    in  let <ExnHandlers> =
+						    %% Line 289
+						    call 'elf_format':'get_exn_handlers'
+							(_cor0)
+						in  let <ExnAndSPOffs> =
+							%% Line 291
+							apply 'combine_ras_and_exns'/3
+							    (ExnHandlers, _cor8, [])
+						    in  %% Line 292
+							apply 'create_sdesc_list'/5
+							    (ExnAndSPOffs, StkFrameSize, StkArity, LiveRoots, [])
+				( <_cor5> when 'true' ->
+				      do  primop 'bs_context_to_binary'
+					      (_2193)
+					  primop 'match_fail'
+					      ({'badmatch',_2193})
+				  -| ['compiler_generated'] )
+			      end
+	    end
+'get_liveroots'/2 =
+    %% Line 297
+    fun (_cor1,_cor0) ->
+	case <( _cor1
+		-| ['reuse_for_context'] ),_cor0> of
+	  <#{}#,Acc> when 'true' ->
+	      %% Line 298
+	      call 'erlang':'list_to_tuple'
+		  (_cor0)
+	  %% Line 299
+	  <#{#<Root>(16,1,'integer',['unsigned'|['little']]),
+	     #<MoreRoots>(%% Line 300
+			  'all',8,'binary',['unsigned'|['big']])}#,Acc> when 'true' ->
+	      %% Line 301
+	      apply 'get_liveroots'/2
+		  (MoreRoots, [Root|_cor0])
+	  ( <_cor3,_cor2> when 'true' ->
+		do  primop 'bs_context_to_binary'
+			(_cor1)
+		    ( primop 'match_fail'
+			  ({'function_clause',_cor1,_cor0})
+		      -| [{'function_name',{'get_liveroots',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_spoffs'/2 =
+    %% Line 305
+    fun (_cor1,_cor0) ->
+	case <( _cor1
+		-| ['reuse_for_context'] ),_cor0> of
+	  <#{}#,Acc> when 'true' ->
+	      %% Line 306
+	      call 'lists':'reverse'
+		  (_cor0)
+	  %% Line 307
+	  <#{#<SPOff>(32,1,'integer',['unsigned'|['little']]),
+	     #<More>('all',8,'binary',['unsigned'|['big']])}#,Acc> when 'true' ->
+	      %% Line 308
+	      apply 'get_spoffs'/2
+		  (More, [SPOff|_cor0])
+	  ( <_cor3,_cor2> when 'true' ->
+		do  primop 'bs_context_to_binary'
+			(_cor1)
+		    ( primop 'match_fail'
+			  ({'function_clause',_cor1,_cor0})
+		      -| [{'function_name',{'get_spoffs',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'combine_ras_and_exns'/3 =
+    %% Line 310
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_cor7,[],Acc> when 'true' ->
+	      %% Line 311
+	      call 'lists':'reverse'
+		  (_cor0)
+	  %% Line 312
+	  <ExnHandlers,[RA|MoreRAs],Acc> when 'true' ->
+	      let <Handler> =
+		  %% Line 315
+		  apply 'find_exn_handler'/2
+		      (RA, _cor2)
+	      in  %% Line 316
+		  apply 'combine_ras_and_exns'/3
+		      (_cor2, MoreRAs, [{Handler,RA}|_cor0])
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'combine_ras_and_exns',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'find_exn_handler'/2 =
+    %% Line 318
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_cor8,[]> when 'true' ->
+	      %% Line 319
+	      []
+	  %% Line 320
+	  <RA,[{Start,End,Handler}|MoreExnHandlers]> when 'true' ->
+	      let <_cor4> =
+		  %% Line 321
+		  ( case <> of
+		      ( <>
+			    when call 'erlang':'>='
+				  (_cor1,
+				   Start) ->
+			    call 'erlang':'=<'
+				(_cor1, End)
+			-| ['compiler_generated'] )
+		      ( <> when 'true' ->
+			    'false'
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	      in  %% Line 321
+		  case _cor4 of
+		    %% Line 322
+		    <'true'> when 'true' ->
+			Handler
+		    %% Line 324
+		    <'false'> when 'true' ->
+			%% Line 325
+			apply 'find_exn_handler'/2
+			    (_cor1, MoreExnHandlers)
+		    ( <_cor5> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor4})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'find_exn_handler',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'create_sdesc_list'/5 =
+    %% Line 328
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_cor13,_cor14,_cor15,Acc> when 'true' ->
+	      %% Line 329
+	      call 'lists':'reverse'
+		  (_cor0)
+	  %% Line 330
+	  <[{ExnLbl,SPOff}|MoreExnAndSPOffs],StkFrameSize,StkArity,LiveRoots,Acc> when 'true' ->
+	      let <_cor6> =
+		  %% Line 332
+		  case ExnLbl of
+		    %% Line 333
+		    <0> when 'true' ->
+			[]
+		    %% Line 334
+		    <N> when 'true' ->
+			ExnLbl
+		  end
+	      in  %% Line 336
+		  apply 'create_sdesc_list'/5
+		      (MoreExnAndSPOffs, _cor3, _cor2, _cor1, %% Line 337
+							      [{4,SPOff,{_cor6,_cor3,_cor2,_cor1}}|_cor0])
+	  ( <_cor12,_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'create_sdesc_list',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'fix_stack_descriptors'/4 =
+    %% Line 347
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <_cor17,_cor18,[],_cor19> when 'true' ->
+	      %% Line 348
+	      []
+	  %% Line 349
+	  <RelocsDict,Relocs,SDescs,ExposedClosures> when 'true' ->
+	      let <_4439> =
+		  %% Line 374
+		  call 'dict':'to_list'
+		      (_cor3)
+	      in  let <NamedCalls> =
+		      %% Line 374
+		      apply 'calls_with_stack_args'/2
+			  (_4439, [])
+		  in  let <NamedCallsOffs> =
+			  %% Line 391
+			  apply 'calls_offsets_arity'/3
+			      (_cor2, NamedCalls, [])
+		      in  let <_3706> =
+			      %% Line 354
+			      call 'dict':'is_key'
+				  ([116|[97|[98|[108|[101|[95|[99|[108|[111|[115|[117|[114|[101|[115]]]]]]]]]]]]]], _cor3)
+			  in  let <_cor9> =
+				  %% Line 354
+				  case _3706 of
+				    %% Line 355
+				    <'true'> when 'true' ->
+					let <_357> =
+					    %% Line 356
+					    call 'dict':'fetch'
+						([116|[97|[98|[108|[101|[95|[99|[108|[111|[115|[117|[114|[101|[115]]]]]]]]]]]]]], _cor3)
+					in  %% Line 356
+					    case _357 of
+					      <{'table_closures',ArityList}> when 'true' ->
+						  %% Line 357
+						  case _cor0 of
+						    %% Line 358
+						    <{_cor20,Offsets}> when 'true' ->
+							%% Line 359
+							call 'lists':'zip'
+							    (Offsets, ArityList)
+						    %% Line 360
+						    <_cor21> when 'true' ->
+							%% Line 361
+							call 'erlang':'exit'
+							    ({'hipe_llvm_main','fix_stack_descriptors',%% Line 362
+												       {[87|[114|[111|[110|[103|[32|[101|[120|[112|[111|[115|[101|[100|[32|[99|[108|[111|[115|[117|[114|[101|[115]]]]]]]]]]]]]]]]]]]]]],_cor0}})
+						  end
+					      ( <_cor6> when 'true' ->
+						    primop 'match_fail'
+							({'badmatch',_357})
+						-| ['compiler_generated'] )
+					    end
+				    %% Line 364
+				    <'false'> when 'true' ->
+					%% Line 365
+					[]
+				    ( <_cor8> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_3706})
+				      -| ['compiler_generated'] )
+				  end
+			      in  let <ClosuresOffs> =
+				      %% Line 367
+				      apply 'closures_offsets_arity'/2
+					  (_cor9, _cor1)
+				  in  let <_cor12> =
+					  %% Line 368
+					  call 'erlang':'++'
+					      (NamedCallsOffs, ClosuresOffs)
+				      in  %% Line 368
+					  apply 'fix_sdescs'/2
+					      (_cor12, _cor1)
+	end
+'calls_with_stack_args'/2 =
+    %% Line 376
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Calls> when 'true' ->
+	      _cor0
+	  %% Line 377
+	  <[{_X_Name,{'call',{M,F,A}}}|Rest],Calls>
+	      when %% Line 378
+		call 'erlang':'>'
+		    (A,
+		     4) ->
+	      let <_cor3> =
+		  %% Line 380
+		  case M of
+		    %% Line 381
+		    <'bif'> when 'true' ->
+			{F,A}
+		    %% Line 382
+		    <_cor7> when 'true' ->
+			{M,F,A}
+		  end
+	      in  %% Line 384
+		  apply 'calls_with_stack_args'/2
+		      (Rest, [_cor3|_cor0])
+	  %% Line 385
+	  <[_cor8|Rest],Calls> when 'true' ->
+	      %% Line 386
+	      apply 'calls_with_stack_args'/2
+		  (Rest, _cor0)
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'calls_with_stack_args',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'calls_offsets_arity'/3 =
+    %% Line 393
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_cor15,Acc> when 'true' ->
+	      _cor0
+	  %% Line 394
+	  <[{Type,Offset,Term}|Rest],CallsWithStackArgs,Acc>
+	      when %% Line 395
+		try
+		    ( case <> of
+			( <>
+			      when call 'erlang':'=:='
+				    (Type,
+				     2) ->
+			      'true'
+			  -| ['compiler_generated'] )
+			( <> when 'true' ->
+			      call 'erlang':'=:='
+				  (Type, 3)
+			  -| ['compiler_generated'] )
+		      end
+		      -| ['compiler_generated'] )
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_1293> =
+		  %% Line 396
+		  call 'lists':'member'
+		      (Term, _cor1)
+	      in  %% Line 396
+		  case _1293 of
+		    %% Line 397
+		    <'true'> when 'true' ->
+			let <_cor7> =
+			    %% Line 399
+			    case Term of
+			      %% Line 400
+			      <{_X_M,_X_F,A}> when 'true' ->
+				  A
+			      %% Line 401
+			      <{_X_F,A}> when 'true' ->
+				  A
+			      ( <_cor6> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',Term})
+				-| ['compiler_generated'] )
+			    end
+			in  let <_cor10> =
+				%% Line 404
+				call 'erlang':'+'
+				    (Offset, 4)
+			    in  let <_cor9> =
+				    %% Line 404
+				    call 'erlang':'-'
+					(_cor7, 4)
+				in  %% Line 403
+				    apply 'calls_offsets_arity'/3
+					(Rest, _cor1, %% Line 404
+						      [{_cor10,_cor9}|_cor0])
+		    %% Line 405
+		    <'false'> when 'true' ->
+			%% Line 406
+			apply 'calls_offsets_arity'/3
+			    (Rest, _cor1, _cor0)
+		    ( <_cor11> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_1293})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 408
+	  <[_cor16|Rest],CallsWithStackArgs,Acc> when 'true' ->
+	      %% Line 409
+	      apply 'calls_offsets_arity'/3
+		  (Rest, _cor1, _cor0)
+	  ( <_cor14,_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'calls_offsets_arity',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'closures_offsets_arity'/2 =
+    %% Line 416
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_cor12> when 'true' ->
+	      %% Line 417
+	      []
+	  %% Line 418
+	  <ExposedClosures,SDescs> when 'true' ->
+	      let <_cor6> =
+		  %% Line 419
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor4) ->
+				case _cor4 of
+				  <[{_cor13,Offset,_cor14}|_cor3]> when 'true' ->
+				      let <_cor5> =
+					  apply 'lc$^0'/1
+					      (_cor3)
+				      in  ( [Offset|_cor5]
+					    -| ['compiler_generated'] )
+				  ( <[_cor2|_cor3]> when 'true' ->
+					apply 'lc$^0'/1
+					    (_cor3)
+				    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_2701> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor4})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  case _cor0 of
+			  <[{_cor13,Offset,_cor14}|_cor3]> when 'true' ->
+			      let <_cor5> =
+				  apply 'lc$^0'/1
+				      (_cor3)
+			      in  ( [Offset|_cor5]
+				    -| ['compiler_generated'] )
+			  ( <[_cor2|_cor3]> when 'true' ->
+				apply 'lc$^0'/1
+				    (_cor3)
+			    -| ['compiler_generated'] )
+			  <[]> when 'true' ->
+			      []
+			  ( <_2701> when 'true' ->
+				primop 'match_fail'
+				    ({'function_clause',_cor0})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['list_comprehension'] )
+	      in  let <SortedOffsets> =
+		      %% Line 421
+		      call 'lists':'sort'
+			  (_cor6)
+		  in  let <SortedExposedClosures> =
+			  %% Line 422
+			  call 'lists':'keysort'
+			      (1, _cor1)
+		      in  %% Line 423
+			  apply 'find_offsets'/3
+			      (SortedExposedClosures, SortedOffsets, [])
+	end
+'find_offsets'/3 =
+    %% Line 425
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_cor10,Acc> when 'true' ->
+	      _cor0
+	  %% Line 426
+	  <[{Off,Arity}|Rest],Offsets,Acc> when 'true' ->
+	      let <_cor5> =
+		  %% Line 427
+		  fun (_cor3) ->
+		      call 'erlang':'<'
+			  (_cor3, Off)
+	      in  let <_3298> =
+		      %% Line 427
+		      call 'lists':'dropwhile'
+			  (_cor5, _cor1)
+		  in  %% Line 427
+		      case _3298 of
+			<[I|RestOffsets]> when 'true' ->
+			    %% Line 428
+			    apply 'find_offsets'/3
+				(Rest, RestOffsets, [{I,Arity}|_cor0])
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_3298})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'find_offsets',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'fix_sdescs'/2 =
+    %% Line 434
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],SDescs> when 'true' ->
+	      _cor0
+	  %% Line 435
+	  <[{Offset,Arity}|Rest],SDescs> when 'true' ->
+	      let <_1960> =
+		  %% Line 436
+		  call 'lists':'keyfind'
+		      (Offset, 2, _cor0)
+	      in  %% Line 436
+		  case _1960 of
+		    %% Line 437
+		    <'false'> when 'true' ->
+			%% Line 438
+			apply 'fix_sdescs'/2
+			    (Rest, _cor0)
+		    %% Line 439
+		    <{4,_cor16,{ExnHandler,FrameSize,StkArity,Roots}}>
+			when call 'erlang':'=:='
+			      (_cor16,
+			       Offset) ->
+			let <_cor8> =
+			    %% Line 440
+			    ( letrec
+				  'lc$^0'/1 =
+				      fun (_cor5) ->
+					  case _cor5 of
+					    <[Ri|_cor3]> when 'true' ->
+						let <_cor6> =
+						    call 'erlang':'-'
+							(Ri, Arity)
+						in  let <_cor7> =
+							apply 'lc$^0'/1
+							    (_cor3)
+						    in  ( [_cor6|_cor7]
+							  -| ['compiler_generated'] )
+					    <[]> when 'true' ->
+						[]
+					    ( <_979> when 'true' ->
+						  ( primop 'match_fail'
+							({'function_clause',_cor5})
+						    -| [{'function_name',{'lc$^0',1}}] )
+					      -| ['compiler_generated'] )
+					  end
+			      in  let <_cor4> =
+				      call 'erlang':'tuple_to_list'
+					  (Roots)
+				  in  apply 'lc$^0'/1
+					  (_cor4)
+			      -| ['list_comprehension'] )
+			in  let <FixedRoots> =
+				%% Line 440
+				call 'erlang':'list_to_tuple'
+				    (_cor8)
+			    in  let <_cor10> =
+				    %% Line 442
+				    call 'erlang':'-'
+					(FrameSize, Arity)
+				in  let <FixedSDesc> =
+					%% Line 442
+					{4,Offset,{ExnHandler,_cor10,StkArity,FixedRoots}}
+				    in  let <_cor12> =
+					    %% Line 443
+					    call 'lists':'keydelete'
+						(Offset, 2, _cor0)
+					in  %% Line 443
+					    apply 'fix_sdescs'/2
+						(Rest, [FixedSDesc|_cor12])
+		    ( <_cor13> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_1960})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'fix_sdescs',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'open_object_file'/1 =
+    %% Line 453
+    fun (_cor0) ->
+	let <_2850> =
+	    %% Line 454
+	    call 'file':'read_file'
+		(_cor0)
+	in  %% Line 454
+	    case _2850 of
+	      %% Line 455
+	      <{'ok',Binary}> when 'true' ->
+		  Binary
+	      %% Line 457
+	      <{'error',Reason}> when 'true' ->
+		  %% Line 458
+		  call 'erlang':'exit'
+		      ({'hipe_llvm_main','open_file',Reason})
+	      ( <_cor1> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_2850})
+		-| ['compiler_generated'] )
+	    end
+'remove_temp_folder'/2 =
+    %% Line 461
+    fun (_cor1,_cor0) ->
+	let <_508> =
+	    %% Line 462
+	    call 'proplists':'get_bool'
+		('llvm_save_temps', _cor0)
+	in  %% Line 462
+	    case _508 of
+	      %% Line 463
+	      <'true'> when 'true' ->
+		  'ok'
+	      %% Line 464
+	      <'false'> when 'true' ->
+		  let <_cor4> =
+		      fun () ->
+			  let <_cor2> =
+			      call 'erlang':'++'
+				  ([114|[109|[32|[45|[114|[102|[32]]]]]]], _cor1)
+			  in  let <_cor8> =
+				  call 'os':'cmd'
+				      (_cor2)
+			      in  case _cor8 of
+				    <[]> when 'true' ->
+					_cor8
+				    ( <_cor3> when 'true' ->
+					  primop 'match_fail'
+					      ({'badmatch',_cor8})
+				      -| ['compiler_generated'] )
+				  end
+		  in  do  call 'erlang':'spawn'
+			      (_cor4)
+			  'ok'
+	      ( <_cor5> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_508})
+		-| ['compiler_generated'] )
+	    end
+'unique_folder'/3 =
+    %% Line 470
+    fun (_cor2,_cor1,_cor0) ->
+	let <_1933> =
+	    call 'erlang':'now'
+		()
+	in  let <_cor3> =
+		call 'erlang':'phash2'
+		    ({_cor2,_cor1,_1933})
+	    in  let <_cor3> =
+		    call 'erlang':'integer_to_list'
+			(_cor3)
+		in  let <_cor4> =
+			%% Line 471
+			call 'erlang':'++'
+			    (_cor3, [47])
+		    in  let <DirName> =
+			    %% Line 471
+			    call 'erlang':'++'
+				([108|[108|[118|[109|[95]]]]], _cor4)
+			in  let <_2450> =
+				%% Line 473
+				call 'proplists':'get_bool'
+				    ('llvm_save_temps', _cor0)
+			    in  let <_cor7> =
+				    %% Line 473
+				    case _2450 of
+				      %% Line 474
+				      <'true'> when 'true' ->
+					  DirName
+				      %% Line 476
+				      <'false'> when 'true' ->
+					  %% Line 477
+					  call 'erlang':'++'
+					      ([47|[100|[101|[118|[47|[115|[104|[109|[47]]]]]]]]], DirName)
+				      ( <_cor6> when 'true' ->
+					    primop 'match_fail'
+						({'case_clause',_2450})
+					-| ['compiler_generated'] )
+				    end
+				in  let <_2317> =
+					%% Line 480
+					apply 'dir_exists'/1
+					    (_cor7)
+				    in  %% Line 480
+					case _2317 of
+					  %% Line 481
+					  <'true'> when 'true' ->
+					      %% Line 482
+					      apply 'unique_folder'/3
+						  (_cor2, _cor1, _cor0)
+					  %% Line 483
+					  <'false'> when 'true' ->
+					      _cor7
+					  ( <_cor9> when 'true' ->
+						primop 'match_fail'
+						    ({'case_clause',_2317})
+					    -| ['compiler_generated'] )
+					end
+'dir_exists'/1 =
+    %% Line 489
+    fun (_cor0) ->
+	let <_3642> =
+	    %% Line 490
+	    call 'file':'read_file_info'
+		(_cor0)
+	in  %% Line 490
+	    case _3642 of
+	      <{Flag,Info}> when 'true' ->
+		  %% Line 491
+		  ( case <> of
+		      ( <>
+			    when call 'erlang':'=:='
+				  (Flag,
+				   'ok') ->
+			    let <_cor3> =
+				call 'erlang':'element'
+				    (3, Info)
+			    in  call 'erlang':'=:='
+				    (_cor3, 'directory')
+			-| ['compiler_generated'] )
+		      ( <> when 'true' ->
+			    'false'
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	      ( <_cor1> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_3642})
+		-| ['compiler_generated'] )
+	    end
+'split_list'/3 =
+    %% Line 502
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],[],Acc> when 'true' ->
+	      %% Line 503
+	      call 'lists':'reverse'
+		  (_cor0)
+	  %% Line 504
+	  <List,[NumOfElems|MoreNums],Acc> when 'true' ->
+	      let <_3980> =
+		  %% Line 505
+		  call 'lists':'split'
+		      (NumOfElems, _cor2)
+	      in  %% Line 505
+		  case _3980 of
+		    <{L1,L2}> when 'true' ->
+			%% Line 506
+			apply 'split_list'/3
+			    (L2, MoreNums, [L1|_cor0])
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_3980})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'split_list',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_llvm_main')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_llvm_main', _cor0)
+end

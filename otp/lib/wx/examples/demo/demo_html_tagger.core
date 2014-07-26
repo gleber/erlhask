@@ -1,0 +1,1764 @@
+module 'demo_html_tagger' ['erl2htmlfile'/1,
+			   'erl2htmltext'/1,
+			   'module_info'/0,
+			   'module_info'/1]
+    attributes [%% Line 465
+		'spec' =
+		    %% Line 465
+		    [{{'is_keyword',1},[{'type',465,'fun',[{'type',465,'product',[{'type',465,'atom',[]}]}|[{'type',465,'boolean',[]}]]}]}]]
+'erl2htmltext'/1 =
+    %% Line 39
+    fun (_cor0) ->
+	%% Line 40
+	try
+	    %% Line 41
+	    apply 'erl2html0'/1
+		(_cor0)
+	of <_cor1> ->
+	    _cor1
+	catch <_cor4,_cor3,_cor2> ->
+	    %% Line 44
+	    call 'io':'format'
+		([101|[114|[114|[111|[114|[32|[105|[110|[58|[126|[115|[32|[126|[112|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]], [_cor0|[_cor4|[_cor3|[]]]])
+'erl2htmlfile'/1 =
+    %% Line 47
+    fun (_cor0) ->
+	%% Line 48
+	try
+	    let <Text> =
+		%% Line 49
+		apply 'erl2html0'/1
+		    (_cor0)
+	    in  let <_cor2> =
+		    %% Line 50
+		    call 'filename':'rootname'
+			(_cor0)
+		in  let <Root> =
+			%% Line 50
+			call 'filename':'basename'
+			    (_cor2)
+		    in  let <_cor4> =
+			    %% Line 51
+			    call 'erlang':'++'
+				(Root, [46|[104|[116|[109|[108]]]]])
+			in  let <Out> =
+				%% Line 51
+				call 'erlang':'++'
+				    ([46|[47|[104|[116|[109|[108|[47]]]]]]], _cor4)
+			    in  %% Line 52
+				call 'file':'write_file'
+				    (Out, [Text|[]])
+	of <_cor6> ->
+	    _cor6
+	catch <_cor9,_cor8,_cor7> ->
+	    %% Line 55
+	    call 'io':'format'
+		([101|[114|[114|[111|[114|[32|[105|[110|[58|[126|[115|[32|[126|[112|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]], [_cor0|[_cor9|[_cor8|[]]]])
+'splitErlang'/1 =
+    %% Line 59
+    fun (_cor0) ->
+	%% Line 60
+	case apply 'dodge_file'/1
+		 (_cor0) of
+	  <{'ok',Forms}> when 'true' ->
+	      %% Line 61
+	      case apply 'analyse'/1
+		       (Forms) of
+		<{Anchors,Patches}> when 'true' ->
+		    let <Raw> =
+			%% Line 62
+			apply 'read_raw_forms'/1
+			    (_cor0)
+		    in  let <Raw1> =
+			    %% Line 63
+			    apply 'merge_anchors'/2
+				(Anchors, Raw)
+			in  let <Raw2> =
+				%% Line 64
+				apply 'merge_forms'/3
+				    (Raw1, Patches, [])
+			    in  let <_cor11> =
+				    %% Line 65
+				    ( letrec
+					  'lc$^0'/1 =
+					      fun (_cor8) ->
+						  case _cor8 of
+						    <[I|_cor7]> when 'true' ->
+							let <_cor9> =
+							    apply 'final'/1
+								(I)
+							in  let <_cor10> =
+								apply 'lc$^0'/1
+								    (_cor7)
+							    in  ( [_cor9|_cor10]
+								  -| ['compiler_generated'] )
+						    <[]> when 'true' ->
+							[]
+						    ( <_cor8> when 'true' ->
+							  ( primop 'match_fail'
+								({'function_clause',_cor8})
+							    -| [{'function_name',{'lc$^0',1}}] )
+						      -| ['compiler_generated'] )
+						  end
+				      in  apply 'lc$^0'/1
+					      (Raw2)
+				      -| ['list_comprehension'] )
+				in  %% Line 66
+				    {'taggedBlocks',_cor11}
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'erl2html0'/1 =
+    %% Line 68
+    fun (_cor0) ->
+	let <Tb> =
+	    %% Line 69
+	    apply 'splitErlang'/1
+		(_cor0)
+	in  let <Html> =
+		%% Line 70
+		apply 'to_html'/1
+		    (Tb)
+	    in  %% Line 71
+		apply 'prelude'/1
+		    (Html)
+'merge_forms'/3 =
+    %% Line 73
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[{Tag,L1}|T],Patches,L> when 'true' ->
+	      %% Line 74
+	      case apply 'apply_patches'/2
+		       (L1, Patches) of
+		<{L2,Patches1}> when 'true' ->
+		    %% Line 75
+		    apply 'merge_forms'/3
+			(T, Patches1, [{Tag,L2}|L])
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 76
+	  <[],_cor7,L> when 'true' ->
+	      %% Line 77
+	      call 'lists':'reverse'
+		  (L)
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'merge_forms',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'apply_patches'/2 =
+    %% Line 79
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Toks,[]> when 'true' ->
+	      let <_cor7> =
+		  %% Line 82
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor4) ->
+				case _cor4 of
+				  <[I|_cor3]> when 'true' ->
+				      let <_cor5> =
+					  apply 'simplify'/1
+					      (I)
+				      in  let <_cor6> =
+					      apply 'lc$^0'/1
+						  (_cor3)
+					  in  ( [_cor5|_cor6]
+						-| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor4> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor4})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (Toks)
+		    -| ['list_comprehension'] )
+	      in  %% Line 82
+		  {_cor7,[]}
+	  %% Line 83
+	  <Toks,Patches> when 'true' ->
+	      %% Line 84
+	      apply 'apply_patches'/3
+		  (Toks, Patches, [])
+	end
+'apply_patches'/3 =
+    %% Line 86
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[A = {'atom',Ln,Val}|T],Patches,L> when 'true' ->
+	      %% Line 87
+	      case apply 'do_patch'/2
+		       (Ln, Patches) of
+		%% Line 88
+		<{'yes',New,Patches1}> when 'true' ->
+		    let <New1> =
+			%% Line 89
+			apply 'reformat'/2
+			    (New, Val)
+		    in  %% Line 90
+			apply 'apply_patches'/3
+			    (T, Patches1, [New1|L])
+		%% Line 91
+		<{'no',Patches1}> when 'true' ->
+		    let <_cor4> =
+			%% Line 92
+			apply 'simplify'/1
+			    (A)
+		    in  %% Line 92
+			apply 'apply_patches'/3
+			    (T, Patches1, [_cor4|L])
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 94
+	  <[H|T],Patches,L> when 'true' ->
+	      let <_cor6> =
+		  %% Line 95
+		  apply 'simplify'/1
+		      (H)
+	      in  %% Line 95
+		  apply 'apply_patches'/3
+		      (T, Patches, [_cor6|L])
+	  %% Line 96
+	  <[],Patches,L> when 'true' ->
+	      let <_cor7> =
+		  %% Line 97
+		  call 'lists':'reverse'
+		      (L)
+	      in  %% Line 97
+		  {_cor7,Patches}
+	  ( <_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'apply_patches',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'simplify'/1 =
+    %% Line 100
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'atom',_cor7,Str}> when 'true' ->
+	      let <_cor1> =
+		  catch
+		      %% Line 101
+		      call 'erlang':'list_to_existing_atom'
+			  (Str)
+	      in  %% Line 101
+		  case _cor1 of
+		    %% Line 102
+		    <{'EXIT',_cor8}> when 'true' ->
+			%% Line 103
+			{'atom',Str}
+		    %% Line 104
+		    <A> when 'true' ->
+			%% Line 105
+			case apply 'is_keyword'/1
+				 (A) of
+			  %% Line 106
+			  <'true'> when 'true' ->
+			      {'keyword',Str}
+			  %% Line 107
+			  <'false'> when 'true' ->
+			      %% Line 108
+			      {'atom',Str}
+			  ( <_cor2> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor2})
+			    -| ['compiler_generated'] )
+			end
+		  end
+	  %% Line 111
+	  <{'dot',_cor9,Str}> when 'true' ->
+	      %% Line 112
+	      {'terminal',Str}
+	  %% Line 113
+	  <{Tag,_cor10,Str}> when 'true' ->
+	      %% Line 114
+	      case apply 'is_keyword'/1
+		       (Tag) of
+		%% Line 115
+		<'true'> when 'true' ->
+		    %% Line 116
+		    {'keyword',Str}
+		%% Line 117
+		<'false'> when 'true' ->
+		    %% Line 118
+		    case apply 'is_terminal'/1
+			     (Tag) of
+		      %% Line 119
+		      <'true'> when 'true' ->
+			  %% Line 120
+			  {'terminal',Str}
+		      %% Line 121
+		      <'false'> when 'true' ->
+			  %% Line 122
+			  {Tag,Str}
+		      ( <_cor4> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor4})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 125
+	  <X> when 'true' ->
+	      do  %% Line 126
+		  call 'io':'format'
+		      ([115|[105|[109|[112|[108|[105|[102|[121|[32|[119|[116|[102|[105|[116|[58|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]], [X|[]])
+		  %% Line 127
+		  X
+	end
+'do_patch'/2 =
+    %% Line 129
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Ln,[{_cor4,Tag}|P]>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     Ln) ->
+	      {'yes',Tag,P}
+	  %% Line 130
+	  <Ln,P = [{Ln1,_cor5}|_cor6]>
+	      when call 'erlang':'>'
+		    (Ln1,
+		     Ln) ->
+	      {'no',P}
+	  %% Line 131
+	  <Ln,[_cor7|T]> when 'true' ->
+	      apply 'do_patch'/2
+		  (Ln, T)
+	  %% Line 132
+	  <_cor8,[]> when 'true' ->
+	      {'no',[]}
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'do_patch',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'reformat'/2 =
+    %% Line 134
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'local',{F,A}},Str> when 'true' ->
+	      {'local',F,A,Str}
+	  %% Line 135
+	  <{'remote',M,F,A},Str> when 'true' ->
+	      {'remote',M,F,A,Str}
+	  %% Line 136
+	  <{'remote',{M,F,A}},Str> when 'true' ->
+	      {'remote',M,F,A,Str}
+	  %% Line 137
+	  <{'bif',{F,A}},Str> when 'true' ->
+	      {'bif',F,A,Str}
+	  %% Line 138
+	  <Tag,Str> when 'true' ->
+	      do  %% Line 139
+		  call 'io':'format'
+		      ([114|[101|[102|[111|[114|[109|[97|[116|[42|[58|[126|[112|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]], [Tag|[Str|[]]])
+		  %% Line 140
+		  {Tag,Str}
+	end
+'to_html'/1 =
+    %% Line 142
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'taggedBlocks',L}> when 'true' ->
+	      %% Line 143
+	      ( letrec
+		    'lc$^0'/1 =
+			fun (_cor3) ->
+			    case _cor3 of
+			      <[{Anchor,Body}|_cor2]> when 'true' ->
+				  let <_cor4> =
+				      apply 'anchor1'/1
+					  (Anchor)
+				  in  let <_cor5> =
+					  apply 'to_html'/1
+					      (Body)
+				      in  let <_cor6> =
+					      apply 'lc$^0'/1
+						  (_cor2)
+					  in  ( [[_cor4|[_cor5|[]]]|_cor6]
+						-| ['compiler_generated'] )
+			      ( <[_cor1|_cor2]> when 'true' ->
+				    apply 'lc$^0'/1
+					(_cor2)
+				-| ['compiler_generated'] )
+			      <[]> when 'true' ->
+				  []
+			      ( <_cor3> when 'true' ->
+				    ( primop 'match_fail'
+					  ({'function_clause',_cor3})
+				      -| [{'function_name',{'lc$^0',1}}] )
+				-| ['compiler_generated'] )
+			    end
+		in  apply 'lc$^0'/1
+			(L)
+		-| ['list_comprehension'] )
+	  %% Line 144
+	  <{'taggedToks',L}> when 'true' ->
+	      %% Line 145
+	      ( letrec
+		    'lc$^1'/1 =
+			fun (_cor9) ->
+			    case _cor9 of
+			      <[I|_cor8]> when 'true' ->
+				  let <_cor10> =
+				      apply 'to_html1'/1
+					  (I)
+				  in  let <_cor11> =
+					  apply 'lc$^1'/1
+					      (_cor8)
+				      in  ( [_cor10|_cor11]
+					    -| ['compiler_generated'] )
+			      <[]> when 'true' ->
+				  []
+			      ( <_cor9> when 'true' ->
+				    ( primop 'match_fail'
+					  ({'function_clause',_cor9})
+				      -| [{'function_name',{'lc$^1',1}}] )
+				-| ['compiler_generated'] )
+			    end
+		in  apply 'lc$^1'/1
+			(L)
+		-| ['list_comprehension'] )
+	  ( <_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12})
+		  -| [{'function_name',{'to_html',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'anchor1'/1 =
+    %% Line 147
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'func',F,A}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 148
+		  apply 'linkname'/2
+		      (F, A)
+	      in  %% Line 148
+		  [[60|[97|[32|[110|[97|[109|[101|[61|[39]]]]]]]]]|[_cor1|[[39|[62|[60|[47|[97|[62]]]]]]]]]
+	  %% Line 149
+	  <{'specification',F,A}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 150
+		  apply 'linkname'/2
+		      (F, A)
+	      in  %% Line 150
+		  [[60|[97|[32|[110|[97|[109|[101|[61|[39]]]]]]]]]|[_cor2|[[39|[62|[60|[47|[97|[62]]]]]]]]]
+	  %% Line 151
+	  <_X_X> when 'true' ->
+	      %% Line 152
+	      []
+	end
+'linkname'/2 =
+    %% Line 154
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <F,A>
+	      when call 'erlang':'is_atom'
+		    (F) ->
+	      let <_cor4> =
+		  %% Line 155
+		  apply 'a2s'/1
+		      (F)
+	      in  let <_cor2> =
+		      %% Line 155
+		      call 'erlang':'integer_to_list'
+			  (A)
+		  in  let <_cor3> =
+			  %% Line 155
+			  [45|_cor2]
+		      in  %% Line 155
+			  call 'erlang':'++'
+			      (_cor4, _cor3)
+	  %% Line 156
+	  <F,A>
+	      when call 'erlang':'is_list'
+		    (F) ->
+	      let <_cor5> =
+		  %% Line 157
+		  call 'erlang':'integer_to_list'
+		      (A)
+	      in  let <_cor6> =
+		      %% Line 157
+		      [45|_cor5]
+		  in  %% Line 157
+		      call 'erlang':'++'
+			  (F, _cor6)
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7})
+		  -| [{'function_name',{'linkname',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'a2s'/1 =
+    %% Line 159
+    fun (_cor0) ->
+	%% Line 160
+	call 'erlang':'atom_to_list'
+	    (_cor0)
+'font'/2 =
+    %% Line 162
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 163
+	    apply 'htmlquote'/1
+		(_cor0)
+	in  %% Line 163
+	    [[60|[102|[111|[110|[116|[32|[99|[111|[108|[111|[114|[61|[34]]]]]]]]]]]]]|[_cor1|[[34|[62]]|[_cor2|[[60|[47|[102|[111|[110|[116|[62]]]]]]]]]]]]
+'htmlquote'/1 =
+    %% Line 165
+    fun (_cor0) ->
+	case _cor0 of
+	  <[60|T]> when 'true' ->
+	      let <_cor1> =
+		  apply 'htmlquote'/1
+		      (T)
+	      in  [[38|[108|[116|[59]]]]|_cor1]
+	  %% Line 166
+	  <[H|T]> when 'true' ->
+	      let <_cor2> =
+		  apply 'htmlquote'/1
+		      (T)
+	      in  [H|_cor2]
+	  %% Line 167
+	  <[]> when 'true' ->
+	      []
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'htmlquote',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'to_html1'/1 =
+    %% Line 169
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'white_space',V}> when 'true' ->
+	      V
+	  %% Line 170
+	  <{'comment',V}> when 'true' ->
+	      apply 'font'/2
+		  ([35|[66|[50|[50|[50|[50|[50]]]]]]], V)
+	  %% Line 171
+	  <{'var',V}> when 'true' ->
+	      apply 'font'/2
+		  ([111|[114|[97|[110|[103|[101]]]]]], V)
+	  %% Line 172
+	  <{'string',V}> when 'true' ->
+	      apply 'font'/2
+		  ([35|[70|[65|[56|[48|[55|[50]]]]]]], V)
+	  %% Line 173
+	  <{'integer',V}> when 'true' ->
+	      apply 'font'/2
+		  ([35|[49|[49|[49|[49|[65|[65]]]]]]], V)
+	  %% Line 174
+	  <{'bif',_X_F,_X_A,Str}> when 'true' ->
+	      apply 'font'/2
+		  ([35|[70|[70|[48|[48|[70|[70]]]]]]], Str)
+	  %% Line 175
+	  <{'keyword',V}> when 'true' ->
+	      apply 'font'/2
+		  ([35|[70|[70|[48|[48|[70|[70]]]]]]], V)
+	  %% Line 176
+	  <{'atom',V}> when 'true' ->
+	      V
+	  %% Line 177
+	  <{'terminal',V}> when 'true' ->
+	      V
+	  %% Line 178
+	  <{'char',V}> when 'true' ->
+	      V
+	  %% Line 179
+	  <{'float',V}> when 'true' ->
+	      V
+	  %% Line 180
+	  <{'anchor',F,A}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 181
+		  apply 'linkname'/2
+		      (F, A)
+	      in  %% Line 181
+		  [[60|[97|[32|[110|[97|[109|[101|[61|[39]]]]]]]]]|[_cor1|[[39|[62|[60|[47|[97|[62]]]]]]]]]
+	  %% Line 182
+	  <{'local',F,A,Str}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 183
+		  apply 'linkname'/2
+		      (F, A)
+	      in  let <_cor3> =
+		      %% Line 184
+		      apply 'htmlquote'/1
+			  (Str)
+		  in  %% Line 183
+		      [[60|[97|[32|[104|[114|[101|[102|[61|[39|[35]]]]]]]]]]|[_cor2|[[39|[62]]|%% Line 184
+											       [_cor3|[[60|[47|[97|[62]]]]]]]]]
+	  %% Line 185
+	  <{'remote',_X_M,_X_F,_X_A,Str}> when 'true' ->
+	      %% Line 187
+	      Str
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'to_html1',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'merge_anchors'/2 =
+    %% Line 195
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[H = {Tag,Val}|A],[B|T]> when 'true' ->
+	      %% Line 196
+	      case apply 'contains'/2
+		       (Tag, B) of
+		%% Line 197
+		<'true'> when 'true' ->
+		    let <_cor2> =
+			%% Line 198
+			apply 'merge_anchors'/2
+			    (A, T)
+		    in  %% Line 198
+			[{Val,B}|_cor2]
+		%% Line 199
+		<'false'> when 'true' ->
+		    do  %% Line 200
+			call 'io':'format'
+			    ([76|[111|[103|[105|[99|[32|[101|[114|[114|[111|[114|[58|[32|[72|[61|[126|[112|[32|[66|[61|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]], [H|[B|[]]])
+			%% Line 201
+			call 'erlang':'exit'
+			    (1)
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 203
+	  <[],[]> when 'true' ->
+	      []
+	  %% Line 204
+	  <[],[X|[]]> when 'true' ->
+	      %% Line 208
+	      [{'eof',X}|[]]
+	  %% Line 209
+	  <X,Y> when 'true' ->
+	      do  %% Line 210
+		  call 'io':'format'
+		      ([111|[112|[115|[58|[126|[112|[126|[110]]]]]]]], [{X,Y}|[]])
+		  %% Line 211
+		  []
+	end
+'contains'/2 =
+    %% Line 213
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Loc,[{_cor4,_cor5,_cor6}|_cor7]>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     Loc) ->
+	      'true'
+	  %% Line 214
+	  <Loc,[_cor8|T]> when 'true' ->
+	      apply 'contains'/2
+		  (Loc, T)
+	  %% Line 215
+	  <_cor9,[]> when 'true' ->
+	      'false'
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'contains',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'dodge_file'/1 =
+    %% Line 218
+    fun (_cor0) ->
+	%% Line 219
+	case call 'file':'open'
+		 (_cor0, ['read']) of
+	  %% Line 220
+	  <{'ok',Handle}> when 'true' ->
+	      %% Line 221
+	      case call 'epp_dodger':'parse'
+		       (Handle, {1,1}) of
+		<{'ok',F}> when 'true' ->
+		    do  %% Line 222
+			call 'file':'close'
+			    (Handle)
+			let <_cor7> =
+			    %% Line 223
+			    ( letrec
+				  'lc$^0'/1 =
+				      fun (_cor4) ->
+					  case _cor4 of
+					    <[I|_cor3]> when 'true' ->
+						let <_cor5> =
+						    apply 'revert_forms'/1
+							(I)
+						in  let <_cor6> =
+							apply 'lc$^0'/1
+							    (_cor3)
+						    in  ( [_cor5|_cor6]
+							  -| ['compiler_generated'] )
+					    <[]> when 'true' ->
+						[]
+					    ( <_cor4> when 'true' ->
+						  ( primop 'match_fail'
+							({'function_clause',_cor4})
+						    -| [{'function_name',{'lc$^0',1}}] )
+					      -| ['compiler_generated'] )
+					  end
+			      in  apply 'lc$^0'/1
+				      (F)
+			      -| ['list_comprehension'] )
+			in  %% Line 224
+			    {'ok',_cor7}
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 225
+	  <Error> when 'true' ->
+	      %% Line 226
+	      Error
+	end
+'revert_forms'/1 =
+    %% Line 229
+    fun (_cor0) ->
+	%% Line 230
+	case call 'erl_syntax':'is_form'
+		 (_cor0) of
+	  %% Line 231
+	  <'true'> when 'true' ->
+	      let <_cor1> =
+		  catch
+		      %% Line 233
+		      call 'erl_syntax':'revert'
+			  (_cor0)
+	      in  %% Line 233
+		  case _cor1 of
+		    %% Line 234
+		    <{'EXIT',_X_Why}> when 'true' ->
+			do  %% Line 235
+			    call 'io':'format'
+				([101|[114|[114|[111|[114|[32|[114|[101|[118|[101|[114|[116|[105|[110|[103|[58|[126|[112|[61|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]], [_cor0|[_X_Why|[]]])
+			    _cor0
+		    %% Line 237
+		    <Other> when 'true' ->
+			%% Line 238
+			Other
+		  end
+	  %% Line 240
+	  <'false'> when 'true' ->
+	      %% Line 241
+	      call 'io':'format'
+		  ([117|[117|[103|[104|[58|[126|[112|[126|[110]]]]]]]]], [_cor0|[]])
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'read_raw_forms'/1 =
+    %% Line 250
+    fun (_cor0) ->
+	%% Line 251
+	case call 'file':'read_file'
+		 (_cor0) of
+	  <{'ok',Bin}> when 'true' ->
+	      let <Str> =
+		  %% Line 252
+		  call 'erlang':'binary_to_list'
+		      (Bin)
+	      in  let <_cor3> =
+		      %% Line 253
+		      call 'erl_scan':'tokens'
+			  ([], Str, {1,1}, ['return'|['text']])
+		  in  %% Line 253
+		      apply 'loop'/2
+			  (_cor3, [])
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'loop'/2 =
+    %% Line 255
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'done',{'eof',_cor8},'eof'},L> when 'true' ->
+	      %% Line 256
+	      call 'lists':'reverse'
+		  (L)
+	  %% Line 257
+	  <{'done',{'ok',Toks,_cor9},'eof'},L> when 'true' ->
+	      let <_cor2> =
+		  %% Line 258
+		  apply 'normalize_toks'/1
+		      (Toks)
+	      in  %% Line 258
+		  call 'lists':'reverse'
+		      ([_cor2|L])
+	  %% Line 259
+	  <{'done',{'ok',Toks,Ln},Str1},L> when 'true' ->
+	      let <_cor4> =
+		  %% Line 260
+		  call 'erl_scan':'tokens'
+		      ([], Str1, Ln, ['return'|['text']])
+	      in  let <_cor3> =
+		      %% Line 261
+		      apply 'normalize_toks'/1
+			  (Toks)
+		  in  %% Line 260
+		      apply 'loop'/2
+			  (_cor4, %% Line 261
+				  [_cor3|L])
+	  %% Line 262
+	  <{'more',X},L> when 'true' ->
+	      let <_cor5> =
+		  %% Line 263
+		  call 'erl_scan':'tokens'
+		      (X, 'eof', {1,1}, ['return'|['text']])
+	      in  %% Line 263
+		  apply 'loop'/2
+		      (_cor5, L)
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'loop',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'normalize_toks'/1 =
+    %% Line 265
+    fun (_cor0) ->
+	%% Line 266
+	( letrec
+	      'lc$^0'/1 =
+		  fun (_cor3) ->
+		      case _cor3 of
+			<[I|_cor2]> when 'true' ->
+			    let <_cor4> =
+				apply 'normalize_tok'/1
+				    (I)
+			    in  let <_cor5> =
+				    apply 'lc$^0'/1
+					(_cor2)
+				in  ( [_cor4|_cor5]
+				      -| ['compiler_generated'] )
+			<[]> when 'true' ->
+			    []
+			( <_cor3> when 'true' ->
+			      ( primop 'match_fail'
+				    ({'function_clause',_cor3})
+				-| [{'function_name',{'lc$^0',1}}] )
+			  -| ['compiler_generated'] )
+		      end
+	  in  apply 'lc$^0'/1
+		  (_cor0)
+	  -| ['list_comprehension'] )
+'normalize_tok'/1 =
+    %% Line 268
+    fun (_cor0) ->
+	%% Line 270
+	case %% Line 271
+	     call 'erl_scan':'token_info'
+		 (_cor0, ['category'|['line'|['column'|['text']]]]) of
+	  <[{_cor4,Type}|[{_cor5,Line}|[{_cor6,Col}|[{_cor7,Txt}|[]]]]]> when 'true' ->
+	      %% Line 272
+	      {Type,{Line,Col},Txt}
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'analyse'/1 =
+    %% Line 279
+    fun (_cor0) ->
+	let <Calls> =
+	    %% Line 280
+	    apply 'calls'/1
+		(_cor0)
+	in  let <Anchors> =
+		%% Line 281
+		apply 'compute_anchors'/1
+		    (_cor0)
+	    in  let <_cor10> =
+		    %% Line 282
+		    ( letrec
+			  'lc$^0'/1 =
+			      fun (_cor7) ->
+				  case _cor7 of
+				    <[%% Line 283
+				      {'attribute',_cor21,'import',{Mod,L}}|_cor4]> when 'true' ->
+					( letrec
+					      'lc$^1'/1 =
+						  fun (_cor8) ->
+						      case _cor8 of
+							<[%% Line 283
+							  {F,A}|_cor6]> when 'true' ->
+							    let <_cor9> =
+								%% Line 283
+								apply 'lc$^1'/1
+								    (_cor6)
+							    in  ( [{{F,A},Mod}|_cor9]
+								  -| ['compiler_generated'] )
+							( <[_cor5|_cor6]> when 'true' ->
+							      %% Line 283
+							      apply 'lc$^1'/1
+								  (_cor6)
+							  -| ['compiler_generated'] )
+							<[]> when 'true' ->
+							    %% Line 283
+							    apply 'lc$^0'/1
+								(_cor4)
+							( <_cor8> when 'true' ->
+							      ( primop 'match_fail'
+								    ({'function_clause',_cor8})
+								-| [{'function_name',{'lc$^1',1}}] )
+							  -| ['compiler_generated'] )
+						      end
+					  in  apply 'lc$^1'/1
+						  (%% Line 283
+						   L)
+					  -| ['list_comprehension'] )
+				    ( <[_cor3|_cor4]> when 'true' ->
+					  %% Line 283
+					  apply 'lc$^0'/1
+					      (_cor4)
+				      -| ['compiler_generated'] )
+				    <[]> when 'true' ->
+					[]
+				    ( <_cor7> when 'true' ->
+					  ( primop 'match_fail'
+						({'function_clause',_cor7})
+					    -| [{'function_name',{'lc$^0',1}}] )
+				      -| ['compiler_generated'] )
+				  end
+		      in  apply 'lc$^0'/1
+			      (_cor0)
+		      -| ['list_comprehension'] )
+		in  let <D> =
+			%% Line 284
+			call 'dict':'from_list'
+			    (_cor10)
+		    in  let <_cor18> =
+			    %% Line 285
+			    ( letrec
+				  'lc$^2'/1 =
+				      fun (_cor15) ->
+					  case _cor15 of
+					    <[{Loc,X}|_cor14]> when 'true' ->
+						let <_cor16> =
+						    apply 'resolve'/2
+							(X, D)
+						in  let <_cor17> =
+							apply 'lc$^2'/1
+							    (_cor14)
+						    in  ( [{Loc,_cor16}|_cor17]
+							  -| ['compiler_generated'] )
+					    ( <[_cor13|_cor14]> when 'true' ->
+						  apply 'lc$^2'/1
+						      (_cor14)
+					      -| ['compiler_generated'] )
+					    <[]> when 'true' ->
+						[]
+					    ( <_cor15> when 'true' ->
+						  ( primop 'match_fail'
+							({'function_clause',_cor15})
+						    -| [{'function_name',{'lc$^2',1}}] )
+					      -| ['compiler_generated'] )
+					  end
+			      in  apply 'lc$^2'/1
+				      (Calls)
+			      -| ['list_comprehension'] )
+			in  %% Line 286
+			    {Anchors,_cor18}
+'compute_anchors'/1 =
+    %% Line 300
+    fun (_cor0) ->
+	let <_cor6> =
+	    %% Line 301
+	    ( letrec
+		  'lc$^0'/1 =
+		      fun (_cor3) ->
+			  case _cor3 of
+			    <[I|_cor2]> when 'true' ->
+				let <_cor4> =
+				    apply 'anchor0'/1
+					(I)
+				in  let <_cor5> =
+					apply 'lc$^0'/1
+					    (_cor2)
+				    in  ( [_cor4|_cor5]
+					  -| ['compiler_generated'] )
+			    <[]> when 'true' ->
+				[]
+			    ( <_cor3> when 'true' ->
+				  ( primop 'match_fail'
+					({'function_clause',_cor3})
+				    -| [{'function_name',{'lc$^0',1}}] )
+			      -| ['compiler_generated'] )
+			  end
+	      in  apply 'lc$^0'/1
+		      (_cor0)
+	      -| ['list_comprehension'] )
+	in  %% Line 302
+	    apply 'merge_specs'/1
+		(_cor6)
+'merge_specs'/1 =
+    %% Line 310
+    fun (_cor0) ->
+	case _cor0 of
+	  <[H = {_X_Ln1,{'specification',F,A}}|[{Ln2,{'func',_cor4,_cor5}}|T]]>
+	      when let <_cor6> =
+		    call 'erlang':'=:='
+			(_cor4, F)
+		in  let <_cor7> =
+			call 'erlang':'=:='
+			    (_cor5, A)
+		    in  call 'erlang':'and'
+			    (_cor6, _cor7) ->
+	      let <_cor1> =
+		  %% Line 311
+		  apply 'merge_specs'/1
+		      (T)
+	      in  %% Line 311
+		  [H|[{Ln2,{'func1',F,A}}|_cor1]]
+	  %% Line 312
+	  <[H|T]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 313
+		  apply 'merge_specs'/1
+		      (T)
+	      in  %% Line 313
+		  [H|_cor2]
+	  %% Line 314
+	  <[]> when 'true' ->
+	      %% Line 315
+	      []
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'merge_specs',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'anchor0'/1 =
+    %% Line 317
+    fun (_cor0) ->
+	%% Line 318
+	case apply 'anchor'/1
+		 (_cor0) of
+	  %% Line 319
+	  <{{Line,Col,_cor3,_cor4},Val}> when 'true' ->
+	      %% Line 320
+	      {{Line,Col},Val}
+	  %% Line 321
+	  <X = {{_cor5,_cor6},_cor7}> when 'true' ->
+	      %% Line 322
+	      X
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'anchor'/1 =
+    %% Line 325
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'function',Ln,F,A,_cor4}> when 'true' ->
+	      {Ln,{'func',F,A}}
+	  %% Line 326
+	  <{'attribute',Ln,'spec',{{F,A},_cor5}}> when 'true' ->
+	      %% Line 327
+	      {Ln,{'specification',F,A}}
+	  %% Line 328
+	  <{'attribute',Ln,'module',M}> when 'true' ->
+	      %% Line 329
+	      {Ln,{'module',M}}
+	  %% Line 330
+	  <{'attribute',Ln,Type,_cor6}> when 'true' ->
+	      {Ln,{Type,Ln}}
+	  %% Line 331
+	  <{'eof',Ln}> when 'true' ->
+	      {Ln,'eof'}
+	  %% Line 332
+	  <{'error',{Ln,_cor7,_cor8}}> when 'true' ->
+	      %% Line 334
+	      case Ln of
+		<{Line,Col}> when 'true' ->
+		    let <Ln1> =
+			%% Line 335
+			{Line,Col,0,[]}
+		    in  %% Line 336
+			{Ln1,{'error',Ln}}
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 337
+	  <{'tree','attribute',{'attr',Ln = {_cor9,_cor10,_cor11,Type},_cor12,_cor13},_cor14}> when 'true' ->
+	      %% Line 338
+	      {Ln,{'attribute',Type,Ln}}
+	  %% Line 339
+	  <{'tree','attribute',_cor15,%% Line 340
+				      {'attribute',{'atom',Ln,Type},_cor16}}> when 'true' ->
+	      %% Line 341
+	      {Ln,{'attribute',Type,Ln}}
+	  %% Line 342
+	  <X = {'tree','attribute',%% Line 343
+				   {'attr',Ln,[],'none'},_cor17}> when 'true' ->
+	      do  %% Line 345
+		  call 'io':'format'
+		      ([70|[73|[88|[32|[77|[69|[32|[116|[104|[105|[115|[32|[105|[115|[32|[97|[32|[98|[117|[103|[63|[63|[63|[63|[58|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [X|[]])
+		  %% Line 346
+		  {Ln,{'other',Ln}}
+	  %% Line 347
+	  <X> when 'true' ->
+	      do  %% Line 350
+		  call 'io':'format'
+		      ([70|[73|[88|[32|[77|[69|[32|[116|[104|[105|[115|[32|[105|[115|[32|[97|[32|[98|[117|[103|[63|[63|[63|[63|[58|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [X|[]])
+		  %% Line 351
+		  call 'erlang':'exit'
+		      (1)
+	end
+'resolve'/2 =
+    %% Line 353
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Tup = {F,A},D> when 'true' ->
+	      %% Line 354
+	      case call 'dict':'find'
+		       ({F,A}, D) of
+		%% Line 355
+		<{'ok',Mod}> when 'true' ->
+		    %% Line 356
+		    {'remote',Mod,F,A}
+		%% Line 357
+		<'error'> when 'true' ->
+		    %% Line 358
+		    case call 'erlang':'is_builtin'
+			     ('erlang', F, A) of
+		      %% Line 359
+		      <'true'> when 'true' ->
+			  {'bif',{F,A}}
+		      %% Line 360
+		      <'false'> when 'true' ->
+			  {'local',Tup}
+		      ( <_cor2> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor2})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 363
+	  <{'erlang',F,A},_cor6> when 'true' ->
+	      %% Line 364
+	      {'bif',{F,A}}
+	  %% Line 365
+	  <A = {'anchor',_cor7,_cor8},_cor9> when 'true' ->
+	      %% Line 366
+	      A
+	  %% Line 367
+	  <X,_X_D> when 'true' ->
+	      %% Line 368
+	      {'remote',X}
+	end
+'calls'/1 =
+    %% Line 370
+    fun (_cor0) ->
+	let <_cor1> =
+	    apply 'calls'/2
+		(_cor0, [])
+	in  call 'lists':'reverse'
+		(_cor1)
+'calls'/2 =
+    %% Line 372
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'call',_cor9,{'atom',Ln,Func},Args},L> when 'true' ->
+	      let <_cor3> =
+		  %% Line 373
+		  apply 'normalise'/1
+		      (Ln)
+	      in  let <_cor2> =
+		      %% Line 373
+		      call 'erlang':'length'
+			  (Args)
+		  in  %% Line 373
+		      apply 'calls'/2
+			  (Args, [{_cor3,{Func,_cor2}}|L])
+	  %% Line 374
+	  <{'call',_cor10,{'remote',_cor11,{'atom',Ln1,Mod},{'atom',_X_Ln2,Func}},Args},L> when 'true' ->
+	      let <_cor5> =
+		  %% Line 375
+		  apply 'normalise'/1
+		      (Ln1)
+	      in  let <_cor4> =
+		      %% Line 375
+		      call 'erlang':'length'
+			  (Args)
+		  in  %% Line 375
+		      apply 'calls'/2
+			  (Args, [{_cor5,{Mod,Func,_cor4}}|L])
+	  %% Line 376
+	  <T,L>
+	      when call 'erlang':'is_tuple'
+		    (T) ->
+	      let <_cor6> =
+		  %% Line 377
+		  call 'erlang':'tuple_to_list'
+		      (T)
+	      in  %% Line 377
+		  apply 'calls'/2
+		      (_cor6, L)
+	  %% Line 378
+	  <[],L> when 'true' ->
+	      %% Line 379
+	      L
+	  %% Line 380
+	  <T,L>
+	      when call 'erlang':'is_list'
+		    (T) ->
+	      %% Line 381
+	      call 'lists':'foldl'
+		  (( 'calls'/2
+		     -| [{'id',{0,0,'-calls/2-fun-0-'}}] ), L, T)
+	  %% Line 382
+	  <_cor12,L> when 'true' ->
+	      %% Line 383
+	      L
+	end
+'normalise'/1 =
+    %% Line 385
+    fun (_cor0) ->
+	case _cor0 of
+	  <X = {_X_Line,_X_Col}> when 'true' ->
+	      %% Line 386
+	      X
+	  %% Line 387
+	  <{Line,Col,_X_Len,_X_Text}> when 'true' ->
+	      %% Line 388
+	      {Line,Col}
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'normalise',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'prelude'/1 =
+    %% Line 391
+    fun (_cor0) ->
+	%% Line 392
+	[[60|[104|[116|[109|[108|[62|[10|[60|[104|[101|[97|[100|[62|[10|[60|[47|[104|[101|[97|[100|[62|[10|[60|[98|[111|[100|[121|[62|[10|[60|[117|[108|[62|[60|[112|[114|[101|[62|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|%% Line 396
+																											      [_cor0|[[10|[60|[47|[112|[114|[101|[62|[60|[47|[117|[108|[62|[60|[47|[98|[111|[100|[121|[62]]]]]]]]]]]]]]]]]]]]]]
+'final'/1 =
+    %% Line 399
+    fun (_cor0) ->
+	case _cor0 of
+	  <{Tag,Toks}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 400
+		  apply 'final1'/2
+		      (Tag, Toks)
+	      in  %% Line 400
+		  {Tag,{'taggedToks',_cor1}}
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'final',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'final1'/2 =
+    %% Line 402
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Tag,_cor6,_cor7},Toks>
+	      when let <_cor2> =
+		    call 'erlang':'=:='
+			(Tag, 'func')
+		in  let <_cor3> =
+			call 'erlang':'=:='
+			    (Tag, 'func1')
+		    in  call 'erlang':'or'
+			    (_cor2, _cor3) ->
+	      %% Line 404
+	      apply 'fix_remote'/1
+		  (Toks)
+	  %% Line 405
+	  <{'export',_cor8},Toks> when 'true' ->
+	      %% Line 406
+	      apply 'fix_exports'/1
+		  (Toks)
+	  %% Line 407
+	  <{'import',_cor9},Toks> when 'true' ->
+	      %% Line 408
+	      apply 'fix_imports'/1
+		  (Toks)
+	  %% Line 409
+	  <_cor10,Toks> when 'true' ->
+	      %% Line 411
+	      Toks
+	end
+'fix_imports'/1 =
+    %% Line 414
+    fun (_cor0) ->
+	let <Mod> =
+	    %% Line 416
+	    apply 'find_imported_module'/1
+		(_cor0)
+	in  %% Line 418
+	    apply 'fix_imports'/2
+		(_cor0, Mod)
+'fix_imports'/2 =
+    %% Line 420
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'atom',A}|[{'terminal',[47]}|[{'integer',N}|T]]],Mod> when 'true' ->
+	      let <_cor4> =
+		  %% Line 421
+		  call 'erlang':'list_to_integer'
+		      (N)
+	      in  let <_cor2> =
+		      %% Line 421
+		      [47|N]
+		  in  let <_cor3> =
+			  %% Line 421
+			  call 'erlang':'++'
+			      (A, _cor2)
+		      in  let <_cor5> =
+			      %% Line 422
+			      apply 'fix_imports'/2
+				  (T, Mod)
+			  in  %% Line 421
+			      [{'remote',Mod,A,_cor4,_cor3}|_cor5]
+	  %% Line 423
+	  <[H|T],Mod> when 'true' ->
+	      let <_cor6> =
+		  %% Line 424
+		  apply 'fix_imports'/2
+		      (T, Mod)
+	      in  %% Line 424
+		  [H|_cor6]
+	  %% Line 425
+	  <[],_cor9> when 'true' ->
+	      %% Line 426
+	      []
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7})
+		  -| [{'function_name',{'fix_imports',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'find_imported_module'/1 =
+    %% Line 429
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{'atom',[105|[109|[112|[111|[114|[116]]]]]]}|T]> when 'true' ->
+	      apply 'find_imported_module1'/1
+		  (T)
+	  %% Line 430
+	  <[_cor2|T]> when 'true' ->
+	      apply 'find_imported_module'/1
+		  (T)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'find_imported_module',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'find_imported_module1'/1 =
+    %% Line 432
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{'atom',M}|_cor2]> when 'true' ->
+	      call 'erlang':'list_to_atom'
+		  (M)
+	  %% Line 433
+	  <[_cor3|T]> when 'true' ->
+	      apply 'find_imported_module1'/1
+		  (T)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'find_imported_module1',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'fix_exports'/1 =
+    %% Line 438
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{'atom',A}|[{'terminal',[47]}|[{'integer',N}|T]]]> when 'true' ->
+	      let <_cor3> =
+		  %% Line 439
+		  call 'erlang':'list_to_integer'
+		      (N)
+	      in  let <_cor1> =
+		      %% Line 439
+		      [47|N]
+		  in  let <_cor2> =
+			  %% Line 439
+			  call 'erlang':'++'
+			      (A, _cor1)
+		      in  let <_cor4> =
+			      %% Line 439
+			      apply 'fix_exports'/1
+				  (T)
+			  in  %% Line 439
+			      [{'local',A,_cor3,_cor2}|_cor4]
+	  %% Line 440
+	  <[H|T]> when 'true' ->
+	      let <_cor5> =
+		  %% Line 441
+		  apply 'fix_exports'/1
+		      (T)
+	      in  %% Line 441
+		  [H|_cor5]
+	  %% Line 442
+	  <[]> when 'true' ->
+	      %% Line 443
+	      []
+	  ( <_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6})
+		  -| [{'function_name',{'fix_exports',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'fix_remote'/1 =
+    %% Line 452
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{'remote',M,F,A,Str}|[{'terminal',[58]}|[{'atom',Str1}|T]]]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 453
+		  [58|Str1]
+	      in  let <_cor2> =
+		      %% Line 453
+		      call 'erlang':'++'
+			  (Str, _cor1)
+		  in  let <_cor3> =
+			  %% Line 453
+			  apply 'fix_remote'/1
+			      (T)
+		      in  %% Line 453
+			  [{'remote',M,F,A,_cor2}|_cor3]
+	  %% Line 454
+	  <[{'remote',M,F,A,Str}|[{'white_space',S1}|[{'terminal',[58]}|[{'atom',Str1}|T]]]]> when 'true' ->
+	      let <_cor4> =
+		  %% Line 455
+		  [58|Str1]
+	      in  let <_cor5> =
+		      %% Line 455
+		      call 'erlang':'++'
+			  (S1, _cor4)
+		  in  let <_cor6> =
+			  %% Line 455
+			  call 'erlang':'++'
+			      (Str, _cor5)
+		      in  let <_cor7> =
+			      %% Line 455
+			      apply 'fix_remote'/1
+				  (T)
+			  in  %% Line 455
+			      [{'remote',M,F,A,_cor6}|_cor7]
+	  %% Line 456
+	  <[{'remote',M,F,A,Str}|[{'white_space',S1}|[{'terminal',[58]}|[{'white_space',S2}|[{'atom',Str1}|T]]]]]> when 'true' ->
+	      let <_cor8> =
+		  %% Line 457
+		  call 'erlang':'++'
+		      (S2, Str1)
+	      in  let <_cor9> =
+		      %% Line 457
+		      [58|_cor8]
+		  in  let <_cor10> =
+			  %% Line 457
+			  call 'erlang':'++'
+			      (S1, _cor9)
+		      in  let <_cor11> =
+			      %% Line 457
+			      call 'erlang':'++'
+				  (Str, _cor10)
+			  in  let <_cor12> =
+				  %% Line 457
+				  apply 'fix_remote'/1
+				      (T)
+			      in  %% Line 457
+				  [{'remote',M,F,A,_cor11}|_cor12]
+	  %% Line 458
+	  <[{'remote',M,F,A,Str}|[{'terminal',[58]}|[{'white_space',S2}|[{'atom',Str1}|T]]]]> when 'true' ->
+	      let <_cor13> =
+		  %% Line 459
+		  call 'erlang':'++'
+		      (S2, Str1)
+	      in  let <_cor14> =
+		      %% Line 459
+		      [58|_cor13]
+		  in  let <_cor15> =
+			  %% Line 459
+			  call 'erlang':'++'
+			      (Str, _cor14)
+		      in  let <_cor16> =
+			      %% Line 459
+			      apply 'fix_remote'/1
+				  (T)
+			  in  %% Line 459
+			      [{'remote',M,F,A,_cor15}|_cor16]
+	  %% Line 460
+	  <[H|T]> when 'true' ->
+	      let <_cor17> =
+		  %% Line 461
+		  apply 'fix_remote'/1
+		      (T)
+	      in  %% Line 461
+		  [H|_cor17]
+	  %% Line 462
+	  <[]> when 'true' ->
+	      %% Line 463
+	      []
+	  ( <_cor18> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor18})
+		  -| [{'function_name',{'fix_remote',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'is_keyword'/1 =
+    %% Line 467
+    fun (_cor0) ->
+	case _cor0 of
+	  <'after'> when 'true' ->
+	      'true'
+	  %% Line 468
+	  <'and'> when 'true' ->
+	      'true'
+	  %% Line 469
+	  <'andalso'> when 'true' ->
+	      'true'
+	  %% Line 470
+	  <'band'> when 'true' ->
+	      'true'
+	  %% Line 471
+	  <'begin'> when 'true' ->
+	      'true'
+	  %% Line 472
+	  <'bnot'> when 'true' ->
+	      'true'
+	  %% Line 473
+	  <'bor'> when 'true' ->
+	      'true'
+	  %% Line 474
+	  <'bsl'> when 'true' ->
+	      'true'
+	  %% Line 475
+	  <'bsr'> when 'true' ->
+	      'true'
+	  %% Line 476
+	  <'bxor'> when 'true' ->
+	      'true'
+	  %% Line 477
+	  <'case'> when 'true' ->
+	      'true'
+	  %% Line 478
+	  <'catch'> when 'true' ->
+	      'true'
+	  %% Line 479
+	  <'cond'> when 'true' ->
+	      'true'
+	  %% Line 480
+	  <'div'> when 'true' ->
+	      'true'
+	  %% Line 481
+	  <'end'> when 'true' ->
+	      'true'
+	  %% Line 482
+	  <'fun'> when 'true' ->
+	      'true'
+	  %% Line 483
+	  <'if'> when 'true' ->
+	      'true'
+	  %% Line 484
+	  <'not'> when 'true' ->
+	      'true'
+	  %% Line 485
+	  <'of'> when 'true' ->
+	      'true'
+	  %% Line 486
+	  <'or'> when 'true' ->
+	      'true'
+	  %% Line 487
+	  <'orelse'> when 'true' ->
+	      'true'
+	  %% Line 488
+	  <'receive'> when 'true' ->
+	      'true'
+	  %% Line 489
+	  <'rem'> when 'true' ->
+	      'true'
+	  %% Line 490
+	  <'spec'> when 'true' ->
+	      'true'
+	  %% Line 491
+	  <'try'> when 'true' ->
+	      'true'
+	  %% Line 492
+	  <'when'> when 'true' ->
+	      'true'
+	  %% Line 493
+	  <'xor'> when 'true' ->
+	      'true'
+	  %% Line 494
+	  <_cor2> when 'true' ->
+	      'false'
+	end
+'is_terminal'/1 =
+    %% Line 496
+    fun (_cor0) ->
+	case _cor0 of
+	  <'!'> when 'true' ->
+	      'true'
+	  %% Line 497
+	  <'#'> when 'true' ->
+	      'true'
+	  %% Line 498
+	  <'('> when 'true' ->
+	      'true'
+	  %% Line 499
+	  <')'> when 'true' ->
+	      'true'
+	  %% Line 500
+	  <'*'> when 'true' ->
+	      'true'
+	  %% Line 501
+	  <'+'> when 'true' ->
+	      'true'
+	  %% Line 502
+	  <'++'> when 'true' ->
+	      'true'
+	  %% Line 503
+	  <','> when 'true' ->
+	      'true'
+	  %% Line 504
+	  <'-'> when 'true' ->
+	      'true'
+	  %% Line 505
+	  <'--'> when 'true' ->
+	      'true'
+	  %% Line 506
+	  <'->'> when 'true' ->
+	      'true'
+	  %% Line 507
+	  <'.'> when 'true' ->
+	      'true'
+	  %% Line 508
+	  <'/'> when 'true' ->
+	      'true'
+	  %% Line 509
+	  <'/='> when 'true' ->
+	      'true'
+	  %% Line 510
+	  <':'> when 'true' ->
+	      'true'
+	  %% Line 511
+	  <':-'> when 'true' ->
+	      'true'
+	  %% Line 512
+	  <'::'> when 'true' ->
+	      'true'
+	  %% Line 513
+	  <';'> when 'true' ->
+	      'true'
+	  %% Line 514
+	  <'<'> when 'true' ->
+	      'true'
+	  %% Line 515
+	  <'<-'> when 'true' ->
+	      'true'
+	  %% Line 516
+	  <'<<'> when 'true' ->
+	      'true'
+	  %% Line 517
+	  <'<='> when 'true' ->
+	      'true'
+	  %% Line 518
+	  <'='> when 'true' ->
+	      'true'
+	  %% Line 519
+	  <'=/='> when 'true' ->
+	      'true'
+	  %% Line 520
+	  <'=:='> when 'true' ->
+	      'true'
+	  %% Line 521
+	  <'=<'> when 'true' ->
+	      'true'
+	  %% Line 522
+	  <'=='> when 'true' ->
+	      'true'
+	  %% Line 523
+	  <'>'> when 'true' ->
+	      'true'
+	  %% Line 524
+	  <'>='> when 'true' ->
+	      'true'
+	  %% Line 525
+	  <'>>'> when 'true' ->
+	      'true'
+	  %% Line 526
+	  <'?'> when 'true' ->
+	      'true'
+	  %% Line 527
+	  <'['> when 'true' ->
+	      'true'
+	  %% Line 528
+	  <']'> when 'true' ->
+	      'true'
+	  %% Line 529
+	  <'{'> when 'true' ->
+	      'true'
+	  %% Line 530
+	  <'|'> when 'true' ->
+	      'true'
+	  %% Line 531
+	  <'||'> when 'true' ->
+	      'true'
+	  %% Line 532
+	  <'}'> when 'true' ->
+	      'true'
+	  %% Line 533
+	  <_cor2> when 'true' ->
+	      'false'
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('demo_html_tagger')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('demo_html_tagger', _cor0)
+end

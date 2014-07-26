@@ -1,0 +1,177 @@
+module 'sshd_sup' ['init'/1,
+		   'module_info'/0,
+		   'module_info'/1,
+		   'start_child'/1,
+		   'start_link'/1,
+		   'stop_child'/1,
+		   'stop_child'/2,
+		   'system_name'/1]
+    attributes [%% Line 27
+		'behaviour' =
+		    %% Line 27
+		    ['supervisor']]
+'start_link'/1 =
+    %% Line 38
+    fun (_cor0) ->
+	%% Line 39
+	call 'supervisor':'start_link'
+	    ({'local','sshd_sup'}, 'sshd_sup', [_cor0|[]])
+'start_child'/1 =
+    %% Line 41
+    fun (_cor0) ->
+	let <Address> =
+	    %% Line 42
+	    call 'proplists':'get_value'
+		('address', _cor0)
+	in  let <Port> =
+		%% Line 43
+		call 'proplists':'get_value'
+		    ('port', _cor0)
+	    in  %% Line 44
+		case call 'ssh_system_sup':'system_supervisor'
+			 (Address, Port) of
+		  %% Line 45
+		  <'undefined'> when 'true' ->
+		      let <Spec> =
+			  %% Line 46
+			  apply 'child_spec'/3
+			      (Address, Port, _cor0)
+		      in  %% Line 47
+			  case call 'supervisor':'start_child'
+				   ('sshd_sup', Spec) of
+			    %% Line 48
+			    <{'error','already_present'}> when 'true' ->
+				let <Name> =
+				    %% Line 49
+				    apply 'id'/2
+					(Address, Port)
+				in  do  %% Line 50
+					call 'supervisor':'delete_child'
+					    ('sshd_sup', Name)
+					%% Line 51
+					call 'supervisor':'start_child'
+					    ('sshd_sup', Spec)
+			    %% Line 52
+			    <Reply> when 'true' ->
+				%% Line 53
+				Reply
+			  end
+		  %% Line 55
+		  <Pid> when 'true' ->
+		      let <AccPid> =
+			  %% Line 56
+			  call 'ssh_system_sup':'acceptor_supervisor'
+			      (Pid)
+		      in  %% Line 57
+			  call 'ssh_acceptor_sup':'start_child'
+			      (AccPid, _cor0)
+		end
+'stop_child'/1 =
+    %% Line 60
+    fun (_cor0) ->
+	%% Line 61
+	call 'supervisor':'terminate_child'
+	    ('sshd_sup', _cor0)
+'stop_child'/2 =
+    %% Line 63
+    fun (_cor1,_cor0) ->
+	let <Name> =
+	    %% Line 64
+	    apply 'id'/2
+		(_cor1, _cor0)
+	in  %% Line 65
+	    apply 'stop_child'/1
+		(Name)
+'system_name'/1 =
+    %% Line 67
+    fun (_cor0) ->
+	let <Children> =
+	    %% Line 68
+	    call 'supervisor':'which_children'
+		('sshd_sup')
+	in  %% Line 69
+	    apply 'system_name'/2
+		(_cor0, Children)
+'init'/1 =
+    %% Line 74
+    fun (_cor0) ->
+	case _cor0 of
+	  <[Servers|[]]> when 'true' ->
+	      let <Fun> =
+		  %% Line 78
+		  ( fun (_cor6) ->
+			let <Address> =
+			    %% Line 79
+			    call 'proplists':'get_value'
+				('address', _cor6)
+			in  let <Port> =
+				%% Line 80
+				call 'proplists':'get_value'
+				    ('port', _cor6)
+			    in  %% Line 81
+				apply 'child_spec'/3
+				    (Address, Port, _cor6)
+		    -| [{'id',{0,0,'-init/1-fun-0-'}}] )
+	      in  let <Children> =
+		      %% Line 83
+		      call 'lists':'map'
+			  (Fun, Servers)
+		  in  %% Line 84
+		      {'ok',{{'one_for_one',10,3600},Children}}
+	  ( <_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'child_spec'/3 =
+    %% Line 89
+    fun (_cor2,_cor1,_cor0) ->
+	let <Name> =
+	    %% Line 90
+	    apply 'id'/2
+		(_cor2, _cor1)
+	in  let <StartFunc> =
+		%% Line 91
+		{'ssh_system_sup','start_link',[_cor0|[]]}
+	    in  %% Line 96
+		{Name,StartFunc,'temporary','infinity','supervisor',['ssh_system_sup']}
+'id'/2 =
+    %% Line 98
+    fun (_cor1,_cor0) ->
+	%% Line 99
+	{'server','ssh_system_sup',_cor1,_cor0}
+'system_name'/2 =
+    %% Line 101
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_cor4> when 'true' ->
+	      %% Line 102
+	      'undefined'
+	  %% Line 103
+	  <SysSup,[{Name,_cor5,_cor6,_cor7}|_cor8]>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     SysSup) ->
+	      %% Line 104
+	      Name
+	  %% Line 105
+	  <SysSup,[_cor9|Rest]> when 'true' ->
+	      %% Line 106
+	      apply 'system_name'/2
+		  (SysSup, Rest)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'system_name',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('sshd_sup')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('sshd_sup', _cor0)
+end

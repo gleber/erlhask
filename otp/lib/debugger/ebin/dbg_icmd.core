@@ -1,0 +1,1310 @@
+module 'dbg_icmd' ['cmd'/3,
+		   'continue'/1,
+		   'eval'/2,
+		   'finish'/1,
+		   'get'/3,
+		   'get_binding'/2,
+		   'handle_msg'/4,
+		   'module_info'/0,
+		   'module_info'/1,
+		   'next'/1,
+		   'set'/3,
+		   'skip'/1,
+		   'step'/1,
+		   'stop'/1,
+		   'tell_attached'/1,
+		   'timeout'/1]
+    attributes []
+'cmd'/3 =
+    %% Line 53
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'call_remote',0,'ct_line','line',_X_As},Bs,_X_Ieval> when 'true' ->
+	      %% Line 54
+	      Bs
+	  %% Line 56
+	  <Expr,Bs,Ieval> when 'true' ->
+	      let <_cor3> =
+		  %% Line 57
+		  call 'erlang':'get'
+		      ('next_break')
+	      in  %% Line 57
+		  apply 'cmd'/4
+		      (Expr, Bs, _cor3, Ieval)
+	end
+'cmd'/4 =
+    %% Line 60
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Expr,Bs,'break',Ieval> when 'true' ->
+	      %% Line 61
+	      apply 'break'/3
+		  (Expr, Bs, Ieval)
+	  %% Line 64
+	  <Expr,Bs,'running',Ieval = {'ieval',Le,_cor18,M,_cor19,_cor20,_cor21}> when 'true' ->
+	      let <Line> =
+		  %% Line 65
+		  call 'erlang':'element'
+		      (2, Expr)
+	      in  %% Line 66
+		  case apply 'break_p'/4
+			   (M, Line, Le, Bs) of
+		    %% Line 67
+		    <'true'> when 'true' ->
+			do  %% Line 68
+			    call 'erlang':'put'
+				('next_break', 'break')
+			    %% Line 69
+			    apply 'break'/3
+				(Expr, Bs, Ieval)
+		    %% Line 70
+		    <'false'> when 'true' ->
+			%% Line 71
+			apply 'handle_cmd'/3
+			    (Bs, 'running', Ieval)
+		    ( <_cor5> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor5})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 75
+	  <Expr,Bs,Next,Ieval = {'ieval',Le,_cor22,_cor23,_cor24,_cor25,_cor26}>
+	      when let <_cor6> =
+		    call 'erlang':'is_integer'
+			(Next)
+		in  let <_cor7> =
+			%% Line 76
+			call 'erlang':'<'
+			    (Next, Le)
+		    in  call 'erlang':'and'
+			    (_cor6, _cor7) ->
+	      let <Line> =
+		  %% Line 77
+		  call 'erlang':'element'
+		      (2, Expr)
+	      in  let <_cor11> =
+		      %% Line 78
+		      call 'erlang':'setelement'
+			  (3, Ieval, Line)
+		  in  %% Line 78
+		      apply 'handle_cmd'/3
+			  (Bs, Next, _cor11)
+	  %% Line 80
+	  <Expr,Bs,Next,Ieval = {'ieval',Le,_cor34,_cor35,_cor36,_cor37,_cor38}>
+	      when let <_cor12> =
+		    call 'erlang':'is_integer'
+			(Next)
+		in  let <_cor13> =
+			%% Line 81
+			call 'erlang':'>='
+			    (Next, Le)
+		    in  call 'erlang':'and'
+			    (_cor12, _cor13) ->
+	      do  %% Line 82
+		  call 'erlang':'put'
+		      ('next_break', 'break')
+		  %% Line 83
+		  apply 'break'/3
+		      (Expr, Bs, Ieval)
+	  ( <_cor17,_cor16,_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor17,_cor16,_cor15,_cor14})
+		  -| [{'function_name',{'cmd',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'break_p'/4 =
+    %% Line 88
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 89
+	    call 'erlang':'get'
+		('breakpoints')
+	in  %% Line 89
+	    case call 'lists':'keysearch'
+		     ({_cor3,_cor2}, 1, _cor4) of
+	      %% Line 90
+	      <{'value',{_X_Point,['active'|[Action|[_cor22|[Cond|[]]]]]}}> when 'true' ->
+		  %% Line 91
+		  case call 'erlang':'get'
+			   ('user_eval') of
+		    %% Line 92
+		    <[{_cor23,_cor24}|_cor25]>
+			when let <_cor26> =
+			      call 'erlang':'=:='
+				  (_cor23, _cor2)
+			  in  let <_cor27> =
+				  call 'erlang':'=:='
+				      (_cor24, _cor1)
+			      in  call 'erlang':'and'
+				      (_cor26, _cor27) ->
+			'false'
+		    %% Line 93
+		    <_cor28> when 'true' ->
+			let <_cor11> =
+			    %% Line 94
+			    case Cond of
+			      %% Line 95
+			      <'null'> when 'true' ->
+				  'true'
+			      %% Line 96
+			      <{CM,CN}> when 'true' ->
+				  %% Line 97
+				  try
+				      call CM:CN
+					  (_cor0)
+				  of <_cor5> ->
+				      case _cor5 of
+					%% Line 98
+					<'true'> when 'true' ->
+					    'true'
+					%% Line 99
+					<'false'> when 'true' ->
+					    'false'
+					%% Line 100
+					<_X_Term> when 'true' ->
+					    'false'
+				      end
+				  catch <_cor9,_cor8,_cor7> ->
+				      %% Line 102
+				      'false'
+			      ( <_cor10> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor10})
+				-| ['compiler_generated'] )
+			    end
+			in  do  %% Line 105
+				case <> of
+				  %% Line 106
+				  <>
+				      when call 'erlang':'=:='
+					    (_cor11,
+					     'true') ->
+				      %% Line 107
+				      case Action of
+					%% Line 108
+					<'enable'> when 'true' ->
+					    'ok'
+					%% Line 109
+					<'disable'> when 'true' ->
+					    let <_cor13> =
+						%% Line 110
+						call 'erlang':'get'
+						    ('int')
+					    in  %% Line 110
+						call 'dbg_iserver':'cast'
+						    (_cor13, %% Line 111
+							     {'break_option',%% Line 112
+									     {_cor3,_cor2},%% Line 113
+											   'status',%% Line 114
+												    'inactive'})
+					%% Line 115
+					<'delete'> when 'true' ->
+					    let <_cor14> =
+						%% Line 116
+						call 'erlang':'get'
+						    ('int')
+					    in  %% Line 116
+						call 'dbg_iserver':'cast'
+						    (_cor14, %% Line 117
+							     {'delete_break',%% Line 118
+									     {_cor3,_cor2}})
+					( <_cor15> when 'true' ->
+					      primop 'match_fail'
+						  ({'case_clause',_cor15})
+					  -| ['compiler_generated'] )
+				      end
+				  %% Line 120
+				  <> when 'true' ->
+				      'ok'
+				end
+				_cor11
+		  end
+	      %% Line 124
+	      <_X_Other> when 'true' ->
+		  %% Line 125
+		  'false'
+	    end
+'break'/3 =
+    %% Line 130
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Expr,Bs,Ieval = {'ieval',Le,_cor12,M,_cor13,_cor14,_cor15}> when 'true' ->
+	      let <Line> =
+		  %% Line 131
+		  call 'erlang':'element'
+		      (2, Expr)
+	      in  let <_cor5> =
+		      %% Line 132
+		      call 'erlang':'get'
+			  ('int')
+		  in  let <_cor4> =
+			  %% Line 132
+			  call 'erlang':'self'
+			      ()
+		      in  do  %% Line 132
+			      call 'dbg_iserver':'cast'
+				  (_cor5, {'set_status',_cor4,'break',{M,Line}})
+			      do  %% Line 133
+				  apply 'tell_attached'/1
+				      ({'break_at',M,Line,Le})
+				  let <_cor8> =
+				      %% Line 134
+				      call 'erlang':'setelement'
+					  (3, Ieval, Line)
+				  in  %% Line 134
+				      apply 'handle_cmd'/3
+					  (Bs, 'break', _cor8)
+	  ( <_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'break',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_cmd'/3 =
+    %% Line 143
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Bs,'break',Ieval = {'ieval',Le,_cor11,_cor12,_cor13,_cor14,_cor15}> when 'true' ->
+	      %% Line 144
+	      receive
+		%% Line 145
+		<{'user',{'cmd',Cmd}}> when 'true' ->
+		    let <_cor4> =
+			%% Line 146
+			call 'erlang':'get'
+			    ('int')
+		    in  let <_cor3> =
+			    %% Line 146
+			    call 'erlang':'self'
+				()
+			in  do  %% Line 146
+				call 'dbg_iserver':'cast'
+				    (_cor4, {'set_status',_cor3,'running',{}})
+				do  %% Line 147
+				    apply 'tell_attached'/1
+					('running')
+				    %% Line 148
+				    case Cmd of
+				      %% Line 149
+				      <'step'> when 'true' ->
+					  Bs
+				      %% Line 150
+				      <'next'> when 'true' ->
+					  do  call 'erlang':'put'
+						  ('next_break', Le)
+					      Bs
+				      %% Line 151
+				      <'continue'> when 'true' ->
+					  do  call 'erlang':'put'
+						  ('next_break', 'running')
+					      Bs
+				      %% Line 152
+				      <'finish'> when 'true' ->
+					  let <_cor5> =
+					      call 'erlang':'-'
+						  (Le, 1)
+					  in  do  call 'erlang':'put'
+						      ('next_break', _cor5)
+						  Bs
+				      %% Line 153
+				      <'skip'> when 'true' ->
+					  {'skip',Bs}
+				      ( <_cor6> when 'true' ->
+					    primop 'match_fail'
+						({'case_clause',_cor6})
+					-| ['compiler_generated'] )
+				    end
+		%% Line 155
+		<{'user',{'eval',Cmd}}> when 'true' ->
+		    let <Bs1> =
+			%% Line 156
+			apply 'eval_nonrestricted'/3
+			    (Cmd, Bs, Ieval)
+		    in  %% Line 157
+			apply 'handle_cmd'/3
+			    (Bs1, 'break', Ieval)
+		%% Line 158
+		<Msg> when 'true' ->
+		    do  %% Line 159
+			call 'dbg_ieval':'check_exit_msg'
+			    (Msg, Bs, Ieval)
+			do  %% Line 160
+			    apply 'handle_msg'/4
+				(Msg, 'break', Bs, Ieval)
+			    %% Line 161
+			    apply 'handle_cmd'/3
+				(Bs, 'break', Ieval)
+	      after 'infinity' ->
+		'true'
+	  %% Line 163
+	  <Bs,Status,Ieval> when 'true' ->
+	      %% Line 164
+	      receive
+		%% Line 165
+		<Msg> when 'true' ->
+		    do  %% Line 166
+			call 'dbg_ieval':'check_exit_msg'
+			    (Msg, Bs, Ieval)
+			do  %% Line 167
+			    apply 'handle_msg'/4
+				(Msg, Status, Bs, Ieval)
+			    %% Line 168
+			    apply 'handle_cmd'/3
+				(Bs, Status, Ieval)
+	      after %% Line 169
+		    0 ->
+		%% Line 170
+		Bs
+	end
+'step'/1 =
+    %% Line 177
+    fun (_cor0) ->
+	call 'erlang':'!'
+	    (_cor0, {'user',{'cmd','step'}})
+'next'/1 =
+    %% Line 178
+    fun (_cor0) ->
+	call 'erlang':'!'
+	    (_cor0, {'user',{'cmd','next'}})
+'continue'/1 =
+    %% Line 179
+    fun (_cor0) ->
+	call 'erlang':'!'
+	    (_cor0, {'user',{'cmd','continue'}})
+'finish'/1 =
+    %% Line 180
+    fun (_cor0) ->
+	call 'erlang':'!'
+	    (_cor0, {'user',{'cmd','finish'}})
+'skip'/1 =
+    %% Line 181
+    fun (_cor0) ->
+	call 'erlang':'!'
+	    (_cor0, {'user',{'cmd','skip'}})
+'timeout'/1 =
+    %% Line 183
+    fun (_cor0) ->
+	call 'erlang':'!'
+	    (_cor0, {'user','timeout'})
+'stop'/1 =
+    %% Line 185
+    fun (_cor0) ->
+	call 'erlang':'!'
+	    (_cor0, {'user',{'cmd','stop'}})
+'eval'/2 =
+    %% Line 187
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Meta,{Mod,Cmd}> when 'true' ->
+	      %% Line 188
+	      apply 'eval'/2
+		  (Meta, {Mod,Cmd,'nostack'})
+	  %% Line 189
+	  <Meta,{Mod,Cmd,SP}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 190
+		  case call 'lists':'reverse'
+			   (Cmd) of
+		    %% Line 191
+		    <[10|[46|_cor8]]> when 'true' ->
+			Cmd
+		    %% Line 192
+		    <[10|T]> when 'true' ->
+			call 'lists':'reverse'
+			    ([10|[46|T]])
+		    %% Line 193
+		    <[46|T]> when 'true' ->
+			call 'lists':'reverse'
+			    ([10|[46|T]])
+		    %% Line 194
+		    <T> when 'true' ->
+			call 'lists':'reverse'
+			    ([10|[46|T]])
+		  end
+	      in  let <_cor5> =
+		      %% Line 196
+		      call 'erlang':'self'
+			  ()
+		  in  %% Line 196
+		      call 'erlang':'!'
+			  (Meta, {'user',{'eval',{_cor5,Mod,_cor3,SP}}})
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'eval',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'set'/3 =
+    %% Line 202
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 203
+	call 'erlang':'!'
+	    (_cor2, {'user',{'set',_cor1,_cor0}})
+'get'/3 =
+    %% Line 212
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 213
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 213
+		call 'erlang':'!'
+		    (_cor2, {'user',{'get',_cor1,_cor3,_cor0}})
+		%% Line 214
+		receive
+		  %% Line 215
+		  <{_cor7,_cor8,Reply}>
+		      when let <_cor9> =
+			    call 'erlang':'=:='
+				(_cor7, _cor2)
+			in  let <_cor10> =
+				call 'erlang':'=:='
+				    (_cor8, _cor1)
+			    in  call 'erlang':'and'
+				    (_cor9, _cor10) ->
+		      Reply
+		after 'infinity' ->
+		  'true'
+'handle_msg'/4 =
+    %% Line 223
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <{'int',Msg},Status,Bs,Ieval> when 'true' ->
+	      %% Line 224
+	      apply 'handle_int_msg'/4
+		  (Msg, Status, Bs, Ieval)
+	  %% Line 225
+	  <{'user',Msg},Status,Bs,Ieval> when 'true' ->
+	      %% Line 226
+	      apply 'handle_user_msg'/4
+		  (Msg, Status, Bs, Ieval)
+	  %% Line 227
+	  <Msg,Status,Bs,Ieval> when 'true' ->
+	      %% Line 228
+	      call 'io':'format'
+		  ([42|[42|[42|[87|[65|[82|[78|[73|[78|[71|[42|[42|[42|[32|[85|[110|[101|[120|[112|[32|[109|[115|[103|[32|[126|[112|[44|[32|[105|[110|[102|[111|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 229
+																											      [Msg|[{Status,Bs,Ieval}|[]]])
+	end
+'handle_int_msg'/4 =
+    %% Line 239
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <{'attached',AttPid},Status,_X_Bs,%% Line 240
+					    {'ieval',Le,Line,M,_cor30,_cor31,_cor32}> when 'true' ->
+	      do  %% Line 243
+		  call 'erlang':'put'
+		      ('attached', AttPid)
+		  do  %% Line 244
+		      call 'erlang':'put'
+			  ('next_break', 'break')
+		      %% Line 247
+		      case <> of
+			%% Line 248
+			<>
+			    when call 'erlang':'=:='
+				  (Le,
+				   1) ->
+			    let <_cor4> =
+				%% Line 249
+				call 'erlang':'get'
+				    ('trace')
+			    in  %% Line 249
+				apply 'tell_attached'/1
+				    ({'attached','undefined',-1,_cor4})
+			%% Line 250
+			<> when 'true' ->
+			    let <_cor6> =
+				%% Line 251
+				call 'erlang':'get'
+				    ('trace')
+			    in  do  %% Line 251
+				    apply 'tell_attached'/1
+					({'attached',M,Line,_cor6})
+				    let <_cor8> =
+					%% Line 255
+					case Status of
+					  %% Line 256
+					  <'idle'> when 'true' ->
+					      {'func_at',M,Line,Le}
+					  %% Line 257
+					  <'break'> when 'true' ->
+					      {'break_at',M,Line,Le}
+					  %% Line 258
+					  <'wait_at'> when 'true' ->
+					      {'wait_at',M,Line,Le}
+					  %% Line 259
+					  <'wait_after_at'> when 'true' ->
+					      {'wait_after_at',M,Line,Le}
+					  %% Line 260
+					  <_cor33> when 'true' ->
+					      'running'
+					end
+				    in  %% Line 262
+					apply 'tell_attached'/1
+					    (_cor8)
+		      end
+	  %% Line 264
+	  <'detached',_X_Status,_X_Bs,_X_Ieval> when 'true' ->
+	      do  %% Line 266
+		  call 'erlang':'put'
+		      ('attached', 'undefined')
+		  do  %% Line 267
+		      call 'erlang':'put'
+			  ('next_break', 'running')
+		      %% Line 268
+		      call 'erlang':'put'
+			  ('trace', 'false')
+	  %% Line 269
+	  <{'old_code',Mod},Status,Bs,Ieval = %% Line 270
+					      {'ieval',Le,_cor34,M,_cor35,_cor36,_cor37}> when 'true' ->
+	      %% Line 271
+	      case <> of
+		%% Line 272
+		<>
+		    when let <_cor10> =
+			  call 'erlang':'=:='
+			      (Status, 'idle')
+		      in  let <_cor11> =
+			      call 'erlang':'=:='
+				  (Le, 1)
+			  in  call 'erlang':'and'
+				  (_cor10, _cor11) ->
+		    do  %% Line 273
+			call 'erlang':'erase'
+			    ([Mod|'db'])
+			%% Line 274
+			call 'erlang':'put'
+			    ('cache', [])
+		%% Line 275
+		<> when 'true' ->
+		    %% Line 276
+		    case call 'dbg_istk':'in_use_p'
+			     (Mod, M) of
+		      %% Line 277
+		      <'true'> when 'true' ->
+			  let <_cor12> =
+			      %% Line 280
+			      call 'erlang':'get'
+				  ('self')
+			  in  do  %% Line 280
+				  call 'erlang':'exit'
+				      (_cor12, 'kill')
+				  %% Line 281
+				  call 'dbg_ieval':'exception'
+				      ('exit', 'old_code', Bs, Ieval)
+		      %% Line 282
+		      <'false'> when 'true' ->
+			  do  %% Line 283
+			      call 'erlang':'erase'
+				  ([Mod|'db'])
+			      %% Line 284
+			      call 'erlang':'put'
+				  ('cache', [])
+		      ( <_cor13> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor13})
+			-| ['compiler_generated'] )
+		    end
+	      end
+	  %% Line 287
+	  <{'new_break',Break},_X_Status,_X_Bs,_X_Ieval> when 'true' ->
+	      let <_cor14> =
+		  %% Line 288
+		  call 'erlang':'get'
+		      ('breakpoints')
+	      in  %% Line 288
+		  call 'erlang':'put'
+		      ('breakpoints', [Break|_cor14])
+	  %% Line 289
+	  <{'delete_break',Point},_X_Status,_X_Bs,_X_Ieval> when 'true' ->
+	      let <_cor15> =
+		  %% Line 290
+		  call 'erlang':'get'
+		      ('breakpoints')
+	      in  let <_cor16> =
+		      %% Line 290
+		      call 'lists':'keydelete'
+			  (Point, 1, _cor15)
+		  in  %% Line 290
+		      call 'erlang':'put'
+			  ('breakpoints', _cor16)
+	  %% Line 291
+	  <{'break_options',Break},_X_Status,_X_Bs,_X_Ieval> when 'true' ->
+	      %% Line 292
+	      case Break of
+		<{Point,_X_Options}> when 'true' ->
+		    let <_cor18> =
+			%% Line 293
+			call 'erlang':'get'
+			    ('breakpoints')
+		    in  let <_cor19> =
+			    %% Line 293
+			    call 'lists':'keyreplace'
+				(Point, 1, _cor18, Break)
+			in  %% Line 293
+			    call 'erlang':'put'
+				('breakpoints', _cor19)
+		( <_cor17> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor17})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 294
+	  <'no_break',_X_Status,_X_Bs,_X_Ieval> when 'true' ->
+	      %% Line 295
+	      call 'erlang':'put'
+		  ('breakpoints', [])
+	  %% Line 296
+	  <{'no_break',M},_X_Status,_X_Bs,_X_Ieval> when 'true' ->
+	      let <_cor25> =
+		  %% Line 297
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor23) ->
+				case _cor23 of
+				  <[ML = {Mod,_X_L}|_cor21]>
+				      when call 'erlang':'=/='
+					    (Mod,
+					     M) ->
+				      let <_cor24> =
+					  apply 'lc$^0'/1
+					      (_cor21)
+				      in  ( [ML|_cor24]
+					    -| ['compiler_generated'] )
+				  ( <[_cor20|_cor21]> when 'true' ->
+					apply 'lc$^0'/1
+					    (_cor21)
+				    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor23> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor23})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  let <_cor22> =
+			    call 'erlang':'get'
+				('breakpoints')
+			in  apply 'lc$^0'/1
+				(_cor22)
+		    -| ['list_comprehension'] )
+	      in  %% Line 297
+		  call 'erlang':'put'
+		      ('breakpoints', _cor25)
+	  %% Line 298
+	  <'stop','exit_at',_X_Bs,_X_Ieval> when 'true' ->
+	      %% Line 299
+	      call 'erlang':'exit'
+		  ('normal')
+	  ( <_cor29,_cor28,_cor27,_cor26> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor29,_cor28,_cor27,_cor26})
+		  -| [{'function_name',{'handle_int_msg',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_user_msg'/4 =
+    %% Line 312
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <{'cmd','stop'},Status,_X_Bs,_X_Ieval> when 'true' ->
+	      %% Line 313
+	      case call 'lists':'member'
+		       (Status, ['running'|['wait_at'|['wait_after_at']]]) of
+		%% Line 314
+		<'true'> when 'true' ->
+		    %% Line 315
+		    call 'erlang':'put'
+			('next_break', 'break')
+		%% Line 316
+		<'false'>
+		    when let <_cor4> =
+			  call 'erlang':'is_integer'
+			      (Status)
+		      in  let <_cor5> =
+			      call 'erlang':'is_tuple'
+				  (Status)
+			  in  call 'erlang':'or'
+				  (_cor4, _cor5) ->
+		    %% Line 317
+		    call 'erlang':'put'
+			('next_break', 'break')
+		%% Line 318
+		<'false'> when 'true' ->
+		    %% Line 319
+		    'ignore'
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 321
+	  <{'cmd','continue'},Status,_X_Bs,_X_Ieval> when 'true' ->
+	      %% Line 323
+	      case call 'lists':'member'
+		       (Status, ['wait_at'|['wait_after_at']]) of
+		%% Line 324
+		<'true'> when 'true' ->
+		    %% Line 325
+		    call 'erlang':'put'
+			('next_break', 'running')
+		%% Line 326
+		<'false'> when 'true' ->
+		    %% Line 327
+		    'ignore'
+		( <_cor7> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor7})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 329
+	  <{'cmd',_X_Cmd},_X_Status,_X_Bs,_X_Ieval> when 'true' ->
+	      %% Line 330
+	      'ignore'
+	  %% Line 331
+	  <'timeout',_X_Status,_X_Bs,_X_Ieval> when 'true' ->
+	      %% Line 332
+	      'ignore'
+	  %% Line 333
+	  <{'eval',Cmd},'wait_at',Bs,_X_Ieval> when 'true' ->
+	      %% Line 334
+	      apply 'eval_restricted'/2
+		  (Cmd, Bs)
+	  %% Line 335
+	  <{'eval',Cmd},'wait_after_at',Bs,_X_Ieval> when 'true' ->
+	      %% Line 336
+	      apply 'eval_restricted'/2
+		  (Cmd, Bs)
+	  %% Line 337
+	  <{'set','trace',Bool},_X_Status,_X_Bs,_X_Ieval> when 'true' ->
+	      do  %% Line 338
+		  call 'erlang':'put'
+		      ('trace', Bool)
+		  %% Line 339
+		  apply 'tell_attached'/1
+		      ({'trace',Bool})
+	  %% Line 340
+	  <{'set','stack_trace',Flag},_X_Status,_X_Bs,_X_Ieval> when 'true' ->
+	      %% Line 341
+	      apply 'set_stack_trace'/1
+		  (Flag)
+	  %% Line 342
+	  <{'get','bindings',From,SP},_X_Status,Bs,_X_Ieval> when 'true' ->
+	      let <_cor8> =
+		  %% Line 343
+		  apply 'bindings'/2
+		      (Bs, SP)
+	      in  %% Line 343
+		  apply 'reply'/3
+		      (From, 'bindings', _cor8)
+	  %% Line 344
+	  <{'get','stack_frame',From,{Dir,SP}},_X_Status,_X_Bs,_X_Ieval> when 'true' ->
+	      let <_cor9> =
+		  %% Line 345
+		  call 'dbg_istk':'stack_frame'
+		      (Dir, SP)
+	      in  %% Line 345
+		  apply 'reply'/3
+		      (From, 'stack_frame', _cor9)
+	  %% Line 346
+	  <{'get','messages',From,_cor16},_X_Status,_X_Bs,_X_Ieval> when 'true' ->
+	      let <_cor10> =
+		  %% Line 347
+		  apply 'messages'/0
+		      ()
+	      in  %% Line 347
+		  apply 'reply'/3
+		      (From, 'messages', _cor10)
+	  %% Line 348
+	  <{'get','backtrace',From,N},_X_Status,_X_Bs,Ieval> when 'true' ->
+	      let <_cor11> =
+		  %% Line 349
+		  call 'dbg_istk':'backtrace'
+		      (N, Ieval)
+	      in  %% Line 349
+		  apply 'reply'/3
+		      (From, 'backtrace', _cor11)
+	  ( <_cor15,_cor14,_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14,_cor13,_cor12})
+		  -| [{'function_name',{'handle_user_msg',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'set_stack_trace'/1 =
+    %% Line 351
+    fun (_cor0) ->
+	case _cor0 of
+	  <'true'> when 'true' ->
+	      %% Line 352
+	      apply 'set_stack_trace'/1
+		  ('all')
+	  %% Line 353
+	  <Flag> when 'true' ->
+	      do  %% Line 354
+		  case <> of
+		    %% Line 355
+		    <>
+			when call 'erlang':'=:='
+			      (Flag,
+			       'false') ->
+			%% Line 356
+			call 'erlang':'put'
+			    ('stack', [])
+		    %% Line 357
+		    <>
+			when let <_cor1> =
+			      call 'erlang':'=:='
+				  (Flag, 'no_tail')
+			  in  let <_cor2> =
+				  call 'erlang':'=:='
+				      (Flag, 'all')
+			      in  call 'erlang':'or'
+				      (_cor1, _cor2) ->
+			'ok'
+		    ( <> when 'true' ->
+			  primop 'match_fail'
+			      ('if_clause')
+		      -| ['compiler_generated'] )
+		  end
+		  do  %% Line 360
+		      call 'erlang':'put'
+			  ('trace_stack', Flag)
+		      %% Line 361
+		      apply 'tell_attached'/1
+			  ({'stack_trace',Flag})
+	end
+'reply'/3 =
+    %% Line 363
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 364
+	    call 'erlang':'self'
+		()
+	in  %% Line 364
+	    call 'erlang':'!'
+		(_cor2, {_cor3,_cor1,_cor0})
+'bindings'/2 =
+    %% Line 366
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Bs,'nostack'> when 'true' ->
+	      %% Line 367
+	      Bs
+	  %% Line 368
+	  <Bs,SP> when 'true' ->
+	      %% Line 369
+	      case call 'dbg_istk':'stack_level'
+		       () of
+		%% Line 370
+		<Le>
+		    when call 'erlang':'>'
+			  (SP,
+			   Le) ->
+		    %% Line 371
+		    Bs
+		%% Line 372
+		<_cor5> when 'true' ->
+		    %% Line 373
+		    call 'dbg_istk':'bindings'
+			(SP)
+	      end
+	end
+'messages'/0 =
+    %% Line 376
+    fun () ->
+	let <_cor0> =
+	    %% Line 377
+	    call 'erlang':'get'
+		('self')
+	in  %% Line 377
+	    case call 'erlang':'process_info'
+		     (_cor0, 'messages') of
+	      <{'messages',Msgs}> when 'true' ->
+		  %% Line 378
+		  Msgs
+	      ( <_cor1> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor1})
+		-| ['compiler_generated'] )
+	    end
+'eval_restricted'/2 =
+    %% Line 384
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{From,_X_Mod,Cmd,SP},Bs> when 'true' ->
+	      let <_cor2> =
+		  catch
+		      %% Line 385
+		      apply 'parse_cmd'/2
+			  (Cmd, 1)
+	      in  %% Line 385
+		  case _cor2 of
+		    %% Line 386
+		    <{'EXIT',_X_Reason}> when 'true' ->
+			let <_cor3> =
+			    %% Line 387
+			    call 'erlang':'self'
+				()
+			in  %% Line 387
+			    call 'erlang':'!'
+				(From, {_cor3,{'eval_rsp','Parse error'}})
+		    %% Line 388
+		    <[{'var',_cor14,Var}|[]]> when 'true' ->
+			let <Bs2> =
+			    %% Line 389
+			    apply 'bindings'/2
+				(Bs, SP)
+			in  let <_cor6> =
+				%% Line 390
+				case apply 'get_binding'/2
+					 (Var, Bs2) of
+				  %% Line 391
+				  <{'value',Value}> when 'true' ->
+				      Value
+				  %% Line 392
+				  <'unbound'> when 'true' ->
+				      'unbound'
+				  ( <_cor5> when 'true' ->
+					primop 'match_fail'
+					    ({'case_clause',_cor5})
+				    -| ['compiler_generated'] )
+				end
+			    in  let <_cor8> =
+				    %% Line 394
+				    call 'erlang':'self'
+					()
+				in  %% Line 394
+				    call 'erlang':'!'
+					(From, {_cor8,{'eval_rsp',_cor6}})
+		    %% Line 395
+		    <_X_Forms> when 'true' ->
+			let <_cor10> =
+			    %% Line 397
+			    call 'erlang':'self'
+				()
+			in  %% Line 397
+			    call 'erlang':'!'
+				(From, {_cor10,{'eval_rsp','Only possible to inspect variables'}})
+		  end
+	  ( <_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12})
+		  -| [{'function_name',{'eval_restricted',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'eval_nonrestricted'/3 =
+    %% Line 400
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{From,Mod,Cmd,SP},Bs,{'ieval',Le,_cor17,_cor18,_cor19,_cor20,_cor21}>
+	      when call 'erlang':'<'
+		    (SP,
+		     Le) ->
+	      do  %% Line 402
+		  apply 'eval_restricted'/2
+		      ({From,Mod,Cmd,SP}, Bs)
+		  %% Line 403
+		  Bs
+	  %% Line 404
+	  <{From,_X_Mod,Cmd,_X_SP},Bs,Ieval = %% Line 405
+					      {'ieval',Le,Line,M,_cor22,_cor23,_cor24}> when 'true' ->
+	      let <_cor4> =
+		  catch
+		      %% Line 406
+		      apply 'parse_cmd'/2
+			  (Cmd, Line)
+	      in  %% Line 406
+		  case _cor4 of
+		    %% Line 407
+		    <{'EXIT',_X_Reason}> when 'true' ->
+			let <_cor5> =
+			    %% Line 408
+			    call 'erlang':'self'
+				()
+			in  do  %% Line 408
+				call 'erlang':'!'
+				    (From, {_cor5,{'eval_rsp','Parse error'}})
+				%% Line 409
+				Bs
+		    %% Line 410
+		    <Forms> when 'true' ->
+			do  %% Line 411
+			    apply 'mark_running'/2
+				(Line, Le)
+			    let <_cor10> =
+				%% Line 413
+				( fun (_cor7,_cor6) ->
+				      case <_cor7,_cor6> of
+					<Expr,{_X_Res,Bs0}> when 'true' ->
+					    %% Line 414
+					    apply 'eval_nonrestricted_1'/3
+						(Expr, Bs0, Ieval)
+					( <_cor9,_cor8> when 'true' ->
+					      ( primop 'match_fail'
+						    ({'function_clause',_cor9,_cor8})
+						-| [{'function_name',{'-eval_nonrestricted/3-fun-0-',2}}] )
+					  -| ['compiler_generated'] )
+				      end
+				  -| [{'id',{0,0,'-eval_nonrestricted/3-fun-0-'}}] )
+			    in  %% Line 412
+				case %% Line 413
+				     call 'lists':'foldl'
+					 (_cor10, %% Line 416
+						  {'null',Bs}, %% Line 417
+							       Forms) of
+				  <{Res,Bs2}> when 'true' ->
+				      do  %% Line 418
+					  apply 'mark_break'/3
+					      (M, Line, Le)
+					  let <_cor12> =
+					      %% Line 419
+					      call 'erlang':'self'
+						  ()
+					  in  do  %% Line 419
+						  call 'erlang':'!'
+						      (From, {_cor12,{'eval_rsp',Res}})
+						  %% Line 420
+						  Bs2
+				  ( <_cor11> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor11})
+				    -| ['compiler_generated'] )
+				end
+		  end
+	  ( <_cor16,_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15,_cor14})
+		  -| [{'function_name',{'eval_nonrestricted',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'eval_nonrestricted_1'/3 =
+    %% Line 423
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'match',_cor20,{'var',_cor21,Var},Expr},Bs,Ieval> when 'true' ->
+	      %% Line 425
+	      case Ieval of
+		<{'ieval',_cor22,_cor23,_cor24,_cor25,_cor26,_cor27}> when 'true' ->
+		    let <_cor5> =
+			call 'erlang':'setelement'
+			    (7, Ieval, 'false')
+		    in  case call 'dbg_ieval':'eval_expr'
+				 (Expr, Bs, _cor5) of
+			  <{'value',Res,Bs2}> when 'true' ->
+			      let <_cor8> =
+				  %% Line 426
+				  case call 'lists':'keyfind'
+					   (Var, 1, Bs) of
+				    %% Line 427
+				    <{_cor29,_X_Value}>
+					when call 'erlang':'=:='
+					      (_cor29,
+					       Var) ->
+					%% Line 428
+					call 'lists':'keyreplace'
+					    (Var, 1, Bs2, {Var,Res})
+				    %% Line 429
+				    <'false'> when 'true' ->
+					[{Var,Res}|Bs2]
+				    ( <_cor7> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor7})
+				      -| ['compiler_generated'] )
+				  end
+			      in  %% Line 431
+				  {Res,_cor8}
+			  ( <_cor6> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor6})
+			    -| ['compiler_generated'] )
+			end
+		( <_cor28> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','ieval'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 432
+	  <{'var',_cor30,Var},Bs,_X_Ieval> when 'true' ->
+	      let <_cor11> =
+		  %% Line 433
+		  case call 'lists':'keyfind'
+			   (Var, 1, Bs) of
+		    %% Line 434
+		    <{_cor31,Value}>
+			when call 'erlang':'=:='
+			      (_cor31,
+			       Var) ->
+			Value
+		    %% Line 435
+		    <'false'> when 'true' ->
+			'unbound'
+		    ( <_cor10> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor10})
+		      -| ['compiler_generated'] )
+		  end
+	      in  %% Line 437
+		  {_cor11,Bs}
+	  %% Line 438
+	  <Expr,Bs,Ieval> when 'true' ->
+	      %% Line 440
+	      case Ieval of
+		<{'ieval',_cor32,_cor33,_cor34,_cor35,_cor36,_cor37}> when 'true' ->
+		    let <_cor15> =
+			call 'erlang':'setelement'
+			    (7, Ieval, 'false')
+		    in  case call 'dbg_ieval':'eval_expr'
+				 (Expr, Bs, _cor15) of
+			  <{'value',Res,Bs2}> when 'true' ->
+			      %% Line 441
+			      {Res,Bs2}
+			  ( <_cor16> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor16})
+			    -| ['compiler_generated'] )
+			end
+		( <_cor38> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','ieval'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	end
+'mark_running'/2 =
+    %% Line 443
+    fun (_cor1,_cor0) ->
+	do  %% Line 444
+	    call 'erlang':'put'
+		('next_break', 'running')
+	    let <_cor2> =
+		%% Line 445
+		call 'erlang':'get'
+		    ('user_eval')
+	    in  do  %% Line 445
+		    call 'erlang':'put'
+			('user_eval', [{_cor1,_cor0}|_cor2])
+		    let <_cor4> =
+			%% Line 446
+			call 'erlang':'get'
+			    ('int')
+		    in  let <_cor3> =
+			    %% Line 446
+			    call 'erlang':'self'
+				()
+			in  do  %% Line 446
+				call 'dbg_iserver':'cast'
+				    (_cor4, {'set_status',_cor3,'running',{}})
+				%% Line 447
+				apply 'tell_attached'/1
+				    ('running')
+'mark_break'/3 =
+    %% Line 449
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 450
+	    call 'erlang':'put'
+		('next_break', 'break')
+	    let <_cor3> =
+		%% Line 451
+		call 'erlang':'get'
+		    ('user_eval')
+	    in  let <_cor4> =
+		    %% Line 451
+		    call 'erlang':'tl'
+			(_cor3)
+		in  do  %% Line 451
+			call 'erlang':'put'
+			    ('user_eval', _cor4)
+			do  %% Line 452
+			    apply 'tell_attached'/1
+				({'break_at',_cor2,_cor1,_cor0})
+			    let <_cor6> =
+				%% Line 453
+				call 'erlang':'get'
+				    ('int')
+			    in  let <_cor5> =
+				    %% Line 453
+				    call 'erlang':'self'
+					()
+				in  %% Line 453
+				    call 'dbg_iserver':'cast'
+					(_cor6, {'set_status',_cor5,'break',{_cor2,_cor1}})
+'parse_cmd'/2 =
+    %% Line 455
+    fun (_cor1,_cor0) ->
+	%% Line 456
+	case call 'erl_scan':'string'
+		 (_cor1, _cor0) of
+	  <{'ok',Tokens,_cor6}> when 'true' ->
+	      %% Line 457
+	      case call 'erl_parse':'parse_exprs'
+		       (Tokens) of
+		<{'ok',Forms}> when 'true' ->
+		    %% Line 458
+		    Forms
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'tell_attached'/1 =
+    %% Line 464
+    fun (_cor0) ->
+	%% Line 465
+	case call 'erlang':'get'
+		 ('attached') of
+	  %% Line 466
+	  <'undefined'> when 'true' ->
+	      'ignore'
+	  %% Line 467
+	  <AttPid> when 'true' ->
+	      let <_cor1> =
+		  %% Line 468
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 468
+		      call 'erlang':'!'
+			  (AttPid, {_cor1,_cor0})
+		      %% Line 469
+		      'ignore'
+	end
+'get_binding'/2 =
+    %% Line 476
+    fun (_cor1,_cor0) ->
+	%% Line 477
+	case call 'lists':'keyfind'
+		 (_cor1, 1, _cor0) of
+	  %% Line 478
+	  <{_cor5,Value}>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     _cor1) ->
+	      {'value',Value}
+	  %% Line 479
+	  <'false'> when 'true' ->
+	      'unbound'
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('dbg_icmd')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('dbg_icmd', _cor0)
+end

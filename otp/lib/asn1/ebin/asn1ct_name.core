@@ -1,0 +1,494 @@
+module 'asn1ct_name' ['all'/1,
+		      'clear'/0,
+		      'curr'/1,
+		      'module_info'/0,
+		      'module_info'/1,
+		      'new'/1,
+		      'next'/1,
+		      'prev'/1,
+		      'start'/0]
+    attributes []
+'start'/0 =
+    %% Line 31
+    fun () ->
+	let <Parent> =
+	    %% Line 32
+	    call 'erlang':'self'
+		()
+	in  %% Line 33
+	    case call 'erlang':'get'
+		     ('asn1ct_name') of
+	      %% Line 34
+	      <'undefined'> when 'true' ->
+		  let <_cor2> =
+		      %% Line 35
+		      ( fun () ->
+			    let <Ref> =
+				%% Line 36
+				call 'erlang':'monitor'
+				    ('process', Parent)
+			    in  %% Line 37
+				apply 'name_server_loop'/2
+				    ({Ref,Parent}, [])
+			-| [{'id',{0,0,'-start/0-fun-0-'}}] )
+		  in  let <_cor3> =
+			  %% Line 35
+			  call 'erlang':'spawn_link'
+			      (_cor2)
+		      in  do  %% Line 35
+			      call 'erlang':'put'
+				  ('asn1ct_name', _cor3)
+			      %% Line 39
+			      'ok'
+	      %% Line 40
+	      <_X_Pid> when 'true' ->
+		  %% Line 42
+		  apply 'clear'/0
+		      ()
+	    end
+'name_server_loop'/2 =
+    %% Line 45
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Monitor = {Ref,Parent},Vars> when 'true' ->
+	      %% Line 47
+	      receive
+		%% Line 48
+		<{_X_From,'clear'}> when 'true' ->
+		    %% Line 49
+		    apply 'name_server_loop'/2
+			(Monitor, [])
+		%% Line 50
+		<{From,{'current',Variable}}> when 'true' ->
+		    let <_cor2> =
+			%% Line 51
+			apply 'get_curr'/2
+			    (Vars, Variable)
+		    in  do  %% Line 51
+			    call 'erlang':'!'
+				(From, {'asn1ct_name',_cor2})
+			    %% Line 52
+			    apply 'name_server_loop'/2
+				(Monitor, Vars)
+		%% Line 53
+		<{_X_From,{'new',Variable}}> when 'true' ->
+		    let <_cor3> =
+			%% Line 54
+			apply 'new_var'/2
+			    (Vars, Variable)
+		    in  %% Line 54
+			apply 'name_server_loop'/2
+			    (Monitor, _cor3)
+		%% Line 55
+		<{From,{'prev',Variable}}> when 'true' ->
+		    let <_cor4> =
+			%% Line 56
+			apply 'get_prev'/2
+			    (Vars, Variable)
+		    in  do  %% Line 56
+			    call 'erlang':'!'
+				(From, {'asn1ct_name',_cor4})
+			    %% Line 57
+			    apply 'name_server_loop'/2
+				(Monitor, Vars)
+		%% Line 58
+		<{From,{'next',Variable}}> when 'true' ->
+		    let <_cor5> =
+			%% Line 59
+			apply 'get_next'/2
+			    (Vars, Variable)
+		    in  do  %% Line 59
+			    call 'erlang':'!'
+				(From, {'asn1ct_name',_cor5})
+			    %% Line 60
+			    apply 'name_server_loop'/2
+				(Monitor, Vars)
+		%% Line 61
+		<{'DOWN',_cor8,'process',_cor9,Reason}>
+		    when let <_cor10> =
+			  call 'erlang':'=:='
+			      (_cor8, Ref)
+		      in  let <_cor11> =
+			      call 'erlang':'=:='
+				  (_cor9, Parent)
+			  in  call 'erlang':'and'
+				  (_cor10, _cor11) ->
+		    %% Line 62
+		    call 'erlang':'exit'
+			(Reason)
+	      after 'infinity' ->
+		'true'
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'name_server_loop',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'req'/1 =
+    %% Line 65
+    fun (_cor0) ->
+	let <Pid> =
+	    %% Line 66
+	    call 'erlang':'get'
+		('asn1ct_name')
+	in  let <Ref> =
+		%% Line 67
+		call 'erlang':'monitor'
+		    ('process', Pid)
+	    in  let <_cor3> =
+		    %% Line 68
+		    call 'erlang':'self'
+			()
+		in  do  %% Line 68
+			call 'erlang':'!'
+			    (Pid, {_cor3,_cor0})
+			%% Line 69
+			receive
+			  %% Line 70
+			  <{'asn1ct_name',Reply}> when 'true' ->
+			      %% Line 71
+			      Reply
+			  %% Line 72
+			  <{'DOWN',_cor5,'process',_cor6,Reason}>
+			      when let <_cor7> =
+				    call 'erlang':'=:='
+					(_cor5, Ref)
+				in  let <_cor8> =
+					call 'erlang':'=:='
+					    (_cor6, Pid)
+				    in  call 'erlang':'and'
+					    (_cor7, _cor8) ->
+			      %% Line 73
+			      call 'erlang':'error'
+				  ({'name_server_died',Reason})
+			after 'infinity' ->
+			  'true'
+'cast'/1 =
+    %% Line 76
+    fun (_cor0) ->
+	let <_cor2> =
+	    %% Line 77
+	    call 'erlang':'get'
+		('asn1ct_name')
+	in  let <_cor1> =
+		%% Line 77
+		call 'erlang':'self'
+		    ()
+	    in  do  %% Line 77
+		    call 'erlang':'!'
+			(_cor2, {_cor1,_cor0})
+		    %% Line 78
+		    'ok'
+'clear'/0 =
+    %% Line 80
+    fun () ->
+	apply 'cast'/1
+	    ('clear')
+'curr'/1 =
+    %% Line 81
+    fun (_cor0) ->
+	apply 'req'/1
+	    ({'current',_cor0})
+'new'/1 =
+    %% Line 82
+    fun (_cor0) ->
+	apply 'cast'/1
+	    ({'new',_cor0})
+'prev'/1 =
+    %% Line 84
+    fun (_cor0) ->
+	%% Line 85
+	case apply 'req'/1
+		 ({'prev',_cor0}) of
+	  %% Line 86
+	  <'none'> when 'true' ->
+	      %% Line 87
+	      call 'erlang':'exit'
+		  ('cant get prev of none')
+	  %% Line 88
+	  <Rep> when 'true' ->
+	      Rep
+	end
+'next'/1 =
+    %% Line 91
+    fun (_cor0) ->
+	%% Line 92
+	apply 'req'/1
+	    ({'next',_cor0})
+'all'/1 =
+    %% Line 94
+    fun (_cor0) ->
+	let <Curr> =
+	    %% Line 95
+	    apply 'curr'/1
+		(_cor0)
+	in  %% Line 96
+	    case <> of
+	      <>
+		  when call 'erlang':'=='
+			(Curr,
+			 _cor0) ->
+		  []
+	      %% Line 97
+	      <> when 'true' ->
+		  let <_cor2> =
+		      %% Line 98
+		      apply 'last'/1
+			  (Curr)
+		  in  let <_cor3> =
+			  %% Line 98
+			  apply 'generate'/4
+			      (_cor0, _cor2, [], 0)
+		      in  %% Line 98
+			  call 'lists':'reverse'
+			      (_cor3)
+	    end
+'generate'/4 =
+    %% Line 101
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <Ell> =
+	    %% Line 102
+	    call 'erlang':'+'
+		(_cor0, 1)
+	in  %% Line 103
+	    case <> of
+	      %% Line 104
+	      <>
+		  when call 'erlang':'>'
+			(Ell,
+			 _cor2) ->
+		  _cor1
+	      %% Line 106
+	      <> when 'true' ->
+		  let <_cor5> =
+		      %% Line 107
+		      call 'lists':'concat'
+			  ([_cor3|[Ell|[]]])
+		  in  let <_cor6> =
+			  %% Line 107
+			  call 'erlang':'list_to_atom'
+			      (_cor5)
+		      in  %% Line 107
+			  apply 'generate'/4
+			      (_cor3, _cor2, [_cor6|_cor1], Ell)
+	    end
+'last'/1 =
+    %% Line 110
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 111
+	    call 'erlang':'atom_to_list'
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 111
+		call 'lists':'reverse'
+		    (_cor1)
+	    in  %% Line 111
+		apply 'last2'/1
+		    (_cor2)
+'last2'/1 =
+    %% Line 113
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 114
+	    apply 'get_digs'/1
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 114
+		call 'lists':'reverse'
+		    (_cor1)
+	    in  %% Line 114
+		call 'erlang':'list_to_integer'
+		    (_cor2)
+'get_digs'/1 =
+    %% Line 117
+    fun (_cor0) ->
+	case _cor0 of
+	  <[H|T]> when 'true' ->
+	      %% Line 118
+	      case <> of
+		%% Line 119
+		<>
+		    when let <_cor2> =
+			  call 'erlang':'<'
+			      (H, 58)
+		      in  let <_cor4> =
+			      %% Line 120
+			      call 'erlang':'>'
+				  (H, 47)
+			  in  call 'erlang':'and'
+				  (_cor2, _cor4) ->
+		    let <_cor5> =
+			%% Line 121
+			apply 'get_digs'/1
+			    (T)
+		    in  %% Line 121
+			[H|_cor5]
+		%% Line 122
+		<> when 'true' ->
+		    %% Line 123
+		    []
+	      end
+	  ( <_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6})
+		  -| [{'function_name',{'get_digs',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_curr'/2 =
+    %% Line 126
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Variable> when 'true' ->
+	      %% Line 127
+	      Variable
+	  %% Line 128
+	  <[{Variable,Digit}|_X_Tail],_cor5>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     Variable) ->
+	      let <_cor2> =
+		  %% Line 129
+		  call 'lists':'concat'
+		      ([Variable|[Digit|[]]])
+	      in  %% Line 129
+		  call 'erlang':'list_to_atom'
+		      (_cor2)
+	  %% Line 130
+	  <[_cor6|Tail],Variable> when 'true' ->
+	      %% Line 131
+	      apply 'get_curr'/2
+		  (Tail, Variable)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'get_curr',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'new_var'/2 =
+    %% Line 133
+    fun (_cor1,_cor0) ->
+	%% Line 134
+	case call 'lists':'keyfind'
+		 (_cor0, 1, _cor1) of
+	  %% Line 135
+	  <'false'> when 'true' ->
+	      %% Line 136
+	      [{_cor0,1}|_cor1]
+	  %% Line 137
+	  <{_cor7,Digit}>
+	      when call 'erlang':'=:='
+		    (_cor7,
+		     _cor0) ->
+	      let <NewVars> =
+		  %% Line 138
+		  call 'lists':'keydelete'
+		      (_cor0, 1, _cor1)
+	      in  let <_cor3> =
+		      %% Line 139
+		      call 'erlang':'+'
+			  (Digit, 1)
+		  in  %% Line 139
+		      [{_cor0,_cor3}|NewVars]
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'get_prev'/2 =
+    %% Line 142
+    fun (_cor1,_cor0) ->
+	%% Line 143
+	case call 'lists':'keyfind'
+		 (_cor0, 1, _cor1) of
+	  %% Line 144
+	  <'false'> when 'true' ->
+	      %% Line 145
+	      'none'
+	  %% Line 146
+	  <{_cor7,Digit}>
+	      when let <_cor8> =
+		    call 'erlang':'=:='
+			(_cor7, _cor0)
+		in  let <_cor9> =
+			call 'erlang':'=<'
+			    (Digit, 1)
+		    in  call 'erlang':'and'
+			    (_cor8, _cor9) ->
+	      _cor0
+	  %% Line 148
+	  <{_cor10,Digit}>
+	      when let <_cor11> =
+		    call 'erlang':'=:='
+			(_cor10, _cor0)
+		in  let <_cor12> =
+			call 'erlang':'>'
+			    (Digit, 1)
+		    in  call 'erlang':'and'
+			    (_cor11, _cor12) ->
+	      let <_cor2> =
+		  %% Line 149
+		  call 'erlang':'-'
+		      (Digit, 1)
+	      in  let <_cor3> =
+		      %% Line 149
+		      call 'lists':'concat'
+			  ([_cor0|[_cor2|[]]])
+		  in  %% Line 149
+		      call 'erlang':'list_to_atom'
+			  (_cor3)
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'get_next'/2 =
+    %% Line 152
+    fun (_cor1,_cor0) ->
+	%% Line 153
+	case call 'lists':'keyfind'
+		 (_cor0, 1, _cor1) of
+	  %% Line 154
+	  <'false'> when 'true' ->
+	      let <_cor2> =
+		  %% Line 155
+		  call 'lists':'concat'
+		      ([_cor0|[[49]]])
+	      in  %% Line 155
+		  call 'erlang':'list_to_atom'
+		      (_cor2)
+	  %% Line 156
+	  <{_cor8,Digit}>
+	      when let <_cor9> =
+		    call 'erlang':'=:='
+			(_cor8, _cor0)
+		in  let <_cor10> =
+			call 'erlang':'>='
+			    (Digit, 0)
+		    in  call 'erlang':'and'
+			    (_cor9, _cor10) ->
+	      let <_cor3> =
+		  %% Line 157
+		  call 'erlang':'+'
+		      (Digit, 1)
+	      in  let <_cor4> =
+		      %% Line 157
+		      call 'lists':'concat'
+			  ([_cor0|[_cor3|[]]])
+		  in  %% Line 157
+		      call 'erlang':'list_to_atom'
+			  (_cor4)
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('asn1ct_name')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('asn1ct_name', _cor0)
+end

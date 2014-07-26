@@ -1,0 +1,174 @@
+module 'distrib_draw' ['init'/0,
+		       'module_info'/0,
+		       'module_info'/1,
+		       'start'/2]
+    attributes []
+'start'/2 =
+    %% Line 54
+    fun (_cor1,_cor0) ->
+	let <Pid1> =
+	    %% Line 55
+	    call 'erlang':'spawn'
+		(_cor1, 'distrib_draw', 'init', [])
+	in  let <Pid2> =
+		%% Line 56
+		call 'erlang':'spawn'
+		    (_cor0, 'distrib_draw', 'init', [])
+	    in  do  %% Line 57
+		    call 'erlang':'!'
+			(Pid1, {'connect','red',Pid2})
+		    %% Line 58
+		    call 'erlang':'!'
+			(Pid2, {'connect','green',Pid1})
+'init'/0 =
+    %% Line 60
+    fun () ->
+	do  %% Line 61
+	    call 'erlang':'process_flag'
+		('trap_exit', 'true')
+	    let <S> =
+		%% Line 62
+		call 'gs':'start'
+		    ()
+	    in  %% Line 63
+		receive
+		  %% Line 64
+		  <{'connect',Color,Pid}> when 'true' ->
+		      do  %% Line 65
+			  call 'erlang':'link'
+			      (Pid)
+			  do  %% Line 66
+			      call 'gs':'window'
+				  ('win', S, [{'buttonpress','true'}|[{'buttonrelease','true'}|%% Line 67
+											       [{'configure','true'}|[{'title',Color}|[{'map','true'}]]]]])
+			      do  %% Line 68
+				  call 'gs':'canvas'
+				      ('canvas', 'win', [{'bg','grey'}|[{'width',300}|[{'height',200}]]])
+				  %% Line 69
+				  apply 'draw0'/4
+				      (0, 0, Color, Pid)
+		after %% Line 71
+		      3000 ->
+		  %% Line 71
+		  call 'erlang':'exit'
+		      ('timeout')
+'draw0'/4 =
+    %% Line 75
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 76
+	receive
+	  %% Line 77
+	  <{'gs',_cor8,'buttonpress',_cor9,[1|[X|[Y|_cor10]]]}> when 'true' ->
+	      do  %% Line 78
+		  call 'gs':'config'
+		      ('win', {'motion','true'})
+		  %% Line 79
+		  apply 'draw1'/4
+		      (X, Y, _cor1, _cor0)
+	  %% Line 80
+	  <{'draw',Coords,Col2}> when 'true' ->
+	      do  %% Line 81
+		  call 'gs':'line'
+		      ('canvas', [{'coords',Coords}|[{'width',2}|[{'fg',Col2}|[]]]])
+		  %% Line 82
+		  apply 'draw0'/4
+		      (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 83
+	  <{'gs',_cor11,'configure',_cor12,[300|[200|_cor13]]}> when 'true' ->
+	      %% Line 84
+	      apply 'draw0'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 85
+	  <{'gs',_cor14,'configure',_cor15,_cor16}> when 'true' ->
+	      do  %% Line 86
+		  call 'gs':'config'
+		      ('win', [{'width',300}|[{'height',200}]])
+		  %% Line 87
+		  apply 'draw0'/4
+		      (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 88
+	  <{'gs',_cor17,'destroy',_cor18,_cor19}> when 'true' ->
+	      %% Line 89
+	      call 'erlang':'exit'
+		  ('normal')
+	  %% Line 90
+	  <{'EXIT',_cor20,_cor21}> when 'true' ->
+	      %% Line 91
+	      call 'erlang':'exit'
+		  ('normal')
+	  %% Line 92
+	  <_X_X> when 'true' ->
+	      apply 'draw1'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	after 'infinity' ->
+	  'true'
+'draw1'/4 =
+    %% Line 96
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 97
+	receive
+	  %% Line 98
+	  <{'gs',_cor8,'motion',_cor9,[X|[Y|_cor10]]}> when 'true' ->
+	      do  %% Line 99
+		  call 'erlang':'!'
+		      (_cor0, {'draw',[{_cor3,_cor2}|[{X,Y}|[]]],_cor1})
+		  do  %% Line 100
+		      call 'gs':'line'
+			  ('canvas', [{'coords',[{_cor3,_cor2}|[{X,Y}|[]]]}|[{'width',2}|[{'fg',_cor1}|[]]]])
+		      %% Line 101
+		      apply 'draw1'/4
+			  (X, Y, _cor1, _cor0)
+	  %% Line 102
+	  <{'draw',Coords,Col2}> when 'true' ->
+	      do  %% Line 103
+		  call 'gs':'line'
+		      ('canvas', [{'coords',Coords}|[{'width',2}|[{'fg',Col2}|[]]]])
+		  %% Line 104
+		  apply 'draw1'/4
+		      (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 105
+	  <{'gs',_cor11,'buttonrelease',_cor12,[1|[X|[Y|_cor13]]]}> when 'true' ->
+	      do  %% Line 106
+		  call 'gs':'config'
+		      ('win', {'motion','false'})
+		  %% Line 107
+		  apply 'draw0'/4
+		      (X, Y, _cor1, _cor0)
+	  %% Line 108
+	  <{'gs',_cor14,'configure',_cor15,[300|[200|_cor16]]}> when 'true' ->
+	      %% Line 109
+	      apply 'draw0'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 110
+	  <{'gs',_cor17,'configure',_cor18,_cor19}> when 'true' ->
+	      do  %% Line 111
+		  call 'gs':'config'
+		      ('win', [{'width',300}|[{'height',200}]])
+		  %% Line 112
+		  apply 'draw0'/4
+		      (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 113
+	  <{'gs',_cor20,'destroy',_cor21,_cor22}> when 'true' ->
+	      %% Line 114
+	      call 'erlang':'exit'
+		  ('normal')
+	  %% Line 115
+	  <{'EXIT',_cor23,_cor24}> when 'true' ->
+	      %% Line 116
+	      call 'erlang':'exit'
+		  ('normal')
+	  %% Line 117
+	  <_X_X> when 'true' ->
+	      apply 'draw1'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	after 'infinity' ->
+	  'true'
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('distrib_draw')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('distrib_draw', _cor0)
+end

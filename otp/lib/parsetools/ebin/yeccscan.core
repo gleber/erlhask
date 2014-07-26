@@ -1,0 +1,150 @@
+module 'yeccscan' ['module_info'/0,
+		   'module_info'/1,
+		   'scan'/1,
+		   'scan'/3]
+    attributes []
+'scan'/1 =
+    %% Line 23
+    fun (_cor0) ->
+	%% Line 24
+	apply 'scan'/3
+	    (_cor0, '', 1)
+'scan'/3 =
+    %% Line 26
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    catch
+		%% Line 27
+		call 'io':'scan_erl_form'
+		    (_cor2, _cor1, _cor0)
+	in  %% Line 27
+	    case _cor3 of
+	      %% Line 28
+	      <{'eof',Line2}> when 'true' ->
+		  %% Line 29
+		  {'eof',Line2}
+	      %% Line 30
+	      <{'ok',Tokens,Line2}> when 'true' ->
+		  %% Line 31
+		  case Tokens of
+		    %% Line 32
+		    <[]> when 'true' ->
+			%% Line 33
+			apply 'scan'/3
+			    (_cor2, _cor1, Line2)
+		    %% Line 34
+		    <_cor10> when 'true' ->
+			let <_cor4> =
+			    %% Line 35
+			    apply 'lex'/1
+				(Tokens)
+			in  %% Line 35
+			    {'ok',_cor4,Line2}
+		  end
+	      %% Line 37
+	      <{'error',Reason}> when 'true' ->
+		  %% Line 38
+		  {'error',Reason}
+	      %% Line 39
+	      <{'error',Descriptor,Line2}> when 'true' ->
+		  %% Line 40
+		  {'error',Descriptor,Line2}
+	      %% Line 41
+	      <{'EXIT',Why}> when 'true' ->
+		  do  %% Line 42
+		      call 'io':'format'
+			  ('yeccscan: Error scanning input line ~w~n', [_cor0|[]])
+		      %% Line 43
+		      call 'erlang':'exit'
+			  (Why)
+	      ( <_cor6> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor6})
+		-| ['compiler_generated'] )
+	    end
+'lex'/1 =
+    %% Line 46
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 47
+	      []
+	  %% Line 48
+	  <[Token|Tokens]> when 'true' ->
+	      %% Line 49
+	      case Token of
+		%% Line 50
+		<{'dot',Line}> when 'true' ->
+		    let <_cor1> =
+			%% Line 51
+			apply 'lex'/1
+			    (Tokens)
+		    in  %% Line 51
+			[{'dot',Line}|_cor1]
+		%% Line 52
+		<{':',Line}> when 'true' ->
+		    let <_cor2> =
+			%% Line 53
+			apply 'lex'/1
+			    (Tokens)
+		    in  %% Line 53
+			[{':',Line}|_cor2]
+		%% Line 54
+		<{'->',Line}> when 'true' ->
+		    let <_cor3> =
+			%% Line 55
+			apply 'lex'/1
+			    (Tokens)
+		    in  %% Line 55
+			[{'->',Line}|_cor3]
+		%% Line 56
+		<{Category,Line,Symbol}> when 'true' ->
+		    let <_cor4> =
+			%% Line 57
+			apply 'lex'/1
+			    (Tokens)
+		    in  %% Line 57
+			[{Category,Line,Symbol}|_cor4]
+		%% Line 58
+		<{Other,Line}> when 'true' ->
+		    let <_cor6> =
+			%% Line 59
+			case call 'erl_scan':'reserved_word'
+				 (Other) of
+			  %% Line 60
+			  <'true'> when 'true' ->
+			      'reserved_word'
+			  %% Line 61
+			  <'false'> when 'true' ->
+			      'reserved_symbol'
+			  ( <_cor5> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor5})
+			    -| ['compiler_generated'] )
+			end
+		    in  let <_cor8> =
+			    %% Line 63
+			    apply 'lex'/1
+				(Tokens)
+			in  %% Line 63
+			    [{_cor6,Line,Other}|_cor8]
+		( <_cor9> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor9})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10})
+		  -| [{'function_name',{'lex',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('yeccscan')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('yeccscan', _cor0)
+end

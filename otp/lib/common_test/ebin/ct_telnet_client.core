@@ -1,0 +1,729 @@
+module 'ct_telnet_client' ['close'/1,
+			   'get_data'/1,
+			   'module_info'/0,
+			   'module_info'/1,
+			   'open'/2,
+			   'open'/3,
+			   'open'/4,
+			   'open'/5,
+			   'send_data'/2]
+    attributes []
+'open'/2 =
+    %% Line 71
+    fun (_cor1,_cor0) ->
+	%% Line 72
+	apply 'open'/5
+	    (_cor1, 23, 10000, 'true', _cor0)
+'open'/3 =
+    %% Line 74
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 75
+	apply 'open'/5
+	    (_cor2, _cor1, 10000, 'true', _cor0)
+'open'/4 =
+    %% Line 77
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 78
+	apply 'open'/5
+	    (_cor3, _cor2, _cor1, 'true', _cor0)
+'open'/5 =
+    %% Line 80
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <Self> =
+	    %% Line 81
+	    call 'erlang':'self'
+		()
+	in  let <_cor6> =
+		%% Line 82
+		( fun () ->
+		      %% Line 83
+		      apply 'init'/6
+			  (Self, _cor4, _cor3, _cor2, _cor1, _cor0)
+		  -| [{'id',{0,0,'-open/5-fun-0-'}}] )
+	    in  let <Pid> =
+		    %% Line 82
+		    call 'erlang':'spawn'
+			(_cor6)
+		in  %% Line 86
+		    receive
+		      %% Line 87
+		      <{'open',_cor13}>
+			  when call 'erlang':'=:='
+				(_cor13,
+				 Pid) ->
+			  %% Line 88
+			  {'ok',Pid}
+		      %% Line 89
+		      <{Error,_cor14}>
+			  when call 'erlang':'=:='
+				(_cor14,
+				 Pid) ->
+			  %% Line 90
+			  Error
+		    after 'infinity' ->
+		      'true'
+'close'/1 =
+    %% Line 93
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 94
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 94
+		call 'erlang':'!'
+		    (_cor0, {'close',_cor1})
+		%% Line 95
+		receive
+		  <'closed'> when 'true' ->
+		      'ok'
+		after %% Line 96
+		      5000 ->
+		  %% Line 96
+		  'ok'
+'send_data'/2 =
+    %% Line 99
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 100
+	    call 'erlang':'++'
+		(_cor0, [10])
+	in  do  %% Line 100
+		call 'erlang':'!'
+		    (_cor1, {'send_data',_cor2})
+		%% Line 101
+		'ok'
+'get_data'/1 =
+    %% Line 103
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 104
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 104
+		call 'erlang':'!'
+		    (_cor0, {'get_data',_cor1})
+		%% Line 105
+		receive
+		  %% Line 106
+		  <{'data',Data}> when 'true' ->
+		      %% Line 107
+		      {'ok',Data}
+		after 'infinity' ->
+		  'true'
+'init'/6 =
+    %% Line 113
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 114
+	case call 'gen_tcp':'connect'
+		 (_cor4, _cor3, ['list'|[{'packet',0}]], _cor2) of
+	  %% Line 115
+	  <{'ok',Sock}> when 'true' ->
+	      do  %% Line 116
+		  apply 'dbg'/2
+		      ([126|[112|[32|[99|[111|[110|[110|[101|[99|[116|[101|[100|[32|[116|[111|[58|[32|[126|[112|[32|[40|[112|[111|[114|[116|[58|[32|[126|[119|[44|[32|[107|[101|[101|[112|[95|[97|[108|[105|[118|[101|[58|[32|[126|[119|[41|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 117
+																																				[_cor0|[_cor4|[_cor3|[_cor1|[]]]]])
+		  do  %% Line 118
+		      apply 'send'/3
+			  ([255|[253|[3]]], Sock, _cor0)
+		      let <_cor6> =
+			  %% Line 119
+			  call 'erlang':'self'
+			      ()
+		      in  do  %% Line 119
+			      call 'erlang':'!'
+				  (_cor5, {'open',_cor6})
+			      do  %% Line 120
+				  apply 'loop'/3
+				      ({'state',_cor0,10,_cor1,1}, %% Line 121
+								   Sock, %% Line 121
+									 [])
+				  %% Line 122
+				  call 'gen_tcp':'close'
+				      (Sock)
+	  %% Line 123
+	  <Error> when 'true' ->
+	      let <_cor7> =
+		  %% Line 124
+		  call 'erlang':'self'
+		      ()
+	      in  %% Line 124
+		  call 'erlang':'!'
+		      (_cor5, {Error,_cor7})
+	end
+'loop'/3 =
+    %% Line 127
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 223
+	( case _cor2 of
+	    ( <( {'state',_cor104,_cor105,_rec0,_cor106}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  receive
+		    <{'tcp_closed',_cor108}> when 'true' ->
+			do  apply 'dbg'/2
+				([67|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[99|[108|[111|[115|[101|[100|[10]]]]]]]]]]]]]]]]]], [])
+			    let <_cor28> =
+				call 'lists':'append'
+				    (_cor0)
+			    in  let <Data> =
+				    call 'lists':'reverse'
+					(_cor28)
+				in  do  apply 'dbg'/2
+					    ([80|[114|[105|[110|[116|[105|[110|[103|[32|[113|[117|[101|[117|[101|[100|[32|[109|[101|[115|[115|[97|[103|[101|[115|[58|[32|[126|[116|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Data|[]])
+					let <_cor30> =
+					    call 'erlang':'length'
+						(Data)
+					in  let <_cor33> =
+						call 'lists':'sublist'
+						    (Data, _cor106, _cor30)
+					    in  do  call 'ct_telnet':'log'
+							(_cor104, 'general_io', [126|[116|[115]]], [_cor33|[]])
+						    receive
+						      <{'get_data',Pid}> when 'true' ->
+							  call 'erlang':'!'
+							      (Pid, 'closed')
+						    after 100 ->
+						      'ok'
+		    <{'tcp',_cor117,Msg0}> when 'true' ->
+			do  apply 'dbg'/2
+				([116|[99|[112|[32|[109|[115|[103|[58|[32|[126|[116|[112|[126|[110]]]]]]]]]]]]]], [Msg0|[]])
+			    let <Msg> =
+				apply 'check_msg'/3
+				    (_cor1, Msg0, [])
+			    in  apply 'loop'/3
+				    (_cor2, _cor1, [Msg|_cor0])
+		    <{'send_data',Data}> when 'true' ->
+			do  apply 'send'/3
+				(Data, _cor1, _cor104)
+			    apply 'loop'/3
+				(_cor2, _cor1, _cor0)
+		    <{'get_data',Pid}> when 'true' ->
+			let <_cor68> =
+			    case _cor0 of
+			      <[]> when 'true' ->
+				  do  apply 'dbg'/2
+					  ([103|[101|[116|[95|[100|[97|[116|[97|[32|[110|[111|[100|[97|[116|[97|[10]]]]]]]]]]]]]]]], [])
+				      let <_cor39> =
+					  call 'erlang':'self'
+					      ()
+				      in  do  call 'erlang':'send_after'
+						  (100, _cor39, {'get_data_delayed',Pid})
+					      case <> of
+						<>
+						    when ( call 'erlang':'=:='
+							    (_rec0,
+							     'true')
+							-| ['compiler_generated'] ) ->
+						    let <_rec9> =
+							call 'erlang':'-'
+							    (_cor105, 1)
+						    in  call 'erlang':'setelement'
+							    (3, _cor2, _rec9)
+						<>
+						    when ( call 'erlang':'=:='
+							    (_rec0,
+							     'false')
+							-| ['compiler_generated'] ) ->
+						    _cor2
+						( <> when 'true' ->
+						      primop 'match_fail'
+							  ('if_clause')
+						  -| ['compiler_generated'] )
+					      end
+			      <_cor131> when 'true' ->
+				  let <_cor57> =
+				      call 'lists':'append'
+					  (_cor0)
+				  in  let <Data> =
+					  call 'lists':'reverse'
+					      (_cor57)
+				      in  let <Len> =
+					      call 'erlang':'length'
+						  (Data)
+					  in  do  apply 'dbg'/2
+						      ([103|[101|[116|[95|[100|[97|[116|[97|[32|[126|[116|[112|[10]]]]]]]]]]]]], [Data|[]])
+						  let <_cor62> =
+						      call 'lists':'sublist'
+							  (Data, _cor106, Len)
+						  in  do  call 'ct_telnet':'log'
+							      (_cor104, 'general_io', [126|[116|[115]]], [_cor62|[]])
+							  do  call 'erlang':'!'
+								  (Pid, {'data',Data})
+							      call 'erlang':'setelement'
+								  (5, _cor2, 1)
+			    end
+			in  apply 'loop'/3
+				(_cor68, _cor1, [])
+		    <{'get_data_delayed',Pid}> when 'true' ->
+			let <_cor75> =
+			    case <_cor104,_cor105,_rec0,_cor106> of
+			      <_cor145,0,'true',_cor146> when 'true' ->
+				  do  case <> of
+					<>
+					    when call 'erlang':'=:='
+						  (_cor0,
+						   []) ->
+					    apply 'send'/3
+						([255|[241]], _cor1, _cor145)
+					<> when 'true' ->
+					    'ok'
+				      end
+				      call 'erlang':'setelement'
+					  (3, _cor2, 10)
+			      <_fol152,_fol153,_fol154,_fol155> when 'true' ->
+				  _cor2
+			    end
+			in  let <NewAcc,Pos> =
+				case call 'erlang':'is_process_alive'
+					 (Pid) of
+				  <'true'>
+				      when call 'erlang':'=/='
+					    (_cor0,
+					     []) ->
+				      let <_cor77> =
+					  call 'lists':'append'
+					      (_cor0)
+				      in  let <Data> =
+					      call 'lists':'reverse'
+						  (_cor77)
+					  in  let <Len> =
+						  call 'erlang':'length'
+						      (Data)
+					      in  do  apply 'dbg'/2
+							  ([103|[101|[116|[95|[100|[97|[116|[97|[95|[100|[101|[108|[97|[121|[101|[100|[32|[126|[116|[112|[10]]]]]]]]]]]]]]]]]]]]], [Data|[]])
+						      let <_cor82> =
+							  call 'lists':'sublist'
+							      (Data, _cor106, Len)
+						      in  do  call 'ct_telnet':'log'
+								  (_cor104, 'general_io', [126|[116|[115]]], [_cor82|[]])
+							      do  call 'erlang':'!'
+								      (Pid, {'data',Data})
+								  <[],1>
+				  <'true'>
+				      when call 'erlang':'=:='
+					    (_cor0,
+					     []) ->
+				      do  apply 'dbg'/2
+					      ([103|[101|[116|[95|[100|[97|[116|[97|[95|[100|[101|[108|[97|[121|[101|[100|[32|[110|[111|[100|[97|[116|[97|[10]]]]]]]]]]]]]]]]]]]]]]]], [])
+					  do  call 'erlang':'!'
+						  (Pid, {'data',[]})
+					      <[],1>
+				  <'false'> when 'true' ->
+				      ( case _cor75 of
+					  ( <( {'state',_cor165,_cor166,_cor167,_rec19}
+					       -| ['compiler_generated'] )> when 'true' ->
+						<_cor0,_rec19>
+					    -| ['compiler_generated'] )
+					  ( <_cor168> when 'true' ->
+						( call ( 'erlang'
+							 -| ['compiler_generated'] ):( 'error'
+										       -| ['compiler_generated'] )
+						      (( {'badrecord','state'}
+							 -| ['compiler_generated'] ))
+						  -| ['compiler_generated'] )
+					    -| ['compiler_generated'] )
+					end
+					-| ['compiler_generated'] )
+				  ( <_cor87> when 'true' ->
+					primop 'match_fail'
+					    ({'case_clause',_cor87})
+				    -| ['compiler_generated'] )
+				end
+			    in  case _cor75 of
+				  <{'state',_cor169,_cor170,_cor171,_cor172}> when 'true' ->
+				      let <_cor92> =
+					  call 'erlang':'setelement'
+					      (5, _cor75, Pos)
+				      in  apply 'loop'/3
+					      (_cor92, _cor1, NewAcc)
+				  ( <_cor173> when 'true' ->
+					( call ( 'erlang'
+						 -| ['compiler_generated'] ):( 'error'
+									       -| ['compiler_generated'] )
+					      (( {'badrecord','state'}
+						 -| ['compiler_generated'] ))
+					  -| ['compiler_generated'] )
+				    -| ['compiler_generated'] )
+				end
+		    <{'close',Pid}> when 'true' ->
+			do  apply 'dbg'/2
+				([67|[108|[111|[115|[105|[110|[103|[32|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110|[10]]]]]]]]]]]]]]]]]]], [])
+			    do  case <> of
+				  <>
+				      when call 'erlang':'=:='
+					    (_cor0,
+					     []) ->
+				      'ok'
+				  <> when 'true' ->
+				      let <_cor93> =
+					  call 'lists':'append'
+					      (_cor0)
+				      in  let <Data> =
+					      call 'lists':'reverse'
+						  (_cor93)
+					  in  do  apply 'dbg'/2
+						      ([80|[114|[105|[110|[116|[105|[110|[103|[32|[113|[117|[101|[117|[101|[100|[32|[109|[101|[115|[115|[97|[103|[101|[115|[58|[32|[126|[116|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Data|[]])
+						  let <_cor95> =
+						      call 'erlang':'length'
+							  (Data)
+						  in  let <_cor98> =
+							  call 'lists':'sublist'
+							      (Data, _cor106, _cor95)
+						      in  call 'ct_telnet':'log'
+							      (_cor104, 'general_io', [126|[116|[115]]], [_cor98|[]])
+				end
+				do  call 'gen_tcp':'close'
+					(_cor1)
+				    call 'erlang':'!'
+					(Pid, 'closed')
+		  after apply 'wait'/2
+			    (_rec0, 10000) ->
+		    let <_cor5> =
+			%% Line 224
+			call 'lists':'append'
+			    (_cor0)
+		    in  let <Data> =
+			    %% Line 224
+			    call 'lists':'reverse'
+				(_cor5)
+			in  %% Line 225
+			    case Data of
+			      %% Line 226
+			      <[]> when 'true' ->
+				  do  %% Line 227
+				      apply 'send'/3
+					  ([255|[241]], _cor1, _cor104)
+				      %% Line 228
+				      apply 'loop'/3
+					  (_cor2, _cor1, _cor0)
+			      %% Line 229
+			      <_cor186>
+				  when ( try
+					  let <_cor13> =
+					      ( call 'erlang':'length'
+						    (Data)
+						-| ['compiler_generated'] )
+					  in  let <_cor14> =
+						  ( call 'erlang':'+'
+							(_cor13, 1)
+						    -| ['compiler_generated'] )
+					      in  ( call 'erlang':'=='
+							(_cor106, _cor14)
+						    -| ['compiler_generated'] )
+				      of <Try> ->
+					  Try
+				      catch <T,R> ->
+					  'false'
+				      -| ['compiler_generated'] ) ->
+				  %% Line 230
+				  apply 'loop'/3
+				      (_cor2, _cor1, _cor0)
+			      %% Line 231
+			      <_cor187> when 'true' ->
+				  do  %% Line 232
+				      apply 'dbg'/2
+					  ([73|[100|[108|[101|[32|[116|[105|[109|[101|[111|[117|[116|[44|[32|[112|[114|[105|[110|[116|[105|[110|[103|[32|[126|[116|[112|[10]]]]]]]]]]]]]]]]]]]]]]]]]]], [Data|[]])
+				      let <Len> =
+					  %% Line 233
+					  call 'erlang':'length'
+					      (Data)
+				      in  let <_cor20> =
+					      %% Line 236
+					      call 'lists':'sublist'
+						  (Data, _cor106, %% Line 238
+								  Len)
+					  in  do  %% Line 234
+						  call 'ct_telnet':'log'
+						      (_cor104, %% Line 235
+								'general_io', %% Line 235
+									      [126|[116|[115]]], %% Line 236
+												 [_cor20|%% Line 238
+													 []])
+						  let <_rec4> =
+						      %% Line 239
+						      call 'erlang':'+'
+							  (Len, 1)
+						  in  let <_cor26> =
+							  %% Line 239
+							  call 'erlang':'setelement'
+							      (5, _cor2, _rec4)
+						      in  %% Line 239
+							  apply 'loop'/3
+							      (_cor26, _cor1, _cor0)
+			    end
+	      -| ['compiler_generated'] )
+	    ( <_cor107> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'wait'/2 =
+    %% Line 243
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'true',Time> when 'true' ->
+	      Time
+	  %% Line 244
+	  <'false',_cor4> when 'true' ->
+	      'infinity'
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'wait',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'send'/3 =
+    %% Line 246
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 247
+	    case _cor2 of
+	      %% Line 248
+	      <Cmd = [255|_cor12]> when 'true' ->
+		  %% Line 249
+		  apply 'cmd_dbg'/1
+		      (Cmd)
+	      %% Line 250
+	      <_cor13> when 'true' ->
+		  do  %% Line 251
+		      apply 'dbg'/2
+			  ([83|[101|[110|[100|[105|[110|[103|[58|[32|[126|[116|[112|[10]]]]]]]]]]]]], [_cor2|[]])
+		      %% Line 252
+		      try
+			  call 'io_lib':'format'
+			      ([91|[126|[119|[93|[32|[126|[116|[115]]]]]]]], ['ct_telnet_client'|[_cor2|[]]])
+		      of <_cor3> ->
+			  %% Line 254
+			  call 'ct_telnet':'log'
+			      (_cor0, 'general_io', _cor3, [])
+		      catch <_cor7,_cor6,_cor5> ->
+			  %% Line 256
+			  'ok'
+	    end
+	    do  %% Line 259
+		call 'gen_tcp':'send'
+		    (_cor1, _cor2)
+		%% Line 260
+		'ok'
+'check_msg'/3 =
+    %% Line 263
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Sock,[255|[255|T]],Acc> when 'true' ->
+	      %% Line 264
+	      apply 'check_msg'/3
+		  (Sock, T, [255|Acc])
+	  %% Line 267
+	  <Sock,[255|Cs],Acc> when 'true' ->
+	      %% Line 268
+	      case apply 'get_cmd'/1
+		       (Cs) of
+		%% Line 269
+		<{Cmd,Cs1}> when 'true' ->
+		    do  %% Line 270
+			apply 'dbg'/2
+			    ([71|[111|[116|[32]]]], [])
+			do  %% Line 271
+			    apply 'cmd_dbg'/1
+				(Cmd)
+			    do  %% Line 272
+				apply 'respond_cmd'/2
+				    (Cmd, Sock)
+				%% Line 273
+				apply 'check_msg'/3
+				    (Sock, Cs1, Acc)
+		%% Line 274
+		<'error'> when 'true' ->
+		    %% Line 275
+		    Acc
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 279
+	  <Sock,[H|T],Acc> when 'true' ->
+	      %% Line 280
+	      apply 'check_msg'/3
+		  (Sock, T, [H|Acc])
+	  %% Line 282
+	  <_X_Sock,[],Acc> when 'true' ->
+	      %% Line 283
+	      Acc
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'check_msg',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'respond_cmd'/2 =
+    %% Line 288
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[251|[1]],Sock> when 'true' ->
+	      do  %% Line 290
+		  apply 'cmd_dbg'/1
+		      ([255|[253|[1]]])
+		  %% Line 291
+		  call 'gen_tcp':'send'
+		      (Sock, [255|[253|[1]]])
+	  %% Line 293
+	  <[253|[1]],Sock> when 'true' ->
+	      do  %% Line 295
+		  apply 'cmd_dbg'/1
+		      ([255|[251|[1]]])
+		  %% Line 296
+		  call 'gen_tcp':'send'
+		      (Sock, [255|[251|[1]]])
+	  %% Line 300
+	  <[251|[3]],_X_Sock> when 'true' ->
+	      %% Line 301
+	      apply 'dbg'/2
+		  ([83|[101|[114|[118|[101|[114|[32|[119|[105|[108|[108|[32|[115|[117|[112|[112|[114|[101|[115|[115|[45|[103|[111|[45|[97|[104|[101|[97|[100|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [])
+	  %% Line 303
+	  <[252|[3]],_X_Sock> when 'true' ->
+	      %% Line 304
+	      apply 'dbg'/2
+		  ([87|[97|[114|[110|[105|[110|[103|[33|[32|[83|[101|[114|[118|[101|[114|[32|[119|[111|[110|[39|[116|[32|[115|[117|[112|[112|[114|[101|[115|[115|[45|[103|[111|[45|[97|[104|[101|[97|[100|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [])
+	  %% Line 306
+	  <[254|_X_Opt],_X_Sock> when 'true' ->
+	      %% Line 307
+	      'ok'
+	  %% Line 308
+	  <[252|_X_Opt],_X_Sock> when 'true' ->
+	      %% Line 309
+	      'ok'
+	  %% Line 313
+	  <[251|[Opt|[]]],Sock> when 'true' ->
+	      let <R> =
+		  %% Line 314
+		  [255|[254|[Opt|[]]]]
+	      in  do  %% Line 315
+		      apply 'cmd_dbg'/1
+			  (R)
+		      %% Line 316
+		      call 'gen_tcp':'send'
+			  (Sock, R)
+	  %% Line 318
+	  <[253|Opt],Sock> when 'true' ->
+	      let <R> =
+		  %% Line 319
+		  [255|[252|Opt]]
+	      in  do  %% Line 320
+		      apply 'cmd_dbg'/1
+			  (R)
+		      %% Line 321
+		      call 'gen_tcp':'send'
+			  (Sock, R)
+	  %% Line 325
+	  <241,_X_Sock> when 'true' ->
+	      %% Line 326
+	      'ok'
+	  %% Line 330
+	  <[Cmd|Opt],_X_Sock>
+	      when let <_cor6> =
+		    call 'erlang':'>='
+			(Cmd, 240)
+		in  let <_cor7> =
+			call 'erlang':'=<'
+			    (Cmd, 255)
+		    in  call 'erlang':'and'
+			    (_cor6, _cor7) ->
+	      %% Line 331
+	      apply 'dbg'/2
+		  ([82|[101|[99|[101|[105|[118|[101|[100|[32|[99|[109|[100|[58|[32|[126|[119|[46|[32|[73|[103|[110|[111|[114|[101|[100|[33|[10]]]]]]]]]]]]]]]]]]]]]]]]]]], [[Cmd|Opt]|[]])
+	  %% Line 333
+	  <[Cmd|Opt],_X_Sock> when 'true' ->
+	      %% Line 334
+	      apply 'dbg'/2
+		  ([87|[65|[82|[78|[73|[78|[71|[58|[32|[82|[101|[99|[101|[105|[118|[101|[100|[32|[117|[110|[107|[110|[111|[119|[110|[32|[99|[109|[100|[58|[32|[126|[119|[46|[32|[73|[103|[110|[111|[114|[101|[100|[33|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [[Cmd|Opt]|[]])
+	  ( <_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8})
+		  -| [{'function_name',{'respond_cmd',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_cmd'/1 =
+    %% Line 337
+    fun (_cor0) ->
+	case _cor0 of
+	  <[Cmd|Rest]>
+	      when call 'erlang':'=='
+		    (Cmd,
+		     250) ->
+	      %% Line 338
+	      apply 'get_subcmd'/2
+		  (Rest, [])
+	  %% Line 340
+	  <[Cmd|Rest]>
+	      when let <_cor1> =
+		    call 'erlang':'>='
+			(Cmd, 240)
+		in  let <_cor2> =
+			call 'erlang':'=<'
+			    (Cmd, 249)
+		    in  call 'erlang':'and'
+			    (_cor1, _cor2) ->
+	      %% Line 341
+	      {241,Rest}
+	  %% Line 343
+	  <[Cmd|[Opt|Rest]]>
+	      when let <_cor3> =
+		    call 'erlang':'>='
+			(Cmd, 251)
+		in  let <_cor4> =
+			call 'erlang':'=<'
+			    (Cmd, 254)
+		    in  call 'erlang':'and'
+			    (_cor3, _cor4) ->
+	      %% Line 344
+	      {[Cmd|[Opt|[]]],Rest}
+	  %% Line 346
+	  <_X_Other> when 'true' ->
+	      %% Line 347
+	      'error'
+	end
+'get_subcmd'/2 =
+    %% Line 349
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[240|Rest],Acc> when 'true' ->
+	      let <_cor2> =
+		  %% Line 350
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  %% Line 350
+		  {[240|_cor2],Rest}
+	  %% Line 352
+	  <[Opt|Rest],Acc> when 'true' ->
+	      %% Line 353
+	      apply 'get_subcmd'/2
+		  (Rest, [Opt|Acc])
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'get_subcmd',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'dbg'/2 =
+    %% Line 384
+    fun (_cor1,_cor0) ->
+	%% Line 385
+	'ok'
+'cmd_dbg'/1 =
+    %% Line 387
+    fun (_cor0) ->
+	%% Line 388
+	'ok'
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ct_telnet_client')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ct_telnet_client', _cor0)
+end

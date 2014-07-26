@@ -1,0 +1,387 @@
+module 'sounder' ['go'/0,
+		  'module_info'/0,
+		  'module_info'/1,
+		  'new'/1,
+		  'nosound'/0,
+		  'play'/1,
+		  'silent'/0,
+		  'start'/0,
+		  'stop'/0]
+    attributes [%% Line 24
+		'type' =
+		    %% Line 24
+		    [{{'record','file_info'},[{'typed_record_field',{'record_field',25,{'atom',25,'size'}},{'type',25,'union',[{'atom',25,'undefined'}|[{'type',25,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',26,{'atom',26,'type'}},{'type',26,'union',[{'atom',26,'undefined'}|[{'atom',26,'device'}|[{'atom',26,'directory'}|[{'atom',26,'other'}|[{'atom',26,'regular'}|[{'atom',26,'symlink'}]]]]]]}}|[{'typed_record_field',{'record_field',27,{'atom',27,'access'}},{'type',27,'union',[{'atom',27,'undefined'}|[{'atom',27,'read'}|[{'atom',27,'write'}|[{'atom',27,'read_write'}|[{'atom',27,'none'}]]]]]}}|[{'typed_record_field',{'record_field',28,{'atom',28,'atime'}},{'type',28,'union',[{'atom',28,'undefined'}|[{'remote_type',28,[{'atom',28,'file'}|[{'atom',28,'date_time'}|[[]]]]}|[{'type',28,'non_neg_integer',[]}]]]}}|[{'typed_record_field',{'record_field',32,{'atom',32,'mtime'}},{'type',32,'union',[{'atom',32,'undefined'}|[{'remote_type',32,[{'atom',32,'file'}|[{'atom',32,'date_time'}|[[]]]]}|[{'type',32,'non_neg_integer',[]}]]]}}|[{'typed_record_field',{'record_field',34,{'atom',34,'ctime'}},{'type',34,'union',[{'atom',34,'undefined'}|[{'remote_type',34,[{'atom',34,'file'}|[{'atom',34,'date_time'}|[[]]]]}|[{'type',34,'non_neg_integer',[]}]]]}}|[{'typed_record_field',{'record_field',40,{'atom',40,'mode'}},{'type',40,'union',[{'atom',40,'undefined'}|[{'type',40,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',43,{'atom',43,'links'}},{'type',43,'union',[{'atom',43,'undefined'}|[{'type',43,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',46,{'atom',46,'major_device'}},{'type',46,'union',[{'atom',46,'undefined'}|[{'type',46,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',52,{'atom',52,'minor_device'}},{'type',52,'union',[{'atom',52,'undefined'}|[{'type',52,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',53,{'atom',53,'inode'}},{'type',53,'union',[{'atom',53,'undefined'}|[{'type',53,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',54,{'atom',54,'uid'}},{'type',54,'union',[{'atom',54,'undefined'}|[{'type',54,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',55,{'atom',55,'gid'}},{'type',55,'union',[{'atom',55,'undefined'}|[{'type',55,'non_neg_integer',[]}]]}}]]]]]]]]]]]]],[]}],
+		%% Line 58
+		'type' =
+		    %% Line 58
+		    [{{'record','file_descriptor'},[{'typed_record_field',{'record_field',59,{'atom',59,'module'}},{'type',59,'union',[{'atom',59,'undefined'}|[{'type',59,'module',[]}]]}}|[{'typed_record_field',{'record_field',60,{'atom',60,'data'}},{'type',60,'union',[{'atom',60,'undefined'}|[{'type',60,'term',[]}]]}}]],[]}]]
+'start'/0 =
+    %% Line 54
+    fun () ->
+	%% Line 55
+	case call 'erlang':'whereis'
+		 ('sounder') of
+	  %% Line 56
+	  <'undefined'> when 'true' ->
+	      %% Line 58
+	      case call 'file':'read_file_info'
+		       ('/dev/audio') of
+		%% Line 59
+		<{'ok',FI = {'file_info',_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22}}>
+		    when call 'erlang':'=:='
+			  (_cor12,
+			   'read_write') ->
+		    let <_cor6> =
+			%% Line 60
+			call 'erlang':'spawn'
+			    ('sounder', 'go', [])
+		    in  do  %% Line 60
+			    call 'erlang':'register'
+				('sounder', _cor6)
+			    %% Line 61
+			    'ok'
+		%% Line 62
+		<_X_Other> when 'true' ->
+		    let <_cor7> =
+			%% Line 63
+			call 'erlang':'spawn'
+			    ('sounder', 'nosound', [])
+		    in  do  %% Line 63
+			    call 'erlang':'register'
+				('sounder', _cor7)
+			    %% Line 64
+			    'silent'
+	      end
+	  %% Line 66
+	  <_X_Pid> when 'true' ->
+	      %% Line 67
+	      'ok'
+	end
+'stop'/0 =
+    %% Line 70
+    fun () ->
+	catch
+	    do  %% Line 71
+		apply 'check'/0
+		    ()
+		do  %% Line 72
+		    call 'erlang':'!'
+			('sounder', {'stop'})
+		    %% Line 73
+		    'ok'
+'new'/1 =
+    %% Line 75
+    fun (_cor0) ->
+	case _cor0 of
+	  <File>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      let <_cor1> =
+		  call 'erlang':'list_to_atom'
+		      (File)
+	      in  apply 'new'/1
+		      (_cor1)
+	  %% Line 76
+	  <File>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      catch
+		  do  %% Line 77
+		      apply 'check'/0
+			  ()
+		      let <_cor2> =
+			  %% Line 78
+			  call 'erlang':'self'
+			      ()
+		      in  do  %% Line 78
+			      call 'erlang':'!'
+				  ('sounder', {'new',File,_cor2})
+			      %% Line 79
+			      apply 'wait_for_ack'/1
+				  ('sounder')
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'new',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'play'/1 =
+    %% Line 81
+    fun (_cor0) ->
+	case _cor0 of
+	  <No>
+	      when call 'erlang':'is_integer'
+		    (_cor0) ->
+	      catch
+		  do  %% Line 82
+		      apply 'check'/0
+			  ()
+		      let <_cor1> =
+			  %% Line 83
+			  call 'erlang':'self'
+			      ()
+		      in  do  %% Line 83
+			      call 'erlang':'!'
+				  ('sounder', {'play',No,_cor1})
+			      %% Line 84
+			      apply 'wait_for_ack'/1
+				  ('sounder')
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'play',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'silent'/0 =
+    %% Line 86
+    fun () ->
+	catch
+	    do  %% Line 87
+		apply 'check'/0
+		    ()
+		let <_cor0> =
+		    %% Line 88
+		    call 'erlang':'self'
+			()
+		in  do  %% Line 88
+			call 'erlang':'!'
+			    ('sounder', {'play','silent',_cor0})
+			%% Line 89
+			receive
+			  <{'sounder',Answer}> when 'true' ->
+			      Answer
+			after 'infinity' ->
+			  'true'
+'go'/0 =
+    %% Line 91
+    fun () ->
+	let <_cor0> =
+	    %% Line 92
+	    call 'bonk':'bonk_dir'
+		()
+	in  let <_cor1> =
+		%% Line 92
+		call 'lists':'append'
+		    (_cor0, [115|[111|[117|[110|[100|[101|[114]]]]]]])
+	    in  let <Port> =
+		    %% Line 92
+		    call 'erlang':'open_port'
+			({'spawn',_cor1}, [{'packet',2}])
+		in  %% Line 93
+		    apply 'loop'/1
+			(Port)
+'loop'/1 =
+    %% Line 95
+    fun (_cor0) ->
+	%% Line 96
+	receive
+	  %% Line 97
+	  <{'new',File,From}>
+	      when call 'erlang':'is_atom'
+		    (File) ->
+	      let <_cor3> =
+		  %% Line 98
+		  call 'erlang':'self'
+		      ()
+	      in  let <_cor1> =
+		      %% Line 98
+		      call 'erlang':'atom_to_list'
+			  (File)
+		  in  let <_cor2> =
+			  %% Line 98
+			  [0|_cor1]
+		      in  do  %% Line 98
+			      call 'erlang':'!'
+				  (_cor0, {_cor3,{'command',_cor2}})
+			      let <_cor4> =
+				  %% Line 99
+				  apply 'wait_for_ack'/1
+				      (_cor0)
+			      in  do  %% Line 99
+				      call 'erlang':'!'
+					  (From, {'sounder',_cor4})
+				      %% Line 100
+				      apply 'loop'/1
+					  (_cor0)
+	  %% Line 101
+	  <{'play','silent',From}> when 'true' ->
+	      do  %% Line 102
+		  call 'erlang':'!'
+		      (From, {'sounder','false'})
+		  %% Line 103
+		  apply 'loop'/1
+		      (_cor0)
+	  %% Line 104
+	  <{'play',No,From}>
+	      when call 'erlang':'is_integer'
+		    (No) ->
+	      let <_cor5> =
+		  %% Line 105
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 105
+		      call 'erlang':'!'
+			  (_cor0, {_cor5,{'command',[No|[]]}})
+		      let <_cor6> =
+			  %% Line 106
+			  apply 'wait_for_ack'/1
+			      (_cor0)
+		      in  do  %% Line 106
+			      call 'erlang':'!'
+				  (From, {'sounder',_cor6})
+			      %% Line 107
+			      apply 'loop'/1
+				  (_cor0)
+	  %% Line 108
+	  <{'stop'}> when 'true' ->
+	      let <_cor7> =
+		  %% Line 109
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 109
+		      call 'erlang':'!'
+			  (_cor0, {_cor7,'close'})
+		      %% Line 110
+		      call 'erlang':'exit'
+			  ('normal')
+	  %% Line 111
+	  <_cor9> when 'true' ->
+	      %% Line 112
+	      apply 'loop'/1
+		  (_cor0)
+	after 'infinity' ->
+	  'true'
+'nosound'/0 =
+    %% Line 119
+    fun () ->
+	%% Line 120
+	receive
+	  %% Line 121
+	  <{'new',File,From}>
+	      when call 'erlang':'is_atom'
+		    (File) ->
+	      do  %% Line 122
+		  call 'erlang':'!'
+		      (From, {'sounder',{'ok','silent'}})
+		  %% Line 123
+		  apply 'nosound'/0
+		      ()
+	  %% Line 124
+	  <{'play','silent',From}> when 'true' ->
+	      do  %% Line 125
+		  call 'erlang':'!'
+		      (From, {'sounder','true'})
+		  %% Line 126
+		  apply 'nosound'/0
+		      ()
+	  %% Line 127
+	  <{'play',No,From}>
+	      when call 'erlang':'is_integer'
+		    (No) ->
+	      do  %% Line 128
+		  call 'erlang':'!'
+		      (From, {'sounder',{'error','no_audio_cap'}})
+		  %% Line 129
+		  apply 'nosound'/0
+		      ()
+	  %% Line 130
+	  <{'stop'}> when 'true' ->
+	      %% Line 131
+	      call 'erlang':'exit'
+		  ('normal')
+	  %% Line 132
+	  <_cor0> when 'true' ->
+	      %% Line 133
+	      apply 'nosound'/0
+		  ()
+	after 'infinity' ->
+	  'true'
+'wait_for_ack'/1 =
+    %% Line 136
+    fun (_cor0) ->
+	case _cor0 of
+	  <'sounder'> when 'true' ->
+	      %% Line 137
+	      receive
+		<{'sounder',Res}> when 'true' ->
+		    Res
+	      after 'infinity' ->
+		'true'
+	  %% Line 138
+	  <Port>
+	      when call 'erlang':'is_port'
+		    (_cor0) ->
+	      %% Line 139
+	      receive
+		%% Line 140
+		<{_cor3,{'data',[111|[107]]}}>
+		    when call 'erlang':'=:='
+			  (_cor3,
+			   Port) ->
+		    %% Line 141
+		    'ok'
+		%% Line 142
+		<{_cor4,{'data',[No|[]]}}>
+		    when call 'erlang':'=:='
+			  (_cor4,
+			   Port) ->
+		    %% Line 143
+		    {'ok',No}
+		%% Line 144
+		<{_cor5,{'data',Msg}}>
+		    when call 'erlang':'=:='
+			  (_cor5,
+			   Port) ->
+		    let <_cor1> =
+			%% Line 145
+			call 'erlang':'list_to_atom'
+			    (Msg)
+		    in  %% Line 145
+			{'error',_cor1}
+		%% Line 146
+		<{'EXIT',_cor6,_cor7}>
+		    when call 'erlang':'=:='
+			  (_cor6,
+			   Port) ->
+		    %% Line 147
+		    call 'erlang':'exit'
+			('port_exited')
+	      after 'infinity' ->
+		'true'
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'wait_for_ack',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'check'/0 =
+    %% Line 150
+    fun () ->
+	%% Line 151
+	case call 'erlang':'whereis'
+		 ('sounder') of
+	  %% Line 152
+	  <Pid>
+	      when call 'erlang':'is_pid'
+		    (Pid) ->
+	      %% Line 153
+	      'ok'
+	  %% Line 154
+	  <'undefined'> when 'true' ->
+	      %% Line 155
+	      call 'erlang':'throw'
+		  ({'error','sounder_not_started'})
+	  ( <_cor0> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor0})
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('sounder')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('sounder', _cor0)
+end

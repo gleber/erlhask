@@ -1,0 +1,795 @@
+module 'dbg_wx_view' ['module_info'/0,
+		      'module_info'/1,
+		      'start'/2]
+    attributes [%% Line 26
+		'type' =
+		    %% Line 26
+		    [{{'record','state'},[{'record_field',26,{'atom',26,'gs'}}|[{'record_field',27,{'atom',27,'win'}}|[{'record_field',28,{'atom',28,'coords'}}|[{'record_field',29,{'atom',29,'mod'}}]]]],[]}],
+		%% Line 49
+		'spec' =
+		    %% Line 49
+		    [{{'stop',0},[{'type',49,'fun',[{'type',49,'product',[]}|[{'type',49,'no_return',[]}]]}]}]]
+'start'/2 =
+    %% Line 40
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 41
+	    call 'erlang':'atom_to_list'
+		(_cor0)
+	in  let <Title> =
+		%% Line 41
+		call 'erlang':'++'
+		    ([86|[105|[101|[119|[32|[77|[111|[100|[117|[108|[101|[32]]]]]]]]]]]], _cor2)
+	    in  %% Line 42
+		case call 'dbg_wx_winman':'is_started'
+			 (Title) of
+		  %% Line 43
+		  <'true'> when 'true' ->
+		      'ignore'
+		  %% Line 44
+		  <'false'> when 'true' ->
+		      let <Env> =
+			  %% Line 45
+			  call 'wx':'get_env'
+			      ()
+		      in  let <_cor5> =
+			      %% Line 46
+			      ( fun () ->
+				    apply 'init'/4
+					(_cor1, Env, _cor0, Title)
+				-| [{'id',{0,0,'-start/2-fun-0-'}}] )
+			  in  %% Line 46
+			      call 'erlang':'spawn_link'
+				  (_cor5)
+		  ( <_cor6> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor6})
+		    -| ['compiler_generated'] )
+		end
+'stop'/0 =
+    %% Line 50
+    fun () ->
+	%% Line 51
+	call 'erlang':'exit'
+	    ('normal')
+'init'/4 =
+    %% Line 57
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 58
+	    call 'wx':'set_env'
+		(_cor2)
+	    do  %% Line 60
+		call 'int':'subscribe'
+		    ()
+		let <_cor4> =
+		    %% Line 63
+		    apply 'menus'/0
+			()
+		in  let <Win1> =
+			%% Line 63
+			call 'dbg_wx_trace_win':'create_win'
+			    (_cor3, _cor0, ['Code Area'|['Search Area']], _cor4)
+		    in  let <Window> =
+			    %% Line 64
+			    call 'dbg_wx_trace_win':'get_window'
+				(Win1)
+			in  do  %% Line 65
+				call 'dbg_wx_winman':'insert'
+				    (_cor0, Window)
+				let <Win2> =
+				    %% Line 67
+				    apply 'gui_load_module'/2
+					(Win1, _cor1)
+				in  let <_cor13> =
+					%% Line 69
+					( fun (_cor10,_cor9) ->
+					      %% Line 70
+					      call 'dbg_wx_trace_win':'add_break'
+						  (_cor9, 'Break', _cor10)
+					  -| [{'id',{0,0,'-init/4-fun-0-'}}] )
+				    in  let <_cor8> =
+					    %% Line 73
+					    call 'int':'all_breaks'
+						(_cor1)
+					in  let <Win3> =
+						%% Line 69
+						call 'lists':'foldl'
+						    (_cor13, %% Line 72
+							     Win2, _cor8)
+					    in  %% Line 75
+						try
+						    apply 'loop'/1
+							({'state',_cor3,Win3,{-1,-1},_cor1})
+						of <_cor17> ->
+						    _cor17
+						catch <_cor20,_cor19,_cor18> ->
+						    case <_cor20,_cor19,_cor18> of
+						      %% Line 76
+						      <_X_E,'normal',_cor25> when 'true' ->
+							  %% Line 77
+							  call 'erlang':'exit'
+							      ('normal')
+						      %% Line 78
+						      <_X_E,_X_R,_cor26> when 'true' ->
+							  do  %% Line 79
+							      call 'io':'format'
+								  ([126|[112|[58|[126|[112|[32|[126|[112|[126|[110]]]]]]]]]], ['dbg_wx_view'|[_X_E|[_X_R|[]]]])
+							      %% Line 80
+							      call 'erlang':'exit'
+								  (_X_R)
+						    end
+'loop'/1 =
+    %% Line 83
+    fun (_cor0) ->
+	%% Line 84
+	receive
+	  %% Line 87
+	  <GuiEvent>
+	      when try
+		    let <_cor1> =
+			call 'erlang':'element'
+			    (1, GuiEvent)
+		    in  call 'erlang':'=:='
+			    (_cor1, 'wx')
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor4> =
+		  %% Line 88
+		  ( fun () ->
+			%% Line 89
+			( case _cor0 of
+			    ( <( {'state',_cor15,_rec0,_cor16,_cor17}
+				 -| ['compiler_generated'] )> when 'true' ->
+				  call 'dbg_wx_trace_win':'handle_event'
+				      (GuiEvent, _rec0)
+			      -| ['compiler_generated'] )
+			    ( <_cor18> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','state'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		    -| [{'id',{0,0,'-loop/1-fun-0-'}}] )
+	      in  let <Cmd> =
+		      %% Line 88
+		      call 'wx':'batch'
+			  (_cor4)
+		  in  let <State2> =
+			  %% Line 91
+			  apply 'gui_cmd'/2
+			      (Cmd, _cor0)
+		      in  %% Line 92
+			  apply 'loop'/1
+			      (State2)
+	  %% Line 95
+	  <{'gui',Cmd}> when 'true' ->
+	      let <State2> =
+		  %% Line 96
+		  apply 'gui_cmd'/2
+		      (Cmd, _cor0)
+	      in  %% Line 97
+		  apply 'loop'/1
+		      (State2)
+	  %% Line 100
+	  <{'int',Cmd}> when 'true' ->
+	      let <State2> =
+		  %% Line 101
+		  apply 'int_cmd'/2
+		      (Cmd, _cor0)
+	      in  %% Line 102
+		  apply 'loop'/1
+		      (State2)
+	  %% Line 105
+	  <{'dbg_ui_winman','update_windows_menu',Data}> when 'true' ->
+	      %% Line 106
+	      ( case _cor0 of
+		  ( <( {'state',_cor19,_rec1,_cor20,_cor21}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <Window> =
+			    call 'dbg_wx_trace_win':'get_window'
+				(_rec1)
+			in  do  %% Line 107
+				call 'dbg_wx_winman':'update_windows_menu'
+				    (Window, Data)
+				%% Line 108
+				apply 'loop'/1
+				    (_cor0)
+		    -| ['compiler_generated'] )
+		  ( <_cor22> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 109
+	  <{'dbg_ui_winman','destroy'}> when 'true' ->
+	      %% Line 110
+	      ( case _cor0 of
+		  ( <( {'state',_cor23,_rec2,_cor24,_cor25}
+		       -| ['compiler_generated'] )> when 'true' ->
+			do  call 'dbg_wx_trace_win':'stop'
+				(_rec2)
+			    %% Line 111
+			    call 'erlang':'exit'
+				('stop')
+		    -| ['compiler_generated'] )
+		  ( <_cor26> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 114
+	  <{'EXIT',_X_Pid,_X_Reason}> when 'true' ->
+	      %% Line 115
+	      apply 'loop'/1
+		  (_cor0)
+	after 'infinity' ->
+	  'true'
+'gui_cmd'/2 =
+    %% Line 120
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'ignore',State> when 'true' ->
+	      %% Line 121
+	      State
+	  %% Line 122
+	  <{'win',Win},State> when 'true' ->
+	      %% Line 123
+	      case State of
+		<{'state',_cor72,_cor73,_cor74,_cor75}> when 'true' ->
+		    call 'erlang':'setelement'
+			(3, State, Win)
+		( <_cor76> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 124
+	  <'stopped',_X_State> when 'true' ->
+	      %% Line 125
+	      apply 'stop'/0
+		  ()
+	  %% Line 126
+	  <{'coords',Coords},State> when 'true' ->
+	      %% Line 127
+	      case State of
+		<{'state',_cor77,_cor78,_cor79,_cor80}> when 'true' ->
+		    call 'erlang':'setelement'
+			(4, State, Coords)
+		( <_cor81> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 129
+	  <{'shortcut',Key},State> when 'true' ->
+	      %% Line 130
+	      case apply 'shortcut'/1
+		       (Key) of
+		%% Line 131
+		<'false'> when 'true' ->
+		    State
+		%% Line 132
+		<Cmd> when 'true' ->
+		    apply 'gui_cmd'/2
+			(Cmd, State)
+	      end
+	  %% Line 136
+	  <'Close',State> when 'true' ->
+	      %% Line 137
+	      ( case State of
+		  ( <( {'state',_cor82,_rec5,_cor83,_cor84}
+		       -| ['compiler_generated'] )> when 'true' ->
+			do  call 'dbg_wx_trace_win':'stop'
+				(_rec5)
+			    %% Line 138
+			    apply 'stop'/0
+				()
+		    -| ['compiler_generated'] )
+		  ( <_cor85> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 141
+	  <'Go To Line',State> when 'true' ->
+	      %% Line 143
+	      ( case State of
+		  ( <( {'state',_cor86,_rec6,_cor87,_cor88}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <Win> =
+			    call 'dbg_wx_trace_win':'helpwin'
+				('gotoline', _rec6)
+			in  %% Line 144
+			    call 'erlang':'setelement'
+				(3, State, Win)
+		    -| ['compiler_generated'] )
+		  ( <_cor89> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 145
+	  <{'gotoline',Line},State> when 'true' ->
+	      %% Line 146
+	      ( case State of
+		  ( <( {'state',_cor95,_rec8,_cor96,_cor97}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <Win> =
+			    call 'dbg_wx_trace_win':'select_line'
+				(_rec8, Line)
+			in  %% Line 147
+			    call 'erlang':'setelement'
+				(3, State, Win)
+		    -| ['compiler_generated'] )
+		  ( <_cor98> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 148
+	  <'Search',State> when 'true' ->
+	      %% Line 149
+	      ( case State of
+		  ( <( {'state',_cor104,_rec10,_cor105,_cor106}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <Win> =
+			    call 'dbg_wx_trace_win':'helpwin'
+				('search', _rec10)
+			in  %% Line 150
+			    call 'erlang':'setelement'
+				(3, State, Win)
+		    -| ['compiler_generated'] )
+		  ( <_cor107> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 153
+	  <'Line Break...',State> when 'true' ->
+	      %% Line 154
+	      ( case State of
+		  ( <( {'state',_rec12,_cor113,_cor114,_cor115}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor26> =
+			    %% Line 156
+			    call 'dbg_wx_trace_win':'selected_line'
+				(_cor113)
+			in  do  apply 'add_break'/5
+				    (_rec12, _cor114, 'line', _cor115, _cor26)
+				%% Line 157
+				State
+		    -| ['compiler_generated'] )
+		  ( <_cor116> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 158
+	  <'Conditional Break...',State> when 'true' ->
+	      %% Line 159
+	      ( case State of
+		  ( <( {'state',_rec16,_cor129,_cor130,_cor131}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor35> =
+			    %% Line 161
+			    call 'dbg_wx_trace_win':'selected_line'
+				(_cor129)
+			in  do  apply 'add_break'/5
+				    (_rec16, _cor130, 'conditional', _cor131, _cor35)
+				%% Line 162
+				State
+		    -| ['compiler_generated'] )
+		  ( <_cor132> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 163
+	  <'Function Break...',State> when 'true' ->
+	      %% Line 164
+	      ( case State of
+		  ( <( {'state',_rec20,_cor145,_cor146,_cor147}
+		       -| ['compiler_generated'] )> when 'true' ->
+			do  apply 'add_break'/5
+				(_rec20, _cor146, 'function', _cor147, %% Line 165
+								       'undefined')
+			    %% Line 166
+			    State
+		    -| ['compiler_generated'] )
+		  ( <_cor148> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 167
+	  <'Enable All',State> when 'true' ->
+	      let <Breaks> =
+		  %% Line 168
+		  call 'int':'all_breaks'
+		      ()
+	      in  %% Line 169
+		  ( case State of
+		      ( <( {'state',_cor157,_cor158,_cor159,_rec23}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    let <_cor54> =
+				%% Line 170
+				( fun (_cor52) ->
+				      case _cor52 of
+					<{{Mod,Line},_X_Options}>
+					    when call 'erlang':'=:='
+						  (Mod,
+						   _rec23) ->
+					    %% Line 171
+					    call 'int':'enable_break'
+						(Mod, Line)
+					%% Line 172
+					<_X_Break> when 'true' ->
+					    %% Line 173
+					    'ignore'
+				      end
+				  -| [{'id',{0,0,'-gui_cmd/2-fun-0-'}}] )
+			    in  do  %% Line 170
+				    call 'lists':'foreach'
+					(_cor54, %% Line 175
+						 Breaks)
+				    %% Line 176
+				    State
+			-| ['compiler_generated'] )
+		      ( <_cor160> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	  %% Line 177
+	  <'Disable All',State> when 'true' ->
+	      let <Breaks> =
+		  %% Line 178
+		  call 'int':'all_breaks'
+		      ()
+	      in  %% Line 179
+		  ( case State of
+		      ( <( {'state',_cor161,_cor162,_cor163,_rec24}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    let <_cor61> =
+				%% Line 180
+				( fun (_cor59) ->
+				      case _cor59 of
+					<{{Mod,Line},_X_Options}>
+					    when call 'erlang':'=:='
+						  (Mod,
+						   _rec24) ->
+					    %% Line 181
+					    call 'int':'disable_break'
+						(Mod, Line)
+					%% Line 182
+					<_X_Break> when 'true' ->
+					    %% Line 183
+					    'ignore'
+				      end
+				  -| [{'id',{0,0,'-gui_cmd/2-fun-1-'}}] )
+			    in  do  %% Line 180
+				    call 'lists':'foreach'
+					(_cor61, %% Line 185
+						 Breaks)
+				    %% Line 186
+				    State
+			-| ['compiler_generated'] )
+		      ( <_cor164> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	  %% Line 187
+	  <'Delete All',State> when 'true' ->
+	      %% Line 188
+	      ( case State of
+		  ( <( {'state',_cor165,_cor166,_cor167,_rec25}
+		       -| ['compiler_generated'] )> when 'true' ->
+			do  call 'int':'no_break'
+				(_rec25)
+			    %% Line 189
+			    State
+		    -| ['compiler_generated'] )
+		  ( <_cor168> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 190
+	  <{'break',{Mod,Line},What},State> when 'true' ->
+	      do  %% Line 191
+		  case What of
+		    %% Line 192
+		    <'add'> when 'true' ->
+			call 'int':'break'
+			    (Mod, Line)
+		    %% Line 193
+		    <'delete'> when 'true' ->
+			call 'int':'delete_break'
+			    (Mod, Line)
+		    %% Line 194
+		    <{'status','inactive'}> when 'true' ->
+			call 'int':'disable_break'
+			    (Mod, Line)
+		    %% Line 195
+		    <{'status','active'}> when 'true' ->
+			call 'int':'enable_break'
+			    (Mod, Line)
+		    %% Line 196
+		    <{'trigger',Action}> when 'true' ->
+			call 'int':'action_at_break'
+			    (Mod, Line, Action)
+		    ( <_cor64> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor64})
+		      -| ['compiler_generated'] )
+		  end
+		  %% Line 198
+		  State
+	  %% Line 201
+	  <'Debugger',State> when 'true' ->
+	      %% Line 202
+	      ( case State of
+		  ( <( {'state',_cor169,_rec26,_cor170,_cor171}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <Window> =
+			    call 'dbg_wx_trace_win':'get_window'
+				(_rec26)
+			in  let <_cor68> =
+				%% Line 203
+				call 'code':'lib_dir'
+				    ('debugger')
+			    in  let <HelpFile> =
+				    %% Line 203
+				    call 'filename':'join'
+					([_cor68|%% Line 204
+						 [[100|[111|[99]]]|[[104|[116|[109|[108]]]]|[[112|[97|[114|[116|[95|[102|[114|[97|[109|[101|[46|[104|[116|[109|[108]]]]]]]]]]]]]]]]]]])
+				in  do  %% Line 205
+					call 'dbg_wx_win':'open_help'
+					    (Window, HelpFile)
+					%% Line 206
+					State
+		    -| ['compiler_generated'] )
+		  ( <_cor172> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  ( <_cor71,_cor70> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor71,_cor70})
+		  -| [{'function_name',{'gui_cmd',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'add_break'/5 =
+    %% Line 208
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <GS,Coords,Type,'undefined',_X_Line> when 'true' ->
+	      %% Line 209
+	      call 'dbg_wx_break':'start'
+		  (GS, Coords, Type)
+	  %% Line 210
+	  <GS,Coords,Type,Mod,'undefined'> when 'true' ->
+	      %% Line 211
+	      call 'dbg_wx_break':'start'
+		  (GS, Coords, Type, Mod)
+	  %% Line 212
+	  <GS,Coords,Type,Mod,Line> when 'true' ->
+	      %% Line 213
+	      call 'dbg_wx_break':'start'
+		  (GS, Coords, Type, Mod, Line)
+	end
+'int_cmd'/2 =
+    %% Line 217
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'new_break',Break = {{Mod,_X_Line},_X_Options}},State = %% Line 218
+								    {'state',_cor19,Win,_cor20,_cor21}>
+	      when call 'erlang':'=:='
+		    (_cor21,
+		     %% Line 218
+		     Mod) ->
+	      let <_rec27> =
+		  %% Line 219
+		  call 'dbg_wx_trace_win':'add_break'
+		      (Win, 'Break', Break)
+	      in  %% Line 219
+		  call 'erlang':'setelement'
+		      (3, State, _rec27)
+	  %% Line 220
+	  <{'delete_break',Point = {Mod,_X_Line}},State = %% Line 221
+							  {'state',_cor27,Win,_cor28,_cor29}>
+	      when call 'erlang':'=:='
+		    (_cor29,
+		     %% Line 221
+		     Mod) ->
+	      let <_rec29> =
+		  %% Line 222
+		  call 'dbg_wx_trace_win':'delete_break'
+		      (Win, Point)
+	      in  %% Line 222
+		  call 'erlang':'setelement'
+		      (3, State, _rec29)
+	  %% Line 223
+	  <{'break_options',Break = {{Mod,_X_Line},_X_Options}},State = %% Line 224
+									{'state',_cor35,Win,_cor36,_cor37}>
+	      when call 'erlang':'=:='
+		    (_cor37,
+		     %% Line 224
+		     Mod) ->
+	      let <_rec31> =
+		  %% Line 225
+		  call 'dbg_wx_trace_win':'update_break'
+		      (Win, Break)
+	      in  %% Line 225
+		  call 'erlang':'setelement'
+		      (3, State, _rec31)
+	  %% Line 226
+	  <'no_break',State = {'state',_cor43,Win,_cor44,_cor45}> when 'true' ->
+	      let <_rec33> =
+		  %% Line 227
+		  call 'dbg_wx_trace_win':'clear_breaks'
+		      (Win)
+	      in  %% Line 227
+		  call 'erlang':'setelement'
+		      (3, State, _rec33)
+	  %% Line 228
+	  <{'no_break',_X_Mod},State = {'state',_cor51,Win,_cor52,_cor53}> when 'true' ->
+	      let <_rec35> =
+		  %% Line 229
+		  call 'dbg_wx_trace_win':'clear_breaks'
+		      (Win)
+	      in  %% Line 229
+		  call 'erlang':'setelement'
+		      (3, State, _rec35)
+	  %% Line 230
+	  <_cor59,State> when 'true' ->
+	      %% Line 231
+	      State
+	end
+'menus'/0 =
+    %% Line 238
+    fun () ->
+	%% Line 239
+	[{'File',[{'Close',0}]}|[{'Edit',[{'Go To Line',0}|[{'Search',0}]]}|[{'Break',[{'Line Break...',5}|[{'Conditional Break...',13}|[{'Function Break...',0}|['separator'|[{'Enable All','no'}|[{'Disable All','no'}|[{'Delete All',0}|['separator']]]]]]]]}|[{'Windows',[]}|[{'Help',[{'Debugger','no'}]}]]]]]
+'shortcut'/1 =
+    %% Line 253
+    fun (_cor0) ->
+	case _cor0 of
+	  <'c'> when 'true' ->
+	      'Close'
+	  %% Line 254
+	  <'g'> when 'true' ->
+	      'Go To Line'
+	  %% Line 255
+	  <'s'> when 'true' ->
+	      'Search'
+	  %% Line 256
+	  <'b'> when 'true' ->
+	      'Line Break...'
+	  %% Line 257
+	  <'r'> when 'true' ->
+	      'Conditional Break...'
+	  %% Line 258
+	  <'f'> when 'true' ->
+	      'Function Break...'
+	  %% Line 259
+	  <'d'> when 'true' ->
+	      'Delete All'
+	  %% Line 261
+	  <_cor2> when 'true' ->
+	      'false'
+	end
+'gui_load_module'/2 =
+    %% Line 263
+    fun (_cor1,_cor0) ->
+	do  %% Line 264
+	    call 'dbg_wx_trace_win':'display'
+		(_cor1, {'text',[76|[111|[97|[100|[105|[110|[103|[32|[109|[111|[100|[117|[108|[101|[46|[46|[46]]]]]]]]]]]]]]]]]})
+	    %% Line 265
+	    case call 'dbg_iserver':'call'
+		     ({'raw_contents',_cor0,'any'}) of
+	      <{'ok',Contents}> when 'true' ->
+		  let <Win2> =
+		      %% Line 266
+		      call 'dbg_wx_trace_win':'show_code'
+			  (_cor1, _cor0, Contents)
+		  in  do  %% Line 267
+			  call 'dbg_wx_trace_win':'display'
+			      (_cor1, {'text',[]})
+			  %% Line 268
+			  Win2
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor2})
+		-| ['compiler_generated'] )
+	    end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('dbg_wx_view')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('dbg_wx_view', _cor0)
+end

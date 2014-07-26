@@ -1,0 +1,3328 @@
+module 'eunit_lib' ['cmd_test_'/0,
+		    'command'/1,
+		    'command'/2,
+		    'command'/3,
+		    'consult_file'/1,
+		    'dlist_next'/1,
+		    'dlist_test_'/0,
+		    'format_error'/1,
+		    'format_exception'/1,
+		    'format_exception'/2,
+		    'format_exception_test_'/0,
+		    'format_exit_term'/1,
+		    'fun_parent'/1,
+		    'fun_parent_test'/0,
+		    'is_not_test'/1,
+		    'is_string'/1,
+		    'is_string_test_'/0,
+		    'list_dir'/1,
+		    'module_info'/0,
+		    'module_info'/1,
+		    'split_node'/1,
+		    'test'/0,
+		    'trie_match'/2,
+		    'trie_new'/0,
+		    'trie_store'/2,
+		    'trie_test_'/0,
+		    'uniq'/1,
+		    'uniq_test_'/0]
+    attributes []
+'format_exception'/1 =
+    %% Line 53
+    fun (_cor0) ->
+	%% Line 54
+	apply 'format_exception'/2
+	    (_cor0, 20)
+'format_exception'/2 =
+    %% Line 56
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Class,Term,Trace},Depth>
+	      when let <_cor2> =
+		    %% Line 57
+		    call 'erlang':'is_atom'
+			(Class)
+		in  let <_cor3> =
+			%% Line 57
+			call 'erlang':'is_list'
+			    (Trace)
+		    in  %% Line 57
+			call 'erlang':'and'
+			    (_cor2, _cor3) ->
+	      %% Line 58
+	      case apply 'is_stacktrace'/1
+		       (Trace) of
+		%% Line 59
+		<'true'> when 'true' ->
+		    let <_cor4> =
+			%% Line 61
+			apply 'format_stacktrace'/1
+			    (Trace)
+		    in  let <_cor5> =
+			    %% Line 62
+			    apply 'format_term'/2
+				(Term, Depth)
+			in  %% Line 60
+			    call 'io_lib':'format'
+				([126|[115|[42|[42|[126|[119|[58|[126|[115]]]]]]]]], %% Line 61
+										     [_cor4|[Class|%% Line 62
+												   [_cor5|[]]]])
+		%% Line 63
+		<'false'> when 'true' ->
+		    %% Line 64
+		    apply 'format_term'/2
+			(Term, Depth)
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 66
+	  <Term,Depth> when 'true' ->
+	      %% Line 67
+	      apply 'format_term'/2
+		  (Term, Depth)
+	end
+'format_term'/2 =
+    %% Line 69
+    fun (_cor1,_cor0) ->
+	%% Line 70
+	call 'io_lib':'format'
+	    ([126|[80|[10]]], [_cor1|[_cor0|[]]])
+'format_exit_term'/1 =
+    %% Line 72
+    fun (_cor0) ->
+	%% Line 73
+	case apply 'analyze_exit_term'/1
+		 (_cor0) of
+	  <{Reason,Trace}> when 'true' ->
+	      %% Line 74
+	      call 'io_lib':'format'
+		  ([126|[80|[126|[115]]]], [Reason|[15|[Trace|[]]]])
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'analyze_exit_term'/1 =
+    %% Line 76
+    fun (_cor0) ->
+	case _cor0 of
+	  <Term = {Reason,Trace = [_cor4|_cor5]}> when 'true' ->
+	      %% Line 77
+	      case apply 'is_stacktrace'/1
+		       (Trace) of
+		%% Line 78
+		<'true'> when 'true' ->
+		    let <_cor1> =
+			%% Line 79
+			apply 'format_stacktrace'/1
+			    (Trace)
+		    in  %% Line 79
+			{Reason,_cor1}
+		%% Line 80
+		<'false'> when 'true' ->
+		    %% Line 81
+		    {Term,[]}
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 83
+	  <Term> when 'true' ->
+	      %% Line 84
+	      {Term,[]}
+	end
+'is_stacktrace'/1 =
+    %% Line 86
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 87
+	      'true'
+	  %% Line 88
+	  <[{M,F,A,L}|Fs]>
+	      when %% Line 89
+		try
+		    let <_cor1> =
+			call 'erlang':'is_atom'
+			    (M)
+		    in  let <_cor2> =
+			    call 'erlang':'is_atom'
+				(F)
+			in  let <_cor3> =
+				call 'erlang':'is_integer'
+				    (A)
+			    in  let <_cor4> =
+				    call 'erlang':'is_list'
+					(L)
+				in  let <_cor5> =
+					call 'erlang':'and'
+					    (_cor3, _cor4)
+				    in  let <_cor6> =
+					    call 'erlang':'and'
+						(_cor2, _cor5)
+					in  call 'erlang':'and'
+						(_cor1, _cor6)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 90
+	      apply 'is_stacktrace'/1
+		  (Fs)
+	  %% Line 91
+	  <[{M,F,As,L}|Fs]>
+	      when %% Line 92
+		try
+		    let <_cor7> =
+			call 'erlang':'is_atom'
+			    (M)
+		    in  let <_cor8> =
+			    call 'erlang':'is_atom'
+				(F)
+			in  let <_cor9> =
+				call 'erlang':'is_list'
+				    (As)
+			    in  let <_cor10> =
+				    call 'erlang':'is_list'
+					(L)
+				in  let <_cor11> =
+					call 'erlang':'and'
+					    (_cor9, _cor10)
+				    in  let <_cor12> =
+					    call 'erlang':'and'
+						(_cor8, _cor11)
+					in  call 'erlang':'and'
+						(_cor7, _cor12)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 93
+	      apply 'is_stacktrace'/1
+		  (Fs)
+	  %% Line 94
+	  <[{M,F,A}|Fs]>
+	      when try
+		    let <_cor13> =
+			call 'erlang':'is_atom'
+			    (M)
+		    in  let <_cor14> =
+			    call 'erlang':'is_atom'
+				(F)
+			in  let <_cor15> =
+				call 'erlang':'is_integer'
+				    (A)
+			    in  let <_cor16> =
+				    call 'erlang':'and'
+					(_cor14, _cor15)
+				in  call 'erlang':'and'
+					(_cor13, _cor16)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 95
+	      apply 'is_stacktrace'/1
+		  (Fs)
+	  %% Line 96
+	  <[{M,F,As}|Fs]>
+	      when try
+		    let <_cor17> =
+			call 'erlang':'is_atom'
+			    (M)
+		    in  let <_cor18> =
+			    call 'erlang':'is_atom'
+				(F)
+			in  let <_cor19> =
+				call 'erlang':'is_list'
+				    (As)
+			    in  let <_cor20> =
+				    call 'erlang':'and'
+					(_cor18, _cor19)
+				in  call 'erlang':'and'
+					(_cor17, _cor20)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 97
+	      apply 'is_stacktrace'/1
+		  (Fs)
+	  %% Line 98
+	  <_cor22> when 'true' ->
+	      %% Line 99
+	      'false'
+	end
+'format_stacktrace'/1 =
+    %% Line 101
+    fun (_cor0) ->
+	%% Line 102
+	apply 'format_stacktrace'/3
+	    (_cor0, [105|[110|[32|[102|[117|[110|[99|[116|[105|[111|[110]]]]]]]]]]], [105|[110|[32|[99|[97|[108|[108|[32|[102|[114|[111|[109]]]]]]]]]]]])
+'format_stacktrace'/3 =
+    %% Line 104
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[{M,F,A,L}|Fs],Pre,Pre1>
+	      when call 'erlang':'is_integer'
+		    (A) ->
+	      let <_cor3> =
+		  %% Line 106
+		  apply 'format_stacktrace_location'/1
+		      (L)
+	      in  let <_cor4> =
+		      %% Line 105
+		      call 'io_lib':'fwrite'
+			  ([126|[115|[32|[126|[119|[58|[126|[119|[47|[126|[119|[126|[115|[10]]]]]]]]]]]]]], %% Line 106
+													    [Pre|[M|[F|[A|[_cor3|[]]]]]])
+		  in  let <_cor5> =
+			  %% Line 107
+			  apply 'format_stacktrace'/3
+			      (Fs, Pre1, Pre1)
+		      in  %% Line 105
+			  [_cor4|_cor5]
+	  %% Line 108
+	  <[{M,F,As,L}|Fs],Pre,Pre1>
+	      when call 'erlang':'is_list'
+		    (As) ->
+	      let <A> =
+		  %% Line 109
+		  call 'erlang':'length'
+		      (As)
+	      in  let <_cor14> =
+		      %% Line 110
+		      case apply 'is_op'/3
+			       (M, F, A) of
+			%% Line 111
+			<'true'>
+			    when call 'erlang':'=:='
+				  (A,
+				   1) ->
+			    %% Line 112
+			    case As of
+			      <[A1|[]]> when 'true' ->
+				  let <_cor8> =
+				      %% Line 113
+				      apply 'format_arg'/1
+					  (A1)
+				  in  %% Line 113
+				      call 'io_lib':'fwrite'
+					  ([126|[115|[32|[126|[115]]]]], [F|[_cor8|[]]])
+			      ( <_cor7> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor7})
+				-| ['compiler_generated'] )
+			    end
+			%% Line 114
+			<'true'>
+			    when call 'erlang':'=:='
+				  (A,
+				   2) ->
+			    %% Line 115
+			    case As of
+			      <[A1|[A2|[]]]> when 'true' ->
+				  let <_cor10> =
+				      %% Line 117
+				      apply 'format_arg'/1
+					  (A1)
+				  in  let <_cor11> =
+					  %% Line 117
+					  apply 'format_arg'/1
+					      (A2)
+				      in  %% Line 116
+					  call 'io_lib':'fwrite'
+					      ([126|[115|[32|[126|[115|[32|[126|[115]]]]]]]], %% Line 117
+											      [_cor10|[F|[_cor11|[]]]])
+			      ( <_cor9> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor9})
+				-| ['compiler_generated'] )
+			    end
+			%% Line 118
+			<'false'> when 'true' ->
+			    let <_cor12> =
+				%% Line 119
+				apply 'format_arglist'/1
+				    (As)
+			    in  %% Line 119
+				call 'io_lib':'fwrite'
+				    ([126|[119|[40|[126|[115|[41]]]]]], [F|[_cor12|[]]])
+			( <_cor13> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor13})
+			  -| ['compiler_generated'] )
+		      end
+		  in  let <_cor16> =
+			  %% Line 122
+			  apply 'format_stacktrace_location'/1
+			      (L)
+		      in  let <_cor17> =
+			      %% Line 121
+			      call 'io_lib':'fwrite'
+				  ([126|[115|[32|[126|[119|[58|[126|[119|[47|[126|[119|[126|[115|[10|[32|[32|[99|[97|[108|[108|[101|[100|[32|[97|[115|[32|[126|[115|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 122
+																								      [Pre|[M|[F|[A|[_cor16|[_cor14|[]]]]]]])
+			  in  let <_cor18> =
+				  %% Line 123
+				  apply 'format_stacktrace'/3
+				      (Fs, Pre1, Pre1)
+			      in  %% Line 121
+				  [_cor17|_cor18]
+	  %% Line 124
+	  <[{M,F,As}|Fs],Pre,Pre1> when 'true' ->
+	      %% Line 125
+	      apply 'format_stacktrace'/3
+		  ([{M,F,As,[]}|Fs], Pre, Pre1)
+	  %% Line 126
+	  <[],_X_Pre,_X_Pre1> when 'true' ->
+	      %% Line 127
+	      []
+	  ( <_cor21,_cor20,_cor19> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor21,_cor20,_cor19})
+		  -| [{'function_name',{'format_stacktrace',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'format_stacktrace_location'/1 =
+    %% Line 129
+    fun (_cor0) ->
+	let <File> =
+	    %% Line 130
+	    call 'proplists':'get_value'
+		('file', _cor0)
+	in  let <Line> =
+		%% Line 131
+		call 'proplists':'get_value'
+		    ('line', _cor0)
+	    in  %% Line 132
+		case <> of
+		  <>
+		      when let <_cor3> =
+			    call 'erlang':'=/='
+				(File, 'undefined')
+			in  let <_cor4> =
+				call 'erlang':'=/='
+				    (Line, 'undefined')
+			    in  call 'erlang':'and'
+				    (_cor3, _cor4) ->
+		      %% Line 133
+		      call 'io_lib':'format'
+			  ([32|[40|[126|[115|[44|[32|[108|[105|[110|[101|[32|[126|[119|[41]]]]]]]]]]]]]], [File|[Line|[]]])
+		  %% Line 134
+		  <> when 'true' ->
+		      %% Line 135
+		      []
+		end
+'format_arg'/1 =
+    %% Line 138
+    fun (_cor0) ->
+	%% Line 139
+	call 'io_lib':'format'
+	    ([126|[80]], [_cor0|[15]])
+'format_arglist'/1 =
+    %% Line 141
+    fun (_cor0) ->
+	case _cor0 of
+	  <[A|[]]> when 'true' ->
+	      %% Line 142
+	      apply 'format_arg'/1
+		  (A)
+	  %% Line 143
+	  <[A|As]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 144
+		  call 'io_lib':'format'
+		      ([126|[80|[44]]], [A|[15]])
+	      in  let <_cor2> =
+		      %% Line 144
+		      apply 'format_arglist'/1
+			  (As)
+		  in  %% Line 144
+		      [_cor1|_cor2]
+	  %% Line 145
+	  <[]> when 'true' ->
+	      %% Line 146
+	      []
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'format_arglist',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'is_op'/3 =
+    %% Line 148
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'erlang',F,A> when 'true' ->
+	      %% Line 150
+	      ( case call 'erl_internal':'arith_op'
+			 (F, A) of
+		  ( <( 'true'
+		       -| ['compiler_generated'] )> when 'true' ->
+			'true'
+		    -| ['compiler_generated'] )
+		  ( <( 'false'
+		       -| ['compiler_generated'] )> when 'true' ->
+			%% Line 151
+			( case call 'erl_internal':'bool_op'
+				   (F, A) of
+			    ( <( 'true'
+				 -| ['compiler_generated'] )> when 'true' ->
+				  'true'
+			      -| ['compiler_generated'] )
+			    ( <( 'false'
+				 -| ['compiler_generated'] )> when 'true' ->
+				  %% Line 152
+				  ( case call 'erl_internal':'comp_op'
+					     (F, A) of
+				      ( <( 'true'
+					   -| ['compiler_generated'] )> when 'true' ->
+					    'true'
+					-| ['compiler_generated'] )
+				      ( <( 'false'
+					   -| ['compiler_generated'] )> when 'true' ->
+					    %% Line 153
+					    ( case call 'erl_internal':'list_op'
+						       (F, A) of
+						( <( 'true'
+						     -| ['compiler_generated'] )> when 'true' ->
+						      'true'
+						  -| ['compiler_generated'] )
+						( <( 'false'
+						     -| ['compiler_generated'] )> when 'true' ->
+						      call 'erl_internal':'send_op'
+							  (F, A)
+						  -| ['compiler_generated'] )
+						( <_cor6> when 'true' ->
+						      ( call ( 'erlang'
+							       -| ['compiler_generated'] ):( 'error'
+											     -| ['compiler_generated'] )
+							    (( {( 'badarg'
+								  -| ['compiler_generated'] ),_cor6}
+							       -| ['compiler_generated'] ))
+							-| ['compiler_generated'] )
+						  -| ['compiler_generated'] )
+					      end
+					      -| ['compiler_generated'] )
+					-| ['compiler_generated'] )
+				      ( <_cor5> when 'true' ->
+					    ( call ( 'erlang'
+						     -| ['compiler_generated'] ):( 'error'
+										   -| ['compiler_generated'] )
+						  (( {( 'badarg'
+							-| ['compiler_generated'] ),_cor5}
+						     -| ['compiler_generated'] ))
+					      -| ['compiler_generated'] )
+					-| ['compiler_generated'] )
+				    end
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			    ( <_cor4> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {( 'badarg'
+					      -| ['compiler_generated'] ),_cor4}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		  ( <_cor3> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {( 'badarg'
+				    -| ['compiler_generated'] ),_cor3}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 154
+	  <_X_M,_X_F,_X_A> when 'true' ->
+	      %% Line 155
+	      'false'
+	end
+'format_error'/1 =
+    %% Line 157
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'bad_test',Term}> when 'true' ->
+	      %% Line 158
+	      apply 'error_msg'/3
+		  ([98|[97|[100|[32|[116|[101|[115|[116|[32|[100|[101|[115|[99|[114|[105|[112|[116|[111|[114]]]]]]]]]]]]]]]]]]], [126|[80]], [Term|[15]])
+	  %% Line 159
+	  <{'bad_generator',{{M,F,A},Term}}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 160
+		  call 'io_lib':'format'
+		      ([114|[101|[115|[117|[108|[116|[32|[102|[114|[111|[109|[32|[103|[101|[110|[101|[114|[97|[116|[111|[114|[32|[126|[119|[58|[126|[119|[47|[126|[119|[32|[105|[115|[32|[110|[111|[116|[32|[97|[32|[116|[101|[115|[116]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 161
+																																		     [M|[F|[A|[]]]])
+	      in  %% Line 160
+		  apply 'error_msg'/3
+		      (_cor1, %% Line 162
+			      [126|[80]], %% Line 162
+					  [Term|[15]])
+	  %% Line 163
+	  <{'generator_failed',{{M,F,A},Exception}}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 164
+		  call 'io_lib':'format'
+		      ([116|[101|[115|[116|[32|[103|[101|[110|[101|[114|[97|[116|[111|[114|[32|[126|[119|[58|[126|[119|[47|[126|[119|[32|[102|[97|[105|[108|[101|[100]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [M|[F|[A|[]]]])
+	      in  let <_cor2> =
+		      %% Line 165
+		      apply 'format_exception'/1
+			  (Exception)
+		  in  %% Line 164
+		      apply 'error_msg'/3
+			  (_cor3, %% Line 165
+				  [126|[115]], %% Line 165
+					       [_cor2|[]])
+	  %% Line 166
+	  <{'no_such_function',{M,F,A}}>
+	      when %% Line 167
+		try
+		    let <_cor4> =
+			call 'erlang':'is_atom'
+			    (M)
+		    in  let <_cor5> =
+			    call 'erlang':'is_atom'
+				(F)
+			in  let <_cor6> =
+				call 'erlang':'is_integer'
+				    (A)
+			    in  let <_cor7> =
+				    call 'erlang':'and'
+					(_cor5, _cor6)
+				in  call 'erlang':'and'
+					(_cor4, _cor7)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor8> =
+		  %% Line 168
+		  call 'io_lib':'format'
+		      ([110|[111|[32|[115|[117|[99|[104|[32|[102|[117|[110|[99|[116|[105|[111|[110|[58|[32|[126|[119|[58|[126|[119|[47|[126|[119]]]]]]]]]]]]]]]]]]]]]]]]]], [M|[F|[A|[]]]])
+	      in  %% Line 168
+		  apply 'error_msg'/3
+		      (_cor8, %% Line 169
+			      [], %% Line 169
+				  [])
+	  %% Line 170
+	  <{'module_not_found',M}> when 'true' ->
+	      %% Line 171
+	      apply 'error_msg'/3
+		  ([116|[101|[115|[116|[32|[109|[111|[100|[117|[108|[101|[32|[110|[111|[116|[32|[102|[111|[117|[110|[100]]]]]]]]]]]]]]]]]]]]], [126|[112]], [M|[]])
+	  %% Line 172
+	  <{'application_not_found',A}>
+	      when call 'erlang':'is_atom'
+		    (A) ->
+	      %% Line 173
+	      apply 'error_msg'/3
+		  ([97|[112|[112|[108|[105|[99|[97|[116|[105|[111|[110|[32|[110|[111|[116|[32|[102|[111|[117|[110|[100]]]]]]]]]]]]]]]]]]]]], [126|[119]], [A|[]])
+	  %% Line 174
+	  <{'file_read_error',{_X_R,Msg,F}}> when 'true' ->
+	      %% Line 175
+	      apply 'error_msg'/3
+		  ([101|[114|[114|[111|[114|[32|[114|[101|[97|[100|[105|[110|[103|[32|[102|[105|[108|[101]]]]]]]]]]]]]]]]]], [126|[115|[58|[32|[126|[115]]]]]], [Msg|[F|[]]])
+	  %% Line 176
+	  <{'setup_failed',Exception}> when 'true' ->
+	      let <_cor9> =
+		  %% Line 178
+		  apply 'format_exception'/1
+		      (Exception)
+	      in  %% Line 177
+		  apply 'error_msg'/3
+		      ([99|[111|[110|[116|[101|[120|[116|[32|[115|[101|[116|[117|[112|[32|[102|[97|[105|[108|[101|[100]]]]]]]]]]]]]]]]]]]], [126|[115]], %% Line 178
+																			 [_cor9|[]])
+	  %% Line 179
+	  <{'cleanup_failed',Exception}> when 'true' ->
+	      let <_cor10> =
+		  %% Line 181
+		  apply 'format_exception'/1
+		      (Exception)
+	      in  %% Line 180
+		  apply 'error_msg'/3
+		      ([99|[111|[110|[116|[101|[120|[116|[32|[99|[108|[101|[97|[110|[117|[112|[32|[102|[97|[105|[108|[101|[100]]]]]]]]]]]]]]]]]]]]]], [126|[115]], %% Line 181
+																				   [_cor10|[]])
+	  %% Line 182
+	  <{{'bad_instantiator',{{M,F,A},Term}},_X_DummyException}> when 'true' ->
+	      let <_cor11> =
+		  %% Line 183
+		  call 'io_lib':'format'
+		      ([114|[101|[115|[117|[108|[116|[32|[102|[114|[111|[109|[32|[105|[110|[115|[116|[97|[110|[116|[105|[97|[116|[111|[114|[32|[126|[119|[58|[126|[119|[47|[126|[119|[32|[105|[115|[32|[110|[111|[116|[32|[97|[32|[116|[101|[115|[116]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 184
+																																				      [M|[F|[A|[]]]])
+	      in  %% Line 183
+		  apply 'error_msg'/3
+		      (_cor11, %% Line 185
+			       [126|[80]], %% Line 185
+					   [Term|[15]])
+	  %% Line 186
+	  <{'instantiation_failed',Exception}> when 'true' ->
+	      let <_cor12> =
+		  %% Line 188
+		  apply 'format_exception'/1
+		      (Exception)
+	      in  %% Line 187
+		  apply 'error_msg'/3
+		      ([105|[110|[115|[116|[97|[110|[116|[105|[97|[116|[105|[111|[110|[32|[111|[102|[32|[115|[117|[98|[116|[101|[115|[116|[115|[32|[102|[97|[105|[108|[101|[100]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [126|[115]], %% Line 188
+																											      [_cor12|[]])
+	  ( <_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13})
+		  -| [{'function_name',{'format_error',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'error_msg'/3 =
+    %% Line 190
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 191
+	    [42|[42|_cor1]]
+	in  let <Msg> =
+		%% Line 191
+		call 'io_lib':'format'
+		    (_cor3, _cor0)
+	    in  %% Line 192
+		call 'io_lib':'fwrite'
+		    ([42|[42|[42|[32|[126|[115|[32|[42|[42|[42|[10|[126|[115|[10|[10]]]]]]]]]]]]]]], [_cor2|[Msg|[]]])
+'format_exception_test_'/0 =
+    %% Line 195
+    fun () ->
+	let <_cor10> =
+	    %% Line 196
+	    ( fun () ->
+		  let <_cor9> =
+		      ( fun () ->
+			    let <_cor5> =
+				%% Line 199
+				try
+				    call 'erlang':'error'
+					('dummy')
+				of <_cor0> ->
+				    _cor0
+				catch <_cor3,_cor2,_cor1> ->
+				    let <_cor4> =
+					%% Line 200
+					call 'erlang':'get_stacktrace'
+					    ()
+				    in  %% Line 200
+					{_cor3,_cor2,_cor4}
+			    in  let <_cor6> =
+				    %% Line 199
+				    apply 'format_exception'/1
+					(_cor5)
+				in  let <_cor7> =
+					%% Line 198
+					call 'lists':'flatten'
+					    (_cor6)
+				    in  case %% Line 198
+					     call 'lists':'reverse'
+						 (_cor7) of
+					  %% Line 197
+					  <[10|[121|[109|[109|[117|[100|[58|[114|[111|[114|[114|[101|_cor23]]]]]]]]]]]]> when 'true' ->
+					      'ok'
+					  %% Line 197
+					  <_X__V> when 'true' ->
+					      call 'erlang':'error'
+						  ({'assertMatch_failed',[{'module','eunit_lib'}|[{'line',197}|[{'expression',[108|[105|[115|[116|[115|[32|[58|[32|[114|[101|[118|[101|[114|[115|[101|[32|[40|[32|[108|[105|[115|[116|[115|[32|[58|[32|[102|[108|[97|[116|[116|[101|[110|[32|[40|[32|[102|[111|[114|[109|[97|[116|[95|[101|[120|[99|[101|[112|[116|[105|[111|[110|[32|[40|[32|[116|[114|[121|[32|[101|[114|[108|[97|[110|[103|[32|[58|[32|[101|[114|[114|[111|[114|[32|[40|[32|[100|[117|[109|[109|[121|[32|[41|[32|[99|[97|[116|[99|[104|[32|[67|[32|[58|[32|[82|[32|[45|[62|[32|[123|[32|[67|[32|[44|[32|[82|[32|[44|[32|[101|[114|[108|[97|[110|[103|[32|[58|[32|[103|[101|[116|[95|[115|[116|[97|[99|[107|[116|[114|[97|[99|[101|[32|[40|[32|[41|[32|[125|[32|[101|[110|[100|[32|[41|[32|[41|[32|[41]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'pattern',[34|[92|[110|[121|[109|[109|[117|[100|[58|[114|[111|[114|[114|[101|[34|[32|[43|[43|[32|[95]]]]]]]]]]]]]]]]]]]]}|[{'value',_X__V}|[]]]]]]})
+					end
+			-| [{'id',{0,0,'-format_exception_test_/0-fun-0-'}}] )
+		  in  apply _cor9
+			  ()
+	      -| [{'id',{0,0,'-format_exception_test_/0-fun-1-'}}] )
+	in  let <_cor21> =
+		%% Line 202
+		( fun () ->
+		      let <_cor20> =
+			  ( fun () ->
+				let <_cor16> =
+				    %% Line 205
+				    try
+					call 'erlang':'error'
+					    ('dummy', ['a'])
+				    of <_cor11> ->
+					_cor11
+				    catch <_cor14,_cor13,_cor12> ->
+					let <_cor15> =
+					    %% Line 206
+					    call 'erlang':'get_stacktrace'
+						()
+					in  %% Line 206
+					    {_cor14,_cor13,_cor15}
+				in  let <_cor17> =
+					%% Line 205
+					apply 'format_exception'/1
+					    (_cor16)
+				    in  let <_cor18> =
+					    %% Line 204
+					    call 'lists':'flatten'
+						(_cor17)
+					in  case %% Line 204
+						 call 'lists':'reverse'
+						     (_cor18) of
+					      %% Line 203
+					      <[10|[121|[109|[109|[117|[100|[58|[114|[111|[114|[114|[101|_cor25]]]]]]]]]]]]> when 'true' ->
+						  'ok'
+					      %% Line 203
+					      <_X__V> when 'true' ->
+						  call 'erlang':'error'
+						      ({'assertMatch_failed',[{'module','eunit_lib'}|[{'line',203}|[{'expression',[108|[105|[115|[116|[115|[32|[58|[32|[114|[101|[118|[101|[114|[115|[101|[32|[40|[32|[108|[105|[115|[116|[115|[32|[58|[32|[102|[108|[97|[116|[116|[101|[110|[32|[40|[32|[102|[111|[114|[109|[97|[116|[95|[101|[120|[99|[101|[112|[116|[105|[111|[110|[32|[40|[32|[116|[114|[121|[32|[101|[114|[108|[97|[110|[103|[32|[58|[32|[101|[114|[114|[111|[114|[32|[40|[32|[100|[117|[109|[109|[121|[32|[44|[32|[91|[32|[97|[32|[93|[32|[41|[32|[99|[97|[116|[99|[104|[32|[67|[32|[58|[32|[82|[32|[45|[62|[32|[123|[32|[67|[32|[44|[32|[82|[32|[44|[32|[101|[114|[108|[97|[110|[103|[32|[58|[32|[103|[101|[116|[95|[115|[116|[97|[99|[107|[116|[114|[97|[99|[101|[32|[40|[32|[41|[32|[125|[32|[101|[110|[100|[32|[41|[32|[41|[32|[41]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'pattern',[34|[92|[110|[121|[109|[109|[117|[100|[58|[114|[111|[114|[114|[101|[34|[32|[43|[43|[32|[95]]]]]]]]]]]]]]]]]]]]}|[{'value',_X__V}|[]]]]]]})
+					    end
+			    -| [{'id',{0,0,'-format_exception_test_/0-fun-2-'}}] )
+		      in  apply _cor20
+			      ()
+		  -| [{'id',{0,0,'-format_exception_test_/0-fun-3-'}}] )
+	    in  %% Line 196
+		[{196,_cor10}|%% Line 202
+			      [{202,_cor21}|%% Line 207
+					    []]]
+'is_not_test'/1 =
+    %% Line 213
+    fun (_cor0) ->
+	%% Line 214
+	case _cor0 of
+	  %% Line 215
+	  <'ok'> when 'true' ->
+	      'true'
+	  %% Line 216
+	  <'error'> when 'true' ->
+	      'true'
+	  %% Line 217
+	  <'true'> when 'true' ->
+	      'true'
+	  %% Line 218
+	  <'false'> when 'true' ->
+	      'true'
+	  %% Line 219
+	  <'undefined'> when 'true' ->
+	      'true'
+	  %% Line 220
+	  <{'ok',_cor3}> when 'true' ->
+	      'true'
+	  %% Line 221
+	  <{'error',_cor4}> when 'true' ->
+	      'true'
+	  %% Line 222
+	  <{'EXIT',_cor5}> when 'true' ->
+	      'true'
+	  %% Line 223
+	  <N>
+	      when call 'erlang':'is_number'
+		    (_cor0) ->
+	      'true'
+	  %% Line 224
+	  <[N|_cor6]>
+	      when call 'erlang':'is_number'
+		    (N) ->
+	      'true'
+	  %% Line 225
+	  <X>
+	      when call 'erlang':'is_binary'
+		    (_cor0) ->
+	      'true'
+	  %% Line 226
+	  <X>
+	      when call 'erlang':'is_pid'
+		    (_cor0) ->
+	      'true'
+	  %% Line 227
+	  <X>
+	      when call 'erlang':'is_port'
+		    (_cor0) ->
+	      'true'
+	  %% Line 228
+	  <X>
+	      when call 'erlang':'is_reference'
+		    (_cor0) ->
+	      'true'
+	  %% Line 229
+	  <_cor7> when 'true' ->
+	      'false'
+	end
+'dlist_next'/1 =
+    %% Line 241
+    fun (_cor0) ->
+	case _cor0 of
+	  <Xs0 = [X|Xs]>
+	      when call 'erlang':'is_list'
+		    (X) ->
+	      %% Line 242
+	      case apply 'is_nonempty_string'/1
+		       (X) of
+		%% Line 243
+		<'true'> when 'true' ->
+		    Xs0
+		%% Line 244
+		<'false'> when 'true' ->
+		    apply 'dlist_next'/2
+			(X, Xs)
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 246
+	  <Xs = [_cor4|_cor5]> when 'true' ->
+	      %% Line 247
+	      case apply 'is_nonempty_string'/1
+		       (Xs) of
+		%% Line 248
+		<'true'> when 'true' ->
+		    [Xs|[]]
+		%% Line 249
+		<'false'> when 'true' ->
+		    Xs
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 251
+	  <[]> when 'true' ->
+	      %% Line 252
+	      []
+	  %% Line 253
+	  <X> when 'true' ->
+	      %% Line 254
+	      [X|[]]
+	end
+'dlist_next'/2 =
+    %% Line 257
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[X|[]],Ys>
+	      when call 'erlang':'is_list'
+		    (X) ->
+	      %% Line 258
+	      case apply 'is_nonempty_string'/1
+		       (X) of
+		%% Line 259
+		<'true'> when 'true' ->
+		    [X|Ys]
+		%% Line 260
+		<'false'> when 'true' ->
+		    apply 'dlist_next'/2
+			(X, Ys)
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 262
+	  <[X|[]],Ys> when 'true' ->
+	      %% Line 263
+	      [X|Ys]
+	  %% Line 264
+	  <[X|Xs],Ys>
+	      when call 'erlang':'is_list'
+		    (X) ->
+	      %% Line 265
+	      case apply 'is_nonempty_string'/1
+		       (X) of
+		%% Line 266
+		<'true'> when 'true' ->
+		    [X|[Xs|Ys]]
+		%% Line 267
+		<'false'> when 'true' ->
+		    apply 'dlist_next'/2
+			(X, [Xs|Ys])
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 269
+	  <[X|Xs],Ys> when 'true' ->
+	      %% Line 270
+	      [X|[Xs|Ys]]
+	  %% Line 271
+	  <[],Xs> when 'true' ->
+	      %% Line 272
+	      apply 'dlist_next'/1
+		  (Xs)
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'dlist_next',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'dlist_test_'/0 =
+    %% Line 276
+    fun () ->
+	let <_cor1> =
+	    %% Line 279
+	    ( fun () ->
+		  let <_cor36> =
+		      apply 'dlist_next'/1
+			  ('any')
+		  in  case _cor36 of
+			<['any']> when 'true' ->
+			    ( _cor36
+			      -| ['compiler_generated'] )
+			( <_cor0> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor0})
+			  -| ['compiler_generated'] )
+		      end
+	      -| [{'id',{0,0,'-dlist_test_/0-fun-0-'}}] )
+	in  let <_cor3> =
+		%% Line 281
+		( fun () ->
+		      let <_cor37> =
+			  apply 'dlist_next'/1
+			      ([])
+		      in  case _cor37 of
+			    <[]> when 'true' ->
+				( _cor37
+				  -| ['compiler_generated'] )
+			    ( <_cor2> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor2})
+			      -| ['compiler_generated'] )
+			  end
+		  -| [{'id',{0,0,'-dlist_test_/0-fun-1-'}}] )
+	    in  let <_cor5> =
+		    %% Line 283
+		    ( fun () ->
+			  let <_cor38> =
+			      apply 'dlist_next'/1
+				  (['any'])
+			  in  case _cor38 of
+				<['any']> when 'true' ->
+				    ( _cor38
+				      -| ['compiler_generated'] )
+				( <_cor4> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor4})
+				  -| ['compiler_generated'] )
+			      end
+		      -| [{'id',{0,0,'-dlist_test_/0-fun-2-'}}] )
+		in  let <_cor7> =
+			%% Line 285
+			( fun () ->
+			      let <_cor39> =
+				  apply 'dlist_next'/1
+				      (['a'|['b'|['c']]])
+			      in  case _cor39 of
+				    <['a'|['b'|['c']]]> when 'true' ->
+					( _cor39
+					  -| ['compiler_generated'] )
+				    ( <_cor6> when 'true' ->
+					  primop 'match_fail'
+					      ({'badmatch',_cor6})
+				      -| ['compiler_generated'] )
+				  end
+			  -| [{'id',{0,0,'-dlist_test_/0-fun-3-'}}] )
+		    in  let <_cor9> =
+			    %% Line 287
+			    ( fun () ->
+				  let <_cor40> =
+				      apply 'dlist_next'/1
+					  ([[]|['a'|['b'|['c']]]])
+				  in  case _cor40 of
+					<['a'|['b'|['c']]]> when 'true' ->
+					    ( _cor40
+					      -| ['compiler_generated'] )
+					( <_cor8> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor8})
+					  -| ['compiler_generated'] )
+				      end
+			      -| [{'id',{0,0,'-dlist_test_/0-fun-4-'}}] )
+			in  let <_cor11> =
+				%% Line 289
+				( fun () ->
+				      let <_cor41> =
+					  apply 'dlist_next'/1
+					      ([[[[]]]|['a'|['b'|['c']]]])
+				      in  case _cor41 of
+					    <['a'|['b'|['c']]]> when 'true' ->
+						( _cor41
+						  -| ['compiler_generated'] )
+					    ( <_cor10> when 'true' ->
+						  primop 'match_fail'
+						      ({'badmatch',_cor10})
+					      -| ['compiler_generated'] )
+					  end
+				  -| [{'id',{0,0,'-dlist_test_/0-fun-5-'}}] )
+			    in  let <_cor13> =
+				    %% Line 291
+				    ( fun () ->
+					  let <_cor42> =
+					      apply 'dlist_next'/1
+						  ([[]])
+					  in  case _cor42 of
+						<[]> when 'true' ->
+						    ( _cor42
+						      -| ['compiler_generated'] )
+						( <_cor12> when 'true' ->
+						      primop 'match_fail'
+							  ({'badmatch',_cor12})
+						  -| ['compiler_generated'] )
+					      end
+				      -| [{'id',{0,0,'-dlist_test_/0-fun-6-'}}] )
+				in  let <_cor15> =
+					%% Line 293
+					( fun () ->
+					      let <_cor43> =
+						  apply 'dlist_next'/1
+						      ([[[[]]]])
+					      in  case _cor43 of
+						    <[]> when 'true' ->
+							( _cor43
+							  -| ['compiler_generated'] )
+						    ( <_cor14> when 'true' ->
+							  primop 'match_fail'
+							      ({'badmatch',_cor14})
+						      -| ['compiler_generated'] )
+						  end
+					  -| [{'id',{0,0,'-dlist_test_/0-fun-7-'}}] )
+				    in  let <_cor17> =
+					    %% Line 295
+					    ( fun () ->
+						  let <_cor44> =
+						      apply 'dlist_next'/1
+							  ([['a']|['b'|['c']]])
+						  in  case _cor44 of
+							<['a'|['b'|['c']]]> when 'true' ->
+							    ( _cor44
+							      -| ['compiler_generated'] )
+							( <_cor16> when 'true' ->
+							      primop 'match_fail'
+								  ({'badmatch',_cor16})
+							  -| ['compiler_generated'] )
+						      end
+					      -| [{'id',{0,0,'-dlist_test_/0-fun-8-'}}] )
+					in  let <_cor19> =
+						%% Line 297
+						( fun () ->
+						      let <_cor45> =
+							  apply 'dlist_next'/1
+							      ([97|[98|[99]]])
+						      in  case _cor45 of
+							    <[[97|[98|[99]]]]> when 'true' ->
+								( _cor45
+								  -| ['compiler_generated'] )
+							    ( <_cor18> when 'true' ->
+								  primop 'match_fail'
+								      ({'badmatch',_cor18})
+							      -| ['compiler_generated'] )
+							  end
+						  -| [{'id',{0,0,'-dlist_test_/0-fun-9-'}}] )
+					    in  let <_cor21> =
+						    %% Line 299
+						    ( fun () ->
+							  let <_cor46> =
+							      apply 'dlist_next'/1
+								  ([[97|[98|[99]]]])
+							  in  case _cor46 of
+								<[[97|[98|[99]]]]> when 'true' ->
+								    ( _cor46
+								      -| ['compiler_generated'] )
+								( <_cor20> when 'true' ->
+								      primop 'match_fail'
+									  ({'badmatch',_cor20})
+								  -| ['compiler_generated'] )
+							      end
+						      -| [{'id',{0,0,'-dlist_test_/0-fun-10-'}}] )
+						in  let <_cor23> =
+							%% Line 301
+							( fun () ->
+							      let <_cor47> =
+								  apply 'dlist_next'/1
+								      ([[97|[98|[99]]]|['a'|['b'|['c']]]])
+							      in  case _cor47 of
+								    <[[97|[98|[99]]]|['a'|['b'|['c']]]]> when 'true' ->
+									( _cor47
+									  -| ['compiler_generated'] )
+								    ( <_cor22> when 'true' ->
+									  primop 'match_fail'
+									      ({'badmatch',_cor22})
+								      -| ['compiler_generated'] )
+								  end
+							  -| [{'id',{0,0,'-dlist_test_/0-fun-11-'}}] )
+						    in  let <_cor25> =
+							    %% Line 303
+							    ( fun () ->
+								  let <_cor48> =
+								      apply 'dlist_next'/1
+									  ([[[97|[98|[99]]]]])
+								  in  case _cor48 of
+									<[[97|[98|[99]]]]> when 'true' ->
+									    ( _cor48
+									      -| ['compiler_generated'] )
+									( <_cor24> when 'true' ->
+									      primop 'match_fail'
+										  ({'badmatch',_cor24})
+									  -| ['compiler_generated'] )
+								      end
+							      -| [{'id',{0,0,'-dlist_test_/0-fun-12-'}}] )
+							in  let <_cor27> =
+								%% Line 305
+								( fun () ->
+								      let <_cor49> =
+									  apply 'dlist_next'/1
+									      ([[[97|[98|[99]]]]|['a'|['b'|['c']]]])
+								      in  case _cor49 of
+									    <[[97|[98|[99]]]|['a'|['b'|['c']]]]> when 'true' ->
+										( _cor49
+										  -| ['compiler_generated'] )
+									    ( <_cor26> when 'true' ->
+										  primop 'match_fail'
+										      ({'badmatch',_cor26})
+									      -| ['compiler_generated'] )
+									  end
+								  -| [{'id',{0,0,'-dlist_test_/0-fun-13-'}}] )
+							    in  let <_cor29> =
+								    %% Line 307
+								    ( fun () ->
+									  let <_cor50> =
+									      apply 'dlist_flatten'/1
+										  ([])
+									  in  case _cor50 of
+										<[]> when 'true' ->
+										    ( _cor50
+										      -| ['compiler_generated'] )
+										( <_cor28> when 'true' ->
+										      primop 'match_fail'
+											  ({'badmatch',_cor28})
+										  -| ['compiler_generated'] )
+									      end
+								      -| [{'id',{0,0,'-dlist_test_/0-fun-14-'}}] )
+								in  let <_cor31> =
+									%% Line 309
+									( fun () ->
+									      let <_cor51> =
+										  apply 'dlist_flatten'/1
+										      (['a'|['b'|['c']]])
+									      in  case _cor51 of
+										    <['a'|['b'|['c']]]> when 'true' ->
+											( _cor51
+											  -| ['compiler_generated'] )
+										    ( <_cor30> when 'true' ->
+											  primop 'match_fail'
+											      ({'badmatch',_cor30})
+										      -| ['compiler_generated'] )
+										  end
+									  -| [{'id',{0,0,'-dlist_test_/0-fun-15-'}}] )
+								    in  let <_cor33> =
+									    %% Line 311
+									    ( fun () ->
+										  let <_cor52> =
+										      apply 'dlist_flatten'/1
+											  ([[]|[['a'|[['b'|[[]]]|['c']]]|[[]]]])
+										  in  case _cor52 of
+											<['a'|['b'|['c']]]> when 'true' ->
+											    ( _cor52
+											      -| ['compiler_generated'] )
+											( <_cor32> when 'true' ->
+											      primop 'match_fail'
+												  ({'badmatch',_cor32})
+											  -| ['compiler_generated'] )
+										      end
+									      -| [{'id',{0,0,'-dlist_test_/0-fun-16-'}}] )
+									in  let <_cor35> =
+										%% Line 313
+										( fun () ->
+										      let <_cor53> =
+											  apply 'dlist_flatten'/1
+											      ([[]|[[[[]]]|[[]]]])
+										      in  case _cor53 of
+											    <[]> when 'true' ->
+												( _cor53
+												  -| ['compiler_generated'] )
+											    ( <_cor34> when 'true' ->
+												  primop 'match_fail'
+												      ({'badmatch',_cor34})
+											      -| ['compiler_generated'] )
+											  end
+										  -| [{'id',{0,0,'-dlist_test_/0-fun-17-'}}] )
+									    in  %% Line 277
+										{[100|[101|[101|[112|[32|[108|[105|[115|[116|[32|[116|[114|[97|[118|[101|[114|[115|[97|[108]]]]]]]]]]]]]]]]]]],%% Line 278
+																							       [{[110|[111|[110|[45|[108|[105|[115|[116|[32|[116|[101|[114|[109|[32|[45|[62|[32|[115|[105|[110|[103|[108|[101|[116|[111|[110|[32|[108|[105|[115|[116]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 279
+																																														    {279,_cor1}}|%% Line 280
+																																																 [{[101|[109|[112|[116|[121|[32|[108|[105|[115|[116|[32|[45|[62|[32|[101|[109|[112|[116|[121|[32|[108|[105|[115|[116]]]]]]]]]]]]]]]]]]]]]]]],%% Line 281
+																																																																	     {281,_cor3}}|%% Line 282
+																																																																			  [{[115|[105|[110|[103|[108|[101|[116|[111|[110|[32|[108|[105|[115|[116|[32|[45|[62|[32|[115|[105|[110|[103|[108|[101|[116|[111|[110|[32|[108|[105|[115|[116]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 283
+																																																																																										      {283,_cor5}}|%% Line 284
+																																																																																												   [{[116|[97|[107|[105|[110|[103|[32|[116|[104|[101|[32|[104|[101|[97|[100|[32|[111|[102|[32|[97|[32|[102|[108|[97|[116|[32|[108|[105|[115|[116]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 285
+																																																																																																																	       {285,_cor7}}|%% Line 286
+																																																																																																																			    [{[115|[107|[105|[112|[112|[105|[110|[103|[32|[97|[110|[32|[105|[110|[105|[116|[105|[97|[108|[32|[101|[109|[112|[116|[121|[32|[108|[105|[115|[116]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 287
+																																																																																																																																									    {287,_cor9}}|%% Line 288
+																																																																																																																																											 [{[115|[107|[105|[112|[112|[105|[110|[103|[32|[110|[101|[115|[116|[101|[100|[32|[105|[110|[105|[116|[105|[97|[108|[32|[101|[109|[112|[116|[121|[32|[108|[105|[115|[116|[115]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 289
+																																																																																																																																																																					{289,_cor11}}|%% Line 290
+																																																																																																																																																																						      [{[115|[107|[105|[112|[112|[105|[110|[103|[32|[97|[32|[102|[105|[110|[97|[108|[32|[101|[109|[112|[116|[121|[32|[108|[105|[115|[116]]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 291
+																																																																																																																																																																																										    {291,_cor13}}|%% Line 292
+																																																																																																																																																																																												  [{[115|[107|[105|[112|[112|[105|[110|[103|[32|[110|[101|[115|[116|[101|[100|[32|[102|[105|[110|[97|[108|[32|[101|[109|[112|[116|[121|[32|[108|[105|[115|[116|[115]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 293
+																																																																																																																																																																																																																				     {293,_cor15}}|%% Line 294
+																																																																																																																																																																																																																						   [{[116|[104|[101|[32|[102|[105|[114|[115|[116|[32|[101|[108|[101|[109|[101|[110|[116|[32|[105|[115|[32|[105|[110|[32|[97|[32|[115|[117|[98|[108|[105|[115|[116]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 295
+																																																																																																																																																																																																																																														   {295,_cor17}}|%% Line 296
+																																																																																																																																																																																																																																																 [{[114|[101|[99|[111|[103|[110|[105|[122|[105|[110|[103|[32|[97|[32|[110|[97|[107|[101|[100|[32|[115|[116|[114|[105|[110|[103]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 297
+																																																																																																																																																																																																																																																																			 {297,_cor19}}|%% Line 298
+																																																																																																																																																																																																																																																																				       [{[114|[101|[99|[111|[103|[110|[105|[122|[105|[110|[103|[32|[97|[32|[119|[114|[97|[112|[112|[101|[100|[32|[115|[116|[114|[105|[110|[103]]]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 299
+																																																																																																																																																																																																																																																																																									   {299,_cor21}}|%% Line 300
+																																																																																																																																																																																																																																																																																											 [{[114|[101|[99|[111|[103|[110|[105|[122|[105|[110|[103|[32|[97|[32|[108|[101|[97|[100|[105|[110|[103|[32|[115|[116|[114|[105|[110|[103]]]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 301
+																																																																																																																																																																																																																																																																																																															     {301,_cor23}}|%% Line 302
+																																																																																																																																																																																																																																																																																																																	   [{[114|[101|[99|[111|[103|[110|[105|[122|[105|[110|[103|[32|[97|[32|[110|[101|[115|[116|[101|[100|[32|[115|[116|[114|[105|[110|[103]]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 303
+																																																																																																																																																																																																																																																																																																																																					  {303,_cor25}}|%% Line 304
+																																																																																																																																																																																																																																																																																																																																							[{[114|[101|[99|[111|[103|[110|[105|[122|[105|[110|[103|[32|[97|[32|[108|[101|[97|[100|[105|[110|[103|[32|[115|[116|[114|[105|[110|[103|[32|[105|[110|[32|[97|[32|[115|[117|[98|[108|[105|[115|[116]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 305
+																																																																																																																																																																																																																																																																																																																																																																				     {305,_cor27}}|%% Line 306
+																																																																																																																																																																																																																																																																																																																																																																						   [{[116|[114|[97|[118|[101|[114|[115|[105|[110|[103|[32|[97|[110|[32|[101|[109|[112|[116|[121|[32|[108|[105|[115|[116]]]]]]]]]]]]]]]]]]]]]]]],%% Line 307
+																																																																																																																																																																																																																																																																																																																																																																																								{307,_cor29}}|%% Line 308
+																																																																																																																																																																																																																																																																																																																																																																																									      [{[116|[114|[97|[118|[101|[114|[115|[105|[110|[103|[32|[97|[32|[102|[108|[97|[116|[32|[108|[105|[115|[116]]]]]]]]]]]]]]]]]]]]]],%% Line 309
+																																																																																																																																																																																																																																																																																																																																																																																																									      {309,_cor31}}|%% Line 310
+																																																																																																																																																																																																																																																																																																																																																																																																											    [{[116|[114|[97|[118|[101|[114|[115|[105|[110|[103|[32|[97|[32|[100|[101|[101|[112|[32|[108|[105|[115|[116]]]]]]]]]]]]]]]]]]]]]],%% Line 311
+																																																																																																																																																																																																																																																																																																																																																																																																																											     {311,_cor33}}|%% Line 312
+																																																																																																																																																																																																																																																																																																																																																																																																																													   [{[116|[114|[97|[118|[101|[114|[115|[105|[110|[103|[32|[97|[32|[100|[101|[101|[112|[32|[98|[117|[116|[32|[101|[109|[112|[116|[121|[32|[108|[105|[115|[116]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 313
+																																																																																																																																																																																																																																																																																																																																																																																																																																																				     {313,_cor35}}|%% Line 314
+																																																																																																																																																																																																																																																																																																																																																																																																																																																						   []]]]]]]]]]]]]]]]]]]}
+'dlist_flatten'/1 =
+    %% Line 317
+    fun (_cor0) ->
+	%% Line 318
+	case apply 'dlist_next'/1
+		 (_cor0) of
+	  %% Line 319
+	  <[X|Xs1]> when 'true' ->
+	      let <_cor1> =
+		  apply 'dlist_flatten'/1
+		      (Xs1)
+	      in  [X|_cor1]
+	  %% Line 320
+	  <[]> when 'true' ->
+	      []
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'is_string'/1 =
+    %% Line 328
+    fun (_cor0) ->
+	case _cor0 of
+	  <[C|Cs]>
+	      when try
+		    let <_cor1> =
+			call 'erlang':'is_integer'
+			    (C)
+		    in  let <_cor2> =
+			    call 'erlang':'>='
+				(C, 0)
+			in  let <_cor3> =
+				call 'erlang':'=<'
+				    (C, 1114111)
+			    in  let <_cor4> =
+				    call 'erlang':'and'
+					(_cor2, _cor3)
+				in  call 'erlang':'and'
+					(_cor1, _cor4)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 329
+	      apply 'is_string'/1
+		  (Cs)
+	  %% Line 330
+	  <[_cor6|_cor7]> when 'true' ->
+	      %% Line 331
+	      'false'
+	  %% Line 332
+	  <[]> when 'true' ->
+	      %% Line 333
+	      'true'
+	  %% Line 334
+	  <_cor8> when 'true' ->
+	      %% Line 335
+	      'false'
+	end
+'is_nonempty_string'/1 =
+    %% Line 337
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      'false'
+	  %% Line 338
+	  <Cs> when 'true' ->
+	      apply 'is_string'/1
+		  (Cs)
+	end
+'is_string_test_'/0 =
+    %% Line 341
+    fun () ->
+	let <_cor5> =
+	    %% Line 343
+	    ( fun () ->
+		  let <_cor4> =
+		      ( fun () ->
+			    let <_cor0> =
+				apply 'is_string'/1
+				    (65)
+			    in  case call 'erlang':'not'
+					 (_cor0) of
+				  <'true'> when 'true' ->
+				      'ok'
+				  <_X__V> when 'true' ->
+				      let <_cor2> =
+					  case _X__V of
+					    <'false'> when 'true' ->
+						_X__V
+					    <_cor47> when 'true' ->
+						{'not_a_boolean',_X__V}
+					  end
+				      in  call 'erlang':'error'
+					      ({'assertion_failed',[{'module','eunit_lib'}|[{'line',343}|[{'expression',[110|[111|[116|[32|[105|[115|[95|[115|[116|[114|[105|[110|[103|[32|[40|[32|[36|[65|[32|[41]]]]]]]]]]]]]]]]]]]]}|[{'expected','true'}|[{'value',_cor2}|[]]]]]]})
+				end
+			-| [{'id',{0,0,'-is_string_test_/0-fun-0-'}}] )
+		  in  apply _cor4
+			  ()
+	      -| [{'id',{0,0,'-is_string_test_/0-fun-1-'}}] )
+	in  let <_cor11> =
+		%% Line 344
+		( fun () ->
+		      let <_cor10> =
+			  ( fun () ->
+				let <_cor6> =
+				    apply 'is_string'/1
+					(['true'])
+				in  case call 'erlang':'not'
+					     (_cor6) of
+				      <'true'> when 'true' ->
+					  'ok'
+				      <_X__V> when 'true' ->
+					  let <_cor8> =
+					      case _X__V of
+						<'false'> when 'true' ->
+						    _X__V
+						<_cor48> when 'true' ->
+						    {'not_a_boolean',_X__V}
+					      end
+					  in  call 'erlang':'error'
+						  ({'assertion_failed',[{'module','eunit_lib'}|[{'line',344}|[{'expression',[110|[111|[116|[32|[105|[115|[95|[115|[116|[114|[105|[110|[103|[32|[40|[32|[91|[32|[116|[114|[117|[101|[32|[93|[32|[41]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'expected','true'}|[{'value',_cor8}|[]]]]]]})
+				    end
+			    -| [{'id',{0,0,'-is_string_test_/0-fun-2-'}}] )
+		      in  apply _cor10
+			      ()
+		  -| [{'id',{0,0,'-is_string_test_/0-fun-3-'}}] )
+	    in  let <_cor16> =
+		    %% Line 345
+		    ( fun () ->
+			  let <_cor15> =
+			      ( fun () ->
+				    case apply 'is_string'/1
+					     ([]) of
+				      <'true'> when 'true' ->
+					  'ok'
+				      <_X__V> when 'true' ->
+					  let <_cor13> =
+					      case _X__V of
+						<'false'> when 'true' ->
+						    _X__V
+						<_cor49> when 'true' ->
+						    {'not_a_boolean',_X__V}
+					      end
+					  in  call 'erlang':'error'
+						  ({'assertion_failed',[{'module','eunit_lib'}|[{'line',345}|[{'expression',[105|[115|[95|[115|[116|[114|[105|[110|[103|[32|[40|[32|[34|[34|[32|[41]]]]]]]]]]]]]]]]}|[{'expected','true'}|[{'value',_cor13}|[]]]]]]})
+				    end
+				-| [{'id',{0,0,'-is_string_test_/0-fun-4-'}}] )
+			  in  apply _cor15
+				  ()
+		      -| [{'id',{0,0,'-is_string_test_/0-fun-5-'}}] )
+		in  let <_cor22> =
+			%% Line 346
+			( fun () ->
+			      let <_cor21> =
+				  ( fun () ->
+					let <_cor17> =
+					    call 'lists':'seq'
+						(0, 127)
+					in  case apply 'is_string'/1
+						     (_cor17) of
+					      <'true'> when 'true' ->
+						  'ok'
+					      <_X__V> when 'true' ->
+						  let <_cor19> =
+						      case _X__V of
+							<'false'> when 'true' ->
+							    _X__V
+							<_cor50> when 'true' ->
+							    {'not_a_boolean',_X__V}
+						      end
+						  in  call 'erlang':'error'
+							  ({'assertion_failed',[{'module','eunit_lib'}|[{'line',346}|[{'expression',[105|[115|[95|[115|[116|[114|[105|[110|[103|[32|[40|[32|[108|[105|[115|[116|[115|[32|[58|[32|[115|[101|[113|[32|[40|[32|[48|[32|[44|[32|[49|[50|[55|[32|[41|[32|[41]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'expected','true'}|[{'value',_cor19}|[]]]]]]})
+					    end
+				    -| [{'id',{0,0,'-is_string_test_/0-fun-6-'}}] )
+			      in  apply _cor21
+				      ()
+			  -| [{'id',{0,0,'-is_string_test_/0-fun-7-'}}] )
+		    in  let <_cor28> =
+			    %% Line 347
+			    ( fun () ->
+				  let <_cor27> =
+				      ( fun () ->
+					    let <_cor23> =
+						call 'lists':'seq'
+						    (0, 255)
+					    in  case apply 'is_string'/1
+							 (_cor23) of
+						  <'true'> when 'true' ->
+						      'ok'
+						  <_X__V> when 'true' ->
+						      let <_cor25> =
+							  case _X__V of
+							    <'false'> when 'true' ->
+								_X__V
+							    <_cor51> when 'true' ->
+								{'not_a_boolean',_X__V}
+							  end
+						      in  call 'erlang':'error'
+							      ({'assertion_failed',[{'module','eunit_lib'}|[{'line',347}|[{'expression',[105|[115|[95|[115|[116|[114|[105|[110|[103|[32|[40|[32|[108|[105|[115|[116|[115|[32|[58|[32|[115|[101|[113|[32|[40|[32|[48|[32|[44|[32|[50|[53|[53|[32|[41|[32|[41]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'expected','true'}|[{'value',_cor25}|[]]]]]]})
+						end
+					-| [{'id',{0,0,'-is_string_test_/0-fun-8-'}}] )
+				  in  apply _cor27
+					  ()
+			      -| [{'id',{0,0,'-is_string_test_/0-fun-9-'}}] )
+			in  let <_cor33> =
+				%% Line 349
+				( fun () ->
+				      let <_cor32> =
+					  ( fun () ->
+						case apply 'is_string'/1
+							 ([0|[65|[1114110|[1114111]]]]) of
+						  <'true'> when 'true' ->
+						      'ok'
+						  <_X__V> when 'true' ->
+						      let <_cor30> =
+							  case _X__V of
+							    <'false'> when 'true' ->
+								_X__V
+							    <_cor52> when 'true' ->
+								{'not_a_boolean',_X__V}
+							  end
+						      in  call 'erlang':'error'
+							      ({'assertion_failed',[{'module','eunit_lib'}|[{'line',349}|[{'expression',[105|[115|[95|[115|[116|[114|[105|[110|[103|[32|[40|[32|[91|[32|[48|[32|[44|[32|[36|[65|[32|[44|[32|[49|[49|[49|[52|[49|[49|[48|[32|[44|[32|[49|[49|[49|[52|[49|[49|[49|[32|[93|[32|[41]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'expected','true'}|[{'value',_cor30}|[]]]]]]})
+						end
+					    -| [{'id',{0,0,'-is_string_test_/0-fun-10-'}}] )
+				      in  apply _cor32
+					      ()
+				  -| [{'id',{0,0,'-is_string_test_/0-fun-11-'}}] )
+			    in  let <_cor39> =
+				    %% Line 351
+				    ( fun () ->
+					  let <_cor38> =
+					      ( fun () ->
+						    let <_cor34> =
+							apply 'is_string'/1
+							    ([0|[65|[1114112]]])
+						    in  case call 'erlang':'not'
+								 (_cor34) of
+							  <'true'> when 'true' ->
+							      'ok'
+							  <_X__V> when 'true' ->
+							      let <_cor36> =
+								  case _X__V of
+								    <'false'> when 'true' ->
+									_X__V
+								    <_cor53> when 'true' ->
+									{'not_a_boolean',_X__V}
+								  end
+							      in  call 'erlang':'error'
+								      ({'assertion_failed',[{'module','eunit_lib'}|[{'line',351}|[{'expression',[110|[111|[116|[32|[105|[115|[95|[115|[116|[114|[105|[110|[103|[32|[40|[32|[91|[32|[48|[32|[44|[32|[36|[65|[32|[44|[32|[49|[49|[49|[52|[49|[49|[50|[32|[93|[32|[41]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'expected','true'}|[{'value',_cor36}|[]]]]]]})
+							end
+						-| [{'id',{0,0,'-is_string_test_/0-fun-12-'}}] )
+					  in  apply _cor38
+						  ()
+				      -| [{'id',{0,0,'-is_string_test_/0-fun-13-'}}] )
+				in  let <_cor46> =
+					%% Line 352
+					( fun () ->
+					      let <_cor45> =
+						  ( fun () ->
+							let <_cor41> =
+							    apply 'is_string'/1
+								([65|[-1|[0]]])
+							in  case call 'erlang':'not'
+								     (_cor41) of
+							      <'true'> when 'true' ->
+								  'ok'
+							      <_X__V> when 'true' ->
+								  let <_cor43> =
+								      case _X__V of
+									<'false'> when 'true' ->
+									    _X__V
+									<_cor54> when 'true' ->
+									    {'not_a_boolean',_X__V}
+								      end
+								  in  call 'erlang':'error'
+									  ({'assertion_failed',[{'module','eunit_lib'}|[{'line',352}|[{'expression',[110|[111|[116|[32|[105|[115|[95|[115|[116|[114|[105|[110|[103|[32|[40|[32|[91|[32|[36|[65|[32|[44|[32|[45|[32|[49|[32|[44|[32|[48|[32|[93|[32|[41]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'expected','true'}|[{'value',_cor43}|[]]]]]]})
+							    end
+						    -| [{'id',{0,0,'-is_string_test_/0-fun-14-'}}] )
+					      in  apply _cor45
+						      ()
+					  -| [{'id',{0,0,'-is_string_test_/0-fun-15-'}}] )
+				    in  %% Line 342
+					{[105|[115|[95|[115|[116|[114|[105|[110|[103]]]]]]]]],%% Line 343
+											      [{[110|[111|[32|[110|[111|[110|[45|[108|[105|[115|[116|[115]]]]]]]]]]]],{343,_cor5}}|%% Line 344
+																						   [{[110|[111|[32|[110|[111|[110|[45|[105|[110|[116|[101|[103|[101|[114|[32|[108|[105|[115|[116|[115]]]]]]]]]]]]]]]]]]]],{344,_cor11}}|%% Line 345
+																																							[{[101|[109|[112|[116|[121|[32|[115|[116|[114|[105|[110|[103]]]]]]]]]]]],{345,_cor16}}|%% Line 346
+																																																	       [{[97|[115|[99|[105|[105|[32|[115|[116|[114|[105|[110|[103]]]]]]]]]]]],{346,_cor22}}|%% Line 347
+																																																												    [{[108|[97|[116|[105|[110|[45|[49|[32|[115|[116|[114|[105|[110|[103]]]]]]]]]]]]]],{347,_cor28}}|%% Line 348
+																																																																								    [{[117|[110|[105|[99|[111|[100|[101|[32|[115|[116|[114|[105|[110|[103]]]]]]]]]]]]]],%% Line 349
+																																																																																			{349,_cor33}}|%% Line 350
+																																																																																				      [{[110|[111|[116|[32|[97|[98|[111|[118|[101|[32|[117|[110|[105|[99|[111|[100|[101|[32|[114|[97|[110|[103|[101]]]]]]]]]]]]]]]]]]]]]]],%% Line 351
+																																																																																																					   {351,_cor39}}|%% Line 352
+																																																																																																							 [{[110|[111|[32|[110|[101|[103|[97|[116|[105|[118|[101|[32|[99|[111|[100|[101|[112|[111|[105|[110|[116|[115]]]]]]]]]]]]]]]]]]]]]],{352,_cor46}}|%% Line 353
+																																																																																																																									 []]]]]]]]]}
+'split_node'/1 =
+    %% Line 361
+    fun (_cor0) ->
+	case _cor0 of
+	  <N>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      let <_cor1> =
+		  call 'erlang':'atom_to_list'
+		      (N)
+	      in  apply 'split_node'/1
+		      (_cor1)
+	  %% Line 362
+	  <Cs> when 'true' ->
+	      apply 'split_node_1'/2
+		  (Cs, [])
+	end
+'split_node_1'/2 =
+    %% Line 364
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[64|Cs],As> when 'true' ->
+	      apply 'split_node_2'/2
+		  (As, Cs)
+	  %% Line 365
+	  <[C|Cs],As> when 'true' ->
+	      apply 'split_node_1'/2
+		  (Cs, [C|As])
+	  %% Line 366
+	  <[],As> when 'true' ->
+	      apply 'split_node_2'/2
+		  (As, [108|[111|[99|[97|[108|[104|[111|[115|[116]]]]]]]]])
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'split_node_1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'split_node_2'/2 =
+    %% Line 368
+    fun (_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 369
+	    call 'lists':'reverse'
+		(_cor1)
+	in  let <_cor4> =
+		%% Line 369
+		call 'erlang':'list_to_atom'
+		    (_cor3)
+	    in  let <_cor2> =
+		    %% Line 369
+		    call 'erlang':'list_to_atom'
+			(_cor0)
+		in  %% Line 369
+		    {_cor4,_cor2}
+'fun_parent'/1 =
+    %% Line 374
+    fun (_cor0) ->
+	%% Line 375
+	case call 'erlang':'fun_info'
+		 (_cor0, 'module') of
+	  <{'module',M}> when 'true' ->
+	      %% Line 376
+	      case call 'erlang':'fun_info'
+		       (_cor0, 'name') of
+		<{'name',N}> when 'true' ->
+		    %% Line 377
+		    case call 'erlang':'fun_info'
+			     (_cor0, 'type') of
+		      %% Line 378
+		      <{'type','external'}> when 'true' ->
+			  %% Line 379
+			  case call 'erlang':'fun_info'
+				   (_cor0, 'arity') of
+			    <{'arity',A}> when 'true' ->
+				%% Line 380
+				{M,N,A}
+			    ( <_cor3> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor3})
+			      -| ['compiler_generated'] )
+			  end
+		      %% Line 381
+		      <{'type','local'}> when 'true' ->
+			  %% Line 382
+			  case call 'erlang':'atom_to_list'
+				   (N) of
+			    <[45|S]> when 'true' ->
+				let <C1> =
+				    %% Line 383
+				    call 'string':'chr'
+					(S, 47)
+				in  let <C2> =
+					%% Line 384
+					call 'string':'chr'
+					    (S, 45)
+				    in  let <_cor11> =
+					    %% Line 385
+					    call 'erlang':'-'
+						(C1, 1)
+					in  let <_cor12> =
+						%% Line 385
+						call 'string':'sub_string'
+						    (S, 1, _cor11)
+					    in  let <_cor13> =
+						    %% Line 385
+						    call 'erlang':'list_to_atom'
+							(_cor12)
+						in  let <_cor8> =
+							%% Line 386
+							call 'erlang':'+'
+							    (C1, 1)
+						    in  let <_cor7> =
+							    %% Line 386
+							    call 'erlang':'-'
+								(C2, 1)
+							in  let <_cor9> =
+								%% Line 386
+								call 'string':'sub_string'
+								    (S, _cor8, _cor7)
+							    in  let <_cor10> =
+								    %% Line 386
+								    call 'erlang':'list_to_integer'
+									(_cor9)
+								in  %% Line 385
+								    {M,_cor13,_cor10}
+			    ( <_cor4> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor4})
+			      -| ['compiler_generated'] )
+			  end
+		      ( <_cor14> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor14})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'fun_parent_test'/0 =
+    %% Line 390
+    fun () ->
+	let <_cor0> =
+	    %% Line 391
+	    ( fun () ->
+		  'ok'
+	      -| [{'id',{0,0,'-fun_parent_test/0-fun-0-'}}] )
+	in  let <_cor2> =
+		%% Line 391
+		apply 'fun_parent'/1
+		    (_cor0)
+	    in  %% Line 391
+		case _cor2 of
+		  <{'eunit_lib','fun_parent_test',0}> when 'true' ->
+		      ( _cor2
+			-| ['compiler_generated'] )
+		  ( <_cor1> when 'true' ->
+			primop 'match_fail'
+			    ({'badmatch',_cor1})
+		    -| ['compiler_generated'] )
+		end
+'uniq'/1 =
+    %% Line 397
+    fun (_cor0) ->
+	case _cor0 of
+	  <[X|[_cor3|Xs]]>
+	      when call 'erlang':'=:='
+		    (_cor3,
+		     X) ->
+	      apply 'uniq'/1
+		  ([X|Xs])
+	  %% Line 398
+	  <[X|Xs]> when 'true' ->
+	      let <_cor1> =
+		  apply 'uniq'/1
+		      (Xs)
+	      in  [X|_cor1]
+	  %% Line 399
+	  <[]> when 'true' ->
+	      []
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'uniq',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'uniq_test_'/0 =
+    %% Line 402
+    fun () ->
+	let <_cor15> =
+	    %% Line 404
+	    ( fun () ->
+		  let <_cor14> =
+		      ( fun () ->
+			    try
+				apply 'uniq'/1
+				    ('ok')
+			    of <_cor0> ->
+				call 'erlang':'error'
+				    ({'assertException_failed',[{'module','eunit_lib'}|[{'line',404}|[{'expression',[117|[110|[105|[113|[32|[40|[32|[111|[107|[32|[41]]]]]]]]]]]}|[{'pattern',[123|[32|[101|[114|[114|[111|[114|[32|[44|[32|[102|[117|[110|[99|[116|[105|[111|[110|[95|[99|[108|[97|[117|[115|[101|[32|[44|[32|[91|[46|[46|[46|[93|[32|[125]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'unexpected_success',_cor0}|[]]]]]]})
+			    catch <_cor8,_cor7,_cor6> ->
+				case <_cor8,_cor7,_cor6> of
+				  <'error','function_clause',_cor44> when 'true' ->
+				      'ok'
+				  <_X__C,_X__T,_cor45> when 'true' ->
+				      let <_cor13> =
+					  call 'erlang':'get_stacktrace'
+					      ()
+				      in  call 'erlang':'error'
+					      ({'assertException_failed',[{'module','eunit_lib'}|[{'line',404}|[{'expression',[117|[110|[105|[113|[32|[40|[32|[111|[107|[32|[41]]]]]]]]]]]}|[{'pattern',[123|[32|[101|[114|[114|[111|[114|[32|[44|[32|[102|[117|[110|[99|[116|[105|[111|[110|[95|[99|[108|[97|[117|[115|[101|[32|[44|[32|[91|[46|[46|[46|[93|[32|[125]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'unexpected_exception',{_X__C,_X__T,_cor13}}|[]]]]]]})
+				end
+			-| [{'id',{0,0,'-uniq_test_/0-fun-0-'}}] )
+		  in  apply _cor14
+			  ()
+	      -| [{'id',{0,0,'-uniq_test_/0-fun-1-'}}] )
+	in  let <_cor31> =
+		%% Line 405
+		( fun () ->
+		      let <_cor30> =
+			  ( fun () ->
+				try
+				    apply 'uniq'/1
+					([1|2])
+				of <_cor16> ->
+				    call 'erlang':'error'
+					({'assertException_failed',[{'module','eunit_lib'}|[{'line',405}|[{'expression',[117|[110|[105|[113|[32|[40|[32|[91|[32|[49|[32|[124|[32|[50|[32|[93|[32|[41]]]]]]]]]]]]]]]]]]}|[{'pattern',[123|[32|[101|[114|[114|[111|[114|[32|[44|[32|[102|[117|[110|[99|[116|[105|[111|[110|[95|[99|[108|[97|[117|[115|[101|[32|[44|[32|[91|[46|[46|[46|[93|[32|[125]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'unexpected_success',_cor16}|[]]]]]]})
+				catch <_cor24,_cor23,_cor22> ->
+				    case <_cor24,_cor23,_cor22> of
+				      <'error','function_clause',_cor46> when 'true' ->
+					  'ok'
+				      <_X__C,_X__T,_cor47> when 'true' ->
+					  let <_cor29> =
+					      call 'erlang':'get_stacktrace'
+						  ()
+					  in  call 'erlang':'error'
+						  ({'assertException_failed',[{'module','eunit_lib'}|[{'line',405}|[{'expression',[117|[110|[105|[113|[32|[40|[32|[91|[32|[49|[32|[124|[32|[50|[32|[93|[32|[41]]]]]]]]]]]]]]]]]]}|[{'pattern',[123|[32|[101|[114|[114|[111|[114|[32|[44|[32|[102|[117|[110|[99|[116|[105|[111|[110|[95|[99|[108|[97|[117|[115|[101|[32|[44|[32|[91|[46|[46|[46|[93|[32|[125]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'unexpected_exception',{_X__C,_X__T,_cor29}}|[]]]]]]})
+				    end
+			    -| [{'id',{0,0,'-uniq_test_/0-fun-2-'}}] )
+		      in  apply _cor30
+			      ()
+		  -| [{'id',{0,0,'-uniq_test_/0-fun-3-'}}] )
+	    in  let <_cor33> =
+		    %% Line 406
+		    ( fun () ->
+			  let <_cor48> =
+			      apply 'uniq'/1
+				  ([])
+			  in  case _cor48 of
+				<[]> when 'true' ->
+				    ( _cor48
+				      -| ['compiler_generated'] )
+				( <_cor32> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor32})
+				  -| ['compiler_generated'] )
+			      end
+		      -| [{'id',{0,0,'-uniq_test_/0-fun-4-'}}] )
+		in  let <_cor35> =
+			%% Line 407
+			( fun () ->
+			      let <_cor49> =
+				  apply 'uniq'/1
+				      ([1|[2|[3]]])
+			      in  case _cor49 of
+				    <[1|[2|[3]]]> when 'true' ->
+					( _cor49
+					  -| ['compiler_generated'] )
+				    ( <_cor34> when 'true' ->
+					  primop 'match_fail'
+					      ({'badmatch',_cor34})
+				      -| ['compiler_generated'] )
+				  end
+			  -| [{'id',{0,0,'-uniq_test_/0-fun-5-'}}] )
+		    in  let <_cor37> =
+			    %% Line 408
+			    ( fun () ->
+				  let <_cor50> =
+				      apply 'uniq'/1
+					  ([1|[2|[2|[3]]]])
+				  in  case _cor50 of
+					<[1|[2|[3]]]> when 'true' ->
+					    ( _cor50
+					      -| ['compiler_generated'] )
+					( <_cor36> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor36})
+					  -| ['compiler_generated'] )
+				      end
+			      -| [{'id',{0,0,'-uniq_test_/0-fun-6-'}}] )
+			in  let <_cor39> =
+				%% Line 409
+				( fun () ->
+				      let <_cor51> =
+					  apply 'uniq'/1
+					      ([1|[2|[2|[3|[2|[2|[1]]]]]]])
+				      in  case _cor51 of
+					    <[1|[2|[3|[2|[1]]]]]> when 'true' ->
+						( _cor51
+						  -| ['compiler_generated'] )
+					    ( <_cor38> when 'true' ->
+						  primop 'match_fail'
+						      ({'badmatch',_cor38})
+					      -| ['compiler_generated'] )
+					  end
+				  -| [{'id',{0,0,'-uniq_test_/0-fun-7-'}}] )
+			    in  let <_cor41> =
+				    %% Line 410
+				    ( fun () ->
+					  let <_cor52> =
+					      apply 'uniq'/1
+						  ([1|[1|[1|[2|[2|[2|[3|[3|[3]]]]]]]]])
+					  in  case _cor52 of
+						<[1|[2|[3]]]> when 'true' ->
+						    ( _cor52
+						      -| ['compiler_generated'] )
+						( <_cor40> when 'true' ->
+						      primop 'match_fail'
+							  ({'badmatch',_cor40})
+						  -| ['compiler_generated'] )
+					      end
+				      -| [{'id',{0,0,'-uniq_test_/0-fun-8-'}}] )
+				in  let <_cor43> =
+					%% Line 411
+					( fun () ->
+					      let <_cor53> =
+						  apply 'uniq'/1
+						      ([[49]|[[49]|[[50]|[[50]|[[51]|[[51]]]]]]])
+					      in  case _cor53 of
+						    <[[49]|[[50]|[[51]]]]> when 'true' ->
+							( _cor53
+							  -| ['compiler_generated'] )
+						    ( <_cor42> when 'true' ->
+							  primop 'match_fail'
+							      ({'badmatch',_cor42})
+						      -| ['compiler_generated'] )
+						  end
+					  -| [{'id',{0,0,'-uniq_test_/0-fun-9-'}}] )
+				    in  %% Line 403
+					{[117|[110|[105|[113]]]],%% Line 404
+								 [{404,_cor15}|%% Line 405
+									       [{405,_cor31}|%% Line 406
+											     [{406,_cor33}|%% Line 407
+													   [{407,_cor35}|%% Line 408
+															 [{408,_cor37}|%% Line 409
+																       [{409,_cor39}|%% Line 410
+																		     [{410,_cor41}|%% Line 411
+																				   [{411,_cor43}|%% Line 412
+																						 []]]]]]]]]}
+'command'/1 =
+    %% Line 421
+    fun (_cor0) ->
+	%% Line 422
+	apply 'command'/2
+	    (_cor0, [])
+'command'/2 =
+    %% Line 424
+    fun (_cor1,_cor0) ->
+	%% Line 425
+	apply 'command'/3
+	    (_cor1, _cor0, [])
+'command'/3 =
+    %% Line 427
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 428
+	    case <> of
+	      <>
+		  when call 'erlang':'=:='
+			(_cor1,
+			 []) ->
+		  []
+	      %% Line 429
+	      <> when 'true' ->
+		  [{'cd',_cor1}|[]]
+	    end
+	in  let <_cor5> =
+		%% Line 431
+		case <> of
+		  <>
+		      when call 'erlang':'=:='
+			    (_cor0,
+			     []) ->
+		      []
+		  %% Line 432
+		  <> when 'true' ->
+		      [{'env',_cor0}|[]]
+		end
+	    in  let <_cor7> =
+		    %% Line 434
+		    call 'erlang':'++'
+			(_cor5, ['stream'|['exit_status'|['use_stdio'|['stderr_to_stdout'|['in'|['eof']]]]]])
+		in  let <Opt> =
+			%% Line 434
+			call 'erlang':'++'
+			    (_cor3, _cor7)
+		    in  let <P> =
+			    %% Line 436
+			    call 'erlang':'open_port'
+				({'spawn',_cor2}, Opt)
+			in  %% Line 437
+			    apply 'get_data'/2
+				(P, [])
+'get_data'/2 =
+    %% Line 439
+    fun (_cor1,_cor0) ->
+	%% Line 440
+	receive
+	  %% Line 441
+	  <{_cor7,{'data',D1}}>
+	      when call 'erlang':'=:='
+		    (_cor7,
+		     _cor1) ->
+	      %% Line 442
+	      apply 'get_data'/2
+		  (_cor1, [D1|_cor0])
+	  %% Line 443
+	  <{_cor8,'eof'}>
+	      when call 'erlang':'=:='
+		    (_cor8,
+		     _cor1) ->
+	      do  %% Line 444
+		  call 'erlang':'port_close'
+		      (_cor1)
+		  %% Line 445
+		  receive
+		    %% Line 446
+		    <{_cor9,{'exit_status',N}}>
+			when call 'erlang':'=:='
+			      (_cor9,
+			       _cor1) ->
+			let <_cor2> =
+			    %% Line 447
+			    call 'lists':'reverse'
+				(_cor0)
+			in  let <_cor3> =
+				%% Line 447
+				call 'lists':'flatten'
+				    (_cor2)
+			    in  let <_cor4> =
+				    %% Line 447
+				    apply 'normalize'/1
+					(_cor3)
+				in  %% Line 447
+				    {N,_cor4}
+		  after 'infinity' ->
+		    'true'
+	after 'infinity' ->
+	  'true'
+'normalize'/1 =
+    %% Line 451
+    fun (_cor0) ->
+	case _cor0 of
+	  <[13|[10|Cs]]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 452
+		  apply 'normalize'/1
+		      (Cs)
+	      in  %% Line 452
+		  [10|_cor1]
+	  %% Line 453
+	  <[13|Cs]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 454
+		  apply 'normalize'/1
+		      (Cs)
+	      in  %% Line 454
+		  [10|_cor2]
+	  %% Line 455
+	  <[C|Cs]> when 'true' ->
+	      let <_cor3> =
+		  %% Line 456
+		  apply 'normalize'/1
+		      (Cs)
+	      in  %% Line 456
+		  [C|_cor3]
+	  %% Line 457
+	  <[]> when 'true' ->
+	      %% Line 458
+	      []
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'normalize',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'cmd_test_'/0 =
+    %% Line 462
+    fun () ->
+	let <_cor3> =
+	    %% Line 463
+	    ( fun () ->
+		  let <_cor4> =
+		      call 'eunit_lib':'command'
+			  ([101|[99|[104|[111|[32|[104|[101|[108|[108|[111]]]]]]]]]])
+		  in  case _cor4 of
+			<{0,[104|[101|[108|[108|[111|[10]]]]]]}> when 'true' ->
+			    ( _cor4
+			      -| ['compiler_generated'] )
+			( <_cor2> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor2})
+			  -| ['compiler_generated'] )
+		      end
+	      -| [{'id',{0,0,'-cmd_test_/0-fun-0-'}}] )
+	in  let <_cor1> =
+		%% Line 464
+		case call 'os':'type'
+			 () of
+		  %% Line 465
+		  <{'unix',_cor5}> when 'true' ->
+		      %% Line 466
+		      apply 'unix_cmd_tests'/0
+			  ()
+		  %% Line 467
+		  <{'win32',_cor6}> when 'true' ->
+		      %% Line 468
+		      apply 'win32_cmd_tests'/0
+			  ()
+		  %% Line 469
+		  <_cor7> when 'true' ->
+		      %% Line 470
+		      []
+		end
+	    in  %% Line 463
+		[{463,_cor3}|_cor1]
+'unix_cmd_tests'/0 =
+    %% Line 473
+    fun () ->
+	let <_cor2> =
+	    %% Line 475
+	    ( fun () ->
+		  let <_cor1> =
+		      ( fun () ->
+			    case call 'eunit_lib':'command'
+				     ([101|[99|[104|[111|[32|[104|[101|[108|[108|[111]]]]]]]]]]) of
+			      <{0,_X__Out}> when 'true' ->
+				  _X__Out
+			      <{_X__N,_cor41}> when 'true' ->
+				  call 'erlang':'error'
+				      ({'command_failed',[{'module','eunit_lib'}|[{'line',475}|[{'command',[101|[99|[104|[111|[32|[104|[101|[108|[108|[111]]]]]]]]]]}|[{'expected_status',0}|[{'status',_X__N}|[]]]]]]})
+			      ( <_cor0> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor0})
+				-| ['compiler_generated'] )
+			    end
+			-| [{'id',{0,0,'-unix_cmd_tests/0-fun-0-'}}] )
+		  in  apply _cor1
+			  ()
+	      -| [{'id',{0,0,'-unix_cmd_tests/0-fun-1-'}}] )
+	in  let <_cor5> =
+		%% Line 476
+		( fun () ->
+		      let <_cor4> =
+			  ( fun () ->
+				case call 'eunit_lib':'command'
+					 ([116|[114|[117|[101]]]]) of
+				  <{0,_cor42}> when 'true' ->
+				      'ok'
+				  <{_X__N,_cor43}> when 'true' ->
+				      call 'erlang':'error'
+					  ({'assertCmd_failed',[{'module','eunit_lib'}|[{'line',476}|[{'command',[116|[114|[117|[101]]]]}|[{'expected_status',0}|[{'status',_X__N}|[]]]]]]})
+				  ( <_cor3> when 'true' ->
+					primop 'match_fail'
+					    ({'case_clause',_cor3})
+				    -| ['compiler_generated'] )
+				end
+			    -| [{'id',{0,0,'-unix_cmd_tests/0-fun-2-'}}] )
+		      in  apply _cor4
+			      ()
+		  -| [{'id',{0,0,'-unix_cmd_tests/0-fun-3-'}}] )
+	    in  let <_cor8> =
+		    %% Line 477
+		    ( fun () ->
+			  let <_cor7> =
+			      ( fun () ->
+				    case call 'eunit_lib':'command'
+					     ([102|[97|[108|[115|[101]]]]]) of
+				      <{1,_cor44}> when 'true' ->
+					  'ok'
+				      <{_X__N,_cor45}> when 'true' ->
+					  call 'erlang':'error'
+					      ({'assertCmd_failed',[{'module','eunit_lib'}|[{'line',477}|[{'command',[102|[97|[108|[115|[101]]]]]}|[{'expected_status',1}|[{'status',_X__N}|[]]]]]]})
+				      ( <_cor6> when 'true' ->
+					    primop 'match_fail'
+						({'case_clause',_cor6})
+					-| ['compiler_generated'] )
+				    end
+				-| [{'id',{0,0,'-unix_cmd_tests/0-fun-4-'}}] )
+			  in  apply _cor7
+				  ()
+		      -| [{'id',{0,0,'-unix_cmd_tests/0-fun-5-'}}] )
+		in  let <_cor11> =
+			%% Line 478
+			( fun () ->
+			      let <_cor10> =
+				  ( fun () ->
+					case call 'eunit_lib':'command'
+						 ([116|[114|[117|[101]]]]) of
+					  <{0,_cor46}> when 'true' ->
+					      'ok'
+					  <{_X__N,_cor47}> when 'true' ->
+					      call 'erlang':'error'
+						  ({'assertCmd_failed',[{'module','eunit_lib'}|[{'line',478}|[{'command',[116|[114|[117|[101]]]]}|[{'expected_status',0}|[{'status',_X__N}|[]]]]]]})
+					  ( <_cor9> when 'true' ->
+						primop 'match_fail'
+						    ({'case_clause',_cor9})
+					    -| ['compiler_generated'] )
+					end
+				    -| [{'id',{0,0,'-unix_cmd_tests/0-fun-6-'}}] )
+			      in  apply _cor10
+				      ()
+			  -| [{'id',{0,0,'-unix_cmd_tests/0-fun-7-'}}] )
+		    in  let <_cor14> =
+			    %% Line 479
+			    ( fun () ->
+				  let <_cor13> =
+				      ( fun () ->
+					    case call 'eunit_lib':'command'
+						     ([101|[99|[104|[111|[32|[104|[101|[108|[108|[111]]]]]]]]]]) of
+					      <{_cor48,[104|[101|[108|[108|[111|[10]]]]]]}> when 'true' ->
+						  'ok'
+					      <{_cor49,_X__T}> when 'true' ->
+						  call 'erlang':'error'
+						      ({'assertCmdOutput_failed',[{'module','eunit_lib'}|[{'line',479}|[{'command',[101|[99|[104|[111|[32|[104|[101|[108|[108|[111]]]]]]]]]]}|[{'expected_output',[104|[101|[108|[108|[111|[10]]]]]]}|[{'output',_X__T}|[]]]]]]})
+					      ( <_cor12> when 'true' ->
+						    primop 'match_fail'
+							({'case_clause',_cor12})
+						-| ['compiler_generated'] )
+					    end
+					-| [{'id',{0,0,'-unix_cmd_tests/0-fun-8-'}}] )
+				  in  apply _cor13
+					  ()
+			      -| [{'id',{0,0,'-unix_cmd_tests/0-fun-9-'}}] )
+			in  let <_cor17> =
+				%% Line 480
+				( fun () ->
+				      let <_cor16> =
+					  ( fun () ->
+						case call 'eunit_lib':'command'
+							 ([101|[99|[104|[111|[32|[45|[110|[32|[104|[101|[108|[108|[111]]]]]]]]]]]]]) of
+						  <{_cor50,[104|[101|[108|[108|[111]]]]]}> when 'true' ->
+						      'ok'
+						  <{_cor51,_X__T}> when 'true' ->
+						      call 'erlang':'error'
+							  ({'assertCmdOutput_failed',[{'module','eunit_lib'}|[{'line',480}|[{'command',[101|[99|[104|[111|[32|[45|[110|[32|[104|[101|[108|[108|[111]]]]]]]]]]]]]}|[{'expected_output',[104|[101|[108|[108|[111]]]]]}|[{'output',_X__T}|[]]]]]]})
+						  ( <_cor15> when 'true' ->
+							primop 'match_fail'
+							    ({'case_clause',_cor15})
+						    -| ['compiler_generated'] )
+						end
+					    -| [{'id',{0,0,'-unix_cmd_tests/0-fun-10-'}}] )
+				      in  apply _cor16
+					      ()
+				  -| [{'id',{0,0,'-unix_cmd_tests/0-fun-11-'}}] )
+			    in  let <_cor40> =
+				    %% Line 484
+				    ( fun () ->
+					  let <_cor39> =
+					      ( fun () ->
+						    case call 'eunit_lib':'command'
+							     ([109|[107|[116|[101|[109|[112|[32|[116|[109|[112|[46|[88|[88|[88|[88|[88|[88|[88|[88]]]]]]]]]]]]]]]]]]]) of
+						      <{0,_X__Out}> when 'true' ->
+							  _X__Out
+						      <{_X__N,_cor52}> when 'true' ->
+							  call 'erlang':'error'
+							      ({'command_failed',[{'module','eunit_lib'}|[{'line',484}|[{'command',[109|[107|[116|[101|[109|[112|[32|[116|[109|[112|[46|[88|[88|[88|[88|[88|[88|[88|[88]]]]]]]]]]]]]]]]]]]}|[{'expected_status',0}|[{'status',_X__N}|[]]]]]]})
+						      ( <_cor38> when 'true' ->
+							    primop 'match_fail'
+								({'case_clause',_cor38})
+							-| ['compiler_generated'] )
+						    end
+						-| [{'id',{0,0,'-unix_cmd_tests/0-fun-12-'}}] )
+					  in  apply _cor39
+						  ()
+				      -| [{'id',{0,0,'-unix_cmd_tests/0-fun-13-'}}] )
+				in  let <_cor37> =
+					%% Line 485
+					( fun (_cor35) ->
+					      let <_cor34> =
+						  ( fun () ->
+							let <_cor31> =
+							    [114|[109|[32|_cor35]]]
+							in  case call 'eunit_lib':'command'
+								     (_cor31) of
+							      <{0,_X__Out}> when 'true' ->
+								  _X__Out
+							      <{_X__N,_cor53}> when 'true' ->
+								  let <_cor32> =
+								      [114|[109|[32|_cor35]]]
+								  in  call 'erlang':'error'
+									  ({'command_failed',[{'module','eunit_lib'}|[{'line',485}|[{'command',_cor32}|[{'expected_status',0}|[{'status',_X__N}|[]]]]]]})
+							      ( <_cor33> when 'true' ->
+								    primop 'match_fail'
+									({'case_clause',_cor33})
+								-| ['compiler_generated'] )
+							    end
+						    -| [{'id',{0,0,'-unix_cmd_tests/0-fun-14-'}}] )
+					      in  apply _cor34
+						      ()
+					  -| [{'id',{0,0,'-unix_cmd_tests/0-fun-15-'}}] )
+				    in  let <_cor30> =
+					    %% Line 486
+					    ( fun (_cor28) ->
+						  let <_cor22> =
+						      %% Line 487
+						      ( fun () ->
+							    let <_cor21> =
+								( fun () ->
+								      let <_cor18> =
+									  call 'erlang':'++'
+									      ([101|[99|[104|[111|[32|[120|[121|[122|[122|[121|[32|[62]]]]]]]]]]]], _cor28)
+								      in  case call 'eunit_lib':'command'
+										   (_cor18) of
+									    <{0,_cor54}> when 'true' ->
+										'ok'
+									    <{_X__N,_cor55}> when 'true' ->
+										let <_cor19> =
+										    call 'erlang':'++'
+											([101|[99|[104|[111|[32|[120|[121|[122|[122|[121|[32|[62]]]]]]]]]]]], _cor28)
+										in  call 'erlang':'error'
+											({'assertCmd_failed',[{'module','eunit_lib'}|[{'line',487}|[{'command',_cor19}|[{'expected_status',0}|[{'status',_X__N}|[]]]]]]})
+									    ( <_cor20> when 'true' ->
+										  primop 'match_fail'
+										      ({'case_clause',_cor20})
+									      -| ['compiler_generated'] )
+									  end
+								  -| [{'id',{0,0,'-unix_cmd_tests/0-fun-16-'}}] )
+							    in  apply _cor21
+								    ()
+							-| [{'id',{0,0,'-unix_cmd_tests/0-fun-17-'}}] )
+						  in  let <_cor27> =
+							  %% Line 488
+							  ( fun () ->
+								let <_cor26> =
+								    ( fun () ->
+									  let <_cor23> =
+									      [99|[97|[116|[32|_cor28]]]]
+									  in  case call 'eunit_lib':'command'
+										       (_cor23) of
+										<{_cor56,[120|[121|[122|[122|[121|[10]]]]]]}> when 'true' ->
+										    'ok'
+										<{_cor57,_X__T}> when 'true' ->
+										    let <_cor24> =
+											[99|[97|[116|[32|_cor28]]]]
+										    in  call 'erlang':'error'
+											    ({'assertCmdOutput_failed',[{'module','eunit_lib'}|[{'line',488}|[{'command',_cor24}|[{'expected_output',[120|[121|[122|[122|[121|[10]]]]]]}|[{'output',_X__T}|[]]]]]]})
+										( <_cor25> when 'true' ->
+										      primop 'match_fail'
+											  ({'case_clause',_cor25})
+										  -| ['compiler_generated'] )
+									      end
+								      -| [{'id',{0,0,'-unix_cmd_tests/0-fun-18-'}}] )
+								in  apply _cor26
+									()
+							    -| [{'id',{0,0,'-unix_cmd_tests/0-fun-19-'}}] )
+						      in  %% Line 487
+							  [{487,_cor22}|%% Line 488
+									[{488,_cor27}|[]]]
+					      -| [{'id',{0,0,'-unix_cmd_tests/0-fun-20-'}}] )
+					in  %% Line 474
+					    [{[99|[111|[109|[109|[97|[110|[100|[32|[101|[120|[101|[99|[117|[116|[105|[111|[110|[44|[32|[115|[116|[97|[116|[117|[115|[44|[32|[97|[110|[100|[32|[111|[117|[116|[112|[117|[116]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 475
+																																 [{475,_cor2}|%% Line 476
+																																	      [{476,_cor5}|%% Line 477
+																																			   [{477,_cor8}|%% Line 478
+																																					[{478,_cor11}|%% Line 479
+																																						      [{479,_cor14}|%% Line 480
+																																								    [{480,_cor17}|%% Line 481
+																																										  []]]]]]]}|%% Line 482
+																																											    [{[102|[105|[108|[101|[32|[115|[101|[116|[117|[112|[32|[97|[110|[100|[32|[99|[108|[101|[97|[110|[117|[112]]]]]]]]]]]]]]]]]]]]]],%% Line 483
+																																																											    'setup',_cor40,_cor37,_cor30}|%% Line 490
+																																																															  []]]
+'win32_cmd_tests'/0 =
+    %% Line 492
+    fun () ->
+	let <_cor2> =
+	    %% Line 494
+	    ( fun () ->
+		  let <_cor1> =
+		      ( fun () ->
+			    case call 'eunit_lib':'command'
+				     ([101|[99|[104|[111|[32|[104|[101|[108|[108|[111]]]]]]]]]]) of
+			      <{0,_X__Out}> when 'true' ->
+				  _X__Out
+			      <{_X__N,_cor6}> when 'true' ->
+				  call 'erlang':'error'
+				      ({'command_failed',[{'module','eunit_lib'}|[{'line',494}|[{'command',[101|[99|[104|[111|[32|[104|[101|[108|[108|[111]]]]]]]]]]}|[{'expected_status',0}|[{'status',_X__N}|[]]]]]]})
+			      ( <_cor0> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor0})
+				-| ['compiler_generated'] )
+			    end
+			-| [{'id',{0,0,'-win32_cmd_tests/0-fun-0-'}}] )
+		  in  apply _cor1
+			  ()
+	      -| [{'id',{0,0,'-win32_cmd_tests/0-fun-1-'}}] )
+	in  let <_cor5> =
+		%% Line 495
+		( fun () ->
+		      let <_cor4> =
+			  ( fun () ->
+				case call 'eunit_lib':'command'
+					 ([101|[99|[104|[111|[32|[104|[101|[108|[108|[111]]]]]]]]]]) of
+				  <{_cor7,[104|[101|[108|[108|[111|[10]]]]]]}> when 'true' ->
+				      'ok'
+				  <{_cor8,_X__T}> when 'true' ->
+				      call 'erlang':'error'
+					  ({'assertCmdOutput_failed',[{'module','eunit_lib'}|[{'line',495}|[{'command',[101|[99|[104|[111|[32|[104|[101|[108|[108|[111]]]]]]]]]]}|[{'expected_output',[104|[101|[108|[108|[111|[10]]]]]]}|[{'output',_X__T}|[]]]]]]})
+				  ( <_cor3> when 'true' ->
+					primop 'match_fail'
+					    ({'case_clause',_cor3})
+				    -| ['compiler_generated'] )
+				end
+			    -| [{'id',{0,0,'-win32_cmd_tests/0-fun-2-'}}] )
+		      in  apply _cor4
+			      ()
+		  -| [{'id',{0,0,'-win32_cmd_tests/0-fun-3-'}}] )
+	    in  %% Line 493
+		[{[99|[111|[109|[109|[97|[110|[100|[32|[101|[120|[101|[99|[117|[116|[105|[111|[110|[44|[32|[115|[116|[97|[116|[117|[115|[44|[32|[97|[110|[100|[32|[111|[117|[116|[112|[117|[116]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 494
+																												     [{494,_cor2}|%% Line 495
+																														  [{495,_cor5}|%% Line 496
+																															       []]]}|%% Line 497
+																																     []]
+'consult_file'/1 =
+    %% Line 508
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 509
+	    call 'code':'get_path'
+		()
+	in  let <_cor2> =
+		%% Line 509
+		[[46]|_cor1]
+	    in  %% Line 509
+		case call 'file':'path_consult'
+			 (_cor2, _cor0) of
+		  %% Line 510
+		  <{'ok',Data,_X_Path}> when 'true' ->
+		      %% Line 511
+		      Data
+		  %% Line 512
+		  <{'error',Reason}> when 'true' ->
+		      let <Msg> =
+			  %% Line 513
+			  call 'file':'format_error'
+			      (Reason)
+		      in  %% Line 514
+			  call 'erlang':'throw'
+			      ({'file_read_error',{Reason,Msg,_cor0}})
+		  ( <_cor4> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor4})
+		    -| ['compiler_generated'] )
+		end
+'list_dir'/1 =
+    %% Line 523
+    fun (_cor0) ->
+	%% Line 524
+	case call 'file':'list_dir'
+		 (_cor0) of
+	  %% Line 525
+	  <{'ok',Fs}> when 'true' ->
+	      %% Line 526
+	      Fs
+	  %% Line 527
+	  <{'error',Reason}> when 'true' ->
+	      let <Msg> =
+		  %% Line 528
+		  call 'file':'format_error'
+		      (Reason)
+	      in  %% Line 529
+		  call 'erlang':'throw'
+		      ({'file_read_error',{Reason,Msg,_cor0}})
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'trie_new'/0 =
+    %% Line 537
+    fun () ->
+	%% Line 538
+	call 'gb_trees':'empty'
+	    ()
+'trie_store'/2 =
+    %% Line 540
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[_cor8|_cor9],[]> when 'true' ->
+	      %% Line 541
+	      []
+	  %% Line 542
+	  <[E|Es],T> when 'true' ->
+	      %% Line 543
+	      case call 'gb_trees':'lookup'
+		       (E, T) of
+		%% Line 544
+		<'none'> when 'true' ->
+		    %% Line 545
+		    case <> of
+		      <>
+			  when call 'erlang':'=:='
+				(Es,
+				 []) ->
+			  %% Line 546
+			  call 'gb_trees':'insert'
+			      (E, [], T)
+		      %% Line 547
+		      <> when 'true' ->
+			  let <_cor2> =
+			      %% Line 548
+			      call 'gb_trees':'empty'
+				  ()
+			  in  let <_cor3> =
+				  %% Line 548
+				  apply 'trie_store'/2
+				      (Es, _cor2)
+			      in  %% Line 548
+				  call 'gb_trees':'insert'
+				      (E, _cor3, %% Line 549
+						 T)
+		    end
+		%% Line 551
+		<{'value',[]}> when 'true' ->
+		    %% Line 552
+		    T
+		%% Line 553
+		<{'value',T1}> when 'true' ->
+		    let <_cor4> =
+			%% Line 554
+			apply 'trie_store'/2
+			    (Es, T1)
+		    in  %% Line 554
+			call 'gb_trees':'update'
+			    (E, _cor4, T)
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 556
+	  <[],_X_T> when 'true' ->
+	      %% Line 557
+	      []
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'trie_store',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'trie_match'/2 =
+    %% Line 559
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[_cor5|_cor6],[]> when 'true' ->
+	      %% Line 560
+	      'prefix'
+	  %% Line 561
+	  <[E|Es],T> when 'true' ->
+	      %% Line 562
+	      case call 'gb_trees':'lookup'
+		       (E, T) of
+		%% Line 563
+		<'none'> when 'true' ->
+		    %% Line 564
+		    'no'
+		%% Line 565
+		<{'value',[]}> when 'true' ->
+		    %% Line 566
+		    case <> of
+		      <>
+			  when call 'erlang':'=:='
+				(Es,
+				 []) ->
+			  'exact'
+		      %% Line 567
+		      <> when 'true' ->
+			  'prefix'
+		    end
+		%% Line 569
+		<{'value',T1}> when 'true' ->
+		    %% Line 570
+		    apply 'trie_match'/2
+			(Es, T1)
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 572
+	  <[],[]> when 'true' ->
+	      %% Line 573
+	      'exact'
+	  %% Line 574
+	  <[],_X_T> when 'true' ->
+	      %% Line 575
+	      'no'
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'trie_match',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'trie_test_'/0 =
+    %% Line 579
+    fun () ->
+	let <_cor6> =
+	    %% Line 581
+	    ( fun () ->
+		  let <_cor5> =
+		      ( fun () ->
+			    let <_cor1> =
+				apply 'trie_new'/0
+				    ()
+			    in  let <_cor0> =
+				    call 'gb_trees':'empty'
+					()
+				in  case call 'erlang':'=:='
+					     (_cor1, _cor0) of
+				      <'true'> when 'true' ->
+					  'ok'
+				      <_X__V> when 'true' ->
+					  let <_cor3> =
+					      case _X__V of
+						<'false'> when 'true' ->
+						    _X__V
+						<_cor124> when 'true' ->
+						    {'not_a_boolean',_X__V}
+					      end
+					  in  call 'erlang':'error'
+						  ({'assertion_failed',[{'module','eunit_lib'}|[{'line',581}|[{'expression',[116|[114|[105|[101|[95|[110|[101|[119|[32|[40|[32|[41|[32|[61|[58|[61|[32|[103|[98|[95|[116|[114|[101|[101|[115|[32|[58|[32|[101|[109|[112|[116|[121|[32|[40|[32|[41]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'expected','true'}|[{'value',_cor3}|[]]]]]]})
+				    end
+			-| [{'id',{0,0,'-trie_test_/0-fun-0-'}}] )
+		  in  apply _cor5
+			  ()
+	      -| [{'id',{0,0,'-trie_test_/0-fun-1-'}}] )
+	in  let <_cor15> =
+		%% Line 582
+		( fun () ->
+		      let <_cor14> =
+			  ( fun () ->
+				let <_cor9> =
+				    apply 'trie_new'/0
+					()
+				in  let <_cor10> =
+					apply 'trie_store'/2
+					    ([1], _cor9)
+				    in  let <_cor7> =
+					    %% Line 583
+					    call 'gb_trees':'empty'
+						()
+					in  let <_cor8> =
+						%% Line 583
+						call 'gb_trees':'insert'
+						    (1, [], _cor7)
+					    in  case %% Line 583
+						     call 'erlang':'=:='
+							 (_cor10, _cor8) of
+						  %% Line 583
+						  <'true'> when 'true' ->
+						      'ok'
+						  %% Line 583
+						  <_X__V> when 'true' ->
+						      let <_cor12> =
+							  case _X__V of
+							    <'false'> when 'true' ->
+								_X__V
+							    <_cor125> when 'true' ->
+								{'not_a_boolean',_X__V}
+							  end
+						      in  call 'erlang':'error'
+							      ({'assertion_failed',[{'module','eunit_lib'}|[{'line',583}|[{'expression',[116|[114|[105|[101|[95|[115|[116|[111|[114|[101|[32|[40|[32|[91|[32|[49|[32|[93|[32|[44|[32|[116|[114|[105|[101|[95|[110|[101|[119|[32|[40|[32|[41|[32|[41|[32|[61|[58|[61|[32|[103|[98|[95|[116|[114|[101|[101|[115|[32|[58|[32|[105|[110|[115|[101|[114|[116|[32|[40|[32|[49|[32|[44|[32|[91|[32|[93|[32|[44|[32|[103|[98|[95|[116|[114|[101|[101|[115|[32|[58|[32|[101|[109|[112|[116|[121|[32|[40|[32|[41|[32|[41]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'expected','true'}|[{'value',_cor12}|[]]]]]]})
+						end
+			    -| [{'id',{0,0,'-trie_test_/0-fun-2-'}}] )
+		      in  apply _cor14
+			      ()
+		  -| [{'id',{0,0,'-trie_test_/0-fun-3-'}}] )
+	    in  let <_cor26> =
+		    %% Line 584
+		    ( fun () ->
+			  let <_cor25> =
+			      ( fun () ->
+				    let <_cor20> =
+					apply 'trie_new'/0
+					    ()
+				    in  let <_cor21> =
+					    apply 'trie_store'/2
+						([1|[2]], _cor20)
+					in  let <_cor17> =
+						%% Line 587
+						call 'gb_trees':'empty'
+						    ()
+					    in  let <_cor18> =
+						    %% Line 586
+						    call 'gb_trees':'insert'
+							(2, [], _cor17)
+						in  let <_cor16> =
+							%% Line 588
+							call 'gb_trees':'empty'
+							    ()
+						    in  let <_cor19> =
+							    %% Line 585
+							    call 'gb_trees':'insert'
+								(1, _cor18, _cor16)
+							in  case %% Line 585
+								 call 'erlang':'=:='
+								     (_cor21, _cor19) of
+							      %% Line 588
+							      <'true'> when 'true' ->
+								  'ok'
+							      %% Line 588
+							      <_X__V> when 'true' ->
+								  let <_cor23> =
+								      case _X__V of
+									<'false'> when 'true' ->
+									    _X__V
+									<_cor126> when 'true' ->
+									    {'not_a_boolean',_X__V}
+								      end
+								  in  call 'erlang':'error'
+									  ({'assertion_failed',[{'module','eunit_lib'}|[{'line',588}|[{'expression',[116|[114|[105|[101|[95|[115|[116|[111|[114|[101|[32|[40|[32|[91|[32|[49|[32|[44|[32|[50|[32|[93|[32|[44|[32|[116|[114|[105|[101|[95|[110|[101|[119|[32|[40|[32|[41|[32|[41|[32|[61|[58|[61|[32|[103|[98|[95|[116|[114|[101|[101|[115|[32|[58|[32|[105|[110|[115|[101|[114|[116|[32|[40|[32|[49|[32|[44|[32|[103|[98|[95|[116|[114|[101|[101|[115|[32|[58|[32|[105|[110|[115|[101|[114|[116|[32|[40|[32|[50|[32|[44|[32|[91|[32|[93|[32|[44|[32|[103|[98|[95|[116|[114|[101|[101|[115|[32|[58|[32|[101|[109|[112|[116|[121|[32|[40|[32|[41|[32|[41|[32|[44|[32|[103|[98|[95|[116|[114|[101|[101|[115|[32|[58|[32|[101|[109|[112|[116|[121|[32|[40|[32|[41|[32|[41]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'expected','true'}|[{'value',_cor23}|[]]]]]]})
+							    end
+				-| [{'id',{0,0,'-trie_test_/0-fun-4-'}}] )
+			  in  apply _cor25
+				  ()
+		      -| [{'id',{0,0,'-trie_test_/0-fun-5-'}}] )
+		in  let <_cor32> =
+			%% Line 589
+			( fun () ->
+			      let <_cor31> =
+				  ( fun () ->
+					let <_cor27> =
+					    apply 'trie_store'/2
+						([1], [])
+					in  case call 'erlang':'=:='
+						     ([], _cor27) of
+					      <'true'> when 'true' ->
+						  'ok'
+					      <_X__V> when 'true' ->
+						  let <_cor29> =
+						      case _X__V of
+							<'false'> when 'true' ->
+							    _X__V
+							<_cor127> when 'true' ->
+							    {'not_a_boolean',_X__V}
+						      end
+						  in  call 'erlang':'error'
+							  ({'assertion_failed',[{'module','eunit_lib'}|[{'line',589}|[{'expression',[91|[32|[93|[32|[61|[58|[61|[32|[116|[114|[105|[101|[95|[115|[116|[111|[114|[101|[32|[40|[32|[91|[32|[49|[32|[93|[32|[44|[32|[91|[32|[93|[32|[41]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'expected','true'}|[{'value',_cor29}|[]]]]]]})
+					    end
+				    -| [{'id',{0,0,'-trie_test_/0-fun-6-'}}] )
+			      in  apply _cor31
+				      ()
+			  -| [{'id',{0,0,'-trie_test_/0-fun-7-'}}] )
+		    in  let <_cor39> =
+			    %% Line 590
+			    ( fun () ->
+				  let <_cor38> =
+				      ( fun () ->
+					    let <_cor33> =
+						call 'gb_trees':'empty'
+						    ()
+					    in  let <_cor34> =
+						    apply 'trie_store'/2
+							([], _cor33)
+						in  case call 'erlang':'=:='
+							     ([], _cor34) of
+						      <'true'> when 'true' ->
+							  'ok'
+						      <_X__V> when 'true' ->
+							  let <_cor36> =
+							      case _X__V of
+								<'false'> when 'true' ->
+								    _X__V
+								<_cor128> when 'true' ->
+								    {'not_a_boolean',_X__V}
+							      end
+							  in  call 'erlang':'error'
+								  ({'assertion_failed',[{'module','eunit_lib'}|[{'line',590}|[{'expression',[91|[32|[93|[32|[61|[58|[61|[32|[116|[114|[105|[101|[95|[115|[116|[111|[114|[101|[32|[40|[32|[91|[32|[93|[32|[44|[32|[103|[98|[95|[116|[114|[101|[101|[115|[32|[58|[32|[101|[109|[112|[116|[121|[32|[40|[32|[41|[32|[41]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}|[{'expected','true'}|[{'value',_cor36}|[]]]]]]})
+						    end
+					-| [{'id',{0,0,'-trie_test_/0-fun-8-'}}] )
+				  in  apply _cor38
+					  ()
+			      -| [{'id',{0,0,'-trie_test_/0-fun-9-'}}] )
+			in  let <_cor42> =
+				%% Line 593
+				( fun () ->
+				      let <_cor40> =
+					  apply 'trie_new'/0
+					      ()
+				      in  let <_cor129> =
+					      apply 'trie_match'/2
+						  ([], _cor40)
+					  in  case _cor129 of
+						<'no'> when 'true' ->
+						    ( _cor129
+						      -| ['compiler_generated'] )
+						( <_cor41> when 'true' ->
+						      primop 'match_fail'
+							  ({'badmatch',_cor41})
+						  -| ['compiler_generated'] )
+					      end
+				  -| [{'id',{0,0,'-trie_test_/0-fun-10-'}}] )
+			    in  let <_cor46> =
+				    %% Line 594
+				    ( fun () ->
+					  let <_cor43> =
+					      apply 'trie_new'/0
+						  ()
+					  in  let <_cor44> =
+						  apply 'trie_store'/2
+						      ([], _cor43)
+					      in  let <_cor130> =
+						      apply 'trie_match'/2
+							  ([], _cor44)
+						  in  case _cor130 of
+							<'exact'> when 'true' ->
+							    ( _cor130
+							      -| ['compiler_generated'] )
+							( <_cor45> when 'true' ->
+							      primop 'match_fail'
+								  ({'badmatch',_cor45})
+							  -| ['compiler_generated'] )
+						      end
+				      -| [{'id',{0,0,'-trie_test_/0-fun-11-'}}] )
+				in  let <_cor50> =
+					%% Line 595
+					( fun () ->
+					      let <_cor47> =
+						  apply 'trie_new'/0
+						      ()
+					      in  let <_cor48> =
+						      apply 'trie_store'/2
+							  ([1], _cor47)
+						  in  let <_cor131> =
+							  apply 'trie_match'/2
+							      ([], _cor48)
+						      in  case _cor131 of
+							    <'no'> when 'true' ->
+								( _cor131
+								  -| ['compiler_generated'] )
+							    ( <_cor49> when 'true' ->
+								  primop 'match_fail'
+								      ({'badmatch',_cor49})
+							      -| ['compiler_generated'] )
+							  end
+					  -| [{'id',{0,0,'-trie_test_/0-fun-12-'}}] )
+				    in  let <_cor54> =
+					    %% Line 596
+					    ( fun () ->
+						  let <_cor51> =
+						      apply 'trie_new'/0
+							  ()
+						  in  let <_cor52> =
+							  apply 'trie_store'/2
+							      ([1], _cor51)
+						      in  let <_cor132> =
+							      apply 'trie_match'/2
+								  ([1], _cor52)
+							  in  case _cor132 of
+								<'exact'> when 'true' ->
+								    ( _cor132
+								      -| ['compiler_generated'] )
+								( <_cor53> when 'true' ->
+								      primop 'match_fail'
+									  ({'badmatch',_cor53})
+								  -| ['compiler_generated'] )
+							      end
+					      -| [{'id',{0,0,'-trie_test_/0-fun-13-'}}] )
+					in  let <_cor58> =
+						%% Line 597
+						( fun () ->
+						      let <_cor55> =
+							  apply 'trie_new'/0
+							      ()
+						      in  let <_cor56> =
+							      apply 'trie_store'/2
+								  ([1], _cor55)
+							  in  let <_cor133> =
+								  apply 'trie_match'/2
+								      ([1|[2]], _cor56)
+							      in  case _cor133 of
+								    <'prefix'> when 'true' ->
+									( _cor133
+									  -| ['compiler_generated'] )
+								    ( <_cor57> when 'true' ->
+									  primop 'match_fail'
+									      ({'badmatch',_cor57})
+								      -| ['compiler_generated'] )
+								  end
+						  -| [{'id',{0,0,'-trie_test_/0-fun-14-'}}] )
+					    in  let <_cor62> =
+						    %% Line 598
+						    ( fun () ->
+							  let <_cor59> =
+							      apply 'trie_new'/0
+								  ()
+							  in  let <_cor60> =
+								  apply 'trie_store'/2
+								      ([1|[2]], _cor59)
+							      in  let <_cor134> =
+								      apply 'trie_match'/2
+									  ([1], _cor60)
+								  in  case _cor134 of
+									<'no'> when 'true' ->
+									    ( _cor134
+									      -| ['compiler_generated'] )
+									( <_cor61> when 'true' ->
+									      primop 'match_fail'
+										  ({'badmatch',_cor61})
+									  -| ['compiler_generated'] )
+								      end
+						      -| [{'id',{0,0,'-trie_test_/0-fun-15-'}}] )
+						in  let <_cor66> =
+							%% Line 599
+							( fun () ->
+							      let <_cor63> =
+								  apply 'trie_new'/0
+								      ()
+							      in  let <_cor64> =
+								      apply 'trie_store'/2
+									  ([1|[2]], _cor63)
+								  in  let <_cor135> =
+									  apply 'trie_match'/2
+									      ([1|[3]], _cor64)
+								      in  case _cor135 of
+									    <'no'> when 'true' ->
+										( _cor135
+										  -| ['compiler_generated'] )
+									    ( <_cor65> when 'true' ->
+										  primop 'match_fail'
+										      ({'badmatch',_cor65})
+									      -| ['compiler_generated'] )
+									  end
+							  -| [{'id',{0,0,'-trie_test_/0-fun-16-'}}] )
+						    in  let <_cor70> =
+							    %% Line 600
+							    ( fun () ->
+								  let <_cor67> =
+								      %% Line 601
+								      apply 'trie_new'/0
+									  ()
+								  in  let <_cor68> =
+									  %% Line 601
+									  apply 'trie_store'/2
+									      ([1|[2|[3|[4|[5]]]]], _cor67)
+								      in  let <_cor136> =
+									      apply 'trie_match'/2
+										  ([1|[2|[3|[4|[5]]]]], _cor68)
+									  in  case _cor136 of
+										<'exact'> when 'true' ->
+										    ( _cor136
+										      -| ['compiler_generated'] )
+										( <_cor69> when 'true' ->
+										      primop 'match_fail'
+											  ({'badmatch',_cor69})
+										  -| ['compiler_generated'] )
+									      end
+							      -| [{'id',{0,0,'-trie_test_/0-fun-17-'}}] )
+							in  let <_cor74> =
+								%% Line 602
+								( fun () ->
+								      let <_cor71> =
+									  %% Line 603
+									  apply 'trie_new'/0
+									      ()
+								      in  let <_cor72> =
+									      %% Line 603
+									      apply 'trie_store'/2
+										  ([1|[2|[3]]], _cor71)
+									  in  let <_cor137> =
+										  apply 'trie_match'/2
+										      ([1|[2|[3|[4|[5]]]]], _cor72)
+									      in  case _cor137 of
+										    <'prefix'> when 'true' ->
+											( _cor137
+											  -| ['compiler_generated'] )
+										    ( <_cor73> when 'true' ->
+											  primop 'match_fail'
+											      ({'badmatch',_cor73})
+										      -| ['compiler_generated'] )
+										  end
+								  -| [{'id',{0,0,'-trie_test_/0-fun-18-'}}] )
+							    in  let <_cor78> =
+								    %% Line 604
+								    ( fun () ->
+									  let <_cor75> =
+									      %% Line 605
+									      apply 'trie_new'/0
+										  ()
+									  in  let <_cor76> =
+										  %% Line 605
+										  apply 'trie_store'/2
+										      ([1|[2|[3]]], _cor75)
+									      in  let <_cor138> =
+										      apply 'trie_match'/2
+											  ([1|[2|[2|[4|[5]]]]], _cor76)
+										  in  case _cor138 of
+											<'no'> when 'true' ->
+											    ( _cor138
+											      -| ['compiler_generated'] )
+											( <_cor77> when 'true' ->
+											      primop 'match_fail'
+												  ({'badmatch',_cor77})
+											  -| ['compiler_generated'] )
+										      end
+								      -| [{'id',{0,0,'-trie_test_/0-fun-19-'}}] )
+								in  let <_cor104> =
+									%% Line 609
+									( fun () ->
+									      let <_cor102> =
+										  %% Line 610
+										  apply 'trie_new'/0
+										      ()
+									      in  let <_cor103> =
+										      %% Line 610
+										      apply 'trie_store'/2
+											  ([1|[2|[3]]], _cor102)
+										  in  %% Line 610
+										      apply 'trie_store'/2
+											  ([1|[3|[2]]], _cor103)
+									  -| [{'id',{0,0,'-trie_test_/0-fun-20-'}}] )
+								    in  let <_cor101> =
+									    %% Line 612
+									    ( fun (_cor99) ->
+										  let <_cor80> =
+										      %% Line 613
+										      ( fun () ->
+											    let <_cor139> =
+												apply 'trie_match'/2
+												    ([], _cor99)
+											    in  case _cor139 of
+												  <'no'> when 'true' ->
+												      ( _cor139
+													-| ['compiler_generated'] )
+												  ( <_cor79> when 'true' ->
+													primop 'match_fail'
+													    ({'badmatch',_cor79})
+												    -| ['compiler_generated'] )
+												end
+											-| [{'id',{0,0,'-trie_test_/0-fun-21-'}}] )
+										  in  let <_cor82> =
+											  %% Line 614
+											  ( fun () ->
+												let <_cor140> =
+												    apply 'trie_match'/2
+													([1], _cor99)
+												in  case _cor140 of
+												      <'no'> when 'true' ->
+													  ( _cor140
+													    -| ['compiler_generated'] )
+												      ( <_cor81> when 'true' ->
+													    primop 'match_fail'
+														({'badmatch',_cor81})
+													-| ['compiler_generated'] )
+												    end
+											    -| [{'id',{0,0,'-trie_test_/0-fun-22-'}}] )
+										      in  let <_cor84> =
+											      %% Line 615
+											      ( fun () ->
+												    let <_cor141> =
+													apply 'trie_match'/2
+													    ([1|[2]], _cor99)
+												    in  case _cor141 of
+													  <'no'> when 'true' ->
+													      ( _cor141
+														-| ['compiler_generated'] )
+													  ( <_cor83> when 'true' ->
+														primop 'match_fail'
+														    ({'badmatch',_cor83})
+													    -| ['compiler_generated'] )
+													end
+												-| [{'id',{0,0,'-trie_test_/0-fun-23-'}}] )
+											  in  let <_cor86> =
+												  %% Line 616
+												  ( fun () ->
+													let <_cor142> =
+													    apply 'trie_match'/2
+														([1|[3]], _cor99)
+													in  case _cor142 of
+													      <'no'> when 'true' ->
+														  ( _cor142
+														    -| ['compiler_generated'] )
+													      ( <_cor85> when 'true' ->
+														    primop 'match_fail'
+															({'badmatch',_cor85})
+														-| ['compiler_generated'] )
+													    end
+												    -| [{'id',{0,0,'-trie_test_/0-fun-24-'}}] )
+											      in  let <_cor88> =
+												      %% Line 617
+												      ( fun () ->
+													    let <_cor143> =
+														apply 'trie_match'/2
+														    ([1|[2|[3]]], _cor99)
+													    in  case _cor143 of
+														  <'exact'> when 'true' ->
+														      ( _cor143
+															-| ['compiler_generated'] )
+														  ( <_cor87> when 'true' ->
+															primop 'match_fail'
+															    ({'badmatch',_cor87})
+														    -| ['compiler_generated'] )
+														end
+													-| [{'id',{0,0,'-trie_test_/0-fun-25-'}}] )
+												  in  let <_cor90> =
+													  %% Line 618
+													  ( fun () ->
+														let <_cor144> =
+														    apply 'trie_match'/2
+															([1|[3|[2]]], _cor99)
+														in  case _cor144 of
+														      <'exact'> when 'true' ->
+															  ( _cor144
+															    -| ['compiler_generated'] )
+														      ( <_cor89> when 'true' ->
+															    primop 'match_fail'
+																({'badmatch',_cor89})
+															-| ['compiler_generated'] )
+														    end
+													    -| [{'id',{0,0,'-trie_test_/0-fun-26-'}}] )
+												      in  let <_cor92> =
+													      %% Line 619
+													      ( fun () ->
+														    let <_cor145> =
+															apply 'trie_match'/2
+															    ([1|[2|[2]]], _cor99)
+														    in  case _cor145 of
+															  <'no'> when 'true' ->
+															      ( _cor145
+																-| ['compiler_generated'] )
+															  ( <_cor91> when 'true' ->
+																primop 'match_fail'
+																    ({'badmatch',_cor91})
+															    -| ['compiler_generated'] )
+															end
+														-| [{'id',{0,0,'-trie_test_/0-fun-27-'}}] )
+													  in  let <_cor94> =
+														  %% Line 620
+														  ( fun () ->
+															let <_cor146> =
+															    apply 'trie_match'/2
+																([1|[3|[3]]], _cor99)
+															in  case _cor146 of
+															      <'no'> when 'true' ->
+																  ( _cor146
+																    -| ['compiler_generated'] )
+															      ( <_cor93> when 'true' ->
+																    primop 'match_fail'
+																	({'badmatch',_cor93})
+																-| ['compiler_generated'] )
+															    end
+														    -| [{'id',{0,0,'-trie_test_/0-fun-28-'}}] )
+													      in  let <_cor96> =
+														      %% Line 621
+														      ( fun () ->
+															    let <_cor147> =
+																apply 'trie_match'/2
+																    ([1|[2|[3|[4]]]], _cor99)
+															    in  case _cor147 of
+																  <'prefix'> when 'true' ->
+																      ( _cor147
+																	-| ['compiler_generated'] )
+																  ( <_cor95> when 'true' ->
+																	primop 'match_fail'
+																	    ({'badmatch',_cor95})
+																    -| ['compiler_generated'] )
+																end
+															-| [{'id',{0,0,'-trie_test_/0-fun-29-'}}] )
+														  in  let <_cor98> =
+															  %% Line 622
+															  ( fun () ->
+																let <_cor148> =
+																    apply 'trie_match'/2
+																	([1|[3|[2|[1]]]], _cor99)
+																in  case _cor148 of
+																      <'prefix'> when 'true' ->
+																	  ( _cor148
+																	    -| ['compiler_generated'] )
+																      ( <_cor97> when 'true' ->
+																	    primop 'match_fail'
+																		({'badmatch',_cor97})
+																	-| ['compiler_generated'] )
+																    end
+															    -| [{'id',{0,0,'-trie_test_/0-fun-30-'}}] )
+														      in  %% Line 613
+															  [{613,_cor80}|%% Line 614
+																	[{614,_cor82}|%% Line 615
+																		      [{615,_cor84}|%% Line 616
+																				    [{616,_cor86}|%% Line 617
+																						  [{617,_cor88}|%% Line 618
+																								[{618,_cor90}|%% Line 619
+																									      [{619,_cor92}|%% Line 620
+																											    [{620,_cor94}|%% Line 621
+																													  [{621,_cor96}|%% Line 622
+																															[{622,_cor98}|[]]]]]]]]]]]
+									      -| [{'id',{0,0,'-trie_test_/0-fun-31-'}}] )
+									in  let <_cor123> =
+										%% Line 626
+										( fun () ->
+										      let <_cor121> =
+											  apply 'trie_new'/0
+											      ()
+										      in  let <_cor122> =
+											      apply 'trie_store'/2
+												  ([1|[2|[3]]], _cor121)
+											  in  apply 'trie_store'/2
+												  ([1], _cor122)
+										  -| [{'id',{0,0,'-trie_test_/0-fun-32-'}}] )
+									    in  let <_cor120> =
+										    %% Line 627
+										    ( fun (_cor118) ->
+											  'ok'
+										      -| [{'id',{0,0,'-trie_test_/0-fun-33-'}}] )
+										in  let <_cor117> =
+											%% Line 628
+											( fun (_cor115) ->
+											      let <_cor106> =
+												  %% Line 629
+												  ( fun () ->
+													let <_cor150> =
+													    apply 'trie_match'/2
+														([], _cor115)
+													in  case _cor150 of
+													      <'no'> when 'true' ->
+														  ( _cor150
+														    -| ['compiler_generated'] )
+													      ( <_cor105> when 'true' ->
+														    primop 'match_fail'
+															({'badmatch',_cor105})
+														-| ['compiler_generated'] )
+													    end
+												    -| [{'id',{0,0,'-trie_test_/0-fun-34-'}}] )
+											      in  let <_cor108> =
+												      %% Line 630
+												      ( fun () ->
+													    let <_cor151> =
+														apply 'trie_match'/2
+														    ([1], _cor115)
+													    in  case _cor151 of
+														  <'exact'> when 'true' ->
+														      ( _cor151
+															-| ['compiler_generated'] )
+														  ( <_cor107> when 'true' ->
+															primop 'match_fail'
+															    ({'badmatch',_cor107})
+														    -| ['compiler_generated'] )
+														end
+													-| [{'id',{0,0,'-trie_test_/0-fun-35-'}}] )
+												  in  let <_cor110> =
+													  %% Line 631
+													  ( fun () ->
+														let <_cor152> =
+														    apply 'trie_match'/2
+															([1|[2]], _cor115)
+														in  case _cor152 of
+														      <'prefix'> when 'true' ->
+															  ( _cor152
+															    -| ['compiler_generated'] )
+														      ( <_cor109> when 'true' ->
+															    primop 'match_fail'
+																({'badmatch',_cor109})
+															-| ['compiler_generated'] )
+														    end
+													    -| [{'id',{0,0,'-trie_test_/0-fun-36-'}}] )
+												      in  let <_cor112> =
+													      %% Line 632
+													      ( fun () ->
+														    let <_cor153> =
+															apply 'trie_match'/2
+															    ([1|[2|[3]]], _cor115)
+														    in  case _cor153 of
+															  <'prefix'> when 'true' ->
+															      ( _cor153
+																-| ['compiler_generated'] )
+															  ( <_cor111> when 'true' ->
+																primop 'match_fail'
+																    ({'badmatch',_cor111})
+															    -| ['compiler_generated'] )
+															end
+														-| [{'id',{0,0,'-trie_test_/0-fun-37-'}}] )
+													  in  let <_cor114> =
+														  %% Line 633
+														  ( fun () ->
+															let <_cor154> =
+															    apply 'trie_match'/2
+																([1|[2|[3|[4]]]], _cor115)
+															in  case _cor154 of
+															      <'prefix'> when 'true' ->
+																  ( _cor154
+																    -| ['compiler_generated'] )
+															      ( <_cor113> when 'true' ->
+																    primop 'match_fail'
+																	({'badmatch',_cor113})
+																-| ['compiler_generated'] )
+															    end
+														    -| [{'id',{0,0,'-trie_test_/0-fun-38-'}}] )
+													      in  %% Line 629
+														  [{629,_cor106}|%% Line 630
+																 [{630,_cor108}|%% Line 631
+																		[{631,_cor110}|%% Line 632
+																			       [{632,_cor112}|%% Line 633
+																					      [{633,_cor114}|[]]]]]]
+											  -| [{'id',{0,0,'-trie_test_/0-fun-39-'}}] )
+										    in  %% Line 580
+											[{[98|[97|[115|[105|[99|[32|[114|[101|[112|[114|[101|[115|[101|[110|[116|[97|[116|[105|[111|[110]]]]]]]]]]]]]]]]]]]],%% Line 581
+																									     [{581,_cor6}|%% Line 582
+																											  [{582,_cor15}|%% Line 584
+																													[{584,_cor26}|%% Line 589
+																														      [{589,_cor32}|%% Line 590
+																																    [{590,_cor39}|%% Line 591
+																																		  []]]]]]}|%% Line 592
+																																			   [{[98|[97|[115|[105|[99|[32|[115|[116|[111|[114|[105|[110|[103|[32|[97|[110|[100|[32|[109|[97|[116|[99|[104|[105|[110|[103]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 593
+																																																						[{593,_cor42}|%% Line 594
+																																																							      [{594,_cor46}|%% Line 595
+																																																									    [{595,_cor50}|%% Line 596
+																																																											  [{596,_cor54}|%% Line 597
+																																																													[{597,_cor58}|%% Line 598
+																																																														      [{598,_cor62}|%% Line 599
+																																																																    [{599,_cor66}|%% Line 600
+																																																																		  [{600,_cor70}|%% Line 602
+																																																																				[{602,_cor74}|%% Line 604
+																																																																					      [{604,_cor78}|%% Line 606
+																																																																							    []]]]]]]]]]]}|%% Line 607
+																																																																									  [{[109|[97|[116|[99|[104|[105|[110|[103|[32|[119|[105|[116|[104|[32|[112|[97|[114|[116|[105|[97|[108|[108|[121|[32|[111|[118|[101|[114|[108|[97|[112|[112|[105|[110|[103|[32|[112|[97|[116|[116|[101|[114|[110|[115]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 608
+																																																																																																									  'setup',_cor104,_cor101}|%% Line 624
+																																																																																																												   [{[109|[97|[116|[99|[104|[105|[110|[103|[32|[119|[105|[116|[104|[32|[109|[111|[114|[101|[32|[103|[101|[110|[101|[114|[97|[108|[32|[112|[97|[116|[116|[101|[114|[110|[32|[111|[118|[101|[114|[114|[105|[100|[105|[110|[103|[32|[108|[101|[115|[115|[32|[103|[101|[110|[101|[114|[97|[108]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],%% Line 625
+																																																																																																																																																						     'setup',_cor123,_cor120,_cor117}|%% Line 635
+																																																																																																																																																										      []]]]]
+'test'/0 =
+    fun () ->
+	call 'eunit':'test'
+	    ('eunit_lib')
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('eunit_lib')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('eunit_lib', _cor0)
+end

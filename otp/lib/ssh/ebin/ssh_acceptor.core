@@ -1,0 +1,340 @@
+module 'ssh_acceptor' ['acceptor_init'/6,
+		       'acceptor_loop'/6,
+		       'module_info'/0,
+		       'module_info'/1,
+		       'start_link'/5]
+    attributes []
+'start_link'/5 =
+    %% Line 35
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 36
+	    call 'erlang':'self'
+		()
+	in  let <Args> =
+		%% Line 36
+		[_cor5|[_cor4|[_cor3|[_cor2|[_cor1|[_cor0|[]]]]]]]
+	    in  %% Line 37
+		call 'proc_lib':'start_link'
+		    ('ssh_acceptor', 'acceptor_init', Args)
+'acceptor_init'/6 =
+    %% Line 42
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 43
+	case %% Line 44
+	     call 'proplists':'get_value'
+		 ('transport', _cor1, {'tcp','gen_tcp','tcp_closed'}) of
+	  <{_cor16,Callback,_cor17}> when 'true' ->
+	      let <_cor7> =
+		  catch
+		      %% Line 45
+		      apply 'do_socket_listen'/3
+			  (Callback, _cor4, _cor2)
+	      in  %% Line 45
+		  case _cor7 of
+		    %% Line 46
+		    <{'ok',ListenSocket}> when 'true' ->
+			let <_cor8> =
+			    %% Line 47
+			    call 'erlang':'self'
+				()
+			in  do  %% Line 47
+				call 'proc_lib':'init_ack'
+				    (_cor5, {'ok',_cor8})
+				%% Line 48
+				apply 'acceptor_loop'/6
+				    (Callback, _cor4, _cor3, _cor1, %% Line 49
+								    ListenSocket, _cor0)
+		    %% Line 50
+		    <Error> when 'true' ->
+			do  %% Line 51
+			    call 'proc_lib':'init_ack'
+				(_cor5, Error)
+			    %% Line 52
+			    'error'
+		  end
+	  ( <_cor6> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor6})
+	    -| ['compiler_generated'] )
+	end
+'do_socket_listen'/3 =
+    %% Line 55
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 56
+	case call _cor2:'listen'
+		 (_cor1, _cor0) of
+	  %% Line 57
+	  <{'error','nxdomain'}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 58
+		  call 'lists':'delete'
+		      ('inet6', _cor0)
+	      in  %% Line 58
+		  call _cor2:'listen'
+		      (_cor1, _cor3)
+	  %% Line 59
+	  <{'error','enetunreach'}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 60
+		  call 'lists':'delete'
+		      ('inet6', _cor0)
+	      in  %% Line 60
+		  call _cor2:'listen'
+		      (_cor1, _cor4)
+	  %% Line 61
+	  <{'error','eafnosupport'}> when 'true' ->
+	      let <_cor5> =
+		  %% Line 62
+		  call 'lists':'delete'
+		      ('inet6', _cor0)
+	      in  %% Line 62
+		  call _cor2:'listen'
+		      (_cor1, _cor5)
+	  %% Line 63
+	  <Other> when 'true' ->
+	      %% Line 64
+	      Other
+	end
+'acceptor_loop'/6 =
+    %% Line 67
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor6> =
+	    catch
+		%% Line 68
+		call _cor5:'accept'
+		    (_cor1, _cor0)
+	in  %% Line 68
+	    case _cor6 of
+	      %% Line 69
+	      <{'ok',Socket}> when 'true' ->
+		  do  %% Line 70
+		      apply 'handle_connection'/5
+			  (_cor5, _cor3, _cor4, _cor2, Socket)
+		      %% Line 71
+		      call 'ssh_acceptor':'acceptor_loop'
+			  (_cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+	      %% Line 73
+	      <{'error',Reason}> when 'true' ->
+		  do  %% Line 74
+		      apply 'handle_error'/1
+			  (Reason)
+		      %% Line 75
+		      call 'ssh_acceptor':'acceptor_loop'
+			  (_cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+	      %% Line 77
+	      <{'EXIT',Reason}> when 'true' ->
+		  do  %% Line 78
+		      apply 'handle_error'/1
+			  (Reason)
+		      %% Line 79
+		      call 'ssh_acceptor':'acceptor_loop'
+			  (_cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+	      ( <_cor7> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor7})
+		-| ['compiler_generated'] )
+	    end
+'handle_connection'/5 =
+    %% Line 83
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <SystemSup> =
+	    %% Line 84
+	    call 'ssh_system_sup':'system_supervisor'
+		(_cor3, _cor2)
+	in  let <SSHopts> =
+		%% Line 85
+		call 'proplists':'get_value'
+		    ('ssh_opts', _cor1, [])
+	    in  let <MaxSessions> =
+		    %% Line 86
+		    call 'proplists':'get_value'
+			('max_sessions', SSHopts, 'infinity')
+		in  let <_cor8> =
+			%% Line 87
+			apply 'number_of_connections'/1
+			    (SystemSup)
+		    in  %% Line 87
+			case <> of
+			  %% Line 88
+			  <>
+			      when call 'erlang':'<'
+				    (_cor8,
+				     MaxSessions) ->
+			      %% Line 89
+			      case call 'ssh_system_sup':'start_subsystem'
+				       (SystemSup, _cor1) of
+				<{'ok',SubSysSup}> when 'true' ->
+				    let <ConnectionSup> =
+					%% Line 90
+					call 'ssh_subsystem_sup':'connection_supervisor'
+					    (SubSysSup)
+				    in  let <Timeout> =
+					    %% Line 91
+					    call 'proplists':'get_value'
+						('negotiation_timeout', SSHopts, 120000)
+					in  %% Line 92
+					    call 'ssh_connection_handler':'start_connection'
+						('server', _cor0, %% Line 93
+								  [{'supervisors',[{'system_sup',SystemSup}|%% Line 94
+													    [{'subsystem_sup',SubSysSup}|%% Line 95
+																	 [{'connection_sup',ConnectionSup}|[]]]]}|_cor1], %% Line 96
+																							  Timeout)
+				( <_cor9> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor9})
+				  -| ['compiler_generated'] )
+			      end
+			  %% Line 97
+			  <> when 'true' ->
+			      do  %% Line 98
+				  call _cor4:'close'
+				      (_cor0)
+				  let <_cor14> =
+				      %% Line 99
+				      case <> of
+					<>
+					    when call 'erlang':'is_tuple'
+						  (_cor3) ->
+					    call 'inet':'ntoa'
+						(_cor3)
+					%% Line 100
+					<> when 'true' ->
+					    _cor3
+				      end
+				  in  let <_cor21> =
+					  %% Line 102
+					  try
+					      call 'io_lib':'format'
+						  ('~s:~p', [_cor14|[_cor2|[]]])
+					  of <_cor16> ->
+					      _cor16
+					  catch <_cor19,_cor18,_cor17> ->
+					      let <_cor20> =
+						  %% Line 103
+						  call 'erlang':'integer_to_list'
+						      (_cor2)
+					      in  %% Line 103
+						  call 'erlang':'++'
+						      ([112|[111|[114|[116|[32]]]]], _cor20)
+				      in  let <_cor23> =
+					      %% Line 106
+					      call 'io_lib':'write'
+						  (MaxSessions)
+					  in  let <_cor24> =
+						  %% Line 106
+						  call 'erlang':'++'
+						      (_cor23, %% Line 107
+							       [32|[115|[101|[115|[115|[105|[111|[110|[115|[46]]]]]]]]]])
+					      in  let <_cor25> =
+						      %% Line 106
+						      call 'erlang':'++'
+							  ([32|[100|[101|[110|[105|[101|[100|[32|[100|[117|[101|[32|[116|[111|[32|[111|[112|[116|[105|[111|[110|[32|[109|[97|[120|[95|[115|[101|[115|[115|[105|[111|[110|[115|[32|[108|[105|[109|[105|[116|[115|[32|[116|[111|[32]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], _cor24)
+						  in  let <_cor26> =
+							  %% Line 105
+							  call 'erlang':'++'
+							      (_cor21, _cor25)
+						      in  let <_cor27> =
+							      %% Line 105
+							      call 'erlang':'++'
+								  ([83|[115|[104|[32|[108|[111|[103|[105|[110|[32|[97|[116|[116|[101|[109|[112|[116|[32|[116|[111|[32]]]]]]]]]]]]]]]]]]]]], _cor26)
+							  in  do  %% Line 105
+								  call 'error_logger':'info_report'
+								      (_cor27)
+								  %% Line 109
+								  {'error','max_sessions'}
+			end
+'handle_error'/1 =
+    %% Line 113
+    fun (_cor0) ->
+	case _cor0 of
+	  <'timeout'> when 'true' ->
+	      %% Line 114
+	      'ok'
+	  %% Line 116
+	  <'enfile'> when 'true' ->
+	      %% Line 118
+	      call 'timer':'sleep'
+		  (200)
+	  %% Line 120
+	  <'emfile'> when 'true' ->
+	      %% Line 122
+	      call 'timer':'sleep'
+		  (200)
+	  %% Line 124
+	  <'closed'> when 'true' ->
+	      do  %% Line 125
+		  call 'error_logger':'info_report'
+		      ([84|[104|[101|[32|[115|[115|[104|[32|[97|[99|[99|[101|[112|[116|[32|[115|[111|[99|[107|[101|[116|[32|[119|[97|[115|[32|[99|[108|[111|[115|[101|[100|[32|[98|[121|[32|[97|[32|[116|[104|[105|[114|[100|[32|[112|[97|[114|[116|[121|[46|[32|[84|[104|[105|[115|[32|[119|[105|[108|[108|[32|[110|[111|[116|[32|[104|[97|[118|[101|[32|[97|[110|[32|[105|[109|[112|[97|[99|[116|[32|[111|[110|[32|[115|[115|[104|[32|[116|[104|[97|[116|[32|[119|[105|[108|[108|[32|[111|[112|[101|[110|[32|[97|[32|[110|[101|[119|[32|[97|[99|[99|[101|[112|[116|[32|[115|[111|[99|[107|[101|[116|[32|[97|[110|[100|[32|[103|[111|[32|[111|[110|[32|[97|[115|[32|[110|[111|[116|[104|[105|[110|[103|[32|[104|[97|[112|[112|[101|[110|[101|[100|[46|[32|[73|[116|[32|[100|[111|[101|[115|[32|[104|[111|[119|[101|[118|[101|[114|[32|[105|[110|[100|[105|[99|[97|[116|[101|[32|[116|[104|[97|[116|[32|[115|[111|[109|[101|[32|[111|[116|[104|[101|[114|[32|[115|[111|[102|[116|[119|[97|[114|[101|[32|[105|[115|[32|[98|[101|[104|[97|[118|[105|[110|[103|[32|[98|[97|[100|[108|[121|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+		  %% Line 132
+		  call 'erlang':'exit'
+		      ('normal')
+	  %% Line 134
+	  <Reason> when 'true' ->
+	      let <_cor1> =
+		  %% Line 135
+		  call 'io_lib':'format'
+		      ([65|[99|[99|[101|[112|[116|[32|[101|[114|[114|[111|[114|[58|[32|[126|[112]]]]]]]]]]]]]]]], [Reason|[]])
+	      in  let <String> =
+		      %% Line 135
+		      call 'lists':'flatten'
+			  (_cor1)
+		  in  do  %% Line 136
+			  call 'error_logger':'error_report'
+			      (String)
+			  %% Line 137
+			  call 'erlang':'exit'
+			      ({'accept_failed',String})
+	end
+'number_of_connections'/1 =
+    %% Line 140
+    fun (_cor0) ->
+	let <_cor6> =
+	    %% Line 141
+	    ( letrec
+		  'lc$^0'/1 =
+		      fun (_cor4) ->
+			  case _cor4 of
+			    <[%% Line 142
+			      {R,X,'supervisor',['ssh_subsystem_sup']}|_cor2]>
+				when %% Line 143
+				  call 'erlang':'is_reference'
+				      (R) ->
+				let <_cor5> =
+				    %% Line 142
+				    apply 'lc$^0'/1
+					(_cor2)
+				in  ( [X|_cor5]
+				      -| ['compiler_generated'] )
+			    ( <[_cor1|_cor2]> when 'true' ->
+				  %% Line 142
+				  apply 'lc$^0'/1
+				      (_cor2)
+			      -| ['compiler_generated'] )
+			    <[]> when 'true' ->
+				[]
+			    ( <_cor4> when 'true' ->
+				  ( primop 'match_fail'
+					({'function_clause',_cor4})
+				    -| [{'function_name',{'lc$^0',1}}] )
+			      -| ['compiler_generated'] )
+			  end
+	      in  let <_cor3> =
+		      %% Line 142
+		      call 'supervisor':'which_children'
+			  (_cor0)
+		  in  apply 'lc$^0'/1
+			  (_cor3)
+	      -| ['list_comprehension'] )
+	in  %% Line 141
+	    call 'erlang':'length'
+		(_cor6)
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ssh_acceptor')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ssh_acceptor', _cor0)
+end

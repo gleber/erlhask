@@ -1,0 +1,1788 @@
+module 'asn1ct_value' ['from_type'/2,
+		       'module_info'/0,
+		       'module_info'/1]
+    attributes []
+'from_type'/2 =
+    %% Line 35
+    fun (_cor1,_cor0) ->
+	%% Line 36
+	case call 'asn1_db':'dbload'
+		 (_cor1) of
+	  %% Line 37
+	  <'error'> when 'true' ->
+	      %% Line 38
+	      {'error',{'not_found',{_cor1,_cor0}}}
+	  %% Line 39
+	  <'ok'> when 'true' ->
+	      %% Line 40
+	      case call 'asn1_db':'dbget'
+		       (_cor1, _cor0) of
+		<{'typedef',_cor6,_cor7,_cor8,Type}> when 'true' ->
+		    %% Line 41
+		    apply 'from_type'/3
+			(_cor1, [_cor0|[]], Type)
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 42
+	  <Vdef = {'valuedef',_cor9,_cor10,_cor11,_cor12,_cor13,_cor14}> when ( 'true'
+										-| ['compiler_generated'] ) ->
+	      %% Line 43
+	      apply 'from_value'/1
+		  (Vdef)
+	  %% Line 44
+	  <Err> when 'true' ->
+	      %% Line 45
+	      {'error',{'other',Err}}
+	end
+'from_type'/3 =
+    %% Line 48
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <M,Typename,Type = {'type',_cor15,_cor16,_cor17,_cor18,_cor19}> when ( 'true'
+										 -| ['compiler_generated'] ) ->
+	      let <InnerType> =
+		  %% Line 49
+		  apply 'get_inner'/1
+		      (_cor16)
+	      in  %% Line 50
+		  case call 'asn1ct_gen':'type'
+			   (InnerType) of
+		    %% Line 51
+		    <{'Externaltypereference',_cor25,Emod,Etype}> when 'true' ->
+			%% Line 52
+			apply 'from_type'/2
+			    (Emod, Etype)
+		    %% Line 53
+		    <{_cor26,'user'}> when 'true' ->
+			%% Line 54
+			apply 'from_type'/2
+			    (M, InnerType)
+		    %% Line 55
+		    <{'primitive','bif'}> when 'true' ->
+			%% Line 56
+			apply 'from_type_prim'/2
+			    (M, Type)
+		    %% Line 57
+		    <'ASN1_OPEN_TYPE'> when 'true' ->
+			%% Line 58
+			case _cor17 of
+			  %% Line 59
+			  <[{'Externaltypereference',_cor32,_cor33,TrefConstraint}|[]]> when 'true' ->
+			      %% Line 60
+			      apply 'from_type'/2
+				  (M, TrefConstraint)
+			  %% Line 61
+			  <_cor34> when 'true' ->
+			      let <ERule> =
+				  %% Line 62
+				  apply 'get_encoding_rule'/1
+				      (M)
+			      in  %% Line 63
+				  apply 'open_type_value'/1
+				      (ERule)
+			end
+		    %% Line 65
+		    <{'constructed','bif'}>
+			when call 'erlang':'=:='
+			      (Typename,
+			       ['EXTERNAL']) ->
+			let <Val> =
+			    %% Line 66
+			    apply 'from_type_constructed'/4
+				(M, Typename, InnerType, Type)
+			in  %% Line 67
+			    call 'asn1ct_eval_ext':'transform_to_EXTERNAL1994'
+				(Val)
+		    %% Line 68
+		    <{'constructed','bif'}> when 'true' ->
+			%% Line 69
+			apply 'from_type_constructed'/4
+			    (M, Typename, InnerType, Type)
+		    ( <_cor11> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor11})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 71
+	  <M,Typename,{'ComponentType',_cor35,Name,Type,_cor36,_cor37,_cor38}> when 'true' ->
+	      %% Line 72
+	      apply 'from_type'/3
+		  (M, [Name|Typename], Type)
+	  %% Line 73
+	  <_cor39,_cor40,_cor41> when 'true' ->
+	      %% Line 74
+	      'undefined'
+	end
+'from_value'/1 =
+    %% Line 76
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'valuedef',_cor2,_cor3,_cor4,{'type',_cor5,'INTEGER',_cor6,_cor7,_cor8},Val,_cor9}> when 'true' ->
+	      %% Line 77
+	      Val
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'from_value',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_inner'/1 =
+    %% Line 79
+    fun (_cor0) ->
+	case _cor0 of
+	  <A>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      A
+	  %% Line 80
+	  <Ext = {'Externaltypereference',_cor4,_cor5,_cor6}> when ( 'true'
+								     -| ['compiler_generated'] ) ->
+	      Ext
+	  %% Line 81
+	  <{'typereference',_X_Pos,Name}> when 'true' ->
+	      Name
+	  %% Line 82
+	  <T>
+	      when call 'erlang':'is_tuple'
+		    (_cor0) ->
+	      %% Line 83
+	      case call 'asn1ct_gen':'get_inner'
+		       (T) of
+		%% Line 84
+		<{'fixedtypevaluefield',_cor7,Type}> when 'true' ->
+		    %% Line 85
+		    ( case Type of
+			( <( {'type',_cor8,_rec2,_cor9,_cor10,_cor11}
+			     -| ['compiler_generated'] )> when 'true' ->
+			      _rec2
+			  -| ['compiler_generated'] )
+			( <_cor12> when 'true' ->
+			      ( call ( 'erlang'
+				       -| ['compiler_generated'] ):( 'error'
+								     -| ['compiler_generated'] )
+				    (( {'badrecord','type'}
+				       -| ['compiler_generated'] ))
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+		      end
+		      -| ['compiler_generated'] )
+		%% Line 86
+		<{'typefield',_X_FieldName}> when 'true' ->
+		    %% Line 87
+		    'ASN1_OPEN_TYPE'
+		%% Line 88
+		<Other> when 'true' ->
+		    %% Line 89
+		    Other
+	      end
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'get_inner',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'from_type_constructed'/4 =
+    %% Line 95
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <M,Typename,InnerType,D = {'type',_cor21,_cor22,_cor23,_cor24,_cor25}> when ( 'true'
+											-| ['compiler_generated'] ) ->
+	      %% Line 96
+	      case InnerType of
+		%% Line 97
+		<'SET'> when 'true' ->
+		    %% Line 98
+		    apply 'get_sequence'/3
+			(M, Typename, D)
+		%% Line 99
+		<'SEQUENCE'> when 'true' ->
+		    %% Line 100
+		    apply 'get_sequence'/3
+			(M, Typename, D)
+		%% Line 101
+		<'CHOICE'> when 'true' ->
+		    %% Line 102
+		    apply 'get_choice'/3
+			(M, Typename, D)
+		%% Line 103
+		<'SEQUENCE OF'> when 'true' ->
+		    %% Line 104
+		    case _cor22 of
+		      <{_cor31,Type}> when 'true' ->
+			  %% Line 105
+			  ( case Type of
+			      ( <( {'type',_cor32,_rec4,_cor33,_cor34,_cor35}
+				   -| ['compiler_generated'] )> when 'true' ->
+				    let <NameSuffix> =
+					call 'asn1ct_gen':'constructed_suffix'
+					    (InnerType, _rec4)
+				    in  %% Line 106
+					apply 'get_sequence_of'/4
+					    (M, Typename, D, NameSuffix)
+				-| ['compiler_generated'] )
+			      ( <_cor36> when 'true' ->
+				    ( call ( 'erlang'
+					     -| ['compiler_generated'] ):( 'error'
+									   -| ['compiler_generated'] )
+					  (( {'badrecord','type'}
+					     -| ['compiler_generated'] ))
+				      -| ['compiler_generated'] )
+				-| ['compiler_generated'] )
+			    end
+			    -| ['compiler_generated'] )
+		      ( <_cor6> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor6})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 107
+		<'SET OF'> when 'true' ->
+		    %% Line 108
+		    case _cor22 of
+		      <{_cor42,Type}> when 'true' ->
+			  %% Line 109
+			  ( case Type of
+			      ( <( {'type',_cor43,_rec6,_cor44,_cor45,_cor46}
+				   -| ['compiler_generated'] )> when 'true' ->
+				    let <NameSuffix> =
+					call 'asn1ct_gen':'constructed_suffix'
+					    (InnerType, _rec6)
+				    in  %% Line 110
+					apply 'get_sequence_of'/4
+					    (M, Typename, D, NameSuffix)
+				-| ['compiler_generated'] )
+			      ( <_cor47> when 'true' ->
+				    ( call ( 'erlang'
+					     -| ['compiler_generated'] ):( 'error'
+									   -| ['compiler_generated'] )
+					  (( {'badrecord','type'}
+					     -| ['compiler_generated'] ))
+				      -| ['compiler_generated'] )
+				-| ['compiler_generated'] )
+			    end
+			    -| ['compiler_generated'] )
+		      ( <_cor12> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor12})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 111
+		<_cor48> when 'true' ->
+		    %% Line 112
+		    call 'erlang':'exit'
+			({'nyi',InnerType})
+	      end
+	  ( <_cor20,_cor19,_cor18,_cor17> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor20,_cor19,_cor18,_cor17})
+		  -| [{'function_name',{'from_type_constructed',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_sequence'/3 =
+    %% Line 115
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 117
+	( case _cor0 of
+	    ( <( {'type',_cor17,_rec7,_cor18,_cor19,_cor20}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <_X_SEQorSET,CompList> =
+		      case _rec7 of
+			%% Line 118
+			<{'SEQUENCE',_cor22,_cor23,_cor24,Cl}> when 'true' ->
+			    <'SEQUENCE',Cl>
+			%% Line 119
+			<{'SET',_cor25,_cor26,_cor27,Cl}> when 'true' ->
+			    let <_cor5> =
+				apply 'to_textual_order'/1
+				    (Cl)
+			    in  <'SET',_cor5>
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+		  in  %% Line 121
+		      case apply 'get_components'/3
+			       (_cor2, _cor1, CompList) of
+			%% Line 122
+			<[]> when 'true' ->
+			    let <_cor9> =
+				%% Line 123
+				call 'asn1ct_gen':'list2rname'
+				    (_cor1)
+			    in  let <_cor10> =
+				    %% Line 123
+				    call 'erlang':'list_to_atom'
+					(_cor9)
+				in  %% Line 123
+				    {_cor10}
+			%% Line 124
+			<C> when 'true' ->
+			    let <_cor11> =
+				%% Line 125
+				call 'asn1ct_gen':'list2rname'
+				    (_cor1)
+			    in  let <_cor12> =
+				    %% Line 125
+				    call 'erlang':'list_to_atom'
+					(_cor11)
+				in  %% Line 125
+				    call 'erlang':'list_to_tuple'
+					([_cor12|C])
+		      end
+	      -| ['compiler_generated'] )
+	    ( <_cor21> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','type'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'get_components'/3 =
+    %% Line 128
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <M,Typename,{Root,Ext}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 129
+		  call 'erlang':'++'
+		      (Root, Ext)
+	      in  %% Line 129
+		  apply 'get_components'/3
+		      (M, Typename, _cor3)
+	  %% Line 133
+	  <M,Typename,[H|T]> when 'true' ->
+	      let <_cor4> =
+		  %% Line 134
+		  apply 'from_type'/3
+		      (M, Typename, H)
+	      in  let <_cor5> =
+		      %% Line 135
+		      apply 'get_components'/3
+			  (M, Typename, T)
+		  in  %% Line 134
+		      [_cor4|_cor5]
+	  %% Line 136
+	  <_cor9,_cor10,[]> when 'true' ->
+	      %% Line 137
+	      []
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'get_components',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_choice'/3 =
+    %% Line 139
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 140
+	( case _cor0 of
+	    ( <( {'type',_cor23,_rec8,_cor24,_cor25,_cor26}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  case _rec8 of
+		    <{'CHOICE',TCompList}> when 'true' ->
+			%% Line 141
+			case TCompList of
+			  %% Line 142
+			  <[]> when 'true' ->
+			      %% Line 143
+			      {'asn1_EMPTY','asn1_EMPTY'}
+			  %% Line 144
+			  <{CompList,ExtList}> when 'true' ->
+			      let <CList> =
+				  %% Line 145
+				  call 'erlang':'++'
+				      (CompList, ExtList)
+			      in  let <_cor7> =
+				      %% Line 146
+				      call 'erlang':'length'
+					  (CList)
+				  in  let <_cor8> =
+					  %% Line 146
+					  apply 'random'/1
+					      (_cor7)
+				      in  let <C> =
+					      %% Line 146
+					      call 'lists':'nth'
+						  (_cor8, CList)
+					  in  %% Line 147
+					      ( case C of
+						  ( <( {'ComponentType',_cor28,_rec9,_cor29,_cor30,_cor31,_cor32}
+						       -| ['compiler_generated'] )> when 'true' ->
+							let <_cor10> =
+							    apply 'from_type'/3
+								(_cor2, _cor1, C)
+							in  {_rec9,_cor10}
+						    -| ['compiler_generated'] )
+						  ( <_cor33> when 'true' ->
+							( call ( 'erlang'
+								 -| ['compiler_generated'] ):( 'error'
+											       -| ['compiler_generated'] )
+							      (( {'badrecord','ComponentType'}
+								 -| ['compiler_generated'] ))
+							  -| ['compiler_generated'] )
+						    -| ['compiler_generated'] )
+						end
+						-| ['compiler_generated'] )
+			  %% Line 148
+			  <CompList>
+			      when call 'erlang':'is_list'
+				    (TCompList) ->
+			      let <_cor13> =
+				  %% Line 149
+				  call 'erlang':'length'
+				      (CompList)
+			      in  let <_cor14> =
+				      %% Line 149
+				      apply 'random'/1
+					  (_cor13)
+				  in  let <C> =
+					  %% Line 149
+					  call 'lists':'nth'
+					      (_cor14, CompList)
+				      in  %% Line 150
+					  ( case C of
+					      ( <( {'ComponentType',_cor34,_rec10,_cor35,_cor36,_cor37,_cor38}
+						   -| ['compiler_generated'] )> when 'true' ->
+						    let <_cor16> =
+							apply 'from_type'/3
+							    (_cor2, _cor1, C)
+						    in  {_rec10,_cor16}
+						-| ['compiler_generated'] )
+					      ( <_cor39> when 'true' ->
+						    ( call ( 'erlang'
+							     -| ['compiler_generated'] ):( 'error'
+											   -| ['compiler_generated'] )
+							  (( {'badrecord','ComponentType'}
+							     -| ['compiler_generated'] ))
+						      -| ['compiler_generated'] )
+						-| ['compiler_generated'] )
+					    end
+					    -| ['compiler_generated'] )
+			  ( <_cor19> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor19})
+			    -| ['compiler_generated'] )
+			end
+		    ( <_cor5> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor5})
+		      -| ['compiler_generated'] )
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor27> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','type'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'get_sequence_of'/4 =
+    %% Line 153
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 155
+	( case _cor1 of
+	    ( <( {'type',_cor16,_rec11,_cor17,_cor18,_cor19}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  case _rec11 of
+		    <{_cor21,Oftype}> when 'true' ->
+			let <S> =
+			    %% Line 157
+			    apply 'size_random'/1
+				(_cor17)
+			in  let <NewTypeName> =
+				%% Line 158
+				[_cor0|_cor2]
+			    in  %% Line 159
+				apply 'gen_list'/4
+				    (_cor3, NewTypeName, Oftype, S)
+		    ( <_cor6> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor6})
+		      -| ['compiler_generated'] )
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor20> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','type'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'gen_list'/4 =
+    %% Line 161
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <_cor11,_cor12,_cor13,0> when 'true' ->
+	      %% Line 162
+	      []
+	  %% Line 163
+	  <M,Typename,Oftype,N> when 'true' ->
+	      let <_cor4> =
+		  %% Line 164
+		  apply 'from_type'/3
+		      (M, Typename, Oftype)
+	      in  let <_cor5> =
+		      %% Line 164
+		      call 'erlang':'-'
+			  (N, 1)
+		  in  let <_cor6> =
+			  %% Line 164
+			  apply 'gen_list'/4
+			      (M, Typename, Oftype, _cor5)
+		      in  %% Line 164
+			  [_cor4|_cor6]
+	end
+'from_type_prim'/2 =
+    %% Line 166
+    fun (_cor1,_cor0) ->
+	%% Line 167
+	( case _cor0 of
+	    ( <( {'type',_cor106,_cor107,_rec13,_cor108,_cor109}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  %% Line 168
+		  case _cor107 of
+		    %% Line 169
+		    <'INTEGER'> when 'true' ->
+			%% Line 170
+			apply 'i_random'/1
+			    (_rec13)
+		    %% Line 171
+		    <{'INTEGER',NNL = [_cor116|_cor117]}> when 'true' ->
+			%% Line 172
+			case _rec13 of
+			  %% Line 173
+			  <[]> when 'true' ->
+			      let <_cor7> =
+				  %% Line 174
+				  call 'erlang':'length'
+				      (NNL)
+			      in  let <_cor8> =
+				      %% Line 174
+				      apply 'random'/1
+					  (_cor7)
+				  in  %% Line 174
+				      case call 'lists':'nth'
+					       (_cor8, NNL) of
+					<{N,_cor118}> when 'true' ->
+					    %% Line 175
+					    N
+					( <_cor9> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor9})
+					  -| ['compiler_generated'] )
+				      end
+			  %% Line 176
+			  <_cor119> when 'true' ->
+			      let <V> =
+				  %% Line 177
+				  apply 'i_random'/1
+				      (_rec13)
+			      in  %% Line 178
+				  case call 'lists':'keyfind'
+					   (V, 2, NNL) of
+				    %% Line 179
+				    <'false'> when 'true' ->
+					V
+				    %% Line 180
+				    <{N,_cor120}>
+					when call 'erlang':'=:='
+					      (_cor120,
+					       V) ->
+					N
+				    ( <_cor11> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor11})
+				      -| ['compiler_generated'] )
+				  end
+			end
+		    %% Line 183
+		    <Enum>
+			when try
+			      let <_cor13> =
+				  call 'erlang':'is_tuple'
+				      (_cor107)
+			      in  let <_cor14> =
+				      call 'erlang':'element'
+					  (1, _cor107)
+				  in  let <_cor15> =
+					  call 'erlang':'=:='
+					      (_cor14, 'ENUMERATED')
+				      in  call 'erlang':'and'
+					      (_cor13, _cor15)
+			  of <Try> ->
+			      Try
+			  catch <T,R> ->
+			      'false' ->
+			let <_cor17> =
+			    %% Line 185
+			    case Enum of
+			      %% Line 186
+			      <{_cor121,_cor122,NNL}> when 'true' ->
+				  NNL
+			      %% Line 187
+			      <{_cor123,NNL}> when 'true' ->
+				  NNL
+			      ( <_cor16> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor16})
+				-| ['compiler_generated'] )
+			    end
+			in  let <_cor20> =
+				%% Line 190
+				case _cor17 of
+				  %% Line 191
+				  <{N1,N2}> when 'true' ->
+				      %% Line 192
+				      call 'erlang':'++'
+					  (N1, N2)
+				  %% Line 193
+				  <_cor124> when 'true' ->
+				      _cor17
+				end
+			    in  let <_cor26> =
+				    %% Line 196
+				    ( letrec
+					  'lc$^0'/1 =
+					      fun (_cor24) ->
+						  case _cor24 of
+						    <[{X,_cor125}|_cor23]> when 'true' ->
+							let <_cor25> =
+							    apply 'lc$^0'/1
+								(_cor23)
+							in  ( [X|_cor25]
+							      -| ['compiler_generated'] )
+						    ( <[_cor22|_cor23]> when 'true' ->
+							  apply 'lc$^0'/1
+							      (_cor23)
+						      -| ['compiler_generated'] )
+						    <[]> when 'true' ->
+							[]
+						    ( <_cor24> when 'true' ->
+							  ( primop 'match_fail'
+								({'function_clause',_cor24})
+							    -| [{'function_name',{'lc$^0',1}}] )
+						      -| ['compiler_generated'] )
+						  end
+				      in  apply 'lc$^0'/1
+					      (_cor20)
+				      -| ['list_comprehension'] )
+				in  %% Line 197
+				    case _cor26 of
+				      %% Line 198
+				      <[]> when 'true' ->
+					  do  %% Line 199
+					      call 'io':'format'
+						  ('user', [69|[110|[117|[109|[32|[61|[32|[126|[112|[126|[110]]]]]]]]]]], [Enum|[]])
+					      %% Line 200
+					      'asn1_EMPTY'
+				      %% Line 201
+				      <_cor126> when 'true' ->
+					  %% Line 202
+					  case _rec13 of
+					    %% Line 203
+					    <[]> when 'true' ->
+						let <_cor28> =
+						    %% Line 204
+						    call 'erlang':'length'
+							(_cor26)
+						in  let <_cor29> =
+							%% Line 204
+							apply 'random'/1
+							    (_cor28)
+						    in  %% Line 204
+							call 'lists':'nth'
+							    (_cor29, _cor26)
+					    %% Line 205
+					    <_cor127> when 'true' ->
+						let <_cor32> =
+						    %% Line 206
+						    ( fun (_cor30) ->
+							  case _cor30 of
+							    <0> when 'true' ->
+								1
+							    <X> when 'true' ->
+								X
+							  end
+						      -| [{'id',{0,0,'-from_type_prim/2-fun-0-'}}] )
+						in  let <_cor33> =
+							%% Line 206
+							apply 'i_random'/1
+							    (_rec13)
+						    in  let <_cor34> =
+							    %% Line 206
+							    apply _cor32
+								(_cor33)
+							in  %% Line 206
+							    call 'lists':'nth'
+								(_cor34, _cor26)
+					  end
+				    end
+		    %% Line 209
+		    <{'BIT STRING',NamedNumberList}> when 'true' ->
+			let <_cor41> =
+			    %% Line 210
+			    ( letrec
+				  'lc$^1'/1 =
+				      fun (_cor39) ->
+					  case _cor39 of
+					    <[{X,_cor128}|_cor38]> when 'true' ->
+						let <_cor40> =
+						    apply 'lc$^1'/1
+							(_cor38)
+						in  ( [X|_cor40]
+						      -| ['compiler_generated'] )
+					    ( <[_cor37|_cor38]> when 'true' ->
+						  apply 'lc$^1'/1
+						      (_cor38)
+					      -| ['compiler_generated'] )
+					    <[]> when 'true' ->
+						[]
+					    ( <_cor39> when 'true' ->
+						  ( primop 'match_fail'
+							({'function_clause',_cor39})
+						    -| [{'function_name',{'lc$^1',1}}] )
+					      -| ['compiler_generated'] )
+					  end
+			      in  apply 'lc$^1'/1
+				      (NamedNumberList)
+			      -| ['list_comprehension'] )
+			in  %% Line 211
+			    case _cor41 of
+			      %% Line 212
+			      <[]> when 'true' ->
+				  %% Line 213
+				  apply 'random_unnamed_bit_string'/2
+				      (_cor1, _rec13)
+			      %% Line 214
+			      <_cor129> when 'true' ->
+				  let <_cor43> =
+				      %% Line 215
+				      call 'erlang':'length'
+					  (_cor41)
+				  in  let <_cor44> =
+					  %% Line 215
+					  apply 'random'/1
+					      (_cor43)
+				      in  let <_cor45> =
+					      %% Line 215
+					      call 'lists':'nth'
+						  (_cor44, _cor41)
+					  in  %% Line 215
+					      [_cor45|[]]
+			    end
+		    %% Line 217
+		    <'NULL'> when 'true' ->
+			%% Line 218
+			'NULL'
+		    %% Line 219
+		    <'OBJECT IDENTIFIER'> when 'true' ->
+			let <Len> =
+			    %% Line 220
+			    apply 'random'/1
+				(3)
+			in  let <_cor55> =
+				%% Line 221
+				( letrec
+				      'lc$^2'/1 =
+					  fun (_cor51) ->
+					      case _cor51 of
+						<[_X_X|_cor49]> when 'true' ->
+						    let <_cor52> =
+							apply 'random'/1
+							    (1000)
+						    in  let <_cor53> =
+							    call 'erlang':'-'
+								(_cor52, 1)
+							in  let <_cor54> =
+								apply 'lc$^2'/1
+								    (_cor49)
+							    in  ( [_cor53|_cor54]
+								  -| ['compiler_generated'] )
+						<[]> when 'true' ->
+						    []
+						( <_cor51> when 'true' ->
+						      ( primop 'match_fail'
+							    ({'function_clause',_cor51})
+							-| [{'function_name',{'lc$^2',1}}] )
+						  -| ['compiler_generated'] )
+					      end
+				  in  let <_cor50> =
+					  call 'lists':'seq'
+					      (1, Len)
+				      in  apply 'lc$^2'/1
+					      (_cor50)
+				  -| ['list_comprehension'] )
+			    in  let <_cor57> =
+				    %% Line 222
+				    apply 'random'/1
+					(3)
+				in  let <_cor58> =
+					%% Line 222
+					call 'erlang':'-'
+					    (_cor57, 1)
+				    in  let <_cor59> =
+					    %% Line 222
+					    apply 'random'/1
+						(40)
+					in  let <_cor60> =
+						%% Line 222
+						call 'erlang':'-'
+						    (_cor59, 1)
+					    in  %% Line 222
+						call 'erlang':'list_to_tuple'
+						    ([_cor58|[_cor60|_cor55]])
+		    %% Line 223
+		    <'RELATIVE-OID'> when 'true' ->
+			let <Len> =
+			    %% Line 224
+			    apply 'random'/1
+				(5)
+			in  let <_cor69> =
+				%% Line 225
+				( letrec
+				      'lc$^3'/1 =
+					  fun (_cor65) ->
+					      case _cor65 of
+						<[_X_X|_cor63]> when 'true' ->
+						    let <_cor66> =
+							apply 'random'/1
+							    (65535)
+						    in  let <_cor67> =
+							    call 'erlang':'-'
+								(_cor66, 1)
+							in  let <_cor68> =
+								apply 'lc$^3'/1
+								    (_cor63)
+							    in  ( [_cor67|_cor68]
+								  -| ['compiler_generated'] )
+						<[]> when 'true' ->
+						    []
+						( <_cor65> when 'true' ->
+						      ( primop 'match_fail'
+							    ({'function_clause',_cor65})
+							-| [{'function_name',{'lc$^3',1}}] )
+						  -| ['compiler_generated'] )
+					      end
+				  in  let <_cor64> =
+					  call 'lists':'seq'
+					      (1, Len)
+				      in  apply 'lc$^3'/1
+					      (_cor64)
+				  -| ['list_comprehension'] )
+			    in  %% Line 226
+				call 'erlang':'list_to_tuple'
+				    (_cor69)
+		    %% Line 227
+		    <'ObjectDescriptor'> when 'true' ->
+			%% Line 228
+			[68|[117|[109|[109|[121|[32|[79|[98|[106|[101|[99|[116|[68|[101|[115|[99|[114|[105|[112|[116|[111|[114]]]]]]]]]]]]]]]]]]]]]]
+		    %% Line 229
+		    <'REAL'> when 'true' ->
+			%% Line 233
+			case apply 'random'/1
+				 (3) of
+			  %% Line 234
+			  <1> when 'true' ->
+			      %% Line 236
+			      case apply 'random'/1
+				       (3) of
+				%% Line 237
+				<3> when 'true' ->
+				    %% Line 238
+				    {129,2,10}
+				%% Line 239
+				<2> when 'true' ->
+				    %% Line 240
+				    {1,2,1}
+				%% Line 241
+				<_cor130> when 'true' ->
+				    %% Line 242
+				    {255,2,2}
+			      end
+			  %% Line 252
+			  <_cor131> when 'true' ->
+			      %% Line 254
+			      case apply 'random'/1
+				       (2) of
+				%% Line 255
+				<2> when 'true' ->
+				    %% Line 256
+				    [49|[50|[51|[46|[69|[49|[48]]]]]]]
+				%% Line 257
+				<_cor132> when 'true' ->
+				    %% Line 258
+				    [45|[49|[50|[51|[46|[69|[45|[49|[48]]]]]]]]]
+			      end
+			end
+		    %% Line 261
+		    <'BOOLEAN'> when 'true' ->
+			%% Line 262
+			'true'
+		    %% Line 263
+		    <'OCTET STRING'> when 'true' ->
+			let <_cor75> =
+			    %% Line 264
+			    apply 'size_random'/1
+				(_rec13)
+			in  let <_cor74> =
+				%% Line 264
+				apply 'c_string'/2
+				    (_rec13, [79|[67|[84|[69|[84|[32|[83|[84|[82|[73|[78|[71]]]]]]]]]]]])
+			    in  let <S0> =
+				    %% Line 264
+				    apply 'adjust_list'/2
+					(_cor75, _cor74)
+				in  %% Line 265
+				    case call _cor1:'legacy_erlang_types'
+					     () of
+				      %% Line 266
+				      <'false'> when 'true' ->
+					  call 'erlang':'list_to_binary'
+					      (S0)
+				      %% Line 267
+				      <'true'> when 'true' ->
+					  S0
+				      ( <_cor77> when 'true' ->
+					    primop 'match_fail'
+						({'case_clause',_cor77})
+					-| ['compiler_generated'] )
+				    end
+		    %% Line 269
+		    <'NumericString'> when 'true' ->
+			let <_cor79> =
+			    %% Line 270
+			    apply 'size_random'/1
+				(_rec13)
+			in  let <_cor78> =
+				%% Line 270
+				apply 'c_string'/2
+				    (_rec13, [48|[49|[50|[51|[52|[53|[54|[55|[56|[57]]]]]]]]]])
+			    in  %% Line 270
+				apply 'adjust_list'/2
+				    (_cor79, _cor78)
+		    %% Line 271
+		    <'TeletexString'> when 'true' ->
+			let <_cor81> =
+			    %% Line 272
+			    apply 'size_random'/1
+				(_rec13)
+			in  let <_cor80> =
+				%% Line 272
+				apply 'c_string'/2
+				    (_rec13, [84|[101|[108|[101|[116|[101|[120|[83|[116|[114|[105|[110|[103]]]]]]]]]]]]])
+			    in  %% Line 272
+				apply 'adjust_list'/2
+				    (_cor81, _cor80)
+		    %% Line 273
+		    <'T61String'> when 'true' ->
+			let <_cor83> =
+			    %% Line 274
+			    apply 'size_random'/1
+				(_rec13)
+			in  let <_cor82> =
+				%% Line 274
+				apply 'c_string'/2
+				    (_rec13, [84|[54|[49|[83|[116|[114|[105|[110|[103]]]]]]]]])
+			    in  %% Line 274
+				apply 'adjust_list'/2
+				    (_cor83, _cor82)
+		    %% Line 275
+		    <'VideotexString'> when 'true' ->
+			let <_cor85> =
+			    %% Line 276
+			    apply 'size_random'/1
+				(_rec13)
+			in  let <_cor84> =
+				%% Line 276
+				apply 'c_string'/2
+				    (_rec13, [86|[105|[100|[101|[111|[116|[101|[120|[83|[116|[114|[105|[110|[103]]]]]]]]]]]]]])
+			    in  %% Line 276
+				apply 'adjust_list'/2
+				    (_cor85, _cor84)
+		    %% Line 277
+		    <'UTCTime'> when 'true' ->
+			%% Line 278
+			[57|[55|[49|[48|[48|[50|[49|[49|[45|[48|[53|[48|[48]]]]]]]]]]]]]
+		    %% Line 279
+		    <'GeneralizedTime'> when 'true' ->
+			%% Line 280
+			[49|[57|[57|[55|[49|[48|[48|[50|[49|[48|[51|[49|[51|[48|[46|[53]]]]]]]]]]]]]]]]
+		    %% Line 281
+		    <'GraphicString'> when 'true' ->
+			let <_cor87> =
+			    %% Line 282
+			    apply 'size_random'/1
+				(_rec13)
+			in  let <_cor86> =
+				%% Line 282
+				apply 'c_string'/2
+				    (_rec13, [71|[114|[97|[112|[104|[105|[99|[83|[116|[114|[105|[110|[103]]]]]]]]]]]]])
+			    in  %% Line 282
+				apply 'adjust_list'/2
+				    (_cor87, _cor86)
+		    %% Line 283
+		    <'VisibleString'> when 'true' ->
+			let <_cor89> =
+			    %% Line 284
+			    apply 'size_random'/1
+				(_rec13)
+			in  let <_cor88> =
+				%% Line 284
+				apply 'c_string'/2
+				    (_rec13, [86|[105|[115|[105|[98|[108|[101|[83|[116|[114|[105|[110|[103]]]]]]]]]]]]])
+			    in  %% Line 284
+				apply 'adjust_list'/2
+				    (_cor89, _cor88)
+		    %% Line 285
+		    <'GeneralString'> when 'true' ->
+			let <_cor91> =
+			    %% Line 286
+			    apply 'size_random'/1
+				(_rec13)
+			in  let <_cor90> =
+				%% Line 286
+				apply 'c_string'/2
+				    (_rec13, [71|[101|[110|[101|[114|[97|[108|[83|[116|[114|[105|[110|[103]]]]]]]]]]]]])
+			    in  %% Line 286
+				apply 'adjust_list'/2
+				    (_cor91, _cor90)
+		    %% Line 287
+		    <'PrintableString'> when 'true' ->
+			let <_cor93> =
+			    %% Line 288
+			    apply 'size_random'/1
+				(_rec13)
+			in  let <_cor92> =
+				%% Line 288
+				apply 'c_string'/2
+				    (_rec13, [80|[114|[105|[110|[116|[97|[98|[108|[101|[83|[116|[114|[105|[110|[103]]]]]]]]]]]]]]])
+			    in  %% Line 288
+				apply 'adjust_list'/2
+				    (_cor93, _cor92)
+		    %% Line 289
+		    <'IA5String'> when 'true' ->
+			let <_cor95> =
+			    %% Line 290
+			    apply 'size_random'/1
+				(_rec13)
+			in  let <_cor94> =
+				%% Line 290
+				apply 'c_string'/2
+				    (_rec13, [73|[65|[53|[83|[116|[114|[105|[110|[103]]]]]]]]])
+			    in  %% Line 290
+				apply 'adjust_list'/2
+				    (_cor95, _cor94)
+		    %% Line 291
+		    <'BMPString'> when 'true' ->
+			let <_cor97> =
+			    %% Line 292
+			    apply 'size_random'/1
+				(_rec13)
+			in  let <_cor96> =
+				%% Line 292
+				apply 'c_string'/2
+				    (_rec13, [66|[77|[80|[83|[116|[114|[105|[110|[103]]]]]]]]])
+			    in  %% Line 292
+				apply 'adjust_list'/2
+				    (_cor97, _cor96)
+		    %% Line 293
+		    <'UTF8String'> when 'true' ->
+			let <_cor98> =
+			    %% Line 294
+			    apply 'random'/1
+				(50)
+			in  let <_cor99> =
+				%% Line 294
+				apply 'adjust_list'/2
+				    (_cor98, [85|[84|[70|[56|[83|[116|[114|[105|[110|[103|[65535|[268435455|[16777215|[1048575|[4095]]]]]]]]]]]]]]])
+			    in  %% Line 294
+				case call 'asn1rt':'utf8_list_to_binary'
+					 (_cor99) of
+				  <{'ok',Res}> when 'true' ->
+				      %% Line 295
+				      Res
+				  ( <_cor100> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor100})
+				    -| ['compiler_generated'] )
+				end
+		    %% Line 296
+		    <'UniversalString'> when 'true' ->
+			let <_cor102> =
+			    %% Line 297
+			    apply 'size_random'/1
+				(_rec13)
+			in  let <_cor101> =
+				%% Line 297
+				apply 'c_string'/2
+				    (_rec13, [85|[110|[105|[118|[101|[114|[115|[97|[108|[83|[116|[114|[105|[110|[103]]]]]]]]]]]]]]])
+			    in  %% Line 297
+				apply 'adjust_list'/2
+				    (_cor102, _cor101)
+		    %% Line 298
+		    <XX> when 'true' ->
+			%% Line 299
+			call 'erlang':'exit'
+			    ({'asn1_error','nyi',XX})
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor110> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','type'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'c_string'/2 =
+    %% Line 302
+    fun (_cor1,_cor0) ->
+	%% Line 303
+	case apply 'get_constraint'/2
+		 (_cor1, 'PermittedAlphabet') of
+	  %% Line 304
+	  <{'SingleValue',Sv}>
+	      when call 'erlang':'is_list'
+		    (Sv) ->
+	      %% Line 305
+	      Sv
+	  %% Line 306
+	  <{'SingleValue',V}>
+	      when call 'erlang':'is_integer'
+		    (V) ->
+	      %% Line 307
+	      [V|[]]
+	  %% Line 308
+	  <'no'> when 'true' ->
+	      _cor0
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'random_unnamed_bit_string'/2 =
+    %% Line 312
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 313
+	    apply 'size_random'/1
+		(_cor0)
+	in  let <_cor3> =
+		%% Line 313
+		apply 'adjust_list'/2
+		    (_cor2, [1|[0|[1|[1]]]])
+	    in  let <Bl1> =
+		    %% Line 313
+		    call 'lists':'reverse'
+			(_cor3)
+		in  let <_cor7> =
+			%% Line 314
+			( fun (_cor5) ->
+			      case _cor5 of
+				<0> when 'true' ->
+				    'true'
+				%% Line 315
+				<1> when 'true' ->
+				    'false'
+				( <_cor6> when 'true' ->
+				      ( primop 'match_fail'
+					    ({'function_clause',_cor6})
+					-| [{'function_name',{'-random_unnamed_bit_string/2-fun-0-',1}}] )
+				  -| ['compiler_generated'] )
+			      end
+			  -| [{'id',{0,0,'-random_unnamed_bit_string/2-fun-0-'}}] )
+		    in  let <_cor8> =
+			    %% Line 314
+			    call 'lists':'dropwhile'
+				(_cor7, %% Line 316
+					Bl1)
+			in  let <Bl2> =
+				%% Line 314
+				call 'lists':'reverse'
+				    (_cor8)
+			    in  let <_cor11> =
+				    %% Line 317
+				    call 'erlang':'length'
+					(Bl2)
+				in  let <_cor10> =
+					%% Line 317
+					apply 'get_constraint'/2
+					    (_cor0, 'SizeConstraint')
+				    in  let <_cor13> =
+					    %% Line 317
+					    case <_cor11,_cor10> of
+					      %% Line 318
+					      <Len,_cor43>
+						  when call 'erlang':'=:='
+							(_cor43,
+							 Len) ->
+						  %% Line 319
+						  Bl2
+					      %% Line 320
+					      <_X_Len,Int>
+						  when call 'erlang':'is_integer'
+							(Int) ->
+						  %% Line 321
+						  Bl1
+					      %% Line 322
+					      <Len,{Min,_cor44}>
+						  when call 'erlang':'>'
+							(Min,
+							 Len) ->
+						  %% Line 323
+						  Bl1
+					      %% Line 324
+					      <_fol87,_fol88> when 'true' ->
+						  %% Line 325
+						  Bl2
+					    end
+					in  %% Line 327
+					    case call _cor1:'bit_string_format'
+						     () of
+					      %% Line 328
+					      <'legacy'> when 'true' ->
+						  _cor13
+					      %% Line 330
+					      <'bitstring'> when 'true' ->
+						  let <_cor17> =
+						      %% Line 331
+						      call 'erlang':'length'
+							  (_cor13)
+						  in  let <_cor18> =
+							  call 'erlang':'+'
+							      (_cor17, 7)
+						      in  let <_cor16> =
+							      call 'erlang':'bsr'
+								  (_cor18, 3)
+							  in  let <_cor15> =
+								  primop 'bs_init_writable'
+								      (_cor16)
+							      in  %% Line 331
+								  ( letrec
+									'lbc$^0'/2 =
+									    fun (_cor23,_cor22) ->
+										case <_cor23,_cor22> of
+										  <[B|_cor21],_cor22> when 'true' ->
+										      let <_cor22> =
+											  ( #{#<_cor22>('all',1,'binary',[]),
+											      #<B>(1,1,'integer',['unsigned'|['big']])}#
+											    -| ['compiler_generated','single_use'] )
+										      in  apply 'lbc$^0'/2
+											      (_cor21, _cor22)
+										  <[],_cor22> when 'true' ->
+										      _cor22
+										  ( <_cor23,_cor22> when 'true' ->
+											( primop 'match_fail'
+											      ({'function_clause',_cor23,_cor22})
+											  -| [{'function_name',{'lbc$^0',2}}] )
+										    -| ['compiler_generated'] )
+										end
+								    in  apply 'lbc$^0'/2
+									    (_cor13, _cor15)
+								    -| ['list_comprehension'] )
+					      %% Line 332
+					      <'compact'> when 'true' ->
+						  let <_cor26> =
+						      %% Line 333
+						      call 'erlang':'length'
+							  (_cor13)
+						  in  let <_cor27> =
+							  call 'erlang':'+'
+							      (_cor26, 7)
+						      in  let <_cor25> =
+							      call 'erlang':'bsr'
+								  (_cor27, 3)
+							  in  let <_cor24> =
+								  primop 'bs_init_writable'
+								      (_cor25)
+							      in  let <_cor33> =
+								      %% Line 333
+								      ( letrec
+									    'lbc$^1'/2 =
+										fun (_cor32,_cor31) ->
+										    case <_cor32,_cor31> of
+										      <[B|_cor30],_cor31> when 'true' ->
+											  let <_cor31> =
+											      ( #{#<_cor31>('all',1,'binary',[]),
+												  #<B>(1,1,'integer',['unsigned'|['big']])}#
+												-| ['compiler_generated','single_use'] )
+											  in  apply 'lbc$^1'/2
+												  (_cor30, _cor31)
+										      <[],_cor31> when 'true' ->
+											  _cor31
+										      ( <_cor32,_cor31> when 'true' ->
+											    ( primop 'match_fail'
+												  ({'function_clause',_cor32,_cor31})
+											      -| [{'function_name',{'lbc$^1',2}}] )
+											-| ['compiler_generated'] )
+										    end
+									in  apply 'lbc$^1'/2
+										(_cor13, _cor24)
+									-| ['list_comprehension'] )
+								  in  let <_cor35> =
+									  %% Line 334
+									  call 'erlang':'bit_size'
+									      (_cor33)
+								      in  let <_cor36> =
+									      %% Line 334
+									      call 'erlang':'band'
+										  (_cor35, 7)
+									  in  let <_cor37> =
+										  %% Line 334
+										  call 'erlang':'-'
+										      (8, _cor36)
+									      in  let <PadLen> =
+										      %% Line 334
+										      call 'erlang':'band'
+											  (_cor37, 7)
+										  in  let <_cor39> =
+											  %% Line 335
+											  #{#<_cor33>('all',1,'binary',['unsigned'|['big']]),
+											    #<0>(PadLen,1,'integer',['unsigned'|['big']])}#
+										      in  %% Line 335
+											  {PadLen,_cor39}
+					      ( <_cor40> when 'true' ->
+						    primop 'match_fail'
+							({'case_clause',_cor40})
+						-| ['compiler_generated'] )
+					    end
+'random'/1 =
+    %% Line 354
+    fun (_cor0) ->
+	%% Line 355
+	case call 'erlang':'now'
+		 () of
+	  <{A1,A2,A3}> when 'true' ->
+	      let <_X_> =
+		  %% Line 356
+		  ( call 'random':'seed'
+			(A1, A2, A3)
+		    -| ['result_not_wanted'] )
+	      in  %% Line 357
+		  call 'random':'uniform'
+		      (_cor0)
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'size_random'/1 =
+    %% Line 359
+    fun (_cor0) ->
+	%% Line 360
+	case apply 'get_constraint'/2
+		 (_cor0, 'SizeConstraint') of
+	  %% Line 361
+	  <'no'> when 'true' ->
+	      %% Line 362
+	      apply 'c_random'/2
+		  ({0,5}, 'no')
+	  %% Line 363
+	  <{{Lb,Ub},_cor9}>
+	      when let <_cor1> =
+		    call 'erlang':'is_integer'
+			(Lb)
+		in  let <_cor2> =
+			call 'erlang':'is_integer'
+			    (Ub)
+		    in  call 'erlang':'and'
+			    (_cor1, _cor2) ->
+	      %% Line 364
+	      case <> of
+		%% Line 365
+		<>
+		    when try
+			  let <_cor3> =
+			      call 'erlang':'-'
+				  (Ub, Lb)
+			  in  call 'erlang':'=<'
+				  (_cor3, 4)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 366
+		    apply 'c_random'/2
+			({Lb,Ub}, 'no')
+		%% Line 367
+		<> when 'true' ->
+		    let <_cor4> =
+			%% Line 368
+			call 'erlang':'+'
+			    (Lb, 4)
+		    in  %% Line 368
+			apply 'c_random'/2
+			    ({Lb,_cor4}, 'no')
+	      end
+	  %% Line 370
+	  <{Lb,Ub}>
+	      when try
+		    let <_cor5> =
+			call 'erlang':'-'
+			    (Ub, Lb)
+		    in  call 'erlang':'=<'
+			    (_cor5, 4)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 371
+	      apply 'c_random'/2
+		  ({Lb,Ub}, 'no')
+	  %% Line 372
+	  <{Lb,_cor10}> when 'true' ->
+	      let <_cor6> =
+		  %% Line 373
+		  call 'erlang':'+'
+		      (Lb, 4)
+	      in  %% Line 373
+		  apply 'c_random'/2
+		      ({Lb,_cor6}, 'no')
+	  %% Line 374
+	  <Sv> when 'true' ->
+	      %% Line 375
+	      apply 'c_random'/2
+		  ('no', Sv)
+	end
+'i_random'/1 =
+    %% Line 378
+    fun (_cor0) ->
+	let <_cor2> =
+	    %% Line 379
+	    apply 'get_constraint'/2
+		(_cor0, 'ValueRange')
+	in  let <_cor1> =
+		%% Line 379
+		apply 'get_constraint'/2
+		    (_cor0, 'SingleValue')
+	    in  %% Line 379
+		apply 'c_random'/2
+		    (_cor2, _cor1)
+'c_random'/2 =
+    %% Line 385
+    fun (_cor1,_cor0) ->
+	%% Line 386
+	case <_cor1,_cor0> of
+	  %% Line 387
+	  <'no','no'> when 'true' ->
+	      let <_cor3> =
+		  %% Line 388
+		  apply 'random'/1
+		      (268435455)
+	      in  %% Line 388
+		  call 'erlang':'-'
+		      (_cor3, 134217727)
+	  %% Line 389
+	  <R,'no'> when 'true' ->
+	      %% Line 390
+	      case R of
+		%% Line 391
+		<{Lb,Ub}>
+		    when let <_cor4> =
+			  call 'erlang':'is_integer'
+			      (Lb)
+		      in  let <_cor5> =
+			      call 'erlang':'is_integer'
+				  (Ub)
+			  in  call 'erlang':'and'
+				  (_cor4, _cor5) ->
+		    let <_cor6> =
+			%% Line 392
+			call 'erlang':'-'
+			    (Ub, Lb)
+		    in  let <Range> =
+			    %% Line 392
+			    call 'erlang':'+'
+				(_cor6, 1)
+			in  let <_cor8> =
+				%% Line 393
+				apply 'random'/1
+				    (Range)
+			    in  let <_cor9> =
+				    %% Line 393
+				    call 'erlang':'-'
+					(_cor8, 1)
+				in  %% Line 393
+				    call 'erlang':'+'
+					(Lb, _cor9)
+		%% Line 394
+		<{Lb,'MAX'}> when 'true' ->
+		    let <_cor10> =
+			%% Line 395
+			apply 'random'/1
+			    (268435455)
+		    in  let <_cor11> =
+			    %% Line 395
+			    call 'erlang':'+'
+				(Lb, _cor10)
+			in  %% Line 395
+			    call 'erlang':'-'
+				(_cor11, 1)
+		%% Line 396
+		<{'MIN',Ub}> when 'true' ->
+		    let <_cor12> =
+			%% Line 397
+			apply 'random'/1
+			    (268435455)
+		    in  let <_cor13> =
+			    %% Line 397
+			    call 'erlang':'-'
+				(Ub, _cor12)
+			in  %% Line 397
+			    call 'erlang':'-'
+				(_cor13, 1)
+		%% Line 398
+		<{A,{'ASN1_OK',B}}> when 'true' ->
+		    let <_cor14> =
+			%% Line 399
+			call 'erlang':'-'
+			    (B, A)
+		    in  let <Range> =
+			    %% Line 399
+			    call 'erlang':'+'
+				(_cor14, 1)
+			in  let <_cor16> =
+				%% Line 400
+				apply 'random'/1
+				    (Range)
+			    in  let <_cor17> =
+				    %% Line 400
+				    call 'erlang':'-'
+					(_cor16, 1)
+				in  %% Line 400
+				    call 'erlang':'+'
+					(A, _cor17)
+		( <_cor18> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor18})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 402
+	  <_cor24,S>
+	      when call 'erlang':'is_integer'
+		    (S) ->
+	      %% Line 403
+	      S
+	  %% Line 404
+	  <_cor25,S>
+	      when call 'erlang':'is_list'
+		    (S) ->
+	      let <_cor19> =
+		  %% Line 405
+		  call 'erlang':'length'
+		      (S)
+	      in  let <_cor20> =
+		      %% Line 405
+		      apply 'random'/1
+			  (_cor19)
+		  in  %% Line 405
+		      call 'lists':'nth'
+			  (_cor20, S)
+	  ( <_fol96,_fol97> when 'true' ->
+		let <_cor21> = {_fol96,_fol97}
+		in  primop 'match_fail'
+			({'case_clause',_cor21})
+	    -| ['compiler_generated'] )
+	end
+'adjust_list'/2 =
+    %% Line 415
+    fun (_cor1,_cor0) ->
+	%% Line 416
+	apply 'adjust_list1'/4
+	    (_cor1, _cor0, _cor0, [])
+'adjust_list1'/4 =
+    %% Line 418
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <0,_X_Orig,[_X_Oh|_X_Ot],Acc> when 'true' ->
+	      %% Line 419
+	      call 'lists':'reverse'
+		  (Acc)
+	  %% Line 420
+	  <Len,Orig,[],Acc> when 'true' ->
+	      %% Line 421
+	      apply 'adjust_list1'/4
+		  (Len, Orig, Orig, Acc)
+	  %% Line 422
+	  <Len,Orig,[Oh|Ot],Acc> when 'true' ->
+	      let <_cor4> =
+		  %% Line 423
+		  call 'erlang':'-'
+		      (Len, 1)
+	      in  %% Line 423
+		  apply 'adjust_list1'/4
+		      (_cor4, Orig, Ot, [Oh|Acc])
+	  ( <_cor8,_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'adjust_list1',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_constraint'/2 =
+    %% Line 426
+    fun (_cor1,_cor0) ->
+	%% Line 427
+	case call 'lists':'keyfind'
+		 (_cor0, 1, _cor1) of
+	  %% Line 428
+	  <'false'> when 'true' ->
+	      'no'
+	  %% Line 429
+	  <{'ValueRange',{Lb,Ub}}> when 'true' ->
+	      let <_cor3> =
+		  apply 'check_external'/1
+		      (Lb)
+	      in  let <_cor2> =
+		      apply 'check_external'/1
+			  (Ub)
+		  in  {_cor3,_cor2}
+	  %% Line 430
+	  <{'SizeConstraint',N}> when 'true' ->
+	      N
+	  %% Line 431
+	  <{_cor7,Value}>
+	      when call 'erlang':'=:='
+		    (_cor7,
+		     _cor0) ->
+	      Value
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'check_external'/1 =
+    %% Line 434
+    fun (_cor0) ->
+	case _cor0 of
+	  <ExtRef = {'Externalvaluereference',_cor3,_cor4,_cor5}> when ( 'true'
+									 -| ['compiler_generated'] ) ->
+	      %% Line 436
+	      apply 'from_type'/2
+		  (_cor4, _cor5)
+	  %% Line 437
+	  <Value> when 'true' ->
+	      %% Line 438
+	      Value
+	end
+'get_encoding_rule'/1 =
+    %% Line 440
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 442
+	    case <> of
+	      <>
+		  when call 'erlang':'is_list'
+			(_cor0) ->
+		  %% Line 443
+		  call 'erlang':'list_to_atom'
+		      (_cor0)
+	      %% Line 444
+	      <> when 'true' ->
+		  _cor0
+	    end
+	in  let <_cor3> =
+		catch
+		    %% Line 446
+		    call _cor1:'encoding_rule'
+			()
+	    in  %% Line 446
+		case _cor3 of
+		  %% Line 447
+		  <A>
+		      when call 'erlang':'is_atom'
+			    (_cor3) ->
+		      %% Line 448
+		      A
+		  %% Line 449
+		  <_cor6> when 'true' ->
+		      'unknown'
+		end
+'open_type_value'/1 =
+    %% Line 452
+    fun (_cor0) ->
+	case _cor0 of
+	  <'ber'> when 'true' ->
+	      %% Line 453
+	      #{#<4>(8,1,'integer',['unsigned'|['big']]),
+		#<9>(8,1,'integer',['unsigned'|['big']]),
+		#<111>(8,1,'integer',['unsigned'|['big']]),
+		#<112>(8,1,'integer',['unsigned'|['big']]),
+		#<101>(8,1,'integer',['unsigned'|['big']]),
+		#<110>(8,1,'integer',['unsigned'|['big']]),
+		#<95>(8,1,'integer',['unsigned'|['big']]),
+		#<116>(8,1,'integer',['unsigned'|['big']]),
+		#<121>(8,1,'integer',['unsigned'|['big']]),
+		#<112>(8,1,'integer',['unsigned'|['big']]),
+		#<101>(8,1,'integer',['unsigned'|['big']])}#
+	  %% Line 454
+	  <_cor2> when 'true' ->
+	      %% Line 455
+	      #{#<10>(8,1,'integer',['unsigned'|['big']]),
+		#<9>(8,1,'integer',['unsigned'|['big']]),
+		#<111>(8,1,'integer',['unsigned'|['big']]),
+		#<112>(8,1,'integer',['unsigned'|['big']]),
+		#<101>(8,1,'integer',['unsigned'|['big']]),
+		#<110>(8,1,'integer',['unsigned'|['big']]),
+		#<95>(8,1,'integer',['unsigned'|['big']]),
+		#<116>(8,1,'integer',['unsigned'|['big']]),
+		#<121>(8,1,'integer',['unsigned'|['big']]),
+		#<112>(8,1,'integer',['unsigned'|['big']]),
+		#<101>(8,1,'integer',['unsigned'|['big']])}#
+	end
+'to_textual_order'/1 =
+    %% Line 457
+    fun (_cor0) ->
+	case _cor0 of
+	  <{Root,Ext}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 458
+		  apply 'to_textual_order'/1
+		      (Root)
+	      in  %% Line 458
+		  {_cor1,Ext}
+	  %% Line 459
+	  <Cs>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      %% Line 460
+	      case Cs of
+		%% Line 461
+		<[{'ComponentType',_cor4,_cor5,_cor6,_cor7,_cor8,'undefined'}|_cor9]> when 'true' ->
+		    %% Line 462
+		    Cs
+		%% Line 463
+		<_cor10> when 'true' ->
+		    %% Line 464
+		    call 'lists':'keysort'
+			(7, Cs)
+	      end
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'to_textual_order',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('asn1ct_value')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('asn1ct_value', _cor0)
+end

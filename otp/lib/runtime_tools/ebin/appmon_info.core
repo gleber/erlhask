@@ -1,0 +1,2082 @@
+module 'appmon_info' ['app'/4,
+		      'app_ctrl'/4,
+		      'code_change'/3,
+		      'handle_call'/3,
+		      'handle_cast'/2,
+		      'handle_info'/2,
+		      'init'/1,
+		      'load'/4,
+		      'module_info'/0,
+		      'module_info'/1,
+		      'pinfo'/4,
+		      'start_link'/3,
+		      'start_link2'/3,
+		      'status'/0,
+		      'terminate'/2]
+    attributes [%% Line 98
+		'behaviour' =
+		    %% Line 98
+		    ['gen_server']]
+'start_link'/3 =
+    %% Line 153
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 154
+	    call 'erlang':'self'
+		()
+	in  %% Line 154
+	    call 'rpc':'call'
+		(_cor2, 'appmon_info', 'start_link2', [_cor3|[_cor1|[_cor0|[]]]])
+'start_link2'/3 =
+    %% Line 155
+    fun (_cor2,_cor1,_cor0) ->
+	let <Args> = {_cor2,_cor0,_cor1}
+	in  %% Line 158
+	    case call 'gen_server':'start'
+		     ({'local','appmon_info'}, 'appmon_info', Args, []) of
+	      %% Line 159
+	      <{'ok',Pid}> when 'true' ->
+		  %% Line 160
+		  {'ok',Pid}
+	      %% Line 161
+	      <{'error',{'already_started',Pid}}> when 'true' ->
+		  do  %% Line 162
+		      apply 'register_client'/2
+			  (Pid, _cor1)
+		      %% Line 163
+		      {'ok',Pid}
+	      ( <_cor5> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor5})
+		-| ['compiler_generated'] )
+	    end
+'app_ctrl'/4 =
+    %% Line 171
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 172
+	    call 'erlang':'self'
+		()
+	in  %% Line 172
+	    call 'gen_server':'cast'
+		(_cor3, {_cor4,'app_ctrl',_cor2,_cor1,_cor0})
+'load'/4 =
+    %% Line 179
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 180
+	    call 'erlang':'self'
+		()
+	in  %% Line 180
+	    call 'gen_server':'cast'
+		(_cor3, {_cor4,'load',_cor2,_cor1,_cor0})
+'app'/4 =
+    %% Line 188
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 189
+	    call 'erlang':'self'
+		()
+	in  %% Line 189
+	    call 'gen_server':'cast'
+		(_cor3, {_cor4,'app',_cor2,_cor1,_cor0})
+'pinfo'/4 =
+    %% Line 195
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 196
+	    call 'erlang':'self'
+		()
+	in  %% Line 196
+	    call 'gen_server':'cast'
+		(_cor3, {_cor4,'pinfo',_cor2,_cor1,_cor0})
+'register_client'/2 =
+    %% Line 203
+    fun (_cor1,_cor0) ->
+	do  %% Line 204
+	    call 'erlang':'link'
+		(_cor1)
+	    %% Line 205
+	    call 'gen_server':'call'
+		(_cor1, {'register_client',_cor0})
+'status'/0 =
+    %% Line 212
+    fun () ->
+	%% Line 213
+	call 'gen_server':'cast'
+	    ('appmon_info', 'status')
+'init'/1 =
+    %% Line 221
+    fun (_cor0) ->
+	case _cor0 of
+	  <{Starter,Opts,Pid}> when 'true' ->
+	      do  %% Line 222
+		  call 'erlang':'link'
+		      (Pid)
+		  do  %% Line 223
+		      call 'erlang':'process_flag'
+			  ('trap_exit', 'true')
+		      let <WorkStore> =
+			  %% Line 224
+			  call 'ets':'new'
+			      ('workstore', ['set'|['public']])
+		      in  %% Line 225
+			  {'ok',{'state',Starter,Opts,WorkStore,%% Line 226
+								[Pid|[]]}}
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'terminate'/2 =
+    %% Line 228
+    fun (_cor1,_cor0) ->
+	%% Line 229
+	( case _cor0 of
+	    ( <( {'state',_cor6,_cor7,_rec0,_cor8}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  do  call 'ets':'delete'
+			  (_rec0)
+		      %% Line 230
+		      'ok'
+	      -| ['compiler_generated'] )
+	    ( <_cor9> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'code_change'/3 =
+    %% Line 232
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 233
+	{'ok',_cor1}
+'handle_call'/3 =
+    %% Line 242
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'register_client',Pid},_X_From,State> when 'true' ->
+	      %% Line 243
+	      ( case State of
+		  ( <( {'state',_cor16,_cor17,_cor18,_rec1}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor11> =
+			    case call 'lists':'member'
+				     (Pid, _rec1) of
+			      %% Line 244
+			      <'true'> when 'true' ->
+				  State
+			      %% Line 245
+			      <_cor20> when 'true' ->
+				  let <_rec2> =
+				      [Pid|_rec1]
+				  in  call 'erlang':'setelement'
+					  (5, State, _rec2)
+			    end
+			in  %% Line 247
+			    {'reply','ok',_cor11}
+		    -| ['compiler_generated'] )
+		  ( <_cor19> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 248
+	  <_X_Other,_X_From,State> when 'true' ->
+	      %% Line 249
+	      {'reply','ok',State}
+	end
+'handle_cast'/2 =
+    %% Line 258
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{From,Cmd,Aux,OnOff,Opts},State> when 'true' ->
+	      let <NewState> =
+		  %% Line 259
+		  apply 'update_worklist'/6
+		      (Cmd, Aux, From, OnOff, Opts, State)
+	      in  %% Line 260
+		  {'noreply',NewState}
+	  %% Line 261
+	  <'status',State> when 'true' ->
+	      do  %% Line 262
+		  apply 'print_state'/1
+		      (State)
+		  %% Line 263
+		  {'noreply',State}
+	  %% Line 264
+	  <_X_Other,State> when 'true' ->
+	      %% Line 265
+	      {'noreply',State}
+	end
+'handle_info'/2 =
+    %% Line 274
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'do_it',Key},State> when 'true' ->
+	      %% Line 275
+	      case apply 'do_work'/2
+		       (Key, State) of
+		<'ok'> when 'true' ->
+		    %% Line 276
+		    {'noreply',State}
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 278
+	  <{'EXIT',Pid,Reason},State> when 'true' ->
+	      %% Line 279
+	      ( case State of
+		  ( <( {'state',_rec5,_cor24,_cor25,_cor26}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case _rec5 of
+			  %% Line 280
+			  <_cor28>
+			      when call 'erlang':'=:='
+				    (_rec5,
+				     Pid) ->
+			      %% Line 281
+			      {'stop',Reason,State}
+			  %% Line 282
+			  <_X_Other> when 'true' ->
+			      let <_cor8> =
+				  %% Line 284
+				  call 'ets':'match'
+				      (_cor25, {{'$1','$2',Pid},'_','_','_'})
+			      in  do  %% Line 284
+				      apply 'del_work'/3
+					  (_cor8, %% Line 285
+						  Pid, _cor25)
+				      %% Line 286
+				      case call 'lists':'delete'
+					       (Pid, _cor26) of
+					%% Line 287
+					<[]> when 'true' ->
+					    case apply 'get_opt'/2
+						     ('stay_resident', _cor24) of
+					      %% Line 288
+					      <'true'> when 'true' ->
+						  let <_cor15> =
+						      call 'erlang':'setelement'
+							  (5, State, [])
+						  in  {'noreply',_cor15}
+					      %% Line 289
+					      <_cor46> when 'true' ->
+						  {'stop','normal',State}
+					    end
+					%% Line 291
+					<NewClients> when 'true' ->
+					    let <_cor19> =
+						call 'erlang':'setelement'
+						    (5, State, NewClients)
+					    in  {'noreply',_cor19}
+				      end
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor27> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 294
+	  <_X_Other,State> when 'true' ->
+	      %% Line 295
+	      {'noreply',State}
+	end
+'do_work'/2 =
+    %% Line 304
+    fun (_cor1,_cor0) ->
+	%% Line 305
+	( case _cor0 of
+	    ( <( {'state',_cor12,_cor13,_rec11,_cor14}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  %% Line 306
+		  case apply 'retrieve'/2
+			   (_rec11, _cor1) of
+		    <{Cmd,Aux,From,_X_OldRef,Old,Opts}> when 'true' ->
+			%% Line 307
+			case apply 'do_work2'/5
+				 (Cmd, Aux, From, Old, Opts) of
+			  <{'ok',Result}> when 'true' ->
+			      do  %% Line 308
+				  case <> of
+				    %% Line 309
+				    <>
+					when call 'erlang':'=='
+					      (Result,
+					       Old) ->
+					'ok'
+				    %% Line 310
+				    <> when 'true' ->
+					let <_cor7> =
+					    %% Line 311
+					    call 'erlang':'self'
+						()
+					in  %% Line 311
+					    call 'erlang':'!'
+						(From, {'delivery',_cor7,Cmd,Aux,Result})
+				  end
+				  do  %% Line 313
+				      case apply 'get_opt'/2
+					       ('timeout', Opts) of
+					%% Line 314
+					<'at_most_once'> when 'true' ->
+					    %% Line 315
+					    apply 'del_task'/2
+						(_cor1, _rec11)
+					%% Line 316
+					<T>
+					    when call 'erlang':'is_integer'
+						  (T) ->
+					    %% Line 317
+					    case call 'timer':'send_after'
+						     (T, {'do_it',_cor1}) of
+					      <{'ok',Ref}> when 'true' ->
+						  %% Line 318
+						  apply 'store'/5
+						      (_rec11, _cor1, Ref, Result, Opts)
+					      ( <_cor8> when 'true' ->
+						    primop 'match_fail'
+							({'badmatch',_cor8})
+						-| ['compiler_generated'] )
+					    end
+					( <_cor9> when 'true' ->
+					      primop 'match_fail'
+						  ({'case_clause',_cor9})
+					  -| ['compiler_generated'] )
+				      end
+				      %% Line 320
+				      'ok'
+			  ( <_cor6> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor6})
+			    -| ['compiler_generated'] )
+			end
+		    ( <_cor5> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor5})
+		      -| ['compiler_generated'] )
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor15> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'do_work2'/5 =
+    %% Line 329
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <'load',_X_Aux,_X_From,Old,Opts> when 'true' ->
+	      %% Line 330
+	      apply 'calc_load'/2
+		  (Old, Opts)
+	  %% Line 331
+	  <'app_ctrl',_X_Aux,_X_From,_X_Old,_X_Opts> when 'true' ->
+	      %% Line 332
+	      apply 'calc_app_on_node'/0
+		  ()
+	  %% Line 333
+	  <'app',Aux,_X_From,_X_Old,Opts> when 'true' ->
+	      %% Line 334
+	      apply 'calc_app_tree'/2
+		  (Aux, Opts)
+	  %% Line 335
+	  <'pinfo',Aux,_X_From,_X_Old,_X_Opts> when 'true' ->
+	      %% Line 336
+	      apply 'calc_pinfo'/2
+		  ('pinfo', Aux)
+	  %% Line 337
+	  <Cmd,Aux,_X_From,_X_Old,_X_Opts> when 'true' ->
+	      %% Line 338
+	      {Cmd,Aux}
+	end
+'retrieve'/2 =
+    %% Line 341
+    fun (_cor1,_cor0) ->
+	%% Line 342
+	case call 'ets':'lookup'
+		 (_cor1, _cor0) of
+	  %% Line 343
+	  <[{{Cmd,Aux,From},Ref,Old,Opts}|[]]> when 'true' ->
+	      %% Line 344
+	      {Cmd,Aux,From,Ref,Old,Opts}
+	  %% Line 345
+	  <_X_Other> when 'true' ->
+	      %% Line 346
+	      'false'
+	end
+'store'/5 =
+    %% Line 349
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 350
+	    call 'ets':'insert'
+		(_cor4, {_cor3,_cor2,_cor1,_cor0})
+	    _cor3
+'update_worklist'/6 =
+    %% Line 360
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Cmd,Aux,From,'true',Opts,State> when 'true' ->
+	      do  %% Line 361
+		  apply 'add_task'/5
+		      (Cmd, Aux, From, Opts, State)
+		  %% Line 362
+		  State
+	  %% Line 363
+	  <Cmd,Aux,From,_X_Other,_X_Opts,State> when 'true' ->
+	      %% Line 364
+	      ( case State of
+		  ( <( {'state',_cor14,_cor15,_rec12,_cor16}
+		       -| ['compiler_generated'] )> when 'true' ->
+			do  apply 'del_task'/4
+				(Cmd, Aux, From, _rec12)
+			    %% Line 365
+			    State
+		    -| ['compiler_generated'] )
+		  ( <_cor17> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	end
+'add_task'/5 =
+    %% Line 371
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 372
+	( case _cor0 of
+	    ( <( {'state',_cor16,_cor17,_rec13,_cor18}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <Key> = {_cor4,_cor3,_cor2}
+		  in  let <OldOpts> =
+			  %% Line 374
+			  apply 'del_task'/2
+			      (Key, _rec13)
+		      in  let <_cor10> =
+			      %% Line 375
+			      apply 'ins_opts'/2
+				  (_cor1, OldOpts)
+			  in  do  %% Line 375
+				  apply 'store'/5
+				      (_rec13, Key, 'nil', 'nil', _cor10)
+				  do  catch
+					  %% Line 376
+					  apply 'do_work'/2
+					      (Key, _cor0)
+				      %% Line 377
+				      'ok'
+	      -| ['compiler_generated'] )
+	    ( <_cor19> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'del_work'/3 =
+    %% Line 380
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[[Cmd|[Aux|[]]]|Ws],Pid,Work> when 'true' ->
+	      do  %% Line 381
+		  apply 'del_task'/4
+		      (Cmd, Aux, Pid, Work)
+		  %% Line 382
+		  apply 'del_work'/3
+		      (Ws, Pid, Work)
+	  %% Line 383
+	  <[],_X_Pid,_X_Work> when 'true' ->
+	      'ok'
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'del_work',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'del_task'/4 =
+    %% Line 386
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 387
+	apply 'del_task'/2
+	    ({_cor3,_cor2,_cor1}, _cor0)
+'del_task'/2 =
+    %% Line 388
+    fun (_cor1,_cor0) ->
+	let <OldStuff> =
+	    %% Line 389
+	    apply 'retrieve'/2
+		(_cor0, _cor1)
+	in  do  %% Line 390
+		call 'ets':'delete'
+		    (_cor0, _cor1)
+		%% Line 391
+		case OldStuff of
+		  %% Line 392
+		  <{_X_Cmd,_X_Aux,_X_From,Ref,_X_Old,Opts}> when 'true' ->
+		      %% Line 393
+		      case <> of
+			%% Line 394
+			<>
+			    when call 'erlang':'=/='
+				  (Ref,
+				   'nil') ->
+			    do  %% Line 395
+				call 'timer':'cancel'
+				    (Ref)
+				%% Line 396
+				receive
+				  %% Line 397
+				  <{'do_it',_cor6}>
+				      when call 'erlang':'=:='
+					    (_cor6,
+					     _cor1) ->
+				      %% Line 398
+				      Opts
+				after %% Line 399
+				      10 ->
+				  %% Line 400
+				  Opts
+			%% Line 402
+			<> when 'true' ->
+			    Opts
+		      end
+		  %% Line 404
+		  <_cor7> when 'true' ->
+		      %% Line 405
+		      []
+		end
+'calc_app_tree'/2 =
+    %% Line 442
+    fun (_cor1,_cor0) ->
+	let <Mode> =
+	    %% Line 443
+	    apply 'get_opt'/2
+		('info_type', _cor0)
+	in  %% Line 444
+	    case call 'application_controller':'get_master'
+		     (_cor1) of
+	      %% Line 445
+	      <Pid>
+		  when call 'erlang':'is_pid'
+			(Pid) ->
+		  let <DB> =
+		      %% Line 446
+		      apply 'new_db'/2
+			  (Mode, Pid)
+		  in  let <GL> =
+			  %% Line 447
+			  apply 'groupl'/1
+			      (Pid)
+		      in  let <_cor6> =
+			      catch
+				  let <_cor5> =
+				      %% Line 448
+				      apply 'find_avoid'/0
+					  ()
+				  in  %% Line 448
+				      apply 'do_find_proc'/4
+					  (Mode, DB, GL, _cor5)
+			  in  let <_cor21> =
+				  %% Line 448
+				  case _cor6 of
+				    %% Line 449
+				    <{'ok',DB2}> when 'true' ->
+					let <_cor19> =
+					    %% Line 450
+					    apply 'format'/1
+						(Pid)
+					in  %% Line 451
+					    ( case DB2 of
+						( <( {'db',_cor32,_rec14,_cor33,_cor34}
+						     -| ['compiler_generated'] )> when 'true' ->
+						      let <_cor17> =
+							  call 'ets':'tab2list'
+							      (_rec14)
+						      in  let <_cor18> =
+							      apply 'format'/1
+								  (_cor17)
+							  in  let <_cor13> =
+								  %% Line 452
+								  call 'ets':'tab2list'
+								      (_cor33)
+							      in  let <_cor14> =
+								      %% Line 452
+								      apply 'format'/1
+									  (_cor13)
+								  in  let <_cor9> =
+									  %% Line 453
+									  call 'ets':'tab2list'
+									      (_cor34)
+								      in  let <_cor10> =
+									      %% Line 453
+									      apply 'format'/1
+										  (_cor9)
+									  in  {'ok',{_cor19,_cor18,_cor14,_cor10}}
+						  -| ['compiler_generated'] )
+						( <_cor35> when 'true' ->
+						      ( call ( 'erlang'
+							       -| ['compiler_generated'] ):( 'error'
+											     -| ['compiler_generated'] )
+							    (( {'badrecord','db'}
+							       -| ['compiler_generated'] ))
+							-| ['compiler_generated'] )
+						  -| ['compiler_generated'] )
+					      end
+					      -| ['compiler_generated'] )
+				    %% Line 454
+				    <{'error',Reason}> when 'true' ->
+					%% Line 455
+					{'error',Reason}
+				    %% Line 456
+				    <Other> when 'true' ->
+					%% Line 457
+					{'error',Other}
+				  end
+			      in  %% Line 459
+				  ( case DB of
+				      ( <( {'db',_cor44,_rec17,_cor45,_cor46}
+					   -| ['compiler_generated'] )> when 'true' ->
+					    do  call 'ets':'delete'
+						    (_rec17)
+						do  %% Line 460
+						    call 'ets':'delete'
+							(_cor45)
+						    do  %% Line 461
+							call 'ets':'delete'
+							    (_cor46)
+							_cor21
+					-| ['compiler_generated'] )
+				      ( <_cor47> when 'true' ->
+					    ( call ( 'erlang'
+						     -| ['compiler_generated'] ):( 'error'
+										   -| ['compiler_generated'] )
+						  (( {'badrecord','db'}
+						     -| ['compiler_generated'] ))
+					      -| ['compiler_generated'] )
+					-| ['compiler_generated'] )
+				    end
+				    -| ['compiler_generated'] )
+	      %% Line 463
+	      <_cor56> when 'true' ->
+		  %% Line 464
+		  {'ok',{[],[],[],[]}}
+	    end
+'get_pid'/1 =
+    %% Line 467
+    fun (_cor0) ->
+	case _cor0 of
+	  <P>
+	      when call 'erlang':'is_pid'
+		    (_cor0) ->
+	      P
+	  %% Line 468
+	  <P>
+	      when call 'erlang':'is_port'
+		    (_cor0) ->
+	      P
+	  %% Line 469
+	  <X>
+	      when call 'erlang':'is_tuple'
+		    (_cor0) ->
+	      call 'erlang':'element'
+		  (2, X)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'get_pid',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'do_find_proc'/4 =
+    %% Line 476
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 477
+	case apply 'get_next'/1
+		 (_cor2) of
+	  %% Line 478
+	  <{{'value',V},DB2}> when 'true' ->
+	      %% Line 479
+	      apply 'do_find_proc2'/5
+		  (V, _cor3, DB2, _cor1, _cor0)
+	  %% Line 480
+	  <{'empty',DB2}> when 'true' ->
+	      %% Line 481
+	      {'ok',DB2}
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'do_find_proc2'/5 =
+    %% Line 484
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <X,Mode,DB,GL,Avoid>
+	      when call 'erlang':'is_port'
+		    (X) ->
+	      %% Line 488
+	      apply 'do_find_proc'/4
+		  (Mode, DB, GL, Avoid)
+	  %% Line 489
+	  <X,Mode,DB,GL,Avoid> when 'true' ->
+	      let <Xpid> =
+		  %% Line 490
+		  apply 'get_pid'/1
+		      (X)
+	      in  let <_cor8> =
+		      %% Line 491
+		      case apply 'is_proc'/2
+			       (DB, Xpid) of
+			%% Line 492
+			<'false'> when 'true' ->
+			    do  %% Line 493
+				apply 'add_proc'/2
+				    (DB, Xpid)
+				let <C1> =
+				    %% Line 494
+				    apply 'find_children'/2
+					(X, Mode)
+				in  %% Line 495
+				    apply 'add_children'/6
+					(C1, Xpid, DB, GL, Avoid, Mode)
+			%% Line 496
+			<_cor15> when 'true' ->
+			    %% Line 497
+			    DB
+		      end
+		  in  %% Line 499
+		      apply 'do_find_proc'/4
+			  (Mode, _cor8, GL, Avoid)
+	end
+'find_children'/2 =
+    %% Line 507
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <X,'sup'>
+	      when call 'erlang':'is_pid'
+		    (X) ->
+	      %% Line 510
+	      call 'supervisor':'which_children'
+		  (X)
+	  %% Line 511
+	  <X,'link'>
+	      when try
+		    let <_cor2> =
+			call 'erlang':'is_pid'
+			    (X)
+		    in  let <_cor4> =
+			    call 'erlang':'node'
+				(X)
+			in  let <_cor3> =
+				call 'erlang':'node'
+				    ()
+			    in  let <_cor5> =
+				    call 'erlang':'/='
+					(_cor4, _cor3)
+				in  call 'erlang':'and'
+					(_cor2, _cor5)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 512
+	      []
+	  %% Line 513
+	  <X,'link'>
+	      when call 'erlang':'is_pid'
+		    (X) ->
+	      %% Line 514
+	      case call 'erlang':'process_info'
+		       (X, 'links') of
+		%% Line 515
+		<{'links',Links}> when 'true' ->
+		    %% Line 516
+		    call 'lists':'reverse'
+			(Links)
+		%% Line 517
+		<_cor15> when 'true' ->
+		    []
+	      end
+	  %% Line 519
+	  <{'master',X},'sup'> when 'true' ->
+	      %% Line 520
+	      case call 'application_master':'get_child'
+		       (X) of
+		%% Line 521
+		<{Pid,_X_Name}>
+		    when call 'erlang':'is_pid'
+			  (Pid) ->
+		    [Pid|[]]
+		%% Line 522
+		<Pid>
+		    when call 'erlang':'is_pid'
+			  (Pid) ->
+		    [Pid|[]]
+		( <_cor7> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor7})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 524
+	  <{_cor16,_X_X,'worker',_cor17},'sup'> when 'true' ->
+	      []
+	  %% Line 525
+	  <{_cor18,X,'supervisor',_cor19},'sup'> when 'true' ->
+	      let <_cor12> =
+		  %% Line 526
+		  ( fun (_cor10) ->
+			let <Pid> =
+			    %% Line 527
+			    apply 'get_pid'/1
+				(_cor10)
+			in  %% Line 528
+			    case <> of
+			      %% Line 529
+			      <>
+				  when call 'erlang':'is_pid'
+					(Pid) ->
+				  'true'
+			      %% Line 530
+			      <> when 'true' ->
+				  'false'
+			    end
+		    -| [{'id',{0,0,'-find_children/2-fun-0-'}}] )
+	      in  let <_cor8> =
+		      %% Line 533
+		      call 'supervisor':'which_children'
+			  (X)
+		  in  %% Line 526
+		      call 'lists':'filter'
+			  (_cor12, _cor8)
+	  ( <_cor14,_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14,_cor13})
+		  -| [{'function_name',{'find_children',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'add_children'/6 =
+    %% Line 539
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <CList,Paren,DB,_X_GL,_X_Avoid,'sup'> when 'true' ->
+	      let <_cor11> =
+		  %% Line 540
+		  ( fun (_cor8,_cor7) ->
+			%% Line 541
+			case apply 'get_pid'/1
+				 (_cor8) of
+			  %% Line 542
+			  <P>
+			      when call 'erlang':'is_pid'
+				    (P) ->
+			      %% Line 543
+			      apply 'add_prim'/3
+				  (_cor8, Paren, _cor7)
+			  %% Line 544
+			  <_cor23> when 'true' ->
+			      _cor7
+			end
+		    -| [{'id',{0,0,'-add_children/6-fun-0-'}}] )
+	      in  %% Line 540
+		  call 'lists':'foldr'
+		      (_cor11, %% Line 545
+			       DB, %% Line 545
+				   CList)
+	  %% Line 547
+	  <CList,Paren,DB,GL,Avoid,_X_Mode> when 'true' ->
+	      let <_cor16> =
+		  %% Line 548
+		  ( fun (_cor13,_cor12) ->
+			%% Line 549
+			apply 'maybe_add_child'/5
+			    (_cor13, Paren, _cor12, GL, Avoid)
+		    -| [{'id',{0,0,'-add_children/6-fun-1-'}}] )
+	      in  %% Line 548
+		  call 'lists':'foldr'
+		      (_cor16, %% Line 550
+			       DB, %% Line 550
+				   CList)
+	end
+'maybe_add_child'/5 =
+    %% Line 553
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 554
+	case apply 'is_proc'/2
+		 (_cor2, _cor4) of
+	  %% Line 555
+	  <'false'> when 'true' ->
+	      %% Line 556
+	      apply 'maybe_add_child_node'/5
+		  (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 557
+	  <_cor11> when 'true' ->
+	      _cor2
+	end
+'maybe_add_child_node'/5 =
+    %% Line 561
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 562
+	case <> of
+	  %% Line 563
+	  <>
+	      when try
+		    let <_cor6> =
+			call 'erlang':'node'
+			    (_cor4)
+		    in  let <_cor5> =
+			    call 'erlang':'node'
+				()
+			in  call 'erlang':'/='
+				(_cor6, _cor5)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 564
+	      apply 'add_foreign'/3
+		  (_cor4, _cor3, _cor2)
+	  %% Line 565
+	  <> when 'true' ->
+	      %% Line 566
+	      apply 'maybe_add_child_avoid'/5
+		  (_cor4, _cor3, _cor2, _cor1, _cor0)
+	end
+'maybe_add_child_avoid'/5 =
+    %% Line 570
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 571
+	case call 'lists':'member'
+		 (_cor4, _cor0) of
+	  %% Line 572
+	  <'true'> when 'true' ->
+	      _cor2
+	  %% Line 573
+	  <'false'> when 'true' ->
+	      %% Line 574
+	      apply 'maybe_add_child_port'/4
+		  (_cor4, _cor3, _cor2, _cor1)
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'maybe_add_child_port'/4 =
+    %% Line 578
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 579
+	case <> of
+	  %% Line 580
+	  <>
+	      when call 'erlang':'is_port'
+		    (_cor3) ->
+	      %% Line 581
+	      apply 'add_prim'/3
+		  (_cor3, _cor2, _cor1)
+	  %% Line 582
+	  <> when 'true' ->
+	      %% Line 583
+	      apply 'maybe_add_child_sasl'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	end
+'maybe_add_child_sasl'/4 =
+    %% Line 587
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 588
+	case apply 'check_sasl_ancestor'/2
+		 (_cor2, _cor3) of
+	  %% Line 589
+	  <'yes'> when 'true' ->
+	      %% Line 590
+	      apply 'add_prim'/3
+		  (_cor3, _cor2, _cor1)
+	  %% Line 591
+	  <'no'> when 'true' ->
+	      %% Line 592
+	      apply 'add_sec'/3
+		  (_cor3, _cor2, _cor1)
+	  %% Line 593
+	  <'dont_know'> when 'true' ->
+	      %% Line 594
+	      apply 'maybe_add_child_gl'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'maybe_add_child_gl'/4 =
+    %% Line 598
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 599
+	    apply 'groupl'/1
+		(_cor3)
+	in  %% Line 599
+	    case apply 'cmp_groupl'/2
+		     (_cor0, _cor4) of
+	      %% Line 600
+	      <'true'> when 'true' ->
+		  apply 'maybe_add_child_sec'/3
+		      (_cor3, _cor2, _cor1)
+	      %% Line 601
+	      <_cor10> when 'true' ->
+		  _cor1
+	    end
+'maybe_add_child_sec'/3 =
+    %% Line 606
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 607
+	case apply 'is_in_queue'/2
+		 (_cor0, _cor2) of
+	  %% Line 608
+	  <'true'> when 'true' ->
+	      %% Line 609
+	      apply 'add_sec'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 610
+	  <_cor7> when 'true' ->
+	      %% Line 611
+	      apply 'add_prim'/3
+		  (_cor2, _cor1, _cor0)
+	end
+'check_sasl_ancestor'/2 =
+    %% Line 614
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 616
+	    call 'erlang':'process_info'
+		(_cor0, 'dictionary')
+	in  let <_cor3> =
+		%% Line 616
+		call 'erlang':'element'
+		    (2, _cor2)
+	    in  %% Line 615
+		case call 'lists':'keysearch'
+			 ('$ancestors', 1, _cor3) of
+		  %% Line 617
+		  <{'value',{_cor11,L}}>
+		      when call 'erlang':'is_list'
+			    (L) ->
+		      let <_cor6> =
+			  %% Line 618
+			  case <> of
+			    %% Line 619
+			    <>
+				when try
+				      let <_cor4> =
+					  call 'erlang':'hd'
+					      (L)
+				      in  call 'erlang':'is_atom'
+					      (_cor4)
+				  of <Try> ->
+				      Try
+				  catch <T,R> ->
+				      'false' ->
+				let <_cor5> =
+				    call 'erlang':'hd'
+					(L)
+				in  call 'erlang':'whereis'
+					(_cor5)
+			    %% Line 620
+			    <> when 'true' ->
+				call 'erlang':'hd'
+				    (L)
+			  end
+		      in  %% Line 622
+			  case <> of
+			    %% Line 623
+			    <>
+				when call 'erlang':'=='
+				      (_cor6,
+				       _cor1) ->
+				'yes'
+			    %% Line 624
+			    <> when 'true' ->
+				'no'
+			  end
+		  %% Line 626
+		  <_cor12> when 'true' ->
+		      'dont_know'
+		end
+'new_db'/2 =
+    %% Line 637
+    fun (_cor1,_cor0) ->
+	let <P> =
+	    %% Line 638
+	    call 'ets':'new'
+		('processes', ['set'|['public']])
+	in  let <L1> =
+		%% Line 639
+		call 'ets':'new'
+		    ('links', ['bag'|['public']])
+	    in  let <L2> =
+		    %% Line 640
+		    call 'ets':'new'
+			('extralinks', ['bag'|['public']])
+		in  let <_cor7> =
+			%% Line 641
+			case <> of
+			  %% Line 642
+			  <>
+			      when call 'erlang':'=:='
+				    (_cor1,
+				     'sup') ->
+			      let <_cor5> =
+				  call 'queue':'new'
+				      ()
+			      in  call 'queue':'in'
+				      ({'master',_cor0}, _cor5)
+			  %% Line 643
+			  <> when 'true' ->
+			      let <_cor6> =
+				  call 'queue':'new'
+				      ()
+			      in  call 'queue':'in'
+				      (_cor0, _cor6)
+			end
+		    in  %% Line 645
+			{'db',_cor7,P,L1,L2}
+'get_next'/1 =
+    %% Line 647
+    fun (_cor0) ->
+	%% Line 648
+	( case _cor0 of
+	    ( <( {'db',_rec20,_cor8,_cor9,_cor10}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  case call 'queue':'out'
+			   (_rec20) of
+		    <{X,Q}> when 'true' ->
+			let <_cor6> =
+			    %% Line 649
+			    call 'erlang':'setelement'
+				(2, _cor0, Q)
+			in  %% Line 649
+			    {X,_cor6}
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor11> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','db'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'add_proc'/2 =
+    %% Line 650
+    fun (_cor1,_cor0) ->
+	%% Line 651
+	( case _cor1 of
+	    ( <( {'db',_cor6,_rec22,_cor7,_cor8}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  call 'ets':'insert'
+		      (_rec22, {_cor0})
+	      -| ['compiler_generated'] )
+	    ( <_cor9> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','db'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'add_prim'/3 =
+    %% Line 652
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 653
+	( case _cor0 of
+	    ( <( {'db',_cor14,_cor15,_rec23,_cor16}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <_cor3> =
+		      apply 'get_pid'/1
+			  (_cor2)
+		  in  do  call 'ets':'insert'
+			      (_rec23, {_cor1,_cor3})
+			  let <_rec24> =
+			      %% Line 654
+			      call 'queue':'in'
+				  (_cor2, _cor14)
+			  in  %% Line 654
+			      call 'erlang':'setelement'
+				  (2, _cor0, _rec24)
+	      -| ['compiler_generated'] )
+	    ( <_cor17> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','db'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'add_foreign'/3 =
+    %% Line 655
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 656
+	( case _cor0 of
+	    ( <( {'db',_cor13,_cor14,_cor15,_rec27}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  do  call 'ets':'insert'
+			  (_rec27, {_cor1,_cor2})
+		      let <_rec28> =
+			  %% Line 657
+			  call 'queue':'in'
+			      (_cor2, _cor13)
+		      in  %% Line 657
+			  call 'erlang':'setelement'
+			      (2, _cor0, _rec28)
+	      -| ['compiler_generated'] )
+	    ( <_cor16> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','db'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'add_sec'/3 =
+    %% Line 658
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 659
+	( case _cor0 of
+	    ( <( {'db',_cor8,_cor9,_cor10,_rec31}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  do  call 'ets':'insert'
+			  (_rec31, {_cor1,_cor2})
+		      _cor0
+	      -| ['compiler_generated'] )
+	    ( <_cor11> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','db'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'is_proc'/2 =
+    %% Line 662
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'db',_cor4,Tab,_cor5,_cor6},P> when 'true' ->
+	      %% Line 663
+	      call 'ets':'member'
+		  (Tab, P)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'is_proc',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'is_in_queue'/2 =
+    %% Line 665
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'db',Q,_cor4,_cor5,_cor6},P> when 'true' ->
+	      %% Line 666
+	      call 'queue':'member'
+		  (P, Q)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'is_in_queue',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'groupl'/1 =
+    %% Line 672
+    fun (_cor0) ->
+	%% Line 673
+	case call 'erlang':'process_info'
+		 (_cor0, 'group_leader') of
+	  %% Line 674
+	  <{'group_leader',GL}> when 'true' ->
+	      GL
+	  %% Line 675
+	  <_X_Other> when 'true' ->
+	      'nil'
+	end
+'cmp_groupl'/2 =
+    %% Line 678
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_GL1,'nil'> when 'true' ->
+	      'true'
+	  %% Line 679
+	  <GL1,_cor4>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     GL1) ->
+	      'true'
+	  %% Line 680
+	  <_cor5,_cor6> when 'true' ->
+	      'false'
+	end
+'find_avoid'/0 =
+    %% Line 684
+    fun () ->
+	let <_cor5> =
+	    %% Line 685
+	    ( fun (_cor2,_cor1) ->
+		  %% Line 686
+		  case call 'erlang':'whereis'
+			   (_cor2) of
+		    %% Line 687
+		    <P>
+			when call 'erlang':'is_pid'
+			      (P) ->
+			%% Line 688
+			[P|_cor1]
+		    %% Line 689
+		    <_cor6> when 'true' ->
+			_cor1
+		  end
+	      -| [{'id',{0,0,'-find_avoid/0-fun-0-'}}] )
+	in  %% Line 685
+	    call 'lists':'foldr'
+		(_cor5, %% Line 690
+			['undefined'], %% Line 691
+				       ['application_controller'|['init'|['error_logger'|['gs'|['node_serv'|['appmon'|['appmon_a'|['appmon_info']]]]]]]])
+'format'/1 =
+    %% Line 701
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{P}|Fs]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 702
+		  apply 'format'/1
+		      (P)
+	      in  let <_cor2> =
+		      %% Line 702
+		      apply 'format'/1
+			  (Fs)
+		  in  %% Line 702
+		      [{P,_cor1}|_cor2]
+	  %% Line 703
+	  <[{P1,P2}|Fs]> when 'true' ->
+	      let <_cor4> =
+		  %% Line 704
+		  apply 'format'/1
+		      (P1)
+	      in  let <_cor3> =
+		      %% Line 704
+		      apply 'format'/1
+			  (P2)
+		  in  let <_cor5> =
+			  %% Line 704
+			  apply 'format'/1
+			      (Fs)
+		      in  %% Line 704
+			  [{_cor4,_cor3}|_cor5]
+	  %% Line 705
+	  <[]> when 'true' ->
+	      []
+	  %% Line 706
+	  <P>
+	      when try
+		    let <_cor6> =
+			call 'erlang':'is_pid'
+			    (_cor0)
+		    in  let <_cor8> =
+			    call 'erlang':'node'
+				(_cor0)
+			in  let <_cor7> =
+				call 'erlang':'node'
+				    ()
+			    in  let <_cor9> =
+				    call 'erlang':'/='
+					(_cor8, _cor7)
+				in  call 'erlang':'and'
+					(_cor6, _cor9)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor13> =
+		  %% Line 707
+		  call 'erlang':'pid_to_list'
+		      (P)
+	      in  let <_cor10> =
+		      %% Line 707
+		      call 'erlang':'node'
+			  (P)
+		  in  let <_cor11> =
+			  %% Line 707
+			  call 'erlang':'atom_to_list'
+			      (_cor10)
+		      in  let <_cor12> =
+			      %% Line 707
+			      [32|_cor11]
+			  in  %% Line 707
+			      call 'erlang':'++'
+				  (_cor13, _cor12)
+	  %% Line 708
+	  <P>
+	      when call 'erlang':'is_pid'
+		    (_cor0) ->
+	      %% Line 709
+	      case call 'erlang':'process_info'
+		       (P, 'registered_name') of
+		%% Line 710
+		<{'registered_name',Name}> when 'true' ->
+		    call 'erlang':'atom_to_list'
+			(Name)
+		%% Line 711
+		<_cor19> when 'true' ->
+		    call 'erlang':'pid_to_list'
+			(P)
+	      end
+	  %% Line 713
+	  <P>
+	      when call 'erlang':'is_port'
+		    (_cor0) ->
+	      let <_cor15> =
+		  %% Line 714
+		  call 'erlang':'port_info'
+		      (P, 'id')
+	      in  let <_cor16> =
+		      %% Line 714
+		      call 'erlang':'element'
+			  (2, _cor15)
+		  in  let <_cor17> =
+			  %% Line 714
+			  call 'erlang':'integer_to_list'
+			      (_cor16)
+		      in  %% Line 714
+			  call 'erlang':'++'
+			      ([112|[111|[114|[116|[32]]]]], _cor17)
+	  %% Line 715
+	  <X> when 'true' ->
+	      do  %% Line 716
+		  call 'io':'format'
+		      ([87|[104|[97|[116|[58|[32|[126|[112|[126|[110]]]]]]]]]], [X|[]])
+		  %% Line 717
+		  [63|[63|[63]]]
+	end
+'calc_app_on_node'/0 =
+    %% Line 744
+    fun () ->
+	let <_cor0> =
+	    %% Line 745
+	    call 'application':'which_applications'
+		()
+	in  let <NewApps> =
+		%% Line 745
+		apply 'reality_check'/1
+		    (_cor0)
+	    in  %% Line 746
+		{'ok',NewApps}
+'reality_check'/1 =
+    %% Line 749
+    fun (_cor0) ->
+	case _cor0 of
+	  <[E|Es]> when 'true' ->
+	      let <N> =
+		  %% Line 750
+		  call 'erlang':'element'
+		      (1, E)
+	      in  let <_cor2> =
+		      catch
+			  %% Line 751
+			  call 'application_controller':'get_master'
+			      (N)
+		  in  %% Line 751
+		      case _cor2 of
+			%% Line 752
+			<P>
+			    when call 'erlang':'is_pid'
+				  (_cor2) ->
+			    let <_cor3> =
+				apply 'reality_check'/1
+				    (Es)
+			    in  [{P,N,E}|_cor3]
+			%% Line 753
+			<_cor6> when 'true' ->
+			    apply 'reality_check'/1
+				(Es)
+		      end
+	  %% Line 755
+	  <[]> when 'true' ->
+	      []
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5})
+		  -| [{'function_name',{'reality_check',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'calc_load'/2 =
+    %% Line 782
+    fun (_cor1,_cor0) ->
+	let <L> =
+	    %% Line 783
+	    apply 'load'/1
+		(_cor0)
+	in  %% Line 784
+	    case apply 'get_opt'/2
+		     ('load_average', _cor0) of
+	      %% Line 785
+	      <'true'> when 'true' ->
+		  %% Line 786
+		  case _cor1 of
+		    %% Line 787
+		    <{_cor14,_cor15}>
+			when call 'erlang':'=:='
+			      (_cor15,
+			       L) ->
+			{'ok',{L,L}}
+		    %% Line 788
+		    <{_cor16,O2}>
+			when try
+			      let <_cor3> =
+				  call 'erlang':'-'
+				      (L, O2)
+			      in  let <_cor4> =
+				      call 'erlang':'abs'
+					  (_cor3)
+				  in  call 'erlang':'<'
+					  (_cor4, 3)
+			  of <Try> ->
+			      Try
+			  catch <T,R> ->
+			      'false' ->
+			{'ok',{O2,L}}
+		    %% Line 789
+		    <{_cor17,O2}> when 'true' ->
+			let <_cor5> =
+			    call 'erlang':'*'
+				(2, L)
+			in  let <_cor6> =
+				call 'erlang':'+'
+				    (_cor5, O2)
+			    in  let <_cor7> =
+				    call 'erlang':'/'
+					(_cor6, 3)
+				in  let <_cor8> =
+					call 'erlang':'trunc'
+					    (_cor7)
+				    in  {'ok',{O2,_cor8}}
+		    %% Line 790
+		    <_cor18> when 'true' ->
+			{'ok',{0,L}}
+		  end
+	      %% Line 792
+	      <_cor19> when 'true' ->
+		  %% Line 793
+		  case _cor1 of
+		    %% Line 794
+		    <{_cor20,O2}> when 'true' ->
+			{'ok',{O2,L}}
+		    %% Line 795
+		    <_cor21> when 'true' ->
+			{'ok',{0,L}}
+		  end
+	    end
+'load'/1 =
+    %% Line 800
+    fun (_cor0) ->
+	let <Q> =
+	    %% Line 801
+	    apply 'get_sample'/1
+		('queue')
+	in  %% Line 803
+	    case apply 'get_opt'/2
+		     ('load_method', _cor0) of
+	      %% Line 804
+	      <'time'> when 'true' ->
+		  let <Td> =
+		      %% Line 805
+		      apply 'get_sample'/1
+			  ('runtime')
+		  in  let <Tot> =
+			  %% Line 806
+			  apply 'get_sample'/1
+			      ('tot_time')
+		      in  %% Line 808
+			  case apply 'get_opt'/2
+				   ('load_scale', _cor0) of
+			    %% Line 809
+			    <'linear'> when 'true' ->
+				let <_cor8> =
+				    %% Line 810
+				    apply 'load_range'/0
+					()
+				in  let <_cor6> =
+					%% Line 810
+					call 'erlang':'/'
+					    (Td, Tot)
+				    in  let <_cor5> =
+					    %% Line 810
+					    call 'erlang':'/'
+						(Q, 6)
+					in  let <_cor7> =
+						%% Line 810
+						call 'erlang':'+'
+						    (_cor6, _cor5)
+					    in  let <_cor9> =
+						    %% Line 810
+						    call 'erlang':'*'
+							(_cor8, _cor7)
+						in  let <_cor10> =
+							%% Line 810
+							call 'erlang':'trunc'
+							    (_cor9)
+						    in  let <_cor4> =
+							    %% Line 811
+							    apply 'load_range'/0
+								()
+							in  %% Line 810
+							    call 'erlang':'min'
+								(_cor10, _cor4)
+			    %% Line 812
+			    <'prog'> when 'true' ->
+				let <_cor16> =
+				    %% Line 813
+				    apply 'load_range'/0
+					()
+				in  let <_cor13> =
+					%% Line 813
+					call 'erlang':'/'
+					    (Td, Tot)
+				    in  let <_cor12> =
+					    %% Line 813
+					    call 'erlang':'/'
+						(Q, 6)
+					in  let <_cor14> =
+						%% Line 813
+						call 'erlang':'+'
+						    (_cor13, _cor12)
+					    in  let <_cor15> =
+						    %% Line 813
+						    apply 'prog'/1
+							(_cor14)
+						in  let <_cor17> =
+							%% Line 813
+							call 'erlang':'*'
+							    (_cor16, _cor15)
+						    in  let <_cor18> =
+							    %% Line 813
+							    call 'erlang':'trunc'
+								(_cor17)
+							in  let <_cor11> =
+								%% Line 814
+								apply 'load_range'/0
+								    ()
+							    in  %% Line 813
+								call 'erlang':'min'
+								    (_cor18, _cor11)
+			    ( <_cor19> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor19})
+			      -| ['compiler_generated'] )
+			  end
+	      %% Line 816
+	      <'queue'> when 'true' ->
+		  %% Line 817
+		  case apply 'get_opt'/2
+			   ('load_scale', _cor0) of
+		    %% Line 818
+		    <'linear'> when 'true' ->
+			let <_cor21> =
+			    %% Line 819
+			    apply 'load_range'/0
+				()
+			in  let <_cor22> =
+				%% Line 819
+				call 'erlang':'*'
+				    (_cor21, Q)
+			    in  let <_cor23> =
+				    %% Line 819
+				    call 'erlang':'/'
+					(_cor22, 6)
+				in  let <_cor24> =
+					%% Line 819
+					call 'erlang':'trunc'
+					    (_cor23)
+				    in  let <_cor20> =
+					    %% Line 819
+					    apply 'load_range'/0
+						()
+					in  %% Line 819
+					    call 'erlang':'min'
+						(_cor24, _cor20)
+		    %% Line 820
+		    <'prog'> when 'true' ->
+			let <_cor28> =
+			    %% Line 821
+			    apply 'load_range'/0
+				()
+			in  let <_cor26> =
+				%% Line 821
+				call 'erlang':'/'
+				    (Q, 6)
+			    in  let <_cor27> =
+				    %% Line 821
+				    apply 'prog'/1
+					(_cor26)
+				in  let <_cor29> =
+					%% Line 821
+					call 'erlang':'*'
+					    (_cor28, _cor27)
+				    in  let <_cor30> =
+					    %% Line 821
+					    call 'erlang':'trunc'
+						(_cor29)
+					in  let <_cor25> =
+						%% Line 821
+						apply 'load_range'/0
+						    ()
+					    in  %% Line 821
+						call 'erlang':'min'
+						    (_cor30, _cor25)
+		    ( <_cor31> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor31})
+		      -| ['compiler_generated'] )
+		  end
+	      ( <_cor32> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor32})
+		-| ['compiler_generated'] )
+	    end
+'prog'/1 =
+    %% Line 828
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 829
+	    call 'erlang':'abs'
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 829
+		call 'erlang':'/'
+		    (_cor1, 9.00000000000000022204e-01)
+	    in  %% Line 829
+		call 'math':'sqrt'
+		    (_cor2)
+'get_sample'/1 =
+    %% Line 832
+    fun (_cor0) ->
+	case _cor0 of
+	  <'queue'> when 'true' ->
+	      call 'erlang':'statistics'
+		  ('run_queue')
+	  %% Line 833
+	  <'runtime'> when 'true' ->
+	      case call 'erlang':'statistics'
+		       ('runtime') of
+		<{Rt,Rd}> when 'true' ->
+		    %% Line 834
+		    apply 'delta'/3
+			('runtime', Rt, Rd)
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 835
+	  <'tot_time'> when 'true' ->
+	      case call 'erlang':'statistics'
+		       ('wall_clock') of
+		<{Rt,Rd}> when 'true' ->
+		    %% Line 836
+		    apply 'delta'/3
+			('tot_time', Rt, Rd)
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'get_sample',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'delta'/3 =
+    %% Line 846
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 847
+	    case call 'erlang':'get'
+		     (_cor2) of
+	      %% Line 848
+	      <'undefined'> when 'true' ->
+		  _cor1
+	      %% Line 850
+	      <Other> when 'true' ->
+		  %% Line 851
+		  case <> of
+		    %% Line 852
+		    <>
+			when call 'erlang':'>'
+			      (Other,
+			       _cor1) ->
+			_cor0
+		    %% Line 854
+		    <> when 'true' ->
+			%% Line 855
+			call 'erlang':'-'
+			    (_cor1, Other)
+		  end
+	    end
+	in  do  %% Line 858
+		call 'erlang':'put'
+		    (_cor2, _cor1)
+		_cor4
+'load_range'/0 =
+    %% Line 862
+    fun () ->
+	16
+'calc_pinfo'/2 =
+    %% Line 887
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'pinfo',Pid>
+	      when call 'erlang':'is_pid'
+		    (Pid) ->
+	      let <Info> =
+		  %% Line 888
+		  call 'erlang':'process_info'
+		      (Pid)
+	      in  let <_cor3> =
+		      %% Line 890
+		      call 'erlang':'node'
+			  ()
+		  in  let <_cor4> =
+			  %% Line 889
+			  call 'io_lib':'format'
+			      ([78|[111|[100|[101|[58|[32|[126|[112|[44|[32|[80|[114|[111|[99|[101|[115|[115|[58|[32|[126|[112|[126|[110|[126|[112|[126|[110|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 890
+																								     [_cor3|[Pid|[Info|[]]]])
+		      in  %% Line 889
+			  {'ok',_cor4}
+	  %% Line 891
+	  <'pinfo',Pid>
+	      when call 'erlang':'is_port'
+		    (Pid) ->
+	      let <_cor7> =
+		  %% Line 892
+		  ( fun (_cor5) ->
+			call 'erlang':'port_info'
+			    (Pid, _cor5)
+		    -| [{'id',{0,0,'-calc_pinfo/2-fun-0-'}}] )
+	      in  let <Info> =
+		      %% Line 892
+		      call 'lists':'map'
+			  (_cor7, %% Line 893
+				  ['id'|['name'|['connected'|['links'|['input'|['output']]]]]])
+		  in  let <_cor9> =
+			  %% Line 896
+			  call 'erlang':'node'
+			      ()
+		      in  let <_cor10> =
+			      %% Line 896
+			      call 'erlang':'port_info'
+				  (Pid, 'id')
+			  in  let <_cor11> =
+				  %% Line 896
+				  call 'erlang':'element'
+				      (2, _cor10)
+			      in  let <_cor12> =
+				      %% Line 895
+				      call 'io_lib':'format'
+					  ([78|[111|[100|[101|[58|[32|[126|[112|[44|[32|[80|[111|[114|[116|[58|[32|[126|[112|[126|[110|[126|[112|[126|[110|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 896
+																								[_cor9|[_cor11|%% Line 897
+																									       [Info|[]]]])
+				  in  %% Line 895
+				      {'ok',_cor12}
+	  %% Line 898
+	  <'pinfo',_X_Pid> when 'true' ->
+	      %% Line 899
+	      {'ok',[]}
+	  ( <_cor14,_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14,_cor13})
+		  -| [{'function_name',{'calc_pinfo',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'print_state'/1 =
+    %% Line 921
+    fun (_cor0) ->
+	%% Line 924
+	( case _cor0 of
+	    ( <( {'state',_cor9,_rec32,_cor10,_cor11}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  do  call 'io':'format'
+			  ([83|[116|[97|[116|[117|[115|[58|[126|[110|[32|[32|[32|[32|[79|[112|[116|[115|[58|[32|[126|[112|[126|[110|[67|[108|[105|[101|[110|[116|[115|[58|[32|[126|[112|[126|[110|[32|[32|[32|[32|[87|[111|[114|[107|[83|[116|[111|[114|[101|[58|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [_rec32|[_cor11|[]]])
+		      let <_cor7> =
+			  %% Line 925
+			  call 'ets':'tab2list'
+			      (_cor10)
+		      in  %% Line 925
+			  apply 'print_work'/1
+			      (_cor7)
+	      -| ['compiler_generated'] )
+	    ( <_cor12> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'print_work'/1 =
+    %% Line 927
+    fun (_cor0) ->
+	case _cor0 of
+	  <[W|Ws]> when 'true' ->
+	      do  %% Line 928
+		  call 'io':'format'
+		      ([32|[32|[32|[32|[32|[32|[32|[32|[126|[112|[126|[110]]]]]]]]]]]], [W|[]])
+		  %% Line 928
+		  apply 'print_work'/1
+		      (Ws)
+	  %% Line 929
+	  <[]> when 'true' ->
+	      'ok'
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'print_work',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_opt'/2 =
+    %% Line 940
+    fun (_cor1,_cor0) ->
+	%% Line 941
+	case call 'lists':'keysearch'
+		 (_cor1, 1, _cor0) of
+	  %% Line 942
+	  <{'value',Val}> when 'true' ->
+	      call 'erlang':'element'
+		  (2, Val)
+	  %% Line 943
+	  <'false'> when 'true' ->
+	      apply 'default'/1
+		  (_cor1)
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'default'/1 =
+    %% Line 947
+    fun (_cor0) ->
+	case _cor0 of
+	  <'info_type'> when 'true' ->
+	      'link'
+	  %% Line 948
+	  <'load_average'> when 'true' ->
+	      'true'
+	  %% Line 949
+	  <'load_method'> when 'true' ->
+	      'time'
+	  %% Line 950
+	  <'load_scale'> when 'true' ->
+	      'prog'
+	  %% Line 951
+	  <'stay_resident'> when 'true' ->
+	      'false'
+	  %% Line 952
+	  <'timeout'> when 'true' ->
+	      2000
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'default',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'ins_opts'/2 =
+    %% Line 954
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[Opt|Opts],Opts2> when 'true' ->
+	      let <_cor2> =
+		  %% Line 955
+		  apply 'ins_opt'/2
+		      (Opt, Opts2)
+	      in  %% Line 955
+		  apply 'ins_opts'/2
+		      (Opts, _cor2)
+	  %% Line 956
+	  <[],Opts2> when 'true' ->
+	      Opts2
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'ins_opts',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'ins_opt'/2 =
+    %% Line 958
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Opt,Val},[{_cor5,_cor6}|Os]>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     Opt) ->
+	      [{Opt,Val}|Os]
+	  %% Line 959
+	  <Opt,[Opt2|Os]> when 'true' ->
+	      let <_cor2> =
+		  apply 'ins_opt'/2
+		      (Opt, Os)
+	      in  [Opt2|_cor2]
+	  %% Line 960
+	  <Opt,[]> when 'true' ->
+	      [Opt|[]]
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'ins_opt',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('appmon_info')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('appmon_info', _cor0)
+end

@@ -1,0 +1,625 @@
+module 'erl_comment_scan' ['file'/1,
+			   'join_lines'/1,
+			   'module_info'/0,
+			   'module_info'/1,
+			   'scan_lines'/1,
+			   'string'/1]
+    attributes [%% Line 29
+		'export_type' =
+		    %% Line 29
+		    [{'comment',0}],
+		%% Line 33
+		'type' =
+		    %% Line 33
+		    [{'comment',{'type',33,'tuple',[{'type',33,'integer',[]}|[{'type',33,'integer',[]}|[{'type',33,'integer',[]}|[{'type',33,'list',[{'type',33,'string',[]}]}]]]]},[]}],
+		%% Line 34
+		'type' =
+		    %% Line 34
+		    [{'commentLine',{'type',34,'tuple',[{'type',34,'integer',[]}|[{'type',34,'integer',[]}|[{'type',34,'integer',[]}|[{'type',34,'string',[]}]]]]},[]}],
+		%% Line 67
+		'spec' =
+		    %% Line 67
+		    [{{'file',1},[{'type',67,'fun',[{'type',67,'product',[{'remote_type',67,[{'atom',67,'file'}|[{'atom',67,'filename'}|[[]]]]}]}|[{'type',67,'list',[{'type',67,'comment',[]}]}]]}]}],
+		%% Line 125
+		'spec' =
+		    %% Line 125
+		    [{{'string',1},[{'type',125,'fun',[{'type',125,'product',[{'type',125,'string',[]}]}|[{'type',125,'list',[{'type',125,'comment',[]}]}]]}]}],
+		%% Line 149
+		'spec' =
+		    %% Line 149
+		    [{{'scan_lines',1},[{'type',149,'fun',[{'type',149,'product',[{'type',149,'string',[]}]}|[{'type',149,'list',[{'type',149,'commentLine',[]}]}]]}]}],
+		%% Line 266
+		'spec' =
+		    %% Line 266
+		    [{{'join_lines',1},[{'type',266,'fun',[{'type',266,'product',[{'type',266,'list',[{'type',266,'commentLine',[]}]}]}|[{'type',266,'list',[{'type',266,'comment',[]}]}]]}]}]]
+'file'/1 =
+    %% Line 69
+    fun (_cor0) ->
+	let <Name1> =
+	    %% Line 70
+	    apply 'filename'/1
+		(_cor0)
+	in  let <_cor3> =
+		catch
+		    let <_cor2> =
+			%% Line 71
+			call 'file':'read_file'
+			    (Name1)
+		    in  %% Line 71
+			{'ok',_cor2}
+	    in  %% Line 71
+		case _cor3 of
+		  %% Line 72
+		  <{'ok',V}> when 'true' ->
+		      %% Line 73
+		      case V of
+			%% Line 74
+			<{'ok',B}> when 'true' ->
+			    let <Encoding> =
+				%% Line 75
+				call 'epp':'read_encoding_from_binary'
+				    (B)
+			    in  let <_cor6> =
+				    %% Line 76
+				    case Encoding of
+				      %% Line 77
+				      <'none'> when 'true' ->
+					  call 'epp':'default_encoding'
+					      ()
+				      %% Line 78
+				      <Enc0> when 'true' ->
+					  Enc0
+				    end
+				in  let <_cor8> =
+					catch
+					    %% Line 80
+					    call 'unicode':'characters_to_list'
+						(B, _cor6)
+				    in  %% Line 80
+					case _cor8 of
+					  %% Line 81
+					  <String>
+					      when call 'erlang':'is_list'
+						    (_cor8) ->
+					      %% Line 82
+					      apply 'string'/1
+						  (String)
+					  %% Line 83
+					  <R>
+					      when call 'erlang':'=:='
+						    (Encoding,
+						     'none') ->
+					      let <_cor9> =
+						  catch
+						      %% Line 85
+						      call 'unicode':'characters_to_list'
+							  (B, 'latin1')
+					      in  %% Line 84
+						  case _cor9 of
+						    %% Line 87
+						    <String>
+							when call 'erlang':'is_list'
+							      (_cor9) ->
+							%% Line 88
+							apply 'string'/1
+							    (String)
+						    %% Line 89
+						    <_cor15> when 'true' ->
+							do  %% Line 90
+							    apply 'error_read_file'/1
+								(Name1)
+							    %% Line 91
+							    call 'erlang':'exit'
+								(R)
+						  end
+					  %% Line 93
+					  <R> when 'true' ->
+					      do  %% Line 94
+						  apply 'error_read_file'/1
+						      (Name1)
+						  %% Line 95
+						  call 'erlang':'exit'
+						      (R)
+					end
+			%% Line 97
+			<{'error',E}> when 'true' ->
+			    do  %% Line 98
+				apply 'error_read_file'/1
+				    (Name1)
+				%% Line 99
+				call 'erlang':'exit'
+				    ({'read',E})
+			( <_cor12> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor12})
+			  -| ['compiler_generated'] )
+		      end
+		  %% Line 101
+		  <{'EXIT',E}> when 'true' ->
+		      do  %% Line 102
+			  apply 'error_read_file'/1
+			      (Name1)
+			  %% Line 103
+			  call 'erlang':'exit'
+			      (E)
+		  %% Line 104
+		  <R> when 'true' ->
+		      do  %% Line 105
+			  apply 'error_read_file'/1
+			      (Name1)
+			  %% Line 106
+			  call 'erlang':'throw'
+			      (R)
+		end
+'string'/1 =
+    %% Line 127
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 128
+	    apply 'scan_lines'/1
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 128
+		apply 'join_lines'/1
+		    (_cor1)
+	    in  %% Line 128
+		call 'lists':'reverse'
+		    (_cor2)
+'scan_lines'/1 =
+    %% Line 151
+    fun (_cor0) ->
+	%% Line 152
+	apply 'scan_lines'/5
+	    (_cor0, 1, 0, 0, [])
+'scan_lines'/5 =
+    %% Line 154
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[32|Cs],L,Col,M,Ack> when 'true' ->
+	      let <_cor5> =
+		  %% Line 155
+		  call 'erlang':'+'
+		      (Col, 1)
+	      in  %% Line 155
+		  apply 'scan_lines'/5
+		      (Cs, L, _cor5, M, Ack)
+	  %% Line 156
+	  <[9|Cs],L,Col,M,Ack> when 'true' ->
+	      let <_cor6> =
+		  %% Line 157
+		  apply 'tab'/1
+		      (Col)
+	      in  %% Line 157
+		  apply 'scan_lines'/5
+		      (Cs, L, _cor6, M, Ack)
+	  %% Line 158
+	  <[10|Cs],L,_X_Col,_X_M,Ack> when 'true' ->
+	      let <_cor7> =
+		  %% Line 159
+		  call 'erlang':'+'
+		      (L, 1)
+	      in  %% Line 159
+		  apply 'scan_lines'/5
+		      (Cs, _cor7, 0, 0, Ack)
+	  %% Line 160
+	  <[13|[10|Cs]],L,_X_Col,_X_M,Ack> when 'true' ->
+	      let <_cor8> =
+		  %% Line 161
+		  call 'erlang':'+'
+		      (L, 1)
+	      in  %% Line 161
+		  apply 'scan_lines'/5
+		      (Cs, _cor8, 0, 0, Ack)
+	  %% Line 162
+	  <[13|Cs],L,_X_Col,_X_M,Ack> when 'true' ->
+	      let <_cor9> =
+		  %% Line 163
+		  call 'erlang':'+'
+		      (L, 1)
+	      in  %% Line 163
+		  apply 'scan_lines'/5
+		      (Cs, _cor9, 0, 0, Ack)
+	  %% Line 164
+	  <[37|Cs],L,Col,M,Ack> when 'true' ->
+	      %% Line 165
+	      apply 'scan_comment'/6
+		  (Cs, [], L, Col, M, Ack)
+	  %% Line 166
+	  <[36|Cs],L,Col,_X_M,Ack> when 'true' ->
+	      let <_cor10> =
+		  %% Line 167
+		  call 'erlang':'+'
+		      (Col, 1)
+	      in  %% Line 167
+		  apply 'scan_char'/4
+		      (Cs, L, _cor10, Ack)
+	  %% Line 168
+	  <[34|Cs],L,Col,_X_M,Ack> when 'true' ->
+	      let <_cor11> =
+		  %% Line 169
+		  call 'erlang':'+'
+		      (Col, 1)
+	      in  %% Line 169
+		  apply 'scan_string'/5
+		      (Cs, 34, L, _cor11, Ack)
+	  %% Line 170
+	  <[39|Cs],L,Col,_X_M,Ack> when 'true' ->
+	      let <_cor12> =
+		  %% Line 171
+		  call 'erlang':'+'
+		      (Col, 1)
+	      in  %% Line 171
+		  apply 'scan_string'/5
+		      (Cs, 39, L, _cor12, Ack)
+	  %% Line 172
+	  <[_X_C|Cs],L,Col,_X_M,Ack> when 'true' ->
+	      let <N> =
+		  %% Line 173
+		  call 'erlang':'+'
+		      (Col, 1)
+	      in  %% Line 174
+		  apply 'scan_lines'/5
+		      (Cs, L, N, N, Ack)
+	  %% Line 175
+	  <[],_X_L,_X_Col,_X_M,Ack> when 'true' ->
+	      %% Line 176
+	      Ack
+	  ( <_cor18,_cor17,_cor16,_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor18,_cor17,_cor16,_cor15,_cor14})
+		  -| [{'function_name',{'scan_lines',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'tab'/1 =
+    %% Line 178
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 179
+	    call 'erlang':'rem'
+		(_cor0, 8)
+	in  let <_cor2> =
+		%% Line 179
+		call 'erlang':'-'
+		    (_cor0, _cor1)
+	    in  %% Line 179
+		call 'erlang':'+'
+		    (_cor2, 8)
+'scan_comment'/6 =
+    %% Line 181
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[10|Cs],Cs1,L,Col,M,Ack> when 'true' ->
+	      %% Line 182
+	      apply 'seen_comment'/6
+		  (Cs, Cs1, L, Col, M, Ack)
+	  %% Line 183
+	  <[13|[10|Cs]],Cs1,L,Col,M,Ack> when 'true' ->
+	      %% Line 184
+	      apply 'seen_comment'/6
+		  (Cs, Cs1, L, Col, M, Ack)
+	  %% Line 185
+	  <[13|Cs],Cs1,L,Col,M,Ack> when 'true' ->
+	      %% Line 186
+	      apply 'seen_comment'/6
+		  (Cs, Cs1, L, Col, M, Ack)
+	  %% Line 187
+	  <[C|Cs],Cs1,L,Col,M,Ack> when 'true' ->
+	      %% Line 188
+	      apply 'scan_comment'/6
+		  (Cs, [C|Cs1], L, Col, M, Ack)
+	  %% Line 189
+	  <[],Cs1,L,Col,M,Ack> when 'true' ->
+	      %% Line 190
+	      apply 'seen_comment'/6
+		  ([], Cs1, L, Col, M, Ack)
+	  ( <_cor11,_cor10,_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'scan_comment',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'seen_comment'/6 =
+    %% Line 197
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <N> =
+	    %% Line 199
+	    call 'erlang':'-'
+		(_cor2, _cor1)
+	in  let <_cor7> =
+		%% Line 200
+		call 'string':'strip'
+		    (_cor4, 'left')
+	    in  let <Text> =
+		    %% Line 200
+		    call 'lists':'reverse'
+			(_cor7)
+		in  let <_cor9> =
+			%% Line 201
+			call 'erlang':'+'
+			    (_cor2, 1)
+		    in  let <Ack1> =
+			    %% Line 201
+			    [{_cor3,_cor9,N,Text}|_cor0]
+			in  let <_cor11> =
+				%% Line 202
+				call 'erlang':'+'
+				    (_cor3, 1)
+			    in  %% Line 202
+				apply 'scan_lines'/5
+				    (_cor5, _cor11, 0, 0, Ack1)
+'scan_string'/5 =
+    %% Line 204
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[Quote|Cs],_cor17,L,Col,Ack>
+	      when call 'erlang':'=:='
+		    (_cor17,
+		     Quote) ->
+	      let <N> =
+		  %% Line 205
+		  call 'erlang':'+'
+		      (Col, 1)
+	      in  %% Line 206
+		  apply 'scan_lines'/5
+		      (Cs, L, N, N, Ack)
+	  %% Line 207
+	  <[9|Cs],Quote,L,Col,Ack> when 'true' ->
+	      let <_cor6> =
+		  %% Line 208
+		  apply 'tab'/1
+		      (Col)
+	      in  %% Line 208
+		  apply 'scan_string'/5
+		      (Cs, Quote, L, _cor6, Ack)
+	  %% Line 209
+	  <[10|Cs],Quote,L,_X_Col,Ack> when 'true' ->
+	      let <_cor7> =
+		  %% Line 212
+		  call 'erlang':'+'
+		      (L, 1)
+	      in  %% Line 212
+		  apply 'scan_string'/5
+		      (Cs, Quote, _cor7, 0, Ack)
+	  %% Line 213
+	  <[13|[10|Cs]],Quote,L,_X_Col,Ack> when 'true' ->
+	      let <_cor8> =
+		  %% Line 214
+		  call 'erlang':'+'
+		      (L, 1)
+	      in  %% Line 214
+		  apply 'scan_string'/5
+		      (Cs, Quote, _cor8, 0, Ack)
+	  %% Line 215
+	  <[13|Cs],Quote,L,_X_Col,Ack> when 'true' ->
+	      let <_cor9> =
+		  %% Line 216
+		  call 'erlang':'+'
+		      (L, 1)
+	      in  %% Line 216
+		  apply 'scan_string'/5
+		      (Cs, Quote, _cor9, 0, Ack)
+	  %% Line 217
+	  <[92|[_X_C|Cs]],Quote,L,Col,Ack> when 'true' ->
+	      let <_cor10> =
+		  %% Line 218
+		  call 'erlang':'+'
+		      (Col, 2)
+	      in  %% Line 218
+		  apply 'scan_string'/5
+		      (Cs, Quote, L, _cor10, Ack)
+	  %% Line 219
+	  <[_X_C|Cs],Quote,L,Col,Ack> when 'true' ->
+	      let <_cor11> =
+		  %% Line 220
+		  call 'erlang':'+'
+		      (Col, 1)
+	      in  %% Line 220
+		  apply 'scan_string'/5
+		      (Cs, Quote, L, _cor11, Ack)
+	  %% Line 221
+	  <[],_X_Quote,_X_L,_X_Col,Ack> when 'true' ->
+	      %% Line 223
+	      Ack
+	  ( <_cor16,_cor15,_cor14,_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15,_cor14,_cor13,_cor12})
+		  -| [{'function_name',{'scan_string',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'scan_char'/4 =
+    %% Line 225
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[9|Cs],L,Col,Ack> when 'true' ->
+	      let <N> =
+		  %% Line 226
+		  apply 'tab'/1
+		      (Col)
+	      in  %% Line 227
+		  apply 'scan_lines'/5
+		      (Cs, L, N, N, Ack)
+	  %% Line 228
+	  <[10|Cs],L,_X_Col,Ack> when 'true' ->
+	      let <_cor5> =
+		  %% Line 229
+		  call 'erlang':'+'
+		      (L, 1)
+	      in  %% Line 229
+		  apply 'scan_lines'/5
+		      (Cs, _cor5, 0, 0, Ack)
+	  %% Line 230
+	  <[13|[10|Cs]],L,_X_Col,Ack> when 'true' ->
+	      let <_cor6> =
+		  %% Line 231
+		  call 'erlang':'+'
+		      (L, 1)
+	      in  %% Line 231
+		  apply 'scan_lines'/5
+		      (Cs, _cor6, 0, 0, Ack)
+	  %% Line 232
+	  <[13|Cs],L,_X_Col,Ack> when 'true' ->
+	      let <_cor7> =
+		  %% Line 233
+		  call 'erlang':'+'
+		      (L, 1)
+	      in  %% Line 233
+		  apply 'scan_lines'/5
+		      (Cs, _cor7, 0, 0, Ack)
+	  %% Line 234
+	  <[92|[_X_C|Cs]],L,Col,Ack> when 'true' ->
+	      let <N> =
+		  %% Line 235
+		  call 'erlang':'+'
+		      (Col, 2)
+	      in  %% Line 236
+		  apply 'scan_lines'/5
+		      (Cs, L, N, N, Ack)
+	  %% Line 237
+	  <[_X_C|Cs],L,Col,Ack> when 'true' ->
+	      let <N> =
+		  %% Line 238
+		  call 'erlang':'+'
+		      (Col, 1)
+	      in  %% Line 239
+		  apply 'scan_lines'/5
+		      (Cs, L, N, N, Ack)
+	  %% Line 240
+	  <[],_X_L,_X_Col,Ack> when 'true' ->
+	      %% Line 242
+	      Ack
+	  ( <_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'scan_char',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'join_lines'/1 =
+    %% Line 268
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{L,Col,Ind,Txt}|Lines]> when 'true' ->
+	      %% Line 269
+	      apply 'join_lines'/5
+		  (Lines, [Txt|[]], L, Col, Ind)
+	  %% Line 270
+	  <[]> when 'true' ->
+	      %% Line 271
+	      []
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'join_lines',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'join_lines'/5 =
+    %% Line 276
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[{L1,Col1,Ind1,Txt1}|Lines],Txt,L,Col,Ind> when 'true' ->
+	      %% Line 277
+	      case <> of
+		<>
+		    when try
+			  let <_cor5> =
+			      call 'erlang':'-'
+				  (L, 1)
+			  in  let <_cor6> =
+				  call 'erlang':'=:='
+				      (L1, _cor5)
+			      in  let <_cor7> =
+				      call 'erlang':'=:='
+					  (Col1, Col)
+				  in  let <_cor8> =
+					  call 'erlang':'+'
+					      (Ind, 1)
+				      in  let <_cor9> =
+					      call 'erlang':'=:='
+						  (_cor8, Col)
+					  in  let <_cor10> =
+						  call 'erlang':'and'
+						      (_cor7, _cor9)
+					      in  call 'erlang':'and'
+						      (_cor6, _cor10)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 282
+		    apply 'join_lines'/5
+			(Lines, [Txt1|Txt], L1, Col1, Ind1)
+		%% Line 283
+		<> when 'true' ->
+		    let <_cor11> =
+			%% Line 287
+			apply 'join_lines'/5
+			    (Lines, [Txt1|[]], L1, Col1, Ind1)
+		    in  %% Line 286
+			[{L,Col,Ind,Txt}|_cor11]
+	      end
+	  %% Line 289
+	  <[],Txt,L,Col,Ind> when 'true' ->
+	      %% Line 290
+	      [{L,Col,Ind,Txt}|[]]
+	  ( <_cor16,_cor15,_cor14,_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15,_cor14,_cor13,_cor12})
+		  -| [{'function_name',{'join_lines',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'filename'/1 =
+    %% Line 296
+    fun (_cor0) ->
+	case _cor0 of
+	  <[C|T]>
+	      when let <_cor1> =
+		    call 'erlang':'is_integer'
+			(C)
+		in  let <_cor2> =
+			call 'erlang':'>'
+			    (C, 0)
+		    in  call 'erlang':'and'
+			    (_cor1, _cor2) ->
+	      let <_cor3> =
+		  %% Line 297
+		  apply 'filename'/1
+		      (T)
+	      in  %% Line 297
+		  [C|_cor3]
+	  %% Line 298
+	  <[]> when 'true' ->
+	      %% Line 299
+	      []
+	  %% Line 300
+	  <N> when 'true' ->
+	      do  %% Line 301
+		  apply 'report_error'/2
+		      ([98|[97|[100|[32|[102|[105|[108|[101|[110|[97|[109|[101|[58|[32|[96|[126|[80|[39|[46]]]]]]]]]]]]]]]]]]], [N|[25]])
+		  %% Line 302
+		  call 'erlang':'exit'
+		      ('error')
+	end
+'error_read_file'/1 =
+    %% Line 304
+    fun (_cor0) ->
+	%% Line 305
+	apply 'report_error'/2
+	    ([101|[114|[114|[111|[114|[32|[114|[101|[97|[100|[105|[110|[103|[32|[102|[105|[108|[101|[32|[96|[126|[116|[115|[39|[46]]]]]]]]]]]]]]]]]]]]]]]]], [_cor0|[]])
+'report_error'/2 =
+    %% Line 307
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 308
+	    call 'lists':'concat'
+		(['erl_comment_scan'|[[58|[32]]|[_cor1|[[10]]]]])
+	in  %% Line 308
+	    call 'error_logger':'error_msg'
+		(_cor2, _cor0)
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('erl_comment_scan')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('erl_comment_scan', _cor0)
+end

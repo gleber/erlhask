@@ -1,0 +1,163 @@
+module 'alarm_handler' ['add_alarm_handler'/1,
+			'add_alarm_handler'/2,
+			'clear_alarm'/1,
+			'delete_alarm_handler'/1,
+			'get_alarms'/0,
+			'handle_call'/2,
+			'handle_event'/2,
+			'handle_info'/2,
+			'init'/1,
+			'module_info'/0,
+			'module_info'/1,
+			'set_alarm'/1,
+			'start_link'/0,
+			'terminate'/2]
+    attributes []
+'start_link'/0 =
+    %% Line 34
+    fun () ->
+	%% Line 35
+	case call 'gen_event':'start_link'
+		 ({'local','alarm_handler'}) of
+	  %% Line 36
+	  <{'ok',Pid}> when 'true' ->
+	      do  %% Line 37
+		  call 'gen_event':'add_handler'
+		      ('alarm_handler', 'alarm_handler', [])
+		  %% Line 38
+		  {'ok',Pid}
+	  %% Line 39
+	  <Error> when 'true' ->
+	      Error
+	end
+'set_alarm'/1 =
+    %% Line 47
+    fun (_cor0) ->
+	%% Line 48
+	call 'gen_event':'notify'
+	    ('alarm_handler', {'set_alarm',_cor0})
+'clear_alarm'/1 =
+    %% Line 54
+    fun (_cor0) ->
+	%% Line 55
+	call 'gen_event':'notify'
+	    ('alarm_handler', {'clear_alarm',_cor0})
+'get_alarms'/0 =
+    %% Line 61
+    fun () ->
+	%% Line 62
+	call 'gen_event':'call'
+	    ('alarm_handler', 'alarm_handler', 'get_alarms')
+'add_alarm_handler'/1 =
+    %% Line 64
+    fun (_cor0) ->
+	case _cor0 of
+	  <Module>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      %% Line 65
+	      call 'gen_event':'add_handler'
+		  ('alarm_handler', Module, [])
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'add_alarm_handler',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'add_alarm_handler'/2 =
+    %% Line 67
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Module,Args>
+	      when call 'erlang':'is_atom'
+		    (Module) ->
+	      %% Line 68
+	      call 'gen_event':'add_handler'
+		  ('alarm_handler', Module, Args)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'add_alarm_handler',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'delete_alarm_handler'/1 =
+    %% Line 70
+    fun (_cor0) ->
+	case _cor0 of
+	  <Module>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      %% Line 71
+	      call 'gen_event':'delete_handler'
+		  ('alarm_handler', Module, [])
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'delete_alarm_handler',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'init'/1 =
+    %% Line 76
+    fun (_cor0) ->
+	{'ok',[]}
+'handle_event'/2 =
+    %% Line 78
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'set_alarm',Alarm},Alarms> when 'true' ->
+	      do  %% Line 79
+		  call 'error_logger':'info_report'
+		      ([{'alarm_handler',{'set',Alarm}}|[]])
+		  %% Line 80
+		  {'ok',[Alarm|Alarms]}
+	  %% Line 81
+	  <{'clear_alarm',AlarmId},Alarms> when 'true' ->
+	      do  %% Line 82
+		  call 'error_logger':'info_report'
+		      ([{'alarm_handler',{'clear',AlarmId}}|[]])
+		  let <_cor2> =
+		      %% Line 83
+		      call 'lists':'keydelete'
+			  (AlarmId, 1, Alarms)
+		  in  %% Line 83
+		      {'ok',_cor2}
+	  %% Line 84
+	  <_cor5,Alarms> when 'true' ->
+	      %% Line 85
+	      {'ok',Alarms}
+	end
+'handle_info'/2 =
+    %% Line 87
+    fun (_cor1,_cor0) ->
+	{'ok',_cor0}
+'handle_call'/2 =
+    %% Line 89
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'get_alarms',Alarms> when 'true' ->
+	      {'ok',Alarms,Alarms}
+	  %% Line 90
+	  <_X_Query,Alarms> when 'true' ->
+	      {'ok',{'error','bad_query'},Alarms}
+	end
+'terminate'/2 =
+    %% Line 92
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'swap',Alarms> when 'true' ->
+	      %% Line 93
+	      {'alarm_handler',Alarms}
+	  %% Line 94
+	  <_cor4,_cor5> when 'true' ->
+	      %% Line 95
+	      'ok'
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('alarm_handler')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('alarm_handler', _cor0)
+end

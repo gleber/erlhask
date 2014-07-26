@@ -1,0 +1,2006 @@
+module 'dist_util' ['cancel_timer'/1,
+		    'handshake_other_started'/1,
+		    'handshake_we_started'/1,
+		    'module_info'/0,
+		    'module_info'/1,
+		    'reset_timer'/1,
+		    'setup_timer'/2,
+		    'shutdown'/3,
+		    'shutdown'/4,
+		    'start_timer'/1]
+    attributes [%% Line 44
+		'type' =
+		    %% Line 44
+		    [{{'record','hs_data'},[{'record_field',45,{'atom',45,'kernel_pid'}}|[{'record_field',46,{'atom',46,'other_node'}}|[{'record_field',47,{'atom',47,'this_node'}}|[{'record_field',48,{'atom',48,'socket'}}|[{'record_field',49,{'atom',49,'timer'}}|[{'record_field',51,{'atom',51,'this_flags'}}|[{'record_field',52,{'atom',52,'allowed'}}|[{'record_field',53,{'atom',53,'other_version'}}|[{'record_field',54,{'atom',54,'other_flags'}}|[{'record_field',55,{'atom',55,'other_started'}}|[{'record_field',56,{'atom',56,'f_send'}}|[{'record_field',57,{'atom',57,'f_recv'}}|[{'record_field',58,{'atom',58,'f_setopts_pre_nodeup'}}|[{'record_field',60,{'atom',60,'f_setopts_post_nodeup'}}|[{'record_field',62,{'atom',62,'f_getll'}}|[{'record_field',63,{'atom',63,'f_address'}}|[{'record_field',67,{'atom',67,'mf_tick'}}|[{'record_field',72,{'atom',72,'mf_getstat'}}|[{'record_field',76,{'atom',76,'request_type'},{'atom',76,'normal'}}]]]]]]]]]]]]]]]]]]],[]}],
+		%% Line 70
+		'type' =
+		    %% Line 70
+		    [{{'record','tick'},[{'record_field',70,{'atom',70,'read'},{'integer',70,0}}|[{'record_field',71,{'atom',71,'write'},{'integer',71,0}}|[{'record_field',72,{'atom',72,'tick'},{'integer',72,0}}|[{'record_field',73,{'atom',73,'ticked'},{'integer',73,0}}]]]],[]}],
+		%% Line 286
+		'spec' =
+		    %% Line 286
+		    [{{'shutdown',3},[{'type',286,'fun',[{'type',286,'product',[{'type',286,'atom',[]}|[{'type',286,'non_neg_integer',[]}|[{'type',286,'term',[]}]]]}|[{'type',286,'no_return',[]}]]}]}],
+		%% Line 291
+		'spec' =
+		    %% Line 291
+		    [{{'shutdown',4},[{'type',291,'fun',[{'type',291,'product',[{'type',291,'atom',[]}|[{'type',291,'non_neg_integer',[]}|[{'type',291,'term',[]}|[{'type',291,'term',[]}]]]]}|[{'type',291,'no_return',[]}]]}]}]]
+'remove_flag'/2 =
+    %% Line 76
+    fun (_cor1,_cor0) ->
+	%% Line 77
+	case call 'erlang':'band'
+		 (_cor0, _cor1) of
+	  %% Line 78
+	  <0> when 'true' ->
+	      _cor0
+	  %% Line 80
+	  <_cor5> when 'true' ->
+	      %% Line 81
+	      call 'erlang':'-'
+		  (_cor0, _cor1)
+	end
+'adjust_flags'/2 =
+    %% Line 84
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 85
+	    call 'erlang':'band'
+		(1, _cor1)
+	in  %% Line 85
+	    case call 'erlang':'band'
+		     (_cor2, _cor0) of
+	      %% Line 86
+	      <0> when 'true' ->
+		  let <_cor4> =
+		      %% Line 87
+		      apply 'remove_flag'/2
+			  (1, _cor1)
+		  in  let <_cor3> =
+			  %% Line 88
+			  apply 'remove_flag'/2
+			      (1, _cor0)
+		      in  %% Line 87
+			  {_cor4,_cor3}
+	      %% Line 89
+	      <_cor8> when 'true' ->
+		  %% Line 90
+		  {_cor1,_cor0}
+	    end
+'publish_flag'/2 =
+    %% Line 93
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'hidden',_cor5> when 'true' ->
+	      %% Line 94
+	      0
+	  %% Line 95
+	  <_cor6,OtherNode> when 'true' ->
+	      %% Line 96
+	      case call 'net_kernel':'publish_on_node'
+		       (OtherNode) of
+		%% Line 97
+		<'true'> when 'true' ->
+		    %% Line 98
+		    1
+		%% Line 99
+		<_cor7> when 'true' ->
+		    %% Line 100
+		    0
+	      end
+	end
+'make_this_flags'/2 =
+    %% Line 103
+    fun (_cor1,_cor0) ->
+	let <_cor16> =
+	    %% Line 104
+	    apply 'publish_flag'/2
+		(_cor1, _cor0)
+	in  %% Line 104
+	    call 'erlang':'bor'
+		(_cor16, 229372)
+'handshake_other_started'/1 =
+    %% Line 122
+    fun (_cor0) ->
+	case _cor0 of
+	  <HSData0 = {'hs_data',_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,ReqType}> when 'true' ->
+	      %% Line 123
+	      case apply 'recv_name'/1
+		       (HSData0) of
+		<{PreOtherFlags,Node,Version}> when 'true' ->
+		    let <PreThisFlags> =
+			%% Line 124
+			apply 'make_this_flags'/2
+			    (ReqType, Node)
+		    in  %% Line 125
+			case apply 'adjust_flags'/2
+				 (PreThisFlags, %% Line 126
+						PreOtherFlags) of
+			  <{ThisFlags,OtherFlags}> when 'true' ->
+			      let <_cor5> =
+				  %% Line 131
+				  call 'erlang':'setelement'
+				      (11, HSData0, 'true')
+			      in  let <_cor6> =
+				      %% Line 128
+				      call 'erlang':'setelement'
+					  (10, _cor5, OtherFlags)
+				  in  let <_cor7> =
+					  %% Line 129
+					  call 'erlang':'setelement'
+					      (9, _cor6, Version)
+				      in  let <_cor8> =
+					      %% Line 127
+					      call 'erlang':'setelement'
+						  (7, _cor7, ThisFlags)
+					  in  let <_cor10> =
+						  %% Line 130
+						  call 'erlang':'setelement'
+						      (3, _cor8, Node)
+					      in  do  %% Line 132
+						      apply 'check_dflag_xnc'/1
+							  (_cor10)
+						      do  %% Line 133
+							  apply 'is_allowed'/1
+							      (_cor10)
+							  do  %% Line 136
+							      apply 'mark_pending'/1
+								  (_cor10)
+							      %% Line 137
+							      case apply 'get_cookies'/1
+								       (Node) of
+								<{MyCookie,HisCookie}> when 'true' ->
+								    let <ChallengeA> =
+									%% Line 138
+									apply 'gen_challenge'/0
+									    ()
+								    in  do  %% Line 139
+									    apply 'send_challenge'/2
+										(_cor10, ChallengeA)
+									    %% Line 140
+									    ( case _cor10 of
+										( <( {'hs_data',_cor57,_cor58,_cor59,_cor60,_rec1,_cor61,_cor62,_cor63,_cor64,_cor65,_cor66,_cor67,_cor68,_cor69,_cor70,_cor71,_cor72,_cor73,_cor74}
+										     -| ['compiler_generated'] )> when 'true' ->
+										      do  apply 'reset_timer'/1
+											      (_rec1)
+											  let <ChallengeB> =
+											      %% Line 141
+											      apply 'recv_challenge_reply'/3
+												  (_cor10, ChallengeA, MyCookie)
+											  in  let <_cor17> =
+												  %% Line 142
+												  apply 'gen_digest'/2
+												      (ChallengeB, HisCookie)
+											      in  do  %% Line 142
+												      apply 'send_challenge_ack'/2
+													  (_cor10, _cor17)
+												      %% Line 144
+												      apply 'connection'/1
+													  (_cor10)
+										  -| ['compiler_generated'] )
+										( <_cor75> when 'true' ->
+										      ( call ( 'erlang'
+											       -| ['compiler_generated'] ):( 'error'
+															     -| ['compiler_generated'] )
+											    (( {'badrecord','hs_data'}
+											       -| ['compiler_generated'] ))
+											-| ['compiler_generated'] )
+										  -| ['compiler_generated'] )
+									      end
+									      -| ['compiler_generated'] )
+								( <_cor12> when 'true' ->
+								      primop 'match_fail'
+									  ({'badmatch',_cor12})
+								  -| ['compiler_generated'] )
+							      end
+			  ( <_cor3> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor3})
+			    -| ['compiler_generated'] )
+			end
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor18> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor18})
+		  -| [{'function_name',{'handshake_other_started',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'is_allowed'/1 =
+    %% Line 150
+    fun (_cor0) ->
+	case _cor0 of
+	  <HSData = {'hs_data',_cor3,Node,_cor4,_cor5,_cor6,_cor7,%% Line 151
+								  Allowed,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19}> when 'true' ->
+	      %% Line 152
+	      case call 'lists':'member'
+		       (Node, Allowed) of
+		%% Line 153
+		<'false'>
+		    when call 'erlang':'=/='
+			  (Allowed,
+			   []) ->
+		    do  %% Line 154
+			apply 'send_status'/2
+			    (HSData, 'not_allowed')
+			do  %% Line 155
+			    call 'error_logger':'error_msg'
+				([42|[42|[32|[67|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[97|[116|[116|[101|[109|[112|[116|[32|[102|[114|[111|[109|[32|[100|[105|[115|[97|[108|[108|[111|[119|[101|[100|[32|[110|[111|[100|[101|[32|[126|[119|[32|[42|[42|[32|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 156
+																																								    [Node|[]])
+			    %% Line 157
+			    call 'dist_util':'shutdown'
+				('dist_util', 157, Node)
+		%% Line 158
+		<_cor20> when 'true' ->
+		    'true'
+	      end
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'is_allowed',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'check_dflag_xnc'/1 =
+    %% Line 165
+    fun (_cor0) ->
+	case _cor0 of
+	  <HSData = {'hs_data',_cor22,Node,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,%% Line 166
+										     OtherFlags,%% Line 167
+												OtherStarted,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 169
+		  case call 'erlang':'system_info'
+			   ('compat_rel') of
+		    %% Line 170
+		    <R>
+			when call 'erlang':'>='
+			      (R,
+			       10) ->
+			%% Line 171
+			256
+		    %% Line 172
+		    <_cor38> when 'true' ->
+			%% Line 173
+			0
+		  end
+	      in  let <ReqXncFlags> =
+		      %% Line 175
+		      call 'erlang':'bor'
+			  (4, _cor3)
+		  in  let <_cor6> =
+			  %% Line 176
+			  call 'erlang':'band'
+			      (OtherFlags, ReqXncFlags)
+		      in  %% Line 176
+			  case <> of
+			    %% Line 177
+			    <>
+				when call 'erlang':'=:='
+				      (_cor6,
+				       ReqXncFlags) ->
+				%% Line 178
+				'ok'
+			    %% Line 179
+			    <> when 'true' ->
+				let <_cor9> =
+				    %% Line 180
+				    call 'erlang':'band'
+					(OtherFlags, 4)
+				in  let <_cor10> =
+					%% Line 180
+					call 'erlang':'=:='
+					    (_cor9, 4)
+				    in  let <_cor7> =
+					    %% Line 181
+					    call 'erlang':'band'
+						(OtherFlags, _cor3)
+					in  let <_cor8> =
+						%% Line 181
+						call 'erlang':'=:='
+						    (_cor7, _cor3)
+					    in  let <_cor12> =
+						    %% Line 180
+						    case <_cor10,_cor8> of
+						      %% Line 182
+						      <'false','false'> when 'true' ->
+							  [114|[101|[102|[101|[114|[101|[110|[99|[101|[115|[44|[32|[112|[105|[100|[115|[32|[97|[110|[100|[32|[112|[111|[114|[116|[115]]]]]]]]]]]]]]]]]]]]]]]]]]
+						      %% Line 183
+						      <'true','false'> when 'true' ->
+							  [112|[105|[100|[115|[32|[97|[110|[100|[32|[112|[111|[114|[116|[115]]]]]]]]]]]]]]
+						      %% Line 184
+						      <'false','true'> when 'true' ->
+							  [114|[101|[102|[101|[114|[101|[110|[99|[101|[115]]]]]]]]]]
+						      ( <_fol45,_fol46> when 'true' ->
+							    let <_cor11> = {_fol45,_fol46}
+							    in  primop 'match_fail'
+								    ({'case_clause',_cor11})
+							-| ['compiler_generated'] )
+						    end
+						in  let <_cor40,Dir,How> =
+							%% Line 186
+							case OtherStarted of
+							  %% Line 187
+							  <'true'> when 'true' ->
+							      do  %% Line 188
+								  apply 'send_status'/2
+								      (HSData, 'not_allowed')
+								  <%% Line 190
+								   [114|[101|[106|[101|[99|[116|[101|[100]]]]]]]],%% Line 189
+														  [102|[114|[111|[109]]]],%% Line 190
+																	  [114|[101|[106|[101|[99|[116|[101|[100]]]]]]]]>
+							  %% Line 191
+							  <_cor39> when 'true' ->
+							      <%% Line 193
+							       [97|[98|[111|[114|[116|[101|[100]]]]]]],%% Line 192
+												       [116|[111]],%% Line 193
+														   [97|[98|[111|[114|[116|[101|[100]]]]]]]>
+							end
+						    in  let <_cor19> =
+							    %% Line 197
+							    call 'erlang':'node'
+								()
+							in  do  %% Line 195
+								call 'error_logger':'error_msg'
+								    ([42|[42|[32|[126|[119|[58|[32|[67|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[97|[116|[116|[101|[109|[112|[116|[32|[126|[115|[32|[110|[111|[100|[101|[32|[126|[119|[32|[126|[115|[32|[115|[105|[110|[99|[101|[32|[105|[116|[32|[99|[97|[110|[110|[111|[116|[32|[104|[97|[110|[100|[108|[101|[32|[101|[120|[116|[101|[110|[100|[101|[100|[32|[126|[115|[46|[32|[42|[42|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 197
+																																																																	   [_cor19|[Dir|[Node|[How|[_cor12|[]]]]]])
+								%% Line 198
+								call 'dist_util':'shutdown'
+								    ('dist_util', 198, Node)
+			  end
+	  ( <_cor21> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor21})
+		  -| [{'function_name',{'check_dflag_xnc',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mark_pending'/1 =
+    %% Line 205
+    fun (_cor0) ->
+	case _cor0 of
+	  <HSData = {'hs_data',Kernel,%% Line 206
+				      Node,%% Line 207
+					   MyNode,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31}> when 'true' ->
+	      let <_cor7> =
+		  %% Line 209
+		  apply _cor28
+		      (_cor16, %% Line 210
+			       Node)
+	      in  %% Line 208
+		  case apply 'do_mark_pending'/5
+			   (Kernel, MyNode, Node, _cor7, _cor21) of
+		    %% Line 212
+		    <'ok'> when 'true' ->
+			do  %% Line 213
+			    apply 'send_status'/2
+				(HSData, 'ok')
+			    %% Line 214
+			    apply 'reset_timer'/1
+				(_cor17)
+		    %% Line 216
+		    <'ok_pending'> when 'true' ->
+			do  %% Line 217
+			    apply 'send_status'/2
+				(HSData, 'ok_simultaneous')
+			    %% Line 218
+			    apply 'reset_timer'/1
+				(_cor17)
+		    %% Line 220
+		    <'nok_pending'> when 'true' ->
+			do  %% Line 221
+			    apply 'send_status'/2
+				(HSData, 'nok')
+			    %% Line 222
+			    call 'dist_util':'shutdown'
+				('dist_util', 222, Node)
+		    %% Line 224
+		    <'up_pending'> when 'true' ->
+			do  %% Line 228
+			    apply 'do_alive'/1
+				(HSData)
+			    do  %% Line 233
+				apply 'wait_pending'/1
+				    (Kernel)
+				%% Line 234
+				apply 'reset_timer'/1
+				    (_cor17)
+		    %% Line 236
+		    <'already_pending'> when 'true' ->
+			%% Line 239
+			call 'dist_util':'shutdown'
+			    ('dist_util', 239, Node)
+		    ( <_cor14> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor14})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15})
+		  -| [{'function_name',{'mark_pending',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'wait_pending'/1 =
+    %% Line 248
+    fun (_cor0) ->
+	%% Line 249
+	receive
+	  %% Line 250
+	  <{_cor2,'pending'}>
+	      when call 'erlang':'=:='
+		    (_cor2,
+		     _cor0) ->
+	      %% Line 253
+	      'ok'
+	after 'infinity' ->
+	  'true'
+'do_alive'/1 =
+    %% Line 256
+    fun (_cor0) ->
+	case _cor0 of
+	  <HSData = {'hs_data',_cor3,Node,_cor4,_cor5,_cor6,_cor7,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20}> when 'true' ->
+	      do  %% Line 257
+		  apply 'send_status'/2
+		      (HSData, 'alive')
+		  %% Line 258
+		  case apply 'recv_status'/1
+			   (HSData) of
+		    %% Line 259
+		    <'true'> when 'true' ->
+			'true'
+		    %% Line 260
+		    <'false'> when 'true' ->
+			call 'dist_util':'shutdown'
+			    ('dist_util', 260, Node)
+		    ( <_cor1> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor1})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'do_alive',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'do_mark_pending'/5 =
+    %% Line 263
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor6> =
+	    %% Line 264
+	    call 'erlang':'self'
+		()
+	in  let <_cor5> =
+		%% Line 265
+		apply 'publish_type'/1
+		    (_cor0)
+	    in  do  %% Line 264
+		    call 'erlang':'!'
+			(_cor4, {_cor6,{'accept_pending',_cor3,_cor2,_cor1,_cor5}})
+		    %% Line 266
+		    receive
+		      %% Line 267
+		      <{_cor12,{'accept_pending',Ret}}>
+			  when call 'erlang':'=:='
+				(_cor12,
+				 _cor4) ->
+			  %% Line 270
+			  Ret
+		    after 'infinity' ->
+		      'true'
+'is_pending'/2 =
+    %% Line 273
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 274
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 274
+		call 'erlang':'!'
+		    (_cor1, {_cor2,{'is_pending',_cor0}})
+		%% Line 275
+		receive
+		  %% Line 276
+		  <{_cor5,{'is_pending',Reply}}>
+		      when call 'erlang':'=:='
+			    (_cor5,
+			     _cor1) ->
+		      Reply
+		after 'infinity' ->
+		  'true'
+'shutdown'/3 =
+    %% Line 288
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 289
+	apply 'shutdown'/4
+	    (_cor2, _cor1, _cor0, 'shutdown')
+'shutdown'/4 =
+    %% Line 293
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 297
+	    apply 'flush_down'/0
+		()
+	    %% Line 298
+	    call 'erlang':'exit'
+		(_cor0)
+'flush_down'/0 =
+    %% Line 304
+    fun () ->
+	%% Line 305
+	receive
+	  %% Line 306
+	  <{From,'get_status'}> when 'true' ->
+	      let <_cor0> =
+		  %% Line 307
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 307
+		      call 'erlang':'!'
+			  (From, {_cor0,'get_status','error'})
+		      %% Line 308
+		      apply 'flush_down'/0
+			  ()
+	after %% Line 309
+	      0 ->
+	  %% Line 310
+	  'ok'
+'handshake_we_started'/1 =
+    %% Line 313
+    fun (_cor0) ->
+	case _cor0 of
+	  <PreHSData = {'hs_data',_cor20,%% Line 314
+					 Node,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,ReqType}> when 'true' ->
+	      let <PreThisFlags> =
+		  %% Line 315
+		  apply 'make_this_flags'/2
+		      (ReqType, Node)
+	      in  let <_cor4> =
+		      %% Line 316
+		      call 'erlang':'setelement'
+			  (7, PreHSData, PreThisFlags)
+		  in  do  %% Line 317
+			  apply 'send_name'/1
+			      (_cor4)
+			  do  %% Line 318
+			      apply 'recv_status'/1
+				  (_cor4)
+			      %% Line 319
+			      case apply 'recv_challenge'/1
+				       (_cor4) of
+				<{PreOtherFlags,ChallengeA}> when 'true' ->
+				    %% Line 320
+				    case apply 'adjust_flags'/2
+					     (PreThisFlags, PreOtherFlags) of
+				      <{ThisFlags,OtherFlags}> when 'true' ->
+					  %% Line 321
+					  case _cor4 of
+					    <{'hs_data',_cor57,_cor58,_cor59,_cor60,_cor61,_cor62,_cor63,_cor64,_cor65,_cor66,_cor67,_cor68,_cor69,_cor70,_cor71,_cor72,_cor73,_cor74,_cor75}> when 'true' ->
+						let <_cor9> =
+						    %% Line 323
+						    call 'erlang':'setelement'
+							(11, _cor4, 'false')
+						in  let <_cor10> =
+							%% Line 322
+							call 'erlang':'setelement'
+							    (10, _cor9, OtherFlags)
+						    in  let <_cor12> =
+							    call 'erlang':'setelement'
+								(7, _cor10, ThisFlags)
+							in  do  %% Line 324
+								apply 'check_dflag_xnc'/1
+								    (_cor12)
+								let <MyChallenge> =
+								    %% Line 325
+								    apply 'gen_challenge'/0
+									()
+								in  %% Line 326
+								    case apply 'get_cookies'/1
+									     (Node) of
+								      <{MyCookie,HisCookie}> when 'true' ->
+									  let <_cor16> =
+									      %% Line 328
+									      apply 'gen_digest'/2
+										  (ChallengeA, HisCookie)
+									  in  do  %% Line 327
+										  apply 'send_challenge_reply'/3
+										      (_cor12, MyChallenge, _cor16)
+										  %% Line 329
+										  ( case _cor12 of
+										      ( <( {'hs_data',_cor77,_cor78,_cor79,_cor80,_rec10,_cor81,_cor82,_cor83,_cor84,_cor85,_cor86,_cor87,_cor88,_cor89,_cor90,_cor91,_cor92,_cor93,_cor94}
+											   -| ['compiler_generated'] )> when 'true' ->
+											    do  apply 'reset_timer'/1
+												    (_rec10)
+												do  %% Line 330
+												    apply 'recv_challenge_ack'/3
+													(_cor12, MyChallenge, MyCookie)
+												    %% Line 331
+												    apply 'connection'/1
+													(_cor12)
+											-| ['compiler_generated'] )
+										      ( <_cor95> when 'true' ->
+											    ( call ( 'erlang'
+												     -| ['compiler_generated'] ):( 'error'
+																   -| ['compiler_generated'] )
+												  (( {'badrecord','hs_data'}
+												     -| ['compiler_generated'] ))
+											      -| ['compiler_generated'] )
+											-| ['compiler_generated'] )
+										    end
+										    -| ['compiler_generated'] )
+								      ( <_cor15> when 'true' ->
+									    primop 'match_fail'
+										({'badmatch',_cor15})
+									-| ['compiler_generated'] )
+								    end
+					    ( <_cor76> when 'true' ->
+						  ( call ( 'erlang'
+							   -| ['compiler_generated'] ):( 'error'
+											 -| ['compiler_generated'] )
+							(( {'badrecord','hs_data'}
+							   -| ['compiler_generated'] ))
+						    -| ['compiler_generated'] )
+					      -| ['compiler_generated'] )
+					  end
+				      ( <_cor7> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_cor7})
+					-| ['compiler_generated'] )
+				    end
+				( <_cor6> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor6})
+				  -| ['compiler_generated'] )
+			      end
+	  ( <_cor19> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor19})
+		  -| [{'function_name',{'handshake_we_started',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'connection'/1 =
+    %% Line 337
+    fun (_cor0) ->
+	case _cor0 of
+	  <HSData = {'hs_data',_cor18,Node,_cor19,%% Line 338
+						  Socket,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,%% Line 340
+														 FPreNodeup,%% Line 341
+															    FPostNodeup,_cor28,%% Line 339
+																	       FAddress,_cor29,_cor30,_cor31}> when 'true' ->
+	      do  %% Line 342
+		  apply 'cancel_timer'/1
+		      (_cor20)
+		  let <PType> =
+		      %% Line 343
+		      apply 'publish_type'/1
+			  (_cor24)
+		  in  %% Line 344
+		      case apply FPreNodeup
+			       (Socket) of
+			%% Line 345
+			<'ok'> when 'true' ->
+			    do  %% Line 346
+				apply 'do_setnode'/1
+				    (HSData)
+				let <Address> =
+				    %% Line 347
+				    apply FAddress
+					(Socket, Node)
+				in  do  %% Line 348
+					apply 'mark_nodeup'/2
+					    (HSData, Address)
+					%% Line 349
+					case apply FPostNodeup
+						 (Socket) of
+					  %% Line 350
+					  <'ok'> when 'true' ->
+					      %% Line 351
+					      apply 'con_loop'/9
+						  (_cor18, %% Line 352
+							   Node, %% Line 353
+								 Socket, %% Line 354
+									 Address, _cor19, %% Line 356
+											  PType, %% Line 357
+												 {'tick',0,0,0,0}, _cor29, _cor30)
+					  %% Line 360
+					  <_cor146> when 'true' ->
+					      %% Line 361
+					      call 'dist_util':'shutdown'
+						  ('dist_util', 361, Node, 'connection_setup_failed')
+					end
+			%% Line 363
+			<_cor147> when 'true' ->
+			    %% Line 364
+			    call 'dist_util':'shutdown'
+				('dist_util', 364, Node)
+		      end
+	  ( <_cor17> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor17})
+		  -| [{'function_name',{'connection',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'gen_digest'/2 =
+    %% Line 368
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Challenge,Cookie>
+	      when let <_cor2> =
+		    call 'erlang':'is_integer'
+			(Challenge)
+		in  let <_cor3> =
+			call 'erlang':'is_atom'
+			    (Cookie)
+		    in  call 'erlang':'and'
+			    (_cor2, _cor3) ->
+	      let <_cor4> =
+		  %% Line 369
+		  call 'erlang':'atom_to_list'
+		      (Cookie)
+	      in  let <_cor5> =
+		      %% Line 369
+		      call 'erlang':'integer_to_list'
+			  (Challenge)
+		  in  %% Line 369
+		      call 'erlang':'md5'
+			  ([_cor4|_cor5])
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'gen_digest',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'gen_challenge'/0 =
+    %% Line 375
+    fun () ->
+	%% Line 376
+	case call 'erlang':'now'
+		 () of
+	  <{A,B,C}> when 'true' ->
+	      %% Line 377
+	      case call 'erlang':'statistics'
+		       ('reductions') of
+		<{D,_cor17}> when 'true' ->
+		    %% Line 378
+		    case call 'erlang':'statistics'
+			     ('runtime') of
+		      <{E,_cor18}> when 'true' ->
+			  %% Line 379
+			  case call 'erlang':'statistics'
+				   ('wall_clock') of
+			    <{F,_cor19}> when 'true' ->
+				%% Line 380
+				case call 'erlang':'statistics'
+					 ('garbage_collection') of
+				  <{G,H,_cor20}> when 'true' ->
+				      let <_cor11> =
+					  %% Line 383
+					  call 'erlang':'bsl'
+					      (A, 24)
+				      in  let <_cor10> =
+					      %% Line 383
+					      call 'erlang':'bsl'
+						  (E, 16)
+					  in  let <_cor12> =
+						  %% Line 383
+						  call 'erlang':'+'
+						      (_cor11, _cor10)
+					      in  let <_cor9> =
+						      %% Line 383
+						      call 'erlang':'bsl'
+							  (G, 8)
+						  in  let <_cor13> =
+							  %% Line 383
+							  call 'erlang':'+'
+							      (_cor12, _cor9)
+						      in  let <_cor14> =
+							      %% Line 383
+							      call 'erlang':'+'
+								  (_cor13, F)
+							  in  let <_cor7> =
+								  %% Line 384
+								  call 'erlang':'bsl'
+								      (C, 16)
+							      in  let <_cor8> =
+								      %% Line 384
+								      call 'erlang':'+'
+									  (B, _cor7)
+								  in  let <_cor15> =
+									  %% Line 383
+									  call 'erlang':'bxor'
+									      (_cor14, _cor8)
+								      in  let <_cor5> =
+									      %% Line 385
+									      call 'erlang':'bsl'
+										  (H, 16)
+									  in  let <_cor6> =
+										  %% Line 385
+										  call 'erlang':'+'
+										      (D, _cor5)
+									      in  let <_cor16> =
+										      %% Line 384
+										      call 'erlang':'bxor'
+											  (_cor15, _cor6)
+										  in  %% Line 385
+										      call 'erlang':'band'
+											  (_cor16, 4294967295)
+				  ( <_cor4> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor4})
+				    -| ['compiler_generated'] )
+				end
+			    ( <_cor3> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor3})
+			      -| ['compiler_generated'] )
+			  end
+		      ( <_cor2> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor2})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor0> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor0})
+	    -| ['compiler_generated'] )
+	end
+'get_cookies'/1 =
+    %% Line 390
+    fun (_cor0) ->
+	%% Line 391
+	case call 'auth':'get_cookie'
+		 (_cor0) of
+	  %% Line 392
+	  <X>
+	      when call 'erlang':'is_atom'
+		    (X) ->
+	      %% Line 393
+	      {X,X}
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'do_setnode'/1 =
+    %% Line 401
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'hs_data',_cor5,Node,_cor6,Socket,_cor7,_cor8,_cor9,%% Line 402
+								Version,%% Line 402
+									Flags,_cor10,_cor11,_cor12,_cor13,_cor14,%% Line 403
+														 GetLL,_cor15,_cor16,_cor17,_cor18}> when 'true' ->
+	      %% Line 404
+	      case apply GetLL
+		       (Socket) of
+		%% Line 405
+		<{'ok',Port}> when 'true' ->
+		    let <_cor1> =
+			catch
+			    %% Line 411
+			    call 'erlang':'setnode'
+				(Node, Port, %% Line 412
+					     {Flags,Version,'',''})
+		    in  %% Line 410
+			case _cor1 of
+			  %% Line 413
+			  <{'EXIT',{'system_limit',_cor19}}> when 'true' ->
+			      do  %% Line 414
+				  call 'error_logger':'error_msg'
+				      ([42|[42|[32|[68|[105|[115|[116|[114|[105|[98|[117|[116|[105|[111|[110|[32|[115|[121|[115|[116|[101|[109|[32|[108|[105|[109|[105|[116|[32|[114|[101|[97|[99|[104|[101|[100|[44|[32|[110|[111|[32|[116|[97|[98|[108|[101|[32|[115|[112|[97|[99|[101|[32|[108|[101|[102|[116|[32|[102|[111|[114|[32|[110|[111|[100|[101|[32|[126|[119|[32|[42|[42|[32|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 416
+																																																										[Node|[]])
+				  %% Line 417
+				  call 'dist_util':'shutdown'
+				      ('dist_util', 417, Node)
+			  %% Line 418
+			  <{'EXIT',Other}> when 'true' ->
+			      %% Line 419
+			      call 'erlang':'exit'
+				  (Other)
+			  %% Line 420
+			  <_X_Else> when 'true' ->
+			      %% Line 421
+			      'ok'
+			end
+		%% Line 423
+		<_cor20> when 'true' ->
+		    do  %% Line 424
+			call 'error_logger':'error_msg'
+			    ([42|[42|[32|[68|[105|[115|[116|[114|[105|[98|[117|[116|[105|[111|[110|[32|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[101|[114|[114|[111|[114|[44|[32|[99|[111|[117|[108|[100|[32|[110|[111|[116|[32|[103|[101|[116|[32|[108|[111|[119|[32|[108|[101|[118|[101|[108|[32|[112|[111|[114|[116|[32|[102|[111|[114|[32|[110|[111|[100|[101|[32|[126|[119|[32|[42|[42|[32|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 426
+																																																												      [Node|[]])
+			%% Line 427
+			call 'dist_util':'shutdown'
+			    ('dist_util', 427, Node)
+	      end
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'do_setnode',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mark_nodeup'/2 =
+    %% Line 430
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'hs_data',Kernel,%% Line 431
+			     Node,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,%% Line 432
+									    Flags,%% Line 433
+										  OtherStarted,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24},%% Line 434
+																			       Address> when 'true' ->
+	      let <_cor3> =
+		  %% Line 435
+		  call 'erlang':'self'
+		      ()
+	      in  let <_cor2> =
+		      %% Line 435
+		      apply 'publish_type'/1
+			  (Flags)
+		  in  do  %% Line 435
+			  call 'erlang':'!'
+			      (Kernel, {_cor3,{'nodeup',Node,Address,_cor2,%% Line 436
+									   'true'}})
+			  %% Line 437
+			  receive
+			    %% Line 438
+			    <{_cor25,'inserted'}>
+				when call 'erlang':'=:='
+				      (_cor25,
+				       Kernel) ->
+				%% Line 439
+				'ok'
+			    %% Line 440
+			    <{_cor26,'bad_request'}>
+				when call 'erlang':'=:='
+				      (_cor26,
+				       Kernel) ->
+				let <_cor5> =
+				    %% Line 441
+				    case OtherStarted of
+				      %% Line 442
+				      <'true'> when 'true' ->
+					  %% Line 443
+					  [97|[99|[99|[101|[112|[116|[105|[110|[103|[32|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110]]]]]]]]]]]]]]]]]]]]
+				      %% Line 444
+				      <_cor27> when 'true' ->
+					  %% Line 445
+					  [105|[110|[105|[116|[105|[97|[116|[105|[110|[103|[32|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110]]]]]]]]]]]]]]]]]]]]]
+				    end
+				in  let <_cor7> =
+					%% Line 449
+					call 'erlang':'self'
+					    ()
+				    in  do  %% Line 447
+					    call 'error_logger':'error_msg'
+						([70|[97|[116|[97|[108|[58|[32|[126|[112|[32|[119|[97|[115|[32|[110|[111|[116|[32|[97|[108|[108|[111|[119|[101|[100|[32|[116|[111|[32|[115|[101|[110|[100|[32|[123|[110|[111|[100|[101|[117|[112|[44|[32|[126|[112|[125|[32|[116|[111|[32|[107|[101|[114|[110|[101|[108|[32|[119|[104|[101|[110|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 449
+																																																					   [_cor7|[Node|[_cor5|[]]]])
+					    %% Line 450
+					    call 'dist_util':'shutdown'
+						('dist_util', 450, Node)
+			  after 'infinity' ->
+			    'true'
+	  ( <_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8})
+		  -| [{'function_name',{'mark_nodeup',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'con_loop'/9 =
+    %% Line 453
+    fun (_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 455
+	receive
+	  %% Line 456
+	  <{'tcp_closed',_cor22}>
+	      when call 'erlang':'=:='
+		    (_cor22,
+		     _cor6) ->
+	      %% Line 457
+	      call 'dist_util':'shutdown'
+		  ('dist_util', 457, _cor7, 'connection_closed')
+	  %% Line 458
+	  <{_cor23,'disconnect'}>
+	      when call 'erlang':'=:='
+		    (_cor23,
+		     _cor8) ->
+	      %% Line 459
+	      call 'dist_util':'shutdown'
+		  ('dist_util', 459, _cor7, 'disconnected')
+	  %% Line 460
+	  <{_cor24,'aux_tick'}>
+	      when call 'erlang':'=:='
+		    (_cor24,
+		     _cor8) ->
+	      do  %% Line 461
+		  case apply _cor0
+			   (_cor6) of
+		    %% Line 462
+		    <{'ok',_cor25,_cor26,PendWrite}> when 'true' ->
+			%% Line 463
+			apply 'send_tick'/3
+			    (_cor6, PendWrite, _cor1)
+		    %% Line 464
+		    <_cor27> when 'true' ->
+			'ok'
+		  end
+		  %% Line 467
+		  apply 'con_loop'/9
+		      (_cor8, _cor7, _cor6, _cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 469
+	  <{_cor28,'tick'}>
+	      when call 'erlang':'=:='
+		    (_cor28,
+		     _cor8) ->
+	      %% Line 470
+	      case apply 'send_tick'/5
+		       (_cor6, _cor2, _cor3, _cor1, _cor0) of
+		%% Line 472
+		<{'ok',NewTick}> when 'true' ->
+		    %% Line 473
+		    apply 'con_loop'/9
+			(_cor8, _cor7, _cor6, _cor5, _cor4, _cor3, %% Line 474
+								   NewTick, _cor1, _cor0)
+		%% Line 476
+		<{'error','not_responding'}> when 'true' ->
+		    do  %% Line 477
+			call 'error_logger':'error_msg'
+			    ([42|[42|[32|[78|[111|[100|[101|[32|[126|[112|[32|[110|[111|[116|[32|[114|[101|[115|[112|[111|[110|[100|[105|[110|[103|[32|[42|[42|[126|[110|[42|[42|[32|[82|[101|[109|[111|[118|[105|[110|[103|[32|[40|[116|[105|[109|[101|[100|[111|[117|[116|[41|[32|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[42|[42|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 479
+																																																			       [_cor7|[]])
+			%% Line 480
+			call 'dist_util':'shutdown'
+			    ('dist_util', 480, _cor7, 'net_tick_timeout')
+		%% Line 481
+		<_X_Other> when 'true' ->
+		    %% Line 482
+		    call 'dist_util':'shutdown'
+			('dist_util', 482, _cor7, 'send_net_tick_failed')
+	      end
+	  %% Line 484
+	  <{From,'get_status'}> when 'true' ->
+	      %% Line 485
+	      case apply _cor0
+		       (_cor6) of
+		%% Line 486
+		<{'ok',Read,Write,_cor29}> when 'true' ->
+		    let <_cor11> =
+			%% Line 487
+			call 'erlang':'self'
+			    ()
+		    in  do  %% Line 487
+			    call 'erlang':'!'
+				(From, {_cor11,'get_status',{'ok',Read,Write}})
+			    %% Line 488
+			    apply 'con_loop'/9
+				(_cor8, _cor7, _cor6, _cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+		%% Line 492
+		<_cor30> when 'true' ->
+		    %% Line 493
+		    call 'dist_util':'shutdown'
+			('dist_util', 493, _cor7, 'get_status_failed')
+	      end
+	after 'infinity' ->
+	  'true'
+'send_name'/1 =
+    %% Line 502
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'hs_data',_cor15,_cor16,Node,Socket,_cor17,%% Line 504
+						       Flags,_cor18,%% Line 505
+								    Version,_cor19,_cor20,%% Line 503
+											  FSend,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 509
+		  call 'erlang':'bsr'
+		      (Version, 8)
+	      in  let <_cor2> =
+		      %% Line 509
+		      call 'erlang':'band'
+			  (_cor1, 255)
+		  in  let <_cor3> =
+			  %% Line 509
+			  call 'erlang':'band'
+			      (Version, 255)
+		      in  let <_cor4> =
+			      %% Line 509
+			      call 'erlang':'bsr'
+				  (Flags, 24)
+			  in  let <_cor5> =
+				  %% Line 509
+				  call 'erlang':'band'
+				      (_cor4, 255)
+			      in  let <_cor6> =
+				      %% Line 509
+				      call 'erlang':'bsr'
+					  (Flags, 16)
+				  in  let <_cor7> =
+					  %% Line 509
+					  call 'erlang':'band'
+					      (_cor6, 255)
+				      in  let <_cor8> =
+					      %% Line 509
+					      call 'erlang':'bsr'
+						  (Flags, 8)
+					  in  let <_cor9> =
+						  %% Line 509
+						  call 'erlang':'band'
+						      (_cor8, 255)
+					      in  let <_cor10> =
+						      %% Line 509
+						      call 'erlang':'band'
+							  (Flags, 255)
+						  in  let <_cor11> =
+							  %% Line 509
+							  call 'erlang':'atom_to_list'
+							      (Node)
+						      in  %% Line 508
+							  case apply FSend
+								   (Socket, %% Line 509
+									    [110|[[_cor2|[_cor3|[]]]|[[_cor5|[_cor7|[_cor9|[_cor10|[]]]]]|[_cor11|[]]]]]) of
+							    %% Line 509
+							    <{'error','closed'}> when 'true' ->
+								let <_cor12> =
+								    call 'erlang':'self'
+									()
+								in  do  call 'erlang':'!'
+									    (_cor12, {'tcp_closed',Socket})
+									{'error','closed'}
+							    <R> when 'true' ->
+								R
+							  end
+	  ( <_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14})
+		  -| [{'function_name',{'send_name',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'send_challenge'/2 =
+    %% Line 511
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'hs_data',_cor24,_cor25,Node,Socket,_cor26,%% Line 513
+						       Flags,_cor27,%% Line 512
+								    Version,_cor28,_cor29,%% Line 514
+											  FSend,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37},%% Line 515
+																			 Challenge> when 'true' ->
+	      let <_cor2> =
+		  %% Line 518
+		  call 'erlang':'bsr'
+		      (Version, 8)
+	      in  let <_cor3> =
+		      %% Line 518
+		      call 'erlang':'band'
+			  (_cor2, 255)
+		  in  let <_cor4> =
+			  %% Line 518
+			  call 'erlang':'band'
+			      (Version, 255)
+		      in  let <_cor5> =
+			      %% Line 518
+			      call 'erlang':'bsr'
+				  (Flags, 24)
+			  in  let <_cor6> =
+				  %% Line 518
+				  call 'erlang':'band'
+				      (_cor5, 255)
+			      in  let <_cor7> =
+				      %% Line 518
+				      call 'erlang':'bsr'
+					  (Flags, 16)
+				  in  let <_cor8> =
+					  %% Line 518
+					  call 'erlang':'band'
+					      (_cor7, 255)
+				      in  let <_cor9> =
+					      %% Line 518
+					      call 'erlang':'bsr'
+						  (Flags, 8)
+					  in  let <_cor10> =
+						  %% Line 518
+						  call 'erlang':'band'
+						      (_cor9, 255)
+					      in  let <_cor11> =
+						      %% Line 518
+						      call 'erlang':'band'
+							  (Flags, 255)
+						  in  let <_cor12> =
+							  %% Line 519
+							  call 'erlang':'bsr'
+							      (Challenge, 24)
+						      in  let <_cor13> =
+							      %% Line 519
+							      call 'erlang':'band'
+								  (_cor12, 255)
+							  in  let <_cor14> =
+								  %% Line 519
+								  call 'erlang':'bsr'
+								      (Challenge, 16)
+							      in  let <_cor15> =
+								      %% Line 519
+								      call 'erlang':'band'
+									  (_cor14, 255)
+								  in  let <_cor16> =
+									  %% Line 519
+									  call 'erlang':'bsr'
+									      (Challenge, 8)
+								      in  let <_cor17> =
+									      %% Line 519
+									      call 'erlang':'band'
+										  (_cor16, 255)
+									  in  let <_cor18> =
+										  %% Line 519
+										  call 'erlang':'band'
+										      (Challenge, 255)
+									      in  let <_cor19> =
+										      %% Line 520
+										      call 'erlang':'atom_to_list'
+											  (Node)
+										  in  %% Line 518
+										      case apply FSend
+											       (Socket, [110|[[_cor3|[_cor4|[]]]|[[_cor6|[_cor8|[_cor10|[_cor11|[]]]]]|%% Line 519
+																				       [[_cor13|[_cor15|[_cor17|[_cor18|[]]]]]|%% Line 520
+																									       [_cor19|[]]]]]]) of
+											%% Line 520
+											<{'error','closed'}> when 'true' ->
+											    let <_cor20> =
+												call 'erlang':'self'
+												    ()
+											    in  do  call 'erlang':'!'
+													(_cor20, {'tcp_closed',Socket})
+												    {'error','closed'}
+											<R> when 'true' ->
+											    R
+										      end
+	  ( <_cor23,_cor22> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor23,_cor22})
+		  -| [{'function_name',{'send_challenge',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'send_challenge_reply'/3 =
+    %% Line 522
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'hs_data',_cor15,_cor16,_cor17,Socket,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,FSend,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31},%% Line 523
+																			   Challenge,%% Line 523
+																				     Digest> when 'true' ->
+	      let <_cor3> =
+		  %% Line 526
+		  call 'erlang':'bsr'
+		      (Challenge, 24)
+	      in  let <_cor4> =
+		      %% Line 526
+		      call 'erlang':'band'
+			  (_cor3, 255)
+		  in  let <_cor5> =
+			  %% Line 526
+			  call 'erlang':'bsr'
+			      (Challenge, 16)
+		      in  let <_cor6> =
+			      %% Line 526
+			      call 'erlang':'band'
+				  (_cor5, 255)
+			  in  let <_cor7> =
+				  %% Line 526
+				  call 'erlang':'bsr'
+				      (Challenge, 8)
+			      in  let <_cor8> =
+				      %% Line 526
+				      call 'erlang':'band'
+					  (_cor7, 255)
+				  in  let <_cor9> =
+					  %% Line 526
+					  call 'erlang':'band'
+					      (Challenge, 255)
+				      in  %% Line 526
+					  case apply FSend
+						   (Socket, [114|[[_cor4|[_cor6|[_cor8|[_cor9|[]]]]]|[Digest|[]]]]) of
+					    <{'error','closed'}> when 'true' ->
+						let <_cor10> =
+						    call 'erlang':'self'
+							()
+						in  do  call 'erlang':'!'
+							    (_cor10, {'tcp_closed',Socket})
+							{'error','closed'}
+					    <R> when 'true' ->
+						R
+					  end
+	  ( <_cor14,_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14,_cor13,_cor12})
+		  -| [{'function_name',{'send_challenge_reply',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'send_challenge_ack'/2 =
+    %% Line 528
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'hs_data',_cor6,_cor7,_cor8,Socket,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,FSend,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22},%% Line 529
+																		       Digest> when 'true' ->
+	      %% Line 531
+	      case apply FSend
+		       (Socket, [97|[Digest|[]]]) of
+		<{'error','closed'}> when 'true' ->
+		    let <_cor2> =
+			call 'erlang':'self'
+			    ()
+		    in  do  call 'erlang':'!'
+				(_cor2, {'tcp_closed',Socket})
+			    {'error','closed'}
+		<R> when 'true' ->
+		    R
+	      end
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'send_challenge_ack',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'recv_name'/1 =
+    %% Line 541
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'hs_data',_cor3,_cor4,_cor5,Socket,_cor6,_cor7,_cor8,_cor9,_cor10,_cor11,_cor12,Recv,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19}> when 'true' ->
+	      %% Line 542
+	      case apply Recv
+		       (Socket, 0, 'infinity') of
+		%% Line 543
+		<{'ok',Data}> when 'true' ->
+		    %% Line 544
+		    apply 'get_name'/1
+			(Data)
+		%% Line 545
+		<_cor20> when 'true' ->
+		    %% Line 546
+		    call 'dist_util':'shutdown'
+			('dist_util', 546, 'no_node')
+	      end
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'recv_name',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_name'/1 =
+    %% Line 549
+    fun (_cor0) ->
+	case _cor0 of
+	  <[110|[VersionA|[VersionB|[Flag1|[Flag2|[Flag3|[Flag4|OtherNode]]]]]]]> when 'true' ->
+	      let <_cor6> =
+		  %% Line 550
+		  call 'erlang':'bsl'
+		      (Flag1, 24)
+	      in  let <_cor5> =
+		      %% Line 550
+		      call 'erlang':'bsl'
+			  (Flag2, 16)
+		  in  let <_cor7> =
+			  %% Line 550
+			  call 'erlang':'bor'
+			      (_cor6, _cor5)
+		      in  let <_cor4> =
+			      %% Line 550
+			      call 'erlang':'bsl'
+				  (Flag3, 8)
+			  in  let <_cor8> =
+				  %% Line 550
+				  call 'erlang':'bor'
+				      (_cor7, _cor4)
+			      in  let <_cor9> =
+				      %% Line 550
+				      call 'erlang':'bor'
+					  (_cor8, Flag4)
+				  in  let <_cor3> =
+					  %% Line 550
+					  call 'erlang':'list_to_atom'
+					      (OtherNode)
+				      in  let <_cor1> =
+					      %% Line 551
+					      call 'erlang':'bsl'
+						  (VersionA, 8)
+					  in  let <_cor2> =
+						  %% Line 551
+						  call 'erlang':'bor'
+						      (_cor1, VersionB)
+					      in  %% Line 550
+						  {_cor9,_cor3,_cor2}
+	  %% Line 552
+	  <Data> when 'true' ->
+	      %% Line 553
+	      call 'dist_util':'shutdown'
+		  ('dist_util', 553, Data)
+	end
+'publish_type'/1 =
+    %% Line 555
+    fun (_cor0) ->
+	%% Line 556
+	case call 'erlang':'band'
+		 (_cor0, 1) of
+	  %% Line 557
+	  <0> when 'true' ->
+	      %% Line 558
+	      'hidden'
+	  %% Line 559
+	  <_cor3> when 'true' ->
+	      %% Line 560
+	      'normal'
+	end
+'recv_challenge'/1 =
+    %% Line 564
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'hs_data',_cor23,Node,_cor24,Socket,_cor25,_cor26,_cor27,%% Line 565
+								     Version,_cor28,_cor29,_cor30,%% Line 565
+												  Recv,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37}> when 'true' ->
+	      %% Line 566
+	      case apply Recv
+		       (Socket, 0, 'infinity') of
+		%% Line 567
+		<{'ok',[110|[V1|[V0|[Fl1|[Fl2|[Fl3|[Fl4|[CA3|[CA2|[CA1|[CA0|Ns]]]]]]]]]]]}> when 'true' ->
+		    let <_cor3> =
+			%% Line 568
+			call 'erlang':'bsl'
+			    (Fl1, 24)
+		    in  let <_cor2> =
+			    %% Line 568
+			    call 'erlang':'bsl'
+				(Fl2, 16)
+			in  let <_cor4> =
+				%% Line 568
+				call 'erlang':'bor'
+				    (_cor3, _cor2)
+			    in  let <_cor1> =
+				    %% Line 568
+				    call 'erlang':'bsl'
+					(Fl3, 8)
+				in  let <_cor5> =
+					%% Line 568
+					call 'erlang':'bor'
+					    (_cor4, _cor1)
+				    in  let <Flags> =
+					    %% Line 568
+					    call 'erlang':'bor'
+						(_cor5, Fl4)
+					in  %% Line 569
+					    try
+						let <_cor9> =
+						    call 'erlang':'list_to_existing_atom'
+							(Ns)
+						in  let <_cor7> =
+							call 'erlang':'bsl'
+							    (V1, 8)
+						    in  let <_cor8> =
+							    call 'erlang':'bor'
+								(_cor7, V0)
+							in  {_cor9,_cor8}
+					    of <_cor10> ->
+						case _cor10 of
+						  %% Line 570
+						  <{_cor38,_cor39}>
+						      when let <_cor40> =
+							    call 'erlang':'=:='
+								(_cor38, Node)
+							in  let <_cor41> =
+								call 'erlang':'=:='
+								    (_cor39, Version)
+							    in  call 'erlang':'and'
+								    (_cor40, _cor41) ->
+						      let <_cor13> =
+							  %% Line 571
+							  call 'erlang':'bsl'
+							      (CA3, 24)
+						      in  let <_cor12> =
+							      %% Line 571
+							      call 'erlang':'bsl'
+								  (CA2, 16)
+							  in  let <_cor14> =
+								  %% Line 571
+								  call 'erlang':'bor'
+								      (_cor13, _cor12)
+							      in  let <_cor11> =
+								      %% Line 571
+								      call 'erlang':'bsl'
+									  (CA1, 8)
+								  in  let <_cor15> =
+									  %% Line 571
+									  call 'erlang':'bor'
+									      (_cor14, _cor11)
+								      in  let <Challenge> =
+									      %% Line 571
+									      call 'erlang':'bor'
+										  (_cor15, CA0)
+									  in  %% Line 574
+									      {Flags,Challenge}
+						  %% Line 575
+						  <_cor42> when 'true' ->
+						      %% Line 576
+						      call 'dist_util':'shutdown'
+							  ('dist_util', 576, 'no_node')
+						end
+					    catch <_cor20,_cor19,_cor18> ->
+						case <_cor20,_cor19,_cor18> of
+						  %% Line 578
+						  <'error','badarg',_cor43> when 'true' ->
+						      %% Line 579
+						      call 'dist_util':'shutdown'
+							  ('dist_util', 579, 'no_node')
+						  ( <_cor20,_cor19,_cor18> when 'true' ->
+							primop 'raise'
+							    (_cor18, _cor19)
+						    -| ['compiler_generated'] )
+						end
+		%% Line 581
+		<_cor44> when 'true' ->
+		    %% Line 582
+		    call 'dist_util':'shutdown'
+			('dist_util', 582, 'no_node')
+	      end
+	  ( <_cor22> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor22})
+		  -| [{'function_name',{'recv_challenge',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'recv_challenge_reply'/3 =
+    %% Line 589
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'hs_data',_cor16,%% Line 590
+			     NodeB,_cor17,Socket,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,%% Line 591
+												  FRecv,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31},%% Line 592
+																			  ChallengeA,%% Line 592
+																				     Cookie> when 'true' ->
+	      %% Line 593
+	      case apply FRecv
+		       (Socket, 0, 'infinity') of
+		%% Line 594
+		<{'ok',[114|[CB3|[CB2|[CB1|[CB0|SumB]]]]]}>
+		    when try
+			  let <_cor3> =
+			      call 'erlang':'length'
+				  (SumB)
+			  in  call 'erlang':'=:='
+				  (_cor3, 16)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    let <SumA> =
+			%% Line 595
+			apply 'gen_digest'/2
+			    (ChallengeA, Cookie)
+		    in  let <_cor7> =
+			    %% Line 596
+			    call 'erlang':'bsl'
+				(CB3, 24)
+			in  let <_cor6> =
+				%% Line 596
+				call 'erlang':'bsl'
+				    (CB2, 16)
+			    in  let <_cor8> =
+				    %% Line 596
+				    call 'erlang':'bor'
+					(_cor7, _cor6)
+				in  let <_cor5> =
+					%% Line 596
+					call 'erlang':'bsl'
+					    (CB1, 8)
+				    in  let <_cor9> =
+					    %% Line 596
+					    call 'erlang':'bor'
+						(_cor8, _cor5)
+					in  let <ChallengeB> =
+						%% Line 596
+						call 'erlang':'bor'
+						    (_cor9, CB0)
+					    in  %% Line 600
+						case call 'erlang':'list_to_binary'
+							 (SumB) of
+						  %% Line 601
+						  <_cor32>
+						      when call 'erlang':'=:='
+							    (_cor32,
+							     SumA) ->
+						      %% Line 602
+						      ChallengeB
+						  %% Line 603
+						  <_cor33> when 'true' ->
+						      do  %% Line 604
+							  call 'error_logger':'error_msg'
+							      ([42|[42|[32|[67|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[97|[116|[116|[101|[109|[112|[116|[32|[102|[114|[111|[109|[32|[100|[105|[115|[97|[108|[108|[111|[119|[101|[100|[32|[110|[111|[100|[101|[32|[126|[119|[32|[42|[42|[32|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 605
+																																												  [NodeB|[]])
+							  %% Line 606
+							  call 'dist_util':'shutdown'
+							      ('dist_util', 606, NodeB)
+						end
+		%% Line 608
+		<_cor34> when 'true' ->
+		    %% Line 609
+		    call 'dist_util':'shutdown'
+			('dist_util', 609, 'no_node')
+	      end
+	  ( <_cor15,_cor14,_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14,_cor13})
+		  -| [{'function_name',{'recv_challenge_reply',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'recv_challenge_ack'/3 =
+    %% Line 612
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'hs_data',_cor10,%% Line 613
+			     NodeB,_cor11,Socket,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,FRecv,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25},%% Line 614
+																			  ChallengeB,%% Line 614
+																				     CookieA> when 'true' ->
+	      %% Line 615
+	      case apply FRecv
+		       (Socket, 0, 'infinity') of
+		%% Line 616
+		<{'ok',[97|SumB]}>
+		    when try
+			  let <_cor3> =
+			      call 'erlang':'length'
+				  (SumB)
+			  in  call 'erlang':'=:='
+				  (_cor3, 16)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    let <SumA> =
+			%% Line 617
+			apply 'gen_digest'/2
+			    (ChallengeB, CookieA)
+		    in  %% Line 620
+			case call 'erlang':'list_to_binary'
+				 (SumB) of
+			  %% Line 621
+			  <_cor26>
+			      when call 'erlang':'=:='
+				    (_cor26,
+				     SumA) ->
+			      %% Line 622
+			      'ok'
+			  %% Line 623
+			  <_cor27> when 'true' ->
+			      do  %% Line 624
+				  call 'error_logger':'error_msg'
+				      ([42|[42|[32|[67|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[97|[116|[116|[101|[109|[112|[116|[32|[116|[111|[32|[100|[105|[115|[97|[108|[108|[111|[119|[101|[100|[32|[110|[111|[100|[101|[32|[126|[119|[32|[42|[42|[32|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 625
+																																							      [NodeB|[]])
+				  %% Line 626
+				  call 'dist_util':'shutdown'
+				      ('dist_util', 626, NodeB)
+			end
+		%% Line 628
+		<_cor28> when 'true' ->
+		    %% Line 629
+		    call 'dist_util':'shutdown'
+			('dist_util', 629, NodeB)
+	      end
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'recv_challenge_ack',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'recv_status'/1 =
+    %% Line 632
+    fun (_cor0) ->
+	case _cor0 of
+	  <HSData = {'hs_data',Kernel,%% Line 633
+				      Node,_cor8,Socket,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,%% Line 633
+													Recv,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22}> when 'true' ->
+	      %% Line 634
+	      case apply Recv
+		       (Socket, 0, 'infinity') of
+		%% Line 635
+		<{'ok',[115|StrStat]}> when 'true' ->
+		    let <Stat> =
+			%% Line 636
+			call 'erlang':'list_to_atom'
+			    (StrStat)
+		    in  %% Line 638
+			case Stat of
+			  %% Line 639
+			  <'not_allowed'> when 'true' ->
+			      call 'dist_util':'shutdown'
+				  ('dist_util', 639, Node)
+			  %% Line 640
+			  <'nok'> when 'true' ->
+			      %% Line 642
+			      receive
+				
+			      after %% Line 643
+				    'infinity' ->
+				%% Line 643
+				'ok'
+			  %% Line 645
+			  <'alive'> when 'true' ->
+			      let <Reply> =
+				  %% Line 646
+				  apply 'is_pending'/2
+				      (Kernel, Node)
+			      in  do  %% Line 648
+				      apply 'send_status'/2
+					  (HSData, Reply)
+				      %% Line 649
+				      case <> of
+					<>
+					    when let <_cor3> =
+						  call 'erlang':'=:='
+						      (Reply, 'false')
+					      in  let <_cor4> =
+						      call 'erlang':'is_boolean'
+							  (Reply)
+						  in  call 'erlang':'and'
+							  (_cor3, _cor4) ->
+					    %% Line 650
+					    call 'dist_util':'shutdown'
+						('dist_util', 650, Node)
+					%% Line 651
+					<>
+					    when call 'erlang':'=:='
+						  (Reply,
+						   'true') ->
+					    %% Line 652
+					    Stat
+					( <> when 'true' ->
+					      primop 'match_fail'
+						  ('if_clause')
+					  -| ['compiler_generated'] )
+				      end
+			  %% Line 654
+			  <_cor23> when 'true' ->
+			      Stat
+			end
+		%% Line 656
+		<_X_Error> when 'true' ->
+		    %% Line 659
+		    call 'dist_util':'shutdown'
+			('dist_util', 659, Node)
+	      end
+	  ( <_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7})
+		  -| [{'function_name',{'recv_status',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'send_status'/2 =
+    %% Line 663
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'hs_data',_cor6,Node,_cor7,Socket,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,%% Line 664
+										      FSend,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21},%% Line 664
+																		     Stat> when 'true' ->
+	      let <_cor2> =
+		  %% Line 666
+		  call 'erlang':'atom_to_list'
+		      (Stat)
+	      in  %% Line 666
+		  case apply FSend
+			   (Socket, [115|_cor2]) of
+		    %% Line 667
+		    <{'error',_cor22}> when 'true' ->
+			%% Line 668
+			call 'dist_util':'shutdown'
+			    ('dist_util', 668, Node)
+		    %% Line 669
+		    <_cor23> when 'true' ->
+			%% Line 670
+			'true'
+		  end
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'send_status',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'send_tick'/5 =
+    %% Line 699
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 703
+	case _cor3 of
+	  <{'tick',Read,Write,T0,Ticked}> when 'true' ->
+	      let <T> =
+		  %% Line 704
+		  call 'erlang':'+'
+		      (T0, 1)
+	      in  let <T1> =
+		      %% Line 705
+		      call 'erlang':'rem'
+			  (T, 4)
+		  in  %% Line 706
+		      case apply _cor0
+			       (_cor4) of
+			%% Line 707
+			<{'ok',_cor35,_cor36,_cor37}>
+			    when let <_cor38> =
+				  call 'erlang':'=:='
+				      (_cor35, Read)
+			      in  let <_cor39> =
+				      call 'erlang':'=:='
+					  (Ticked, T)
+				  in  call 'erlang':'and'
+					  (_cor38, _cor39) ->
+			    %% Line 708
+			    {'error','not_responding'}
+			%% Line 709
+			<{'ok',_cor40,W,Pend}>
+			    when let <_cor41> =
+				  call 'erlang':'=:='
+				      (_cor40, Read)
+			      in  let <_cor42> =
+				      call 'erlang':'=:='
+					  (_cor2, 'hidden')
+				  in  call 'erlang':'and'
+					  (_cor41, _cor42) ->
+			    do  %% Line 710
+				apply 'send_tick'/3
+				    (_cor4, Pend, _cor1)
+				let <_rec17> =
+				    %% Line 711
+				    call 'erlang':'+'
+					(W, 1)
+				in  let <_cor10> =
+					%% Line 712
+					call 'erlang':'setelement'
+					    (4, _cor3, T1)
+				    in  let <_cor12> =
+					    %% Line 711
+					    call 'erlang':'setelement'
+						(3, _cor10, _rec17)
+					in  %% Line 711
+					    {'ok',_cor12}
+			%% Line 713
+			<{'ok',_cor48,_cor49,Pend}>
+			    when let <_cor50> =
+				  call 'erlang':'=:='
+				      (_cor48, Read)
+			      in  let <_cor51> =
+				      call 'erlang':'=:='
+					  (_cor49, Write)
+				  in  call 'erlang':'and'
+					  (_cor50, _cor51) ->
+			    do  %% Line 714
+				apply 'send_tick'/3
+				    (_cor4, Pend, _cor1)
+				let <_rec19> =
+				    %% Line 715
+				    call 'erlang':'+'
+					(Write, 1)
+				in  let <_cor15> =
+					%% Line 716
+					call 'erlang':'setelement'
+					    (4, _cor3, T1)
+				    in  let <_cor17> =
+					    %% Line 715
+					    call 'erlang':'setelement'
+						(3, _cor15, _rec19)
+					in  %% Line 715
+					    {'ok',_cor17}
+			%% Line 717
+			<{'ok',R,_cor57,Pend}>
+			    when call 'erlang':'=:='
+				  (_cor57,
+				   Write) ->
+			    do  %% Line 718
+				apply 'send_tick'/3
+				    (_cor4, Pend, _cor1)
+				let <_rec21> =
+				    %% Line 719
+				    call 'erlang':'+'
+					(Write, 1)
+				in  let <_cor21> =
+					%% Line 722
+					{'tick',R,_rec21,T1,T}
+				    in  %% Line 719
+					{'ok',_cor21}
+			%% Line 723
+			<{'ok',_cor59,W,_cor60}>
+			    when call 'erlang':'=:='
+				  (_cor59,
+				   Read) ->
+			    let <_cor23> =
+				%% Line 725
+				call 'erlang':'setelement'
+				    (4, _cor3, T1)
+			    in  let <_cor25> =
+				    %% Line 724
+				    call 'erlang':'setelement'
+					(3, _cor23, W)
+				in  %% Line 724
+				    {'ok',_cor25}
+			%% Line 726
+			<{'ok',R,W,_cor66}> when 'true' ->
+			    let <_cor28> =
+				%% Line 730
+				{'tick',R,W,T1,T}
+			    in  %% Line 727
+				{'ok',_cor28}
+			%% Line 731
+			<Error> when 'true' ->
+			    %% Line 732
+			    Error
+		      end
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'send_tick'/3 =
+    %% Line 735
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Socket,0,MFTick> when 'true' ->
+	      %% Line 736
+	      apply MFTick
+		  (Socket)
+	  %% Line 737
+	  <_cor6,_X_Pend,_cor7> when 'true' ->
+	      %% Line 739
+	      'ok'
+	end
+'start_timer'/1 =
+    %% Line 749
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 750
+	    call 'erlang':'self'
+		()
+	in  let <_cor2> =
+		%% Line 750
+		call 'erlang':'*'
+		    (_cor0, 1)
+	    in  %% Line 750
+		call 'erlang':'spawn_link'
+		    ('dist_util', 'setup_timer', [_cor1|[_cor2|[]]])
+'setup_timer'/2 =
+    %% Line 752
+    fun (_cor1,_cor0) ->
+	%% Line 753
+	receive
+	  %% Line 754
+	  <{_cor4,'reset'}>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     _cor1) ->
+	      %% Line 755
+	      apply 'setup_timer'/2
+		  (_cor1, _cor0)
+	after _cor0 ->
+	  %% Line 758
+	  call 'dist_util':'shutdown'
+	      ('dist_util', 758, 'timer')
+'reset_timer'/1 =
+    %% Line 761
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 762
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 762
+		call 'erlang':'!'
+		    (_cor0, {_cor1,'reset'})
+		%% Line 763
+		'ok'
+'cancel_timer'/1 =
+    %% Line 765
+    fun (_cor0) ->
+	do  %% Line 766
+	    call 'erlang':'unlink'
+		(_cor0)
+	    %% Line 767
+	    call 'erlang':'exit'
+		(_cor0, 'shutdown')
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('dist_util')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('dist_util', _cor0)
+end

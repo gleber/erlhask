@@ -1,0 +1,704 @@
+module 'file_server' ['code_change'/3,
+		      'format_error'/1,
+		      'handle_call'/3,
+		      'handle_cast'/2,
+		      'handle_info'/2,
+		      'init'/1,
+		      'module_info'/0,
+		      'module_info'/1,
+		      'start'/0,
+		      'start_link'/0,
+		      'stop'/0,
+		      'terminate'/2]
+    attributes [%% Line 29
+		'behaviour' =
+		    %% Line 29
+		    ['gen_server'],
+		%% Line 65
+		'type' =
+		    %% Line 65
+		    [{'state',{'type',65,'port',[]},[]}],
+		%% Line 75
+		'spec' =
+		    %% Line 75
+		    [{{'init',1},[{'type',75,'fun',[{'type',75,'product',[{'type',75,'nil',[]}]}|[{'type',75,'union',[{'type',75,'tuple',[{'atom',75,'ok'}|[{'type',75,'state',[]}]]}|[{'type',75,'tuple',[{'atom',75,'stop'}|[{'type',75,'term',[]}]]}]]}]]}]}],
+		%% Line 98
+		'spec' =
+		    %% Line 98
+		    [{{'handle_call',3},[{'type',98,'fun',[{'type',98,'product',[{'type',98,'term',[]}|[{'type',98,'term',[]}|[{'type',98,'state',[]}]]]}|[{'type',99,'union',[{'type',99,'tuple',[{'atom',99,'noreply'}|[{'type',99,'state',[]}]]}|[{'type',100,'tuple',[{'atom',100,'reply'}|[{'type',100,'union',[{'atom',100,'eof'}|[{'atom',100,'ok'}|[{'type',100,'tuple',[{'atom',100,'error'}|[{'type',100,'term',[]}]]}|[{'type',100,'tuple',[{'atom',100,'ok'}|[{'type',100,'term',[]}]]}]]]]}|[{'type',100,'state',[]}]]]}|[{'type',101,'tuple',[{'atom',101,'stop'}|[{'atom',101,'normal'}|[{'atom',101,'stopped'}|[{'type',101,'state',[]}]]]]}]]]}]]}]}],
+		%% Line 219
+		'spec' =
+		    %% Line 219
+		    [{{'handle_cast',2},[{'type',219,'fun',[{'type',219,'product',[{'type',219,'term',[]}|[{'type',219,'state',[]}]]}|[{'type',219,'tuple',[{'atom',219,'noreply'}|[{'type',219,'state',[]}]]}]]}]}],
+		%% Line 232
+		'spec' =
+		    %% Line 232
+		    [{{'handle_info',2},[{'type',232,'fun',[{'type',232,'product',[{'type',232,'term',[]}|[{'type',232,'state',[]}]]}|[{'type',233,'union',[{'type',233,'tuple',[{'atom',233,'noreply'}|[{'type',233,'state',[]}]]}|[{'type',233,'tuple',[{'atom',233,'stop'}|[{'atom',233,'normal'}|[{'type',233,'state',[]}]]]}]]}]]}]}],
+		%% Line 254
+		'spec' =
+		    %% Line 254
+		    [{{'terminate',2},[{'type',254,'fun',[{'type',254,'product',[{'type',254,'term',[]}|[{'type',254,'state',[]}]]}|[{'atom',254,'ok'}]]}]}],
+		%% Line 265
+		'spec' =
+		    %% Line 265
+		    [{{'code_change',3},[{'type',265,'fun',[{'type',265,'product',[{'type',265,'term',[]}|[{'type',265,'state',[]}|[{'type',265,'term',[]}]]]}|[{'type',265,'tuple',[{'atom',265,'ok'}|[{'type',265,'state',[]}]]}]]}]}]]
+'format_error'/1 =
+    %% Line 48
+    fun (_cor0) ->
+	case _cor0 of
+	  <{_X_Line,'file_server',Reason}> when 'true' ->
+	      %% Line 49
+	      call 'io_lib':'format'
+		  ([126|[119]], [Reason|[]])
+	  %% Line 50
+	  <{_X_Line,Mod,Reason}> when 'true' ->
+	      %% Line 51
+	      call Mod:'format_error'
+		  (Reason)
+	  %% Line 52
+	  <ErrorId> when 'true' ->
+	      %% Line 53
+	      call 'erl_posix_msg':'message'
+		  (ErrorId)
+	end
+'start'/0 =
+    %% Line 55
+    fun () ->
+	apply 'do_start'/1
+	    ('start')
+'start_link'/0 =
+    %% Line 56
+    fun () ->
+	apply 'do_start'/1
+	    ('start_link')
+'stop'/0 =
+    %% Line 58
+    fun () ->
+	%% Line 59
+	call 'gen_server':'call'
+	    ('file_server_2', 'stop', 'infinity')
+'init'/1 =
+    %% Line 77
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      do  %% Line 78
+		  call 'erlang':'process_flag'
+		      ('trap_exit', 'true')
+		  %% Line 79
+		  case call 'prim_file':'start'
+			   () of
+		    %% Line 80
+		    <{'ok',Handle}> when 'true' ->
+			%% Line 81
+			case %% Line 82
+			     call 'ets':'new'
+				 ('file_io_servers', ['named_table']) of
+			  <'file_io_servers'> when 'true' ->
+			      %% Line 83
+			      {'ok',Handle}
+			  ( <_cor1> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor1})
+			    -| ['compiler_generated'] )
+			end
+		    %% Line 84
+		    <{'error',Reason}> when 'true' ->
+			%% Line 85
+			{'stop',Reason}
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor2})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_call'/3 =
+    %% Line 103
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'open',Name,ModeList},_X_From = {Pid,_X_Tag},Handle>
+	      when %% Line 104
+		call 'erlang':'is_list'
+		    (ModeList) ->
+	      let <Child> =
+		  %% Line 105
+		  call 'file_io_server':'start_link'
+		      (Pid, Name, ModeList)
+	      in  do  %% Line 106
+		      case Child of
+			%% Line 107
+			<{'ok',P}>
+			    when call 'erlang':'is_pid'
+				  (P) ->
+			    %% Line 108
+			    call 'ets':'insert'
+				('file_io_servers', {P,Name})
+			%% Line 109
+			<_cor38> when 'true' ->
+			    'ok'
+		      end
+		      %% Line 112
+		      {'reply',Child,Handle}
+	  %% Line 114
+	  <{'open',_X_Name,_X_Mode},_X_From,Handle> when 'true' ->
+	      %% Line 115
+	      {'reply',{'error','einval'},Handle}
+	  %% Line 117
+	  <{'read_file',Name},_X_From,Handle> when 'true' ->
+	      let <_cor5> =
+		  %% Line 118
+		  call 'prim_file':'read_file'
+		      (Name)
+	      in  %% Line 118
+		  {'reply',_cor5,Handle}
+	  %% Line 120
+	  <{'write_file',Name,Bin},_X_From,Handle> when 'true' ->
+	      let <_cor6> =
+		  %% Line 121
+		  call 'prim_file':'write_file'
+		      (Name, Bin)
+	      in  %% Line 121
+		  {'reply',_cor6,Handle}
+	  %% Line 123
+	  <{'set_cwd',Name},_X_From,Handle> when 'true' ->
+	      let <_cor7> =
+		  %% Line 124
+		  call 'prim_file':'set_cwd'
+		      (Handle, Name)
+	      in  %% Line 124
+		  {'reply',_cor7,Handle}
+	  %% Line 126
+	  <{'delete',Name},_X_From,Handle> when 'true' ->
+	      let <_cor8> =
+		  %% Line 127
+		  call 'prim_file':'delete'
+		      (Handle, Name)
+	      in  %% Line 127
+		  {'reply',_cor8,Handle}
+	  %% Line 129
+	  <{'rename',Fr,To},_X_From,Handle> when 'true' ->
+	      let <_cor9> =
+		  %% Line 130
+		  call 'prim_file':'rename'
+		      (Handle, Fr, To)
+	      in  %% Line 130
+		  {'reply',_cor9,Handle}
+	  %% Line 132
+	  <{'make_dir',Name},_X_From,Handle> when 'true' ->
+	      let <_cor10> =
+		  %% Line 133
+		  call 'prim_file':'make_dir'
+		      (Handle, Name)
+	      in  %% Line 133
+		  {'reply',_cor10,Handle}
+	  %% Line 135
+	  <{'del_dir',Name},_X_From,Handle> when 'true' ->
+	      let <_cor11> =
+		  %% Line 136
+		  call 'prim_file':'del_dir'
+		      (Handle, Name)
+	      in  %% Line 136
+		  {'reply',_cor11,Handle}
+	  %% Line 138
+	  <{'list_dir',Name},_X_From,Handle> when 'true' ->
+	      let <_cor12> =
+		  %% Line 139
+		  call 'prim_file':'list_dir'
+		      (Handle, Name)
+	      in  %% Line 139
+		  {'reply',_cor12,Handle}
+	  %% Line 140
+	  <{'list_dir_all',Name},_X_From,Handle> when 'true' ->
+	      let <_cor13> =
+		  %% Line 141
+		  call 'prim_file':'list_dir_all'
+		      (Handle, Name)
+	      in  %% Line 141
+		  {'reply',_cor13,Handle}
+	  %% Line 143
+	  <'get_cwd',_X_From,Handle> when 'true' ->
+	      let <_cor14> =
+		  %% Line 144
+		  call 'prim_file':'get_cwd'
+		      (Handle)
+	      in  %% Line 144
+		  {'reply',_cor14,Handle}
+	  %% Line 145
+	  <{'get_cwd'},_X_From,Handle> when 'true' ->
+	      let <_cor15> =
+		  %% Line 146
+		  call 'prim_file':'get_cwd'
+		      (Handle)
+	      in  %% Line 146
+		  {'reply',_cor15,Handle}
+	  %% Line 147
+	  <{'get_cwd',Name},_X_From,Handle> when 'true' ->
+	      let <_cor16> =
+		  %% Line 148
+		  call 'prim_file':'get_cwd'
+		      (Handle, Name)
+	      in  %% Line 148
+		  {'reply',_cor16,Handle}
+	  %% Line 150
+	  <{'read_file_info',Name},_X_From,Handle> when 'true' ->
+	      let <_cor17> =
+		  %% Line 151
+		  call 'prim_file':'read_file_info'
+		      (Handle, Name)
+	      in  %% Line 151
+		  {'reply',_cor17,Handle}
+	  %% Line 153
+	  <{'read_file_info',Name,Opts},_X_From,Handle> when 'true' ->
+	      let <_cor18> =
+		  %% Line 154
+		  call 'prim_file':'read_file_info'
+		      (Handle, Name, Opts)
+	      in  %% Line 154
+		  {'reply',_cor18,Handle}
+	  %% Line 156
+	  <{'altname',Name},_X_From,Handle> when 'true' ->
+	      let <_cor19> =
+		  %% Line 157
+		  call 'prim_file':'altname'
+		      (Handle, Name)
+	      in  %% Line 157
+		  {'reply',_cor19,Handle}
+	  %% Line 159
+	  <{'write_file_info',Name,Info},_X_From,Handle> when 'true' ->
+	      let <_cor20> =
+		  %% Line 160
+		  call 'prim_file':'write_file_info'
+		      (Handle, Name, Info)
+	      in  %% Line 160
+		  {'reply',_cor20,Handle}
+	  %% Line 162
+	  <{'write_file_info',Name,Info,Opts},_X_From,Handle> when 'true' ->
+	      let <_cor21> =
+		  %% Line 163
+		  call 'prim_file':'write_file_info'
+		      (Handle, Name, Info, Opts)
+	      in  %% Line 163
+		  {'reply',_cor21,Handle}
+	  %% Line 165
+	  <{'read_link_info',Name},_X_From,Handle> when 'true' ->
+	      let <_cor22> =
+		  %% Line 166
+		  call 'prim_file':'read_link_info'
+		      (Handle, Name)
+	      in  %% Line 166
+		  {'reply',_cor22,Handle}
+	  %% Line 168
+	  <{'read_link_info',Name,Opts},_X_From,Handle> when 'true' ->
+	      let <_cor23> =
+		  %% Line 169
+		  call 'prim_file':'read_link_info'
+		      (Handle, Name, Opts)
+	      in  %% Line 169
+		  {'reply',_cor23,Handle}
+	  %% Line 171
+	  <{'read_link',Name},_X_From,Handle> when 'true' ->
+	      let <_cor24> =
+		  %% Line 172
+		  call 'prim_file':'read_link'
+		      (Handle, Name)
+	      in  %% Line 172
+		  {'reply',_cor24,Handle}
+	  %% Line 173
+	  <{'read_link_all',Name},_X_From,Handle> when 'true' ->
+	      let <_cor25> =
+		  %% Line 174
+		  call 'prim_file':'read_link_all'
+		      (Handle, Name)
+	      in  %% Line 174
+		  {'reply',_cor25,Handle}
+	  %% Line 176
+	  <{'make_link',Old,New},_X_From,Handle> when 'true' ->
+	      let <_cor26> =
+		  %% Line 177
+		  call 'prim_file':'make_link'
+		      (Handle, Old, New)
+	      in  %% Line 177
+		  {'reply',_cor26,Handle}
+	  %% Line 179
+	  <{'make_symlink',Old,New},_X_From,Handle> when 'true' ->
+	      let <_cor27> =
+		  %% Line 180
+		  call 'prim_file':'make_symlink'
+		      (Handle, Old, New)
+	      in  %% Line 180
+		  {'reply',_cor27,Handle}
+	  %% Line 182
+	  <{'copy',SourceName,SourceOpts,DestName,DestOpts,Length},%% Line 183
+								   _X_From,%% Line 183
+									   Handle> when 'true' ->
+	      let <_cor33> =
+		  %% Line 185
+		  case call 'prim_file':'open'
+			   (SourceName, ['read'|['binary'|SourceOpts]]) of
+		    %% Line 186
+		    <{'ok',Source}> when 'true' ->
+			let <_cor30> =
+			    %% Line 188
+			    case call 'prim_file':'open'
+				     (DestName, %% Line 189
+						['write'|['binary'|DestOpts]]) of
+			      %% Line 190
+			      <{'ok',Dest}> when 'true' ->
+				  let <DestReply> =
+				      %% Line 192
+				      call 'prim_file':'copy'
+					  (Source, Dest, Length)
+				  in  do  %% Line 193
+					  call 'prim_file':'close'
+					      (Dest)
+					  %% Line 194
+					  DestReply
+			      %% Line 195
+			      <Error = {'error',_cor39}> when 'true' ->
+				  %% Line 196
+				  Error
+			      ( <_cor29> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor29})
+				-| ['compiler_generated'] )
+			    end
+			in  do  %% Line 198
+				call 'prim_file':'close'
+				    (Source)
+				_cor30
+		    %% Line 200
+		    <Error = {'error',_cor40}> when 'true' ->
+			%% Line 201
+			Error
+		    ( <_cor32> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor32})
+		      -| ['compiler_generated'] )
+		  end
+	      in  %% Line 203
+		  {'reply',_cor33,Handle}
+	  %% Line 205
+	  <'stop',_X_From,Handle> when 'true' ->
+	      %% Line 206
+	      {'stop','normal','stopped',Handle}
+	  %% Line 208
+	  <Request,From,Handle> when 'true' ->
+	      do  %% Line 209
+		  call 'error_logger':'error_msg'
+		      ([104|[97|[110|[100|[108|[101|[95|[99|[97|[108|[108|[40|[126|[112|[44|[32|[126|[112|[44|[32|[95|[41]]]]]]]]]]]]]]]]]]]]]], [Request|[From|[]]])
+		  %% Line 210
+		  {'noreply',Handle}
+	end
+'handle_cast'/2 =
+    %% Line 221
+    fun (_cor1,_cor0) ->
+	do  %% Line 222
+	    call 'error_logger':'error_msg'
+		([104|[97|[110|[100|[108|[101|[95|[99|[97|[115|[116|[40|[126|[112|[44|[32|[95|[41]]]]]]]]]]]]]]]]]], [_cor1|[]])
+	    %% Line 223
+	    {'noreply',_cor0}
+'handle_info'/2 =
+    %% Line 235
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'EXIT',Pid,_X_Reason},Handle>
+	      when call 'erlang':'is_pid'
+		    (Pid) ->
+	      do  %% Line 236
+		  call 'ets':'delete'
+		      ('file_io_servers', Pid)
+		  %% Line 237
+		  {'noreply',Handle}
+	  %% Line 239
+	  <{'EXIT',Handle,_X_Reason},_cor4>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     Handle) ->
+	      do  %% Line 240
+		  call 'error_logger':'error_msg'
+		      ([80|[111|[114|[116|[32|[99|[111|[110|[116|[114|[111|[108|[108|[105|[110|[103|[32|[126|[119|[32|[116|[101|[114|[109|[105|[110|[97|[116|[101|[100|[32|[105|[110|[32|[126|[119]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 241
+																													['file_server_2'|['file_server']])
+		  %% Line 242
+		  {'stop','normal',Handle}
+	  %% Line 244
+	  <Info,State> when 'true' ->
+	      do  %% Line 245
+		  call 'error_logger':'error_msg'
+		      ([104|[97|[110|[100|[108|[101|[95|[73|[110|[102|[111|[40|[126|[112|[44|[32|[95|[41]]]]]]]]]]]]]]]]]], [Info|[]])
+		  %% Line 246
+		  {'noreply',State}
+	end
+'terminate'/2 =
+    %% Line 256
+    fun (_cor1,_cor0) ->
+	%% Line 257
+	call 'prim_file':'stop'
+	    (_cor0)
+'code_change'/3 =
+    %% Line 267
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 268
+	{'ok',_cor1}
+'do_start'/1 =
+    %% Line 281
+    fun (_cor0) ->
+	%% Line 282
+	case call 'init':'get_argument'
+		 ('master') of
+	  %% Line 283
+	  <'error'> when 'true' ->
+	      %% Line 284
+	      call 'gen_server':_cor0
+		  ({'local','file_server_2'}, 'file_server', [], [])
+	  %% Line 285
+	  <{'ok',[[Node|[]]|[]]}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 286
+		  call 'erlang':'list_to_atom'
+		      (Node)
+	      in  %% Line 286
+		  apply 'do_start'/3
+		      (_cor0, _cor1, 'file_server_2')
+	  %% Line 287
+	  <X> when 'true' ->
+	      %% Line 288
+	      {'error',{'get_argument','master',X}}
+	end
+'do_start'/3 =
+    %% Line 292
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 293
+	case call 'rpc':'call'
+		 (_cor1, 'erlang', 'whereis', [_cor0|[]]) of
+	  %% Line 294
+	  <Filer>
+	      when let <_cor3> =
+		    call 'erlang':'is_pid'
+			(Filer)
+		in  let <_cor4> =
+			call 'erlang':'=:='
+			    (Filer, 'undefined')
+		    in  call 'erlang':'or'
+			    (_cor3, _cor4) ->
+	      let <_cor5> =
+		  catch
+		      %% Line 295
+		      apply 'do_start_slave'/3
+			  (_cor2, Filer, _cor0)
+	      in  %% Line 295
+		  case _cor5 of
+		    %% Line 296
+		    <{'EXIT',Reason}> when 'true' ->
+			%% Line 297
+			{'error',Reason}
+		    %% Line 298
+		    <Result> when 'true' ->
+			%% Line 299
+			Result
+		  end
+	  %% Line 301
+	  <Other> when 'true' ->
+	      %% Line 302
+	      {'error',{'no_master',Other}}
+	end
+'do_start_slave'/3 =
+    %% Line 306
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'start_link',Filer,Name> when 'true' ->
+	      let <Self> =
+		  %% Line 307
+		  call 'erlang':'self'
+		      ()
+	      in  let <Token> =
+		      %% Line 308
+		      call 'erlang':'make_ref'
+			  ()
+		  in  let <_cor5> =
+			  %% Line 309
+			  ( fun () ->
+				apply 'relay_start'/4
+				    (Self, Token, Filer, Name)
+			    -| [{'id',{0,0,'-do_start_slave/3-fun-0-'}}] )
+		      in  let <Slave> =
+			      %% Line 309
+			      call 'erlang':'spawn_link'
+				  (_cor5)
+			  in  %% Line 310
+			      receive
+				%% Line 311
+				<{'started',_cor15}>
+				    when call 'erlang':'=:='
+					  (_cor15,
+					   Token) ->
+				    %% Line 312
+				    {'ok',Slave}
+			      after 'infinity' ->
+				'true'
+	  %% Line 314
+	  <'start',Filer,Name> when 'true' ->
+	      let <Self> =
+		  %% Line 315
+		  call 'erlang':'self'
+		      ()
+	      in  let <Token> =
+		      %% Line 316
+		      call 'erlang':'make_ref'
+			  ()
+		  in  let <_cor9> =
+			  %% Line 317
+			  ( fun () ->
+				apply 'relay_start'/4
+				    (Self, Token, Filer, Name)
+			    -| [{'id',{0,0,'-do_start_slave/3-fun-1-'}}] )
+		      in  let <Slave> =
+			      %% Line 317
+			      call 'erlang':'spawn'
+				  (_cor9)
+			  in  let <SlaveMonitor> =
+				  %% Line 318
+				  call 'erlang':'monitor'
+				      ('process', Slave)
+			      in  %% Line 319
+				  receive
+				    %% Line 320
+				    <{'started',_cor16}>
+					when call 'erlang':'=:='
+					      (_cor16,
+					       Token) ->
+					do  %% Line 321
+					    call 'erlang':'demonitor'
+						(SlaveMonitor, ['flush'])
+					    %% Line 322
+					    {'ok',Slave}
+				    %% Line 323
+				    <{'DOWN',_cor17,_cor18,_cor19,Reason}>
+					when call 'erlang':'=:='
+					      (_cor17,
+					       SlaveMonitor) ->
+					%% Line 324
+					call 'erlang':'exit'
+					    (Reason)
+				  after 'infinity' ->
+				    'true'
+	  ( <_cor14,_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14,_cor13,_cor12})
+		  -| [{'function_name',{'do_start_slave',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'relay_start'/4 =
+    %% Line 331
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Parent,Token,Filer,Name>
+	      when call 'erlang':'is_pid'
+		    (Filer) ->
+	      let <_cor5> =
+		  catch
+		      let <_cor4> =
+			  %% Line 332
+			  call 'erlang':'self'
+			      ()
+		      in  %% Line 332
+			  call 'erlang':'register'
+			      (Name, _cor4)
+	      in  do  %% Line 332
+		      case _cor5 of
+			%% Line 333
+			<'true'> when 'true' ->
+			    'ok'
+			%% Line 335
+			<_cor13> when 'true' ->
+			    let <_cor6> =
+				%% Line 336
+				call 'erlang':'whereis'
+				    (Name)
+			    in  %% Line 336
+				call 'erlang':'exit'
+				    ({'already_started',_cor6})
+		      end
+		      let <FilerMonitor> =
+			  %% Line 339
+			  call 'erlang':'monitor'
+			      ('process', Filer)
+		      in  do  %% Line 340
+			      call 'erlang':'process_flag'
+				  ('trap_exit', 'true')
+			      do  %% Line 341
+				  call 'erlang':'!'
+				      (Parent, {'started',Token})
+				  %% Line 342
+				  apply 'relay_loop'/3
+				      (Parent, Filer, FilerMonitor)
+	  %% Line 343
+	  <Parent,Token,'undefined',_X_Name> when 'true' ->
+	      do  %% Line 345
+		  call 'erlang':'process_flag'
+		      ('trap_exit', 'true')
+		  do  %% Line 346
+		      call 'erlang':'!'
+			  (Parent, {'started',Token})
+		      %% Line 347
+		      receive
+			%% Line 348
+			<{'EXIT',_cor14,Reason}>
+			    when call 'erlang':'=:='
+				  (_cor14,
+				   Parent) ->
+			    %% Line 349
+			    call 'erlang':'exit'
+				(Reason)
+		      after 'infinity' ->
+			'true'
+	  ( <_cor12,_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'relay_start',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'relay_loop'/3 =
+    %% Line 352
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 353
+	    receive
+	      %% Line 354
+	      <{'DOWN',_cor6,_cor7,_cor8,Reason}>
+		  when call 'erlang':'=:='
+			(_cor6,
+			 _cor0) ->
+		  %% Line 355
+		  call 'erlang':'exit'
+		      (Reason)
+	      %% Line 356
+	      <{'EXIT',_cor9,Reason}>
+		  when call 'erlang':'=:='
+			(_cor9,
+			 _cor2) ->
+		  %% Line 357
+		  call 'erlang':'exit'
+		      (Reason)
+	      %% Line 358
+	      <Msg> when 'true' ->
+		  %% Line 359
+		  call 'erlang':'!'
+		      (_cor1, Msg)
+	    after 'infinity' ->
+	      'ok'
+	    %% Line 361
+	    apply 'relay_loop'/3
+		(_cor2, _cor1, _cor0)
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('file_server')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('file_server', _cor0)
+end

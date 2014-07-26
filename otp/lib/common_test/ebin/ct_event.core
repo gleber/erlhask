@@ -1,0 +1,245 @@
+module 'ct_event' ['add_handler'/0,
+		   'add_handler'/1,
+		   'code_change'/3,
+		   'handle_call'/2,
+		   'handle_event'/2,
+		   'handle_info'/2,
+		   'init'/1,
+		   'is_alive'/0,
+		   'module_info'/0,
+		   'module_info'/1,
+		   'notify'/1,
+		   'notify'/2,
+		   'start_link'/0,
+		   'stop'/0,
+		   'sync_notify'/1,
+		   'sync_notify'/2,
+		   'terminate'/2]
+    attributes [%% Line 30
+		'behaviour' =
+		    %% Line 30
+		    ['gen_event']]
+'start_link'/0 =
+    %% Line 56
+    fun () ->
+	%% Line 57
+	call 'gen_event':'start_link'
+	    ({'local','ct_event'})
+'add_handler'/0 =
+    %% Line 63
+    fun () ->
+	%% Line 64
+	call 'gen_event':'add_handler'
+	    ('ct_event', 'ct_event', [])
+'add_handler'/1 =
+    %% Line 65
+    fun (_cor0) ->
+	%% Line 66
+	call 'gen_event':'add_handler'
+	    ('ct_event', 'ct_event', _cor0)
+'stop'/0 =
+    %% Line 72
+    fun () ->
+	%% Line 73
+	case call 'erlang':'whereis'
+		 ('ct_event') of
+	  %% Line 74
+	  <'undefined'> when 'true' ->
+	      %% Line 75
+	      'ok'
+	  %% Line 76
+	  <_X_Pid> when 'true' ->
+	      %% Line 77
+	      call 'gen_event':'stop'
+		  ('ct_event')
+	end
+'notify'/1 =
+    %% Line 84
+    fun (_cor0) ->
+	let <_cor1> =
+	    catch
+		%% Line 85
+		call 'gen_event':'notify'
+		    ('ct_event', _cor0)
+	in  %% Line 85
+	    case _cor1 of
+	      %% Line 86
+	      <{'EXIT',Reason}> when 'true' ->
+		  %% Line 87
+		  {'error',{'notify',Reason}}
+	      %% Line 88
+	      <Result> when 'true' ->
+		  %% Line 89
+		  Result
+	    end
+'notify'/2 =
+    %% Line 96
+    fun (_cor1,_cor0) ->
+	%% Line 97
+	apply 'notify'/1
+	    ({'event',_cor1,'undefined',_cor0})
+'sync_notify'/1 =
+    %% Line 103
+    fun (_cor0) ->
+	let <_cor1> =
+	    catch
+		%% Line 104
+		call 'gen_event':'sync_notify'
+		    ('ct_event', _cor0)
+	in  %% Line 104
+	    case _cor1 of
+	      %% Line 105
+	      <{'EXIT',Reason}> when 'true' ->
+		  %% Line 106
+		  {'error',{'sync_notify',Reason}}
+	      %% Line 107
+	      <Result> when 'true' ->
+		  %% Line 108
+		  Result
+	    end
+'sync_notify'/2 =
+    %% Line 115
+    fun (_cor1,_cor0) ->
+	%% Line 116
+	apply 'sync_notify'/1
+	    ({'event',_cor1,'undefined',_cor0})
+'is_alive'/0 =
+    %% Line 122
+    fun () ->
+	%% Line 123
+	case call 'erlang':'whereis'
+		 ('ct_event') of
+	  %% Line 124
+	  <'undefined'> when 'true' ->
+	      %% Line 125
+	      'false'
+	  %% Line 126
+	  <_X_Pid> when 'true' ->
+	      %% Line 127
+	      'true'
+	end
+'init'/1 =
+    %% Line 138
+    fun (_cor0) ->
+	%% Line 140
+	{'ok',{'state',_cor0}}
+'handle_event'/2 =
+    %% Line 151
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Event,State = {'state',RecvPids}> when 'true' ->
+	      do  %% Line 152
+		  apply 'print'/2
+		      ([126|[110|[61|[61|[61|[32|[126|[119|[32|[61|[61|[61|[126|[110]]]]]]]]]]]]]], ['ct_event'])
+		  %% Line 153
+		  ( case Event of
+		      ( <( {'event',_rec0,_cor11,_cor12}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    do  apply 'print'/2
+				    ([126|[119|[58|[32|[126|[119|[126|[110]]]]]]]], [_rec0|[_cor12|[]]])
+				let <_cor8> =
+				    %% Line 154
+				    ( fun (_cor6) ->
+					  apply 'report_event'/2
+					      (_cor6, Event)
+				      -| [{'id',{0,0,'-handle_event/2-fun-0-'}}] )
+				in  do  %% Line 154
+					call 'lists':'foreach'
+					    (_cor8, RecvPids)
+					%% Line 155
+					{'ok',State}
+			-| ['compiler_generated'] )
+		      ( <_cor13> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','event'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	  ( <_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9})
+		  -| [{'function_name',{'handle_event',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'report_event'/2 =
+    %% Line 221
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'master',Master},E = {'event',_X_Name,_X_Node,_X_Data}> when 'true' ->
+	      %% Line 222
+	      call 'ct_master':'status'
+		  (Master, E)
+	  %% Line 225
+	  <{'vts',VTS},{'event',Name,_X_Node,Data}> when 'true' ->
+	      %% Line 226
+	      case <> of
+		<>
+		    when let <_cor2> =
+			  call 'erlang':'=:='
+			      (Name, 'start_info')
+		      in  let <_cor3> =
+			      %% Line 227
+			      call 'erlang':'=:='
+				  (Name, 'test_stats')
+			  in  let <_cor4> =
+				  %% Line 228
+				  call 'erlang':'=:='
+				      (Name, 'test_done')
+			      in  let <_cor5> =
+				      %% Line 227
+				      call 'erlang':'or'
+					  (_cor3, _cor4)
+				  in  call 'erlang':'or'
+					  (_cor2, _cor5) ->
+		    %% Line 229
+		    call 'vts':'test_info'
+			(VTS, Name, Data)
+		%% Line 230
+		<> when 'true' ->
+		    %% Line 231
+		    'ok'
+	      end
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'report_event',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_call'/2 =
+    %% Line 245
+    fun (_cor1,_cor0) ->
+	%% Line 247
+	{'ok','ok',_cor0}
+'handle_info'/2 =
+    %% Line 258
+    fun (_cor1,_cor0) ->
+	%% Line 259
+	{'ok',_cor0}
+'terminate'/2 =
+    %% Line 267
+    fun (_cor1,_cor0) ->
+	%% Line 268
+	'ok'
+'code_change'/3 =
+    %% Line 274
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 275
+	{'ok',_cor1}
+'print'/2 =
+    %% Line 281
+    fun (_cor1,_cor0) ->
+	%% Line 283
+	'ok'
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ct_event')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ct_event', _cor0)
+end

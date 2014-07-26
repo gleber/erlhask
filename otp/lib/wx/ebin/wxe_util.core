@@ -1,0 +1,851 @@
+module 'wxe_util' ['call'/2,
+		   'cast'/2,
+		   'colour_bin'/1,
+		   'connect_cb'/2,
+		   'construct'/2,
+		   'datetime_bin'/1,
+		   'destroy'/2,
+		   'disconnect_cb'/2,
+		   'from_bool'/1,
+		   'get_cbId'/1,
+		   'get_const'/1,
+		   'module_info'/0,
+		   'module_info'/1,
+		   'opt_error_log'/3,
+		   'priv_dir'/2,
+		   'register_pid'/1,
+		   'send_bin'/1,
+		   'to_bool'/1,
+		   'wxgl_dl'/0]
+    attributes []
+'to_bool'/1 =
+    %% Line 39
+    fun (_cor0) ->
+	case _cor0 of
+	  <0> when 'true' ->
+	      'false'
+	  %% Line 40
+	  <_cor2> when 'true' ->
+	      'true'
+	end
+'from_bool'/1 =
+    %% Line 42
+    fun (_cor0) ->
+	case _cor0 of
+	  <'true'> when 'true' ->
+	      1
+	  %% Line 43
+	  <'false'> when 'true' ->
+	      0
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'from_bool',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'colour_bin'/1 =
+    %% Line 45
+    fun (_cor0) ->
+	case _cor0 of
+	  <{R,G,B}> when 'true' ->
+	      %% Line 46
+	      #{#<R>(32,1,'integer',['unsigned'|['native']]),
+		#<G>(32,1,'integer',['unsigned'|['native']]),
+		#<B>(32,1,'integer',['unsigned'|['native']]),
+		#<255>(32,1,'integer',['unsigned'|['native']])}#
+	  %% Line 47
+	  <{R,G,B,A}> when 'true' ->
+	      %% Line 48
+	      #{#<R>(32,1,'integer',['unsigned'|['native']]),
+		#<G>(32,1,'integer',['unsigned'|['native']]),
+		#<B>(32,1,'integer',['unsigned'|['native']]),
+		#<A>(32,1,'integer',['unsigned'|['native']])}#
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'colour_bin',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'datetime_bin'/1 =
+    %% Line 50
+    fun (_cor0) ->
+	case _cor0 of
+	  <{{Y,Mo,D},{H,Mi,S}}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 53
+		  call 'erlang':'-'
+		      (Mo, 1)
+	      in  %% Line 53
+		  #{#<D>(32,1,'integer',['unsigned'|['native']]),
+		    #<_cor1>(32,1,'integer',['unsigned'|['native']]),
+		    #<Y>(32,1,'integer',['unsigned'|['native']]),
+		    #<H>(32,1,'integer',['unsigned'|['native']]),
+		    #<Mi>(32,1,'integer',['unsigned'|['native']]),
+		    #<S>(32,1,'integer',['unsigned'|['native']])}#
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'datetime_bin',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_const'/1 =
+    %% Line 55
+    fun (_cor0) ->
+	%% Line 56
+	case call 'ets':'lookup'
+		 ('wx_non_consts', _cor0) of
+	  <[{_cor3,Data}|[]]>
+	      when call 'erlang':'=:='
+		    (_cor3,
+		     _cor0) ->
+	      %% Line 57
+	      Data
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'cast'/2 =
+    %% Line 59
+    fun (_cor1,_cor0) ->
+	%% Line 60
+	case call 'wx':'get_env'
+		 () of
+	  <{'wx_env',Port,_cor8,Dbg}> when 'true' ->
+	      let <_X_> =
+		  %% Line 61
+		  ( call 'erlang':'port_control'
+			(Port, _cor1, _cor0)
+		    -| ['result_not_wanted'] )
+	      in  do  %% Line 62
+		      case <> of
+			%% Line 63
+			<>
+			    when call 'erlang':'>'
+				  (Dbg,
+				   0) ->
+			    let <_cor4> =
+				call 'erlang':'band'
+				    (Dbg, 15)
+			    in  apply 'debug_cast'/4
+				    (_cor4, _cor1, _cor0, Port)
+			%% Line 64
+			<> when 'true' ->
+			    'ok'
+		      end
+		      %% Line 66
+		      'ok'
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'call'/2 =
+    %% Line 68
+    fun (_cor1,_cor0) ->
+	%% Line 69
+	case call 'wx':'get_env'
+		 () of
+	  <{'wx_env',Port,_cor8,Dbg}> when 'true' ->
+	      %% Line 70
+	      case <> of
+		%% Line 74
+		<>
+		    when call 'erlang':'>'
+			  (Dbg,
+			   0) ->
+		    let <_cor4> =
+			%% Line 75
+			call 'erlang':'band'
+			    (Dbg, 15)
+		    in  %% Line 75
+			apply 'debug_call'/4
+			    (_cor4, _cor1, _cor0, Port)
+		%% Line 71
+		<> when 'true' ->
+		    let <_X_> =
+			%% Line 72
+			( call 'erlang':'port_control'
+			      (Port, _cor1, _cor0)
+			  -| ['result_not_wanted'] )
+		    in  %% Line 73
+			apply 'rec'/1
+			    (_cor1)
+	      end
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'rec'/1 =
+    %% Line 78
+    fun (_cor0) ->
+	%% Line 79
+	receive
+	  %% Line 80
+	  <{'_wxe_result_',Res}> when 'true' ->
+	      Res
+	  %% Line 81
+	  <{'_wxe_error_',_cor4,Error}>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     _cor0) ->
+	      %% Line 82
+	      case call 'ets':'lookup'
+		       ('wx_debug_info', _cor0) of
+		<[{_cor5,MF}|[]]> when 'true' ->
+		    %% Line 83
+		    call 'erlang':'error'
+			({Error,MF})
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 84
+	  <{'_wxe_error_',Old,Error}> when 'true' ->
+	      %% Line 85
+	      case call 'ets':'lookup'
+		       ('wx_debug_info', Old) of
+		<[{_cor6,MF}|[]]> when 'true' ->
+		    %% Line 86
+		    call 'erlang':'exit'
+			({Error,MF})
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	after 'infinity' ->
+	  'true'
+'construct'/2 =
+    %% Line 89
+    fun (_cor1,_cor0) ->
+	%% Line 90
+	apply 'call'/2
+	    (_cor1, _cor0)
+'destroy'/2 =
+    %% Line 92
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Op,{'wx_ref',Ref,_cor5,_cor6}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 93
+		  #{#<Ref>(32,1,'integer',['unsigned'|['native']])}#
+	      in  %% Line 93
+		  apply 'cast'/2
+		      (Op, _cor2)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'destroy',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'register_pid'/1 =
+    %% Line 95
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'wx_ref',Ref,_cor3,_cor4}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 96
+		  #{#<Ref>(32,1,'integer',['unsigned'|['native']])}#
+	      in  %% Line 96
+		  apply 'call'/2
+		      (7, _cor1)
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'register_pid',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'send_bin'/1 =
+    %% Line 98
+    fun (_cor0) ->
+	case _cor0 of
+	  <Bin>
+	      when call 'erlang':'is_binary'
+		    (_cor0) ->
+	      %% Line 99
+	      case call 'wx':'get_env'
+		       () of
+		<{'wx_env',Port,_cor5,Dbg}> when 'true' ->
+		    %% Line 100
+		    case <> of
+		      %% Line 103
+		      <>
+			  when call 'erlang':'>'
+				(Dbg,
+				 0) ->
+			  let <_cor2> =
+			      %% Line 104
+			      call 'erlang':'self'
+				  ()
+			  in  do  %% Line 104
+				  call 'io':'format'
+				      ([87|[88|[32|[98|[105|[110|[97|[114|[121|[32|[126|[112|[40|[126|[112|[41|[32|[126|[110]]]]]]]]]]]]]]]]]]], [_cor2|[Port|[]]])
+				  %% Line 105
+				  call 'erlang':'port_command'
+				      (Port, Bin)
+		      %% Line 101
+		      <> when 'true' ->
+			  %% Line 102
+			  call 'erlang':'port_command'
+			      (Port, Bin)
+		    end
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'send_bin',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_cbId'/1 =
+    %% Line 108
+    fun (_cor0) ->
+	%% Line 109
+	( case call 'wx':'get_env'
+		   () of
+	    ( <( {'wx_env',_cor4,_rec0,_cor5}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  call 'gen_server':'call'
+		      (_rec0, {'register_cb',_cor0}, 'infinity')
+	      -| ['compiler_generated'] )
+	    ( <_cor6> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','wx_env'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'connect_cb'/2 =
+    %% Line 111
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Object,EvData0 = {'evh',_cor14,_cor15,_cor16,Callback,_cor17,_cor18,_cor19}> when 'true' ->
+	      %% Line 112
+	      ( case call 'wx':'get_env'
+			 () of
+		  ( <( {'wx_env',_cor20,_rec1,_cor21}
+		       -| ['compiler_generated'] )> when 'true' ->
+			%% Line 113
+			case Callback of
+			  %% Line 114
+			  <0> when 'true' ->
+			      %% Line 115
+			      case call 'wxEvtHandler':'connect_impl'
+				       (Object, EvData0) of
+				%% Line 116
+				<{'ok',Listener}> when 'true' ->
+				    let <_cor6> =
+					%% Line 117
+					call 'erlang':'setelement'
+					    (8, EvData0, Listener)
+				    in  let <_cor8> =
+					    %% Line 117
+					    call 'erlang':'setelement'
+						(7, _cor6, 'undefined')
+					in  %% Line 118
+					    call 'gen_server':'call'
+						(_rec1, {'connect_cb',Object,_cor8}, 'infinity')
+				%% Line 119
+				<Error> when 'true' ->
+				    %% Line 120
+				    Error
+			      end
+			  %% Line 122
+			  <_cor31> when 'true' ->
+			      %% Line 124
+			      call 'gen_server':'call'
+				  (_rec1, {'connect_cb',Object,EvData0}, 'infinity')
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor22> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','wx_env'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  ( <_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12})
+		  -| [{'function_name',{'connect_cb',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'disconnect_cb'/2 =
+    %% Line 127
+    fun (_cor1,_cor0) ->
+	%% Line 128
+	( case call 'wx':'get_env'
+		   () of
+	    ( <( {'wx_env',_cor7,_rec3,_cor8}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  %% Line 129
+		  call 'gen_server':'call'
+		      (_rec3, {'disconnect_cb',_cor1,_cor0}, 'infinity')
+	      -| ['compiler_generated'] )
+	    ( <_cor9> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','wx_env'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'debug_cast'/4 =
+    %% Line 131
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <1,Op,_X_Args,_X_Port> when 'true' ->
+	      do  %% Line 132
+		  apply 'check_previous'/0
+		      ()
+		  %% Line 133
+		  case call 'ets':'lookup'
+			   ('wx_debug_info', Op) of
+		    %% Line 134
+		    <[{_cor14,{M,F,_cor15}}|[]]> when 'true' ->
+			let <_cor4> =
+			    %% Line 135
+			    call 'erlang':'self'
+				()
+			in  %% Line 135
+			    call 'io':'format'
+				([87|[88|[32|[126|[112|[58|[32|[126|[115|[58|[126|[115|[40|[126|[112|[41|[32|[45|[62|[32|[111|[107|[126|[110]]]]]]]]]]]]]]]]]]]]]]]], [_cor4|[M|[F|[Op|[]]]]])
+		    %% Line 136
+		    <[]> when 'true' ->
+			let <_cor5> =
+			    %% Line 137
+			    call 'erlang':'self'
+				()
+			in  %% Line 137
+			    call 'io':'format'
+				([87|[88|[32|[126|[112|[58|[32|[117|[110|[107|[110|[111|[119|[110|[40|[126|[112|[41|[32|[45|[62|[32|[111|[107|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]], [_cor5|[Op|[]]])
+		    ( <_cor6> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor6})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 139
+	  <2,Op,Args,Port> when 'true' ->
+	      do  %% Line 140
+		  apply 'check_previous'/0
+		      ()
+		  %% Line 141
+		  case call 'ets':'lookup'
+			   ('wx_debug_info', Op) of
+		    %% Line 142
+		    <[{_cor16,{M,F,_cor17}}|[]]> when 'true' ->
+			let <_cor7> =
+			    %% Line 144
+			    call 'erlang':'self'
+				()
+			in  %% Line 143
+			    call 'io':'format'
+				([87|[88|[32|[126|[112|[40|[126|[112|[41|[58|[32|[126|[115|[58|[126|[115|[40|[126|[112|[41|[32|[40|[126|[112|[41|[32|[45|[62|[32|[111|[107|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 144
+																										       [_cor7|[Port|[M|[F|[Op|[Args|[]]]]]]])
+		    %% Line 145
+		    <[]> when 'true' ->
+			let <_cor8> =
+			    %% Line 147
+			    call 'erlang':'self'
+				()
+			in  %% Line 146
+			    call 'io':'format'
+				([87|[88|[32|[126|[112|[40|[126|[112|[41|[58|[32|[117|[110|[107|[110|[111|[119|[110|[40|[126|[112|[41|[32|[40|[126|[112|[41|[32|[45|[62|[32|[111|[107|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 147
+																												    [_cor8|[Port|[Op|[Args|[]]]]])
+		    ( <_cor9> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor9})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 149
+	  <_cor18,_X_Op,_X_Args,_X_Port> when 'true' ->
+	      do  %% Line 150
+		  apply 'check_previous'/0
+		      ()
+		  %% Line 151
+		  'ok'
+	end
+'debug_call'/4 =
+    %% Line 153
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <1,Op,Args,Port> when 'true' ->
+	      do  %% Line 154
+		  apply 'check_previous'/0
+		      ()
+		  do  %% Line 155
+		      case call 'ets':'lookup'
+			       ('wx_debug_info', Op) of
+			%% Line 156
+			<[{_cor17,{M,F,_cor18}}|[]]> when 'true' ->
+			    let <_cor4> =
+				%% Line 157
+				call 'erlang':'self'
+				    ()
+			    in  %% Line 157
+				call 'io':'format'
+				    ([87|[88|[32|[126|[112|[58|[32|[126|[115|[58|[126|[115|[40|[126|[112|[41|[32|[45|[62|[32]]]]]]]]]]]]]]]]]]]], [_cor4|[M|[F|[Op|[]]]]])
+			%% Line 158
+			<[]> when 'true' ->
+			    let <_cor5> =
+				%% Line 159
+				call 'erlang':'self'
+				    ()
+			    in  %% Line 159
+				call 'io':'format'
+				    ([87|[88|[32|[126|[112|[58|[32|[117|[110|[107|[110|[111|[119|[110|[40|[126|[112|[41|[32|[45|[62|[32]]]]]]]]]]]]]]]]]]]]]], [_cor5|[Op|[]]])
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+		      let <_X_> =
+			  %% Line 161
+			  ( call 'erlang':'port_control'
+				(Port, Op, Args)
+			    -| ['result_not_wanted'] )
+		      in  %% Line 162
+			  apply 'debug_rec'/1
+			      (1)
+	  %% Line 163
+	  <2,Op,Args,Port> when 'true' ->
+	      do  %% Line 164
+		  apply 'check_previous'/0
+		      ()
+		  do  %% Line 165
+		      case call 'ets':'lookup'
+			       ('wx_debug_info', Op) of
+			%% Line 166
+			<[{_cor19,{M,F,_cor20}}|[]]> when 'true' ->
+			    let <_cor8> =
+				%% Line 168
+				call 'erlang':'self'
+				    ()
+			    in  %% Line 167
+				call 'io':'format'
+				    ([87|[88|[32|[126|[112|[40|[126|[112|[41|[58|[32|[126|[115|[58|[126|[115|[40|[126|[112|[41|[32|[40|[126|[112|[41|[32|[45|[62|[32]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 168
+																								   [_cor8|[Port|[M|[F|[Op|[Args|[]]]]]]])
+			%% Line 169
+			<[]> when 'true' ->
+			    let <_cor9> =
+				%% Line 171
+				call 'erlang':'self'
+				    ()
+			    in  %% Line 170
+				call 'io':'format'
+				    ([87|[88|[32|[126|[112|[40|[126|[112|[41|[58|[32|[117|[110|[107|[110|[111|[119|[110|[40|[126|[112|[41|[32|[40|[126|[112|[41|[32|[45|[62|[32]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 171
+																										[_cor9|[Port|[Op|[Args|[]]]]])
+			( <_cor10> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor10})
+			  -| ['compiler_generated'] )
+		      end
+		      let <_X_> =
+			  %% Line 173
+			  ( call 'erlang':'port_control'
+				(Port, Op, Args)
+			    -| ['result_not_wanted'] )
+		      in  %% Line 174
+			  apply 'debug_rec'/1
+			      (2)
+	  %% Line 175
+	  <_cor21,Op,Args,Port> when 'true' ->
+	      do  %% Line 176
+		  apply 'check_previous'/0
+		      ()
+		  let <_X_> =
+		      %% Line 177
+		      ( call 'erlang':'port_control'
+			    (Port, Op, Args)
+			-| ['result_not_wanted'] )
+		  in  %% Line 178
+		      apply 'rec'/1
+			  (Op)
+	end
+'debug_rec'/1 =
+    %% Line 180
+    fun (_cor0) ->
+	case _cor0 of
+	  <1> when 'true' ->
+	      %% Line 181
+	      receive
+		%% Line 182
+		<{'_wxe_result_',Res}> when 'true' ->
+		    do  %% Line 183
+			call 'io':'format'
+			    ([99|[111|[109|[112|[108|[101|[116|[101|[32|[126|[110]]]]]]]]]]], [])
+			%% Line 184
+			Res
+		%% Line 185
+		<{'_wxe_error_',Op2,Error}> when 'true' ->
+		    %% Line 186
+		    case call 'ets':'lookup'
+			     ('wx_debug_info', Op2) of
+		      <[{_cor4,MF2}|[]]> when 'true' ->
+			  %% Line 187
+			  call 'erlang':'error'
+			      ({Error,MF2})
+		      ( <_cor1> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor1})
+			-| ['compiler_generated'] )
+		    end
+	      after 'infinity' ->
+		'true'
+	  %% Line 189
+	  <2> when 'true' ->
+	      %% Line 190
+	      receive
+		%% Line 191
+		<{'_wxe_result_',Res}> when 'true' ->
+		    do  %% Line 192
+			call 'io':'format'
+			    ([126|[112|[32|[126|[110]]]]], [Res|[]])
+			%% Line 193
+			Res
+		%% Line 194
+		<{'_wxe_error_',Op,Error}> when 'true' ->
+		    do  %% Line 195
+			call 'io':'format'
+			    ([69|[114|[114|[111|[114|[32|[126|[112|[32|[126|[110]]]]]]]]]]], [Error|[]])
+			%% Line 196
+			case call 'ets':'lookup'
+				 ('wx_debug_info', Op) of
+			  <[{_cor5,MF}|[]]> when 'true' ->
+			      %% Line 197
+			      call 'erlang':'error'
+				  ({Error,MF})
+			  ( <_cor2> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor2})
+			    -| ['compiler_generated'] )
+			end
+	      after 'infinity' ->
+		'true'
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'debug_rec',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'check_previous'/0 =
+    %% Line 200
+    fun () ->
+	%% Line 201
+	receive
+	  %% Line 202
+	  <{'_wxe_error_',Op,Error}> when 'true' ->
+	      %% Line 203
+	      case call 'ets':'lookup'
+		       ('wx_debug_info', Op) of
+		<[{_cor2,MF = {M,F,_cor3}}|[]]> when 'true' ->
+		    let <_cor1> =
+			%% Line 204
+			call 'erlang':'self'
+			    ()
+		    in  do  %% Line 204
+			    call 'io':'format'
+				([87|[88|[32|[126|[112|[58|[32|[69|[82|[82|[79|[82|[32|[105|[110|[32|[112|[114|[101|[118|[105|[111|[117|[115|[32|[99|[111|[109|[109|[97|[110|[100|[32|[126|[115|[58|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [_cor1|[M|[F|[]]]])
+			    %% Line 205
+			    call 'erlang':'error'
+				({Error,MF})
+		( <_cor0> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor0})
+		  -| ['compiler_generated'] )
+	      end
+	after %% Line 206
+	      0 ->
+	  %% Line 206
+	  'ok'
+'wxgl_dl'/0 =
+    %% Line 211
+    fun () ->
+	let <PrivDir> =
+	    %% Line 213
+	    apply 'priv_dir'/2
+		([101|[114|[108|[95|[103|[108]]]]]], 'false')
+	in  let <_cor3> =
+		%% Line 214
+		case call 'os':'type'
+			 () of
+		  %% Line 215
+		  <{'win32',_cor5}> when 'true' ->
+		      [101|[114|[108|[95|[103|[108|[46|[100|[108|[108]]]]]]]]]]
+		  %% Line 217
+		  <_cor6> when 'true' ->
+		      [101|[114|[108|[95|[103|[108|[46|[115|[111]]]]]]]]]
+		end
+	    in  %% Line 220
+		call 'filename':'join'
+		    (PrivDir, _cor3)
+'priv_dir'/2 =
+    %% Line 222
+    fun (_cor1,_cor0) ->
+	%% Line 223
+	case call 'code':'is_loaded'
+		 ('wxe_util') of
+	  <{'file',Path}> when 'true' ->
+	      let <_cor8> =
+		  %% Line 224
+		  case call 'filelib':'is_regular'
+			   (Path) of
+		    %% Line 225
+		    <'true'> when 'true' ->
+			let <Beam> =
+			    %% Line 226
+			    call 'filename':'join'
+				([[101|[98|[105|[110|[47]]]]]|[[119|[120|[101|[95|[117|[116|[105|[108|[46|[98|[101|[97|[109]]]]]]]]]]]]]]])
+			in  let <_cor6> =
+				%% Line 227
+				apply 'strip'/2
+				    (Path, Beam)
+			    in  %% Line 227
+				call 'filename':'join'
+				    (_cor6, [112|[114|[105|[118]]]])
+		    %% Line 228
+		    <'false'> when 'true' ->
+			%% Line 229
+			call 'code':'priv_dir'
+			    ('wx')
+		    ( <_cor7> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor7})
+		      -| ['compiler_generated'] )
+		  end
+	      in  let <_cor11> =
+		      %% Line 231
+		      case call 'os':'type'
+			       () of
+			%% Line 232
+			<{'win32',_cor21}> when 'true' ->
+			    %% Line 233
+			    call 'erlang':'++'
+				(_cor1, [46|[100|[108|[108]]]])
+			%% Line 234
+			<_cor22> when 'true' ->
+			    %% Line 235
+			    call 'erlang':'++'
+				(_cor1, [46|[115|[111]]])
+		      end
+		  in  let <_cor13> =
+			  %% Line 237
+			  call 'filename':'join'
+			      (_cor8, _cor11)
+		      in  %% Line 237
+			  case call 'file':'read_file_info'
+				   (_cor13) of
+			    %% Line 238
+			    <{'ok',_cor23}> when 'true' ->
+				_cor8
+			    %% Line 240
+			    <{'error',_cor24}> when 'true' ->
+				let <_cor14> =
+				    %% Line 241
+				    call 'erlang':'system_info'
+					('system_architecture')
+				in  let <SrcPriv> =
+					%% Line 241
+					call 'filename':'join'
+					    (_cor8, _cor14)
+				    in  let <_cor16> =
+					    %% Line 242
+					    call 'filename':'join'
+						(SrcPriv, _cor11)
+					in  %% Line 242
+					    case call 'file':'read_file_info'
+						     (_cor16) of
+					      %% Line 243
+					      <{'ok',_cor25}> when 'true' ->
+						  %% Line 244
+						  SrcPriv
+					      %% Line 245
+					      <{'error',_cor26}> when 'true' ->
+						  do  %% Line 246
+						      apply 'opt_error_log'/3
+							  (_cor0, %% Line 247
+								  [69|[82|[82|[79|[82|[58|[32|[67|[111|[117|[108|[100|[32|[110|[111|[116|[32|[102|[105|[110|[100|[32|[39|[126|[115|[39|[32|[105|[110|[58|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 248
+																																     [_cor11|[_cor8|[]]])
+						      %% Line 249
+						      call 'erlang':'error'
+							  ({'load_driver',[78|[111|[32|[100|[114|[105|[118|[101|[114|[32|[102|[111|[117|[110|[100]]]]]]]]]]]]]]]})
+					      ( <_cor17> when 'true' ->
+						    primop 'match_fail'
+							({'case_clause',_cor17})
+						-| ['compiler_generated'] )
+					    end
+			    ( <_cor18> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor18})
+			      -| ['compiler_generated'] )
+			  end
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'strip'/2 =
+    %% Line 253
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Src,_cor5>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     Src) ->
+	      %% Line 254
+	      []
+	  %% Line 255
+	  <[H|R],Src> when 'true' ->
+	      let <_cor2> =
+		  %% Line 256
+		  apply 'strip'/2
+		      (R, Src)
+	      in  %% Line 256
+		  [H|_cor2]
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'strip',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'opt_error_log'/3 =
+    %% Line 258
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'false',Format,Args> when 'true' ->
+	      %% Line 259
+	      call 'error_logger':'format'
+		  (Format, Args)
+	  %% Line 260
+	  <'true',_X_Format,_X_Args> when 'true' ->
+	      %% Line 261
+	      'ok'
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'opt_error_log',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('wxe_util')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('wxe_util', _cor0)
+end

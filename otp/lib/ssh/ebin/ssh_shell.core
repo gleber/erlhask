@@ -1,0 +1,358 @@
+module 'ssh_shell' ['handle_msg'/2,
+		    'handle_ssh_msg'/2,
+		    'init'/1,
+		    'input_loop'/2,
+		    'module_info'/0,
+		    'module_info'/1,
+		    'terminate'/2]
+    attributes [%% Line 24
+		'type' =
+		    %% Line 24
+		    [{'channel_id',{'type',24,'integer',[]},[]}],
+		%% Line 55
+		'type' =
+		    %% Line 55
+		    [{{'record','ssh_msg_global_request'},[{'record_field',57,{'atom',57,'name'}}|[{'record_field',58,{'atom',58,'want_reply'}}|[{'record_field',59,{'atom',59,'data'}}]]],[]}],
+		%% Line 62
+		'type' =
+		    %% Line 62
+		    [{{'record','ssh_msg_request_success'},[{'record_field',64,{'atom',64,'data'}}],[]}],
+		%% Line 67
+		'type' =
+		    %% Line 67
+		    [{{'record','ssh_msg_request_failure'},[],[]}],
+		%% Line 72
+		'type' =
+		    %% Line 72
+		    [{{'record','ssh_msg_channel_open'},[{'record_field',74,{'atom',74,'channel_type'}}|[{'record_field',75,{'atom',75,'sender_channel'}}|[{'record_field',76,{'atom',76,'initial_window_size'}}|[{'record_field',77,{'atom',77,'maximum_packet_size'}}|[{'record_field',78,{'atom',78,'data'}}]]]]],[]}],
+		%% Line 81
+		'type' =
+		    %% Line 81
+		    [{{'record','ssh_msg_channel_open_confirmation'},[{'record_field',83,{'atom',83,'recipient_channel'}}|[{'record_field',84,{'atom',84,'sender_channel'}}|[{'record_field',85,{'atom',85,'initial_window_size'}}|[{'record_field',86,{'atom',86,'maximum_packet_size'}}|[{'record_field',87,{'atom',87,'data'}}]]]]],[]}],
+		%% Line 101
+		'type' =
+		    %% Line 101
+		    [{{'record','ssh_msg_channel_open_failure'},[{'record_field',103,{'atom',103,'recipient_channel'}}|[{'record_field',104,{'atom',104,'reason'}}|[{'record_field',105,{'atom',105,'description'}}|[{'record_field',106,{'atom',106,'lang'}}]]]],[]}],
+		%% Line 110
+		'type' =
+		    %% Line 110
+		    [{{'record','ssh_msg_channel_window_adjust'},[{'record_field',112,{'atom',112,'recipient_channel'}}|[{'record_field',113,{'atom',113,'bytes_to_add'}}]],[]}],
+		%% Line 116
+		'type' =
+		    %% Line 116
+		    [{{'record','ssh_msg_channel_data'},[{'record_field',118,{'atom',118,'recipient_channel'}}|[{'record_field',119,{'atom',119,'data'}}]],[]}],
+		%% Line 129
+		'type' =
+		    %% Line 129
+		    [{{'record','ssh_msg_channel_extended_data'},[{'record_field',131,{'atom',131,'recipient_channel'}}|[{'record_field',132,{'atom',132,'data_type_code'}}|[{'record_field',133,{'atom',133,'data'}}]]],[]}],
+		%% Line 136
+		'type' =
+		    %% Line 136
+		    [{{'record','ssh_msg_channel_eof'},[{'record_field',138,{'atom',138,'recipient_channel'}}],[]}],
+		%% Line 141
+		'type' =
+		    %% Line 141
+		    [{{'record','ssh_msg_channel_close'},[{'record_field',143,{'atom',143,'recipient_channel'}}],[]}],
+		%% Line 147
+		'type' =
+		    %% Line 147
+		    [{{'record','ssh_msg_channel_request'},[{'record_field',149,{'atom',149,'recipient_channel'}}|[{'record_field',150,{'atom',150,'request_type'}}|[{'record_field',151,{'atom',151,'want_reply'}}|[{'record_field',152,{'atom',152,'data'}}]]]],[]}],
+		%% Line 156
+		'type' =
+		    %% Line 156
+		    [{{'record','ssh_msg_channel_success'},[{'record_field',158,{'atom',158,'recipient_channel'}}],[]}],
+		%% Line 162
+		'type' =
+		    %% Line 162
+		    [{{'record','ssh_msg_channel_failure'},[{'record_field',164,{'atom',164,'recipient_channel'}}],[]}],
+		%% Line 235
+		'type' =
+		    %% Line 235
+		    [{{'record','channel'},[{'record_field',237,{'atom',237,'type'}}|[{'record_field',238,{'atom',238,'sys'}}|[{'record_field',239,{'atom',239,'user'}}|[{'record_field',240,{'atom',240,'flow_control'}}|[{'record_field',242,{'atom',242,'local_id'}}|[{'record_field',244,{'atom',244,'recv_window_size'}}|[{'record_field',245,{'atom',245,'recv_packet_size'}}|[{'record_field',246,{'atom',246,'recv_close'},{'atom',246,'false'}}|[{'record_field',248,{'atom',248,'remote_id'}}|[{'record_field',249,{'atom',249,'send_window_size'}}|[{'record_field',250,{'atom',250,'send_packet_size'}}|[{'record_field',251,{'atom',251,'sent_close'},{'atom',251,'false'}}|[{'record_field',252,{'atom',252,'send_buf'},{'nil',252}}]]]]]]]]]]]]],[]}],
+		%% Line 255
+		'type' =
+		    %% Line 255
+		    [{{'record','connection'},[{'record_field',256,{'atom',256,'requests'},{'nil',256}}|[{'record_field',257,{'atom',257,'channel_cache'}}|[{'record_field',258,{'atom',258,'port_bindings'}}|[{'record_field',259,{'atom',259,'channel_id_seed'}}|[{'record_field',260,{'atom',260,'cli_spec'}}|[{'record_field',261,{'atom',261,'address'}}|[{'record_field',262,{'atom',262,'port'}}|[{'record_field',263,{'atom',263,'options'}}|[{'record_field',264,{'atom',264,'exec'}}|[{'record_field',265,{'atom',265,'system_supervisor'}}|[{'record_field',266,{'atom',266,'sub_system_supervisor'}}|[{'record_field',267,{'atom',267,'connection_supervisor'}}]]]]]]]]]]]],[]}],
+		%% Line 28
+		'behaviour' =
+		    %% Line 28
+		    ['ssh_daemon_channel'],
+		%% Line 36
+		'type' =
+		    %% Line 36
+		    [{{'record','state'},[{'record_field',38,{'atom',38,'io'}}|[{'record_field',39,{'atom',39,'channel'}}|[{'record_field',40,{'atom',40,'cm'}}]]],[]}]]
+'init'/1 =
+    %% Line 53
+    fun (_cor0) ->
+	case _cor0 of
+	  <Args = [ConnectionManager|[ChannelId|[]]]> when 'true' ->
+	      do  %% Line 58
+		  case call 'erlang':'get'
+			   ('$initial_call') of
+		    %% Line 59
+		    <'undefined'> when 'true' ->
+			let <Me> =
+			    %% Line 60
+			    apply 'get_my_name'/0
+				()
+			in  let <Ancestors> =
+				%% Line 61
+				apply 'get_ancestors'/0
+				    ()
+			    in  do  %% Line 62
+				    call 'erlang':'put'
+					('$ancestors', [Me|Ancestors])
+				    %% Line 63
+				    call 'erlang':'put'
+					('$initial_call', {'ssh_shell','init',Args})
+		    %% Line 64
+		    <_cor10> when 'true' ->
+			'ok'
+		  end
+		  %% Line 68
+		  case call 'ssh_connection':'shell'
+			   (ConnectionManager, ChannelId) of
+		    %% Line 69
+		    <'ok'> when 'true' ->
+			let <_cor4> =
+			    %% Line 71
+			    call 'erlang':'self'
+				()
+			in  %% Line 70
+			    case %% Line 71
+				 call 'erlang':'process_info'
+				     (_cor4, 'group_leader') of
+			      <{'group_leader',GIO}> when 'true' ->
+				  let <_cor6> =
+				      %% Line 73
+				      call 'erlang':'self'
+					  ()
+				  in  let <IoPid> =
+					  %% Line 72
+					  call 'erlang':'spawn_link'
+					      ('ssh_shell', 'input_loop', %% Line 73
+									  [GIO|[_cor6|[]]])
+				      in  %% Line 74
+					  {'ok',{'state',IoPid,%% Line 75
+							       ChannelId,%% Line 76
+									 ConnectionManager}}
+			      ( <_cor5> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor5})
+				-| ['compiler_generated'] )
+			    end
+		    %% Line 77
+		    <Error> when 'true' ->
+			%% Line 78
+			{'stop',Error}
+		  end
+	  ( <_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_ssh_msg'/2 =
+    %% Line 86
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'ssh_cm',_cor6,{'data',_X_ChannelId,0,Data}},State> when 'true' ->
+	      do  %% Line 90
+		  call 'io':'put_chars'
+		      (Data)
+		  %% Line 91
+		  {'ok',State}
+	  %% Line 93
+	  <{'ssh_cm',_cor7,%% Line 94
+			   {'data',_X_ChannelId,1,Data}},%% Line 95
+							 State> when 'true' ->
+	      do  %% Line 99
+		  call 'io':'put_chars'
+		      (Data)
+		  %% Line 100
+		  {'ok',State}
+	  %% Line 102
+	  <{'ssh_cm',_cor8,{'eof',_X_ChannelId}},State> when 'true' ->
+	      %% Line 103
+	      {'ok',State}
+	  %% Line 105
+	  <{'ssh_cm',_cor9,{'signal',_cor10,_cor11}},State> when 'true' ->
+	      %% Line 107
+	      {'ok',State}
+	  %% Line 109
+	  <{'ssh_cm',_cor12,{'exit_signal',ChannelId,_cor13,Error,_cor14}},State> when 'true' ->
+	      do  %% Line 110
+		  call 'io':'put_chars'
+		      ([67|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[99|[108|[111|[115|[101|[100|[32|[98|[121|[32|[112|[101|[101|[114]]]]]]]]]]]]]]]]]]]]]]]]])
+		  do  %% Line 114
+		      call 'io':'put_chars'
+			  (Error)
+		      %% Line 115
+		      {'stop',ChannelId,State}
+	  %% Line 117
+	  <{'ssh_cm',_cor15,{'exit_status',ChannelId,0}},State> when 'true' ->
+	      do  %% Line 118
+		  call 'io':'put_chars'
+		      ([108|[111|[103|[111|[117|[116]]]]]])
+		  do  %% Line 119
+		      call 'io':'put_chars'
+			  ([67|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[99|[108|[111|[115|[101|[100]]]]]]]]]]]]]]]]])
+		      %% Line 120
+		      {'stop',ChannelId,State}
+	  %% Line 122
+	  <{'ssh_cm',_cor16,{'exit_status',ChannelId,Status}},State> when 'true' ->
+	      do  %% Line 123
+		  call 'io':'put_chars'
+		      ([67|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[99|[108|[111|[115|[101|[100|[32|[98|[121|[32|[112|[101|[101|[114]]]]]]]]]]]]]]]]]]]]]]]]])
+		  let <_cor2> =
+		      %% Line 124
+		      call 'erlang':'integer_to_list'
+			  (Status)
+		  in  let <_cor3> =
+			  %% Line 124
+			  call 'erlang':'++'
+			      ([83|[116|[97|[116|[117|[115|[58|[32]]]]]]]], _cor2)
+		      in  do  %% Line 124
+			      call 'io':'put_chars'
+				  (_cor3)
+			      %% Line 125
+			      {'stop',ChannelId,State}
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'handle_ssh_msg',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_msg'/2 =
+    %% Line 132
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'ssh_channel_up',ChannelId,ConnectionManager},State = %% Line 133
+								  {'state',_cor4,_cor5,_cor6}>
+	      when let <_cor7> =
+		    call 'erlang':'=:='
+			(_cor5, %% Line 133
+				ChannelId)
+		in  let <_cor8> =
+			call 'erlang':'=:='
+			    (_cor6, %% Line 134
+				    ConnectionManager)
+		    in  call 'erlang':'and'
+			    (_cor7, _cor8) ->
+	      %% Line 135
+	      {'ok',State}
+	  %% Line 137
+	  <{'input',IoPid,'eof'},State = {'state',_cor9,ChannelId,%% Line 138
+								  ConnectionManager}>
+	      when call 'erlang':'=:='
+		    (_cor9,
+		     IoPid) ->
+	      do  %% Line 139
+		  call 'ssh_connection':'send_eof'
+		      (ConnectionManager, ChannelId)
+		  %% Line 140
+		  {'ok',State}
+	  %% Line 142
+	  <{'input',IoPid,Line},State = {'state',_cor10,%% Line 143
+							ChannelId,%% Line 144
+								  ConnectionManager}>
+	      when call 'erlang':'=:='
+		    (_cor10,
+		     IoPid) ->
+	      do  %% Line 145
+		  call 'ssh_connection':'send'
+		      (ConnectionManager, ChannelId, Line)
+		  %% Line 146
+		  {'ok',State}
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'handle_msg',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'terminate'/2 =
+    %% Line 153
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_Reason,{'state',IoPid,_cor4,_cor5}> when 'true' ->
+	      %% Line 154
+	      call 'erlang':'exit'
+		  (IoPid, 'kill')
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'terminate',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'input_loop'/2 =
+    %% Line 160
+    fun (_cor1,_cor0) ->
+	%% Line 161
+	case call 'io':'get_line'
+		 (_cor1, '>') of
+	  %% Line 162
+	  <'eof'> when 'true' ->
+	      let <_cor2> =
+		  %% Line 163
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 163
+		      call 'erlang':'!'
+			  (_cor0, {'input',_cor2,'eof'})
+		      %% Line 164
+		      'ok'
+	  %% Line 165
+	  <Line> when 'true' ->
+	      let <_cor3> =
+		  %% Line 166
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 166
+		      call 'erlang':'!'
+			  (_cor0, {'input',_cor3,Line})
+		      %% Line 167
+		      apply 'input_loop'/2
+			  (_cor1, _cor0)
+	end
+'get_my_name'/0 =
+    %% Line 170
+    fun () ->
+	let <_cor0> =
+	    %% Line 171
+	    call 'erlang':'self'
+		()
+	in  %% Line 171
+	    case call 'erlang':'process_info'
+		     (_cor0, 'registered_name') of
+	      %% Line 172
+	      <{'registered_name',Name}> when 'true' ->
+		  Name
+	      %% Line 173
+	      <_cor2> when 'true' ->
+		  call 'erlang':'self'
+		      ()
+	    end
+'get_ancestors'/0 =
+    %% Line 176
+    fun () ->
+	%% Line 177
+	case call 'erlang':'get'
+		 ('$ancestors') of
+	  %% Line 178
+	  <A>
+	      when call 'erlang':'is_list'
+		    (A) ->
+	      A
+	  %% Line 179
+	  <_cor1> when 'true' ->
+	      []
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ssh_shell')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ssh_shell', _cor0)
+end

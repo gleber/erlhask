@@ -1,0 +1,835 @@
+module 'tags' ['dir'/1,
+	       'dir'/2,
+	       'dirs'/1,
+	       'dirs'/2,
+	       'file'/1,
+	       'file'/2,
+	       'files'/1,
+	       'files'/2,
+	       'module_info'/0,
+	       'module_info'/1,
+	       'root'/0,
+	       'root'/1,
+	       'subdir'/1,
+	       'subdir'/2,
+	       'subdirs'/1,
+	       'subdirs'/2]
+    attributes []
+'root'/0 =
+    %% Line 78
+    fun () ->
+	apply 'root'/1
+	    ([])
+'root'/1 =
+    %% Line 79
+    fun (_cor0) ->
+	let <_cor1> =
+	    call 'code':'root_dir'
+		()
+	in  apply 'subdir'/2
+		(_cor1, _cor0)
+'dir'/1 =
+    %% Line 81
+    fun (_cor0) ->
+	apply 'dir'/2
+	    (_cor0, [])
+'dir'/2 =
+    %% Line 82
+    fun (_cor1,_cor0) ->
+	apply 'dirs'/2
+	    ([_cor1|[]], _cor0)
+'dirs'/1 =
+    %% Line 84
+    fun (_cor0) ->
+	apply 'dirs'/2
+	    (_cor0, [])
+'dirs'/2 =
+    %% Line 85
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 86
+	    apply 'collect_dirs'/2
+		(_cor1, 'false')
+	in  %% Line 86
+	    apply 'files'/2
+		(_cor2, _cor0)
+'subdir'/1 =
+    %% Line 88
+    fun (_cor0) ->
+	apply 'subdir'/2
+	    (_cor0, [])
+'subdir'/2 =
+    %% Line 89
+    fun (_cor1,_cor0) ->
+	apply 'subdirs'/2
+	    ([_cor1|[]], _cor0)
+'subdirs'/1 =
+    %% Line 91
+    fun (_cor0) ->
+	apply 'subdirs'/2
+	    (_cor0, [])
+'subdirs'/2 =
+    %% Line 92
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 93
+	    apply 'collect_dirs'/2
+		(_cor1, 'true')
+	in  %% Line 93
+	    apply 'files'/2
+		(_cor2, _cor0)
+'file'/1 =
+    %% Line 95
+    fun (_cor0) ->
+	apply 'file'/2
+	    (_cor0, [])
+'file'/2 =
+    %% Line 96
+    fun (_cor1,_cor0) ->
+	apply 'files'/2
+	    ([_cor1|[]], _cor0)
+'files'/1 =
+    %% Line 98
+    fun (_cor0) ->
+	apply 'files'/2
+	    (_cor0, [])
+'files'/2 =
+    %% Line 99
+    fun (_cor1,_cor0) ->
+	%% Line 100
+	case apply 'open_out'/1
+		 (_cor0) of
+	  %% Line 101
+	  <{'ok',Os}> when 'true' ->
+	      do  %% Line 102
+		  apply 'files_loop'/2
+		      (_cor1, Os)
+		  do  %% Line 103
+		      apply 'close_out'/1
+			  (Os)
+		      %% Line 104
+		      'ok'
+	  %% Line 105
+	  <_cor5> when 'true' ->
+	      %% Line 106
+	      'error'
+	end
+'collect_dirs'/2 =
+    %% Line 115
+    fun (_cor1,_cor0) ->
+	%% Line 116
+	apply 'collect_dirs'/3
+	    (_cor1, _cor0, [])
+'collect_dirs'/3 =
+    %% Line 118
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_X_Recursive,Acc> when 'true' ->
+	      Acc
+	  %% Line 119
+	  <[Dir|Dirs],Recursive,Acc> when 'true' ->
+	      let <_cor4> =
+		  %% Line 120
+		  case call 'file':'list_dir'
+			   (Dir) of
+		    %% Line 121
+		    <{'ok',Entries}> when 'true' ->
+			%% Line 122
+			apply 'collect_files'/4
+			    (Dir, Entries, Recursive, Acc)
+		    %% Line 123
+		    <_cor9> when 'true' ->
+			%% Line 124
+			Acc
+		  end
+	      in  %% Line 126
+		  apply 'collect_dirs'/3
+		      (Dirs, Recursive, _cor4)
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'collect_dirs',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'collect_files'/4 =
+    %% Line 128
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <_X_Dir,[],_X_Recursive,Acc> when 'true' ->
+	      Acc
+	  %% Line 129
+	  <Dir,[File|Files],Recursive,Acc> when 'true' ->
+	      let <FullFile> =
+		  %% Line 130
+		  call 'filename':'join'
+		      (Dir, File)
+	      in  let <_cor8> =
+		      %% Line 131
+		      case call 'filelib':'is_dir'
+			       (FullFile) of
+			%% Line 132
+			<'true'>
+			    when call 'erlang':'=:='
+				  (Recursive,
+				   'true') ->
+			    %% Line 133
+			    apply 'collect_dirs'/3
+				([FullFile|[]], Recursive, Acc)
+			%% Line 134
+			<'true'> when 'true' ->
+			    %% Line 135
+			    Acc
+			%% Line 136
+			<'false'> when 'true' ->
+			    %% Line 137
+			    case call 'filelib':'is_regular'
+				     (FullFile) of
+			      %% Line 138
+			      <'true'> when 'true' ->
+				  %% Line 139
+				  case call 'filename':'extension'
+					   (File) of
+				    %% Line 140
+				    <[46|[101|[114|[108]]]]> when 'true' ->
+					%% Line 141
+					[FullFile|Acc]
+				    %% Line 142
+				    <[46|[104|[114|[108]]]]> when 'true' ->
+					%% Line 143
+					[FullFile|Acc]
+				    %% Line 144
+				    <_cor14> when 'true' ->
+					%% Line 145
+					Acc
+				  end
+			      %% Line 147
+			      <'false'> when 'true' ->
+				  %% Line 148
+				  Acc
+			      ( <_cor6> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor6})
+				-| ['compiler_generated'] )
+			    end
+			( <_cor7> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor7})
+			  -| ['compiler_generated'] )
+		      end
+		  in  %% Line 151
+		      apply 'collect_files'/4
+			  (Dir, Files, Recursive, _cor8)
+	  ( <_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'collect_files',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'files_loop'/2 =
+    %% Line 154
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_X_Os> when 'true' ->
+	      'true'
+	  %% Line 155
+	  <[F|Fs],Os> when 'true' ->
+	      do  %% Line 156
+		  case apply 'filename'/2
+			   (F, Os) of
+		    %% Line 157
+		    <'ok'> when 'true' ->
+			'ok'
+		    %% Line 159
+		    <'error'> when 'true' ->
+			'ok'
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor2})
+		      -| ['compiler_generated'] )
+		  end
+		  %% Line 163
+		  apply 'files_loop'/2
+		      (Fs, Os)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'files_loop',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'filename'/2 =
+    %% Line 167
+    fun (_cor1,_cor0) ->
+	%% Line 168
+	case call 'file':'open'
+		 (_cor1, ['read']) of
+	  %% Line 169
+	  <{'ok',Desc}> when 'true' ->
+	      let <Acc> =
+		  %% Line 170
+		  apply 'module'/4
+		      (Desc, [], [], {1,0})
+	      in  do  %% Line 171
+		      call 'file':'close'
+			  (Desc)
+		      do  %% Line 172
+			  apply 'genout'/3
+			      (_cor0, _cor1, Acc)
+			  %% Line 173
+			  'ok'
+	  %% Line 174
+	  <_cor6> when 'true' ->
+	      %% Line 175
+	      'error'
+	end
+'module'/4 =
+    %% Line 179
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <In,Last,Acc,{LineNo,CharNo}> when 'true' ->
+	      %% Line 180
+	      case call 'io':'get_line'
+		       (In, []) of
+		%% Line 181
+		<'eof'> when 'true' ->
+		    %% Line 182
+		    Acc
+		%% Line 183
+		<Line> when 'true' ->
+		    %% Line 184
+		    case apply 'line'/4
+			     (Line, Last, Acc, {LineNo,CharNo}) of
+		      <{NewLast,NewAcc}> when 'true' ->
+			  let <_cor7> =
+			      %% Line 185
+			      call 'erlang':'+'
+				  (LineNo, 1)
+			  in  let <_cor5> =
+				  %% Line 185
+				  call 'erlang':'length'
+				      (Line)
+			      in  let <_cor6> =
+				      %% Line 185
+				      call 'erlang':'+'
+					  (CharNo, _cor5)
+				  in  %% Line 185
+				      apply 'module'/4
+					  (In, NewLast, NewAcc, {_cor7,_cor6})
+		      ( <_cor4> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor4})
+			-| ['compiler_generated'] )
+		    end
+	      end
+	  ( <_cor12,_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'module',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'line'/4 =
+    %% Line 190
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[],Last,Acc,_cor17> when 'true' ->
+	      {Last,Acc}
+	  %% Line 191
+	  <Line,_cor18,Acc,Nos>
+	      when try
+		    let <_cor4> =
+			call 'erlang':'hd'
+			    (Line)
+		    in  call 'erlang':'=:='
+			    (_cor4, 45)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 192
+	      case apply 'attribute'/2
+		       (Line, Nos) of
+		%% Line 193
+		<'false'> when 'true' ->
+		    {[],Acc}
+		%% Line 194
+		<New> when 'true' ->
+		    {[],[New|Acc]}
+	      end
+	  %% Line 196
+	  <Line,Last,Acc,Nos> when 'true' ->
+	      let <_cor8> =
+		  %% Line 198
+		  call 'erlang':'hd'
+		      (Line)
+	      in  let <_cor6> =
+		      %% Line 198
+		      call 'erlang':'hd'
+			  (Line)
+		  in  let <_cor7> =
+			  %% Line 198
+			  apply 'word_char'/1
+			      (_cor6)
+		      in  let <_cor10> =
+			      %% Line 198
+			      case <_cor8,_cor7> of
+				%% Line 199
+				<39,_cor19> when 'true' ->
+				    'true'
+				%% Line 200
+				<_cor20,'true'> when 'true' ->
+				    'true'
+				%% Line 201
+				<_fol23,_fol24> when 'true' ->
+				    'false'
+			      end
+			  in  %% Line 198
+			      case _cor10 of
+				%% Line 203
+				<'true'> when 'true' ->
+				    %% Line 204
+				    case apply 'func'/3
+					     (Line, Last, Nos) of
+				      %% Line 205
+				      <'false'> when 'true' ->
+					  %% Line 206
+					  {Last,Acc}
+				      %% Line 207
+				      <{NewLast,NewEntry}> when 'true' ->
+					  %% Line 208
+					  {NewLast,[NewEntry|Acc]}
+				      ( <_cor11> when 'true' ->
+					    primop 'match_fail'
+						({'case_clause',_cor11})
+					-| ['compiler_generated'] )
+				    end
+				%% Line 210
+				<'false'> when 'true' ->
+				    %% Line 211
+				    {Last,Acc}
+				( <_cor12> when 'true' ->
+				      primop 'match_fail'
+					  ({'case_clause',_cor12})
+				  -| ['compiler_generated'] )
+			      end
+	end
+'func'/3 =
+    %% Line 217
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 218
+	case apply 'word'/1
+		 (_cor2) of
+	  <{Name,Line1}> when 'true' ->
+	      %% Line 219
+	      case Name of
+		%% Line 220
+		<[]> when 'true' ->
+		    'false'
+		%% Line 221
+		<_cor11>
+		    when call 'erlang':'=:='
+			  (Name,
+			   _cor1) ->
+		    'false'
+		%% Line 222
+		<_cor12> when 'true' ->
+		    %% Line 223
+		    case apply 'white'/1
+			     (Line1) of
+		      <{Space,Line2}> when 'true' ->
+			  %% Line 224
+			  case Line2 of
+			    %% Line 225
+			    <[40|_cor13]> when 'true' ->
+				let <_cor5> =
+				    %% Line 226
+				    apply 'pfnote'/2
+					([40|[Space|[Name|[]]]], _cor0)
+				in  %% Line 226
+				    {Name,_cor5}
+			    %% Line 227
+			    <_cor14> when 'true' ->
+				%% Line 228
+				'false'
+			  end
+		      ( <_cor4> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor4})
+			-| ['compiler_generated'] )
+		    end
+	      end
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'attribute'/2 =
+    %% Line 234
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[45|Line],Nos> when 'true' ->
+	      %% Line 235
+	      case apply 'word'/1
+		       (Line) of
+		<{Attr,Line1}> when 'true' ->
+		    let <_cor4> =
+			%% Line 236
+			case Attr of
+			  %% Line 237
+			  <[100|[114|[111|[99|[101|[114]]]]]]> when 'true' ->
+			      'true'
+			  %% Line 238
+			  <[101|[110|[105|[102|[101|[100]]]]]]> when 'true' ->
+			      'true'
+			  %% Line 239
+			  <_cor13> when 'true' ->
+			      'false'
+			end
+		    in  %% Line 236
+			case _cor4 of
+			  %% Line 241
+			  <'false'> when 'true' ->
+			      %% Line 242
+			      'false'
+			  %% Line 243
+			  <'true'> when 'true' ->
+			      %% Line 244
+			      case apply 'white'/1
+				       (Line1) of
+				<{Space2,Line2}> when 'true' ->
+				    %% Line 245
+				    case Line2 of
+				      %% Line 246
+				      <[40|Line3]> when 'true' ->
+					  %% Line 247
+					  case apply 'white'/1
+						   (Line3) of
+					    <{Space4,Line4}> when 'true' ->
+						%% Line 248
+						case apply 'word'/1
+							 (Line4) of
+						  <{Name,_X_Line5}> when 'true' ->
+						      %% Line 249
+						      case Name of
+							%% Line 250
+							<[]> when 'true' ->
+							    'false'
+							%% Line 251
+							<_cor14> when 'true' ->
+							    %% Line 252
+							    apply 'pfnote'/2
+								([Name|[Space4|[40|[Space2|[Attr|[45]]]]]], Nos)
+						      end
+						  ( <_cor7> when 'true' ->
+							primop 'match_fail'
+							    ({'badmatch',_cor7})
+						    -| ['compiler_generated'] )
+						end
+					    ( <_cor6> when 'true' ->
+						  primop 'match_fail'
+						      ({'badmatch',_cor6})
+					      -| ['compiler_generated'] )
+					  end
+				      %% Line 254
+				      <_cor15> when 'true' ->
+					  %% Line 255
+					  'false'
+				    end
+				( <_cor5> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor5})
+				  -| ['compiler_generated'] )
+			      end
+			  ( <_cor10> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor10})
+			    -| ['compiler_generated'] )
+			end
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor12,_cor11> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11})
+		  -| [{'function_name',{'attribute',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'white'/1 =
+    %% Line 262
+    fun (_cor0) ->
+	apply 'white'/2
+	    (_cor0, [])
+'white'/2 =
+    %% Line 264
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Acc> when 'true' ->
+	      {Acc,[]}
+	  %% Line 265
+	  <[32|Rest],Acc> when 'true' ->
+	      apply 'white'/2
+		  (Rest, [32|Acc])
+	  %% Line 266
+	  <[9|Rest],Acc> when 'true' ->
+	      apply 'white'/2
+		  (Rest, [9|Acc])
+	  %% Line 267
+	  <Line,Acc> when 'true' ->
+	      {Acc,Line}
+	end
+'word'/1 =
+    %% Line 271
+    fun (_cor0) ->
+	case _cor0 of
+	  <[39|Rest]> when 'true' ->
+	      %% Line 272
+	      apply 'quoted'/2
+		  (Rest, [39])
+	  %% Line 273
+	  <Line> when 'true' ->
+	      %% Line 274
+	      apply 'unquoted'/2
+		  (Line, [])
+	end
+'quoted'/2 =
+    %% Line 276
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[39|Rest],Acc> when 'true' ->
+	      {[39|Acc],Rest}
+	  %% Line 277
+	  <[92|[C|Rest]],Acc> when 'true' ->
+	      %% Line 278
+	      apply 'quoted'/2
+		  (Rest, [C|[92|Acc]])
+	  %% Line 279
+	  <[C|Rest],Acc> when 'true' ->
+	      %% Line 280
+	      apply 'quoted'/2
+		  (Rest, [C|Acc])
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'quoted',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'unquoted'/2 =
+    %% Line 282
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Word> when 'true' ->
+	      {Word,[]}
+	  %% Line 283
+	  <[C|Cs],Acc> when 'true' ->
+	      %% Line 284
+	      case apply 'word_char'/1
+		       (C) of
+		%% Line 285
+		<'true'> when 'true' ->
+		    apply 'unquoted'/2
+			(Cs, [C|Acc])
+		%% Line 286
+		<'false'> when 'true' ->
+		    {Acc,[C|Cs]}
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'unquoted',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'word_char'/1 =
+    %% Line 289
+    fun (_cor0) ->
+	case _cor0 of
+	  <C>
+	      when let <_cor1> =
+		    call 'erlang':'>='
+			(_cor0, 97)
+		in  let <_cor2> =
+			call 'erlang':'=<'
+			    (_cor0, 122)
+		    in  call 'erlang':'and'
+			    (_cor1, _cor2) ->
+	      'true'
+	  %% Line 290
+	  <C>
+	      when let <_cor3> =
+		    call 'erlang':'>='
+			(_cor0, 65)
+		in  let <_cor4> =
+			call 'erlang':'=<'
+			    (_cor0, 90)
+		    in  call 'erlang':'and'
+			    (_cor3, _cor4) ->
+	      'true'
+	  %% Line 291
+	  <C>
+	      when let <_cor5> =
+		    call 'erlang':'>='
+			(_cor0, 48)
+		in  let <_cor6> =
+			call 'erlang':'=<'
+			    (_cor0, 57)
+		    in  call 'erlang':'and'
+			    (_cor5, _cor6) ->
+	      'true'
+	  %% Line 292
+	  <95> when 'true' ->
+	      'true'
+	  %% Line 293
+	  <_cor8> when 'true' ->
+	      'false'
+	end
+'open_out'/1 =
+    %% Line 299
+    fun (_cor0) ->
+	%% Line 300
+	case call 'lists':'keysearch'
+		 ('outfile', 1, _cor0) of
+	  %% Line 301
+	  <{'value',{'outfile',File}}> when 'true' ->
+	      %% Line 302
+	      call 'file':'open'
+		  (File, ['write'])
+	  %% Line 303
+	  <_cor5> when 'true' ->
+	      %% Line 304
+	      case call 'lists':'keysearch'
+		       ('outdir', 1, _cor0) of
+		%% Line 305
+		<{'value',{'outdir',Dir}}> when 'true' ->
+		    let <_cor1> =
+			%% Line 306
+			call 'filename':'join'
+			    (Dir, [84|[65|[71|[83]]]])
+		    in  %% Line 306
+			call 'file':'open'
+			    (_cor1, ['write'])
+		%% Line 307
+		<_cor6> when 'true' ->
+		    %% Line 308
+		    call 'file':'open'
+			([84|[65|[71|[83]]]], ['write'])
+	      end
+	end
+'close_out'/1 =
+    %% Line 313
+    fun (_cor0) ->
+	%% Line 314
+	call 'file':'close'
+	    (_cor0)
+'pfnote'/2 =
+    %% Line 317
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Str,{LineNo,CharNo}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 318
+		  apply 'flatrev'/1
+		      (Str)
+	      in  %% Line 318
+		  call 'io_lib':'format'
+		      ([126|[116|[115|[127|[126|[119|[44|[126|[119|[126|[110]]]]]]]]]]], [_cor2|[LineNo|[CharNo|[]]]])
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'pfnote',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'genout'/3 =
+    %% Line 321
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 322
+	    apply 'reclength'/1
+		(_cor0)
+	in  do  %% Line 322
+		call 'io':'format'
+		    (_cor2, [12|[126|[110|[126|[116|[115|[44|[126|[119|[126|[110]]]]]]]]]]], [_cor1|[_cor3|[]]])
+		let <_cor4> =
+		    %% Line 323
+		    call 'lists':'reverse'
+			(_cor0)
+		in  %% Line 323
+		    call 'io':'put_chars'
+			(_cor2, _cor4)
+'flatrev'/1 =
+    %% Line 330
+    fun (_cor0) ->
+	apply 'flatrev'/2
+	    (_cor0, [])
+'flatrev'/2 =
+    %% Line 332
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[C|Ls],Acc>
+	      when call 'erlang':'is_integer'
+		    (C) ->
+	      apply 'flatrev'/2
+		  (Ls, [C|Acc])
+	  %% Line 333
+	  <[L|Ls],Acc> when 'true' ->
+	      let <_cor2> =
+		  apply 'flatrev'/2
+		      (L, Acc)
+	      in  apply 'flatrev'/2
+		      (Ls, _cor2)
+	  %% Line 334
+	  <[],Acc> when 'true' ->
+	      Acc
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'flatrev',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'reclength'/1 =
+    %% Line 338
+    fun (_cor0) ->
+	case _cor0 of
+	  <[L|Ls]>
+	      when call 'erlang':'is_list'
+		    (L) ->
+	      let <_cor2> =
+		  %% Line 339
+		  apply 'reclength'/1
+		      (L)
+	      in  let <_cor1> =
+		      %% Line 339
+		      apply 'reclength'/1
+			  (Ls)
+		  in  %% Line 339
+		      call 'erlang':'+'
+			  (_cor2, _cor1)
+	  %% Line 340
+	  <[_cor5|Ls]> when 'true' ->
+	      let <_cor3> =
+		  %% Line 341
+		  apply 'reclength'/1
+		      (Ls)
+	      in  %% Line 341
+		  call 'erlang':'+'
+		      (_cor3, 1)
+	  %% Line 342
+	  <[]> when 'true' ->
+	      0
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'reclength',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('tags')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('tags', _cor0)
+end

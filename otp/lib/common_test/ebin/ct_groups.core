@@ -1,0 +1,2177 @@
+module 'ct_groups' ['delete_subs'/2,
+		    'expand_groups'/3,
+		    'find_groups'/4,
+		    'make_all_conf'/3,
+		    'make_all_conf'/4,
+		    'make_conf'/5,
+		    'module_info'/0,
+		    'module_info'/1,
+		    'search_and_override'/3]
+    attributes []
+'find_groups'/4 =
+    %% Line 37
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Mod,GrNames,TCs,GroupDefs>
+	      when let <_cor4> =
+		    call 'erlang':'is_atom'
+			(GrNames)
+		in  let <_cor6> =
+			%% Line 38
+			try
+			    let <_cor5> =
+				call 'erlang':'length'
+				    (GrNames)
+			    in  call 'erlang':'=='
+				    (_cor5, 1)
+			of <Try> ->
+			    Try
+			catch <T,R> ->
+			    'false'
+		    in  call 'erlang':'or'
+			    (_cor4, _cor6) ->
+	      %% Line 39
+	      apply 'find_groups1'/4
+		  (Mod, GrNames, TCs, GroupDefs)
+	  %% Line 41
+	  <Mod,Groups,TCs,GroupDefs>
+	      when call 'erlang':'=/='
+		    (Groups,
+		     []) ->
+	      let <_cor12> =
+		  %% Line 42
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor9) ->
+				case _cor9 of
+				  <[%% Line 43
+				    GrNames|_cor8]> when 'true' ->
+				      let <_cor10> =
+					  apply 'find_groups1'/4
+					      (Mod, [GrNames|[]], TCs, GroupDefs)
+				      in  let <_cor11> =
+					      %% Line 43
+					      apply 'lc$^0'/1
+						  (_cor8)
+					  in  ( [_cor10|_cor11]
+						-| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor9> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor9})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (%% Line 43
+			     Groups)
+		    -| ['list_comprehension'] )
+	      in  %% Line 42
+		  call 'lists':'append'
+		      (_cor12)
+	  %% Line 45
+	  <_X_Mod,[],_X_TCs,_X_GroupDefs> when 'true' ->
+	      %% Line 46
+	      []
+	  ( <_cor16,_cor15,_cor14,_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15,_cor14,_cor13})
+		  -| [{'function_name',{'find_groups',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'find_groups1'/4 =
+    %% Line 51
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <GrNames1,FindAll> =
+	    %% Line 53
+	    case _cor2 of
+	      %% Line 54
+	      <Name>
+		  when let <_cor4> =
+			call 'erlang':'is_atom'
+			    (_cor2)
+		    in  let <_cor5> =
+			    call 'erlang':'=/='
+				(_cor2, 'all')
+			in  call 'erlang':'and'
+				(_cor4, _cor5) ->
+		  %% Line 55
+		  <[Name|[]],'true'>
+	      %% Line 56
+	      <[Path|[]]>
+		  when call 'erlang':'is_list'
+			(Path) ->
+		  %% Line 57
+		  <Path,'false'>
+	      %% Line 58
+	      <Path> when 'true' ->
+		  %% Line 59
+		  <Path,'true'>
+	    end
+	in  let <_cor13> =
+		%% Line 61
+		case <> of
+		  <>
+		      when try
+			    let <_cor9> =
+				call 'erlang':'is_atom'
+				    (_cor1)
+			    in  let <_cor10> =
+				    call 'erlang':'=/='
+					(_cor1, 'all')
+				in  let <_cor11> =
+					call 'erlang':'and'
+					    (_cor9, _cor10)
+				    in  let <_cor12> =
+					    call 'erlang':'is_tuple'
+						(_cor1)
+					in  call 'erlang':'or'
+						(_cor11, _cor12)
+			of <Try> ->
+			    Try
+			catch <T,R> ->
+			    'false' ->
+		      %% Line 62
+		      [_cor1|[]]
+		  %% Line 63
+		  <> when 'true' ->
+		      _cor1
+		end
+	    in  let <Found> =
+		    %% Line 66
+		    apply 'find'/7
+			(_cor3, GrNames1, _cor13, _cor0, [], _cor0, %% Line 67
+								    FindAll)
+		in  %% Line 68
+		    ( letrec
+			  'lc$^0'/1 =
+			      fun (_cor18) ->
+				  case _cor18 of
+				    <[Conf|_cor17]>
+					when call 'erlang':'=/='
+					      (Conf,
+					       'NOMATCH') ->
+					let <_cor19> =
+					    apply 'lc$^0'/1
+						(_cor17)
+					in  ( [Conf|_cor19]
+					      -| ['compiler_generated'] )
+				    ( <[Conf|_cor17]> when 'true' ->
+					  apply 'lc$^0'/1
+					      (_cor17)
+				      -| ['compiler_generated'] )
+				    <[]> when 'true' ->
+					[]
+				    ( <_cor18> when 'true' ->
+					  ( primop 'match_fail'
+						({'function_clause',_cor18})
+					    -| [{'function_name',{'lc$^0',1}}] )
+				      -| ['compiler_generated'] )
+				  end
+		      in  apply 'lc$^0'/1
+			      (Found)
+		      -| ['list_comprehension'] )
+'find'/7 =
+    %% Line 71
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Mod,'all','all',[{Name,Props,Tests}|Gs],Known,Defs,_cor105>
+	      when %% Line 72
+		try
+		    let <_cor7> =
+			call 'erlang':'is_atom'
+			    (Name)
+		    in  let <_cor8> =
+			    call 'erlang':'is_list'
+				(Props)
+			in  let <_cor9> =
+				call 'erlang':'is_list'
+				    (Tests)
+			    in  let <_cor10> =
+				    call 'erlang':'and'
+					(_cor8, _cor9)
+				in  call 'erlang':'and'
+					(_cor7, _cor10)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      do  %% Line 73
+		  apply 'cyclic_test'/3
+		      (Mod, Name, Known)
+		  let <_cor12> =
+		      %% Line 75
+		      apply 'find'/7
+			  (Mod, 'all', 'all', Tests, [Name|Known], %% Line 76
+								   Defs, %% Line 76
+									 'true')
+		  in  let <_cor13> =
+			  %% Line 74
+			  apply 'make_conf'/4
+			      (Mod, Name, Props, _cor12)
+		      in  let <_cor14> =
+			      %% Line 74
+			      apply 'trim'/1
+				  (_cor13)
+			  in  let <_cor11> =
+				  %% Line 77
+				  apply 'find'/7
+				      (Mod, 'all', 'all', Gs, Known, Defs, 'true')
+			      in  %% Line 76
+				  call 'erlang':'++'
+				      (_cor14, _cor11)
+	  %% Line 80
+	  <Mod,'all',TCs,[{Name,Props,Tests}|Gs],Known,Defs,_cor106>
+	      when %% Line 81
+		try
+		    let <_cor15> =
+			call 'erlang':'is_atom'
+			    (Name)
+		    in  let <_cor16> =
+			    call 'erlang':'is_list'
+				(Props)
+			in  let <_cor17> =
+				call 'erlang':'is_list'
+				    (Tests)
+			    in  let <_cor18> =
+				    call 'erlang':'and'
+					(_cor16, _cor17)
+				in  call 'erlang':'and'
+					(_cor15, _cor18)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      do  %% Line 82
+		  apply 'cyclic_test'/3
+		      (Mod, Name, Known)
+		  let <Tests1> =
+		      %% Line 83
+		      apply 'rm_unwanted_tcs'/3
+			  (Tests, TCs, [])
+		  in  let <_cor21> =
+			  %% Line 85
+			  apply 'find'/7
+			      (Mod, 'all', TCs, Tests1, [Name|Known], %% Line 86
+								      Defs, %% Line 86
+									    'true')
+		      in  let <_cor22> =
+			      %% Line 84
+			      apply 'make_conf'/4
+				  (Mod, Name, Props, _cor21)
+			  in  let <_cor23> =
+				  %% Line 84
+				  apply 'trim'/1
+				      (_cor22)
+			      in  let <_cor20> =
+				      %% Line 87
+				      apply 'find'/7
+					  (Mod, 'all', TCs, Gs, Known, Defs, 'true')
+				  in  %% Line 86
+				      call 'erlang':'++'
+					  (_cor23, _cor20)
+	  %% Line 90
+	  <Mod,SPath = [Name|GrNames],TCs,[{_cor107,Props,Tests}|Gs],Known,%% Line 91
+									   Defs,%% Line 91
+										FindAll>
+	      when let <_cor108> =
+		    call 'erlang':'=:='
+			(_cor107, Name)
+		in  let <_cor109> =
+			%% Line 91
+			try
+			    let <_cor24> =
+				call 'erlang':'is_atom'
+				    (Name)
+			    in  let <_cor25> =
+				    call 'erlang':'is_list'
+					(Props)
+				in  let <_cor26> =
+					call 'erlang':'is_list'
+					    (Tests)
+				    in  let <_cor27> =
+					    call 'erlang':'and'
+						(_cor25, _cor26)
+					in  call 'erlang':'and'
+						(_cor24, _cor27)
+			of <Try> ->
+			    Try
+			catch <T,R> ->
+			    'false'
+		    in  call 'erlang':'and'
+			    (_cor108, _cor109) ->
+	      do  %% Line 92
+		  apply 'cyclic_test'/3
+		      (Mod, Name, Known)
+		  let <Tests1> =
+		      %% Line 93
+		      apply 'rm_unwanted_tcs'/3
+			  (Tests, TCs, GrNames)
+		  in  let <_cor30> =
+			  %% Line 95
+			  apply 'find'/7
+			      (Mod, GrNames, TCs, Tests1, [Name|Known], %% Line 96
+									Defs, %% Line 96
+									      FindAll)
+		      in  let <_cor31> =
+			      %% Line 94
+			      apply 'make_conf'/4
+				  (Mod, Name, Props, _cor30)
+			  in  let <_cor32> =
+				  %% Line 94
+				  apply 'trim'/1
+				      (_cor31)
+			      in  let <_cor29> =
+				      %% Line 97
+				      apply 'find'/7
+					  (Mod, SPath, TCs, Gs, Known, Defs, FindAll)
+				  in  %% Line 96
+				      call 'erlang':'++'
+					  (_cor32, _cor29)
+	  %% Line 100
+	  <Mod,[],TCs,Tests,_X_Known,_X_Defs,'false'> when 'true' ->
+	      let <_cor40> =
+		  %% Line 101
+		  ( fun (_cor38) ->
+			case _cor38 of
+			  <TC>
+			      when let <_cor33> =
+				    call 'erlang':'is_atom'
+					(_cor38)
+				in  let <_cor34> =
+					call 'erlang':'=:='
+					    (TCs, 'all')
+				    in  call 'erlang':'and'
+					    (_cor33, _cor34) ->
+			      %% Line 102
+			      [{Mod,TC}|[]]
+			  %% Line 103
+			  <{'group',_cor110}> when 'true' ->
+			      %% Line 104
+			      []
+			  %% Line 105
+			  <TC = {_cor111,_cor112}>
+			      when call 'erlang':'=:='
+				    (TCs,
+				     'all') ->
+			      %% Line 106
+			      [TC|[]]
+			  %% Line 107
+			  <TC> when 'true' ->
+			      %% Line 108
+			      case <> of
+				<>
+				    when call 'erlang':'is_atom'
+					  (TC) ->
+				    let <Tuple> = {%% Line 109
+					 Mod,%% Line 109
+					     TC}
+				    in  %% Line 110
+					case call 'lists':'member'
+						 (Tuple, TCs) of
+					  %% Line 111
+					  <'true'> when 'true' ->
+					      %% Line 112
+					      [Tuple|[]]
+					  %% Line 113
+					  <'false'> when 'true' ->
+					      %% Line 114
+					      case call 'lists':'member'
+						       (TC, TCs) of
+						%% Line 115
+						<'true'> when 'true' ->
+						    [{Mod,TC}|[]]
+						%% Line 116
+						<'false'> when 'true' ->
+						    []
+						( <_cor36> when 'true' ->
+						      primop 'match_fail'
+							  ({'case_clause',_cor36})
+						  -| ['compiler_generated'] )
+					      end
+					  ( <_cor37> when 'true' ->
+						primop 'match_fail'
+						    ({'case_clause',_cor37})
+					    -| ['compiler_generated'] )
+					end
+				%% Line 119
+				<> when 'true' ->
+				    %% Line 120
+				    []
+			      end
+			end
+		    -| [{'id',{0,0,'-find/7-fun-0-'}}] )
+	      in  let <Cases> =
+		      %% Line 101
+		      call 'lists':'flatmap'
+			  (_cor40, %% Line 122
+				   Tests)
+		  in  %% Line 123
+		      case <> of
+			<>
+			    when call 'erlang':'=:='
+				  (Cases,
+				   []) ->
+			    ['NOMATCH']
+			%% Line 124
+			<> when 'true' ->
+			    Cases
+		      end
+	  %% Line 128
+	  <_X_Mod,[_cor113|_cor114],_X_TCs,[],_X_Known,_X_Defs,_cor115> when 'true' ->
+	      %% Line 129
+	      ['NOMATCH']
+	  %% Line 132
+	  <Mod,GrNames,TCs,[{Name,Props,Tests}|Gs],Known,%% Line 133
+							 Defs,%% Line 133
+							      FindAll>
+	      when %% Line 133
+		try
+		    let <_cor42> =
+			call 'erlang':'is_atom'
+			    (Name)
+		    in  let <_cor43> =
+			    call 'erlang':'is_list'
+				(Props)
+			in  let <_cor44> =
+				call 'erlang':'is_list'
+				    (Tests)
+			    in  let <_cor45> =
+				    call 'erlang':'and'
+					(_cor43, _cor44)
+				in  call 'erlang':'and'
+					(_cor42, _cor45)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      do  %% Line 134
+		  apply 'cyclic_test'/3
+		      (Mod, Name, Known)
+		  let <Tests1> =
+		      %% Line 135
+		      apply 'rm_unwanted_tcs'/3
+			  (Tests, TCs, GrNames)
+		  in  let <_cor48> =
+			  %% Line 137
+			  apply 'find'/7
+			      (Mod, GrNames, TCs, Tests1, [Name|Known], %% Line 138
+									Defs, %% Line 138
+									      FindAll)
+		      in  let <_cor49> =
+			      %% Line 136
+			      apply 'make_conf'/4
+				  (Mod, Name, Props, _cor48)
+			  in  let <_cor50> =
+				  %% Line 136
+				  apply 'trim'/1
+				      (_cor49)
+			      in  let <_cor47> =
+				      %% Line 139
+				      apply 'find'/7
+					  (Mod, GrNames, TCs, Gs, Known, Defs, FindAll)
+				  in  %% Line 138
+				      call 'erlang':'++'
+					  (_cor50, _cor47)
+	  %% Line 142
+	  <Mod,GrNames,TCs,[{'group',Name1}|Gs],Known,Defs,FindAll>
+	      when %% Line 143
+		call 'erlang':'is_atom'
+		    (Name1) ->
+	      let <_cor51> =
+		  %% Line 144
+		  apply 'expand'/3
+		      (Mod, Name1, Defs)
+	      in  %% Line 144
+		  apply 'find'/7
+		      (Mod, GrNames, TCs, [_cor51|Gs], Known, %% Line 145
+							      Defs, %% Line 145
+								    FindAll)
+	  %% Line 148
+	  <Mod,GrNames,TCs,[{'group',ExtMod,ExtGrp}|Gs],Known,%% Line 149
+							      Defs,%% Line 149
+								   FindAll>
+	      when let <_cor52> =
+		    %% Line 149
+		    call 'erlang':'is_atom'
+			(ExtMod)
+		in  let <_cor53> =
+			%% Line 149
+			call 'erlang':'is_atom'
+			    (ExtGrp)
+		    in  %% Line 149
+			call 'erlang':'and'
+			    (_cor52, _cor53) ->
+	      let <ExternalDefs> =
+		  %% Line 150
+		  call ExtMod:'groups'
+		      ()
+	      in  let <ExternalTCs> =
+		      %% Line 151
+		      apply 'find'/7
+			  (ExtMod, ExtGrp, TCs, [{'group',ExtGrp}|[]], %% Line 152
+								       [], %% Line 152
+									   ExternalDefs, %% Line 152
+											 FindAll)
+		  in  let <_cor56> =
+			  %% Line 153
+			  apply 'find'/7
+			      (Mod, GrNames, TCs, Gs, Known, Defs, FindAll)
+		      in  %% Line 153
+			  call 'erlang':'++'
+			      (ExternalTCs, _cor56)
+	  %% Line 156
+	  <Mod,GrNames,TCs,[{Name1,Tests}|Gs],Known,Defs,FindAll>
+	      when let <_cor57> =
+		    %% Line 157
+		    call 'erlang':'is_atom'
+			(Name1)
+		in  let <_cor58> =
+			%% Line 157
+			call 'erlang':'is_list'
+			    (Tests)
+		    in  %% Line 157
+			call 'erlang':'and'
+			    (_cor57, _cor58) ->
+	      %% Line 158
+	      apply 'find'/7
+		  (Mod, GrNames, TCs, [{Name1,[],Tests}|Gs], Known, Defs, FindAll)
+	  %% Line 161
+	  <Mod,GrNames,TCs,[TC = {ExternalTC,Case}|Gs],Known,%% Line 162
+							     Defs,%% Line 162
+								  FindAll>
+	      when let <_cor59> =
+		    %% Line 162
+		    call 'erlang':'is_atom'
+			(ExternalTC)
+		in  let <_cor60> =
+			%% Line 163
+			call 'erlang':'is_atom'
+			    (Case)
+		    in  %% Line 162
+			call 'erlang':'and'
+			    (_cor59, _cor60) ->
+	      let <_cor61> =
+		  %% Line 164
+		  apply 'find'/7
+		      (Mod, GrNames, TCs, Gs, Known, Defs, FindAll)
+	      in  %% Line 164
+		  [TC|_cor61]
+	  %% Line 167
+	  <Mod,GrNames,'all',[TC|Gs],Known,%% Line 168
+					   Defs,%% Line 168
+						FindAll>
+	      when %% Line 168
+		call 'erlang':'is_atom'
+		    (TC) ->
+	      let <_cor62> =
+		  %% Line 169
+		  apply 'find'/7
+		      (Mod, GrNames, 'all', Gs, Known, Defs, FindAll)
+	      in  %% Line 169
+		  [{Mod,TC}|_cor62]
+	  %% Line 172
+	  <Mod,GrNames,'all',[{M,TC}|Gs],Known,%% Line 173
+					       Defs,%% Line 173
+						    FindAll>
+	      when %% Line 173
+		try
+		    let <_cor63> =
+			call 'erlang':'is_atom'
+			    (M)
+		    in  let <_cor64> =
+			    call 'erlang':'=/='
+				(M, 'group')
+			in  let <_cor65> =
+				call 'erlang':'is_atom'
+				    (TC)
+			    in  let <_cor66> =
+				    call 'erlang':'and'
+					(_cor64, _cor65)
+				in  call 'erlang':'and'
+					(_cor63, _cor66)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor67> =
+		  %% Line 174
+		  apply 'find'/7
+		      (Mod, GrNames, 'all', Gs, Known, Defs, FindAll)
+	      in  %% Line 174
+		  [{M,TC}|_cor67]
+	  %% Line 177
+	  <Mod,GrNames,TCs,[TC|Gs],Known,%% Line 178
+					 Defs,%% Line 178
+					      FindAll>
+	      when %% Line 178
+		try
+		    ( case <> of
+			( <>
+			      when call 'erlang':'is_atom'
+				    (TC) ->
+			      'true'
+			  -| ['compiler_generated'] )
+			( <> when 'true' ->
+			      let <_cor71> =
+				  %% Line 179
+				  call 'erlang':'size'
+				      (TC)
+			      in  let <_cor72> =
+				      %% Line 179
+				      call 'erlang':'=='
+					  (_cor71, 2)
+				  in  let <_cor69> =
+					  %% Line 179
+					  call 'erlang':'element'
+					      (1, TC)
+				      in  let <_cor70> =
+					      %% Line 179
+					      call 'erlang':'=/='
+						  (_cor69, 'group')
+					  in  %% Line 179
+					      call 'erlang':'and'
+						  (_cor72, _cor70)
+			  -| ['compiler_generated'] )
+		      end
+		      -| ['compiler_generated'] )
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor79> =
+		  %% Line 181
+		  case <> of
+		    <>
+			when call 'erlang':'is_atom'
+			      (TC) ->
+			let <Tuple> = {%% Line 182
+			     Mod,%% Line 182
+				 TC}
+			in  %% Line 183
+			    case call 'lists':'member'
+				     (Tuple, TCs) of
+			      %% Line 184
+			      <'true'> when 'true' ->
+				  %% Line 185
+				  Tuple
+			      %% Line 186
+			      <'false'> when 'true' ->
+				  %% Line 187
+				  case call 'lists':'member'
+					   (TC, TCs) of
+				    %% Line 188
+				    <'true'> when 'true' ->
+					{Mod,TC}
+				    %% Line 189
+				    <'false'> when 'true' ->
+					[]
+				    ( <_cor76> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor76})
+				      -| ['compiler_generated'] )
+				  end
+			      ( <_cor77> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor77})
+				-| ['compiler_generated'] )
+			    end
+		    %% Line 192
+		    <> when 'true' ->
+			%% Line 193
+			case call 'lists':'member'
+				 (TC, TCs) of
+			  %% Line 194
+			  <'true'> when 'true' ->
+			      {Mod,TC}
+			  %% Line 195
+			  <'false'> when 'true' ->
+			      []
+			  ( <_cor78> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor78})
+			    -| ['compiler_generated'] )
+			end
+		  end
+	      in  %% Line 198
+		  case <> of
+		    <>
+			when call 'erlang':'=:='
+			      (_cor79,
+			       []) ->
+			%% Line 199
+			apply 'find'/7
+			    (Mod, GrNames, TCs, Gs, Known, Defs, FindAll)
+		    %% Line 200
+		    <> when 'true' ->
+			let <_cor81> =
+			    %% Line 201
+			    apply 'find'/7
+				(Mod, GrNames, TCs, Gs, Known, Defs, FindAll)
+			in  %% Line 201
+			    [_cor79|_cor81]
+		  end
+	  %% Line 205
+	  <Mod,_X_GrNames,_X_TCs,[BadTerm|_X_Gs],Known,_X_Defs,_X_FindAll> when 'true' ->
+	      let <_cor90> =
+		  %% Line 206
+		  case <> of
+		    <>
+			when try
+			      let <_cor82> =
+				  call 'erlang':'length'
+				      (Known)
+			      in  call 'erlang':'=='
+				      (_cor82, 0)
+			  of <Try> ->
+			      Try
+			  catch <T,R> ->
+			      'false' ->
+			let <_cor83> =
+			    %% Line 207
+			    call 'erlang':'atom_to_list'
+				(Mod)
+			in  %% Line 207
+			    call 'erlang':'++'
+				(_cor83, [58|[103|[114|[111|[117|[112|[115|[47|[48]]]]]]]]])
+		    %% Line 208
+		    <> when 'true' ->
+			let <_cor87> =
+			    %% Line 209
+			    call 'lists':'last'
+				(Known)
+			in  let <_cor88> =
+				%% Line 209
+				call 'erlang':'atom_to_list'
+				    (_cor87)
+			    in  let <_cor84> =
+				    %% Line 210
+				    call 'erlang':'atom_to_list'
+					(Mod)
+				in  let <_cor85> =
+					%% Line 210
+					call 'erlang':'++'
+					    (_cor84, [58|[103|[114|[111|[117|[112|[115|[47|[48]]]]]]]]])
+				    in  let <_cor86> =
+					    %% Line 210
+					    [32|[105|[110|[32|_cor85]]]]
+					in  let <_cor89> =
+						%% Line 209
+						call 'erlang':'++'
+						    (_cor88, _cor86)
+					    in  %% Line 209
+						call 'erlang':'++'
+						    ([103|[114|[111|[117|[112|[32]]]]]], _cor89)
+		  end
+	      in  let <Term> =
+		      %% Line 212
+		      call 'io_lib':'format'
+			  ([126|[112]], [BadTerm|[]])
+		  in  let <_cor94> =
+			  %% Line 213
+			  call 'lists':'flatten'
+			      (Term)
+		      in  let <_cor93> =
+			      %% Line 213
+			      [32|[105|[110|[32|_cor90]]]]
+			  in  let <_cor95> =
+				  %% Line 213
+				  call 'erlang':'++'
+				      (_cor94, _cor93)
+			      in  let <E> =
+				      %% Line 213
+				      call 'erlang':'++'
+					  ([66|[97|[100|[32|[116|[101|[114|[109|[32]]]]]]]]], _cor95)
+				  in  let <_cor97> =
+					  %% Line 214
+					  call 'erlang':'list_to_atom'
+					      (E)
+				      in  %% Line 214
+					  call 'erlang':'throw'
+					      ({'error',_cor97})
+	  %% Line 217
+	  <_X_Mod,_X_GrNames,_X_TCs,[],_X_Known,_X_Defs,_cor116> when 'true' ->
+	      %% Line 218
+	      []
+	  ( <_cor104,_cor103,_cor102,_cor101,_cor100,_cor99,_cor98> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor104,_cor103,_cor102,_cor101,_cor100,_cor99,_cor98})
+		  -| [{'function_name',{'find',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'trim'/1 =
+    %% Line 226
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'conf',Props,Init,Tests,End}> when 'true' ->
+	      %% Line 227
+	      try
+		  apply 'trim'/1
+		      (Tests)
+	      of <_cor1> ->
+		  case _cor1 of
+		    %% Line 228
+		    <[]> when 'true' ->
+			[]
+		    %% Line 229
+		    <Tests1> when 'true' ->
+			[{'conf',Props,Init,Tests1,End}|[]]
+		  end
+	      catch <_cor5,_cor4,_cor3> ->
+		  case <_cor5,_cor4,_cor3> of
+		    %% Line 231
+		    <'throw',_cor24,_cor25> when 'true' ->
+			[]
+		    ( <_cor5,_cor4,_cor3> when 'true' ->
+			  primop 'raise'
+			      (_cor3, _cor4)
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 234
+	  <Tests>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      let <_cor16> =
+		  %% Line 239
+		  ( fun (_cor14) ->
+			let <_cor7> =
+			    %% Line 240
+			    case _cor14 of
+			      %% Line 241
+			      <{'conf',_cor26,_cor27,_cor28,_cor29}> when 'true' ->
+				  %% Line 242
+				  'true'
+			      %% Line 243
+			      <_cor30> when 'true' ->
+				  %% Line 244
+				  'false'
+			    end
+			in  %% Line 246
+			    try
+				apply 'trim_test'/1
+				    (_cor14)
+			    of <_cor9> ->
+				case _cor9 of
+				  %% Line 247
+				  <[]> when 'true' ->
+				      []
+				  %% Line 248
+				  <Test1>
+				      when _cor7 ->
+				      [{'conf',Test1}|[]]
+				  %% Line 249
+				  <Test1> when 'true' ->
+				      [Test1|[]]
+				end
+			    catch <_cor13,_cor12,_cor11> ->
+				case <_cor13,_cor12,_cor11> of
+				  %% Line 251
+				  <'throw',_cor31,_cor32> when 'true' ->
+				      ['NOMATCH']
+				  ( <_cor13,_cor12,_cor11> when 'true' ->
+					primop 'raise'
+					    (_cor11, _cor12)
+				    -| ['compiler_generated'] )
+				end
+		    -| [{'id',{0,0,'-trim/1-fun-0-'}}] )
+	      in  let <Tests1> =
+		      %% Line 239
+		      call 'lists':'flatmap'
+			  (_cor16, %% Line 253
+				   Tests)
+		  in  %% Line 254
+		      case call 'lists':'keymember'
+			       ('conf', 1, Tests1) of
+			%% Line 255
+			<'true'> when 'true' ->
+			    let <_cor20> =
+				%% Line 256
+				( fun (_cor18) ->
+				      case _cor18 of
+					<{'conf',Test}> when 'true' ->
+					    [Test|[]]
+					%% Line 257
+					<'NOMATCH'> when 'true' ->
+					    []
+					%% Line 258
+					<Test> when 'true' ->
+					    [Test|[]]
+				      end
+				  -| [{'id',{0,0,'-trim/1-fun-1-'}}] )
+			    in  %% Line 256
+				call 'lists':'flatmap'
+				    (_cor20, %% Line 259
+					     Tests1)
+			%% Line 260
+			<'false'> when 'true' ->
+			    %% Line 261
+			    case call 'lists':'member'
+				     ('NOMATCH', Tests1) of
+			      %% Line 262
+			      <'true'> when 'true' ->
+				  %% Line 263
+				  call 'erlang':'throw'
+				      ('NOMATCH')
+			      %% Line 264
+			      <'false'> when 'true' ->
+				  %% Line 265
+				  Tests1
+			      ( <_cor21> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor21})
+				-| ['compiler_generated'] )
+			    end
+			( <_cor22> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor22})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor23> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor23})
+		  -| [{'function_name',{'trim',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'trim_test'/1 =
+    %% Line 269
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'conf',Props,Init,Tests,End}> when 'true' ->
+	      %% Line 270
+	      case apply 'trim'/1
+		       (Tests) of
+		%% Line 271
+		<[]> when 'true' ->
+		    %% Line 272
+		    []
+		%% Line 273
+		<Tests1> when 'true' ->
+		    %% Line 274
+		    {'conf',Props,Init,Tests1,End}
+	      end
+	  %% Line 277
+	  <'NOMATCH'> when 'true' ->
+	      %% Line 278
+	      call 'erlang':'throw'
+		  ('NOMATCH')
+	  %% Line 280
+	  <Test> when 'true' ->
+	      %% Line 281
+	      Test
+	end
+'rm_unwanted_tcs'/3 =
+    %% Line 286
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Tests,'all',[]> when 'true' ->
+	      %% Line 287
+	      Tests
+	  %% Line 289
+	  <Tests,TCs,[]> when 'true' ->
+	      let <_cor11> =
+		  %% Line 290
+		  ( fun (_cor9) ->
+			case _cor9 of
+			  <Test>
+			      when try
+				    let <_cor3> =
+					call 'erlang':'is_tuple'
+					    (_cor9)
+				    in  let <_cor4> =
+					    %% Line 291
+					    call 'erlang':'size'
+						(_cor9)
+					in  let <_cor5> =
+						%% Line 291
+						call 'erlang':'>'
+						    (_cor4, 2)
+					    in  call 'erlang':'and'
+						    (_cor3, _cor5)
+				of <Try> ->
+				    Try
+				catch <T,R> ->
+				    'false' ->
+			      %% Line 292
+			      [Test|[]]
+			  %% Line 293
+			  <Test = {'group',_cor21}> when 'true' ->
+			      %% Line 294
+			      [Test|[]]
+			  %% Line 295
+			  <Test = {_X_M,TC}> when 'true' ->
+			      %% Line 296
+			      case call 'lists':'member'
+				       (TC, TCs) of
+				%% Line 297
+				<'true'> when 'true' ->
+				    [Test|[]]
+				%% Line 298
+				<'false'> when 'true' ->
+				    []
+				( <_cor6> when 'true' ->
+				      primop 'match_fail'
+					  ({'case_clause',_cor6})
+				  -| ['compiler_generated'] )
+			      end
+			  %% Line 300
+			  <Test>
+			      when call 'erlang':'is_atom'
+				    (_cor9) ->
+			      %% Line 301
+			      case call 'lists':'keysearch'
+				       (Test, 2, TCs) of
+				%% Line 302
+				<{'value',_cor22}> when 'true' ->
+				    %% Line 303
+				    [Test|[]]
+				%% Line 304
+				<_cor23> when 'true' ->
+				    %% Line 305
+				    case call 'lists':'member'
+					     (Test, TCs) of
+				      %% Line 306
+				      <'true'> when 'true' ->
+					  [Test|[]]
+				      %% Line 307
+				      <'false'> when 'true' ->
+					  []
+				      ( <_cor7> when 'true' ->
+					    primop 'match_fail'
+						({'case_clause',_cor7})
+					-| ['compiler_generated'] )
+				    end
+			      end
+			  %% Line 310
+			  <Test> when 'true' ->
+			      [Test|[]]
+			end
+		    -| [{'id',{0,0,'-rm_unwanted_tcs/3-fun-0-'}}] )
+	      in  let <_cor12> =
+		      %% Line 290
+		      call 'lists':'flatmap'
+			  (_cor11, %% Line 311
+				   Tests)
+		  in  %% Line 290
+		      apply 'sort_tests'/2
+			  (_cor12, %% Line 311
+				   TCs)
+	  %% Line 313
+	  <Tests,_X_TCs,_cor24> when 'true' ->
+	      %% Line 314
+	      ( letrec
+		    'lc$^0'/1 =
+			fun (_cor16) ->
+			    case _cor16 of
+			      <[Test|_cor14]>
+				  when let <_cor15> =
+					call 'erlang':'is_atom'
+					    (Test)
+				    in  call 'erlang':'not'
+					    (_cor15) ->
+				  let <_cor17> =
+				      apply 'lc$^0'/1
+					  (_cor14)
+				  in  ( [Test|_cor17]
+					-| ['compiler_generated'] )
+			      ( <[Test|_cor14]> when 'true' ->
+				    apply 'lc$^0'/1
+					(_cor14)
+				-| ['compiler_generated'] )
+			      <[]> when 'true' ->
+				  []
+			      ( <_cor16> when 'true' ->
+				    ( primop 'match_fail'
+					  ({'function_clause',_cor16})
+				      -| [{'function_name',{'lc$^0',1}}] )
+				-| ['compiler_generated'] )
+			    end
+		in  apply 'lc$^0'/1
+			(Tests)
+		-| ['list_comprehension'] )
+	end
+'sort_tests'/2 =
+    %% Line 317
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Tests,TCs>
+	      when call 'erlang':'is_list'
+		    (TCs) ->
+	      let <_cor14> =
+		  %% Line 318
+		  ( fun (_cor11,_cor10) ->
+			let <_cor3> =
+			    %% Line 319
+			    apply 'is_tc'/1
+				(_cor11)
+			in  let <_cor2> =
+				%% Line 319
+				apply 'is_tc'/1
+				    (_cor10)
+			    in  %% Line 319
+				case <_cor3,_cor2> of
+				  %% Line 320
+				  <'true','true'> when 'true' ->
+				      let <_cor5> =
+					  %% Line 321
+					  apply 'position'/2
+					      (_cor11, TCs)
+				      in  let <_cor4> =
+					      %% Line 322
+					      apply 'position'/2
+						  (_cor10, TCs)
+					  in  %% Line 321
+					      call 'erlang':'=<'
+						  (_cor5, _cor4)
+				  %% Line 323
+				  <'false','true'> when 'true' ->
+				      let <_cor8> =
+					  %% Line 324
+					  apply 'position'/2
+					      (_cor10, TCs)
+				      in  let <_cor6> =
+					      %% Line 324
+					      call 'erlang':'length'
+						  (TCs)
+					  in  let <_cor7> =
+						  %% Line 324
+						  call 'erlang':'+'
+						      (_cor6, 1)
+					      in  %% Line 324
+						  call 'erlang':'=='
+						      (_cor8, _cor7)
+				  %% Line 325
+				  <_fol5,_fol6> when 'true' ->
+				      'true'
+				end
+		    -| [{'id',{0,0,'-sort_tests/2-fun-0-'}}] )
+	      in  %% Line 318
+		  call 'lists':'sort'
+		      (_cor14, %% Line 328
+			       Tests)
+	  %% Line 329
+	  <Tests,_cor18> when 'true' ->
+	      %% Line 330
+	      Tests
+	end
+'is_tc'/1 =
+    %% Line 332
+    fun (_cor0) ->
+	case _cor0 of
+	  <T>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      'true'
+	  %% Line 333
+	  <{'group',_cor2}> when 'true' ->
+	      'false'
+	  %% Line 334
+	  <{_X_M,T}>
+	      when call 'erlang':'is_atom'
+		    (T) ->
+	      'true'
+	  %% Line 335
+	  <_cor3> when 'true' ->
+	      'false'
+	end
+'position'/2 =
+    %% Line 337
+    fun (_cor1,_cor0) ->
+	%% Line 338
+	apply 'position'/3
+	    (_cor1, _cor0, 1)
+'position'/3 =
+    %% Line 340
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <T,[_cor7|_X_TCs],Pos>
+	      when call 'erlang':'=:='
+		    (_cor7,
+		     T) ->
+	      %% Line 341
+	      Pos
+	  %% Line 342
+	  <T,[{_cor8,_cor9}|_X_TCs],Pos>
+	      when call 'erlang':'=:='
+		    (_cor9,
+		     T) ->
+	      %% Line 343
+	      Pos
+	  %% Line 344
+	  <{M,T},[_cor10|_X_TCs],Pos>
+	      when let <_cor11> =
+		    call 'erlang':'=:='
+			(_cor10, T)
+		in  let <_cor12> =
+			call 'erlang':'=/='
+			    (M, 'group')
+		    in  call 'erlang':'and'
+			    (_cor11, _cor12) ->
+	      %% Line 345
+	      Pos
+	  %% Line 346
+	  <T,[_cor13|TCs],Pos> when 'true' ->
+	      let <_cor3> =
+		  %% Line 347
+		  call 'erlang':'+'
+		      (Pos, 1)
+	      in  %% Line 347
+		  apply 'position'/3
+		      (T, TCs, _cor3)
+	  %% Line 348
+	  <_cor14,[],Pos> when 'true' ->
+	      %% Line 349
+	      Pos
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'position',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'delete_subs'/2 =
+    %% Line 353
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[Conf = {'conf',_cor6,_cor7,_cor8,_cor9}|Confs],All> when 'true' ->
+	      let <All1> =
+		  %% Line 354
+		  apply 'delete_conf'/2
+		      (Conf, All)
+	      in  %% Line 355
+		  case apply 'is_sub'/2
+			   (Conf, All1) of
+		    %% Line 356
+		    <'true'> when 'true' ->
+			%% Line 357
+			apply 'delete_subs'/2
+			    (Confs, All1)
+		    %% Line 358
+		    <'false'> when 'true' ->
+			%% Line 359
+			apply 'delete_subs'/2
+			    (Confs, All)
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 361
+	  <[_X_Else|Confs],All> when 'true' ->
+	      %% Line 362
+	      apply 'delete_subs'/2
+		  (Confs, All)
+	  %% Line 363
+	  <[],All> when 'true' ->
+	      %% Line 364
+	      All
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'delete_subs',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'delete_conf'/2 =
+    %% Line 366
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'conf',Props,_cor11,_cor12,_cor13},Confs> when 'true' ->
+	      let <Name> =
+		  %% Line 367
+		  call 'proplists':'get_value'
+		      ('name', Props)
+	      in  %% Line 368
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor6) ->
+				case _cor6 of
+				  <[Conf = {'conf',Props0,_cor14,_cor15,_cor16}|_cor4]> when 'true' ->
+				      let <_cor5> =
+					  %% Line 369
+					  call 'proplists':'get_value'
+					      ('name', Props0)
+				      in  %% Line 369
+					  ( case <> of
+					      <>
+						  when call 'erlang':'=/='
+							(Name,
+							 _cor5) ->
+						  let <_cor7> =
+						      apply 'lc$^0'/1
+							  (_cor4)
+						  in  ( [Conf|_cor7]
+							-| ['compiler_generated'] )
+					      ( <> when 'true' ->
+						    apply 'lc$^0'/1
+							(_cor4)
+						-| ['compiler_generated'] )
+					    end
+					    -| ['list_comprehension'] )
+				  ( <[_cor3|_cor4]> when 'true' ->
+					apply 'lc$^0'/1
+					    (_cor4)
+				    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor6> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor6})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (Confs)
+		    -| ['list_comprehension'] )
+	  ( <_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9})
+		  -| [{'function_name',{'delete_conf',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'is_sub'/2 =
+    %% Line 371
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Conf = {'conf',Props,_cor12,_cor13,_cor14},[{'conf',_cor15,_cor16,Tests,_cor17}|Confs]> when 'true' ->
+	      let <Name> =
+		  %% Line 372
+		  call 'proplists':'get_value'
+		      ('name', Props)
+	      in  let <_cor6> =
+		      %% Line 373
+		      ( fun (_cor4) ->
+			    case _cor4 of
+			      <{'conf',Props0,_cor18,_cor19,_cor20}> when 'true' ->
+				  %% Line 374
+				  case call 'proplists':'get_value'
+					   ('name', Props0) of
+				    %% Line 375
+				    <N>
+					when call 'erlang':'=='
+					      (N,
+					       Name) ->
+					%% Line 376
+					'true'
+				    %% Line 377
+				    <_cor21> when 'true' ->
+					%% Line 378
+					'false'
+				  end
+			      %% Line 380
+			      <_cor22> when 'true' ->
+				  %% Line 381
+				  'false'
+			    end
+			-| [{'id',{0,0,'-is_sub/2-fun-0-'}}] )
+		  in  %% Line 373
+		      case call 'lists':'any'
+			       (_cor6, %% Line 382
+				       Tests) of
+			%% Line 383
+			<'true'> when 'true' ->
+			    %% Line 384
+			    'true'
+			%% Line 385
+			<'false'> when 'true' ->
+			    %% Line 386
+			    ( case apply 'is_sub'/2
+				       (Conf, Tests) of
+				( <( 'true'
+				     -| ['compiler_generated'] )> when 'true' ->
+				      'true'
+				  -| ['compiler_generated'] )
+				( <( 'false'
+				     -| ['compiler_generated'] )> when 'true' ->
+				      apply 'is_sub'/2
+					  (Conf, Confs)
+				  -| ['compiler_generated'] )
+				( <_cor7> when 'true' ->
+				      ( call ( 'erlang'
+					       -| ['compiler_generated'] ):( 'error'
+									     -| ['compiler_generated'] )
+					    (( {( 'badarg'
+						  -| ['compiler_generated'] ),_cor7}
+					       -| ['compiler_generated'] ))
+					-| ['compiler_generated'] )
+				  -| ['compiler_generated'] )
+			      end
+			      -| ['compiler_generated'] )
+			( <_cor9> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor9})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 389
+	  <Conf,[_X_TC|Tests]> when 'true' ->
+	      %% Line 390
+	      apply 'is_sub'/2
+		  (Conf, Tests)
+	  %% Line 392
+	  <_X_Conf,[]> when 'true' ->
+	      %% Line 393
+	      'false'
+	  ( <_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10})
+		  -| [{'function_name',{'is_sub',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'cyclic_test'/3 =
+    %% Line 396
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 397
+	case call 'lists':'member'
+		 (_cor1, _cor0) of
+	  %% Line 398
+	  <'true'> when 'true' ->
+	      let <_cor6> =
+		  %% Line 399
+		  call 'erlang':'atom_to_list'
+		      (_cor1)
+	      in  let <_cor3> =
+		      %% Line 400
+		      call 'erlang':'atom_to_list'
+			  (_cor2)
+		  in  let <_cor4> =
+			  %% Line 400
+			  call 'erlang':'++'
+			      (_cor3, [58|[103|[114|[111|[117|[112|[115|[47|[48]]]]]]]]])
+		      in  let <_cor5> =
+			      %% Line 400
+			      [32|[105|[110|[32|_cor4]]]]
+			  in  let <_cor7> =
+				  %% Line 399
+				  call 'erlang':'++'
+				      (_cor6, _cor5)
+			      in  let <E> =
+				      %% Line 399
+				      call 'erlang':'++'
+					  ([67|[121|[99|[108|[105|[99|[32|[114|[101|[102|[101|[114|[101|[110|[99|[101|[32|[116|[111|[32|[103|[114|[111|[117|[112|[32]]]]]]]]]]]]]]]]]]]]]]]]]], _cor7)
+				  in  let <_cor9> =
+					  %% Line 401
+					  call 'erlang':'list_to_atom'
+					      (E)
+				      in  %% Line 401
+					  call 'erlang':'throw'
+					      ({'error',_cor9})
+	  %% Line 402
+	  <'false'> when 'true' ->
+	      %% Line 403
+	      'ok'
+	  ( <_cor10> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor10})
+	    -| ['compiler_generated'] )
+	end
+'expand'/3 =
+    %% Line 406
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 407
+	case call 'lists':'keysearch'
+		 (_cor1, 1, _cor0) of
+	  %% Line 408
+	  <{'value',Def}> when 'true' ->
+	      %% Line 409
+	      Def
+	  %% Line 410
+	  <'false'> when 'true' ->
+	      let <_cor6> =
+		  %% Line 411
+		  call 'erlang':'atom_to_list'
+		      (_cor1)
+	      in  let <_cor3> =
+		      %% Line 412
+		      call 'erlang':'atom_to_list'
+			  (_cor2)
+		  in  let <_cor4> =
+			  %% Line 412
+			  call 'erlang':'++'
+			      (_cor3, [58|[103|[114|[111|[117|[112|[115|[47|[48]]]]]]]]])
+		      in  let <_cor5> =
+			      %% Line 412
+			      [32|[105|[110|[32|_cor4]]]]
+			  in  let <_cor7> =
+				  %% Line 411
+				  call 'erlang':'++'
+				      (_cor6, _cor5)
+			      in  let <E> =
+				      %% Line 411
+				      call 'erlang':'++'
+					  ([73|[110|[118|[97|[108|[105|[100|[32|[103|[114|[111|[117|[112|[32]]]]]]]]]]]]]], _cor7)
+				  in  let <_cor9> =
+					  %% Line 413
+					  call 'erlang':'list_to_atom'
+					      (E)
+				      in  %% Line 413
+					  call 'erlang':'throw'
+					      ({'error',_cor9})
+	  ( <_cor10> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor10})
+	    -| ['compiler_generated'] )
+	end
+'make_all_conf'/4 =
+    %% Line 416
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 417
+	    case call 'code':'is_loaded'
+		     (_cor2) of
+	      %% Line 418
+	      <'false'> when 'true' ->
+		  let <_cor4> =
+		      %% Line 419
+		      call 'erlang':'atom_to_list'
+			  (_cor2)
+		  in  let <_cor5> =
+			  %% Line 419
+			  call 'filename':'join'
+			      (_cor3, _cor4)
+		      in  %% Line 419
+			  call 'code':'load_abs'
+			      (_cor5)
+	      %% Line 420
+	      <_cor11> when 'true' ->
+		  'ok'
+	    end
+	    %% Line 423
+	    apply 'make_all_conf'/3
+		(_cor2, _cor1, _cor0)
+'make_all_conf'/3 =
+    %% Line 425
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    catch
+		%% Line 426
+		call _cor2:'groups'
+		    ()
+	in  %% Line 426
+	    case _cor3 of
+	      %% Line 427
+	      <{'EXIT',_cor10}> when 'true' ->
+		  %% Line 428
+		  call 'erlang':'exit'
+		      ({'invalid_group_definition',_cor2})
+	      %% Line 429
+	      <GroupDefs>
+		  when call 'erlang':'is_list'
+			(_cor3) ->
+		  let <_cor4> =
+		      catch
+			  %% Line 430
+			  apply 'find_groups'/4
+			      (_cor2, 'all', _cor0, GroupDefs)
+		  in  %% Line 430
+		      case _cor4 of
+			%% Line 431
+			<Error = {'error',_cor11}> when 'true' ->
+			    %% Line 434
+			    [{'ct_framework','error_in_suite',[[Error|[]]|[]]}|[]]
+			%% Line 435
+			<[]> when 'true' ->
+			    %% Line 436
+			    call 'erlang':'exit'
+				({'invalid_group_spec',_cor2})
+			%% Line 437
+			<_X_ConfTests> when 'true' ->
+			    %% Line 438
+			    apply 'make_conf'/4
+				(_cor2, 'all', _cor1, _cor0)
+		      end
+	      ( <_cor6> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor6})
+		-| ['compiler_generated'] )
+	    end
+'make_conf'/5 =
+    %% Line 442
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 443
+	    case call 'code':'is_loaded'
+		     (_cor3) of
+	      %% Line 444
+	      <'false'> when 'true' ->
+		  let <_cor5> =
+		      %% Line 445
+		      call 'erlang':'atom_to_list'
+			  (_cor3)
+		  in  let <_cor6> =
+			  %% Line 445
+			  call 'filename':'join'
+			      (_cor4, _cor5)
+		      in  %% Line 445
+			  call 'code':'load_abs'
+			      (_cor6)
+	      %% Line 446
+	      <_cor13> when 'true' ->
+		  'ok'
+	    end
+	    %% Line 449
+	    apply 'make_conf'/4
+		(_cor3, _cor2, _cor1, _cor0)
+'make_conf'/4 =
+    %% Line 451
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 452
+	    case call 'code':'is_loaded'
+		     (_cor3) of
+	      %% Line 453
+	      <'false'> when 'true' ->
+		  %% Line 454
+		  call 'code':'load_file'
+		      (_cor3)
+	      %% Line 455
+	      <_cor13> when 'true' ->
+		  'ok'
+	    end
+	    let <InitConf,EndConf,ExtraProps> =
+		%% Line 459
+		case call 'erlang':'function_exported'
+			 (_cor3, 'init_per_group', 2) of
+		  %% Line 460
+		  <'true'> when 'true' ->
+		      %% Line 461
+		      <{_cor3,'init_per_group'},{_cor3,'end_per_group'},[]>
+		  %% Line 462
+		  <'false'> when 'true' ->
+		      do  %% Line 463
+			  call 'ct_logs':'log'
+			      ([84|[69|[83|[84|[32|[73|[78|[70|[79]]]]]]]]], [105|[110|[105|[116|[95|[112|[101|[114|[95|[103|[114|[111|[117|[112|[47|[50|[32|[97|[110|[100|[32|[101|[110|[100|[95|[112|[101|[114|[95|[103|[114|[111|[117|[112|[47|[50|[32|[109|[105|[115|[115|[105|[110|[103|[32|[102|[111|[114|[32|[103|[114|[111|[117|[112|[32|[126|[119|[32|[105|[110|[32|[126|[119|[44|[32|[117|[115|[105|[110|[103|[32|[100|[101|[102|[97|[117|[108|[116|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 466
+																																																																		  [_cor2|[_cor3|[]]])
+			  %% Line 467
+			  <{'ct_framework','init_per_group'},%% Line 468
+							     {'ct_framework','end_per_group'},%% Line 469
+											      [{'suite',_cor3}|[]]>
+		  ( <_cor5> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor5})
+		    -| ['compiler_generated'] )
+		end
+	    in  let <_cor8> =
+		    %% Line 471
+		    call 'erlang':'++'
+			(_cor1, ExtraProps)
+		in  %% Line 471
+		    {'conf',[{'name',_cor2}|_cor8],InitConf,_cor0,EndConf}
+'expand_groups'/3 =
+    %% Line 475
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[H|T],ConfTests,Mod> when 'true' ->
+	      let <_cor3> =
+		  %% Line 476
+		  apply 'expand_groups'/3
+		      (H, ConfTests, Mod)
+	      in  let <_cor4> =
+		      %% Line 476
+		      apply 'expand_groups'/3
+			  (T, ConfTests, Mod)
+		  in  %% Line 476
+		      [_cor3|_cor4]
+	  %% Line 477
+	  <[],_X_ConfTests,_X_Mod> when 'true' ->
+	      %% Line 478
+	      []
+	  %% Line 479
+	  <{'group',Name},ConfTests,Mod> when 'true' ->
+	      %% Line 480
+	      apply 'expand_groups'/3
+		  ({'group',Name,'default',[]}, ConfTests, Mod)
+	  %% Line 481
+	  <{'group',Name,'default'},ConfTests,Mod> when 'true' ->
+	      %% Line 482
+	      apply 'expand_groups'/3
+		  ({'group',Name,'default',[]}, ConfTests, Mod)
+	  %% Line 483
+	  <{'group',Name,ORProps},ConfTests,Mod>
+	      when call 'erlang':'is_list'
+		    (ORProps) ->
+	      %% Line 484
+	      apply 'expand_groups'/3
+		  ({'group',Name,ORProps,[]}, ConfTests, Mod)
+	  %% Line 485
+	  <{'group',Name,ORProps,SubORSpec},ConfTests,Mod> when 'true' ->
+	      let <FindConf> =
+		  %% Line 487
+		  ( fun (_cor9) ->
+			case _cor9 of
+			  <Conf = {'conf',Props,Init,Ts,End}> when 'true' ->
+			      %% Line 488
+			      case call 'proplists':'get_value'
+				       ('name', Props) of
+				%% Line 489
+				<_cor17>
+				    when let <_cor18> =
+					  call 'erlang':'=:='
+					      (_cor17, Name)
+				      in  let <_cor19> =
+					      call 'erlang':'=:='
+						  (ORProps, 'default')
+					  in  call 'erlang':'and'
+						  (_cor18, _cor19) ->
+				    %% Line 490
+				    [Conf|[]]
+				%% Line 491
+				<_cor20>
+				    when call 'erlang':'=:='
+					  (_cor20,
+					   Name) ->
+				    let <_cor6> =
+					%% Line 492
+					case call 'proplists':'get_value'
+						 ('suite', Props) of
+					  %% Line 493
+					  <'undefined'> when 'true' ->
+					      %% Line 494
+					      ORProps
+					  %% Line 495
+					  <SuiteName> when 'true' ->
+					      %% Line 496
+					      [{'suite',SuiteName}|ORProps]
+					end
+				    in  %% Line 498
+					[{'conf',[{'name',Name}|_cor6],Init,Ts,End}|[]]
+				%% Line 499
+				<_cor21> when 'true' ->
+				    %% Line 500
+				    []
+			      end
+			  ( <_cor10> when 'true' ->
+				( primop 'match_fail'
+				      ({'function_clause',_cor10})
+				  -| [{'function_name',{'-expand_groups/3-fun-0-',1}}] )
+			    -| ['compiler_generated'] )
+			end
+		    -| [{'id',{0,0,'-expand_groups/3-fun-0-'}}] )
+	      in  %% Line 503
+		  case call 'lists':'flatmap'
+			   (FindConf, ConfTests) of
+		    %% Line 504
+		    <[]> when 'true' ->
+			let <_cor12> =
+			    %% Line 505
+			    apply 'invalid_ref_msg'/2
+				(Name, Mod)
+			in  %% Line 505
+			    call 'erlang':'throw'
+				({'error',_cor12})
+		    %% Line 506
+		    <Matching>
+			when call 'erlang':'=:='
+			      (SubORSpec,
+			       []) ->
+			%% Line 507
+			Matching
+		    %% Line 508
+		    <Matching> when 'true' ->
+			%% Line 509
+			apply 'override_props'/4
+			    (Matching, SubORSpec, Name, Mod)
+		  end
+	  %% Line 511
+	  <SeqOrTC,_X_ConfTests,_X_Mod> when 'true' ->
+	      %% Line 512
+	      SeqOrTC
+	end
+'search_and_override'/3 =
+    %% Line 516
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Conf = {'conf',Props,Init,Tests,End}|[]],ORSpec,Mod> when 'true' ->
+	      let <InsProps> =
+		  %% Line 517
+		  ( fun (_cor5,_cor4,_cor3) ->
+			case <_cor5,_cor4,_cor3> of
+			  <GrName,'undefined',Ps> when 'true' ->
+			      %% Line 518
+			      [{'name',GrName}|Ps]
+			  %% Line 519
+			  <GrName,Suite,Ps> when 'true' ->
+			      %% Line 520
+			      [{'name',GrName}|[{'suite',Suite}|Ps]]
+			end
+		    -| [{'id',{0,0,'-search_and_override/3-fun-0-'}}] )
+	      in  let <Name> =
+		      %% Line 522
+		      call 'proplists':'get_value'
+			  ('name', Props)
+		  in  let <Suite> =
+			  %% Line 523
+			  call 'proplists':'get_value'
+			      ('suite', Props)
+		      in  %% Line 524
+			  case call 'lists':'keysearch'
+				   (Name, 1, ORSpec) of
+			    %% Line 525
+			    <{'value',{_cor19,'default'}}>
+				when call 'erlang':'=:='
+				      (_cor19,
+				       Name) ->
+				%% Line 526
+				[Conf|[]]
+			    %% Line 527
+			    <{'value',{_cor20,ORProps}}>
+				when call 'erlang':'=:='
+				      (_cor20,
+				       Name) ->
+				let <_cor12> =
+				    %% Line 528
+				    apply InsProps
+					(Name, Suite, ORProps)
+				in  %% Line 528
+				    [{'conf',_cor12,Init,Tests,End}|[]]
+			    %% Line 529
+			    <{'value',{_cor21,'default',[]}}>
+				when call 'erlang':'=:='
+				      (_cor21,
+				       Name) ->
+				%% Line 530
+				[Conf|[]]
+			    %% Line 531
+			    <{'value',{_cor22,'default',SubORSpec}}>
+				when call 'erlang':'=:='
+				      (_cor22,
+				       Name) ->
+				%% Line 532
+				apply 'override_props'/4
+				    ([Conf|[]], SubORSpec, Name, Mod)
+			    %% Line 533
+			    <{'value',{_cor23,ORProps,SubORSpec}}>
+				when call 'erlang':'=:='
+				      (_cor23,
+				       Name) ->
+				let <_cor13> =
+				    %% Line 534
+				    apply InsProps
+					(Name, Suite, ORProps)
+				in  %% Line 534
+				    apply 'override_props'/4
+					([{'conf',_cor13,%% Line 535
+							 Init,%% Line 535
+							      Tests,%% Line 535
+								    End}|%% Line 535
+									 []], %% Line 535
+									      SubORSpec, %% Line 535
+											 Name, %% Line 535
+											       Mod)
+			    %% Line 536
+			    <_cor24> when 'true' ->
+				let <_cor14> =
+				    %% Line 537
+				    apply 'search_and_override'/3
+					(Tests, ORSpec, Mod)
+				in  %% Line 537
+				    [{'conf',Props,Init,_cor14,End}|[]]
+			  end
+	  ( <_cor18,_cor17,_cor16> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor18,_cor17,_cor16})
+		  -| [{'function_name',{'search_and_override',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'override_props'/4 =
+    %% Line 541
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[{'conf',Props,Init,Tests,End}|Confs],SubORSpec,Name,Mod> when 'true' ->
+	      %% Line 542
+	      case apply 'override_sub_props'/4
+		       (Tests, [], SubORSpec, Mod) of
+		<{Subs,SubORSpec1}> when 'true' ->
+		    let <_cor5> =
+			%% Line 543
+			apply 'override_props'/4
+			    (Confs, SubORSpec1, Name, Mod)
+		    in  %% Line 543
+			[{'conf',Props,Init,Subs,End}|_cor5]
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 544
+	  <[],[],_cor18,_cor19> when 'true' ->
+	      %% Line 545
+	      []
+	  %% Line 546
+	  <[],SubORSpec,Name,Mod> when 'true' ->
+	      let <_cor12> =
+		  %% Line 547
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor8) ->
+				case _cor8 of
+				  <[Spec|_cor7]> when 'true' ->
+				      let <_cor9> =
+					  call 'erlang':'element'
+					      (1, Spec)
+				      in  let <_cor10> =
+					      apply 'invalid_ref_msg'/3
+						  (Name, _cor9, Mod)
+					  in  let <_cor11> =
+						  apply 'lc$^0'/1
+						      (_cor7)
+					      in  ( [_cor10|_cor11]
+						    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor8> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor8})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (SubORSpec)
+		    -| ['list_comprehension'] )
+	      in  %% Line 548
+		  call 'erlang':'throw'
+		      ({'error',_cor12})
+	  ( <_cor17,_cor16,_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor17,_cor16,_cor15,_cor14})
+		  -| [{'function_name',{'override_props',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'override_sub_props'/4 =
+    %% Line 550
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[],New,ORSpec,_cor31> when 'true' ->
+	      let <_cor4> =
+		  %% Line 551
+		  call 'lists':'reverse'
+		      (New)
+	      in  %% Line 551
+		  {_cor4,ORSpec}
+	  %% Line 552
+	  <[T = {'conf',Props,Init,Tests,End}|Ts],%% Line 553
+						  New,%% Line 553
+						      ORSpec,%% Line 553
+							     Mod> when 'true' ->
+	      let <Name> =
+		  %% Line 554
+		  call 'proplists':'get_value'
+		      ('name', Props)
+	      in  let <Suite> =
+		      %% Line 555
+		      call 'proplists':'get_value'
+			  ('suite', Props)
+		  in  %% Line 556
+		      case call 'lists':'keysearch'
+			       (Name, 1, ORSpec) of
+			%% Line 557
+			<{'value',Spec}> when 'true' ->
+			    let <_cor8> =
+				%% Line 559
+				case call 'erlang':'element'
+					 (2, Spec) of
+				  %% Line 560
+				  <'default'> when 'true' ->
+				      Props
+				  %% Line 561
+				  <ORProps>
+				      when call 'erlang':'=:='
+					    (Suite,
+					     'undefined') ->
+				      [{'name',Name}|ORProps]
+				  %% Line 562
+				  <ORProps> when 'true' ->
+				      [{'name',Name}|[{'suite',Suite}|ORProps]]
+				end
+			    in  let <_cor10> =
+				    catch
+					%% Line 564
+					call 'erlang':'element'
+					    (3, Spec)
+				in  %% Line 564
+				    case _cor10 of
+				      %% Line 565
+				      <Undef>
+					  when let <_cor11> =
+						call 'erlang':'=:='
+						    (_cor10, [])
+					    in  let <_cor13> =
+						    try
+							let <_cor12> =
+							    call 'erlang':'element'
+								(1, _cor10)
+							in  call 'erlang':'=:='
+								('EXIT', _cor12)
+						    of <Try> ->
+							Try
+						    catch <T,R> ->
+							'false'
+						in  call 'erlang':'or'
+							(_cor11, _cor13) ->
+					  let <_cor14> =
+					      %% Line 567
+					      call 'lists':'keydelete'
+						  (Name, 1, ORSpec)
+					  in  %% Line 566
+					      apply 'override_sub_props'/4
+						  (Ts, [{'conf',_cor8,Init,Tests,End}|New], _cor14, %% Line 567
+												    Mod)
+				      %% Line 568
+				      <SubORSpec>
+					  when call 'erlang':'is_list'
+						(_cor10) ->
+					  %% Line 569
+					  case apply 'override_sub_props'/4
+						   (Tests, [], SubORSpec, Mod) of
+					    %% Line 570
+					    <{Subs,[]}> when 'true' ->
+						let <_cor15> =
+						    %% Line 573
+						    call 'lists':'keydelete'
+							(Name, 1, ORSpec)
+						in  %% Line 571
+						    apply 'override_sub_props'/4
+							(Ts, [{'conf',_cor8,Init,%% Line 572
+										 Subs,%% Line 572
+										      End}|%% Line 572
+											   New], _cor15, %% Line 574
+													 Mod)
+					    %% Line 575
+					    <{_cor32,NonEmptySpec}> when 'true' ->
+						let <_cor22> =
+						    %% Line 576
+						    ( letrec
+							  'lc$^0'/1 =
+							      fun (_cor18) ->
+								  case _cor18 of
+								    <[%% Line 577
+								      GrRef|_cor17]> when 'true' ->
+									let <_cor19> =
+									    call 'erlang':'element'
+										(1, GrRef)
+									in  let <_cor20> =
+										apply 'invalid_ref_msg'/3
+										    (Name, _cor19, %% Line 577
+												   Mod)
+									    in  let <_cor21> =
+										    %% Line 577
+										    apply 'lc$^0'/1
+											(_cor17)
+										in  ( [_cor20|_cor21]
+										      -| ['compiler_generated'] )
+								    <[]> when 'true' ->
+									[]
+								    ( <_cor18> when 'true' ->
+									  ( primop 'match_fail'
+										({'function_clause',_cor18})
+									    -| [{'function_name',{'lc$^0',1}}] )
+								      -| ['compiler_generated'] )
+								  end
+						      in  apply 'lc$^0'/1
+							      (%% Line 577
+							       NonEmptySpec)
+						      -| ['list_comprehension'] )
+						in  %% Line 578
+						    call 'erlang':'throw'
+							({'error',_cor22})
+					    ( <_cor24> when 'true' ->
+						  primop 'match_fail'
+						      ({'case_clause',_cor24})
+					      -| ['compiler_generated'] )
+					  end
+				      %% Line 580
+				      <BadGrSpec> when 'true' ->
+					  %% Line 581
+					  call 'erlang':'throw'
+					      ({'error',{'invalid_form',BadGrSpec}})
+				    end
+			%% Line 583
+			<_cor33> when 'true' ->
+			    %% Line 584
+			    apply 'override_sub_props'/4
+				(Ts, [T|New], ORSpec, Mod)
+		      end
+	  %% Line 586
+	  <[TC|Ts],New,ORSpec,Mod> when 'true' ->
+	      %% Line 587
+	      apply 'override_sub_props'/4
+		  (Ts, [TC|New], ORSpec, Mod)
+	  ( <_cor30,_cor29,_cor28,_cor27> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor30,_cor29,_cor28,_cor27})
+		  -| [{'function_name',{'override_sub_props',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'invalid_ref_msg'/2 =
+    %% Line 589
+    fun (_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 591
+	    call 'erlang':'atom_to_list'
+		(_cor1)
+	in  let <_cor2> =
+		%% Line 592
+		call 'erlang':'atom_to_list'
+		    (_cor0)
+	    in  let <_cor3> =
+		    %% Line 592
+		    call 'erlang':'++'
+			(_cor2, [58|[97|[108|[108|[47|[48]]]]]])
+		in  let <_cor4> =
+			%% Line 591
+			[32|[105|[110|[32|_cor3]]]]
+		    in  let <_cor6> =
+			    %% Line 591
+			    call 'erlang':'++'
+				(_cor5, _cor4)
+			in  let <E> =
+				%% Line 590
+				call 'erlang':'++'
+				    ([73|[110|[118|[97|[108|[105|[100|[32|[114|[101|[102|[101|[114|[101|[110|[99|[101|[32|[116|[111|[32|[103|[114|[111|[117|[112|[32]]]]]]]]]]]]]]]]]]]]]]]]]]], _cor6)
+			    in  %% Line 593
+				call 'erlang':'list_to_atom'
+				    (E)
+'invalid_ref_msg'/3 =
+    %% Line 595
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor9> =
+	    %% Line 597
+	    call 'erlang':'atom_to_list'
+		(_cor1)
+	in  let <_cor6> =
+		%% Line 597
+		call 'erlang':'atom_to_list'
+		    (_cor2)
+	    in  let <_cor3> =
+		    %% Line 598
+		    call 'erlang':'atom_to_list'
+			(_cor0)
+		in  let <_cor4> =
+			%% Line 598
+			call 'erlang':'++'
+			    (_cor3, [58|[97|[108|[108|[47|[48]]]]]])
+		    in  let <_cor5> =
+			    %% Line 598
+			    [32|[105|[110|[32|_cor4]]]]
+			in  let <_cor7> =
+				%% Line 597
+				call 'erlang':'++'
+				    (_cor6, _cor5)
+			    in  let <_cor8> =
+				    %% Line 597
+				    call 'erlang':'++'
+					([32|[102|[114|[111|[109|[32]]]]]], _cor7)
+				in  let <_cor10> =
+					%% Line 597
+					call 'erlang':'++'
+					    (_cor9, _cor8)
+				    in  let <E> =
+					    %% Line 596
+					    call 'erlang':'++'
+						([73|[110|[118|[97|[108|[105|[100|[32|[114|[101|[102|[101|[114|[101|[110|[99|[101|[32|[116|[111|[32|[103|[114|[111|[117|[112|[32]]]]]]]]]]]]]]]]]]]]]]]]]]], _cor10)
+					in  %% Line 599
+					    call 'erlang':'list_to_atom'
+						(E)
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ct_groups')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ct_groups', _cor0)
+end

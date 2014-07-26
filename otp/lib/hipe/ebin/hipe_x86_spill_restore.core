@@ -1,0 +1,1277 @@
+module 'hipe_x86_spill_restore' ['module_info'/0,
+				 'module_info'/1,
+				 'spill_restore'/2]
+    attributes [%% Line 301
+		'type' =
+		    %% Line 301
+		    [{{'record','comp_servers'},[{'typed_record_field',{'record_field',301,{'atom',301,'pp_server'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'range'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'type'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}]]],[]}],
+		%% Line 307
+		'type' =
+		    %% Line 307
+		    [{'comp_option',{'type',307,'union',[{'type',307,'atom',[]}|[{'type',307,'tuple',[{'type',307,'atom',[]}|[{'type',307,'atom',[]}]]}]]},[]}],
+		%% Line 308
+		'type' =
+		    %% Line 308
+		    [{'comp_options',{'type',308,'list',[{'type',308,'comp_option',[]}]},[]}],
+		%% Line 310
+		'type' =
+		    %% Line 310
+		    [{'hipe_architecture',{'type',311,'union',[{'atom',311,'amd64'}|[{'atom',311,'arm'}|[{'atom',311,'powerpc'}|[{'atom',311,'ppc64'}|[{'atom',311,'ultrasparc'}|[{'atom',311,'x86'}]]]]]]},[]}],
+		%% Line 313
+		'type' =
+		    %% Line 313
+		    [{'hipe_map',{'type',313,'list',[{'type',313,'tuple',[{'type',313,'non_neg_integer',[]}|[{'type',314,'union',[{'atom',314,'unknown'}|[{'type',314,'tuple',[{'type',314,'union',[{'atom',314,'reg'}|[{'atom',314,'fp_reg'}|[{'atom',314,'spill'}]]]}|[{'type',315,'non_neg_integer',[]}]]}]]}]]}]},[]}],
+		%% Line 316
+		'type' =
+		    %% Line 316
+		    [{'hipe_temp_map',{'type',316,'tuple','any'},[]}],
+		%% Line 317
+		'type' =
+		    %% Line 317
+		    [{'hipe_spill_map',{'type',317,'list',[{'type',317,'tuple',[{'type',317,'non_neg_integer',[]}|[{'type',317,'tuple',[{'atom',317,'spill'}|[{'type',317,'non_neg_integer',[]}]]}]]}]},[]}],
+		%% Line 64
+		'type' =
+		    %% Line 64
+		    [{{'record','x86_temp'},[{'record_field',64,{'atom',64,'reg'}}|[{'record_field',64,{'atom',64,'type'}}|[{'record_field',64,{'atom',64,'allocatable'}}]]],[]}],
+		%% Line 65
+		'type' =
+		    %% Line 65
+		    [{{'record','x86_imm'},[{'record_field',65,{'atom',65,'value'}}],[]}],
+		%% Line 66
+		'type' =
+		    %% Line 66
+		    [{{'record','x86_mem'},[{'record_field',66,{'atom',66,'base'}}|[{'record_field',66,{'atom',66,'off'}}|[{'record_field',66,{'atom',66,'type'}}]]],[]}],
+		%% Line 67
+		'type' =
+		    %% Line 67
+		    [{{'record','x86_fpreg'},[{'record_field',67,{'atom',67,'reg'}}|[{'record_field',67,{'atom',67,'pseudo'}}]],[]}],
+		%% Line 68
+		'type' =
+		    %% Line 68
+		    [{{'record','x86_mfa'},[{'typed_record_field',{'record_field',68,{'atom',68,'m'}},{'type',68,'union',[{'atom',68,'undefined'}|[{'type',68,'atom',[]}]]}}|[{'typed_record_field',{'record_field',68,{'atom',68,'f'}},{'type',68,'union',[{'atom',68,'undefined'}|[{'type',68,'atom',[]}]]}}|[{'typed_record_field',{'record_field',68,{'atom',68,'a'}},{'type',68,'union',[{'atom',68,'undefined'}|[{'type',68,'arity',[]}]]}}]]],[]}],
+		%% Line 69
+		'type' =
+		    %% Line 69
+		    [{{'record','x86_prim'},[{'record_field',69,{'atom',69,'prim'}}],[]}],
+		%% Line 70
+		'type' =
+		    %% Line 70
+		    [{{'record','x86_sdesc'},[{'record_field',70,{'atom',70,'exnlab'}}|[{'record_field',70,{'atom',70,'fsize'}}|[{'typed_record_field',{'record_field',70,{'atom',70,'arity'}},{'type',70,'union',[{'atom',70,'undefined'}|[{'type',70,'arity',[]}]]}}|[{'typed_record_field',{'record_field',70,{'atom',70,'live'}},{'type',70,'union',[{'atom',70,'undefined'}|[{'type',70,'tuple','any'}]]}}]]]],[]}],
+		%% Line 78
+		'type' =
+		    %% Line 78
+		    [{{'record','alu'},[{'record_field',78,{'atom',78,'aluop'}}|[{'record_field',78,{'atom',78,'src'}}|[{'record_field',78,{'atom',78,'dst'}}]]],[]}],
+		%% Line 79
+		'type' =
+		    %% Line 79
+		    [{{'record','call'},[{'record_field',79,{'atom',79,'fun'}}|[{'record_field',79,{'atom',79,'sdesc'}}|[{'record_field',79,{'atom',79,'linkage'}}]]],[]}],
+		%% Line 80
+		'type' =
+		    %% Line 80
+		    [{{'record','cmovcc'},[{'record_field',80,{'atom',80,'cc'}}|[{'record_field',80,{'atom',80,'src'}}|[{'record_field',80,{'atom',80,'dst'}}]]],[]}],
+		%% Line 81
+		'type' =
+		    %% Line 81
+		    [{{'record','cmp'},[{'record_field',81,{'atom',81,'src'}}|[{'record_field',81,{'atom',81,'dst'}}]],[]}],
+		%% Line 82
+		'type' =
+		    %% Line 82
+		    [{{'record','comment'},[{'record_field',82,{'atom',82,'term'}}],[]}],
+		%% Line 83
+		'type' =
+		    %% Line 83
+		    [{{'record','fmove'},[{'record_field',83,{'atom',83,'src'}}|[{'record_field',83,{'atom',83,'dst'}}]],[]}],
+		%% Line 84
+		'type' =
+		    %% Line 84
+		    [{{'record','fp_binop'},[{'record_field',84,{'atom',84,'op'}}|[{'record_field',84,{'atom',84,'src'}}|[{'record_field',84,{'atom',84,'dst'}}]]],[]}],
+		%% Line 85
+		'type' =
+		    %% Line 85
+		    [{{'record','fp_unop'},[{'record_field',85,{'atom',85,'op'}}|[{'record_field',85,{'atom',85,'arg'}}]],[]}],
+		%% Line 86
+		'type' =
+		    %% Line 86
+		    [{{'record','imul'},[{'record_field',86,{'atom',86,'imm_opt'}}|[{'record_field',86,{'atom',86,'src'}}|[{'record_field',86,{'atom',86,'temp'}}]]],[]}],
+		%% Line 87
+		'type' =
+		    %% Line 87
+		    [{{'record','jcc'},[{'record_field',87,{'atom',87,'cc'}}|[{'record_field',87,{'atom',87,'label'}}]],[]}],
+		%% Line 88
+		'type' =
+		    %% Line 88
+		    [{{'record','jmp_fun'},[{'record_field',88,{'atom',88,'fun'}}|[{'record_field',88,{'atom',88,'linkage'}}]],[]}],
+		%% Line 89
+		'type' =
+		    %% Line 89
+		    [{{'record','jmp_label'},[{'record_field',89,{'atom',89,'label'}}],[]}],
+		%% Line 90
+		'type' =
+		    %% Line 90
+		    [{{'record','jmp_switch'},[{'record_field',90,{'atom',90,'temp'}}|[{'record_field',90,{'atom',90,'jtab'}}|[{'record_field',90,{'atom',90,'labels'}}]]],[]}],
+		%% Line 91
+		'type' =
+		    %% Line 91
+		    [{{'record','label'},[{'record_field',91,{'atom',91,'label'}}],[]}],
+		%% Line 92
+		'type' =
+		    %% Line 92
+		    [{{'record','lea'},[{'record_field',92,{'atom',92,'mem'}}|[{'record_field',92,{'atom',92,'temp'}}]],[]}],
+		%% Line 93
+		'type' =
+		    %% Line 93
+		    [{{'record','move'},[{'record_field',93,{'atom',93,'src'}}|[{'record_field',93,{'atom',93,'dst'}}]],[]}],
+		%% Line 94
+		'type' =
+		    %% Line 94
+		    [{{'record','move64'},[{'record_field',94,{'atom',94,'imm'}}|[{'record_field',94,{'atom',94,'dst'}}]],[]}],
+		%% Line 95
+		'type' =
+		    %% Line 95
+		    [{{'record','movsx'},[{'record_field',95,{'atom',95,'src'}}|[{'record_field',95,{'atom',95,'dst'}}]],[]}],
+		%% Line 96
+		'type' =
+		    %% Line 96
+		    [{{'record','movzx'},[{'record_field',96,{'atom',96,'src'}}|[{'record_field',96,{'atom',96,'dst'}}]],[]}],
+		%% Line 97
+		'type' =
+		    %% Line 97
+		    [{{'record','pseudo_call'},[{'record_field',97,{'atom',97,'fun'}}|[{'record_field',97,{'atom',97,'sdesc'}}|[{'record_field',97,{'atom',97,'contlab'}}|[{'record_field',97,{'atom',97,'linkage'}}]]]],[]}],
+		%% Line 98
+		'type' =
+		    %% Line 98
+		    [{{'record','pseudo_jcc'},[{'record_field',98,{'atom',98,'cc'}}|[{'record_field',98,{'atom',98,'true_label'}}|[{'record_field',98,{'atom',98,'false_label'}}|[{'record_field',98,{'atom',98,'pred'}}]]]],[]}],
+		%% Line 99
+		'type' =
+		    %% Line 99
+		    [{{'record','pseudo_spill'},[{'record_field',99,{'atom',99,'args'},{'nil',99}}],[]}],
+		%% Line 100
+		'type' =
+		    %% Line 100
+		    [{{'record','pseudo_tailcall'},[{'record_field',100,{'atom',100,'fun'}}|[{'record_field',100,{'atom',100,'arity'}}|[{'record_field',100,{'atom',100,'stkargs'}}|[{'record_field',100,{'atom',100,'linkage'}}]]]],[]}],
+		%% Line 101
+		'type' =
+		    %% Line 101
+		    [{{'record','pseudo_tailcall_prepare'},[],[]}],
+		%% Line 102
+		'type' =
+		    %% Line 102
+		    [{{'record','push'},[{'record_field',102,{'atom',102,'src'}}],[]}],
+		%% Line 103
+		'type' =
+		    %% Line 103
+		    [{{'record','pop'},[{'record_field',103,{'atom',103,'dst'}}],[]}],
+		%% Line 104
+		'type' =
+		    %% Line 104
+		    [{{'record','ret'},[{'record_field',104,{'atom',104,'npop'}}],[]}],
+		%% Line 105
+		'type' =
+		    %% Line 105
+		    [{{'record','shift'},[{'record_field',105,{'atom',105,'shiftop'}}|[{'record_field',105,{'atom',105,'src'}}|[{'record_field',105,{'atom',105,'dst'}}]]],[]}],
+		%% Line 106
+		'type' =
+		    %% Line 106
+		    [{{'record','test'},[{'record_field',106,{'atom',106,'src'}}|[{'record_field',106,{'atom',106,'dst'}}]],[]}],
+		%% Line 22
+		'type' =
+		    %% Line 22
+		    [{'ct_alignment',{'type',22,'union',[{'integer',22,4}|[{'integer',22,8}]]},[]}],
+		%% Line 24
+		'type' =
+		    %% Line 24
+		    [{'hipe_constlbl',{'type',24,'non_neg_integer',[]},[]}],
+		%% Line 25
+		'type' =
+		    %% Line 25
+		    [{'hipe_consttab',{'type',25,'tuple',[{'remote_type',25,[{'atom',25,'dict'}|[{'atom',25,'dict'}|[[]]]]}|[{'type',25,'list',[{'type',25,'hipe_constlbl',[]}]}|[{'type',25,'hipe_constlbl',[]}]]]},[]}],
+		%% Line 112
+		'type' =
+		    %% Line 112
+		    [{{'record','defun'},[{'typed_record_field',{'record_field',112,{'atom',112,'mfa'}},{'type',112,'union',[{'atom',112,'undefined'}|[{'type',112,'mfa',[]}]]}}|[{'record_field',112,{'atom',112,'formals'}}|[{'record_field',112,{'atom',112,'code'}}|[{'typed_record_field',{'record_field',113,{'atom',113,'data'}},{'type',113,'union',[{'atom',113,'undefined'}|[{'type',113,'hipe_consttab',[]}]]}}|[{'typed_record_field',{'record_field',114,{'atom',114,'isclosure'}},{'type',114,'union',[{'atom',114,'undefined'}|[{'type',114,'boolean',[]}]]}}|[{'typed_record_field',{'record_field',115,{'atom',115,'isleaf'}},{'type',115,'union',[{'atom',115,'undefined'}|[{'type',115,'boolean',[]}]]}}|[{'record_field',116,{'atom',116,'var_range'}}|[{'record_field',116,{'atom',116,'label_range'}}]]]]]]]],[]}],
+		%% Line 28
+		'type' =
+		    %% Line 28
+		    [{'cfg_lbl',{'type',28,'non_neg_integer',[]},[]}],
+		%% Line 34
+		'type' =
+		    %% Line 34
+		    [{{'record','cfg_info'},[{'typed_record_field',{'record_field',34,{'atom',34,'fun'}},{'type',34,'union',[{'atom',34,'undefined'}|[{'type',34,'mfa',[]}]]}}|[{'typed_record_field',{'record_field',35,{'atom',35,'start_label'}},{'type',35,'union',[{'atom',35,'undefined'}|[{'type',35,'cfg_lbl',[]}]]}}|[{'typed_record_field',{'record_field',36,{'atom',36,'is_closure'}},{'type',36,'union',[{'atom',36,'undefined'}|[{'type',36,'boolean',[]}]]}}|[{'typed_record_field',{'record_field',37,{'atom',37,'closure_arity'}},{'type',37,'union',[{'atom',37,'undefined'}|[{'type',37,'arity',[]}]]}}|[{'typed_record_field',{'record_field',38,{'atom',38,'is_leaf'}},{'type',38,'union',[{'atom',38,'undefined'}|[{'type',38,'boolean',[]}]]}}|[{'record_field',39,{'atom',39,'params'}}|[{'record_field',40,{'atom',40,'info'},{'nil',40}}]]]]]]],[]}],
+		%% Line 45
+		'type' =
+		    %% Line 45
+		    [{'cfg_data',{'type',45,'tuple',[{'remote_type',45,[{'atom',45,'dict'}|[{'atom',45,'dict'}|[[]]]]}|[{'type',45,'list',[{'type',45,'cfg_lbl',[]}]}|[{'type',45,'non_neg_integer',[]}]]]},[]}],
+		%% Line 50
+		'type' =
+		    %% Line 50
+		    [{{'record','cfg'},[{'typed_record_field',{'record_field',50,{'atom',50,'table'},{'call',50,{'remote',50,{'atom',50,'gb_trees'},{'atom',50,'empty'}},[]}},{'remote_type',50,[{'atom',50,'gb_trees'}|[{'atom',50,'tree'}|[[]]]]}}|[{'typed_record_field',{'record_field',51,{'atom',51,'info'}},{'type',51,'union',[{'atom',51,'undefined'}|[{'type',51,'record',[{'atom',51,'cfg_info'}]}]]}}|[{'typed_record_field',{'record_field',52,{'atom',52,'data'}},{'type',52,'union',[{'atom',52,'undefined'}|[{'type',52,'cfg_data',[]}]]}}]]],[]}],
+		%% Line 53
+		'type' =
+		    %% Line 53
+		    [{'cfg',{'type',53,'record',[{'atom',53,'cfg'}]},[]}]]
+'spill_restore'/2 =
+    %% Line 53
+    fun (_cor1,_cor0) ->
+	do  %% Line 54
+	    case call 'proplists':'get_bool'
+		     ('time', _cor0) of
+	      <'true'> when 'true' ->
+		  call 'hipe_timing':'start'
+		      ([120|[56|[54|[32|[70|[105|[114|[115|[116|[32|[80|[97|[115|[115]]]]]]]]]]]]]], 'hipe_x86_spill_restore')
+	      <'false'> when 'true' ->
+		  'ok'
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor2})
+		-| ['compiler_generated'] )
+	    end
+	    let <_cor6> =
+		%% Line 54
+		( fun (_cor4) ->
+		      do  case call 'proplists':'get_bool'
+				   ('time', _cor0) of
+			    <'true'> when 'true' ->
+				call 'hipe_timing':'stop'
+				    ([120|[56|[54|[32|[70|[105|[114|[115|[116|[32|[80|[97|[115|[115]]]]]]]]]]]]]], 'hipe_x86_spill_restore')
+			    <'false'> when 'true' ->
+				'ok'
+			    ( <_cor3> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor3})
+			      -| ['compiler_generated'] )
+			  end
+			  _cor4
+		  -| [{'id',{0,0,'-spill_restore/2-fun-0-'}}] )
+	    in  let <_cor7> =
+		    %% Line 54
+		    apply 'firstPass'/1
+			(_cor1)
+		in  let <_cor8> =
+			%% Line 54
+			apply _cor6
+			    (_cor7)
+		    in  do  %% Line 55
+			    case call 'proplists':'get_bool'
+				     ('time', _cor0) of
+			      <'true'> when 'true' ->
+				  call 'hipe_timing':'start'
+				      ([120|[56|[54|[32|[83|[101|[99|[111|[110|[100|[32|[80|[97|[115|[115]]]]]]]]]]]]]]], 'hipe_x86_spill_restore')
+			      <'false'> when 'true' ->
+				  'ok'
+			      ( <_cor10> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor10})
+				-| ['compiler_generated'] )
+			    end
+			    let <_cor14> =
+				%% Line 55
+				( fun (_cor12) ->
+				      do  case call 'proplists':'get_bool'
+						   ('time', _cor0) of
+					    <'true'> when 'true' ->
+						call 'hipe_timing':'stop'
+						    ([120|[56|[54|[32|[83|[101|[99|[111|[110|[100|[32|[80|[97|[115|[115]]]]]]]]]]]]]]], 'hipe_x86_spill_restore')
+					    <'false'> when 'true' ->
+						'ok'
+					    ( <_cor11> when 'true' ->
+						  primop 'match_fail'
+						      ({'case_clause',_cor11})
+					      -| ['compiler_generated'] )
+					  end
+					  _cor12
+				  -| [{'id',{0,0,'-spill_restore/2-fun-1-'}}] )
+			    in  let <_cor15> =
+				    %% Line 55
+				    apply 'secondPass'/1
+					(_cor8)
+				in  let <_cor16> =
+					%% Line 55
+					apply _cor14
+					    (_cor15)
+				    in  %% Line 56
+					call 'hipe_x86_cfg':'linearise'
+					    (_cor16)
+'firstPass'/1 =
+    %% Line 60
+    fun (_cor0) ->
+	let <CFG0> =
+	    %% Line 61
+	    call 'hipe_x86_specific':'defun_to_cfg'
+		(_cor0)
+	in  let <Labels> =
+		%% Line 63
+		call 'hipe_x86_cfg':'postorder'
+		    (CFG0)
+	    in  let <Liveness> =
+		    %% Line 64
+		    call 'hipe_x86_liveness':'analyse'
+			(CFG0)
+		in  let <_cor4> =
+			%% Line 67
+			call 'erlang':'length'
+			    (Labels)
+		    in  let <_cor5> =
+			    %% Line 67
+			    call 'erlang':'-'
+				(_cor4, 1)
+			in  let <LabelsExceptMoveFormals> =
+				%% Line 67
+				call 'lists':'sublist'
+				    (Labels, _cor5)
+			    in  %% Line 70
+				case apply 'firstPassHelper'/3
+					 (LabelsExceptMoveFormals, Liveness, CFG0) of
+				  <{CFG1,SaveTree}> when 'true' ->
+				      %% Line 71
+				      case call 'hipe_x86_cfg':'reverse_postorder'
+					       (CFG0) of
+					%% Line 72
+					<[Label1|[Label2|_cor27]]> when 'true' ->
+					    let <SaveTreeElement> =
+						%% Line 73
+						apply 'saveTreeLookup'/2
+						    (Label2, SaveTree)
+					    in  let <_cor14> =
+						    %% Line 76
+						    ( letrec
+							  'lc$^0'/1 =
+							      fun (_cor11) ->
+								  case _cor11 of
+								    <[T|_cor10]> when 'true' ->
+									( case apply 'temp_is_pseudo'/1
+										   (T) of
+									    <'true'> when 'true' ->
+										let <_cor12> =
+										    apply 'lc$^0'/1
+											(_cor10)
+										in  ( [T|_cor12]
+										      -| ['compiler_generated'] )
+									    ( <'false'> when 'true' ->
+										  apply 'lc$^0'/1
+										      (_cor10)
+									      -| ['compiler_generated'] )
+									    ( <_cor13> when 'true' ->
+										  primop 'match_fail'
+										      ({'case_clause',_cor13})
+									      -| ['compiler_generated'] )
+									  end
+									  -| ['list_comprehension'] )
+								    <[]> when 'true' ->
+									[]
+								    ( <_cor11> when 'true' ->
+									  ( primop 'match_fail'
+										({'function_clause',_cor11})
+									    -| [{'function_name',{'lc$^0',1}}] )
+								      -| ['compiler_generated'] )
+								  end
+						      in  apply 'lc$^0'/1
+							      (SaveTreeElement)
+						      -| ['list_comprehension'] )
+						in  let <Block> =
+							%% Line 77
+							call 'hipe_x86_cfg':'bb'
+							    (CFG1, Label1)
+						    in  let <Code> =
+							    %% Line 78
+							    call 'hipe_bb':'code'
+								(Block)
+							in  let <_cor18> =
+								%% Line 84
+								call 'erlang':'length'
+								    (Code)
+							    in  let <_cor19> =
+								    %% Line 84
+								    call 'erlang':'-'
+									(_cor18, 1)
+								in  let <MoveCodes> =
+									%% Line 84
+									call 'lists':'sublist'
+									    (Code, _cor19)
+								    in  let <JumpCode> =
+									    %% Line 85
+									    call 'lists':'last'
+										(Code)
+									in  let <_cor22> =
+										%% Line 86
+										call 'hipe_x86':'mk_pseudo_spill'
+										    (_cor14)
+									    in  let <_cor23> =
+										    %% Line 86
+										    call 'erlang':'++'
+											(MoveCodes, [_cor22|[JumpCode|[]]])
+										in  let <_cor24> =
+											%% Line 86
+											call 'hipe_bb':'mk_bb'
+											    (_cor23)
+										    in  %% Line 86
+											call 'hipe_x86_cfg':'bb_add'
+											    (CFG1, Label1, _cor24)
+					%% Line 87
+					<_cor28> when 'true' ->
+					    %% Line 88
+					    CFG1
+				      end
+				  ( <_cor7> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor7})
+				    -| ['compiler_generated'] )
+				end
+'firstPassHelper'/3 =
+    %% Line 96
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 97
+	    call 'gb_trees':'empty'
+		()
+	in  %% Line 97
+	    apply 'firstPassHelper'/4
+		(_cor2, _cor1, _cor0, _cor3)
+'firstPassHelper'/4 =
+    %% Line 99
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[Label|Labels],Liveness,CFG,SaveTree> when 'true' ->
+	      let <_cor4> =
+		  %% Line 100
+		  call 'hipe_x86_liveness':'liveout'
+		      (Liveness, Label)
+	      in  let <LiveOut> =
+		      %% Line 100
+		      apply 'from_list'/1
+			  (_cor4)
+		  in  let <Block> =
+			  %% Line 101
+			  call 'hipe_x86_cfg':'bb'
+			      (CFG, Label)
+		      in  let <Code> =
+			      %% Line 102
+			      call 'hipe_bb':'code'
+				  (Block)
+			  in  let <Succ> =
+				  %% Line 103
+				  call 'hipe_x86_cfg':'succ'
+				      (CFG, Label)
+			      in  let <IntersectedSaveList> =
+				      %% Line 104
+				      apply 'findIntersectedSaveList'/2
+					  (Succ, SaveTree)
+				  in  %% Line 108
+				      case %% Line 109
+					   apply 'firstPassDoBlock'/3
+					       (Code, LiveOut, IntersectedSaveList) of
+					<{_cor19,NewIntersectedList,NewCode}> when 'true' ->
+					    let <NewBlock> =
+						%% Line 110
+						call 'hipe_bb':'code_update'
+						    (Block, NewCode)
+					    in  let <NewCFG> =
+						    %% Line 111
+						    call 'hipe_x86_cfg':'bb_add'
+							(CFG, Label, NewBlock)
+						in  let <SizeOfSet> =
+							%% Line 112
+							apply 'setSize'/1
+							    (NewIntersectedList)
+						    in  %% Line 114
+							case <> of
+							  <>
+							      when call 'erlang':'=/='
+								    (SizeOfSet,
+								     0) ->
+							      let <UpdatedSaveTree> =
+								  %% Line 115
+								  call 'gb_trees':'insert'
+								      (Label, NewIntersectedList, SaveTree)
+							      in  %% Line 116
+								  apply 'firstPassHelper'/4
+								      (Labels, Liveness, NewCFG, UpdatedSaveTree)
+							  %% Line 117
+							  <> when 'true' ->
+							      %% Line 118
+							      apply 'firstPassHelper'/4
+								  (Labels, Liveness, NewCFG, SaveTree)
+							end
+					( <_cor10> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor10})
+					  -| ['compiler_generated'] )
+				      end
+	  %% Line 120
+	  <[],_cor20,CFG,SaveTree> when 'true' ->
+	      %% Line 121
+	      {CFG,SaveTree}
+	  ( <_cor18,_cor17,_cor16,_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor18,_cor17,_cor16,_cor15})
+		  -| [{'function_name',{'firstPassHelper',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'firstPassDoBlock'/3 =
+    %% Line 124
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 125
+	call 'lists':'foldr'
+	    (( 'firstPassDoInsn'/2
+	       -| [{'id',{0,0,'-firstPassDoBlock/3-fun-0-'}}] ), {_cor1,_cor0,[]}, _cor2)
+'firstPassDoInsn'/2 =
+    %% Line 127
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <I,{LiveOut,IntersectedSaveList,PrevInsts}> when 'true' ->
+	      %% Line 128
+	      case I of
+		%% Line 129
+		<{'pseudo_call',_cor12,_cor13,_cor14,_cor15}> when 'true' ->
+		    %% Line 130
+		    apply 'do_pseudo_call'/2
+			(I, {LiveOut,IntersectedSaveList,PrevInsts})
+		%% Line 131
+		<_cor16> when 'true' ->
+		    let <_cor2> =
+			%% Line 132
+			call 'hipe_x86_liveness':'defines'
+			    (I)
+		    in  let <DefinedList> =
+			    %% Line 132
+			    apply 'from_list'/1
+				(_cor2)
+			in  let <_cor4> =
+				%% Line 133
+				call 'hipe_x86_liveness':'uses'
+				    (I)
+			    in  let <UsedList> =
+				    %% Line 133
+				    apply 'from_list'/1
+					(_cor4)
+				in  let <_cor6> =
+					%% Line 134
+					apply 'union'/2
+					    (LiveOut, UsedList)
+				    in  let <NewLiveOut> =
+					    %% Line 134
+					    apply 'subtract'/2
+						(_cor6, DefinedList)
+					in  let <NewIntersectedSaveList> =
+						%% Line 135
+						apply 'subtract'/2
+						    (IntersectedSaveList, DefinedList)
+					    in  %% Line 136
+						{NewLiveOut,NewIntersectedSaveList,[I|PrevInsts]}
+	      end
+	  ( <_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10})
+		  -| [{'function_name',{'firstPassDoInsn',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'do_pseudo_call'/2 =
+    %% Line 139
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <I,{LiveOut,IntersectedSaveList,PrevInsts}> when 'true' ->
+	      let <_cor8> =
+		  %% Line 140
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor5) ->
+				case _cor5 of
+				  <[Temp|_cor3]> when 'true' ->
+				      ( case apply 'temp_is_pseudo'/1
+						 (Temp) of
+					  <'true'> when 'true' ->
+					      let <_cor6> =
+						  apply 'lc$^0'/1
+						      (_cor3)
+					      in  ( [Temp|_cor6]
+						    -| ['compiler_generated'] )
+					  ( <'false'> when 'true' ->
+						apply 'lc$^0'/1
+						    (_cor3)
+					    -| ['compiler_generated'] )
+					  ( <_cor7> when 'true' ->
+						primop 'match_fail'
+						    ({'case_clause',_cor7})
+					    -| ['compiler_generated'] )
+					end
+					-| ['list_comprehension'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor5> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor5})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  let <_cor4> =
+			    apply 'to_list'/1
+				(LiveOut)
+			in  apply 'lc$^0'/1
+				(_cor4)
+		    -| ['list_comprehension'] )
+	      in  let <NewIntersectedSaveList> =
+		      %% Line 141
+		      apply 'union'/2
+			  (IntersectedSaveList, LiveOut)
+		  in  let <_cor11> =
+			  %% Line 142
+			  call 'hipe_x86':'mk_pseudo_spill'
+			      (_cor8)
+		      in  %% Line 142
+			  {LiveOut,NewIntersectedSaveList,[_cor11|[I|PrevInsts]]}
+	  ( <_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12})
+		  -| [{'function_name',{'do_pseudo_call',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'findIntersectedSaveList'/2 =
+    %% Line 144
+    fun (_cor1,_cor0) ->
+	let <_cor7> =
+	    %% Line 145
+	    ( letrec
+		  'lc$^0'/1 =
+		      fun (_cor4) ->
+			  case _cor4 of
+			    <[Label|_cor3]> when 'true' ->
+				let <_cor5> =
+				    apply 'saveTreeLookup'/2
+					(Label, _cor0)
+				in  let <_cor6> =
+					apply 'lc$^0'/1
+					    (_cor3)
+				    in  ( [_cor5|_cor6]
+					  -| ['compiler_generated'] )
+			    <[]> when 'true' ->
+				[]
+			    ( <_cor4> when 'true' ->
+				  ( primop 'match_fail'
+					({'function_clause',_cor4})
+				    -| [{'function_name',{'lc$^0',1}}] )
+			      -| ['compiler_generated'] )
+			  end
+	      in  apply 'lc$^0'/1
+		      (_cor1)
+	      -| ['list_comprehension'] )
+	in  %% Line 145
+	    apply 'findIntersectedSaveList'/1
+		(_cor7)
+'findIntersectedSaveList'/1 =
+    %% Line 147
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 148
+	      []
+	  %% Line 149
+	  <[List1|[]]> when 'true' ->
+	      %% Line 150
+	      List1
+	  %% Line 151
+	  <[List1|[List2|Rest]]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 152
+		  apply 'intersection'/2
+		      (List1, List2)
+	      in  %% Line 152
+		  apply 'findIntersectedSaveList'/1
+		      ([_cor1|Rest])
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'findIntersectedSaveList',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'saveTreeLookup'/2 =
+    %% Line 154
+    fun (_cor1,_cor0) ->
+	%% Line 155
+	case call 'gb_trees':'lookup'
+		 (_cor1, _cor0) of
+	  %% Line 156
+	  <{'value',SaveList}> when 'true' ->
+	      %% Line 157
+	      SaveList
+	  %% Line 158
+	  <_cor5> when 'true' ->
+	      %% Line 159
+	      []
+	end
+'secondPass'/1 =
+    %% Line 165
+    fun (_cor0) ->
+	let <Labels> =
+	    %% Line 166
+	    call 'hipe_x86_cfg':'reverse_postorder'
+		(_cor0)
+	in  let <Liveness> =
+		%% Line 167
+		call 'hipe_x86_liveness':'analyse'
+		    (_cor0)
+	    in  %% Line 168
+		apply 'secondPassHelper'/3
+		    (Labels, Liveness, _cor0)
+'secondPassHelper'/3 =
+    %% Line 173
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 174
+	    call 'gb_trees':'empty'
+		()
+	in  %% Line 174
+	    apply 'secondPassHelper'/5
+		(_cor2, _cor1, _cor0, _cor3, _cor0)
+'secondPassHelper'/5 =
+    %% Line 188
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[Label|RestOfLabels],Liveness,%% Line 189
+					 AccumulatedCFG,%% Line 189
+							AccumulatedSaveTree,%% Line 189
+									    UnmodifiedCFG> when 'true' ->
+	      let <LiveOut> =
+		  %% Line 190
+		  call 'hipe_x86_liveness':'liveout'
+		      (Liveness, Label)
+	      in  let <Block> =
+		      %% Line 191
+		      call 'hipe_x86_cfg':'bb'
+			  (AccumulatedCFG, Label)
+		  in  let <Code> =
+			  %% Line 192
+			  call 'hipe_bb':'code'
+			      (Block)
+		      in  let <PredList> =
+			      %% Line 196
+			      call 'hipe_x86_cfg':'pred'
+				  (UnmodifiedCFG, Label)
+			  in  let <InitialAccumulatedSaveList> =
+				  %% Line 199
+				  apply 'findIntersectedSaveList'/2
+				      (PredList, AccumulatedSaveTree)
+			      in  let <AccumulatedSaveList> =
+				      %% Line 201
+				      apply 'keepLiveVarsInAccumSaveList'/2
+					  (InitialAccumulatedSaveList, LiveOut)
+				  in  %% Line 203
+				      case %% Line 204
+					   apply 'secondPassDoBlock'/4
+					       (Label, Code, AccumulatedCFG, AccumulatedSaveList) of
+					<{NewCode,CFGUpdateWithRestores,NewAccumulatedSaveList}> when 'true' ->
+					    let <UpdatedAccumulatedSaveTree> =
+						%% Line 207
+						call 'gb_trees':'insert'
+						    (Label, NewAccumulatedSaveList, AccumulatedSaveTree)
+					    in  let <NewBlock> =
+						    %% Line 208
+						    call 'hipe_bb':'code_update'
+							(Block, NewCode)
+						in  let <NewCFG> =
+							%% Line 209
+							call 'hipe_x86_cfg':'bb_add'
+							    (CFGUpdateWithRestores, Label, NewBlock)
+						    in  %% Line 210
+							apply 'secondPassHelper'/5
+							    (RestOfLabels, Liveness, NewCFG, %% Line 211
+											     UpdatedAccumulatedSaveTree, %% Line 211
+															 UnmodifiedCFG)
+					( <_cor11> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor11})
+					  -| ['compiler_generated'] )
+				      end
+	  %% Line 212
+	  <[],_cor20,AccumulatedCFG,_cor21,_cor22> when 'true' ->
+	      %% Line 213
+	      AccumulatedCFG
+	  ( <_cor19,_cor18,_cor17,_cor16,_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor19,_cor18,_cor17,_cor16,_cor15})
+		  -| [{'function_name',{'secondPassHelper',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'secondPassDoBlock'/4 =
+    %% Line 215
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 216
+	case %% Line 217
+	     call 'lists':'foldl'
+		 (( 'secondPassDoInsn'/2
+		    -| [{'id',{0,0,'-secondPassDoBlock/4-fun-0-'}}] ), {_cor0,[],[],_cor3,_cor1}, _cor2) of
+	  <{NewAccumulatedSaveList,NewInsts,_cor9,_cor10,CFGUpdateWithRestores}> when 'true' ->
+	      %% Line 218
+	      {NewInsts,CFGUpdateWithRestores,NewAccumulatedSaveList}
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'secondPassDoInsn'/2 =
+    %% Line 220
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <I,{AccumulatedSaveList,PrevInsts,SpillList,CurrentLabel,CFG}> when 'true' ->
+	      %% Line 221
+	      case I of
+		%% Line 222
+		<{'pseudo_spill',_cor34}> when 'true' ->
+		    let <_cor7> =
+			%% Line 225
+			( letrec
+			      'lc$^0'/1 =
+				  fun (_cor5) ->
+				      case _cor5 of
+					<[{X,_cor35}|_cor3]> when 'true' ->
+					    let <_cor6> =
+						apply 'lc$^0'/1
+						    (_cor3)
+					    in  ( [X|_cor6]
+						  -| ['compiler_generated'] )
+					( <[_cor2|_cor3]> when 'true' ->
+					      apply 'lc$^0'/1
+						  (_cor3)
+					  -| ['compiler_generated'] )
+					<[]> when 'true' ->
+					    []
+					( <_cor5> when 'true' ->
+					      ( primop 'match_fail'
+						    ({'function_clause',_cor5})
+						-| [{'function_name',{'lc$^0',1}}] )
+					  -| ['compiler_generated'] )
+				      end
+			  in  let <_cor4> =
+				  apply 'to_list'/1
+				      (AccumulatedSaveList)
+			      in  apply 'lc$^0'/1
+				      (_cor4)
+			  -| ['list_comprehension'] )
+		    in  let <VariablesToBeSpilled> =
+			    %% Line 226
+			    call 'erlang':'--'
+				(_cor34, _cor7)
+			in  let <_cor19> =
+				%% Line 227
+				( letrec
+				      'lc$^1'/1 =
+					  fun (_cor14) ->
+					      case _cor14 of
+						<[Temp|_cor13]> when 'true' ->
+						    ( case Temp of
+							( <( {'x86_temp',_cor37,_rec1,_cor38}
+							     -| ['compiler_generated'] )> when 'true' ->
+							      let <_cor17> =
+								  call 'hipe_x86':'mk_new_temp'
+								      (_rec1)
+							      in  let <_cor18> =
+								      apply 'lc$^1'/1
+									  (_cor13)
+								  in  ( [{Temp,_cor17}|_cor18]
+									-| ['compiler_generated'] )
+							  -| ['compiler_generated'] )
+							( <_cor39> when 'true' ->
+							      ( call ( 'erlang'
+								       -| ['compiler_generated'] ):( 'error'
+												     -| ['compiler_generated'] )
+								    (( {'badrecord','x86_temp'}
+								       -| ['compiler_generated'] ))
+								-| ['compiler_generated'] )
+							  -| ['compiler_generated'] )
+						      end
+						      -| ['compiler_generated'] )
+						<[]> when 'true' ->
+						    []
+						( <_cor14> when 'true' ->
+						      ( primop 'match_fail'
+							    ({'function_clause',_cor14})
+							-| [{'function_name',{'lc$^1',1}}] )
+						  -| ['compiler_generated'] )
+					      end
+				  in  apply 'lc$^1'/1
+					  (VariablesToBeSpilled)
+				  -| ['list_comprehension'] )
+			    in  let <_cor21> =
+				    %% Line 229
+				    apply 'from_list'/1
+					(_cor19)
+				in  let <NewAccumulatedSaveList> =
+					%% Line 229
+					apply 'union'/2
+					    (AccumulatedSaveList, _cor21)
+				    in  let <_cor23> =
+					    %% Line 230
+					    apply 'secondPassDoPseudoSpill'/1
+						(_cor19)
+					in  let <_cor24> =
+						%% Line 230
+						call 'erlang':'++'
+						    (PrevInsts, _cor23)
+					    in  %% Line 230
+						{NewAccumulatedSaveList,_cor24,_cor19,CurrentLabel,CFG}
+		%% Line 231
+		<{'pseudo_call',_cor40,_cor41,_cor42,_cor43}> when 'true' ->
+		    %% Line 232
+		    case %% Line 233
+			 apply 'secondPassDoPseudoCall'/3
+			     (I, AccumulatedSaveList, CFG) of
+		      <{CFGUpdateWithRestores,NewPseudoCall}> when 'true' ->
+			  let <_cor26> =
+			      %% Line 235
+			      call 'erlang':'++'
+				  (PrevInsts, [NewPseudoCall|[]])
+			  in  %% Line 235
+			      {AccumulatedSaveList,_cor26,CurrentLabel,[],CFGUpdateWithRestores}
+		      ( <_cor25> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor25})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 236
+		<_cor44> when 'true' ->
+		    let <_cor27> =
+			%% Line 239
+			call 'hipe_x86_liveness':'defines'
+			    (I)
+		    in  let <DefinedList> =
+			    %% Line 239
+			    apply 'from_list'/1
+				(_cor27)
+			in  let <NewAccumulatedSaveList> =
+				%% Line 240
+				apply 'removeRedefVarsFromAccumSaveList'/2
+				    (AccumulatedSaveList, DefinedList)
+			    in  let <_cor30> =
+				    %% Line 241
+				    call 'erlang':'++'
+					(PrevInsts, [I|[]])
+				in  %% Line 241
+				    {NewAccumulatedSaveList,_cor30,SpillList,CurrentLabel,CFG}
+	      end
+	  ( <_cor33,_cor32> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor33,_cor32})
+		  -| [{'function_name',{'secondPassDoInsn',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'keepLiveVarsInAccumSaveList'/2 =
+    %% Line 245
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_cor7> when 'true' ->
+	      %% Line 246
+	      []
+	  %% Line 247
+	  <[{Var,Temp}|Rest],DefinedList> when 'true' ->
+	      %% Line 249
+	      case apply 'is_element'/2
+		       (Var, DefinedList) of
+		%% Line 250
+		<'true'> when 'true' ->
+		    let <_cor3> =
+			apply 'keepLiveVarsInAccumSaveList'/2
+			    (Rest, DefinedList)
+		    in  [{Var,Temp}|_cor3]
+		%% Line 251
+		<'false'> when 'true' ->
+		    apply 'keepLiveVarsInAccumSaveList'/2
+			(Rest, DefinedList)
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'keepLiveVarsInAccumSaveList',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'removeRedefVarsFromAccumSaveList'/2 =
+    %% Line 256
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_cor7> when 'true' ->
+	      %% Line 257
+	      []
+	  %% Line 258
+	  <[{Var,Temp}|Rest],DefinedList> when 'true' ->
+	      %% Line 260
+	      case apply 'is_element'/2
+		       (Var, DefinedList) of
+		%% Line 261
+		<'true'> when 'true' ->
+		    apply 'removeRedefVarsFromAccumSaveList'/2
+			(Rest, DefinedList)
+		%% Line 262
+		<'false'> when 'true' ->
+		    let <_cor3> =
+			apply 'removeRedefVarsFromAccumSaveList'/2
+			    (Rest, DefinedList)
+		    in  [{Var,Temp}|_cor3]
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'removeRedefVarsFromAccumSaveList',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'secondPassDoPseudoSpill'/1 =
+    %% Line 266
+    fun (_cor0) ->
+	%% Line 267
+	call 'lists':'foldl'
+	    (( 'convertPseudoSpillToMov'/2
+	       -| [{'id',{0,0,'-secondPassDoPseudoSpill/1-fun-0-'}}] ), [], _cor0)
+'secondPassDoPseudoCall'/3 =
+    %% Line 271
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 272
+	( case _cor2 of
+	    ( <( {'pseudo_call',_cor10,_cor11,_rec2,_cor12}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <SizeOfSet> =
+		      %% Line 273
+		      apply 'setSize'/1
+			  (_cor1)
+		  in  %% Line 274
+		      case <> of
+			<>
+			    when call 'erlang':'=/='
+				  (SizeOfSet,
+				   0) ->
+			    %% Line 275
+			    apply 'addRestoreBlockToEdge'/4
+				(_cor2, _rec2, _cor0, _cor1)
+			%% Line 276
+			<> when 'true' ->
+			    %% Line 277
+			    {_cor0,_cor2}
+		      end
+	      -| ['compiler_generated'] )
+	    ( <_cor13> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','pseudo_call'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'convertPseudoSpillToMov'/2 =
+    %% Line 281
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Temp,NewTemp},OtherMoves> when 'true' ->
+	      let <_cor2> =
+		  %% Line 282
+		  apply 'mkMove'/2
+		      (Temp, NewTemp)
+	      in  %% Line 282
+		  call 'erlang':'++'
+		      (OtherMoves, [_cor2|[]])
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'convertPseudoSpillToMov',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'convertPseudoRestoreToMov'/2 =
+    %% Line 286
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Temp,NewTemp},OtherMoves> when 'true' ->
+	      let <_cor2> =
+		  %% Line 287
+		  apply 'mkMove'/2
+		      (NewTemp, Temp)
+	      in  %% Line 287
+		  call 'erlang':'++'
+		      (OtherMoves, [_cor2|[]])
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'convertPseudoRestoreToMov',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'mkMove'/2 =
+    %% Line 290
+    fun (_cor1,_cor0) ->
+	%% Line 291
+	case <> of
+	  <>
+	      when ( try
+		      ( case <> of
+			  ( <>
+				when ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'is_record'
+									 -| ['compiler_generated'] )
+					(_cor0,
+					 ( 'x86_temp'
+					   -| ['compiler_generated'] ),
+					 ( 4
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] ) ->
+				let <_cor6> =
+				    ( call 'erlang':'element'
+					  (3, _cor0)
+				      -| ['compiler_generated'] )
+				in  ( call 'erlang':'=:='
+					  (_cor6, 'double')
+				      -| ['compiler_generated'] )
+			    -| ['compiler_generated'] )
+			  ( <> when 'true' ->
+				'false'
+			    -| ['compiler_generated'] )
+			end
+			-| ['compiler_generated'] )
+		  of <Try> ->
+		      Try
+		  catch <T,R> ->
+		      'false'
+		  -| ['compiler_generated'] ) ->
+	      %% Line 292
+	      call 'hipe_x86':'mk_fmove'
+		  (_cor1, _cor0)
+	  %% Line 293
+	  <> when 'true' ->
+	      %% Line 294
+	      call 'hipe_x86':'mk_move'
+		  (_cor1, _cor0)
+	end
+'addRestoreBlockToEdge'/4 =
+    %% Line 298
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <NextLabel> =
+	    %% Line 299
+	    call 'hipe_gensym':'get_next_label'
+		('x86')
+	in  let <_cor6> =
+		%% Line 300
+		call 'lists':'foldl'
+		    (( 'convertPseudoRestoreToMov'/2
+		       -| [{'id',{0,0,'-addRestoreBlockToEdge/4-fun-0-'}}] ), [], _cor0)
+	    in  let <_cor5> =
+		    %% Line 300
+		    call 'hipe_x86':'mk_jmp_label'
+			(_cor2)
+		in  let <NewCode> =
+			%% Line 300
+			call 'erlang':'++'
+			    (_cor6, [_cor5|[]])
+		    in  let <NewBlock> =
+			    %% Line 301
+			    call 'hipe_bb':'mk_bb'
+				(NewCode)
+			in  let <NewPseudoCall> =
+				%% Line 302
+				apply 'redirect_pseudo_call'/3
+				    (_cor3, _cor2, NextLabel)
+			    in  let <NewCFG> =
+				    %% Line 303
+				    call 'hipe_x86_cfg':'bb_add'
+					(_cor1, NextLabel, NewBlock)
+				in  %% Line 304
+				    {NewCFG,NewPseudoCall}
+'redirect_pseudo_call'/3 =
+    %% Line 308
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <I = {'pseudo_call',_cor9,_cor10,ContLabel,_cor11},Old,New> when 'true' ->
+	      %% Line 309
+	      case <> of
+		%% Line 310
+		<>
+		    when call 'erlang':'=:='
+			  (Old,
+			   ContLabel) ->
+		    call 'erlang':'setelement'
+			(4, I, New)
+		%% Line 311
+		<> when 'true' ->
+		    I
+	      end
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'redirect_pseudo_call',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'temp_is_pseudo'/1 =
+    %% Line 314
+    fun (_cor0) ->
+	%% Line 315
+	case call 'hipe_x86':'is_temp'
+		 (_cor0) of
+	  %% Line 316
+	  <'true'> when 'true' ->
+	      let <_cor1> =
+		  call 'hipe_x86':'temp_reg'
+		      (_cor0)
+	      in  let <_cor2> =
+		      call 'hipe_x86_registers':'is_precoloured'
+			  (_cor1)
+		  in  call 'erlang':'not'
+			  (_cor2)
+	  %% Line 317
+	  <'false'> when 'true' ->
+	      'false'
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'union'/2 =
+    %% Line 324
+    fun (_cor1,_cor0) ->
+	%% Line 325
+	call 'ordsets':'union'
+	    (_cor1, _cor0)
+'setSize'/1 =
+    %% Line 327
+    fun (_cor0) ->
+	%% Line 328
+	call 'ordsets':'size'
+	    (_cor0)
+'from_list'/1 =
+    %% Line 330
+    fun (_cor0) ->
+	%% Line 331
+	call 'ordsets':'from_list'
+	    (_cor0)
+'to_list'/1 =
+    %% Line 333
+    fun (_cor0) ->
+	%% Line 334
+	call 'ordsets':'to_list'
+	    (_cor0)
+'subtract'/2 =
+    %% Line 336
+    fun (_cor1,_cor0) ->
+	%% Line 337
+	call 'ordsets':'subtract'
+	    (_cor1, _cor0)
+'intersection'/2 =
+    %% Line 339
+    fun (_cor1,_cor0) ->
+	%% Line 340
+	call 'ordsets':'intersection'
+	    (_cor1, _cor0)
+'is_element'/2 =
+    %% Line 342
+    fun (_cor1,_cor0) ->
+	%% Line 343
+	call 'ordsets':'is_element'
+	    (_cor1, _cor0)
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_x86_spill_restore')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_x86_spill_restore', _cor0)
+end

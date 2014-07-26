@@ -1,0 +1,259 @@
+module 'ct_config_plain' ['check_parameter'/1,
+			  'module_info'/0,
+			  'module_info'/1,
+			  'read_config'/1]
+    attributes []
+'read_config'/1 =
+    %% Line 27
+    fun (_cor0) ->
+	%% Line 28
+	case call 'file':'consult'
+		 (_cor0) of
+	  %% Line 29
+	  <{'ok',Config}> when 'true' ->
+	      %% Line 30
+	      {'ok',Config}
+	  %% Line 31
+	  <{'error','enoent'}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 32
+		  call 'file':'format_error'
+		      ('enoent')
+	      in  %% Line 32
+		  {'error',{'config_file_error',_cor1}}
+	  %% Line 33
+	  <{'error',Reason}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 35
+		  case call 'application':'get_env'
+			   ('common_test', 'decrypt') of
+		    %% Line 36
+		    <{'ok',KeyOrFile}> when 'true' ->
+			%% Line 37
+			case KeyOrFile of
+			  %% Line 38
+			  <{'key',K}> when 'true' ->
+			      %% Line 39
+			      K
+			  %% Line 40
+			  <{'file',F}> when 'true' ->
+			      %% Line 41
+			      call 'ct_config':'get_crypt_key_from_file'
+				  (F)
+			  ( <_cor2> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor2})
+			    -| ['compiler_generated'] )
+			end
+		    %% Line 43
+		    <_cor14> when 'true' ->
+			%% Line 44
+			call 'ct_config':'get_crypt_key_from_file'
+			    ()
+		  end
+	      in  %% Line 46
+		  case _cor4 of
+		    %% Line 47
+		    <{'error','no_crypt_file'}> when 'true' ->
+			let <_cor6> =
+			    %% Line 50
+			    call 'file':'format_error'
+				(Reason)
+			in  let <_cor7> =
+				%% Line 50
+				call 'io_lib':'format'
+				    ([126|[116|[115]]], [_cor6|[]])
+			    in  let <_cor8> =
+				    %% Line 49
+				    call 'lists':'flatten'
+					(_cor7)
+				in  %% Line 48
+				    {'error',{'config_file_error',_cor8}}
+		    %% Line 51
+		    <{'error',CryptError}> when 'true' ->
+			%% Line 52
+			{'error',{'decrypt_file_error',CryptError}}
+		    %% Line 53
+		    <_cor15>
+			when call 'erlang':'is_list'
+			      (_cor4) ->
+			%% Line 54
+			case call 'ct_config':'decrypt_config_file'
+				 (_cor0, %% Line 55
+					 'undefined', %% Line 56
+						      {'key',_cor4}) of
+			  %% Line 57
+			  <{'ok',CfgBin}> when 'true' ->
+			      %% Line 58
+			      case apply 'read_config_terms'/1
+				       (CfgBin) of
+				%% Line 59
+				<{'error',ReadFail}> when 'true' ->
+				    %% Line 60
+				    {'error',{'config_file_error',ReadFail}}
+				%% Line 61
+				<Config> when 'true' ->
+				    %% Line 62
+				    {'ok',Config}
+			      end
+			  %% Line 64
+			  <{'error',DecryptFail}> when 'true' ->
+			      %% Line 65
+			      {'error',{'decrypt_config_error',DecryptFail}}
+			  ( <_cor10> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor10})
+			    -| ['compiler_generated'] )
+			end
+		    %% Line 67
+		    <_cor16> when 'true' ->
+			%% Line 68
+			{'error',{'bad_decrypt_key',_cor4}}
+		  end
+	  ( <_cor12> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor12})
+	    -| ['compiler_generated'] )
+	end
+'check_parameter'/1 =
+    %% Line 73
+    fun (_cor0) ->
+	%% Line 74
+	case call 'filelib':'is_file'
+		 (_cor0) of
+	  %% Line 75
+	  <'true'> when 'true' ->
+	      %% Line 76
+	      {'ok',{'file',_cor0}}
+	  %% Line 77
+	  <'false'> when 'true' ->
+	      %% Line 78
+	      {'error',{'nofile',_cor0}}
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'read_config_terms'/1 =
+    %% Line 81
+    fun (_cor0) ->
+	case _cor0 of
+	  <Bin>
+	      when call 'erlang':'is_binary'
+		    (_cor0) ->
+	      let <_cor1> =
+		  catch
+		      %% Line 82
+		      call 'erlang':'binary_to_list'
+			  (Bin)
+	      in  %% Line 82
+		  case _cor1 of
+		    %% Line 83
+		    <{'EXIT',_cor5}> when 'true' ->
+			%% Line 84
+			{'error','invalid_textfile'}
+		    %% Line 85
+		    <Lines> when 'true' ->
+			%% Line 86
+			apply 'read_config_terms'/1
+			    (Lines)
+		  end
+	  %% Line 88
+	  <Lines>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      let <_cor3> =
+		  %% Line 89
+		  call 'erl_scan':'tokens'
+		      ([], Lines, 0)
+	      in  %% Line 89
+		  apply 'read_config_terms1'/4
+		      (_cor3, 1, [], [])
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'read_config_terms',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'read_config_terms1'/4 =
+    %% Line 91
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <{'done',{'ok',Ts,EL},Rest},L,Terms,_cor12> when 'true' ->
+	      %% Line 92
+	      case call 'erl_parse':'parse_term'
+		       (Ts) of
+		%% Line 93
+		<{'ok',Term}>
+		    when call 'erlang':'=:='
+			  (Rest,
+			   []) ->
+		    %% Line 94
+		    call 'lists':'reverse'
+			([Term|Terms])
+		%% Line 95
+		<{'ok',Term}> when 'true' ->
+		    let <_cor5> =
+			%% Line 96
+			call 'erl_scan':'tokens'
+			    ([], Rest, 0)
+		    in  let <_cor4> =
+			    %% Line 97
+			    call 'erlang':'+'
+				(EL, 1)
+			in  %% Line 96
+			    apply 'read_config_terms1'/4
+				(_cor5, _cor4, %% Line 97
+					       [Term|Terms], %% Line 97
+							     Rest)
+		%% Line 98
+		<_cor13> when 'true' ->
+		    %% Line 99
+		    {'error',{'bad_term',{L,EL}}}
+	      end
+	  %% Line 101
+	  <{'done',{'eof',_cor14},_cor15},_cor16,Terms,Rest>
+	      when call 'erlang':'=:='
+		    (Rest,
+		     []) ->
+	      %% Line 102
+	      call 'lists':'reverse'
+		  (Terms)
+	  %% Line 103
+	  <{'done',{'eof',EL},_cor17},L,_cor18,_cor19> when 'true' ->
+	      %% Line 104
+	      {'error',{'bad_term',{L,EL}}}
+	  %% Line 105
+	  <{'done',{'error',Info,EL},_cor20},L,_cor21,_cor22> when 'true' ->
+	      %% Line 106
+	      {'error',{Info,{L,EL}}}
+	  %% Line 107
+	  <{'more',_cor23},L,Terms,Rest> when 'true' ->
+	      %% Line 108
+	      case call 'string':'tokens'
+		       (Rest, [10|[13|[9]]]) of
+		%% Line 109
+		<[]> when 'true' ->
+		    %% Line 110
+		    call 'lists':'reverse'
+			(Terms)
+		%% Line 111
+		<_cor24> when 'true' ->
+		    %% Line 112
+		    {'error',{'bad_term',L}}
+	      end
+	  ( <_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'read_config_terms1',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ct_config_plain')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ct_config_plain', _cor0)
+end

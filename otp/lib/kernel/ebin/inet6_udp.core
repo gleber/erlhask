@@ -1,0 +1,274 @@
+module 'inet6_udp' ['close'/1,
+		    'connect'/3,
+		    'controlling_process'/2,
+		    'fdopen'/2,
+		    'getaddr'/1,
+		    'getaddr'/2,
+		    'getserv'/1,
+		    'module_info'/0,
+		    'module_info'/1,
+		    'open'/1,
+		    'open'/2,
+		    'recv'/2,
+		    'recv'/3,
+		    'send'/2,
+		    'send'/4]
+    attributes []
+'getserv'/1 =
+    %% Line 31
+    fun (_cor0) ->
+	case _cor0 of
+	  <Port>
+	      when call 'erlang':'is_integer'
+		    (_cor0) ->
+	      {'ok',Port}
+	  %% Line 32
+	  <Name>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      call 'inet':'getservbyname'
+		  (Name, 'udp')
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'getserv',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'getaddr'/1 =
+    %% Line 35
+    fun (_cor0) ->
+	call 'inet':'getaddr'
+	    (_cor0, 'inet6')
+'getaddr'/2 =
+    %% Line 36
+    fun (_cor1,_cor0) ->
+	call 'inet':'getaddr'
+	    (_cor1, 'inet6', _cor0)
+'open'/1 =
+    %% Line 38
+    fun (_cor0) ->
+	apply 'open'/2
+	    (_cor0, [])
+'open'/2 =
+    %% Line 40
+    fun (_cor1,_cor0) ->
+	%% Line 41
+	case call 'inet':'udp_options'
+		 ([{'port',_cor1}|_cor0], 'inet6') of
+	  %% Line 42
+	  <{'error',Reason}> when 'true' ->
+	      call 'erlang':'exit'
+		  (Reason)
+	  %% Line 43
+	  <{'ok',{'udp_opts',BAddr = %% Line 44
+				     {A,B,C,D,E,F,G,H},%% Line 45
+						       BPort,Fd,%% Line 46
+								SockOpts}}>
+	      when %% Line 47
+		try
+		    let <_cor3> =
+			call 'erlang':'bor'
+			    (A, B)
+		    in  let <_cor4> =
+			    call 'erlang':'bor'
+				(_cor3, C)
+			in  let <_cor5> =
+				call 'erlang':'bor'
+				    (_cor4, D)
+			    in  let <_cor6> =
+				    call 'erlang':'bor'
+					(_cor5, E)
+				in  let <_cor7> =
+					call 'erlang':'bor'
+					    (_cor6, F)
+				    in  let <_cor8> =
+					    call 'erlang':'bor'
+						(_cor7, G)
+					in  let <_cor9> =
+						call 'erlang':'bor'
+						    (_cor8, H)
+					    in  let <_cor10> =
+						    call 'erlang':'band'
+							(_cor9, -65536)
+						in  let <_cor11> =
+							call 'erlang':'=:='
+							    (_cor10, 0)
+						    in  let <_cor13> =
+							    call 'erlang':'band'
+								(BPort, -65536)
+							in  let <_cor14> =
+								call 'erlang':'=:='
+								    (_cor13, 0)
+							    in  call 'erlang':'and'
+								    (_cor11, _cor14)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 48
+	      call 'inet':'open'
+		  (Fd, BAddr, BPort, SockOpts, 'udp', 'inet6', 'dgram', 'inet6_udp')
+	  %% Line 49
+	  <{'ok',_cor18}> when 'true' ->
+	      call 'erlang':'exit'
+		  ('badarg')
+	  ( <_cor15> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor15})
+	    -| ['compiler_generated'] )
+	end
+'send'/4 =
+    %% Line 52
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <S,Addr = {A,B,C,D,E,F,G,H},P,Data>
+	      when %% Line 53
+		try
+		    let <_cor5> =
+			call 'erlang':'bor'
+			    (A, B)
+		    in  let <_cor6> =
+			    call 'erlang':'bor'
+				(_cor5, C)
+			in  let <_cor7> =
+				call 'erlang':'bor'
+				    (_cor6, D)
+			    in  let <_cor8> =
+				    call 'erlang':'bor'
+					(_cor7, E)
+				in  let <_cor9> =
+					call 'erlang':'bor'
+					    (_cor8, F)
+				    in  let <_cor10> =
+					    call 'erlang':'bor'
+						(_cor9, G)
+					in  let <_cor11> =
+						call 'erlang':'bor'
+						    (_cor10, H)
+					    in  let <_cor12> =
+						    call 'erlang':'band'
+							(_cor11, -65536)
+						in  let <_cor13> =
+							call 'erlang':'=:='
+							    (_cor12, 0)
+						    in  let <_cor15> =
+							    call 'erlang':'band'
+								(P, -65536)
+							in  let <_cor16> =
+								call 'erlang':'=:='
+								    (_cor15, 0)
+							    in  call 'erlang':'and'
+								    (_cor13, _cor16)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 54
+	      call 'prim_inet':'sendto'
+		  (S, Addr, P, Data)
+	  ( <_cor20,_cor19,_cor18,_cor17> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor20,_cor19,_cor18,_cor17})
+		  -| [{'function_name',{'send',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'send'/2 =
+    %% Line 56
+    fun (_cor1,_cor0) ->
+	%% Line 57
+	call 'prim_inet':'sendto'
+	    (_cor1, {0,0,0,0,0,0,0,0}, 0, _cor0)
+'connect'/3 =
+    %% Line 59
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <S,Addr = {A,B,C,D,E,F,G,H},P>
+	      when %% Line 60
+		try
+		    let <_cor4> =
+			call 'erlang':'bor'
+			    (A, B)
+		    in  let <_cor5> =
+			    call 'erlang':'bor'
+				(_cor4, C)
+			in  let <_cor6> =
+				call 'erlang':'bor'
+				    (_cor5, D)
+			    in  let <_cor7> =
+				    call 'erlang':'bor'
+					(_cor6, E)
+				in  let <_cor8> =
+					call 'erlang':'bor'
+					    (_cor7, F)
+				    in  let <_cor9> =
+					    call 'erlang':'bor'
+						(_cor8, G)
+					in  let <_cor10> =
+						call 'erlang':'bor'
+						    (_cor9, H)
+					    in  let <_cor11> =
+						    call 'erlang':'band'
+							(_cor10, -65536)
+						in  let <_cor12> =
+							call 'erlang':'=:='
+							    (_cor11, 0)
+						    in  let <_cor14> =
+							    call 'erlang':'band'
+								(P, -65536)
+							in  let <_cor15> =
+								call 'erlang':'=:='
+								    (_cor14, 0)
+							    in  call 'erlang':'and'
+								    (_cor12, _cor15)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 61
+	      call 'prim_inet':'connect'
+		  (S, Addr, P)
+	  ( <_cor18,_cor17,_cor16> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor18,_cor17,_cor16})
+		  -| [{'function_name',{'connect',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'recv'/2 =
+    %% Line 63
+    fun (_cor1,_cor0) ->
+	%% Line 64
+	call 'prim_inet':'recvfrom'
+	    (_cor1, _cor0)
+'recv'/3 =
+    %% Line 66
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 67
+	call 'prim_inet':'recvfrom'
+	    (_cor2, _cor1, _cor0)
+'close'/1 =
+    %% Line 69
+    fun (_cor0) ->
+	%% Line 70
+	call 'inet':'udp_close'
+	    (_cor0)
+'controlling_process'/2 =
+    %% Line 80
+    fun (_cor1,_cor0) ->
+	%% Line 81
+	call 'inet':'udp_controlling_process'
+	    (_cor1, _cor0)
+'fdopen'/2 =
+    %% Line 86
+    fun (_cor1,_cor0) ->
+	%% Line 87
+	call 'inet':'fdopen'
+	    (_cor1, _cor0, 'udp', 'inet6', 'dgram', 'inet6_udp')
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('inet6_udp')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('inet6_udp', _cor0)
+end

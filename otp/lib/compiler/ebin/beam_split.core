@@ -1,0 +1,317 @@
+module 'beam_split' ['module'/2,
+		     'module_info'/0,
+		     'module_info'/1]
+    attributes []
+'module'/2 =
+    %% Line 25
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Mod,Exp,Attr,Fs0,Lc},_X_Opts> when 'true' ->
+	      let <_cor7> =
+		  %% Line 26
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor4) ->
+				case _cor4 of
+				  <[F|_cor3]> when 'true' ->
+				      let <_cor5> =
+					  apply 'split_blocks'/1
+					      (F)
+				      in  let <_cor6> =
+					      apply 'lc$^0'/1
+						  (_cor3)
+					  in  ( [_cor5|_cor6]
+						-| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_452> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor4})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (Fs0)
+		    -| ['list_comprehension'] )
+	      in  %% Line 27
+		  {'ok',{Mod,Exp,Attr,_cor7,Lc}}
+	  ( <_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'module',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'split_blocks'/1 =
+    %% Line 32
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'function',Name,Arity,CLabel,Is0}> when 'true' ->
+	      let <Is> =
+		  %% Line 33
+		  apply 'split_blocks'/2
+		      (Is0, [])
+	      in  %% Line 34
+		  {'function',Name,Arity,CLabel,Is}
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'split_blocks',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'split_blocks'/2 =
+    %% Line 36
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'block',Bl}|Is],Acc0> when 'true' ->
+	      let <Acc> =
+		  %% Line 37
+		  apply 'split_block'/3
+		      (Bl, [], _cor0)
+	      in  %% Line 38
+		  apply 'split_blocks'/2
+		      (Is, Acc)
+	  %% Line 39
+	  <[I|Is],Acc> when 'true' ->
+	      %% Line 40
+	      apply 'split_blocks'/2
+		  (Is, [I|_cor0])
+	  %% Line 41
+	  <[],Acc> when 'true' ->
+	      call 'lists':'reverse'
+		  (_cor0)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'split_blocks',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'split_block'/3 =
+    %% Line 43
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[{'set',[R|[]],As = [_cor13|[_cor14|[_cor15|[]]]],{'bif','is_record',{'f',Lbl}}}|Is],Bl,Acc> when 'true' ->
+	      let <_cor3> =
+		  %% Line 46
+		  apply 'make_block'/2
+		      (_cor1, _cor0)
+	      in  %% Line 46
+		  apply 'split_block'/3
+		      (Is, [], [{'bif','is_record',{'f',Lbl},As,R}|_cor3])
+	  %% Line 47
+	  <[{'set',[R|[]],As,{'bif',N,Fail = {'f',Lbl}}}|Is],Bl,Acc>
+	      when call 'erlang':'=/='
+		    (Lbl,
+		     0) ->
+	      let <_cor4> =
+		  %% Line 48
+		  apply 'make_block'/2
+		      (_cor1, _cor0)
+	      in  %% Line 48
+		  apply 'split_block'/3
+		      (Is, [], [{'bif',N,Fail,As,R}|_cor4])
+	  %% Line 49
+	  <[{'set',[R|[]],As,{'alloc',Live,{'gc_bif',N,Fail = {'f',Lbl}}}}|Is],Bl,Acc>
+	      when %% Line 50
+		call 'erlang':'=/='
+		    (Lbl,
+		     0) ->
+	      let <_cor5> =
+		  %% Line 51
+		  apply 'make_block'/2
+		      (_cor1, _cor0)
+	      in  %% Line 51
+		  apply 'split_block'/3
+		      (Is, [], [{'gc_bif',N,Fail,Live,As,R}|_cor5])
+	  %% Line 52
+	  <[{'set',[D|[]],[S|Puts],{'alloc',R,{'put_map',Op,Fail = {'f',Lbl}}}}|Is],Bl,Acc>
+	      when %% Line 53
+		call 'erlang':'=/='
+		    (Lbl,
+		     0) ->
+	      let <_cor6> =
+		  %% Line 55
+		  apply 'make_block'/2
+		      (_cor1, _cor0)
+	      in  %% Line 54
+		  apply 'split_block'/3
+		      (Is, [], [{'put_map',Fail,Op,S,D,R,{'list',Puts}}|_cor6])
+	  %% Line 56
+	  <[{'set',Gets,[S|[]],{'get_map_elements',Fail = {'f',Lbl}}}|Is],Bl,Acc>
+	      when %% Line 57
+		call 'erlang':'=/='
+		    (Lbl,
+		     0) ->
+	      let <_cor7> =
+		  %% Line 58
+		  apply 'make_block'/2
+		      (_cor1, _cor0)
+	      in  %% Line 58
+		  apply 'split_block'/3
+		      (Is, [], [{'get_map_elements',Fail,S,{'list',Gets}}|_cor7])
+	  %% Line 59
+	  <[{'set',[R|[]],[],{'catch',L}}|Is],Bl,Acc> when 'true' ->
+	      let <_cor8> =
+		  %% Line 60
+		  apply 'make_block'/2
+		      (_cor1, _cor0)
+	      in  %% Line 60
+		  apply 'split_block'/3
+		      (Is, [], [{'catch',R,L}|_cor8])
+	  %% Line 61
+	  <[{'set',[],[],Line = {'line',_cor16}}|Is],Bl,Acc> when 'true' ->
+	      let <_cor9> =
+		  %% Line 62
+		  apply 'make_block'/2
+		      (_cor1, _cor0)
+	      in  %% Line 62
+		  apply 'split_block'/3
+		      (Is, [], [Line|_cor9])
+	  %% Line 63
+	  <[I|Is],Bl,Acc> when 'true' ->
+	      %% Line 64
+	      apply 'split_block'/3
+		  (Is, [I|_cor1], _cor0)
+	  %% Line 65
+	  <[],Bl,Acc> when 'true' ->
+	      apply 'make_block'/2
+		  (_cor1, _cor0)
+	  ( <_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'split_block',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'make_block'/2 =
+    %% Line 67
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Acc> when 'true' ->
+	      _cor0
+	  %% Line 68
+	  <Bl0 = [{'set',[D|[]],Ss,{'bif',Op,Fail}}|Bl],Acc> when 'true' ->
+	      let <Arity> =
+		  %% Line 72
+		  call 'erlang':'length'
+		      (Ss)
+	      in  let <_258> =
+		      %% Line 73
+		      call 'erl_internal':'comp_op'
+			  (Op, Arity)
+		  in  let <_cor7> =
+			  %% Line 73
+			  ( case _258 of
+			      ( <( 'true'
+				   -| ['compiler_generated'] )> when 'true' ->
+				    'true'
+				-| ['compiler_generated'] )
+			      ( <( 'false'
+				   -| ['compiler_generated'] )> when 'true' ->
+				    let <_294> =
+					%% Line 74
+					call 'erl_internal':'new_type_test'
+					    (Op, Arity)
+				    in  %% Line 74
+					( case _294 of
+					    ( <( 'true'
+						 -| ['compiler_generated'] )> when 'true' ->
+						  'true'
+					      -| ['compiler_generated'] )
+					    ( <( 'false'
+						 -| ['compiler_generated'] )> when 'true' ->
+						  %% Line 75
+						  call 'erl_internal':'bool_op'
+						      (Op, Arity)
+					      -| ['compiler_generated'] )
+					    ( <_cor4> when 'true' ->
+						  ( call ( 'erlang'
+							   -| ['compiler_generated'] ):( 'error'
+											 -| ['compiler_generated'] )
+							(( {( 'badarg'
+							      -| ['compiler_generated'] ),_294}
+							   -| ['compiler_generated'] ))
+						    -| ['compiler_generated'] )
+					      -| ['compiler_generated'] )
+					  end
+					  -| ['compiler_generated'] )
+				-| ['compiler_generated'] )
+			      ( <_cor3> when 'true' ->
+				    ( call ( 'erlang'
+					     -| ['compiler_generated'] ):( 'error'
+									   -| ['compiler_generated'] )
+					  (( {( 'badarg'
+						-| ['compiler_generated'] ),_258}
+					     -| ['compiler_generated'] ))
+				      -| ['compiler_generated'] )
+				-| ['compiler_generated'] )
+			    end
+			    -| ['compiler_generated'] )
+		      in  %% Line 73
+			  case _cor7 of
+			    %% Line 76
+			    <'false'> when 'true' ->
+				let <_cor8> =
+				    %% Line 77
+				    call 'lists':'reverse'
+					(_cor1)
+				in  %% Line 77
+				    [{'block',_cor8}|_cor0]
+			    %% Line 78
+			    <'true'> when 'true' ->
+				let <I> =
+				    %% Line 79
+				    {'bif',Op,Fail,Ss,D}
+				in  %% Line 80
+				    case <> of
+				      %% Line 81
+				      <>
+					  when call 'erlang':'=:='
+						(Bl,
+						 []) ->
+					  [I|_cor0]
+				      %% Line 82
+				      <> when 'true' ->
+					  let <_cor10> =
+					      call 'lists':'reverse'
+						  (Bl)
+					  in  [I|[{'block',_cor10}|_cor0]]
+				    end
+			    ( <_cor12> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor7})
+			      -| ['compiler_generated'] )
+			  end
+	  %% Line 85
+	  <[{'set',[Dst|[]],[Src|[]],'move'}|Bl],Acc> when 'true' ->
+	      let <I> = {%% Line 87
+		   'move',Src,Dst}
+	      in  %% Line 88
+		  case <> of
+		    %% Line 89
+		    <>
+			when call 'erlang':'=:='
+			      (Bl,
+			       []) ->
+			[I|_cor0]
+		    %% Line 90
+		    <> when 'true' ->
+			let <_cor14> =
+			    call 'lists':'reverse'
+				(Bl)
+			in  [I|[{'block',_cor14}|_cor0]]
+		  end
+	  %% Line 92
+	  <Bl,Acc> when 'true' ->
+	      let <_cor16> =
+		  call 'lists':'reverse'
+		      (_cor1)
+	      in  [{'block',_cor16}|_cor0]
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('beam_split')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('beam_split', _cor0)
+end

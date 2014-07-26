@@ -1,0 +1,2941 @@
+module 'hipe_rtl_mk_switch' ['gen_switch_tuple'/4,
+			     'gen_switch_val'/4,
+			     'module_info'/0,
+			     'module_info'/1]
+    attributes [%% Line 301
+		'type' =
+		    %% Line 301
+		    [{{'record','comp_servers'},[{'typed_record_field',{'record_field',301,{'atom',301,'pp_server'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'range'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'type'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}]]],[]}],
+		%% Line 307
+		'type' =
+		    %% Line 307
+		    [{'comp_option',{'type',307,'union',[{'type',307,'atom',[]}|[{'type',307,'tuple',[{'type',307,'atom',[]}|[{'type',307,'atom',[]}]]}]]},[]}],
+		%% Line 308
+		'type' =
+		    %% Line 308
+		    [{'comp_options',{'type',308,'list',[{'type',308,'comp_option',[]}]},[]}],
+		%% Line 310
+		'type' =
+		    %% Line 310
+		    [{'hipe_architecture',{'type',311,'union',[{'atom',311,'amd64'}|[{'atom',311,'arm'}|[{'atom',311,'powerpc'}|[{'atom',311,'ppc64'}|[{'atom',311,'ultrasparc'}|[{'atom',311,'x86'}]]]]]]},[]}],
+		%% Line 313
+		'type' =
+		    %% Line 313
+		    [{'hipe_map',{'type',313,'list',[{'type',313,'tuple',[{'type',313,'non_neg_integer',[]}|[{'type',314,'union',[{'atom',314,'unknown'}|[{'type',314,'tuple',[{'type',314,'union',[{'atom',314,'reg'}|[{'atom',314,'fp_reg'}|[{'atom',314,'spill'}]]]}|[{'type',315,'non_neg_integer',[]}]]}]]}]]}]},[]}],
+		%% Line 316
+		'type' =
+		    %% Line 316
+		    [{'hipe_temp_map',{'type',316,'tuple','any'},[]}],
+		%% Line 317
+		'type' =
+		    %% Line 317
+		    [{'hipe_spill_map',{'type',317,'list',[{'type',317,'tuple',[{'type',317,'non_neg_integer',[]}|[{'type',317,'tuple',[{'atom',317,'spill'}|[{'type',317,'non_neg_integer',[]}]]}]]}]},[]}]]
+'gen_switch_val'/4 =
+    %% Line 97
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_1117> =
+	    %% Line 98
+	    call 'proplists':'get_bool'
+		('use_indexing', _cor0)
+	in  %% Line 98
+	    case _1117 of
+	      %% Line 99
+	      <'false'> when 'true' ->
+		  let <Var> =
+		      %% Line 713
+		      call 'hipe_icode':'switch_val_term'
+			  (_cor3)
+		  in  let <Fail> =
+			  %% Line 714
+			  call 'hipe_icode':'switch_val_fail_label'
+			      (_cor3)
+		      in  let <Cases> =
+			      %% Line 715
+			      call 'hipe_icode':'switch_val_cases'
+				  (_cor3)
+			  in  let <Is> =
+				  %% Line 716
+				  apply 'rewrite_switch_val_cases'/3
+				      (Cases, Fail, Var)
+			      in  %% Line 710
+				  call 'hipe_icode2rtl':'translate_instrs'
+				      (Is, _cor2, _cor1, _cor0)
+	      %% Line 100
+	      <'true'> when 'true' ->
+		  apply 'gen_fast_switch_val'/4
+		      (_cor3, _cor2, _cor1, _cor0)
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_1117})
+		-| ['compiler_generated'] )
+	    end
+'gen_fast_switch_val'/4 =
+    %% Line 103
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 105
+	    call 'hipe_icode':'switch_val_term'
+		(_cor3)
+	in  let <_739> =
+		%% Line 105
+		call 'hipe_rtl_varmap':'icode_var2rtl_var'
+		    (_cor4, _cor2)
+	    in  %% Line 104
+		case _739 of
+		  <{Arg,VarMap0}> when 'true' ->
+		      let <IcodeFail> =
+			  %% Line 106
+			  call 'hipe_icode':'switch_val_fail_label'
+			      (_cor3)
+		      in  let <_1098> =
+			      %% Line 107
+			      call 'hipe_rtl_varmap':'icode_label2rtl_label'
+				  (IcodeFail, VarMap0)
+			  in  %% Line 107
+			      case _1098 of
+				<{Fail,VarMap1}> when 'true' ->
+				    let <UnsortedCases> =
+					%% Line 109
+					call 'hipe_icode':'switch_val_cases'
+					    (_cor3)
+				    in  let <Cases> =
+					    %% Line 110
+					    call 'lists':'sort'
+						(UnsortedCases)
+					in  do  %% Line 112
+						apply 'check_duplicates'/1
+						    (Cases)
+						let <_1102> =
+						    %% Line 115
+						    apply 'split_types'/2
+							(Cases, Arg)
+						in  %% Line 115
+						    case _1102 of
+						      <{Types,InitCode}> when 'true' ->
+							  %% Line 116
+							  apply 'handle_types'/6
+							      (Types, InitCode, VarMap1, _cor1, Arg, {_cor3,Fail,_cor0})
+						      ( <_cor10> when 'true' ->
+							    primop 'match_fail'
+								({'badmatch',_1102})
+							-| ['compiler_generated'] )
+						    end
+				( <_cor7> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_1098})
+				  -| ['compiler_generated'] )
+			      end
+		  ( <_cor5> when 'true' ->
+			primop 'match_fail'
+			    ({'badmatch',_739})
+		    -| ['compiler_generated'] )
+		end
+'handle_types'/6 =
+    %% Line 118
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[{Type,Lbl,Cases}|Types],Code,VarMap,ConstTab,Arg,Info> when 'true' ->
+	      let <_153> =
+		  %% Line 119
+		  apply 'gen_fast_switch_on'/6
+		      (Type, Cases, _cor3, _cor2, _cor1, _cor0)
+	      in  %% Line 119
+		  case _153 of
+		    <{Code1,VarMap1,ConstTab1}> when 'true' ->
+			%% Line 122
+			apply 'handle_types'/6
+			    (Types, [_cor4|[Lbl|[Code1|[]]]], VarMap1, ConstTab1, _cor1, _cor0)
+		    ( <_cor6> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_153})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 123
+	  <[],Code,VarMap,ConstTab,_cor13,_cor14> when 'true' ->
+	      %% Line 124
+	      {_cor4,_cor3,_cor2}
+	  ( <_cor12,_cor11,_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'handle_types',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'gen_fast_switch_on'/6 =
+    %% Line 127
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <'integer',Cases,VarMap,ConstTab,Arg,{I,Fail,Options}> when 'true' ->
+	      let <_2960> =
+		  %% Line 128
+		  call 'erlang':'hd'
+		      (_cor4)
+	      in  %% Line 128
+		  case _2960 of
+		    <{First,_cor28}> when 'true' ->
+			let <Min> =
+			    %% Line 129
+			    call 'hipe_icode':'const_value'
+				(First)
+			in  %% Line 130
+			    case <> of
+			      <>
+				  when try
+					let <_cor8> =
+					    call 'erlang':'length'
+						(_cor4)
+					in  call 'erlang':'<'
+						(_cor8, 9)
+				    of <Try> ->
+					Try
+				    catch <T,R> ->
+					'false' ->
+				  %% Line 131
+				  apply 'gen_small_switch_val'/6
+				      (_cor1, _cor4, Fail, _cor3, _cor2, Options)
+			      %% Line 132
+			      <> when 'true' ->
+				  let <_3698> =
+				      %% Line 133
+				      call 'proplists':'get_bool'
+					  ('use_clusters', Options)
+				  in  %% Line 133
+				      case _3698 of
+					%% Line 134
+					<'false'> when 'true' ->
+					    let <M> =
+						%% Line 135
+						call 'erlang':'list_to_tuple'
+						    (_cor4)
+					    in  let <_cor10> =
+						    %% Line 136
+						    call 'erlang':'tuple_size'
+							(M)
+						in  let <D> =
+							%% Line 136
+							apply 'density'/3
+							    (M, 1, _cor10)
+						    in  %% Line 137
+							case <> of
+							  %% Line 138
+							  <>
+							      when call 'erlang':'>='
+								    (D,
+								     5.00000000000000000000e-01) ->
+							      let <_cor12> =
+								  %% Line 139
+								  call 'hipe_icode':'switch_val_fail_label'
+								      (I)
+							      in  %% Line 139
+								  apply 'gen_jump_table'/7
+								      (_cor1, Fail, _cor12, _cor3, _cor2, _cor4, Min)
+							  %% Line 140
+							  <> when 'true' ->
+							      %% Line 141
+							      apply 'gen_search_switch_val'/6
+								  (_cor1, _cor4, Fail, _cor3, _cor2, Options)
+							end
+					%% Line 143
+					<'true'> when 'true' ->
+					    let <MC> =
+						%% Line 144
+						apply 'minclusters'/1
+						    (_cor4)
+					    in  let <Cl> =
+						    %% Line 145
+						    apply 'cluster_split'/2
+							(_cor4, MC)
+						in  let <CM> =
+							%% Line 146
+							apply 'cluster_merge'/1
+							    (Cl)
+						    in  let <_cor16> =
+							    %% Line 147
+							    call 'hipe_icode':'switch_val_fail_label'
+								(I)
+							in  %% Line 147
+							    apply 'find_cluster'/7
+								(CM, _cor3, _cor2, Options, _cor1, Fail, _cor16)
+					( <_cor17> when 'true' ->
+					      primop 'match_fail'
+						  ({'case_clause',_3698})
+					  -| ['compiler_generated'] )
+				      end
+			    end
+		    ( <_cor6> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_2960})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 150
+	  <'atom',Cases,VarMap,ConstTab,Arg,{_X_I,Fail,Options}> when 'true' ->
+	      let <_748> =
+		  %% Line 151
+		  call 'proplists':'get_bool'
+		      ('use_inline_atom_search', Options)
+	      in  %% Line 151
+		  case _748 of
+		    %% Line 152
+		    <'true'> when 'true' ->
+			%% Line 153
+			case <> of
+			  %% Line 154
+			  <>
+			      when try
+				    let <_cor18> =
+					call 'erlang':'length'
+					    (_cor4)
+				    in  call 'erlang':'<'
+					    (_cor18, 8)
+				of <Try> ->
+				    Try
+				catch <T,R> ->
+				    'false' ->
+			      %% Line 155
+			      apply 'gen_linear_switch_val'/6
+				  (_cor1, _cor4, Fail, _cor3, _cor2, Options)
+			  %% Line 156
+			  <>
+			      when try
+				    let <_cor19> =
+					call 'erlang':'length'
+					    (_cor4)
+				    in  call 'erlang':'>'
+					    (_cor19, 64)
+				of <Try> ->
+				    Try
+				catch <T,R> ->
+				    'false' ->
+			      %% Line 157
+			      apply 'gen_search_switch_val'/6
+				  (_cor1, _cor4, Fail, _cor3, _cor2, Options)
+			  %% Line 158
+			  <> when 'true' ->
+			      %% Line 159
+			      apply 'gen_atom_switch_val'/6
+				  (_cor1, _cor4, Fail, _cor3, _cor2, Options)
+			end
+		    %% Line 161
+		    <'false'> when 'true' ->
+			%% Line 162
+			case <> of
+			  <>
+			      when try
+				    let <_cor20> =
+					call 'erlang':'length'
+					    (_cor4)
+				    in  call 'erlang':'<'
+					    (_cor20, 20)
+				of <Try> ->
+				    Try
+				catch <T,R> ->
+				    'false' ->
+			      %% Line 163
+			      apply 'gen_linear_switch_val'/6
+				  (_cor1, _cor4, Fail, _cor3, _cor2, Options)
+			  %% Line 164
+			  <> when 'true' ->
+			      %% Line 165
+			      apply 'gen_search_switch_val'/6
+				  (_cor1, _cor4, Fail, _cor3, _cor2, Options)
+			end
+		    ( <_cor21> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_748})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 168
+	  <_cor29,_cor30,VarMap,ConstTab,_cor31,{I,_X_Fail,Options}> when 'true' ->
+	      let <Var> =
+		  %% Line 713
+		  call 'hipe_icode':'switch_val_term'
+		      (I)
+	      in  let <Fail> =
+		      %% Line 714
+		      call 'hipe_icode':'switch_val_fail_label'
+			  (I)
+		  in  let <Cases> =
+			  %% Line 715
+			  call 'hipe_icode':'switch_val_cases'
+			      (I)
+		      in  let <Is> =
+			      %% Line 716
+			      apply 'rewrite_switch_val_cases'/3
+				  (Cases, Fail, Var)
+			  in  %% Line 710
+			      call 'hipe_icode2rtl':'translate_instrs'
+				  (Is, _cor3, _cor2, Options)
+	  ( <_cor27,_cor26,_cor25,_cor24,_cor23,_cor22> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'gen_fast_switch_on',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'split_types'/2 =
+    %% Line 175
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[Case|Cases],Arg> when 'true' ->
+	      let <Type1> =
+		  %% Line 176
+		  apply 'casetype'/1
+		      (Case)
+	      in  let <Types> =
+		      %% Line 177
+		      apply 'split'/4
+			  (Cases, Type1, [Case|[]], [])
+		  in  %% Line 178
+		      apply 'switch_on_types'/4
+			  (Types, [], [], _cor0)
+	  %% Line 179
+	  <[],_cor9> when 'true' ->
+	      do  %% Line 181
+		  call 'io':'format'
+		      ([60|[72|[105|[80|[69|[32|[40|[118|[32|[51|[46|[49|[49|[41|[62|[32|[69|[88|[73|[84|[69|[68|[32|[119|[105|[116|[104|[32|[114|[101|[97|[115|[111|[110|[32|[126|[119|[32|[64|[126|[119|[58|[126|[119|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [{'empty_caselist'}|['hipe_rtl_mk_switch'|[181]]])
+		  %% Line 181
+		  call 'erlang':'error'
+		      ({'hipe_rtl_mk_switch',181,{'empty_caselist'}})
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'split_types',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'switch_on_types'/4 =
+    %% Line 183
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[{Type,Cases}|[]],AccCode,AccCases,_X_Arg> when 'true' ->
+	      let <Lbl> =
+		  %% Line 184
+		  call 'hipe_rtl':'mk_new_label'
+		      ()
+	      in  let <_cor5> =
+		      %% Line 185
+		      call 'hipe_rtl':'label_name'
+			  (Lbl)
+		  in  let <I> =
+			  %% Line 185
+			  call 'hipe_rtl':'mk_goto'
+			      (_cor5)
+		      in  let <_cor8> =
+			      %% Line 186
+			      call 'lists':'reverse'
+				  (Cases)
+			  in  let <_cor7> =
+				  %% Line 186
+				  call 'lists':'reverse'
+				      ([I|_cor2])
+			      in  %% Line 186
+				  {[{Type,Lbl,_cor8}|_cor1],_cor7}
+	  %% Line 187
+	  <[{'other',Cases}|Rest],AccCode,AccCases,Arg> when 'true' ->
+	      let <_cor9> =
+		  %% Line 189
+		  call 'erlang':'++'
+		      (Rest, [{'other',Cases}|[]])
+	      in  %% Line 189
+		  apply 'switch_on_types'/4
+		      (_cor9, _cor2, _cor1, _cor0)
+	  %% Line 190
+	  <[{Type,Cases}|Rest],AccCode,AccCases,Arg> when 'true' ->
+	      let <TLab> =
+		  %% Line 191
+		  call 'hipe_rtl':'mk_new_label'
+		      ()
+	      in  let <FLab> =
+		      %% Line 192
+		      call 'hipe_rtl':'mk_new_label'
+			  ()
+		  in  let <_cor22> =
+			  %% Line 194
+			  case Type of
+			    %% Line 195
+			    <'integer'> when 'true' ->
+				let <_cor13> =
+				    %% Line 196
+				    call 'hipe_rtl':'label_name'
+					(TLab)
+				in  let <_cor12> =
+					%% Line 197
+					call 'hipe_rtl':'label_name'
+					    (FLab)
+				    in  %% Line 196
+					call 'hipe_tagscheme':'test_fixnum'
+					    (_cor0, _cor13, _cor12, %% Line 197
+								    5.00000000000000000000e-01)
+			    %% Line 198
+			    <'atom'> when 'true' ->
+				let <_cor15> =
+				    %% Line 199
+				    call 'hipe_rtl':'label_name'
+					(TLab)
+				in  let <_cor14> =
+					%% Line 200
+					call 'hipe_rtl':'label_name'
+					    (FLab)
+				    in  %% Line 199
+					call 'hipe_tagscheme':'test_atom'
+					    (_cor0, _cor15, _cor14, %% Line 200
+								    5.00000000000000000000e-01)
+			    %% Line 201
+			    <'bignum'> when 'true' ->
+				let <_cor17> =
+				    %% Line 202
+				    call 'hipe_rtl':'label_name'
+					(TLab)
+				in  let <_cor16> =
+					%% Line 203
+					call 'hipe_rtl':'label_name'
+					    (FLab)
+				    in  %% Line 202
+					call 'hipe_tagscheme':'test_bignum'
+					    (_cor0, _cor17, _cor16, %% Line 203
+								    5.00000000000000000000e-01)
+			    %% Line 204
+			    <_cor29> when 'true' ->
+				do  call 'io':'format'
+					([60|[72|[105|[80|[69|[32|[40|[118|[32|[51|[46|[49|[49|[41|[62|[32|[69|[88|[73|[84|[69|[68|[32|[119|[105|[116|[104|[32|[114|[101|[97|[115|[111|[110|[32|[126|[119|[32|[64|[126|[119|[58|[126|[119|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [{'ooops','type_not_handled',Type}|['hipe_rtl_mk_switch'|[204]]])
+				    call 'erlang':'error'
+					({'hipe_rtl_mk_switch',204,{'ooops','type_not_handled',Type}})
+			  end
+		      in  let <_cor24> =
+			      %% Line 207
+			      call 'lists':'reverse'
+				  (Cases)
+			  in  %% Line 206
+			      apply 'switch_on_types'/4
+				  (Rest, [[_cor22|[FLab|[]]]|_cor2], %% Line 207
+								     [{Type,TLab,_cor24}|_cor1], _cor0)
+	  ( <_cor28,_cor27,_cor26,_cor25> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'switch_on_types',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'split'/4 =
+    %% Line 209
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[Case|Cases],Type,Current,Rest> when 'true' ->
+	      let <_2855> =
+		  %% Line 210
+		  apply 'casetype'/1
+		      (Case)
+	      in  %% Line 210
+		  case _2855 of
+		    %% Line 211
+		    <_cor9>
+			when call 'erlang':'=:='
+			      (_2855,
+			       _cor2) ->
+			%% Line 212
+			apply 'split'/4
+			    (Cases, _cor2, [Case|_cor1], _cor0)
+		    %% Line 213
+		    <Other> when 'true' ->
+			%% Line 214
+			apply 'split'/4
+			    (Cases, _2855, [Case|[]], [{_cor2,_cor1}|_cor0])
+		  end
+	  %% Line 216
+	  <[],Type,Current,Rest> when 'true' ->
+	      %% Line 217
+	      [{_cor2,_cor1}|_cor0]
+	  ( <_cor8,_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'split',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'casetype'/1 =
+    %% Line 221
+    fun (_cor0) ->
+	case _cor0 of
+	  <{Const,_cor4}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 222
+		  call 'hipe_icode':'const_value'
+		      (Const)
+	      in  %% Line 222
+		  apply 'casetype'/1
+		      (_cor1)
+	  %% Line 223
+	  <A> when 'true' ->
+	      %% Line 224
+	      case <> of
+		%% Line 225
+		<>
+		    when call 'erlang':'is_integer'
+			  (_cor0) ->
+		    let <_3494> =
+			%% Line 226
+			call 'hipe_tagscheme':'is_fixnum'
+			    (_cor0)
+		    in  %% Line 226
+			case _3494 of
+			  %% Line 227
+			  <'true'> when 'true' ->
+			      'integer'
+			  %% Line 228
+			  <'false'> when 'true' ->
+			      'bignum'
+			  ( <_cor2> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_3494})
+			    -| ['compiler_generated'] )
+			end
+		%% Line 230
+		<>
+		    when call 'erlang':'is_float'
+			  (_cor0) ->
+		    'float'
+		%% Line 231
+		<>
+		    when call 'erlang':'is_atom'
+			  (_cor0) ->
+		    'atom'
+		%% Line 232
+		<> when 'true' ->
+		    'other'
+	      end
+	end
+'check_duplicates'/1 =
+    %% Line 237
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      'true'
+	  %% Line 238
+	  <[_cor7|[]]> when 'true' ->
+	      'true'
+	  %% Line 239
+	  <[{Const1,_cor8}|[{Const2,L2}|T]]> when 'true' ->
+	      let <C1> =
+		  %% Line 240
+		  call 'hipe_icode':'const_value'
+		      (Const1)
+	      in  let <C2> =
+		      %% Line 241
+		      call 'hipe_icode':'const_value'
+			  (Const2)
+		  in  %% Line 244
+		      case <> of
+			<>
+			    when call 'erlang':'=/='
+				  (C1,
+				   C2) ->
+			    %% Line 245
+			    apply 'check_duplicates'/1
+				([{Const2,L2}|T])
+			%% Line 246
+			<> when 'true' ->
+			    do  %% Line 247
+				call 'io':'format'
+				    ([60|[72|[105|[80|[69|[32|[40|[118|[32|[51|[46|[49|[49|[41|[62|[32|[69|[88|[73|[84|[69|[68|[32|[119|[105|[116|[104|[32|[114|[101|[97|[115|[111|[110|[32|[126|[119|[32|[64|[126|[119|[58|[126|[119|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [{'bad_values_in_switchval',C1}|['hipe_rtl_mk_switch'|[247]]])
+				%% Line 247
+				call 'erlang':'error'
+				    ({'hipe_rtl_mk_switch',247,{'bad_values_in_switchval',C1}})
+		      end
+	  ( <_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'check_duplicates',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'minclusters'/1 =
+    %% Line 270
+    fun (_cor0) ->
+	case _cor0 of
+	  <Cases>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      let <_cor1> =
+		  %% Line 271
+		  call 'erlang':'list_to_tuple'
+		      (_cor0)
+	      in  %% Line 271
+		  apply 'minclusters'/1
+		      (_cor1)
+	  %% Line 272
+	  <Cases>
+	      when call 'erlang':'is_tuple'
+		    (_cor0) ->
+	      let <N> =
+		  %% Line 273
+		  call 'erlang':'tuple_size'
+		      (_cor0)
+	      in  let <_cor3> =
+		      %% Line 278
+		      case N of
+			<0> when 'true' ->
+			    []
+			%% Line 279
+			<_3876> when 'true' ->
+			    let <_cor2> =
+				call 'erlang':'-'
+				    (N, 1)
+			    in  let <_cor3> =
+				    apply 'n_list'/2
+					(_cor2, 'inf')
+				in  ['inf'|_cor3]
+		      end
+		  in  let <MinClusters> =
+			  %% Line 274
+			  call 'erlang':'list_to_tuple'
+			      ([0|_cor3])
+		      in  %% Line 275
+			  apply 'i_loop'/4
+			      (1, N, MinClusters, _cor0)
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'minclusters',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'n_list'/2 =
+    %% Line 278
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <0,_cor6> when 'true' ->
+	      []
+	  %% Line 279
+	  <N,Init> when 'true' ->
+	      let <_cor2> =
+		  call 'erlang':'-'
+		      (_cor1, 1)
+	      in  let <_cor3> =
+		      apply 'n_list'/2
+			  (_cor2, _cor0)
+		  in  [_cor0|_cor3]
+	end
+'i_loop'/4 =
+    %% Line 282
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <I,N,MinClusters,_X_Cases>
+	      when call 'erlang':'>'
+		    (_cor3,
+		     _cor2) ->
+	      _cor1
+	  %% Line 284
+	  <I,N,MinClusters,Cases>
+	      when call 'erlang':'=<'
+		    (_cor3,
+		     _cor2) ->
+	      let <_cor4> =
+		  %% Line 285
+		  call 'erlang':'-'
+		      (_cor3, 1)
+	      in  let <M> =
+		      %% Line 285
+		      apply 'j_loop'/4
+			  (0, _cor4, _cor1, _cor0)
+		  in  let <_cor6> =
+			  %% Line 286
+			  call 'erlang':'+'
+			      (_cor3, 1)
+		      in  %% Line 286
+			  apply 'i_loop'/4
+			      (_cor6, _cor2, M, _cor0)
+	  ( <_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'i_loop',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'j_loop'/4 =
+    %% Line 289
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <J,I1,MinClusters,_X_Cases>
+	      when call 'erlang':'>'
+		    (_cor3,
+		     _cor2) ->
+	      _cor1
+	  %% Line 291
+	  <J,I1,MinClusters,Cases>
+	      when call 'erlang':'=<'
+		    (_cor3,
+		     _cor2) ->
+	      let <_cor5> =
+		  %% Line 292
+		  call 'erlang':'+'
+		      (_cor3, 1)
+	      in  let <_cor4> =
+		      %% Line 292
+		      call 'erlang':'+'
+			  (_cor2, 1)
+		  in  let <D> =
+			  %% Line 292
+			  apply 'density'/3
+			      (_cor0, _cor5, _cor4)
+		      in  let <_cor7> =
+			      %% Line 293
+			      call 'erlang':'+'
+				  (_cor3, 1)
+			  in  let <A0> =
+				  %% Line 293
+				  call 'erlang':'element'
+				      (_cor7, _cor1)
+			      in  let <_cor9> =
+				      %% Line 294
+				      case <> of
+					%% Line 295
+					<>
+					    when call 'erlang':'is_number'
+						  (A0) ->
+					    %% Line 296
+					    call 'erlang':'+'
+						(A0, 1)
+					%% Line 297
+					<> when 'true' ->
+					    A0
+				      end
+				  in  let <_cor11> =
+					  %% Line 300
+					  call 'erlang':'+'
+					      (_cor2, 2)
+				      in  let <B> =
+					      %% Line 300
+					      call 'erlang':'element'
+						  (_cor11, _cor1)
+					  in  let <_cor16> =
+						  %% Line 301
+						  case <> of
+						    %% Line 302
+						    <>
+							when let <_cor13> =
+							      call 'erlang':'>='
+								  (D, 5.00000000000000000000e-01)
+							  in  let <_cor14> =
+								  call 'erlang':'<'
+								      (_cor9, B)
+							      in  call 'erlang':'and'
+								      (_cor13, _cor14) ->
+							let <_cor15> =
+							    %% Line 303
+							    call 'erlang':'+'
+								(_cor2, 2)
+							in  %% Line 303
+							    call 'erlang':'setelement'
+								(_cor15, _cor1, _cor9)
+						    %% Line 304
+						    <> when 'true' ->
+							_cor1
+						  end
+					      in  let <_cor18> =
+						      %% Line 307
+						      call 'erlang':'+'
+							  (_cor3, 1)
+						  in  %% Line 307
+						      apply 'j_loop'/4
+							  (_cor18, _cor2, _cor16, _cor0)
+	  ( <_cor22,_cor21,_cor20,_cor19> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'j_loop',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'density'/3 =
+    %% Line 314
+    fun (_cor2,_cor1,_cor0) ->
+	let <_3494> =
+	    %% Line 315
+	    call 'erlang':'element'
+		(_cor1, _cor2)
+	in  %% Line 315
+	    case _3494 of
+	      <{AI,_cor14}> when 'true' ->
+		  let <_4292> =
+		      %% Line 316
+		      call 'erlang':'element'
+			  (_cor0, _cor2)
+		  in  %% Line 316
+		      case _4292 of
+			<{AJ,_cor15}> when 'true' ->
+			    let <_cor9> =
+				%% Line 317
+				call 'erlang':'-'
+				    (_cor0, _cor1)
+			    in  let <_cor10> =
+				    %% Line 317
+				    call 'erlang':'+'
+					(_cor9, 1)
+				in  let <_cor6> =
+					%% Line 317
+					call 'hipe_icode':'const_value'
+					    (AJ)
+				    in  let <_cor5> =
+					    %% Line 317
+					    call 'hipe_icode':'const_value'
+						(AI)
+					in  let <_cor7> =
+						%% Line 317
+						call 'erlang':'-'
+						    (_cor6, _cor5)
+					    in  let <_cor8> =
+						    %% Line 317
+						    call 'erlang':'+'
+							(_cor7, 1)
+						in  %% Line 317
+						    call 'erlang':'/'
+							(_cor10, _cor8)
+			( <_cor4> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_4292})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor3> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_3494})
+		-| ['compiler_generated'] )
+	    end
+'cluster_split'/2 =
+    %% Line 336
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 337
+	    call 'erlang':'tuple_to_list'
+		(_cor0)
+	in  let <A> =
+		%% Line 337
+		call 'erlang':'tl'
+		    (_cor2)
+	    in  let <_cor4> =
+		    %% Line 338
+		    call 'erlang':'tuple_size'
+			(_cor0)
+		in  let <Max> =
+			%% Line 338
+			call 'erlang':'element'
+			    (_cor4, _cor0)
+		    in  let <L1> =
+			    %% Line 339
+			    call 'lists':'reverse'
+				(_cor1)
+			in  let <L2> =
+				%% Line 340
+				call 'lists':'reverse'
+				    (A)
+			    in  %% Line 341
+				apply 'cluster_split'/5
+				    (Max, [], [], L1, L2)
+'cluster_split'/5 =
+    %% Line 343
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <0,[],Res,Cases,_X_Clust> when 'true' ->
+	      let <L> =
+		  %% Line 344
+		  call 'lists':'reverse'
+		      (_cor1)
+	      in  let <_239> =
+		      %% Line 345
+		      call 'erlang':'hd'
+			  (L)
+		  in  %% Line 345
+		      case _239 of
+			<{H,_cor21}> when 'true' ->
+			    let <_3438> =
+				%% Line 346
+				call 'erlang':'hd'
+				    (_cor1)
+			    in  %% Line 346
+				case _3438 of
+				  <{T,_cor22}> when 'true' ->
+				      let <_cor9> =
+					  %% Line 347
+					  call 'hipe_icode':'const_value'
+					      (H)
+				      in  let <_cor8> =
+					      %% Line 347
+					      call 'hipe_icode':'const_value'
+						  (T)
+					  in  %% Line 347
+					      [{'dense',_cor9,_cor8,L}|_cor2]
+				  ( <_cor7> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_3438})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_239})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 348
+	  <N,[],Res,Cases,Clust = [_cor23|_cor24]>
+	      when call 'erlang':'=:='
+		    (_cor23,
+		     _cor4) ->
+	      let <_cor10> =
+		  %% Line 349
+		  call 'erlang':'-'
+		      (_cor4, 1)
+	      in  %% Line 349
+		  apply 'cluster_split'/5
+		      (_cor10, [], _cor2, _cor1, _cor0)
+	  %% Line 350
+	  <N,Sofar,Res,Cases,[_cor25|Clust]>
+	      when call 'erlang':'=:='
+		    (_cor25,
+		     _cor4) ->
+	      let <_2393> =
+		  %% Line 351
+		  call 'erlang':'hd'
+		      (_cor3)
+	      in  %% Line 351
+		  case _2393 of
+		    <{H,_cor26}> when 'true' ->
+			let <_456> =
+			    %% Line 352
+			    call 'lists':'last'
+				(_cor3)
+			in  %% Line 352
+			    case _456 of
+			      <{T,_cor27}> when 'true' ->
+				  let <_cor15> =
+				      %% Line 353
+				      call 'erlang':'-'
+					  (_cor4, 1)
+				  in  let <_cor14> =
+					  %% Line 353
+					  call 'hipe_icode':'const_value'
+					      (H)
+				      in  let <_cor13> =
+					      %% Line 353
+					      call 'hipe_icode':'const_value'
+						  (T)
+					  in  %% Line 353
+					      apply 'cluster_split'/5
+						  (_cor15, [], [{'dense',_cor14,_cor13,_cor3}|_cor2], _cor1, [_cor4|Clust])
+			      ( <_cor12> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_456})
+				-| ['compiler_generated'] )
+			    end
+		    ( <_cor11> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_2393})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 354
+	  <N,Sofar,Res,[C|Cases],[_cor28|Clust]> when 'true' ->
+	      %% Line 355
+	      apply 'cluster_split'/5
+		  (_cor4, [C|_cor3], _cor2, Cases, Clust)
+	  ( <_cor20,_cor19,_cor18,_cor17,_cor16> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'cluster_split',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'cluster_merge'/1 =
+    %% Line 360
+    fun (_cor0) ->
+	case _cor0 of
+	  <[C|[]]> when 'true' ->
+	      [C|[]]
+	  %% Line 361
+	  <[{'dense',Min,Max,C}|T]>
+	      when try
+		    let <_cor1> =
+			call 'erlang':'length'
+			    (C)
+		    in  call 'erlang':'>='
+			    (_cor1, 9)
+		of <Try> ->
+		    Try
+		catch <_1993,R> ->
+		    'false' ->
+	      let <C2> =
+		  %% Line 362
+		  apply 'cluster_merge'/1
+		      (T)
+	      in  %% Line 363
+		  [{'dense',Min,Max,C}|C2]
+	  %% Line 364
+	  <[{'sparse',Min,_cor20,C}|[{'sparse',_cor21,Max,D}|T]]> when 'true' ->
+	      let <_cor3> =
+		  %% Line 365
+		  call 'erlang':'++'
+		      (C, D)
+	      in  let <R> =
+		      %% Line 365
+		      {'sparse',Min,Max,_cor3}
+		  in  %% Line 366
+		      apply 'cluster_merge'/1
+			  ([R|T])
+	  %% Line 367
+	  <[{'sparse',Min,_cor22,C}|[{'dense',_cor23,Max,D}|T]]>
+	      when try
+		    let <_cor5> =
+			call 'erlang':'length'
+			    (D)
+		    in  call 'erlang':'<'
+			    (_cor5, 9)
+		of <Try> ->
+		    Try
+		catch <_848,R> ->
+		    'false' ->
+	      let <_cor6> =
+		  %% Line 368
+		  call 'erlang':'++'
+		      (C, D)
+	      in  let <R> =
+		      %% Line 368
+		      {'sparse',Min,Max,_cor6}
+		  in  %% Line 369
+		      apply 'cluster_merge'/1
+			  ([R|T])
+	  %% Line 370
+	  <[{'dense',Min,_cor24,C}|[{'dense',_cor25,Max,D}|T]]>
+	      when try
+		    let <_cor8> =
+			call 'erlang':'length'
+			    (C)
+		    in  let <_cor9> =
+			    call 'erlang':'<'
+				(_cor8, 9)
+			in  let <_cor10> =
+				call 'erlang':'length'
+				    (D)
+			    in  let <_cor11> =
+				    call 'erlang':'<'
+					(_cor10, 9)
+				in  call 'erlang':'and'
+					(_cor9, _cor11)
+		of <Try> ->
+		    Try
+		catch <_3293,R> ->
+		    'false' ->
+	      let <_cor12> =
+		  %% Line 371
+		  call 'erlang':'++'
+		      (C, D)
+	      in  let <R> =
+		      %% Line 371
+		      {'sparse',Min,Max,_cor12}
+		  in  %% Line 372
+		      apply 'cluster_merge'/1
+			  ([R|T])
+	  %% Line 373
+	  <[{'dense',Min,_cor26,D}|[{'sparse',_cor27,Max,C}|T]]>
+	      when try
+		    let <_cor14> =
+			call 'erlang':'length'
+			    (D)
+		    in  call 'erlang':'<'
+			    (_cor14, 9)
+		of <Try> ->
+		    Try
+		catch <_4584,R> ->
+		    'false' ->
+	      let <_cor15> =
+		  %% Line 374
+		  call 'erlang':'++'
+		      (C, D)
+	      in  let <R> =
+		      %% Line 374
+		      {'sparse',Min,Max,_cor15}
+		  in  %% Line 375
+		      apply 'cluster_merge'/1
+			  ([R|T])
+	  %% Line 376
+	  <[A|[{'dense',Min,Max,C}|T]]>
+	      when try
+		    let <_cor17> =
+			call 'erlang':'length'
+			    (C)
+		    in  call 'erlang':'>='
+			    (_cor17, 9)
+		of <Try> ->
+		    Try
+		catch <_138,R> ->
+		    'false' ->
+	      let <R> =
+		  %% Line 377
+		  apply 'cluster_merge'/1
+		      ([{'dense',Min,Max,C}|T])
+	      in  %% Line 378
+		  [A|R]
+	  ( <_cor19> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'cluster_merge',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'find_cluster'/7 =
+    %% Line 383
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[{'sparse',_X_Min,_X_Max,C}|[]],VarMap,ConstTab,Options,Arg,Fail,_X_IcodeFail> when 'true' ->
+	      let <_cor7> =
+		  %% Line 384
+		  call 'erlang':'length'
+		      (C)
+	      in  %% Line 384
+		  case call 'erlang':'<'
+			   (_cor7, 65) of
+		    %% Line 385
+		    <'true'> when 'true' ->
+			%% Line 386
+			apply 'gen_small_switch_val'/6
+			    (_cor2, C, _cor1, _cor5, _cor4, _cor3)
+		    %% Line 387
+		    <_cor30> when 'true' ->
+			%% Line 388
+			apply 'gen_search_switch_val'/6
+			    (_cor2, C, _cor1, _cor5, _cor4, _cor3)
+		  end
+	  %% Line 390
+	  <[{'dense',Min,_X_Max,C}|[]],VarMap,ConstTab,Options,Arg,Fail,IcodeFail> when 'true' ->
+	      let <_cor9> =
+		  %% Line 391
+		  call 'erlang':'length'
+		      (C)
+	      in  %% Line 391
+		  case call 'erlang':'<'
+			   (_cor9, 9) of
+		    %% Line 392
+		    <'true'> when 'true' ->
+			%% Line 393
+			apply 'gen_small_switch_val'/6
+			    (_cor2, C, _cor1, _cor5, _cor4, _cor3)
+		    %% Line 394
+		    <_cor31> when 'true' ->
+			%% Line 395
+			apply 'gen_jump_table'/7
+			    (_cor2, _cor1, _cor0, _cor5, _cor4, C, Min)
+		  end
+	  %% Line 397
+	  <[{Density,Min,Max,C}|T],VarMap,ConstTab,Options,Arg,Fail,IcodeFail> when 'true' ->
+	      let <ClustLab> =
+		  %% Line 398
+		  call 'hipe_rtl':'mk_new_label'
+		      ()
+	      in  let <NextLab> =
+		      %% Line 399
+		      call 'hipe_rtl':'mk_new_label'
+			  ()
+		  in  let <_167> =
+			  %% Line 400
+			  apply 'find_cluster'/7
+			      ([{Density,Min,Max,C}|[]], _cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+		      in  %% Line 400
+			  case _167 of
+			    <{ClustCode,V1,C1}> when 'true' ->
+				let <_5915> =
+				    %% Line 402
+				    apply 'find_cluster'/7
+					(T, V1, C1, _cor3, _cor2, _cor1, _cor0)
+				in  %% Line 402
+				    case _5915 of
+				      <{Rest,V2,C2}> when 'true' ->
+					  let <_cor19> =
+					      %% Line 405
+					      call 'hipe_tagscheme':'mk_fixnum'
+						  (Max)
+					  in  let <_cor20> =
+						  %% Line 405
+						  call 'hipe_rtl':'mk_imm'
+						      (_cor19)
+					      in  let <_cor18> =
+						      %% Line 406
+						      call 'hipe_rtl':'label_name'
+							  (NextLab)
+						  in  let <_cor17> =
+							  %% Line 407
+							  call 'hipe_rtl':'label_name'
+							      (ClustLab)
+						      in  let <_cor21> =
+							      %% Line 405
+							      call 'hipe_rtl':'mk_branch'
+								  (_cor2, 'gt', _cor20, _cor18, _cor17, %% Line 407
+													5.00000000000000000000e-01)
+							  in  let <_cor15> =
+								  %% Line 411
+								  [NextLab|Rest]
+							      in  let <_cor16> =
+								      %% Line 410
+								      call 'erlang':'++'
+									  (ClustCode, _cor15)
+								  in  let <_cor22> =
+									  %% Line 404
+									  [_cor21|%% Line 408
+										  [ClustLab|_cor16]]
+								      in  %% Line 404
+									  {_cor22,V2,C2}
+				      ( <_cor14> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_5915})
+					-| ['compiler_generated'] )
+				    end
+			    ( <_cor13> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_167})
+			      -| ['compiler_generated'] )
+			  end
+	  ( <_cor29,_cor28,_cor27,_cor26,_cor25,_cor24,_cor23> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'find_cluster',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'gen_linear_switch_val'/6 =
+    %% Line 417
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_1062> =
+	    %% Line 932
+	    apply 'split_cases'/3
+		(_cor4, [], [])
+	in  %% Line 418
+	    case _1062 of
+	      <{Values,_X_Labels}> when 'true' ->
+		  let <_4153> =
+		      %% Line 419
+		      apply 'lbls_from_cases'/2
+			  (_cor4, _cor2)
+		  in  %% Line 419
+		      case _4153 of
+			<{LabMap,VarMap1}> when 'true' ->
+			    let <Code> =
+				%% Line 420
+				apply 'fast_linear_search'/4
+				    (_cor5, Values, LabMap, _cor3)
+			    in  %% Line 421
+				{Code,VarMap1,_cor1}
+			( <_cor7> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_4153})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor6> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_1062})
+		-| ['compiler_generated'] )
+	    end
+'fast_linear_search'/4 =
+    %% Line 423
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <_X_Arg,[],[],Fail> when 'true' ->
+	      let <_cor4> =
+		  %% Line 424
+		  call 'hipe_rtl':'label_name'
+		      (_cor0)
+	      in  let <_cor5> =
+		      %% Line 424
+		      call 'hipe_rtl':'mk_goto'
+			  (_cor4)
+		  in  %% Line 424
+		      [_cor5|[]]
+	  %% Line 425
+	  <Arg,[Case|Cases],[Label|Labels],Fail> when 'true' ->
+	      let <Reg> =
+		  %% Line 426
+		  call 'hipe_rtl':'mk_new_reg_gcsafe'
+		      ()
+	      in  let <NextLab> =
+		      %% Line 427
+		      call 'hipe_rtl':'mk_new_label'
+			  ()
+		  in  let <C2> =
+			  %% Line 428
+			  apply 'fast_linear_search'/4
+			      (_cor3, Cases, Labels, _cor0)
+		      in  let <_cor20> =
+			      %% Line 430
+			      case <> of
+				%% Line 431
+				<>
+				    when call 'erlang':'is_integer'
+					  (Case) ->
+				    let <TVal> =
+					%% Line 432
+					call 'hipe_tagscheme':'mk_fixnum'
+					    (Case)
+				    in  let <_cor10> =
+					    %% Line 434
+					    call 'hipe_rtl':'mk_imm'
+						(TVal)
+					in  let <_cor11> =
+						%% Line 434
+						call 'hipe_rtl':'mk_move'
+						    (Reg, _cor10)
+					    in  let <_cor12> =
+						    %% Line 437
+						    call 'hipe_rtl':'label_name'
+							(NextLab)
+						in  let <_cor13> =
+							%% Line 435
+							call 'hipe_rtl':'mk_branch'
+							    (_cor3, 'eq', Reg, Label, _cor12, %% Line 437
+											      5.00000000000000000000e-01)
+						    in  %% Line 433
+							[_cor11|%% Line 435
+								[_cor13|%% Line 438
+									[NextLab|%% Line 439
+										 []]]]
+				%% Line 440
+				<>
+				    when call 'erlang':'is_atom'
+					  (Case) ->
+				    let <_cor14> =
+					%% Line 442
+					call 'hipe_rtl':'mk_load_atom'
+					    (Reg, Case)
+				    in  let <_cor15> =
+					    %% Line 445
+					    call 'hipe_rtl':'label_name'
+						(NextLab)
+					in  let <_cor16> =
+						%% Line 443
+						call 'hipe_rtl':'mk_branch'
+						    (_cor3, 'eq', Reg, Label, _cor15, %% Line 445
+										      5.00000000000000000000e-01)
+					    in  %% Line 441
+						[_cor14|%% Line 443
+							[_cor16|%% Line 446
+								[NextLab|%% Line 447
+									 []]]]
+				%% Line 448
+				<> when 'true' ->
+				    do  %% Line 449
+					call 'io':'format'
+					    ([60|[72|[105|[80|[69|[32|[40|[118|[32|[51|[46|[49|[49|[41|[62|[32|[69|[88|[73|[84|[69|[68|[32|[119|[105|[116|[104|[32|[114|[101|[97|[115|[111|[110|[32|[126|[119|[32|[64|[126|[119|[58|[126|[119|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [{'internal_error_in_switch_val',Case}|['hipe_rtl_mk_switch'|[449]]])
+					%% Line 449
+					call 'erlang':'error'
+					    ({'hipe_rtl_mk_switch',449,{'internal_error_in_switch_val',Case}})
+			      end
+			  in  %% Line 451
+			      [_cor20|[C2|[]]]
+	  ( <_cor25,_cor24,_cor23,_cor22> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'fast_linear_search',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'gen_small_switch_val'/6 =
+    %% Line 456
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_3220> =
+	    %% Line 932
+	    apply 'split_cases'/3
+		(_cor4, [], [])
+	in  %% Line 457
+	    case _3220 of
+	      <{Values,_X_Labels}> when 'true' ->
+		  let <_4256> =
+		      %% Line 458
+		      apply 'lbls_from_cases'/2
+			  (_cor4, _cor2)
+		  in  %% Line 458
+		      case _4256 of
+			<{LabMap,VarMap1}> when 'true' ->
+			    let <_cor13> =
+				%% Line 459
+				( letrec
+				      'lc$^0'/1 =
+					  fun (_cor10) ->
+					      case _cor10 of
+						<[X|_cor9]> when 'true' ->
+						    let <_cor11> =
+							call 'hipe_tagscheme':'mk_fixnum'
+							    (X)
+						    in  let <_cor12> =
+							    %% Line 460
+							    apply 'lc$^0'/1
+								(_cor9)
+							in  ( [_cor11|_cor12]
+							      -| ['compiler_generated'] )
+						<[]> when 'true' ->
+						    []
+						( <_3744> when 'true' ->
+						      ( primop 'match_fail'
+							    ({'function_clause',_cor10})
+							-| [{'function_name',{'lc$^0',1}}] )
+						  -| ['compiler_generated'] )
+					      end
+				  in  apply 'lc$^0'/1
+					  (Values)
+				  -| ['list_comprehension'] )
+			    in  let <Code> =
+				    %% Line 461
+				    apply 'inline_search'/4
+					(_cor13, LabMap, _cor5, _cor3)
+				in  %% Line 462
+				    {Code,VarMap1,_cor1}
+			( <_cor7> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_4256})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor6> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_3220})
+		-| ['compiler_generated'] )
+	    end
+'gen_atom_switch_val'/6 =
+    %% Line 466
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_1727> =
+	    %% Line 932
+	    apply 'split_cases'/3
+		(_cor4, [], [])
+	in  %% Line 467
+	    case _1727 of
+	      <{Values,_X_Labels}> when 'true' ->
+		  let <_2812> =
+		      %% Line 468
+		      apply 'lbls_from_cases'/2
+			  (_cor4, _cor2)
+		  in  %% Line 468
+		      case _2812 of
+			<{LabMap,VarMap1}> when 'true' ->
+			    let <_cor12> =
+				%% Line 469
+				( letrec
+				      'lc$^0'/1 =
+					  fun (_cor10) ->
+					      case _cor10 of
+						<[L|_cor9]> when 'true' ->
+						    let <_cor11> =
+							apply 'lc$^0'/1
+							    (_cor9)
+						    in  ( [{'label',L}|_cor11]
+							  -| ['compiler_generated'] )
+						<[]> when 'true' ->
+						    []
+						( <_4987> when 'true' ->
+						      ( primop 'match_fail'
+							    ({'function_clause',_cor10})
+							-| [{'function_name',{'lc$^0',1}}] )
+						  -| ['compiler_generated'] )
+					      end
+				  in  apply 'lc$^0'/1
+					  (LabMap)
+				  -| ['list_comprehension'] )
+			    in  let <_2887> =
+				    %% Line 470
+				    call 'hipe_consttab':'insert_sorted_block'
+					(_cor1, Values)
+				in  %% Line 470
+				    case _2887 of
+				      <{NewConstTab,Id}> when 'true' ->
+					  let <_2667> =
+					      %% Line 472
+					      call 'hipe_consttab':'insert_sorted_block'
+						  (NewConstTab, 'word', _cor12, Values)
+					  in  %% Line 471
+					      case _2667 of
+						<{NewConstTab2,LabId}> when 'true' ->
+						    let <_cor16> =
+							%% Line 473
+							call 'erlang':'length'
+							    (_cor4)
+						    in  let <_cor17> =
+							    %% Line 473
+							    call 'erlang':'-'
+								(_cor16, 1)
+							in  let <Code> =
+								%% Line 473
+								apply 'inline_atom_search'/7
+								    (0, _cor17, Id, LabId, _cor5, _cor3, LabMap)
+							    in  %% Line 474
+								{Code,VarMap1,NewConstTab2}
+						( <_cor15> when 'true' ->
+						      primop 'match_fail'
+							  ({'badmatch',_2667})
+						  -| ['compiler_generated'] )
+					      end
+				      ( <_cor14> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_2887})
+					-| ['compiler_generated'] )
+				    end
+			( <_cor7> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_2812})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor6> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_1727})
+		-| ['compiler_generated'] )
+	    end
+'get_cases'/3 =
+    %% Line 483
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_cor10,0,0> when 'true' ->
+	      %% Line 484
+	      []
+	  %% Line 485
+	  <[H|T],0,N> when 'true' ->
+	      let <_cor3> =
+		  %% Line 486
+		  call 'erlang':'-'
+		      (_cor0, 1)
+	      in  let <_cor4> =
+		      %% Line 486
+		      apply 'get_cases'/3
+			  (T, 0, _cor3)
+		  in  %% Line 486
+		      [H|_cor4]
+	  %% Line 487
+	  <[_cor11|T],N1,N2> when 'true' ->
+	      let <_cor6> =
+		  %% Line 488
+		  call 'erlang':'-'
+		      (_cor1, 1)
+	      in  let <_cor5> =
+		      %% Line 488
+		      call 'erlang':'-'
+			  (_cor0, 1)
+		  in  %% Line 488
+		      apply 'get_cases'/3
+			  (T, _cor6, _cor5)
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'get_cases',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'inline_search'/4 =
+    %% Line 502
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_LabelList,_X_KeyReg,_X_Default> when 'true' ->
+	      []
+	  %% Line 503
+	  <KeyList,LabelList,KeyReg,Default> when 'true' ->
+	      let <Reg> =
+		  %% Line 505
+		  call 'hipe_rtl':'mk_new_reg_gcsafe'
+		      ()
+	      in  let <Lab1> =
+		      %% Line 506
+		      call 'hipe_rtl':'mk_new_label'
+			  ()
+		  in  let <Lab2> =
+			  %% Line 507
+			  call 'hipe_rtl':'mk_new_label'
+			      ()
+		      in  let <Lab3> =
+			      %% Line 508
+			      call 'hipe_rtl':'mk_new_label'
+				  ()
+			  in  let <Length> =
+				  %% Line 510
+				  call 'erlang':'length'
+				      (_cor3)
+			      in  %% Line 512
+				  case <> of
+				    %% Line 513
+				    <>
+					when call 'erlang':'>='
+					      (Length,
+					       3) ->
+					let <N> =
+					    call 'erlang':'length'
+						(_cor3)
+					in  let <_1179> =
+						call 'erlang':'div'
+						    (N, 2)
+					    in  let <Middle_pos> =
+						    call 'erlang':'+'
+							(_1179, 1)
+						in  let <Middle_key> =
+							%% Line 516
+							call 'lists':'nth'
+							    (Middle_pos, _cor3)
+						    in  let <_cor11> =
+							    %% Line 517
+							    call 'erlang':'-'
+								(Middle_pos, 1)
+							in  let <Keys_beginning> =
+								%% Line 517
+								apply 'get_cases'/3
+								    (_cor3, 0, _cor11)
+							    in  let <_cor13> =
+								    %% Line 518
+								    call 'erlang':'-'
+									(Middle_pos, 1)
+								in  let <Labels_beginning> =
+									%% Line 518
+									apply 'get_cases'/3
+									    (_cor2, 0, _cor13)
+								    in  let <Keys_ending> =
+									    %% Line 519
+									    apply 'get_cases'/3
+										(_cor3, Middle_pos, Length)
+									in  let <Labels_ending> =
+										%% Line 520
+										apply 'get_cases'/3
+										    (_cor2, Middle_pos, Length)
+									    in  let <Middle_label> =
+										    %% Line 525
+										    call 'lists':'nth'
+											(Middle_pos, _cor2)
+										in  let <_cor18> =
+											%% Line 527
+											call 'hipe_rtl':'mk_imm'
+											    (Middle_key)
+										    in  let <_cor19> =
+											    %% Line 527
+											    call 'hipe_rtl':'mk_move'
+												(Reg, _cor18)
+											in  let <_cor21> =
+												%% Line 529
+												call 'hipe_rtl':'label_name'
+												    (Lab2)
+											    in  let <_cor20> =
+												    %% Line 530
+												    call 'hipe_rtl':'label_name'
+													(Lab1)
+												in  let <_cor22> =
+													%% Line 528
+													call 'hipe_rtl':'mk_branch'
+													    (_cor1, 'lt', Reg, _cor21, _cor20, %% Line 530
+																	       5.00000000000000000000e-01)
+												    in  let <_cor23> =
+													    %% Line 533
+													    call 'hipe_rtl':'label_name'
+														(Lab3)
+													in  let <_cor24> =
+														%% Line 532
+														call 'hipe_rtl':'mk_branch'
+														    (_cor1, 'gt', Reg, _cor23, Middle_label, %% Line 534
+																			     5.00000000000000000000e-01)
+													    in  let <A> =
+														    %% Line 527
+														    [_cor19|%% Line 528
+															    [_cor22|%% Line 531
+																    [Lab1|%% Line 532
+																	  [_cor24|%% Line 535
+																		  [Lab2|[]]]]]]
+														in  let <B> =
+															%% Line 537
+															apply 'inline_search'/4
+															    (Keys_beginning, Labels_beginning, _cor1, _cor0)
+														    in  let <D> =
+															    %% Line 539
+															    apply 'inline_search'/4
+																(Keys_ending, Labels_ending, _cor1, _cor0)
+															in  let <_cor28> =
+																%% Line 542
+																[Lab3|D]
+															    in  let <_cor29> =
+																    %% Line 542
+																    call 'erlang':'++'
+																	(B, _cor28)
+																in  %% Line 542
+																    call 'erlang':'++'
+																	(A, _cor29)
+				    %% Line 544
+				    <>
+					when call 'erlang':'=:='
+					      (Length,
+					       2) ->
+					let <Key_first> =
+					    %% Line 546
+					    call 'erlang':'hd'
+						(_cor3)
+					in  let <First_label> =
+						%% Line 547
+						call 'erlang':'hd'
+						    (_cor2)
+					    in  let <Key_second> =
+						    %% Line 550
+						    call 'lists':'nth'
+							(2, _cor3)
+						in  let <Second_label> =
+							%% Line 551
+							call 'lists':'nth'
+							    (2, _cor2)
+						    in  let <NewLab> =
+							    %% Line 553
+							    call 'hipe_rtl':'mk_new_label'
+								()
+							in  let <_cor35> =
+								%% Line 556
+								call 'hipe_rtl':'mk_imm'
+								    (Key_first)
+							    in  let <_cor36> =
+								    %% Line 556
+								    call 'hipe_rtl':'mk_move'
+									(Reg, _cor35)
+								in  let <_cor37> =
+									%% Line 559
+									call 'hipe_rtl':'label_name'
+									    (NewLab)
+								    in  let <_cor38> =
+									    %% Line 557
+									    call 'hipe_rtl':'mk_branch'
+										(_cor1, 'eq', Reg, First_label, _cor37, %% Line 559
+															5.00000000000000000000e-01)
+									in  let <A> =
+										%% Line 556
+										[_cor36|%% Line 557
+											[_cor38|%% Line 560
+												[NewLab|[]]]]
+									    in  let <_cor40> =
+										    %% Line 562
+										    call 'hipe_rtl':'mk_imm'
+											(Key_second)
+										in  let <_cor41> =
+											%% Line 562
+											call 'hipe_rtl':'mk_move'
+											    (Reg, _cor40)
+										    in  let <_cor42> =
+											    %% Line 565
+											    call 'hipe_rtl':'label_name'
+												(_cor0)
+											in  let <_cor43> =
+												%% Line 563
+												call 'hipe_rtl':'mk_branch'
+												    (_cor1, 'eq', Reg, Second_label, _cor42, %% Line 565
+																	     5.00000000000000000000e-01)
+											    in  let <B> =
+												    %% Line 562
+												    [_cor41|%% Line 563
+													    [_cor43|%% Line 565
+														    []]]
+												in  %% Line 566
+												    call 'erlang':'++'
+													(A, B)
+				    %% Line 568
+				    <>
+					when call 'erlang':'=:='
+					      (Length,
+					       1) ->
+					let <Key> =
+					    %% Line 569
+					    call 'erlang':'hd'
+						(_cor3)
+					in  let <Label> =
+						%% Line 570
+						call 'erlang':'hd'
+						    (_cor2)
+					    in  let <_cor47> =
+						    %% Line 572
+						    call 'hipe_rtl':'mk_imm'
+							(Key)
+						in  let <_cor48> =
+							%% Line 572
+							call 'hipe_rtl':'mk_move'
+							    (Reg, _cor47)
+						    in  let <_cor49> =
+							    %% Line 575
+							    call 'hipe_rtl':'label_name'
+								(_cor0)
+							in  let <_cor50> =
+								%% Line 573
+								call 'hipe_rtl':'mk_branch'
+								    (_cor1, 'eq', Reg, Label, _cor49, %% Line 575
+												      5.00000000000000000000e-01)
+							    in  %% Line 572
+								[_cor48|%% Line 573
+									[_cor50|%% Line 575
+										[]]]
+				    ( <> when 'true' ->
+					  primop 'match_fail'
+					      ('if_clause')
+				      -| ['compiler_generated'] )
+				  end
+	end
+'inline_atom_search'/7 =
+    %% Line 579
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <Reg> =
+	    %% Line 580
+	    call 'hipe_rtl':'mk_new_reg_gcsafe'
+		()
+	in  let <_cor8> =
+		%% Line 582
+		call 'erlang':'-'
+		    (_cor5, _cor6)
+	    in  let <Length> =
+		    %% Line 582
+		    call 'erlang':'+'
+			(_cor8, 1)
+		in  %% Line 584
+		    case <> of
+		      %% Line 585
+		      <>
+			  when call 'erlang':'>='
+				(Length,
+				 3) ->
+			  let <Lab1> =
+			      %% Line 586
+			      call 'hipe_rtl':'mk_new_label'
+				  ()
+			  in  let <Lab2> =
+				  %% Line 587
+				  call 'hipe_rtl':'mk_new_label'
+				      ()
+			      in  let <Lab3> =
+				      %% Line 588
+				      call 'hipe_rtl':'mk_new_label'
+					  ()
+				  in  let <Lab4> =
+					  %% Line 589
+					  call 'hipe_rtl':'mk_new_label'
+					      ()
+				      in  let <_cor14> =
+					      %% Line 591
+					      call 'erlang':'-'
+						  (_cor5, _cor6)
+					  in  let <_cor15> =
+						  %% Line 591
+						  call 'erlang':'div'
+						      (_cor14, 2)
+					      in  let <Mid> =
+						      %% Line 591
+						      call 'erlang':'+'
+							  (_cor15, _cor6)
+						  in  let <End1> =
+							  %% Line 592
+							  call 'erlang':'-'
+							      (Mid, 1)
+						      in  let <Start1> =
+							      %% Line 593
+							      call 'erlang':'+'
+								  (Mid, 1)
+							  in  let <_cor19> =
+								  %% Line 595
+								  call 'hipe_rtl':'mk_load_word_index'
+								      (Reg, _cor4, Mid)
+							      in  let <_cor21> =
+								      %% Line 597
+								      call 'hipe_rtl':'label_name'
+									  (Lab2)
+								  in  let <_cor20> =
+									  %% Line 598
+									  call 'hipe_rtl':'label_name'
+									      (Lab1)
+								      in  let <_cor22> =
+									      %% Line 596
+									      call 'hipe_rtl':'mk_branch'
+										  (_cor2, 'lt', Reg, _cor21, _cor20, %% Line 598
+														     5.00000000000000000000e-01)
+									  in  let <_cor24> =
+										  %% Line 601
+										  call 'hipe_rtl':'label_name'
+										      (Lab3)
+									      in  let <_cor23> =
+										      %% Line 602
+										      call 'hipe_rtl':'label_name'
+											  (Lab4)
+										  in  let <_cor25> =
+											  %% Line 600
+											  call 'hipe_rtl':'mk_branch'
+											      (_cor2, 'gt', Reg, _cor24, _cor23, %% Line 602
+																 5.00000000000000000000e-01)
+										      in  let <_cor26> =
+											      %% Line 604
+											      call 'hipe_rtl':'mk_goto_index'
+												  (_cor3, Mid, _cor0)
+											  in  let <A> =
+												  %% Line 594
+												  [_cor19|%% Line 596
+													  [_cor22|%% Line 599
+														  [Lab1|%% Line 600
+															[_cor25|%% Line 603
+																[Lab4|%% Line 604
+																      [_cor26|%% Line 605
+																	      [Lab2|%% Line 606
+																		    []]]]]]]]
+											      in  let <_cor28> =
+												      %% Line 607
+												      apply 'inline_atom_search'/7
+													  (_cor6, End1, _cor4, _cor3, _cor2, _cor1, _cor0)
+												  in  let <B> =
+													  %% Line 607
+													  [_cor28|[]]
+												      in  let <_cor30> =
+													      %% Line 608
+													      apply 'inline_atom_search'/7
+														  (Start1, _cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+													  in  let <C> =
+														  %% Line 608
+														  [_cor30|[]]
+													      in  let <_cor32> =
+														      %% Line 609
+														      [Lab3|C]
+														  in  let <_cor33> =
+															  %% Line 609
+															  call 'erlang':'++'
+															      (B, _cor32)
+														      in  %% Line 609
+															  call 'erlang':'++'
+															      (A, _cor33)
+		      %% Line 611
+		      <>
+			  when call 'erlang':'=:='
+				(Length,
+				 2) ->
+			  let <L1> =
+			      %% Line 612
+			      call 'hipe_rtl':'mk_new_label'
+				  ()
+			  in  let <L2> =
+				  %% Line 613
+				  call 'hipe_rtl':'mk_new_label'
+				      ()
+			      in  let <L3> =
+				      %% Line 614
+				      call 'hipe_rtl':'mk_new_label'
+					  ()
+				  in  let <_cor37> =
+					  %% Line 616
+					  call 'hipe_rtl':'mk_load_word_index'
+					      (Reg, _cor4, _cor6)
+				      in  let <_cor39> =
+					      %% Line 618
+					      call 'hipe_rtl':'label_name'
+						  (L1)
+					  in  let <_cor38> =
+						  %% Line 619
+						  call 'hipe_rtl':'label_name'
+						      (L2)
+					      in  let <_cor40> =
+						      %% Line 617
+						      call 'hipe_rtl':'mk_branch'
+							  (_cor2, 'eq', Reg, _cor39, _cor38, %% Line 619
+											     5.00000000000000000000e-01)
+						  in  let <_cor41> =
+							  %% Line 621
+							  call 'hipe_rtl':'mk_goto_index'
+							      (_cor3, _cor6, _cor0)
+						      in  let <_cor42> =
+							      %% Line 624
+							      call 'hipe_rtl':'mk_load_word_index'
+								  (Reg, _cor4, _cor5)
+							  in  let <_cor44> =
+								  %% Line 626
+								  call 'hipe_rtl':'label_name'
+								      (L3)
+							      in  let <_cor43> =
+								      %% Line 627
+								      call 'hipe_rtl':'label_name'
+									  (_cor1)
+								  in  let <_cor45> =
+									  %% Line 625
+									  call 'hipe_rtl':'mk_branch'
+									      (_cor2, 'eq', Reg, _cor44, _cor43, %% Line 627
+														 5.00000000000000000000e-01)
+								      in  let <_cor46> =
+									      %% Line 629
+									      call 'hipe_rtl':'mk_goto_index'
+										  (_cor3, _cor5, _cor0)
+									  in  %% Line 615
+									      [_cor37|%% Line 617
+										      [_cor40|%% Line 620
+											      [L1|%% Line 621
+												  [_cor41|%% Line 623
+													  [L2|%% Line 624
+													      [_cor42|%% Line 625
+														      [_cor45|%% Line 628
+															      [L3|%% Line 629
+																  [_cor46|%% Line 630
+																	  []]]]]]]]]]
+		      %% Line 632
+		      <>
+			  when call 'erlang':'=:='
+				(Length,
+				 1) ->
+			  let <NewLab> =
+			      %% Line 633
+			      call 'hipe_rtl':'mk_new_label'
+				  ()
+			  in  let <_cor48> =
+				  %% Line 635
+				  call 'hipe_rtl':'mk_load_word_index'
+				      (Reg, _cor4, _cor6)
+			      in  let <_cor50> =
+				      %% Line 637
+				      call 'hipe_rtl':'label_name'
+					  (NewLab)
+				  in  let <_cor49> =
+					  %% Line 638
+					  call 'hipe_rtl':'label_name'
+					      (_cor1)
+				      in  let <_cor51> =
+					      %% Line 636
+					      call 'hipe_rtl':'mk_branch'
+						  (_cor2, 'eq', Reg, _cor50, _cor49, %% Line 638
+										     9.00000000000000022204e-01)
+					  in  let <_cor52> =
+						  %% Line 640
+						  call 'hipe_rtl':'mk_goto_index'
+						      (_cor3, _cor6, _cor0)
+					      in  %% Line 634
+						  [_cor48|%% Line 636
+							  [_cor51|%% Line 639
+								  [NewLab|%% Line 640
+									  [_cor52|%% Line 641
+										  []]]]]
+		      ( <> when 'true' ->
+			    primop 'match_fail'
+				('if_clause')
+			-| ['compiler_generated'] )
+		    end
+'gen_jump_table'/7 =
+    %% Line 646
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_955> =
+	    %% Line 687
+	    apply 'dense_interval'/5
+		(_cor1, _cor0, _cor4, 0, 0)
+	in  %% Line 648
+	    case _955 of
+	      <{Max,DenseTbl}> when 'true' ->
+		  let <_70> =
+		      %% Line 649
+		      apply 'lbls_from_cases'/2
+			  (DenseTbl, _cor3)
+		  in  %% Line 649
+		      case _70 of
+			<{Map,VarMap2}> when 'true' ->
+			    let <BelowLab> =
+				%% Line 652
+				call 'hipe_rtl':'mk_new_label'
+				    ()
+			    in  let <UntaggedR> =
+				    %% Line 653
+				    call 'hipe_rtl':'mk_new_reg_gcsafe'
+					()
+				in  let <StartR> =
+					%% Line 654
+					call 'hipe_rtl':'mk_new_reg_gcsafe'
+					    ()
+				    in  let <_cor12> =
+					    %% Line 659
+					    call 'hipe_tagscheme':'untag_fixnum'
+						(UntaggedR, _cor6)
+					in  let <_cor27> =
+						%% Line 661
+						case _cor0 of
+						  %% Line 662
+						  <0> when 'true' ->
+						      let <_cor15> =
+							  %% Line 663
+							  call 'hipe_rtl':'mk_imm'
+							      (Max)
+						      in  let <_cor14> =
+							      %% Line 664
+							      call 'hipe_rtl':'label_name'
+								  (_cor5)
+							  in  let <_cor13> =
+								  %% Line 665
+								  call 'hipe_rtl':'label_name'
+								      (BelowLab)
+							      in  let <_cor16> =
+								      %% Line 663
+								      call 'hipe_rtl':'mk_branch'
+									  (UntaggedR, 'gtu', _cor15, _cor14, _cor13, %% Line 665
+														     1.00000000000000002082e-02)
+								  in  let <_cor17> =
+									  %% Line 668
+									  call 'hipe_rtl':'mk_switch'
+									      (UntaggedR, Map)
+								      in  %% Line 663
+									  [_cor16|%% Line 666
+										  [BelowLab|%% Line 668
+											    [_cor17|[]]]]
+						  %% Line 669
+						  <_cor35> when 'true' ->
+						      let <_cor18> =
+							  %% Line 671
+							  call 'hipe_rtl':'mk_imm'
+							      (_cor0)
+						      in  let <_cor19> =
+							      %% Line 670
+							      call 'hipe_rtl':'mk_alu'
+								  (StartR, UntaggedR, 'sub', _cor18)
+							  in  let <_cor22> =
+								  %% Line 672
+								  call 'erlang':'-'
+								      (Max, _cor0)
+							      in  let <_cor23> =
+								      %% Line 672
+								      call 'hipe_rtl':'mk_imm'
+									  (_cor22)
+								  in  let <_cor21> =
+									  %% Line 673
+									  call 'hipe_rtl':'label_name'
+									      (_cor5)
+								      in  let <_cor20> =
+									      %% Line 674
+									      call 'hipe_rtl':'label_name'
+										  (BelowLab)
+									  in  let <_cor24> =
+										  %% Line 672
+										  call 'hipe_rtl':'mk_branch'
+										      (StartR, 'gtu', _cor23, _cor21, _cor20, %% Line 674
+															      1.00000000000000002082e-02)
+									      in  let <_cor25> =
+										      %% Line 677
+										      call 'hipe_rtl':'mk_switch'
+											  (StartR, Map)
+										  in  %% Line 670
+										      [_cor19|%% Line 672
+											      [_cor24|%% Line 675
+												      [BelowLab|%% Line 677
+														[_cor25|[]]]]]
+						end
+					    in  %% Line 657
+						{[_cor12|_cor27],VarMap2,_cor2}
+			( <_cor8> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_70})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor7> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_955})
+		-| ['compiler_generated'] )
+	    end
+'dense_interval'/5 =
+    %% Line 688
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[Pair = {Const,_cor20}|Rest],Pos,Fail,Range,NoEntries> when 'true' ->
+	      let <Val> =
+		  %% Line 689
+		  call 'hipe_icode':'const_value'
+		      (Const)
+	      in  %% Line 690
+		  case <> of
+		    %% Line 691
+		    <>
+			when call 'erlang':'<'
+			      (_cor3,
+			       Val) ->
+			let <_cor7> =
+			    %% Line 693
+			    call 'erlang':'+'
+				(_cor3, 1)
+			in  let <_cor6> =
+				%% Line 693
+				call 'erlang':'+'
+				    (_cor1, 1)
+			    in  let <_5427> =
+				    %% Line 693
+				    apply 'dense_interval'/5
+					([Pair|Rest], _cor7, _cor2, _cor6, _cor0)
+				in  %% Line 692
+				    case _5427 of
+				      <{Max,Res}> when 'true' ->
+					  let <_cor9> =
+					      %% Line 694
+					      call 'hipe_icode':'mk_const'
+						  (_cor3)
+					  in  %% Line 694
+					      {Max,[{_cor9,_cor2}|Res]}
+				      ( <_cor8> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_5427})
+					-| ['compiler_generated'] )
+				    end
+		    %% Line 695
+		    <> when 'true' ->
+			let <_cor12> =
+			    %% Line 696
+			    call 'erlang':'+'
+				(_cor3, 1)
+			in  let <_cor11> =
+				%% Line 696
+				call 'erlang':'+'
+				    (_cor1, 1)
+			    in  let <_cor10> =
+				    %% Line 696
+				    call 'erlang':'+'
+					(_cor0, 1)
+				in  let <_3879> =
+					%% Line 696
+					apply 'dense_interval'/5
+					    (Rest, _cor12, _cor2, _cor11, _cor10)
+				    in  %% Line 696
+					case _3879 of
+					  <{Max,Res}> when 'true' ->
+					      %% Line 697
+					      {Max,[Pair|Res]}
+					  ( <_cor13> when 'true' ->
+						primop 'match_fail'
+						    ({'badmatch',_3879})
+					    -| ['compiler_generated'] )
+					end
+		  end
+	  %% Line 699
+	  <[],Max,_cor21,_cor22,_cor23> when 'true' ->
+	      let <_cor14> =
+		  %% Line 700
+		  call 'erlang':'-'
+		      (_cor3, 1)
+	      in  %% Line 700
+		  {_cor14,[]}
+	  ( <_cor19,_cor18,_cor17,_cor16,_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'dense_interval',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'rewrite_switch_val_cases'/3 =
+    %% Line 718
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[{C,L}|Cases],Fail,Arg> when 'true' ->
+	      let <Tmp> =
+		  %% Line 719
+		  call 'hipe_icode':'mk_new_var'
+		      ()
+	      in  let <NextLab> =
+		      %% Line 720
+		      call 'hipe_icode':'mk_new_label'
+			  ()
+		  in  let <_cor5> =
+			  %% Line 721
+			  call 'hipe_icode':'mk_move'
+			      (Tmp, C)
+		      in  let <_cor6> =
+			      %% Line 723
+			      call 'hipe_icode':'label_name'
+				  (NextLab)
+			  in  let <_cor7> =
+				  %% Line 722
+				  call 'hipe_icode':'mk_if'
+				      ('op_exact_eqeq_2', [_cor0|[Tmp|[]]], L, _cor6)
+			      in  let <_cor8> =
+				      %% Line 725
+				      apply 'rewrite_switch_val_cases'/3
+					  (Cases, _cor1, _cor0)
+				  in  %% Line 721
+				      [_cor5|%% Line 722
+					     [_cor7|%% Line 724
+						    [NextLab|_cor8]]]
+	  %% Line 726
+	  <[],Fail,_X_Arg> when 'true' ->
+	      let <_cor9> =
+		  %% Line 727
+		  call 'hipe_icode':'mk_goto'
+		      (_cor1)
+	      in  %% Line 727
+		  [_cor9|[]]
+	  ( <_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'rewrite_switch_val_cases',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'gen_search_switch_val'/6 =
+    %% Line 734
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <ValTableR> =
+	    %% Line 735
+	    call 'hipe_rtl':'mk_new_reg_gcsafe'
+		()
+	in  let <_167> =
+		%% Line 932
+		apply 'split_cases'/3
+		    (_cor4, [], [])
+	    in  %% Line 737
+		case _167 of
+		  <{Values,_X_Labels}> when 'true' ->
+		      let <_1952> =
+			  %% Line 738
+			  call 'hipe_consttab':'insert_sorted_block'
+			      (_cor1, Values)
+		      in  %% Line 738
+			  case _1952 of
+			    <{NewConstTab,Id}> when 'true' ->
+				let <_2763> =
+				    %% Line 739
+				    apply 'lbls_from_cases'/2
+					(_cor4, _cor2)
+				in  %% Line 739
+				    case _2763 of
+				      <{LabMap,VarMap1}> when 'true' ->
+					  let <_cor10> =
+					      %% Line 742
+					      call 'hipe_rtl':'mk_load_address'
+						  (ValTableR, Id, 'constant')
+					  in  let <_cor11> =
+						  %% Line 743
+						  apply 'tab'/5
+						      (Values, LabMap, _cor5, ValTableR, _cor3)
+					      in  let <Code> =
+						      %% Line 742
+						      [_cor10|_cor11]
+						  in  %% Line 744
+						      {Code,VarMap1,NewConstTab}
+				      ( <_cor9> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_2763})
+					-| ['compiler_generated'] )
+				    end
+			    ( <_cor8> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_1952})
+			      -| ['compiler_generated'] )
+			  end
+		  ( <_cor7> when 'true' ->
+			primop 'match_fail'
+			    ({'badmatch',_167})
+		    -| ['compiler_generated'] )
+		end
+'tab'/5 =
+    %% Line 846
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor6> =
+	    %% Line 849
+	    call 'erlang':'length'
+		(_cor4)
+	in  let <_cor7> =
+		%% Line 849
+		call 'erlang':'-'
+		    (_cor6, 1)
+	    in  let <_cor5> =
+		    %% Line 849
+		    call 'hipe_rtl_arch':'word_size'
+			()
+		in  let <LastOffset> =
+			%% Line 849
+			call 'erlang':'*'
+			    (_cor7, _cor5)
+		    in  let <_cor10> =
+			    %% Line 852
+			    call 'math':'log'
+				(LastOffset)
+			in  let <_cor11> =
+				%% Line 852
+				call 'erlang':'/'
+				    (_cor10, 6.93147180559945286227e-01)
+			    in  let <_cor12> =
+				    %% Line 852
+				    call 'erlang':'trunc'
+					(_cor11)
+				in  let <Pow2> =
+					%% Line 852
+					call 'erlang':'bsl'
+					    (1, _cor12)
+				    in  let <IndexReg> =
+					    %% Line 855
+					    call 'hipe_rtl':'mk_new_reg_gcsafe'
+						()
+					in  let <Temp> =
+						%% Line 856
+						call 'hipe_rtl':'mk_new_reg_gcsafe'
+						    ()
+					    in  let <Temp2> =
+						    %% Line 857
+						    call 'hipe_rtl':'mk_new_reg_gcsafe'
+							()
+						in  let <Lab1> =
+							%% Line 858
+							call 'hipe_rtl':'mk_new_label'
+							    ()
+						    in  let <Lab2> =
+							    %% Line 859
+							    call 'hipe_rtl':'mk_new_label'
+								()
+							in  let <Lab3> =
+								%% Line 860
+								call 'hipe_rtl':'mk_new_label'
+								    ()
+							    in  let <Lab4> =
+								    %% Line 861
+								    call 'hipe_rtl':'mk_new_label'
+									()
+								in  let <Init> =
+									%% Line 864
+									call 'erlang':'-'
+									    (LastOffset, Pow2)
+								    in  let <_cor37> =
+									    %% Line 868
+									    call 'hipe_rtl':'mk_imm'
+										(0)
+									in  let <_cor38> =
+										%% Line 868
+										call 'hipe_rtl':'mk_move'
+										    (IndexReg, _cor37)
+									    in  let <_cor39> =
+										    %% Line 869
+										    call 'hipe_rtl':'mk_imm'
+											(Init)
+										in  let <_cor40> =
+											%% Line 869
+											call 'hipe_rtl':'mk_load'
+											    (Temp, _cor1, _cor39)
+										    in  let <_cor42> =
+											    %% Line 871
+											    call 'hipe_rtl':'label_name'
+												(Lab2)
+											in  let <_cor41> =
+												%% Line 872
+												call 'hipe_rtl':'label_name'
+												    (Lab1)
+											    in  let <_cor43> =
+												    %% Line 870
+												    call 'hipe_rtl':'mk_branch'
+													(Temp, 'geu', _cor2, _cor42, _cor41, %% Line 872
+																	     5.00000000000000000000e-01)
+												in  let <_cor44> =
+													%% Line 874
+													call 'hipe_rtl_arch':'word_size'
+													    ()
+												    in  let <_cor45> =
+													    %% Line 874
+													    call 'erlang':'+'
+														(Init, _cor44)
+													in  let <_cor46> =
+														%% Line 874
+														call 'hipe_rtl':'mk_imm'
+														    (_cor45)
+													    in  let <_cor47> =
+														    %% Line 874
+														    call 'hipe_rtl':'mk_alu'
+															(IndexReg, IndexReg, 'add', _cor46)
+														in  let <_cor48> =
+															%% Line 875
+															call 'hipe_rtl':'label_name'
+															    (Lab2)
+														    in  let <_cor49> =
+															    %% Line 875
+															    call 'hipe_rtl':'mk_goto'
+																(_cor48)
+															in  let <_cor34> =
+																%% Line 878
+																call 'erlang':'div'
+																    (Pow2, 2)
+															    in  let <_cor35> =
+																    %% Line 878
+																    apply 'step'/4
+																	(_cor34, _cor1, IndexReg, _cor2)
+																in  let <_cor24> =
+																	%% Line 880
+																	call 'hipe_rtl':'mk_imm'
+																	    (LastOffset)
+																    in  let <_cor23> =
+																	    %% Line 881
+																	    call 'hipe_rtl':'label_name'
+																		(_cor0)
+																	in  let <_cor22> =
+																		%% Line 882
+																		call 'hipe_rtl':'label_name'
+																		    (Lab3)
+																	    in  let <_cor25> =
+																		    %% Line 880
+																		    call 'hipe_rtl':'mk_branch'
+																			(IndexReg, 'gt', _cor24, _cor23, _cor22, %% Line 882
+																								 5.00000000000000000000e-01)
+																		in  let <_cor26> =
+																			%% Line 884
+																			call 'hipe_rtl':'mk_load'
+																			    (Temp2, _cor1, IndexReg)
+																		    in  let <_cor28> =
+																			    %% Line 886
+																			    call 'hipe_rtl':'label_name'
+																				(Lab4)
+																			in  let <_cor27> =
+																				%% Line 887
+																				call 'hipe_rtl':'label_name'
+																				    (_cor0)
+																			    in  let <_cor29> =
+																				    %% Line 885
+																				    call 'hipe_rtl':'mk_branch'
+																					(Temp2, 'eq', _cor2, _cor28, _cor27, %% Line 887
+																									     9.00000000000000022204e-01)
+																				in  let <_cor30> =
+																					%% Line 890
+																					call 'hipe_rtl_arch':'log2_word_size'
+																					    ()
+																				    in  let <_cor31> =
+																					    %% Line 890
+																					    call 'hipe_rtl':'mk_imm'
+																						(_cor30)
+																					in  let <_cor32> =
+																						%% Line 889
+																						call 'hipe_rtl':'mk_alu'
+																						    (IndexReg, IndexReg, 'sra', _cor31)
+																					    in  let <_cor33> =
+																						    %% Line 891
+																						    call 'hipe_rtl':'mk_sorted_switch'
+																							(IndexReg, _cor3, _cor4)
+																						in  let <_cor36> =
+																							%% Line 878
+																							call 'erlang':'++'
+																							    (_cor35, %% Line 880
+																								     [_cor25|%% Line 883
+																									     [Lab3|%% Line 884
+																										   [_cor26|%% Line 885
+																											   [_cor29|%% Line 888
+																												   [Lab4|%% Line 889
+																													 [_cor32|%% Line 891
+																														 [_cor33|%% Line 892
+																															 []]]]]]]])
+																						    in  %% Line 867
+																							[_cor38|%% Line 869
+																								[_cor40|%% Line 870
+																									[_cor43|%% Line 873
+																										[Lab1|%% Line 874
+																										      [_cor47|%% Line 875
+																											      [_cor49|%% Line 876
+																												      [Lab2|_cor36]]]]]]]
+'step'/4 =
+    %% Line 894
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <Temp> =
+	    %% Line 895
+	    call 'hipe_rtl':'mk_new_reg_gcsafe'
+		()
+	in  let <TempIndex> =
+		%% Line 896
+		call 'hipe_rtl':'mk_new_reg_gcsafe'
+		    ()
+	    in  let <Lab1> =
+		    %% Line 897
+		    call 'hipe_rtl':'mk_new_label'
+			()
+		in  let <Lab2> =
+			%% Line 898
+			call 'hipe_rtl':'mk_new_label'
+			    ()
+		    in  let <_cor19> =
+			    %% Line 899
+			    call 'hipe_rtl':'mk_imm'
+				(_cor3)
+			in  let <_cor20> =
+				%% Line 899
+				call 'hipe_rtl':'mk_alu'
+				    (TempIndex, _cor1, 'add', _cor19)
+			    in  let <_cor21> =
+				    %% Line 900
+				    call 'hipe_rtl':'mk_load'
+					(Temp, _cor2, TempIndex)
+				in  let <_cor23> =
+					%% Line 902
+					call 'hipe_rtl':'label_name'
+					    (Lab2)
+				    in  let <_cor22> =
+					    %% Line 903
+					    call 'hipe_rtl':'label_name'
+						(Lab1)
+					in  let <_cor24> =
+						%% Line 901
+						call 'hipe_rtl':'mk_branch'
+						    (Temp, 'gtu', _cor0, _cor23, _cor22, %% Line 903
+											 5.00000000000000000000e-01)
+					    in  let <_1956> =
+						    %% Line 905
+						    call 'hipe_rtl_arch':'word_size'
+							()
+						in  let <_cor18> =
+							%% Line 905
+							case _1956 of
+							  %% Line 906
+							  <_cor29>
+							      when call 'erlang':'=:='
+								    (_1956,
+								     _cor3) ->
+							      let <_cor8> =
+								  %% Line 907
+								  call 'hipe_rtl':'mk_imm'
+								      (_cor3)
+							      in  let <_cor9> =
+								      %% Line 907
+								      call 'hipe_rtl':'mk_alu'
+									  (_cor1, _cor1, 'add', _cor8)
+								  in  let <_cor10> =
+									  %% Line 908
+									  call 'hipe_rtl':'label_name'
+									      (Lab2)
+								      in  let <_cor11> =
+									      %% Line 908
+									      call 'hipe_rtl':'mk_goto'
+										  (_cor10)
+									  in  %% Line 907
+									      [_cor9|%% Line 908
+										     [_cor11|%% Line 909
+											     [Lab2|%% Line 910
+												   []]]]
+							  %% Line 911
+							  <_cor30> when 'true' ->
+							      let <_cor12> =
+								  %% Line 912
+								  call 'hipe_rtl':'mk_move'
+								      (_cor1, TempIndex)
+							      in  let <_cor13> =
+								      %% Line 913
+								      call 'hipe_rtl':'label_name'
+									  (Lab2)
+								  in  let <_cor14> =
+									  %% Line 913
+									  call 'hipe_rtl':'mk_goto'
+									      (_cor13)
+								      in  let <_cor15> =
+									      %% Line 915
+									      call 'erlang':'div'
+										  (_cor3, 2)
+									  in  let <_cor16> =
+										  %% Line 915
+										  apply 'step'/4
+										      (_cor15, _cor2, _cor1, _cor0)
+									      in  %% Line 912
+										  [_cor12|%% Line 913
+											  [_cor14|%% Line 914
+												  [Lab2|_cor16]]]
+							end
+						    in  %% Line 899
+							[_cor20|%% Line 900
+								[_cor21|%% Line 901
+									[_cor24|%% Line 904
+										[Lab1|_cor18]]]]
+'lbls_from_cases'/2 =
+    %% Line 921
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{_cor7,L}|Rest],VarMap> when 'true' ->
+	      let <_3278> =
+		  %% Line 922
+		  apply 'lbls_from_cases'/2
+		      (Rest, _cor0)
+	      in  %% Line 922
+		  case _3278 of
+		    <{Map,VarMap1}> when 'true' ->
+			let <_1182> =
+			    %% Line 923
+			    call 'hipe_rtl_varmap':'icode_label2rtl_label'
+				(L, VarMap1)
+			in  %% Line 923
+			    case _1182 of
+			      <{RtlL,VarMap2}> when 'true' ->
+				  let <_cor4> =
+				      %% Line 925
+				      call 'hipe_rtl':'label_name'
+					  (RtlL)
+				  in  %% Line 925
+				      {[_cor4|Map],VarMap2}
+			      ( <_cor3> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_1182})
+				-| ['compiler_generated'] )
+			    end
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_3278})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 926
+	  <[],VarMap> when 'true' ->
+	      %% Line 927
+	      {[],_cor0}
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'lbls_from_cases',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'split_cases'/3 =
+    %% Line 934
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],Vs,Ls> when 'true' ->
+	      let <_cor4> =
+		  call 'lists':'reverse'
+		      (_cor1)
+	      in  let <_cor3> =
+		      call 'lists':'reverse'
+			  (_cor0)
+		  in  {_cor4,_cor3}
+	  %% Line 935
+	  <[{V,L}|Rest],Vs,Ls> when 'true' ->
+	      let <_cor5> =
+		  %% Line 936
+		  call 'hipe_icode':'const_value'
+		      (V)
+	      in  %% Line 936
+		  apply 'split_cases'/3
+		      (Rest, [_cor5|_cor1], [L|_cor0])
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'split_cases',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'gen_switch_tuple'/4 =
+    %% Line 949
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <Var> =
+	    %% Line 950
+	    call 'hipe_icode':'switch_tuple_arity_term'
+		(_cor3)
+	in  let <_1974> =
+		%% Line 951
+		call 'hipe_rtl_varmap':'icode_var2rtl_var'
+		    (Var, _cor2)
+	    in  %% Line 951
+		case _1974 of
+		  <{X,Map1}> when 'true' ->
+		      let <Fail0> =
+			  %% Line 952
+			  call 'hipe_icode':'switch_tuple_arity_fail_label'
+			      (_cor3)
+		      in  let <_3363> =
+			      %% Line 953
+			      call 'hipe_rtl_varmap':'icode_label2rtl_label'
+				  (Fail0, Map1)
+			  in  %% Line 953
+			      case _3363 of
+				<{Fail1,Map2}> when 'true' ->
+				    let <FailLab> =
+					%% Line 954
+					call 'hipe_rtl':'label_name'
+					    (Fail1)
+				    in  let <_cor18> =
+					    %% Line 956
+					    fun (_cor15,_cor14) ->
+						case <_cor15,_cor14> of
+						  <{A,L},{Rest,M}> when 'true' ->
+						      let <_1635> =
+							  %% Line 957
+							  call 'hipe_rtl_varmap':'icode_label2rtl_label'
+							      (L, M)
+						      in  %% Line 957
+							  case _1635 of
+							    <{L1,M1}> when 'true' ->
+								let <L2> =
+								    %% Line 958
+								    call 'hipe_rtl':'label_name'
+									(L1)
+								in  let <A1> =
+									%% Line 959
+									call 'hipe_icode':'const_value'
+									    (A)
+								    in  let <H1> =
+									    %% Line 960
+									    call 'hipe_tagscheme':'mk_arityval'
+										(A1)
+									in  %% Line 961
+									    {[{H1,L2}|Rest],M1}
+							    ( <_cor10> when 'true' ->
+								  primop 'match_fail'
+								      ({'badmatch',_1635})
+							      -| ['compiler_generated'] )
+							  end
+						  ( <_cor17,_cor16> when 'true' ->
+							( primop 'match_fail'
+							      ({'function_clause',_cor15,_cor14})
+							  -| [{'function_name',{'-gen_switch_tuple/4-fun-0-',2}}] )
+						    -| ['compiler_generated'] )
+						end
+					in  let <_cor9> =
+						%% Line 963
+						call 'hipe_icode':'switch_tuple_arity_cases'
+						    (_cor3)
+					    in  let <_2362> =
+						    %% Line 956
+						    call 'lists':'foldr'
+							(_cor18, %% Line 962
+								 {[],Map2}, _cor9)
+						in  %% Line 955
+						    case _2362 of
+						      <{Cases,Map3}> when 'true' ->
+							  let <Hdr> =
+							      %% Line 964
+							      call 'hipe_rtl':'mk_new_reg_gcsafe'
+								  ()
+							  in  let <IsBoxedLab> =
+								  %% Line 965
+								  call 'hipe_rtl':'mk_new_label'
+								      ()
+							      in  let <_cor22> =
+								      %% Line 966
+								      call 'hipe_rtl':'label_name'
+									  (IsBoxedLab)
+								  in  let <_cor23> =
+									  %% Line 966
+									  call 'hipe_tagscheme':'test_is_boxed'
+									      (X, _cor22, FailLab, %% Line 967
+												   9.00000000000000022204e-01)
+								      in  let <_cor24> =
+									      %% Line 969
+									      call 'hipe_tagscheme':'get_header'
+										  (Hdr, X)
+									  in  let <_cor25> =
+										  %% Line 970
+										  apply 'gen_switch_int'/3
+										      (Hdr, FailLab, Cases)
+									      in  %% Line 966
+										  {[_cor23|%% Line 968
+											   [IsBoxedLab|%% Line 969
+												       [_cor24|_cor25]]],Map3,_cor1}
+						      ( <_cor19> when 'true' ->
+							    primop 'match_fail'
+								({'badmatch',_2362})
+							-| ['compiler_generated'] )
+						    end
+				( <_cor7> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_3363})
+				  -| ['compiler_generated'] )
+			      end
+		  ( <_cor5> when 'true' ->
+			primop 'match_fail'
+			    ({'badmatch',_1974})
+		    -| ['compiler_generated'] )
+		end
+'gen_switch_int'/3 =
+    %% Line 977
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <X,FailLab,[{C,L}|Rest]> when 'true' ->
+	      let <NextLab> =
+		  %% Line 978
+		  call 'hipe_rtl':'mk_new_label'
+		      ()
+	      in  let <_cor5> =
+		      %% Line 979
+		      call 'hipe_rtl':'mk_imm'
+			  (C)
+		  in  let <_cor4> =
+			  %% Line 980
+			  call 'hipe_rtl':'label_name'
+			      (NextLab)
+		      in  let <_cor6> =
+			      %% Line 979
+			      call 'hipe_rtl':'mk_branch'
+				  (_cor2, 'eq', _cor5, L, _cor4, %% Line 980
+								 5.00000000000000000000e-01)
+			  in  let <_cor7> =
+				  %% Line 982
+				  apply 'gen_switch_int'/3
+				      (_cor2, _cor1, Rest)
+			      in  %% Line 979
+				  [_cor6|%% Line 981
+					 [NextLab|_cor7]]
+	  %% Line 983
+	  <_cor12,FailLab,[]> when 'true' ->
+	      let <_cor8> =
+		  %% Line 984
+		  call 'hipe_rtl':'mk_goto'
+		      (_cor1)
+	      in  %% Line 984
+		  [_cor8|[]]
+	  ( <_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'gen_switch_int',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_rtl_mk_switch')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_rtl_mk_switch', _cor0)
+end

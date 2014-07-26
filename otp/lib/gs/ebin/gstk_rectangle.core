@@ -1,0 +1,172 @@
+module 'gstk_rectangle' ['config'/3,
+			 'create'/3,
+			 'delete'/2,
+			 'destroy'/3,
+			 'event'/5,
+			 'module_info'/0,
+			 'module_info'/1,
+			 'option'/5,
+			 'read'/3,
+			 'read_option'/5]
+    attributes []
+'create'/3 =
+    %% Line 84
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 85
+	case call 'gstk_canvas':'pickout_coords'
+		 (_cor0, [], 'rectangle', 2) of
+	  %% Line 86
+	  <{'error',Error}> when 'true' ->
+	      %% Line 87
+	      {'bad_result',Error}
+	  %% Line 88
+	  <{Coords,NewOpts}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 89
+		  call 'gs':'pair'
+		      ('coords', _cor0)
+	      in  do  %% Line 89
+		      call 'gstk_db':'insert_opt'
+			  (_cor2, _cor1, _cor3)
+		      let <Ngstkid> =
+			  %% Line 90
+			  call 'gstk_canvas':'upd_gstkid'
+			      (_cor2, _cor1, _cor0)
+		      in  %% Line 91
+			  case Ngstkid of
+			    <{'gstkid',_cor11,CanvasTkW,_cor12,_cor13,_cor14,_cor15}> when 'true' ->
+				let <MCmd> =
+				    %% Line 92
+				    [CanvasTkW|[[32|[99|[114|[101|[97|[116|[101|[32|[114|[101|[32]]]]]]]]]]]|[Coords|[]]]]
+				in  %% Line 93
+				    call 'gstk_canvas':'mk_cmd_and_call'
+					(NewOpts, Ngstkid, CanvasTkW, MCmd, _cor2)
+			    ( <_cor5> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor5})
+			      -| ['compiler_generated'] )
+			  end
+	  ( <_cor7> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor7})
+	    -| ['compiler_generated'] )
+	end
+'config'/3 =
+    %% Line 102
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 103
+	call 'gstk_canvas':'item_config'
+	    (_cor2, _cor1, _cor0)
+'read'/3 =
+    %% Line 114
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 115
+	( case _cor1 of
+	    ( <( {'gstkid',_cor10,_cor11,_rec0,_cor12,_cor13,_cor14}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <_cor6> =
+		      %% Line 116
+		      call 'gstk':'to_ascii'
+			  (_rec0)
+		  in  %% Line 116
+		      call 'gstk_generic':'read_option'
+			  (_cor2, _cor1, _cor0, [_cor6|[]])
+	      -| ['compiler_generated'] )
+	    ( <_cor15> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','gstkid'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'delete'/2 =
+    %% Line 126
+    fun (_cor1,_cor0) ->
+	%% Line 127
+	call 'gstk_canvas':'item_delete_impl'
+	    (_cor1, _cor0)
+'destroy'/3 =
+    %% Line 138
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 139
+	    call 'gstk':'to_ascii'
+		(_cor0)
+	in  %% Line 139
+	    call 'gstk':'exec'
+		([_cor1|[[32|[100|[101|[108|[101|[116|[101|[32]]]]]]]]|[_cor3|[]]]])
+'event'/5 =
+    %% Line 142
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 143
+	call 'gstk_generic':'event'
+	    (_cor4, _cor3, _cor2, _cor1, _cor0)
+'option'/5 =
+    %% Line 159
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 160
+	case _cor4 of
+	  %% Line 161
+	  <{'bw',Int}> when 'true' ->
+	      let <_cor5> =
+		  call 'gstk':'to_ascii'
+		      (Int)
+	      in  {'s',[[32|[45|[119|[32]]]]|[_cor5|[]]]}
+	  %% Line 162
+	  <{'fg',Color}> when 'true' ->
+	      let <_cor6> =
+		  call 'gstk':'to_color'
+		      (Color)
+	      in  {'s',[[32|[45|[111|[117|[116|[108|[105|[110|[101|[32]]]]]]]]]]|[_cor6|[]]]}
+	  %% Line 163
+	  <_cor13> when 'true' ->
+	      'invalid_option'
+	end
+'read_option'/5 =
+    %% Line 176
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 177
+	case _cor4 of
+	  %% Line 178
+	  <'bw'> when 'true' ->
+	      call 'tcl2erl':'ret_int'
+		  ([_cor2|[[32|[105|[116|[101|[109|[99|[103|[32]]]]]]]]|[_cor0|[[32|[45|[119]]]]]]])
+	  %% Line 179
+	  <'fg'> when 'true' ->
+	      call 'tcl2erl':'ret_color'
+		  ([_cor2|[[32|[105|[116|[101|[109|[99|[103|[32]]]]]]]]|[_cor0|[[32|[45|[111|[117|[116|[108|[105|[110|[101]]]]]]]]]]]]])
+	  %% Line 180
+	  <'stipple'> when 'true' ->
+	      %% Line 181
+	      call 'tcl2erl':'ret_stipple'
+		  ([_cor2|[[32|[105|[116|[101|[109|[99|[103|[32]]]]]]]]|[_cor0|[[32|[45|[115|[116|[105|[112|[112|[108|[101]]]]]]]]]]]]])
+	  %% Line 182
+	  <_cor13> when 'true' ->
+	      ( case _cor3 of
+		  ( <( {'gstkid',_cor14,_cor15,_cor16,_cor17,_cor18,_rec1}
+		       -| ['compiler_generated'] )> when 'true' ->
+			{'bad_result',{_rec1,'invalid_option',_cor4}}
+		    -| ['compiler_generated'] )
+		  ( <_cor19> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','gstkid'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('gstk_rectangle')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('gstk_rectangle', _cor0)
+end

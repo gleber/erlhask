@@ -1,0 +1,128 @@
+module 'hipe_x86_ra' ['module_info'/0,
+		      'module_info'/1,
+		      'ra'/2]
+    attributes [%% Line 301
+		'type' =
+		    %% Line 301
+		    [{{'record','comp_servers'},[{'typed_record_field',{'record_field',301,{'atom',301,'pp_server'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'range'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'type'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}]]],[]}],
+		%% Line 307
+		'type' =
+		    %% Line 307
+		    [{'comp_option',{'type',307,'union',[{'type',307,'atom',[]}|[{'type',307,'tuple',[{'type',307,'atom',[]}|[{'type',307,'atom',[]}]]}]]},[]}],
+		%% Line 308
+		'type' =
+		    %% Line 308
+		    [{'comp_options',{'type',308,'list',[{'type',308,'comp_option',[]}]},[]}],
+		%% Line 310
+		'type' =
+		    %% Line 310
+		    [{'hipe_architecture',{'type',311,'union',[{'atom',311,'amd64'}|[{'atom',311,'arm'}|[{'atom',311,'powerpc'}|[{'atom',311,'ppc64'}|[{'atom',311,'ultrasparc'}|[{'atom',311,'x86'}]]]]]]},[]}],
+		%% Line 313
+		'type' =
+		    %% Line 313
+		    [{'hipe_map',{'type',313,'list',[{'type',313,'tuple',[{'type',313,'non_neg_integer',[]}|[{'type',314,'union',[{'atom',314,'unknown'}|[{'type',314,'tuple',[{'type',314,'union',[{'atom',314,'reg'}|[{'atom',314,'fp_reg'}|[{'atom',314,'spill'}]]]}|[{'type',315,'non_neg_integer',[]}]]}]]}]]}]},[]}],
+		%% Line 316
+		'type' =
+		    %% Line 316
+		    [{'hipe_temp_map',{'type',316,'tuple','any'},[]}],
+		%% Line 317
+		'type' =
+		    %% Line 317
+		    [{'hipe_spill_map',{'type',317,'list',[{'type',317,'tuple',[{'type',317,'non_neg_integer',[]}|[{'type',317,'tuple',[{'atom',317,'spill'}|[{'type',317,'non_neg_integer',[]}]]}]]}]},[]}]]
+'ra'/2 =
+    %% Line 43
+    fun (_cor1,_cor0) ->
+	%% Line 45
+	case apply 'ra_fp'/2
+		 (_cor1, _cor0) of
+	  <{Defun1,Coloring_fp,SpillIndex}> when 'true' ->
+	      let <_cor5> =
+		  %% Line 51
+		  case call 'proplists':'get_value'
+			   ('regalloc', _cor0, 'coalescing') of
+		    %% Line 52
+		    <'coalescing'> when 'true' ->
+			%% Line 53
+			apply 'ra'/4
+			    (Defun1, SpillIndex, _cor0, 'hipe_coalescing_regalloc')
+		    %% Line 54
+		    <'optimistic'> when 'true' ->
+			%% Line 55
+			apply 'ra'/4
+			    (Defun1, SpillIndex, _cor0, 'hipe_optimistic_regalloc')
+		    %% Line 56
+		    <'graph_color'> when 'true' ->
+			%% Line 57
+			apply 'ra'/4
+			    (Defun1, SpillIndex, _cor0, 'hipe_graph_coloring_regalloc')
+		    %% Line 58
+		    <'linear_scan'> when 'true' ->
+			%% Line 59
+			call 'hipe_x86_ra_ls':'ra'
+			    (Defun1, SpillIndex, _cor0)
+		    %% Line 60
+		    <'naive'> when 'true' ->
+			%% Line 61
+			call 'hipe_x86_ra_naive':'ra'
+			    (Defun1, Coloring_fp, _cor0)
+		    %% Line 62
+		    <_cor9> when 'true' ->
+			let <_cor3> =
+			    %% Line 64
+			    call 'proplists':'get_value'
+				('regalloc', _cor0)
+			in  %% Line 63
+			    call 'erlang':'exit'
+				({'unknown_regalloc_compiler_option',_cor3})
+		  end
+	      in  %% Line 51
+		  case _cor5 of
+		    <{Defun2,Coloring}> when 'true' ->
+			%% Line 70
+			call 'hipe_x86_ra_finalise':'finalise'
+			    (Defun2, Coloring, Coloring_fp, _cor0)
+		    ( <_cor6> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor6})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'ra'/4 =
+    %% Line 72
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 73
+	call 'hipe_regalloc_loop':'ra'
+	    (_cor3, _cor2, _cor1, _cor0, 'hipe_x86_specific')
+'ra_fp'/2 =
+    %% Line 92
+    fun (_cor1,_cor0) ->
+	%% Line 93
+	case call 'proplists':'get_bool'
+		 ('inline_fp', _cor0) of
+	  %% Line 94
+	  <'true'> when 'true' ->
+	      %% Line 95
+	      call 'hipe_x86_ra_x87_ls':'ra'
+		  (_cor1, _cor0)
+	  %% Line 96
+	  <'false'> when 'true' ->
+	      %% Line 97
+	      {_cor1,[],0}
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_x86_ra')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_x86_ra', _cor0)
+end

@@ -1,0 +1,2128 @@
+module 'cols' ['init'/0,
+	       'make_board_elem'/3,
+	       'module_info'/0,
+	       'module_info'/1,
+	       'start'/0]
+    attributes []
+'start'/0 =
+    %% Line 63
+    fun () ->
+	%% Line 64
+	call 'erlang':'spawn_link'
+	    ('cols', 'init', [])
+'init'/0 =
+    %% Line 66
+    fun () ->
+	do  %% Line 67
+	    apply 'make_graphics'/0
+		()
+	    %% Line 68
+	    case call 'erlang':'now'
+		     () of
+	      <{A,B,C}> when 'true' ->
+		  do  %% Line 69
+		      call 'random':'seed'
+			  (A, B, C)
+		      let <NextBit> =
+			  %% Line 70
+			  apply 'make_bit'/0
+			      ()
+		      in  let <Board> =
+			      %% Line 71
+			      apply 'make_screen_board'/0
+				  ()
+			  in  let <_cor7> =
+				  %% Line 72
+				  apply 'make_bit'/0
+				      ()
+			      in  let <_cor6> =
+				      %% Line 73
+				      apply 'new_bit_xy'/3
+					  (NextBit, -2, 5)
+				  in  let <_cor4> =
+					  %% Line 72
+					  apply 'update_timer'/1
+					      (1)
+				      in  let <_cor3> =
+					      %% Line 73
+					      apply 'make_score'/0
+						  ()
+					  in  let <S> =
+						  %% Line 72
+						  {'state',_cor7,Board,_cor6,_cor4,_cor3}
+					      in  do  %% Line 74
+						      call 'gs':'config'
+							  ('win', [{'map','true'}])
+						      %% Line 75
+						      apply 'loop'/1
+							  (S)
+	      ( <_cor0> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor0})
+		-| ['compiler_generated'] )
+	    end
+'make_graphics'/0 =
+    %% Line 77
+    fun () ->
+	let <G> =
+	    %% Line 78
+	    call 'gs':'start'
+		()
+	in  do  %% Line 82
+		call 'gs':'create'
+		    ('window', 'win', G, [{'destroy','true'}|[{'map','true'}|[{'title',[99|[111|[108|[115]]]]}|[{'height',355}|[{'width',180}|[{'bg','grey'}|[{'keypress','true'}]]]]]]])
+		do  %% Line 85
+		    call 'gs':'create'
+			('canvas', 'can', 'win', [{'bg','black'}|[{'height',355}|[{'width',190}]]])
+		    do  %% Line 88
+			call 'gs':'create'
+			    ('text', 'can', [{'text',[78|[101|[120|[116]]]]}|[{'coords',[{5,45}]}|[{'fg','red'}]]])
+			let <_cor10> =
+			    %% Line 90
+			    apply 'dir'/0
+				()
+			in  let <_cor11> =
+				%% Line 90
+				call 'erlang':'++'
+				    (_cor10, [47|[104|[101|[108|[112|[46|[103|[105|[102]]]]]]]]])
+			    in  do  %% Line 89
+				    call 'gs':'create'
+					('image', 'help', 'can', [{'coords',[{5,7}]}|%% Line 90
+										     [{'load_gif',_cor11}|%% Line 91
+													  [{'buttonpress','true'}]]])
+				    %% Line 92
+				    apply 'draw_borders'/0
+					()
+'loop'/1 =
+    %% Line 94
+    fun (_cor0) ->
+	%% Line 95
+	receive
+	  %% Line 96
+	  <Event> when 'true' ->
+	      let <_cor1> =
+		  apply 'update'/2
+		      (Event, _cor0)
+	      in  apply 'loop'/1
+		      (_cor1)
+	after 'infinity' ->
+	  'true'
+'update_timer'/1 =
+    %% Line 104
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 107
+	    call 'erlang':'*'
+		(3.33333333333333332367e-06, _cor0)
+	in  let <Q> =
+		%% Line 107
+		call 'erlang':'+'
+		    (_cor3, 1.00099666666666653470e+00)
+	    in  let <_cor5> =
+		    %% Line 108
+		    call 'math':'log'
+			(Q)
+		in  let <_cor6> =
+			%% Line 108
+			call 'erlang':'/'
+			    (1, _cor5)
+		    in  let <Timeout> =
+			    %% Line 108
+			    call 'erlang':'round'
+				(_cor6)
+			in  let <_cor8> =
+				%% Line 109
+				call 'erlang':'self'
+				    ()
+			    in  do  %% Line 109
+				    call 'timer':'send_after'
+					(Timeout, _cor8, 'fall_timeout')
+				    %% Line 110
+				    call 'erlang':'+'
+					(_cor0, 1)
+'add_score'/2 =
+    %% Line 112
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{ScoreObj,NScore},DScore> when 'true' ->
+	      let <NScore2> =
+		  %% Line 113
+		  call 'erlang':'+'
+		      (NScore, DScore)
+	      in  let <_cor3> =
+		      %% Line 114
+		      call 'io_lib':'format'
+			  ([83|[99|[111|[114|[101|[58|[32|[126|[119]]]]]]]]], [NScore2|[]])
+		  in  do  %% Line 114
+			  call 'gs':'config'
+			      (ScoreObj, [{'text',_cor3}|[]])
+			  %% Line 115
+			  {ScoreObj,NScore2}
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'add_score',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'update'/2 =
+    %% Line 118
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'gs',_X_Obj,'keypress',_X_Data,['Left'|_cor53]},State> when 'true' ->
+	      %% Line 119
+	      case State of
+		<{'state',Bit,Board,_cor54,_cor55,_cor56}> when 'true' ->
+		    %% Line 120
+		    case Bit of
+		      <{'bit',X,Y,_cor57,_cor58,_cor59,_cor60,_cor61,_cor62}> when 'true' ->
+			  %% Line 121
+			  case <> of
+			    <>
+				when call 'erlang':'>'
+				      (X,
+				       0) ->
+				let <_cor4> =
+				    %% Line 122
+				    call 'erlang':'-'
+					(X, 1)
+				in  %% Line 122
+				    case apply 'is_board_empty'/3
+					     (Board, _cor4, Y) of
+				      %% Line 123
+				      <'true'> when 'true' ->
+					  let <_cor5> =
+					      %% Line 124
+					      call 'erlang':'-'
+						  (X, 1)
+					  in  let <_rec0> =
+						  %% Line 124
+						  apply 'new_bit_xy'/3
+						      (Bit, _cor5, Y)
+					      in  %% Line 124
+						  call 'erlang':'setelement'
+						      (2, State, _rec0)
+				      %% Line 125
+				      <'false'> when 'true' ->
+					  %% Line 126
+					  State
+				      ( <_cor9> when 'true' ->
+					    primop 'match_fail'
+						({'case_clause',_cor9})
+					-| ['compiler_generated'] )
+				    end
+			    %% Line 128
+			    <> when 'true' ->
+				State
+			  end
+		      ( <_cor3> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor3})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 131
+	  <{'gs',_X_Obj,'keypress',_X_Data,['Right'|_cor69]},State> when 'true' ->
+	      %% Line 132
+	      case State of
+		<{'state',Bit,Board,_cor70,_cor71,_cor72}> when 'true' ->
+		    %% Line 133
+		    case Bit of
+		      <{'bit',X,Y,_cor73,_cor74,_cor75,_cor76,_cor77,_cor78}> when 'true' ->
+			  %% Line 134
+			  case <> of
+			    <>
+				when call 'erlang':'<'
+				      (X,
+				       7) ->
+				let <_cor13> =
+				    %% Line 135
+				    call 'erlang':'+'
+					(X, 1)
+				in  %% Line 135
+				    case apply 'is_board_empty'/3
+					     (Board, _cor13, Y) of
+				      %% Line 136
+				      <'true'> when 'true' ->
+					  let <_cor14> =
+					      %% Line 137
+					      call 'erlang':'+'
+						  (X, 1)
+					  in  let <_rec2> =
+						  %% Line 137
+						  apply 'new_bit_xy'/3
+						      (Bit, _cor14, Y)
+					      in  %% Line 137
+						  call 'erlang':'setelement'
+						      (2, State, _rec2)
+				      %% Line 138
+				      <'false'> when 'true' ->
+					  %% Line 139
+					  State
+				      ( <_cor18> when 'true' ->
+					    primop 'match_fail'
+						({'case_clause',_cor18})
+					-| ['compiler_generated'] )
+				    end
+			    %% Line 141
+			    <> when 'true' ->
+				State
+			  end
+		      ( <_cor11> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor11})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor10> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor10})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 144
+	  <{'gs',_X_Obj,'keypress',_X_Data,['Up'|_cor85]},State> when 'true' ->
+	      %% Line 145
+	      ( case State of
+		  ( <( {'state',_rec6,_cor86,_cor87,_cor88,_cor89}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_rec4> =
+			    apply 'shift_bits'/1
+				(_rec6)
+			in  call 'erlang':'setelement'
+				(2, State, _rec4)
+		    -| ['compiler_generated'] )
+		  ( <_cor90> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 147
+	  <{'gs',_X_Obj,'keypress',_X_Data,[Key|_cor97]},State> when 'true' ->
+	      %% Line 148
+	      case apply 'drop_key'/1
+		       (Key) of
+		%% Line 149
+		<'true'> when 'true' ->
+		    %% Line 150
+		    case State of
+		      <{'state',Bit,Board,_cor98,_cor99,Score}> when 'true' ->
+			  %% Line 151
+			  case Bit of
+			    <{'bit',X,Y,_cor100,_cor101,_cor102,_cor103,_cor104,_cor105}> when 'true' ->
+				%% Line 152
+				case apply 'drop'/4
+					 (X, Y, Score, Board) of
+				  <{NewX,NewY,NewScore}> when 'true' ->
+				      let <_rec7> =
+					  %% Line 153
+					  apply 'new_bit_xy'/3
+					      (Bit, NewX, NewY)
+				      in  let <_cor29> =
+					      %% Line 154
+					      call 'erlang':'setelement'
+						  (6, State, NewScore)
+					  in  let <_cor31> =
+						  %% Line 153
+						  call 'erlang':'setelement'
+						      (2, _cor29, _rec7)
+					      in  %% Line 153
+						  apply 'fasten_bit'/1
+						      (_cor31)
+				  ( <_cor26> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor26})
+				    -| ['compiler_generated'] )
+				end
+			    ( <_cor25> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor25})
+			      -| ['compiler_generated'] )
+			  end
+		      ( <_cor24> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor24})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 155
+		<'false'> when 'true' ->
+		    State
+		( <_cor32> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor32})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 158
+	  <'fall_timeout',State> when 'true' ->
+	      %% Line 159
+	      case State of
+		<{'state',Bit,Board,_cor112,Ticks,Score}> when 'true' ->
+		    %% Line 160
+		    ( case Bit of
+			( <( {'bit',_cor113,_rec9,_cor114,_cor115,_cor116,_cor117,_cor118,_cor119}
+			     -| ['compiler_generated'] )> when 'true' ->
+			      let <NewY> =
+				  call 'erlang':'+'
+				      (_rec9, 1)
+			      in  %% Line 162
+				  case apply 'is_fall_ok'/3
+					   (Board, _cor113, NewY) of
+				    %% Line 163
+				    <'true'> when 'true' ->
+					let <_rec11> =
+					    %% Line 164
+					    apply 'new_bit_xy'/3
+						(Bit, _cor113, NewY)
+					in  let <_rec12> =
+						%% Line 165
+						apply 'update_timer'/1
+						    (Ticks)
+					    in  let <_rec13> =
+						    %% Line 165
+						    apply 'add_score'/2
+							(Score, 1)
+						in  %% Line 165
+						    {'state',_rec11,Board,_cor112,_rec12,_rec13}
+				    %% Line 166
+				    <'false'> when 'true' ->
+					let <S1> =
+					    %% Line 167
+					    apply 'fasten_bit'/1
+						(State)
+					in  let <_rec20> =
+						%% Line 168
+						apply 'update_timer'/1
+						    (Ticks)
+					    in  %% Line 168
+						case S1 of
+						  <{'state',_cor130,_cor131,_cor132,_cor133,_cor134}> when 'true' ->
+						      call 'erlang':'setelement'
+							  (5, S1, _rec20)
+						  ( <_cor135> when 'true' ->
+							( call ( 'erlang'
+								 -| ['compiler_generated'] ):( 'error'
+											       -| ['compiler_generated'] )
+							      (( {'badrecord','state'}
+								 -| ['compiler_generated'] ))
+							  -| ['compiler_generated'] )
+						    -| ['compiler_generated'] )
+						end
+				    ( <_cor49> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor49})
+				      -| ['compiler_generated'] )
+				  end
+			  -| ['compiler_generated'] )
+			( <_cor120> when 'true' ->
+			      ( call ( 'erlang'
+				       -| ['compiler_generated'] ):( 'error'
+								     -| ['compiler_generated'] )
+				    (( {'badrecord','bit'}
+				       -| ['compiler_generated'] ))
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+		      end
+		      -| ['compiler_generated'] )
+		( <_cor33> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor33})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 171
+	  <{'gs',_cor136,'destroy',_cor137,_cor138},_X_State> when 'true' ->
+	      %% Line 172
+	      call 'erlang':'exit'
+		  ('normal')
+	  %% Line 174
+	  <{'gs','help','buttonpress',_cor139,_cor140},State> when 'true' ->
+	      do  %% Line 175
+		  apply 'show_help'/0
+		      ()
+		  %% Line 176
+		  State
+	  %% Line 178
+	  <OtherEvent,State> when 'true' ->
+	      %% Line 179
+	      case call 'io':'format'
+		       ([103|[111|[116|[32|[111|[116|[104|[101|[114|[33|[32|[126|[119|[126|[110]]]]]]]]]]]]]]], [OtherEvent|[]]) of
+		<'ok'> when 'true' ->
+		    State
+		( <_cor50> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor50})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'drop_key'/1 =
+    %% Line 181
+    fun (_cor0) ->
+	case _cor0 of
+	  <'Down'> when 'true' ->
+	      'true'
+	  %% Line 182
+	  <'space'> when 'true' ->
+	      'true'
+	  %% Line 183
+	  <_cor2> when 'true' ->
+	      'false'
+	end
+'is_board_empty'/3 =
+    %% Line 185
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor7> =
+	    %% Line 186
+	    apply 'color_at'/3
+		(_cor2, _cor1, _cor0)
+	in  let <_cor5> =
+		%% Line 187
+		call 'erlang':'+'
+		    (_cor0, 1)
+	    in  let <_cor6> =
+		    %% Line 187
+		    apply 'color_at'/3
+			(_cor2, _cor1, _cor5)
+		in  let <_cor3> =
+			%% Line 188
+			call 'erlang':'+'
+			    (_cor0, 2)
+		    in  let <_cor4> =
+			    %% Line 188
+			    apply 'color_at'/3
+				(_cor2, _cor1, _cor3)
+			in  %% Line 186
+			    case <_cor7,_cor6,_cor4> of
+			      %% Line 189
+			      <'black','black','black'> when 'true' ->
+				  'true'
+			      %% Line 190
+			      <_fol185,_fol186,_fol187> when 'true' ->
+				  'false'
+			    end
+'fasten_bit'/1 =
+    %% Line 196
+    fun (_cor0) ->
+	%% Line 197
+	case _cor0 of
+	  <{'state',Bit,Board,NextBit,_cor26,Score}> when 'true' ->
+	      %% Line 198
+	      case Bit of
+		<{'bit',X,Y,C1,C2,C3,_cor27,_cor28,_cor29}> when 'true' ->
+		    let <B1> =
+			%% Line 199
+			apply 'update_screen_element'/4
+			    (Board, X, Y, C1)
+		    in  let <_cor4> =
+			    %% Line 200
+			    call 'erlang':'+'
+				(Y, 1)
+			in  let <B2> =
+				%% Line 200
+				apply 'update_screen_element'/4
+				    (B1, X, _cor4, C2)
+			    in  let <_cor6> =
+				    %% Line 201
+				    call 'erlang':'+'
+					(Y, 2)
+				in  let <B3> =
+					%% Line 201
+					apply 'update_screen_element'/4
+					    (B2, X, _cor6, C3)
+				    in  do  %% Line 202
+					    apply 'destroy_bit'/1
+						(Bit)
+					    %% Line 203
+					    case NextBit of
+					      <{'bit',_cor30,_cor31,NC1,NC2,NC3,_cor32,_cor33,_cor34}> when 'true' ->
+						  let <_cor9> =
+						      %% Line 204
+						      call 'erlang':'+'
+							  (Y, 1)
+						  in  let <_cor10> =
+							  %% Line 204
+							  call 'erlang':'+'
+							      (Y, 2)
+						      in  %% Line 204
+							  case apply 'erase_bits'/3
+								   (B3, [{X,Y}|[{X,_cor9}|[{X,_cor10}|[]]]], 0) of
+							    <{B4,ExtraScore}> when 'true' ->
+								let <NewBit> =
+								    %% Line 205
+								    apply 'make_bit'/3
+									(NC1, NC2, NC3)
+								in  %% Line 206
+								    ( case NewBit of
+									( <( {'bit',_rec22,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41}
+									     -| ['compiler_generated'] )> when 'true' ->
+									      case apply 'is_board_empty'/3
+										       (B4, _rec22, _cor35) of
+										%% Line 207
+										<'true'> when 'true' ->
+										    let <_rec24> =
+											%% Line 208
+											apply 'add_score'/2
+											    (Score, ExtraScore)
+										    in  let <_rec25> =
+											    %% Line 209
+											    apply 'new_colors'/1
+												(NextBit)
+											in  %% Line 209
+											    {'state',NewBit,B4,_rec25,_cor26,_rec24}
+										%% Line 210
+										<'false'> when 'true' ->
+										    %% Line 211
+										    case Score of
+										      <{_X_GsObj,Score2}> when 'true' ->
+											  do  %% Line 212
+											      call 'highscore':'run'
+												  (Score2, [46|[47|[99|[111|[108|[115|[46|[104|[105|[103|[104]]]]]]]]]]])
+											      %% Line 213
+											      call 'erlang':'exit'
+												  ('normal')
+										      ( <_cor23> when 'true' ->
+											    primop 'match_fail'
+												({'badmatch',_cor23})
+											-| ['compiler_generated'] )
+										    end
+										( <_cor24> when 'true' ->
+										      primop 'match_fail'
+											  ({'case_clause',_cor24})
+										  -| ['compiler_generated'] )
+									      end
+									  -| ['compiler_generated'] )
+									( <_cor42> when 'true' ->
+									      ( call ( 'erlang'
+										       -| ['compiler_generated'] ):( 'error'
+														     -| ['compiler_generated'] )
+										    (( {'badrecord','bit'}
+										       -| ['compiler_generated'] ))
+										-| ['compiler_generated'] )
+									  -| ['compiler_generated'] )
+								      end
+								      -| ['compiler_generated'] )
+							    ( <_cor11> when 'true' ->
+								  primop 'match_fail'
+								      ({'badmatch',_cor11})
+							      -| ['compiler_generated'] )
+							  end
+					      ( <_cor8> when 'true' ->
+						    primop 'match_fail'
+							({'badmatch',_cor8})
+						-| ['compiler_generated'] )
+					    end
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'erase_bits'/3 =
+    %% Line 220
+    fun (_cor2,_cor1,_cor0) ->
+	let <ElemsToDelete> =
+	    %% Line 221
+	    apply 'elems2del'/3
+		(_cor1, _cor2, [])
+	in  let <NDel> =
+		%% Line 222
+		call 'erlang':'length'
+		    (ElemsToDelete)
+	    in  %% Line 223
+		case <> of
+		  %% Line 224
+		  <>
+		      when call 'erlang':'>'
+			    (NDel,
+			     0) ->
+		      let <Board2> =
+			  %% Line 225
+			  apply 'delete_elems'/2
+			      (_cor2, ElemsToDelete)
+		      in  %% Line 226
+			  case apply 'fall_down'/2
+				   (Board2, ElemsToDelete) of
+			    <{NewBoard,NewCheck}> when 'true' ->
+				%% Line 227
+				case <> of
+				  <>
+				      when call 'erlang':'>'
+					    (NDel,
+					     3) ->
+				      let <_cor7> =
+					  %% Line 228
+					  call 'erlang':'*'
+					      (2, NDel)
+				      in  let <_cor8> =
+					      %% Line 228
+					      call 'erlang':'+'
+						  (_cor0, _cor7)
+					  in  %% Line 228
+					      case apply 'erase_bits'/3
+						       (NewBoard, NewCheck, _cor8) of
+						<{B,ES}> when 'true' ->
+						    %% Line 229
+						    case apply 'bonus'/2
+							     (B, NewCheck) of
+						      <{NewBoard2,NewCheck2}> when 'true' ->
+							  %% Line 230
+							  apply 'erase_bits'/3
+							      (NewBoard2, NewCheck2, ES)
+						      ( <_cor10> when 'true' ->
+							    primop 'match_fail'
+								({'badmatch',_cor10})
+							-| ['compiler_generated'] )
+						    end
+						( <_cor9> when 'true' ->
+						      primop 'match_fail'
+							  ({'badmatch',_cor9})
+						  -| ['compiler_generated'] )
+					      end
+				  %% Line 231
+				  <> when 'true' ->
+				      let <_cor11> =
+					  %% Line 232
+					  call 'erlang':'*'
+					      (2, NDel)
+				      in  %% Line 232
+					  apply 'erase_bits'/3
+					      (NewBoard, NewCheck, _cor11)
+				end
+			    ( <_cor6> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor6})
+			      -| ['compiler_generated'] )
+			  end
+		  %% Line 234
+		  <> when 'true' ->
+		      {_cor2,_cor0}
+		end
+'bonus'/2 =
+    %% Line 237
+    fun (_cor1,_cor0) ->
+	let <Cols> =
+	    %% Line 238
+	    apply 'collect_bottom_bits'/2
+		(0, _cor1)
+	in  let <NewBoard> =
+		%% Line 239
+		apply 'randomize_columns'/3
+		    (5, _cor1, Cols)
+	    in  let <NewCheck> =
+		    %% Line 240
+		    apply 'update_check'/2
+			(_cor0, Cols)
+		in  %% Line 241
+		    {NewBoard,NewCheck}
+'randomize_columns'/3 =
+    %% Line 243
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <0,Board,_cor8> when 'true' ->
+	      Board
+	  %% Line 244
+	  <N,Board,Cols> when 'true' ->
+	      let <NewBoard> =
+		  %% Line 245
+		  apply 'randomize_columns'/2
+		      (Cols, Board)
+	      in  let <_cor4> =
+		      %% Line 246
+		      call 'erlang':'-'
+			  (N, 1)
+		  in  %% Line 246
+		      apply 'randomize_columns'/3
+			  (_cor4, NewBoard, Cols)
+	end
+'randomize_columns'/2 =
+    %% Line 248
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Board> when 'true' ->
+	      Board
+	  %% Line 249
+	  <[X|Xs],Board> when 'true' ->
+	      do  %% Line 250
+		  apply 'flush'/0
+		      ()
+		  do  %% Line 251
+		      call 'timer':'sleep'
+			  (50)
+		      let <_cor2> =
+			  %% Line 252
+			  apply 'rndColor'/0
+			      ()
+		      in  let <_cor4> =
+			      %% Line 252
+			      apply 'update_screen_element'/4
+				  (Board, X, 16, _cor2)
+			  in  %% Line 252
+			      apply 'randomize_columns'/2
+				  (Xs, _cor4)
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'randomize_columns',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'delete_elems'/2 =
+    %% Line 257
+    fun (_cor1,_cor0) ->
+	let <OrgObjs> =
+	    %% Line 258
+	    apply 'org_objs'/2
+		(_cor0, _cor1)
+	in  do  %% Line 259
+		apply 'visual_effect'/2
+		    (15, OrgObjs)
+		let <NewBoard> =
+		    %% Line 260
+		    apply 'update_board'/2
+			(_cor0, _cor1)
+		in  do  %% Line 261
+			apply 'put_back'/1
+			    (OrgObjs)
+			%% Line 262
+			NewBoard
+'visual_effect'/2 =
+    %% Line 264
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <0,_X_OrgObjs> when 'true' ->
+	      'done'
+	  %% Line 265
+	  <Size,OrgObjs> when 'true' ->
+	      do  %% Line 266
+		  apply 'set_size'/2
+		      (OrgObjs, Size)
+		  do  %% Line 267
+		      apply 'flush'/0
+			  ()
+		      do  %% Line 268
+			  call 'timer':'sleep'
+			      (20)
+			  let <_cor2> =
+			      %% Line 269
+			      call 'erlang':'-'
+				  (Size, 1)
+			  in  %% Line 269
+			      apply 'visual_effect'/2
+				  (_cor2, OrgObjs)
+	end
+'set_size'/2 =
+    %% Line 271
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_X_Size> when 'true' ->
+	      'done'
+	  %% Line 272
+	  <[{GsObj,[{X1,Y1}|[{_X_X2,_X_Y2}|[]]]}|T],Size> when 'true' ->
+	      let <_cor3> =
+		  %% Line 273
+		  call 'erlang':'+'
+		      (X1, Size)
+	      in  let <_cor2> =
+		      %% Line 273
+		      call 'erlang':'+'
+			  (Y1, Size)
+		  in  do  %% Line 273
+			  call 'gs':'config'
+			      (GsObj, [{'coords',[{X1,Y1}|[{_cor3,_cor2}|[]]]}|[]])
+			  %% Line 274
+			  apply 'set_size'/2
+			      (T, Size)
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'set_size',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'fall_column'/5 =
+    %% Line 282
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_X,_X_Y,ColumnAcc,ChecksAcc> when 'true' ->
+	      %% Line 283
+	      {ColumnAcc,ChecksAcc}
+	  %% Line 284
+	  <['black'|Colors],X,Y,ColumnAcc,ChecksAcc> when 'true' ->
+	      %% Line 285
+	      case apply 'find_box'/1
+		       (Colors) of
+		%% Line 286
+		<'false'> when 'true' ->
+		    {ColumnAcc,ChecksAcc}
+		%% Line 287
+		<NewColors>
+		    when call 'erlang':'is_list'
+			  (NewColors) ->
+		    %% Line 288
+		    apply 'fall_one_step'/5
+			(NewColors, X, Y, ColumnAcc, ChecksAcc)
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 290
+	  <[Color|Colors],X,Y,ColumnAcc,ChecksAcc> when 'true' ->
+	      let <_cor6> =
+		  %% Line 291
+		  call 'erlang':'-'
+		      (Y, 1)
+	      in  %% Line 291
+		  apply 'fall_column'/5
+		      (Colors, X, _cor6, [Color|ColumnAcc], ChecksAcc)
+	  ( <_cor11,_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'fall_column',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'find_box'/1 =
+    %% Line 293
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      'false'
+	  %% Line 294
+	  <['black'|Colors]> when 'true' ->
+	      %% Line 295
+	      apply 'find_box'/1
+		  (Colors)
+	  %% Line 296
+	  <[Color|Colors]> when 'true' ->
+	      [Color|Colors]
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'find_box',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'fall_one_step'/5 =
+    %% Line 302
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],X,Y,ColumnAcc,Checks> when 'true' ->
+	      %% Line 303
+	      apply 'fall_column'/5
+		  ([], X, Y, ColumnAcc, Checks)
+	  %% Line 304
+	  <['black'|Colors],X,Y,ColumnAcc,Checks> when 'true' ->
+	      %% Line 305
+	      apply 'fall_column'/5
+		  (['black'|Colors], X, Y, ColumnAcc, Checks)
+	  %% Line 306
+	  <[Color|Colors],X,Y,ColumnAcc,Checks> when 'true' ->
+	      let <_cor5> =
+		  %% Line 307
+		  call 'erlang':'-'
+		      (Y, 1)
+	      in  %% Line 307
+		  apply 'fall_one_step'/5
+		      (Colors, X, _cor5, [Color|ColumnAcc], [{X,Y}|Checks])
+	  ( <_cor10,_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'fall_one_step',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'fall_down'/2 =
+    %% Line 312
+    fun (_cor1,_cor0) ->
+	let <UpDatedCols> =
+	    %% Line 313
+	    apply 'updated_cols'/2
+		(_cor0, [])
+	in  %% Line 314
+	    apply 'fall_column'/3
+		(UpDatedCols, _cor1, [])
+'fall_column'/3 =
+    %% Line 316
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],NewBoard,NewChecks> when 'true' ->
+	      {NewBoard,NewChecks}
+	  %% Line 317
+	  <[X|Xs],BoardAcc,ChecksAcc> when 'true' ->
+	      let <OrgColumn> =
+		  %% Line 318
+		  apply 'boardcolumn_to_tuple'/2
+		      (BoardAcc, X)
+	      in  let <Column> =
+		      %% Line 319
+		      apply 'columntuple_to_list'/1
+			  (OrgColumn)
+		  in  %% Line 320
+		      case apply 'fall_column'/5
+			       (Column, X, 16, [], ChecksAcc) of
+			<{NewColumn,NewChecksAcc}> when 'true' ->
+			    let <_cor7> =
+				%% Line 322
+				apply 'new_column_list'/2
+				    (NewColumn, OrgColumn)
+			    in  let <NewBoardAcc> =
+				    %% Line 322
+				    apply 'set_board_column'/3
+					(BoardAcc, X, _cor7)
+				in  %% Line 323
+				    apply 'fall_column'/3
+					(Xs, NewBoardAcc, NewChecksAcc)
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'fall_column',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'new_column_list'/2 =
+    %% Line 325
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 326
+	    call 'erlang':'length'
+		(_cor1)
+	in  let <Nempty> =
+		%% Line 326
+		call 'erlang':'-'
+		    (17, _cor2)
+	    in  let <_cor4> =
+		    %% Line 327
+		    apply 'make_list'/2
+			('black', Nempty)
+		in  let <L> =
+			%% Line 327
+			call 'erlang':'++'
+			    (_cor4, _cor1)
+		    in  %% Line 328
+			apply 'new_column_list'/3
+			    (L, 1, _cor0)
+'new_column_list'/3 =
+    %% Line 330
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[H|T],N,Tuple> when 'true' ->
+	      %% Line 331
+	      case call 'erlang':'element'
+		       (N, Tuple) of
+		<{GsObj,Color}> when 'true' ->
+		    let <_cor4> =
+			%% Line 332
+			apply 'update_screen_element'/2
+			    ({GsObj,Color}, H)
+		    in  let <_cor5> =
+			    %% Line 332
+			    call 'erlang':'+'
+				(N, 1)
+			in  let <_cor6> =
+				%% Line 332
+				apply 'new_column_list'/3
+				    (T, _cor5, Tuple)
+			    in  %% Line 332
+				[_cor4|_cor6]
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 333
+	  <[],_cor10,_cor11> when 'true' ->
+	      []
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'new_column_list',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'columntuple_to_list'/1 =
+    %% Line 339
+    fun (_cor0) ->
+	case _cor0 of
+	  <ColumnTuple>
+	      when call 'erlang':'is_tuple'
+		    (_cor0) ->
+	      let <_cor1> =
+		  %% Line 340
+		  call 'erlang':'tuple_to_list'
+		      (ColumnTuple)
+	      in  %% Line 340
+		  apply 'columntuple_to_list'/2
+		      (_cor1, [])
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'columntuple_to_list',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'columntuple_to_list'/2 =
+    %% Line 342
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Acc> when 'true' ->
+	      Acc
+	  %% Line 343
+	  <[{_X_GsObj,Color}|T],Acc> when 'true' ->
+	      %% Line 344
+	      apply 'columntuple_to_list'/2
+		  (T, [Color|Acc])
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'columntuple_to_list',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'make_bit'/0 =
+    %% Line 350
+    fun () ->
+	let <_cor2> =
+	    %% Line 351
+	    apply 'rndColor'/0
+		()
+	in  let <_cor1> =
+		%% Line 351
+		apply 'rndColor'/0
+		    ()
+	    in  let <_cor0> =
+		    %% Line 351
+		    apply 'rndColor'/0
+			()
+		in  %% Line 351
+		    apply 'make_bit'/3
+			(_cor2, _cor1, _cor0)
+'make_bit'/3 =
+    %% Line 353
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor9> =
+	    %% Line 357
+	    apply 'make_box'/3
+		(4, 0, _cor2)
+	in  let <_cor8> =
+		%% Line 357
+		apply 'make_box'/3
+		    (4, 1, _cor1)
+	    in  let <_cor6> =
+		    %% Line 358
+		    apply 'make_box'/3
+			(4, 2, _cor0)
+		in  %% Line 356
+		    {'bit',4,0,_cor2,_cor1,_cor0,_cor9,_cor8,_cor6}
+'new_colors'/1 =
+    %% Line 360
+    fun (_cor0) ->
+	%% Line 361
+	case _cor0 of
+	  <{'bit',_cor10,_cor11,_cor12,_cor13,_cor14,T,M,B}> when 'true' ->
+	      let <Tc> =
+		  %% Line 362
+		  apply 'rndColor'/0
+		      ()
+	      in  let <Mc> =
+		      %% Line 363
+		      apply 'rndColor'/0
+			  ()
+		  in  let <Bc> =
+			  %% Line 364
+			  apply 'rndColor'/0
+			      ()
+		      in  do  %% Line 365
+			      call 'gs':'config'
+				  (T, [{'fill',Tc}|[]])
+			      do  %% Line 366
+				  call 'gs':'config'
+				      (M, [{'fill',Mc}|[]])
+				  do  %% Line 367
+				      call 'gs':'config'
+					  (B, [{'fill',Bc}|[]])
+				      let <_cor6> =
+					  %% Line 368
+					  call 'erlang':'setelement'
+					      (6, _cor0, Bc)
+				      in  let <_cor7> =
+					      %% Line 368
+					      call 'erlang':'setelement'
+						  (5, _cor6, Mc)
+					  in  %% Line 368
+					      call 'erlang':'setelement'
+						  (4, _cor7, Tc)
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'new_bit_xy'/3 =
+    %% Line 370
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 371
+	case _cor2 of
+	  <{'bit',X,Y,_cor14,_cor15,_cor16,T,M,B}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 372
+		  call 'erlang':'-'
+		      (_cor1, X)
+	      in  let <Dx> =
+		      %% Line 372
+		      call 'erlang':'*'
+			  (_cor4, 15)
+		  in  let <_cor6> =
+			  %% Line 373
+			  call 'erlang':'-'
+			      (_cor0, Y)
+		      in  let <Dy> =
+			      %% Line 373
+			      call 'erlang':'*'
+				  (_cor6, 15)
+			  in  do  %% Line 374
+				  call 'gs':'config'
+				      (T, [{'move',{Dx,Dy}}|[]])
+				  do  %% Line 375
+				      call 'gs':'config'
+					  (M, [{'move',{Dx,Dy}}|[]])
+				      do  %% Line 376
+					  call 'gs':'config'
+					      (B, [{'move',{Dx,Dy}}|[]])
+					  let <_cor9> =
+					      %% Line 377
+					      call 'erlang':'setelement'
+						  (3, _cor2, _cor0)
+					  in  %% Line 377
+					      call 'erlang':'setelement'
+						  (2, _cor9, _cor1)
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'destroy_bit'/1 =
+    %% Line 379
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'bit',_cor2,_cor3,_cor4,_cor5,_cor6,T,M,B}> when 'true' ->
+	      do  %% Line 380
+		  call 'gs':'destroy'
+		      (T)
+		  do  %% Line 381
+		      call 'gs':'destroy'
+			  (M)
+		      %% Line 382
+		      call 'gs':'destroy'
+			  (B)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'destroy_bit',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'shift_bits'/1 =
+    %% Line 384
+    fun (_cor0) ->
+	%% Line 386
+	case _cor0 of
+	  <{'bit',_cor7,_cor8,C1,C2,C3,T,M,B}> when 'true' ->
+	      do  %% Line 387
+		  call 'gs':'config'
+		      (T, {'fill',C2})
+		  do  %% Line 388
+		      call 'gs':'config'
+			  (M, {'fill',C3})
+		      do  %% Line 389
+			  call 'gs':'config'
+			      (B, {'fill',C1})
+			  let <_cor3> =
+			      %% Line 390
+			      call 'erlang':'setelement'
+				  (6, _cor0, C1)
+			  in  let <_cor4> =
+				  %% Line 390
+				  call 'erlang':'setelement'
+				      (5, _cor3, C3)
+			      in  %% Line 390
+				  call 'erlang':'setelement'
+				      (4, _cor4, C2)
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'rndColor'/0 =
+    %% Line 392
+    fun () ->
+	let <_cor1> =
+	    %% Line 394
+	    call 'random':'uniform'
+		(6)
+	in  %% Line 394
+	    call 'erlang':'element'
+		(_cor1, {'red','green','blue','grey','yellow',{66,153,130}})
+'make_score'/0 =
+    %% Line 396
+    fun () ->
+	let <_cor2> =
+	    %% Line 397
+	    call 'gs':'create'
+		('text', 'can', [{'text',[83|[99|[111|[114|[101|[58|[32|[48]]]]]]]]}|[{'fg','red'}|[{'coords',[{5,265}]}]]])
+	in  %% Line 397
+	    {_cor2,%% Line 398
+		   0}
+'make_screen_board'/0 =
+    %% Line 400
+    fun () ->
+	let <_cor0> =
+	    %% Line 401
+	    apply 'make_board'/0
+		()
+	in  %% Line 401
+	    apply 'xy_loop'/4
+		({'cols','make_board_elem'}, _cor0, 8, 17)
+'make_board_elem'/3 =
+    %% Line 403
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 404
+	    apply 'make_box'/3
+		(_cor2, _cor1, 'black')
+	in  %% Line 404
+	    apply 'set_board_element'/4
+		(_cor0, _cor2, _cor1, {_cor3,'black'})
+'flush'/0 =
+    %% Line 406
+    fun () ->
+	call 'gs':'read'
+	    ('can', 'bg')
+'draw_borders'/0 =
+    %% Line 408
+    fun () ->
+	do  %% Line 412
+	    call 'gs':'create'
+		('line', 'can', [{'coords',[{49,0}|[{49,255}]]}|[{'fg','white'}]])
+	    do  %% Line 413
+		call 'gs':'create'
+		    ('line', 'can', [{'coords',[{49,255}|[{170,255}]]}|[{'fg','white'}]])
+		%% Line 414
+		call 'gs':'create'
+		    ('line', 'can', [{'coords',[{170,0}|[{170,255}]]}|[{'fg','white'}]])
+'update_screen_element'/4 =
+    %% Line 416
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 417
+	case apply 'board_element'/3
+		 (_cor3, _cor2, _cor1) of
+	  %% Line 418
+	  <{_X_GsObj,_cor10}>
+	      when call 'erlang':'=:='
+		    (_cor10,
+		     _cor0) ->
+	      _cor3
+	  %% Line 420
+	  <{GsObj,_X_ScreenColor}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 421
+		  apply 'color_args'/1
+		      (_cor0)
+	      in  do  %% Line 421
+		      call 'gs':'config'
+			  (GsObj, _cor4)
+		      %% Line 422
+		      apply 'set_board_element'/4
+			  (_cor3, _cor2, _cor1, {GsObj,_cor0})
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'update_screen_element'/2 =
+    %% Line 425
+    fun (_cor1,_cor0) ->
+	%% Line 426
+	case _cor1 of
+	  %% Line 427
+	  <{_X_GsObj,_cor6}>
+	      when call 'erlang':'=:='
+		    (_cor6,
+		     _cor0) ->
+	      _cor1
+	  %% Line 429
+	  <{GsObj,_X_ScreenColor}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 430
+		  apply 'color_args'/1
+		      (_cor0)
+	      in  do  %% Line 430
+		      call 'gs':'config'
+			  (GsObj, _cor2)
+		      %% Line 431
+		      {GsObj,_cor0}
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'color_args'/1 =
+    %% Line 435
+    fun (_cor0) ->
+	case _cor0 of
+	  <'black'> when 'true' ->
+	      [{'fg','black'}|[{'fill','black'}]]
+	  %% Line 436
+	  <Color> when 'true' ->
+	      [{'fg','white'}|[{'fill',Color}|[]]]
+	end
+'xy_loop'/4 =
+    %% Line 442
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 443
+	apply 'xy_loop'/6
+	    (_cor3, _cor2, 0, 0, _cor1, _cor0)
+'xy_loop'/6 =
+    %% Line 445
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <_X_Fun,Acc,_X_X,YMax,_X_XMax,_cor15>
+	      when call 'erlang':'=:='
+		    (_cor15,
+		     YMax) ->
+	      Acc
+	  %% Line 446
+	  <Fun,Acc,XMax,Y,_cor16,YMax>
+	      when call 'erlang':'=:='
+		    (_cor16,
+		     XMax) ->
+	      let <_cor6> =
+		  %% Line 447
+		  call 'erlang':'+'
+		      (Y, 1)
+	      in  %% Line 447
+		  apply 'xy_loop'/6
+		      (Fun, Acc, 0, _cor6, XMax, YMax)
+	  %% Line 448
+	  <Fun,Acc,X,Y,XMax,YMax> when 'true' ->
+	      let <_cor8> =
+		  %% Line 449
+		  call 'erlang':'apply'
+		      (Fun, [X|[Y|[Acc|[]]]])
+	      in  let <_cor7> =
+		      %% Line 449
+		      call 'erlang':'+'
+			  (X, 1)
+		  in  %% Line 449
+		      apply 'xy_loop'/6
+			  (Fun, _cor8, _cor7, Y, XMax, YMax)
+	end
+'erase_bits_at'/4 =
+    %% Line 455
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <C> =
+	    %% Line 456
+	    apply 'color_at'/3
+		(_cor3, _cor1, _cor0)
+	in  %% Line 457
+	    apply 'erase_bits_at'/6
+		(['vert'|['horiz'|['slash'|['backslash']]]], _cor1, _cor0, C, _cor3, _cor2)
+'erase_bits_at'/6 =
+    %% Line 459
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_X,_X_Y,_X_C,_X_Board,Elems2Del> when 'true' ->
+	      Elems2Del
+	  %% Line 460
+	  <[Dir|Ds],X,Y,C,Board,Elems2DelAcc> when 'true' ->
+	      let <Dx> =
+		  %% Line 461
+		  apply 'dx'/1
+		      (Dir)
+	      in  let <Dy> =
+		      %% Line 462
+		      apply 'dy'/1
+			  (Dir)
+		  in  let <_cor12> =
+			  %% Line 463
+			  call 'erlang':'-'
+			      (X, Dx)
+		      in  let <_cor11> =
+			      %% Line 463
+			      call 'erlang':'-'
+				  (Y, Dy)
+			  in  let <_cor10> =
+				  %% Line 463
+				  call 'erlang':'-'
+				      (Dx)
+			      in  let <_cor9> =
+				      %% Line 463
+				      call 'erlang':'-'
+					  (Dy)
+				  in  let <_cor13> =
+					  %% Line 463
+					  apply 'check_dir'/6
+					      (Board, _cor12, _cor11, _cor10, _cor9, C)
+				      in  let <_cor8> =
+					      %% Line 464
+					      apply 'check_dir'/6
+						  (Board, X, Y, Dx, Dy, C)
+					  in  let <DelElems> =
+						  %% Line 463
+						  call 'lists':'append'
+						      (_cor13, _cor8)
+					      in  let <N_in_a_row> =
+						      %% Line 465
+						      call 'erlang':'length'
+							  (DelElems)
+						  in  %% Line 466
+						      case <> of
+							<>
+							    when call 'erlang':'>='
+								  (N_in_a_row,
+								   3) ->
+							    let <_cor16> =
+								%% Line 468
+								call 'lists':'sort'
+								    (DelElems)
+							    in  let <_cor17> =
+								    %% Line 468
+								    call 'ordsets':'union'
+									(_cor16, Elems2DelAcc)
+								in  %% Line 467
+								    apply 'erase_bits_at'/6
+									(Ds, X, Y, C, Board, _cor17)
+							%% Line 469
+							<> when 'true' ->
+							    apply 'erase_bits_at'/6
+								(Ds, X, Y, C, Board, Elems2DelAcc)
+						      end
+	  ( <_cor23,_cor22,_cor21,_cor20,_cor19,_cor18> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor23,_cor22,_cor21,_cor20,_cor19,_cor18})
+		  -| [{'function_name',{'erase_bits_at',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'dx'/1 =
+    %% Line 472
+    fun (_cor0) ->
+	case _cor0 of
+	  <'vert'> when 'true' ->
+	      0
+	  %% Line 473
+	  <'horiz'> when 'true' ->
+	      1
+	  %% Line 474
+	  <'slash'> when 'true' ->
+	      1
+	  %% Line 475
+	  <'backslash'> when 'true' ->
+	      -1
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'dx',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'dy'/1 =
+    %% Line 477
+    fun (_cor0) ->
+	case _cor0 of
+	  <'vert'> when 'true' ->
+	      -1
+	  %% Line 478
+	  <'horiz'> when 'true' ->
+	      0
+	  %% Line 479
+	  <'slash'> when 'true' ->
+	      -1
+	  %% Line 480
+	  <'backslash'> when 'true' ->
+	      -1
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'dy',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'check_dir'/6 =
+    %% Line 486
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Board,X,Y,Dx,Dy,Color>
+	      when %% Line 487
+		try
+		    let <_cor6> =
+			call 'erlang':'>='
+			    (X, 0)
+		    in  let <_cor7> =
+			    call 'erlang':'<'
+				(X, 8)
+			in  let <_cor8> =
+				call 'erlang':'>='
+				    (Y, 0)
+			    in  let <_cor9> =
+				    call 'erlang':'<'
+					(Y, 17)
+				in  let <_cor10> =
+					call 'erlang':'and'
+					    (_cor8, _cor9)
+				    in  let <_cor11> =
+					    call 'erlang':'and'
+						(_cor7, _cor10)
+					in  call 'erlang':'and'
+						(_cor6, _cor11)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 488
+	      case apply 'color_at'/3
+		       (Board, X, Y) of
+		%% Line 489
+		<_cor22>
+		    when call 'erlang':'=:='
+			  (_cor22,
+			   Color) ->
+		    let <_cor13> =
+			%% Line 490
+			call 'erlang':'+'
+			    (X, Dx)
+		    in  let <_cor12> =
+			    %% Line 490
+			    call 'erlang':'+'
+				(Y, Dy)
+			in  let <_cor14> =
+				%% Line 490
+				apply 'check_dir'/6
+				    (Board, _cor13, _cor12, Dx, Dy, Color)
+			    in  %% Line 490
+				[{X,Y}|_cor14]
+		%% Line 491
+		<_X_OtherColor> when 'true' ->
+		    %% Line 492
+		    []
+	      end
+	  %% Line 494
+	  <_X_Board,_X_X,_X_Y,_X_Dx,_X_Dy,_X_Color> when 'true' ->
+	      []
+	end
+'make_box'/3 =
+    %% Line 496
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 497
+	apply 'make_box'/5
+	    (_cor2, _cor1, 1, 1, _cor0)
+'make_box'/5 =
+    %% Line 502
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 503
+	    case <> of
+	      <>
+		  when call 'erlang':'=:='
+			(_cor0,
+			 'black') ->
+		  [{'fg','black'}|[{'fill','black'}]]
+	      %% Line 504
+	      <> when 'true' ->
+		  [{'fill',_cor0}|[{'fg','white'}]]
+	    end
+	in  let <_cor8> =
+		%% Line 505
+		call 'erlang':'*'
+		    (_cor4, 15)
+	    in  let <_cor9> =
+		    %% Line 505
+		    call 'erlang':'+'
+			(50, _cor8)
+		in  let <_cor7> =
+			%% Line 505
+			call 'erlang':'*'
+			    (_cor3, 15)
+		    in  let <_cor15> =
+			    %% Line 506
+			    call 'erlang':'*'
+				(_cor4, 15)
+			in  let <_cor16> =
+				%% Line 506
+				call 'erlang':'+'
+				    (50, _cor15)
+			    in  let <_cor14> =
+				    %% Line 506
+				    call 'erlang':'*'
+					(15, _cor1)
+				in  let <_cor17> =
+					%% Line 506
+					call 'erlang':'+'
+					    (_cor16, _cor14)
+				    in  let <_cor18> =
+					    %% Line 506
+					    call 'erlang':'-'
+						(_cor17, 1)
+					in  let <_cor11> =
+						%% Line 507
+						call 'erlang':'*'
+						    (_cor3, 15)
+					    in  let <_cor10> =
+						    %% Line 507
+						    call 'erlang':'*'
+							(15, _cor2)
+						in  let <_cor12> =
+							%% Line 507
+							call 'erlang':'+'
+							    (_cor11, _cor10)
+						    in  let <_cor13> =
+							    %% Line 507
+							    call 'erlang':'-'
+								(_cor12, 1)
+							in  %% Line 505
+							    call 'gs':'create'
+								('rectangle', 'can', [{'coords',[{_cor9,_cor7}|%% Line 506
+													       [{_cor18,_cor13}|%% Line 507
+																[]]]}|_cor5])
+'is_fall_ok'/3 =
+    %% Line 509
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_X_Board,_X_NewX,NewY>
+	      when try
+		    let <_cor3> =
+			call 'erlang':'+'
+			    (NewY, 2)
+		    in  call 'erlang':'>='
+			    (_cor3, 17)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      'false'
+	  %% Line 510
+	  <Board,NewX,NewY> when 'true' ->
+	      let <_cor4> =
+		  %% Line 511
+		  call 'erlang':'+'
+		      (NewY, 2)
+	      in  %% Line 511
+		  case apply 'color_at'/3
+			   (Board, NewX, _cor4) of
+		    %% Line 512
+		    <'black'> when 'true' ->
+			%% Line 513
+			'true'
+		    %% Line 514
+		    <_cor9> when 'true' ->
+			'false'
+		  end
+	end
+'color_at'/3 =
+    %% Line 517
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 518
+	case apply 'board_element'/3
+		 (_cor2, _cor1, _cor0) of
+	  <{_X_GsObj,Color}> when 'true' ->
+	      %% Line 519
+	      Color
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'make_board'/0 =
+    %% Line 525
+    fun () ->
+	let <_cor0> =
+	    %% Line 526
+	    apply 'make_column'/0
+		()
+	in  let <_cor1> =
+		%% Line 526
+		apply 'make_list'/2
+		    (_cor0, 8)
+	    in  %% Line 526
+		call 'erlang':'list_to_tuple'
+		    (_cor1)
+'board_element'/3 =
+    %% Line 528
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 529
+	    call 'erlang':'+'
+		(_cor0, 1)
+	in  let <_cor3> =
+		%% Line 529
+		call 'erlang':'+'
+		    (_cor1, 1)
+	    in  let <_cor4> =
+		    %% Line 529
+		    call 'erlang':'element'
+			(_cor3, _cor2)
+		in  %% Line 529
+		    call 'erlang':'element'
+			(_cor5, _cor4)
+'set_board_element'/4 =
+    %% Line 531
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 532
+	    call 'erlang':'+'
+		(_cor2, 1)
+	in  let <Col> =
+		%% Line 532
+		call 'erlang':'element'
+		    (_cor4, _cor3)
+	    in  let <_cor6> =
+		    %% Line 533
+		    call 'erlang':'+'
+			(_cor1, 1)
+		in  let <NewCol> =
+			%% Line 533
+			call 'erlang':'setelement'
+			    (_cor6, Col, _cor0)
+		    in  let <_cor8> =
+			    %% Line 534
+			    call 'erlang':'+'
+				(_cor2, 1)
+			in  %% Line 534
+			    call 'erlang':'setelement'
+				(_cor8, _cor3, NewCol)
+'make_column'/0 =
+    %% Line 536
+    fun () ->
+	let <_cor0> =
+	    %% Line 537
+	    apply 'make_list'/2
+		('black', 17)
+	in  %% Line 537
+	    call 'erlang':'list_to_tuple'
+		(_cor0)
+'make_list'/2 =
+    %% Line 539
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_Elem,0> when 'true' ->
+	      []
+	  %% Line 540
+	  <Elem,N> when 'true' ->
+	      let <_cor2> =
+		  call 'erlang':'-'
+		      (N, 1)
+	      in  let <_cor3> =
+		      apply 'make_list'/2
+			  (Elem, _cor2)
+		  in  [Elem|_cor3]
+	end
+'boardcolumn_to_tuple'/2 =
+    %% Line 542
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 543
+	    call 'erlang':'+'
+		(_cor0, 1)
+	in  %% Line 543
+	    call 'erlang':'element'
+		(_cor2, _cor1)
+'set_board_column'/3 =
+    %% Line 545
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Board,X,NewCol>
+	      when try
+		    let <_cor3> =
+			call 'erlang':'length'
+			    (NewCol)
+		    in  call 'erlang':'=='
+			    (_cor3, 17)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor5> =
+		  %% Line 546
+		  call 'erlang':'+'
+		      (X, 1)
+	      in  let <_cor4> =
+		      %% Line 546
+		      call 'erlang':'list_to_tuple'
+			  (NewCol)
+		  in  %% Line 546
+		      call 'erlang':'setelement'
+			  (_cor5, Board, _cor4)
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'set_board_column',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'show_help'/0 =
+    %% Line 548
+    fun () ->
+	let <W> =
+	    %% Line 549
+	    call 'gs':'create'
+		('window', 'win', [{'title',[99|[111|[108|[115|[32|[72|[101|[108|[112]]]]]]]]]}|[{'width',300}|[{'height',300}|[{'map','true'}]]]])
+	in  do  %% Line 551
+		call 'gs':'create'
+		    ('label', W, [{'x',0}|[{'y',0}|[{'height',200}|[{'width',300}|[{'justify','center'}|[{'label',{'text',[99|[111|[108|[115|[32|[36|[82|[101|[118|[105|[115|[105|[111|[110|[58|[32|[49|[46|[50|[51|[32|[36|[10|[98|[121|[10|[75|[108|[97|[115|[32|[69|[114|[105|[107|[115|[115|[111|[110|[44|[32|[101|[107|[108|[97|[115|[64|[101|[114|[108|[97|[110|[103|[46|[101|[114|[105|[99|[115|[115|[111|[110|[46|[115|[101|[10|[10|[72|[101|[108|[112|[58|[32|[85|[115|[101|[32|[97|[114|[114|[111|[119|[115|[32|[97|[110|[100|[32|[115|[112|[97|[99|[101|[32|[107|[101|[121|[115|[46|[10|[32|[32|[32|[32|[32|[32|[84|[114|[121|[32|[116|[111|[32|[103|[101|[116|[32|[51|[32|[105|[110|[45|[97|[45|[114|[111|[119|[46|[10|[32|[32|[32|[32|[32|[32|[77|[111|[114|[101|[32|[116|[104|[97|[110|[32|[51|[32|[103|[105|[118|[101|[115|[32|[98|[111|[110|[117|[115|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}}]]]]]])
+		let <B> =
+		    %% Line 559
+		    call 'gs':'create'
+			('button', W, [{'x',100}|[{'y',250}|[{'label',{'text',[68|[105|[115|[109|[105|[115|[115]]]]]]]}}]]])
+		in  do  %% Line 560
+			receive
+			  %% Line 561
+			  <{'gs',_cor2,'click',_cor3,_cor4}>
+			      when call 'erlang':'=:='
+				    (_cor2,
+				     B) ->
+			      'ok'
+			after 'infinity' ->
+			  'ok'
+			%% Line 563
+			call 'gs':'destroy'
+			    (W)
+'drop'/4 =
+    %% Line 569
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 570
+	    call 'erlang':'+'
+		(_cor2, 1)
+	in  %% Line 570
+	    case apply 'is_fall_ok'/3
+		     (_cor0, _cor3, _cor4) of
+	      %% Line 571
+	      <'true'> when 'true' ->
+		  let <_cor6> =
+		      call 'erlang':'+'
+			  (_cor2, 1)
+		  in  let <_cor5> =
+			  apply 'add_score'/2
+			      (_cor1, 1)
+		      in  apply 'drop'/4
+			      (_cor3, _cor6, _cor5, _cor0)
+	      %% Line 572
+	      <'false'> when 'true' ->
+		  {_cor3,_cor2,_cor1}
+	      ( <_cor7> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor7})
+		-| ['compiler_generated'] )
+	    end
+'elems2del'/3 =
+    %% Line 575
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_X_Board,Elems2DelAcc> when 'true' ->
+	      Elems2DelAcc
+	  %% Line 576
+	  <[{X,Y}|Checks],Board,Elems2DelAcc> when 'true' ->
+	      let <_cor3> =
+		  %% Line 577
+		  apply 'erase_bits_at'/4
+		      (Board, Elems2DelAcc, X, Y)
+	      in  let <NewElems2DelAcc> =
+		      %% Line 577
+		      call 'ordsets':'union'
+			  (_cor3, %% Line 578
+				  Elems2DelAcc)
+		  in  %% Line 579
+		      apply 'elems2del'/3
+			  (Checks, Board, NewElems2DelAcc)
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'elems2del',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'collect_bottom_bits'/2 =
+    %% Line 581
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <8,_X_Board> when 'true' ->
+	      []
+	  %% Line 582
+	  <X,Board> when 'true' ->
+	      %% Line 583
+	      case apply 'color_at'/3
+		       (Board, X, 16) of
+		%% Line 584
+		<'black'> when 'true' ->
+		    let <_cor3> =
+			call 'erlang':'+'
+			    (X, 1)
+		    in  apply 'collect_bottom_bits'/2
+			    (_cor3, Board)
+		%% Line 585
+		<_X_AcolorHere> when 'true' ->
+		    let <_cor4> =
+			call 'erlang':'+'
+			    (X, 1)
+		    in  let <_cor5> =
+			    apply 'collect_bottom_bits'/2
+				(_cor4, Board)
+			in  [X|_cor5]
+	      end
+	end
+'update_check'/2 =
+    %% Line 588
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_Check,[]> when 'true' ->
+	      []
+	  %% Line 589
+	  <Check,[X|Xs]> when 'true' ->
+	      %% Line 590
+	      case call 'lists':'member'
+		       ({X,16}, Check) of
+		%% Line 591
+		<'true'> when 'true' ->
+		    apply 'update_check'/2
+			(Check, Xs)
+		%% Line 592
+		<'false'> when 'true' ->
+		    let <_cor4> =
+			apply 'update_check'/2
+			    (Check, Xs)
+		    in  [{X,16}|_cor4]
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'update_check',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'org_objs'/2 =
+    %% Line 595
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_X_Board> when 'true' ->
+	      []
+	  %% Line 596
+	  <[{X,Y}|XYs],Board> when 'true' ->
+	      %% Line 597
+	      case apply 'board_element'/3
+		       (Board, X, Y) of
+		<{GsObj,_X_Color}> when 'true' ->
+		    let <_cor3> =
+			%% Line 598
+			call 'gs':'read'
+			    (GsObj, 'coords')
+		    in  let <_cor4> =
+			    %% Line 598
+			    call 'lists':'sort'
+				(_cor3)
+			in  let <_cor5> =
+				%% Line 598
+				apply 'org_objs'/2
+				    (XYs, Board)
+			    in  %% Line 598
+				[{GsObj,_cor4}|_cor5]
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'org_objs',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'update_board'/2 =
+    %% Line 600
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Board> when 'true' ->
+	      Board
+	  %% Line 601
+	  <[{X,Y}|XYs],Board> when 'true' ->
+	      let <_cor2> =
+		  %% Line 602
+		  apply 'update_screen_element'/4
+		      (Board, X, Y, 'black')
+	      in  %% Line 602
+		  apply 'update_board'/2
+		      (XYs, _cor2)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'update_board',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'put_back'/1 =
+    %% Line 604
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      'done'
+	  %% Line 605
+	  <[{GsObj,Coords}|Objs]> when 'true' ->
+	      do  %% Line 606
+		  call 'gs':'config'
+		      (GsObj, [{'coords',Coords}|[]])
+		  %% Line 607
+		  apply 'put_back'/1
+		      (Objs)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'put_back',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'updated_cols'/2 =
+    %% Line 609
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],UpdColsAcc> when 'true' ->
+	      UpdColsAcc
+	  %% Line 610
+	  <[{X,_X_Y}|XYs],UpdColsAcc> when 'true' ->
+	      %% Line 611
+	      case call 'lists':'member'
+		       (X, UpdColsAcc) of
+		%% Line 612
+		<'true'> when 'true' ->
+		    apply 'updated_cols'/2
+			(XYs, UpdColsAcc)
+		%% Line 613
+		<'false'> when 'true' ->
+		    apply 'updated_cols'/2
+			(XYs, [X|UpdColsAcc])
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'updated_cols',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'dir'/0 =
+    %% Line 622
+    fun () ->
+	let <GsPrivDir> =
+	    %% Line 623
+	    call 'code':'priv_dir'
+		('gs')
+	in  %% Line 624
+	    call 'filename':'join'
+		(GsPrivDir, [46|[46|[47|[99|[111|[110|[116|[114|[105|[98|[115|[47|[101|[98|[105|[110]]]]]]]]]]]]]]]])
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('cols')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('cols', _cor0)
+end

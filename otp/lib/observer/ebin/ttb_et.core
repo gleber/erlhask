@@ -1,0 +1,921 @@
+module 'ttb_et' ['handler'/4,
+		 'module_info'/0,
+		 'module_info'/1]
+    attributes [%% Line 20
+		'author' =
+		    %% Line 20
+		    ['siri@erix.ericsson.se']]
+'handler'/4 =
+    %% Line 29
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Out,Trace,Traci,'initial'> when 'true' ->
+	      let <S> =
+		  %% Line 30
+		  call 'erlang':'self'
+		      ()
+	      in  let <_cor5> =
+		      %% Line 31
+		      ( fun () ->
+			    apply 'init_et'/1
+				(S)
+			-| [{'id',{0,0,'-handler/4-fun-0-'}}] )
+		  in  do  %% Line 31
+			  call 'erlang':'spawn'
+			      (_cor5)
+			  let <_cor13,Collector> =
+			      %% Line 32
+			      receive
+				<{'et_started',Collector}> when 'true' ->
+				    <'ok',Collector>
+			      after 'infinity' ->
+				'true'
+			  in  %% Line 33
+			      apply 'handler'/4
+				  (Out, Trace, Traci, Collector)
+	  %% Line 34
+	  <_cor11,'end_of_trace',_X_Traci,Col> when 'true' ->
+	      do  %% Line 35
+		  apply 'get_returns'/1
+		      (Col)
+		  %% Line 36
+		  'ok'
+	  %% Line 37
+	  <_cor12,Trace,_X_Traci,Col> when 'true' ->
+	      %% Line 38
+	      case call 'et_collector':'report'
+		       (Col, Trace) of
+		<{'ok',NewCol}> when 'true' ->
+		    %% Line 39
+		    NewCol
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'collector'/1 =
+    %% Line 44
+    fun (_cor0) ->
+	case _cor0 of
+	  <Event = {'event',_cor2,_cor3,_cor4,_cor5,_cor6,_cor7,_cor8}> when ( 'true'
+									       -| ['compiler_generated'] ) ->
+	      %% Line 46
+	      'true'
+	  %% Line 47
+	  <Trace> when 'true' ->
+	      %% Line 48
+	      call 'et_selector':'parse_event'
+		  ('undefined', Trace)
+	end
+'get_returns'/1 =
+    %% Line 60
+    fun (_cor0) ->
+	let <Fun> =
+	    %% Line 61
+	    ( fun (_cor2,_cor1) ->
+		  apply 'collect_return_info'/3
+		      (_cor2, _cor1, _cor0)
+	      -| [{'id',{0,0,'-get_returns/1-fun-0-'}}] )
+	in  let <_cor6> =
+		%% Line 62
+		call 'dict':'new'
+		    ()
+	    in  %% Line 62
+		call 'et_collector':'iterate'
+		    (_cor0, 'last', '-infinity', Fun, _cor6)
+'collect_return_info'/3 =
+    %% Line 64
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <E = {'event',_cor58,_cor59,_cor60,Pid,_cor61,L,_cor62},Acc,_X_Col>
+	      when let <_cor3> =
+		    %% Line 65
+		    call 'erlang':'=:='
+			(L, 'return_to')
+		in  let <_cor4> =
+			%% Line 65
+			call 'erlang':'=:='
+			    (L, 'return_from')
+		    in  %% Line 65
+			call 'erlang':'or'
+			    (_cor3, _cor4) ->
+	      let <_cor7> =
+		  %% Line 67
+		  ( fun (_cor5) ->
+			[E|_cor5]
+		    -| [{'id',{0,0,'-collect_return_info/3-fun-0-'}}] )
+	      in  %% Line 67
+		  call 'dict':'update'
+		      (Pid, _cor7, [E|[]], Acc)
+	  %% Line 68
+	  <E = {'event',_cor63,_cor64,_cor65,Pid,_cor66,'call',Contents},Acc,Col> when 'true' ->
+	      let <MFA> =
+		  %% Line 71
+		  apply 'get_mfarity'/1
+		      (Contents)
+	      in  let <Caller,NewAcc> =
+		      %% Line 73
+		      case call 'dict':'find'
+			       (Pid, Acc) of
+			%% Line 74
+			<{'ok',[RetFrom = {'event',_cor67,_cor68,_cor69,_cor70,_cor71,'return_from',_cor72}|%% Line 75
+													    [RetTo = {'event',_cor73,_cor74,_cor75,_cor76,_cor77,'return_to',_cor78}|Rets]]}> when 'true' ->
+			    let <C> =
+				%% Line 77
+				apply 'get_mfarity'/1
+				    (_cor78)
+			    in  let <_rec1> =
+				    %% Line 78
+				    call 'erlang':'++'
+					(_cor78, [{'return_from',MFA}|[]])
+				in  let <_cor16> =
+					%% Line 78
+					call 'erlang':'setelement'
+					    (8, RetTo, _rec1)
+				    in  let <_rec4> =
+					    %% Line 81
+					    call 'erlang':'++'
+						(_cor72, [{'return_to',C}|[]])
+					in  let <_cor24> =
+						%% Line 81
+						call 'erlang':'setelement'
+						    (8, RetFrom, _rec4)
+					    in  do  %% Line 82
+						    call 'et_collector':'report'
+							(Col, _cor16)
+						    do  %% Line 83
+							call 'et_collector':'report'
+							    (Col, _cor24)
+							let <_cor26> =
+							    %% Line 84
+							    call 'dict':'store'
+								(Pid, Rets, Acc)
+							in  %% Line 84
+							    <C,_cor26>
+			%% Line 85
+			<{'ok',[RetTo = {'event',_cor109,_cor110,_cor111,_cor112,_cor113,'return_to',_cor114}|Rets]}> when 'true' ->
+			    let <C> =
+				%% Line 88
+				apply 'get_mfarity'/1
+				    (_cor114)
+			    in  let <_rec7> =
+				    %% Line 89
+				    call 'erlang':'++'
+					(_cor114, [{'return_from',MFA}|[]])
+				in  let <_cor34> =
+					%% Line 89
+					call 'erlang':'setelement'
+					    (8, RetTo, _rec7)
+				    in  do  %% Line 90
+					    call 'et_collector':'report'
+						(Col, _cor34)
+					    let <_cor36> =
+						%% Line 91
+						call 'dict':'store'
+						    (Pid, Rets, Acc)
+					    in  %% Line 91
+						<C,_cor36>
+			%% Line 92
+			<{'ok',[RetFrom = {'event',_cor130,_cor131,_cor132,_cor133,_cor134,'return_from',_cor135}|Rets]}> when 'true' ->
+			    let <C> =
+				%% Line 94
+				apply 'get_caller'/1
+				    (Contents)
+			    in  let <_rec10> =
+				    %% Line 97
+				    call 'erlang':'++'
+					(_cor135, [{'return_to',C}|[]])
+				in  let <_cor44> =
+					%% Line 97
+					call 'erlang':'setelement'
+					    (8, RetFrom, _rec10)
+				    in  do  %% Line 98
+					    call 'et_collector':'report'
+						(Col, _cor44)
+					    let <_cor46> =
+						%% Line 99
+						call 'dict':'store'
+						    (Pid, Rets, Acc)
+					    in  %% Line 99
+						<C,_cor46>
+			%% Line 100
+			<_X_noreturn> when 'true' ->
+			    %% Line 101
+			    <'nocaller',Acc>
+		      end
+		  in  let <_rec12> =
+			  %% Line 103
+			  call 'erlang':'++'
+			      (Contents, [{'caller',Caller}|[]])
+		      in  let <_cor53> =
+			      %% Line 103
+			      call 'erlang':'setelement'
+				  (8, E, _rec12)
+			  in  do  %% Line 104
+				  call 'et_collector':'report'
+				      (Col, _cor53)
+				  %% Line 105
+				  NewAcc
+	  %% Line 106
+	  <_X_E,Acc,_X_Col> when 'true' ->
+	      %% Line 107
+	      Acc
+	end
+'init_et'/1 =
+    %% Line 109
+    fun (_cor0) ->
+	do  %% Line 110
+	    call 'erlang':'process_flag'
+		('trap_exit', 'true')
+	    let <EtOpt> =
+		%% Line 113
+		[{'active_filter','processes'}|%% Line 114
+					       [{'dict_insert',{'filter','collector'},( 'collector'/1
+											-| [{'id',{0,0,'-init_et/1-fun-0-'}}] )}|%% Line 115
+																 [{'dict_insert',{'filter','processes'},( 'processes'/1
+																					  -| [{'id',{0,0,'-init_et/1-fun-1-'}}] )}|%% Line 116
+																										   [{'dict_insert',{'filter','modules'},( 'modules'/1
+																															  -| [{'id',{0,0,'-init_et/1-fun-2-'}}] )}|%% Line 117
+																																				   [{'dict_insert',{'filter','mods_and_procs'},( 'mods_and_procs'/1
+																																										 -| [{'id',{0,0,'-init_et/1-fun-3-'}}] )}|%% Line 118
+																																															  [{'dict_insert',{'filter','functions'},( 'functions'/1
+																																																				   -| [{'id',{0,0,'-init_et/1-fun-4-'}}] )}|%% Line 119
+																																																									    [{'dict_insert',{'filter','funcs_and_procs'},( 'funcs_and_procs'/1
+																																																															   -| [{'id',{0,0,'-init_et/1-fun-5-'}}] )}|%% Line 120
+																																																																				    [{'hide_actions','false'}|[{'max_events','infinity'}|[{'max_actors','infinity'}]]]]]]]]]]
+	    in  %% Line 123
+		case call 'et_viewer':'start_link'
+			 (EtOpt) of
+		  <{'ok',Viewer}> when 'true' ->
+		      let <Collector> =
+			  %% Line 124
+			  call 'et_viewer':'get_collector_pid'
+			      (Viewer)
+		      in  do  %% Line 125
+			      call 'erlang':'!'
+				  (_cor0, {'et_started',Collector})
+			      %% Line 126
+			      receive
+				%% Line 127
+				<{'EXIT',_cor5,'shutdown'}>
+				    when call 'erlang':'=:='
+					  (_cor5,
+					   Viewer) ->
+				    %% Line 128
+				    'ok'
+			      after 'infinity' ->
+				'true'
+		  ( <_cor2> when 'true' ->
+			primop 'match_fail'
+			    ({'badmatch',_cor2})
+		    -| ['compiler_generated'] )
+		end
+'processes'/1 =
+    %% Line 135
+    fun (_cor0) ->
+	let <E> =
+	    %% Line 136
+	    apply 'label'/1
+		(_cor0)
+	in  %% Line 138
+	    ( case E of
+		( <( {'event',_cor14,_cor15,_cor16,_rec14,_cor17,_cor18,_cor19}
+		     -| ['compiler_generated'] )> when 'true' ->
+		      case apply 'get_actors'/2
+			       (_rec14, _cor17) of
+			<{{FromProc,FromNode},{ToProc,ToNode}}> when 'true' ->
+			    let <_rec16> =
+				%% Line 139
+				call 'io_lib':'format'
+				    ([126|[119|[126|[110|[126|[119]]]]]], [FromProc|[FromNode|[]]])
+			    in  let <_rec17> =
+				    %% Line 140
+				    call 'io_lib':'format'
+					([126|[119|[126|[110|[126|[119]]]]]], [ToProc|[ToNode|[]]])
+				in  let <_cor10> =
+					%% Line 140
+					call 'erlang':'setelement'
+					    (6, E, _rec17)
+				    in  let <_cor12> =
+					    %% Line 139
+					    call 'erlang':'setelement'
+						(5, _cor10, _rec16)
+					in  %% Line 139
+					    {'true',_cor12}
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+		  -| ['compiler_generated'] )
+		( <_cor20> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','event'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	      -| ['compiler_generated'] )
+'mods_and_procs'/1 =
+    %% Line 143
+    fun (_cor0) ->
+	let <ActorFun> =
+	    %% Line 144
+	    ( fun (_cor2,_cor1) ->
+		  case <_cor2,_cor1> of
+		    <{M,_X_F,_X_A},{Proc,Node}> when 'true' ->
+			%% Line 145
+			call 'io_lib':'format'
+			    ([126|[119|[126|[110|[126|[119|[126|[110|[126|[119]]]]]]]]]], [M|[Proc|[Node|[]]]])
+		    ( <_cor4,_cor3> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor4,_cor3})
+			    -| [{'function_name',{'-mods_and_procs/1-fun-0-',2}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-mods_and_procs/1-fun-0-'}}] )
+	in  %% Line 147
+	    apply 'calltrace_filter'/2
+		(_cor0, ActorFun)
+'modules'/1 =
+    %% Line 149
+    fun (_cor0) ->
+	let <ActorFun> =
+	    %% Line 150
+	    ( fun (_cor2,_cor1) ->
+		  case <_cor2,_cor1> of
+		    <{M,_X_F,_X_A},{_X_Proc,Node}> when 'true' ->
+			%% Line 151
+			call 'io_lib':'format'
+			    ([126|[119|[126|[110|[126|[119]]]]]], [M|[Node|[]]])
+		    ( <_cor4,_cor3> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor4,_cor3})
+			    -| [{'function_name',{'-modules/1-fun-0-',2}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-modules/1-fun-0-'}}] )
+	in  %% Line 153
+	    apply 'calltrace_filter'/2
+		(_cor0, ActorFun)
+'funcs_and_procs'/1 =
+    %% Line 155
+    fun (_cor0) ->
+	let <ActorFun> =
+	    %% Line 156
+	    ( fun (_cor3,_cor2) ->
+		  case <_cor3,_cor2> of
+		    <{M,F,A},{Proc,Node}> when 'true' ->
+			let <_cor1> =
+			    %% Line 157
+			    apply 'mfa'/3
+				(M, F, A)
+			in  %% Line 157
+			    call 'io_lib':'format'
+				([126|[115|[126|[110|[126|[119|[126|[110|[126|[119]]]]]]]]]], [_cor1|[Proc|[Node|[]]]])
+		    ( <_cor5,_cor4> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor5,_cor4})
+			    -| [{'function_name',{'-funcs_and_procs/1-fun-0-',2}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-funcs_and_procs/1-fun-0-'}}] )
+	in  %% Line 159
+	    apply 'calltrace_filter'/2
+		(_cor0, ActorFun)
+'functions'/1 =
+    %% Line 161
+    fun (_cor0) ->
+	let <ActorFun> =
+	    %% Line 162
+	    ( fun (_cor3,_cor2) ->
+		  case <_cor3,_cor2> of
+		    <{M,F,A},{_X_Proc,Node}> when 'true' ->
+			let <_cor1> =
+			    %% Line 163
+			    apply 'mfa'/3
+				(M, F, A)
+			in  %% Line 163
+			    call 'io_lib':'format'
+				([126|[115|[126|[110|[126|[119]]]]]], [_cor1|[Node|[]]])
+		    ( <_cor5,_cor4> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor5,_cor4})
+			    -| [{'function_name',{'-functions/1-fun-0-',2}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-functions/1-fun-0-'}}] )
+	in  %% Line 165
+	    apply 'calltrace_filter'/2
+		(_cor0, ActorFun)
+'calltrace_filter'/2 =
+    %% Line 170
+    fun (_cor1,_cor0) ->
+	%% Line 171
+	( case _cor1 of
+	    ( <( {'event',_cor9,_cor10,_cor11,_rec19,_cor12,_cor13,_cor14}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  case apply 'get_actors'/2
+			   (_rec19, _cor12) of
+		    <{From,To}> when 'true' ->
+			%% Line 172
+			apply 'calltrace_filter'/4
+			    (_cor1, From, To, _cor0)
+		    ( <_cor6> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor6})
+		      -| ['compiler_generated'] )
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor15> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','event'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'calltrace_filter'/4 =
+    %% Line 174
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <E = {'event',_cor70,_cor71,_cor72,_cor73,_cor74,'call',_cor75},From,To,ActorFun> when 'true' ->
+	      let <MFA> =
+		  %% Line 176
+		  apply 'get_mfarity'/1
+		      (_cor75)
+	      in  %% Line 177
+		  case call 'lists':'keysearch'
+			   ('caller', 1, _cor75) of
+		    %% Line 178
+		    <{'value',{_cor83,Caller = {_X_CM,_X_CF,_X_CA}}}> when 'true' ->
+			let <_rec22> =
+			    %% Line 179
+			    apply 'label'/2
+				('call', MFA)
+			in  let <_rec23> =
+				%% Line 180
+				apply ActorFun
+				    (Caller, From)
+			    in  let <_rec24> =
+				    %% Line 181
+				    apply ActorFun
+					(MFA, To)
+				in  let <_cor12> =
+					%% Line 179
+					call 'erlang':'setelement'
+					    (7, E, _rec22)
+				    in  let <_cor13> =
+					    %% Line 181
+					    call 'erlang':'setelement'
+						(6, _cor12, _rec24)
+					in  let <_cor15> =
+						%% Line 180
+						call 'erlang':'setelement'
+						    (5, _cor13, _rec23)
+					    in  %% Line 179
+						{'true',_cor15}
+		    %% Line 182
+		    <{'value',{_cor92,_cor93}}> when 'true' ->
+			let <_rec26> =
+			    %% Line 183
+			    apply 'label'/2
+				('call', MFA)
+			in  let <_rec27> =
+				%% Line 184
+				apply ActorFun
+				    (MFA, From)
+			    in  let <_rec28> =
+				    %% Line 185
+				    apply ActorFun
+					(MFA, To)
+				in  let <_cor20> =
+					%% Line 183
+					call 'erlang':'setelement'
+					    (7, E, _rec26)
+				    in  let <_cor21> =
+					    %% Line 185
+					    call 'erlang':'setelement'
+						(6, _cor20, _rec28)
+					in  let <_cor23> =
+						%% Line 184
+						call 'erlang':'setelement'
+						    (5, _cor21, _rec27)
+					    in  %% Line 183
+						{'true',_cor23}
+		    ( <_cor24> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor24})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 187
+	  <E = {'event',_cor102,_cor103,_cor104,_cor105,_cor106,'return_from',_cor107},From,To,ActorFun> when 'true' ->
+	      let <MFA> =
+		  %% Line 189
+		  apply 'get_mfarity'/1
+		      (_cor107)
+	      in  %% Line 190
+		  case call 'lists':'keysearch'
+			   ('return_to', 1, _cor107) of
+		    %% Line 191
+		    <{'value',{_cor115,MFA2 = {_X_M2,_X_F2,_X_A2}}}> when 'true' ->
+			let <_rec31> =
+			    %% Line 192
+			    apply 'label'/2
+				('return_from', MFA)
+			in  let <_rec32> =
+				%% Line 193
+				apply ActorFun
+				    (MFA, From)
+			    in  let <_rec33> =
+				    %% Line 194
+				    apply ActorFun
+					(MFA2, To)
+				in  let <_cor33> =
+					%% Line 192
+					call 'erlang':'setelement'
+					    (7, E, _rec31)
+				    in  let <_cor34> =
+					    %% Line 194
+					    call 'erlang':'setelement'
+						(6, _cor33, _rec33)
+					in  let <_cor36> =
+						%% Line 193
+						call 'erlang':'setelement'
+						    (5, _cor34, _rec32)
+					    in  %% Line 192
+						{'true',_cor36}
+		    %% Line 195
+		    <{'value',{_cor124,_cor125}}> when 'true' ->
+			let <_rec35> =
+			    %% Line 196
+			    apply 'label'/2
+				('return_from', MFA)
+			in  let <_rec36> =
+				%% Line 197
+				apply ActorFun
+				    (MFA, From)
+			    in  let <_rec37> =
+				    %% Line 198
+				    apply ActorFun
+					(MFA, To)
+				in  let <_cor41> =
+					%% Line 196
+					call 'erlang':'setelement'
+					    (7, E, _rec35)
+				    in  let <_cor42> =
+					    %% Line 198
+					    call 'erlang':'setelement'
+						(6, _cor41, _rec37)
+					in  let <_cor44> =
+						%% Line 197
+						call 'erlang':'setelement'
+						    (5, _cor42, _rec36)
+					    in  %% Line 196
+						{'true',_cor44}
+		    ( <_cor45> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor45})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 200
+	  <E = {'event',_cor134,_cor135,_cor136,_cor137,_cor138,'return_to',_cor139},From,To,ActorFun> when 'true' ->
+	      %% Line 202
+	      case call 'lists':'keysearch'
+		       ('return_from', 1, _cor139) of
+		<{'value',{_cor147,MFA2 = {_X_M2,_X_F2,_X_A2}}}> when 'true' ->
+		    %% Line 203
+		    case apply 'get_mfarity'/1
+			     (_cor139) of
+		      %% Line 204
+		      <MFA = {_X_M,_X_F,_X_A}> when 'true' ->
+			  let <_rec40> =
+			      %% Line 205
+			      apply 'label'/2
+				  ('return_to', MFA)
+			  in  let <_rec41> =
+				  %% Line 206
+				  apply ActorFun
+				      (MFA2, From)
+			      in  let <_rec42> =
+				      %% Line 207
+				      apply ActorFun
+					  (MFA, To)
+				  in  let <_cor54> =
+					  %% Line 205
+					  call 'erlang':'setelement'
+					      (7, E, _rec40)
+				      in  let <_cor55> =
+					      %% Line 207
+					      call 'erlang':'setelement'
+						  (6, _cor54, _rec42)
+					  in  let <_cor57> =
+						  %% Line 206
+						  call 'erlang':'setelement'
+						      (5, _cor55, _rec41)
+					      in  %% Line 205
+						  {'true',_cor57}
+		      %% Line 208
+		      <'undefined'> when 'true' ->
+			  let <_rec44> =
+			      %% Line 210
+			      apply ActorFun
+				  (MFA2, From)
+			  in  let <_rec45> =
+				  %% Line 211
+				  apply ActorFun
+				      (MFA2, To)
+			      in  let <_cor61> =
+				      %% Line 209
+				      call 'erlang':'setelement'
+					  (7, E, [114|[101|[116|[117|[114|[110|[95|[116|[111|[32|[117|[110|[107|[110|[111|[119|[110]]]]]]]]]]]]]]]]])
+				  in  let <_cor62> =
+					  %% Line 211
+					  call 'erlang':'setelement'
+					      (6, _cor61, _rec45)
+				      in  let <_cor64> =
+					      %% Line 210
+					      call 'erlang':'setelement'
+						  (5, _cor62, _rec44)
+					  in  %% Line 209
+					      {'true',_cor64}
+		      ( <_cor65> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor65})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor49> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor49})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 213
+	  <_X_E,_X_From,_X_To,_X_ActorFun> when 'true' ->
+	      %% Line 214
+	      'false'
+	end
+'label'/1 =
+    %% Line 217
+    fun (_cor0) ->
+	case _cor0 of
+	  <Event = {'event',_cor6,_cor7,_cor8,_cor9,_cor10,L,C}> when 'true' ->
+	      %% Line 218
+	      case call 'lists':'keysearch'
+		       ('mfa', 1, C) of
+		%% Line 219
+		<{'value',{'mfa',MFA}}> when 'true' ->
+		    let <_rec47> =
+			apply 'label'/2
+			    (L, MFA)
+		    in  call 'erlang':'setelement'
+			    (7, Event, _rec47)
+		%% Line 220
+		<'false'> when 'true' ->
+		    Event
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5})
+		  -| [{'function_name',{'label',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'label'/2 =
+    %% Line 222
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <L,{M,F,A}> when 'true' ->
+	      apply 'label'/4
+		  (L, M, F, A)
+	  %% Line 223
+	  <L,Other> when 'true' ->
+	      call 'io_lib':'format'
+		  ([126|[119|[32|[126|[119]]]]], [L|[Other|[]]])
+	end
+'label'/4 =
+    %% Line 224
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <'call',M,F,A> when 'true' ->
+	      let <_cor4> =
+		  apply 'mfa'/3
+		      (M, F, A)
+	      in  call 'erlang':'++'
+		      ([99|[97|[108|[108|[32]]]]], _cor4)
+	  %% Line 225
+	  <'return_from',M,F,A> when 'true' ->
+	      let <_cor5> =
+		  apply 'mfa'/3
+		      (M, F, A)
+	      in  call 'erlang':'++'
+		      ([114|[101|[116|[117|[114|[110|[95|[102|[114|[111|[109|[32]]]]]]]]]]]], _cor5)
+	  %% Line 226
+	  <'return_to',M,F,A> when 'true' ->
+	      let <_cor6> =
+		  apply 'mfa'/3
+		      (M, F, A)
+	      in  call 'erlang':'++'
+		      ([114|[101|[116|[117|[114|[110|[95|[116|[111|[32]]]]]]]]]], _cor6)
+	  %% Line 227
+	  <'spawn',M,F,A> when 'true' ->
+	      let <_cor7> =
+		  apply 'mfa'/3
+		      (M, F, A)
+	      in  call 'erlang':'++'
+		      ([115|[112|[97|[119|[110|[32]]]]]], _cor7)
+	  %% Line 228
+	  <'out',M,F,A> when 'true' ->
+	      let <_cor8> =
+		  apply 'mfa'/3
+		      (M, F, A)
+	      in  [111|[117|[116|[32|_cor8]]]]
+	  %% Line 229
+	  <'in',M,F,A> when 'true' ->
+	      let <_cor9> =
+		  apply 'mfa'/3
+		      (M, F, A)
+	      in  [105|[110|[32|_cor9]]]
+	  ( <_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'label',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'mfa'/3 =
+    %% Line 231
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    call 'erlang':'atom_to_list'
+		(_cor2)
+	in  let <_cor3> =
+		apply 'fa'/2
+		    (_cor1, _cor0)
+	    in  let <_cor4> =
+		    [58|_cor3]
+		in  call 'erlang':'++'
+			(_cor5, _cor4)
+'fa'/2 =
+    %% Line 232
+    fun (_cor1,_cor0) ->
+	let <_cor5> =
+	    call 'erlang':'atom_to_list'
+		(_cor1)
+	in  let <_cor2> =
+		apply 'arity'/1
+		    (_cor0)
+	    in  let <_cor3> =
+		    call 'erlang':'integer_to_list'
+			(_cor2)
+		in  let <_cor4> =
+			[47|_cor3]
+		    in  call 'erlang':'++'
+			    (_cor5, _cor4)
+'arity'/1 =
+    %% Line 234
+    fun (_cor0) ->
+	case _cor0 of
+	  <L>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      call 'erlang':'length'
+		  (L)
+	  %% Line 235
+	  <I>
+	      when call 'erlang':'is_integer'
+		    (_cor0) ->
+	      I
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'arity',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_actors'/2 =
+    %% Line 237
+    fun (_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 238
+	    apply 'get_proc'/1
+		(_cor1)
+	in  let <_cor2> =
+		%% Line 238
+		apply 'get_proc'/1
+		    (_cor0)
+	    in  %% Line 238
+		case <_cor3,_cor2> of
+		  %% Line 239
+		  <{_X_FP,_X_FN},{_X_TP,_X_TN}> when 'true' ->
+		      ( {{_X_FP,_X_FN},{_X_TP,_X_TN}}
+			-| ['compiler_generated'] )
+		  %% Line 240
+		  <{FP,FN},T> when 'true' ->
+		      {{FP,FN},{T,FN}}
+		  %% Line 241
+		  <F,{TP,TN}> when 'true' ->
+		      {{F,TN},{TP,TN}}
+		  %% Line 242
+		  <F,T> when 'true' ->
+		      {{F,'unknown'},{T,'unknown'}}
+		end
+'get_proc'/1 =
+    %% Line 245
+    fun (_cor0) ->
+	case _cor0 of
+	  <{_X_Pid,Name,Node}>
+	      when call 'erlang':'is_atom'
+		    (Name) ->
+	      {Name,Node}
+	  %% Line 246
+	  <{Pid,_X_initfunc,Node}> when 'true' ->
+	      {Pid,Node}
+	  %% Line 247
+	  <P>
+	      when let <_cor1> =
+		    call 'erlang':'is_pid'
+			(_cor0)
+		in  let <_cor2> =
+			call 'erlang':'is_port'
+			    (_cor0)
+		    in  call 'erlang':'or'
+			    (_cor1, _cor2) ->
+	      let <_cor3> =
+		  call 'erlang':'node'
+		      (P)
+	      in  {P,_cor3}
+	  %% Line 248
+	  <P> when 'true' ->
+	      P
+	end
+'get_mfarity'/1 =
+    %% Line 250
+    fun (_cor0) ->
+	%% Line 251
+	case apply 'get_mfa'/1
+		 (_cor0) of
+	  %% Line 252
+	  <{M,F,A}> when 'true' ->
+	      let <_cor1> =
+		  apply 'arity'/1
+		      (A)
+	      in  {M,F,_cor1}
+	  %% Line 253
+	  <Other> when 'true' ->
+	      Other
+	end
+'get_mfa'/1 =
+    %% Line 255
+    fun (_cor0) ->
+	%% Line 256
+	case call 'lists':'keysearch'
+		 ('mfa', 1, _cor0) of
+	  <{'value',{'mfa',MFA}}> when 'true' ->
+	      %% Line 257
+	      MFA
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'get_caller'/1 =
+    %% Line 259
+    fun (_cor0) ->
+	%% Line 260
+	case call 'lists':'keysearch'
+		 ('pam_result', 1, _cor0) of
+	  %% Line 261
+	  <{'value',{'pam_result',{M,F,A}}}> when 'true' ->
+	      let <_cor1> =
+		  apply 'arity'/1
+		      (A)
+	      in  {M,F,_cor1}
+	  %% Line 262
+	  <{'value',{'pam_result','undefined'}}> when 'true' ->
+	      'undefined'
+	  %% Line 263
+	  <{'value',{'pam_result',_X_Other}}> when 'true' ->
+	      'nocaller'
+	  %% Line 264
+	  <'false'> when 'true' ->
+	      'nocaller'
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ttb_et')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ttb_et', _cor0)
+end

@@ -1,0 +1,175 @@
+module 'hipe_temp_map' ['cols2tuple'/2,
+			'is_spilled'/2,
+			'module_info'/0,
+			'module_info'/1,
+			'to_substlist'/1]
+    attributes [%% Line 301
+		'type' =
+		    %% Line 301
+		    [{{'record','comp_servers'},[{'typed_record_field',{'record_field',301,{'atom',301,'pp_server'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'range'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'type'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}]]],[]}],
+		%% Line 307
+		'type' =
+		    %% Line 307
+		    [{'comp_option',{'type',307,'union',[{'type',307,'atom',[]}|[{'type',307,'tuple',[{'type',307,'atom',[]}|[{'type',307,'atom',[]}]]}]]},[]}],
+		%% Line 308
+		'type' =
+		    %% Line 308
+		    [{'comp_options',{'type',308,'list',[{'type',308,'comp_option',[]}]},[]}],
+		%% Line 310
+		'type' =
+		    %% Line 310
+		    [{'hipe_architecture',{'type',311,'union',[{'atom',311,'amd64'}|[{'atom',311,'arm'}|[{'atom',311,'powerpc'}|[{'atom',311,'ppc64'}|[{'atom',311,'ultrasparc'}|[{'atom',311,'x86'}]]]]]]},[]}],
+		%% Line 313
+		'type' =
+		    %% Line 313
+		    [{'hipe_map',{'type',313,'list',[{'type',313,'tuple',[{'type',313,'non_neg_integer',[]}|[{'type',314,'union',[{'atom',314,'unknown'}|[{'type',314,'tuple',[{'type',314,'union',[{'atom',314,'reg'}|[{'atom',314,'fp_reg'}|[{'atom',314,'spill'}]]]}|[{'type',315,'non_neg_integer',[]}]]}]]}]]}]},[]}],
+		%% Line 316
+		'type' =
+		    %% Line 316
+		    [{'hipe_temp_map',{'type',316,'tuple','any'},[]}],
+		%% Line 317
+		'type' =
+		    %% Line 317
+		    [{'hipe_spill_map',{'type',317,'list',[{'type',317,'tuple',[{'type',317,'non_neg_integer',[]}|[{'type',317,'tuple',[{'atom',317,'spill'}|[{'type',317,'non_neg_integer',[]}]]}]]}]},[]}],
+		%% Line 49
+		'spec' =
+		    %% Line 49
+		    [{{'cols2tuple',2},[{'type',49,'fun',[{'type',49,'product',[{'type',49,'hipe_map',[]}|[{'type',49,'atom',[]}]]}|[{'type',49,'hipe_temp_map',[]}]]}]}],
+		%% Line 81
+		'spec' =
+		    %% Line 81
+		    [{{'is_spilled',2},[{'type',81,'fun',[{'type',81,'product',[{'type',81,'non_neg_integer',[]}|[{'type',81,'hipe_temp_map',[]}]]}|[{'type',81,'boolean',[]}]]}]}],
+		%% Line 116
+		'spec' =
+		    %% Line 116
+		    [{{'to_substlist',1},[{'type',116,'fun',[{'type',116,'product',[{'type',116,'hipe_temp_map',[]}]}|[{'type',116,'hipe_map',[]}]]}]}]]
+'cols2tuple'/2 =
+    %% Line 51
+    fun (_cor1,_cor0) ->
+	let <SortedMap> =
+	    %% Line 53
+	    call 'lists':'keysort'
+		(1, _cor1)
+	in  %% Line 54
+	    apply 'cols2tuple'/4
+		(0, SortedMap, [], _cor0)
+'cols2tuple'/4 =
+    %% Line 62
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <_cor14,[],Vs,_cor15> when 'true' ->
+	      let <_cor4> =
+		  %% Line 64
+		  call 'lists':'reverse'
+		      (Vs)
+	      in  %% Line 64
+		  call 'erlang':'list_to_tuple'
+		      (_cor4)
+	  %% Line 65
+	  <N,[{R,C}|Ms],Vs,Target>
+	      when call 'erlang':'=:='
+		    (N,
+		     R) ->
+	      let <_cor5> =
+		  %% Line 67
+		  call 'erlang':'+'
+		      (N, 1)
+	      in  %% Line 67
+		  apply 'cols2tuple'/4
+		      (_cor5, Ms, [C|Vs], Target)
+	  %% Line 68
+	  <N,SourceMapping,Vs,Target> when 'true' ->
+	      let <_cor7> =
+		  %% Line 71
+		  case call Target:'is_precoloured'
+			   (N) of
+		    %% Line 73
+		    <'true'> when 'true' ->
+			{'reg',N}
+		    %% Line 74
+		    <'false'> when 'true' ->
+			'unknown'
+		    ( <_cor6> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor6})
+		      -| ['compiler_generated'] )
+		  end
+	      in  let <_cor9> =
+		      %% Line 76
+		      call 'erlang':'+'
+			  (N, 1)
+		  in  %% Line 76
+		      apply 'cols2tuple'/4
+			  (_cor9, SourceMapping, [_cor7|Vs], Target)
+	end
+'is_spilled'/2 =
+    %% Line 83
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 84
+	    call 'erlang':'+'
+		(_cor1, 1)
+	in  %% Line 84
+	    case call 'erlang':'element'
+		     (_cor2, _cor0) of
+	      %% Line 85
+	      <{'reg',_X_R}> when 'true' ->
+		  'false'
+	      %% Line 86
+	      <{'fp_reg',_X_R}> when 'true' ->
+		  'false'
+	      %% Line 87
+	      <{'spill',_X_N}> when 'true' ->
+		  'true'
+	      %% Line 88
+	      <'unknown'> when 'true' ->
+		  'false'
+	      ( <_cor3> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor3})
+		-| ['compiler_generated'] )
+	    end
+'to_substlist'/1 =
+    %% Line 118
+    fun (_cor0) ->
+	let <T> =
+	    %% Line 119
+	    call 'erlang':'tuple_to_list'
+		(_cor0)
+	in  %% Line 120
+	    apply 'mapping'/2
+		(T, 0)
+'mapping'/2 =
+    %% Line 122
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[R|Rs],Temp> when 'true' ->
+	      let <_cor2> =
+		  %% Line 123
+		  call 'erlang':'+'
+		      (Temp, 1)
+	      in  let <_cor3> =
+		      %% Line 123
+		      apply 'mapping'/2
+			  (Rs, _cor2)
+		  in  %% Line 123
+		      [{Temp,R}|_cor3]
+	  %% Line 124
+	  <[],_cor6> when 'true' ->
+	      %% Line 125
+	      []
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'mapping',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_temp_map')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_temp_map', _cor0)
+end

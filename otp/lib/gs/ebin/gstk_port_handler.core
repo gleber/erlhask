@@ -1,0 +1,707 @@
+module 'gstk_port_handler' ['call'/2,
+			    'exec'/1,
+			    'init'/2,
+			    'module_info'/0,
+			    'module_info'/1,
+			    'ping'/1,
+			    'start_link'/1,
+			    'stop'/1,
+			    'wait_for_connection'/2]
+    attributes []
+'get_env'/2 =
+    %% Line 113
+    fun (_cor1,_cor0) ->
+	let <KeyStr> =
+	    %% Line 114
+	    call 'erlang':'atom_to_list'
+		(_cor0)
+	in  %% Line 117
+	    case call 'init':'get_argument'
+		     (_cor1) of
+	      %% Line 118
+	      <{'ok',[[_cor7|[ValStr|[]]]|[]]}>
+		  when call 'erlang':'=:='
+			(_cor7,
+			 KeyStr) ->
+		  let <_cor3> =
+		      %% Line 119
+		      call 'erlang':'list_to_atom'
+			  (ValStr)
+		  in  %% Line 119
+		      {'ok',_cor3}
+	      %% Line 120
+	      <_cor8> when 'true' ->
+		  %% Line 121
+		  'undefined'
+	    end
+'start_link'/1 =
+    %% Line 124
+    fun (_cor0) ->
+	let <_cor2> =
+	    %% Line 129
+	    call 'os':'type'
+		()
+	in  let <_cor1> =
+		%% Line 129
+		apply 'get_env'/2
+		    ('gs', 'backend_comm')
+	    in  let <_cor4> =
+		    %% Line 129
+		    case <_cor2,_cor1> of
+		      %% Line 130
+		      <{'win32',_X_Flavor},'undefined'> when 'true' ->
+			  %% Line 131
+			  'use_socket'
+		      %% Line 132
+		      <_X_OS,'undefined'> when 'true' ->
+			  %% Line 133
+			  'use_port'
+		      %% Line 134
+		      <_X_OS,{'ok','socket'}> when 'true' ->
+			  %% Line 135
+			  'use_socket'
+		      %% Line 136
+		      <_X_OS,{'ok','port'}> when 'true' ->
+			  %% Line 137
+			  'use_port'
+		      ( <_fol2,_fol3> when 'true' ->
+			    let <_cor3> = {_fol2,_fol3}
+			    in  primop 'match_fail'
+				    ({'case_clause',_cor3})
+			-| ['compiler_generated'] )
+		    end
+		in  let <Pid> =
+			%% Line 140
+			call 'erlang':'spawn_link'
+			    ('gstk_port_handler', 'init', [_cor0|[_cor4|[]]])
+		    in  %% Line 141
+			receive
+			  %% Line 142
+			  <{_cor8,'ok'}>
+			      when call 'erlang':'=:='
+				    (_cor8,
+				     Pid) ->
+			      %% Line 143
+			      {'ok',Pid}
+			  %% Line 144
+			  <{_cor9,'error',Reason}>
+			      when call 'erlang':'=:='
+				    (_cor9,
+				     Pid) ->
+			      %% Line 145
+			      {'error',Reason}
+			after 30000 ->
+			  %% Line 147
+			  {'error','timeout'}
+'call'/2 =
+    %% Line 150
+    fun (_cor1,_cor0) ->
+	do  %% Line 151
+	    call 'erlang':'!'
+		(_cor1, {'call',[[101|[114|[108|[99|[97|[108|[108|[32|[123]]]]]]]]]|[_cor0|[125]]]})
+	    %% Line 152
+	    receive
+	      %% Line 153
+	      <{'result',Result}> when 'true' ->
+		  %% Line 155
+		  {'result',Result}
+	      %% Line 156
+	      <{'bad_result',Bad_Result}> when 'true' ->
+		  %% Line 158
+		  {'bad_result',Bad_Result}
+	    after 'infinity' ->
+	      'true'
+'ping'/1 =
+    %% Line 161
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 163
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 163
+		call 'erlang':'!'
+		    (_cor0, {'ping',_cor1})
+		%% Line 164
+		receive
+		  %% Line 165
+		  <{'pong',_X_From,PortOrSock}> when 'true' ->
+		      {'ok',PortOrSock}
+		after 'infinity' ->
+		  'true'
+'stop'/1 =
+    %% Line 168
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 170
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 170
+		call 'erlang':'!'
+		    (_cor0, {'stop',_cor1})
+		%% Line 171
+		receive
+		  %% Line 172
+		  <{'stopped',_cor3}>
+		      when call 'erlang':'=:='
+			    (_cor3,
+			     _cor0) ->
+		      'ok'
+		after 'infinity' ->
+		  'true'
+'exec'/1 =
+    %% Line 178
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 179
+	    call 'erlang':'get'
+		('port_handler')
+	in  do  %% Line 179
+		call 'erlang':'!'
+		    (_cor1, {'exec',[[101|[114|[108|[101|[120|[101|[99|[32|[123]]]]]]]]]|[_cor0|[125]]]})
+		%% Line 180
+		'ok'
+'init'/2 =
+    %% Line 207
+    fun (_cor1,_cor0) ->
+	do  %% Line 208
+	    call 'erlang':'process_flag'
+		('trap_exit', 'true')
+	    let <PrivDir> =
+		%% Line 214
+		call 'code':'priv_dir'
+		    ('gs')
+	    in  let <TclDir> =
+		    %% Line 215
+		    call 'filename':'join'
+			(PrivDir, [116|[99|[108]]])
+		in  let <TclBinDir> =
+			%% Line 216
+			call 'filename':'join'
+			    (TclDir, [98|[105|[110]]])
+		    in  let <TclLibDir> =
+			    %% Line 217
+			    call 'filename':'join'
+				(TclDir, [108|[105|[98]]])
+			in  let <_cor6> =
+				%% Line 219
+				call 'filename':'join'
+				    (PrivDir, [103|[115|[116|[107|[46|[116|[99|[108]]]]]]]])
+			    in  let <InitScript> =
+				    %% Line 219
+				    call 'filename':'nativename'
+					(_cor6)
+				in  let <_cor8> =
+					%% Line 230
+					call 'filename':'join'
+					    (TclBinDir, [119|[105|[115|[104|[42]]]]])
+				    in  let <Wish,Options> =
+					    %% Line 230
+					    case call 'filelib':'wildcard'
+						     (_cor8) of
+					      %% Line 232
+					      <[PrivWish|_cor38]> when 'true' ->
+						  let <_cor9> =
+						      %% Line 241
+						      call 'filename':'join'
+							  (PrivDir, %% Line 242
+								    [116|[99|[108|[47|[108|[105|[98|[47|[116|[99|[108|[91|[49|[45|[57|[93|[42]]]]]]]]]]]]]]]]])
+						  in  %% Line 240
+						      case %% Line 241
+							   call 'filelib':'wildcard'
+							       (_cor9) of
+							<[TclLibrary|[]]> when 'true' ->
+							    let <_cor11> =
+								%% Line 244
+								call 'filename':'join'
+								    (PrivDir, %% Line 245
+									      [116|[99|[108|[47|[108|[105|[98|[47|[116|[107|[91|[49|[45|[57|[93|[42]]]]]]]]]]]]]]]])
+							    in  %% Line 243
+								case %% Line 244
+								     call 'filelib':'wildcard'
+									 (_cor11) of
+								  <[TkLibrary|[]]> when 'true' ->
+								      let <Opts> =
+									  %% Line 247
+									  [{'env',[{[84|[67|[76|[95|[76|[73|[66|[82|[65|[82|[89]]]]]]]]]]],TclLibrary}|%% Line 248
+																		       [{[84|[75|[95|[76|[73|[66|[82|[65|[82|[89]]]]]]]]]],TkLibrary}|%% Line 249
+																										      [{[76|[68|[95|[76|[73|[66|[82|[65|[82|[89|[95|[80|[65|[84|[72]]]]]]]]]]]]]]],TclLibDir}|[]]]]}|%% Line 250
+																																						     [{'packet',4}]]
+								      in  %% Line 251
+									  <PrivWish,Opts>
+								  ( <_cor12> when 'true' ->
+									primop 'match_fail'
+									    ({'badmatch',_cor12})
+								    -| ['compiler_generated'] )
+								end
+							( <_cor10> when 'true' ->
+							      primop 'match_fail'
+								  ({'badmatch',_cor10})
+							  -| ['compiler_generated'] )
+						      end
+					      %% Line 252
+					      <_cor39> when 'true' ->
+						  let <_cor14> =
+						      %% Line 254
+						      apply 'search_wish'/2
+							  ([[119|[105|[115|[104|[56|[53]]]]]]|[[119|[105|[115|[104|[56|[46|[53]]]]]]]|[[119|[105|[115|[104|[56|[52]]]]]]|[[119|[105|[115|[104|[56|[46|[52]]]]]]]|[[119|[105|[115|[104|[56|[51]]]]]]|[[119|[105|[115|[104|[56|[46|[51]]]]]]]|[[119|[105|[115|[104|[56|[50]]]]]]|[[119|[105|[115|[104|[56|[46|[50]]]]]]]|[[119|[105|[115|[104]]]]]]]]]]]]], _cor1)
+						  in  <_cor14,%% Line 254
+							      [{'packet',4}]>
+					    end
+					in  let <_cor23> =
+						%% Line 261
+						case _cor0 of
+						  %% Line 262
+						  <'use_socket'> when 'true' ->
+						      %% Line 273
+						      case call 'gen_tcp':'listen'
+							       (0, [{'nodelay','true'}|[{'packet',4}|[{'reuseaddr','true'}]]]) of
+							<{'ok',ListenSocket}> when 'true' ->
+							    %% Line 274
+							    case call 'inet':'port'
+								     (ListenSocket) of
+							      <{'ok',ListenPort}> when 'true' ->
+								  let <_cor21> =
+								      %% Line 277
+								      call 'erlang':'self'
+									  ()
+								  in  do  %% Line 277
+									  call 'erlang':'spawn_link'
+									      ('gstk_port_handler', 'wait_for_connection', [_cor21|[ListenSocket|[]]])
+									  %% Line 278
+									  call 'lists':'concat'
+									      ([Wish|[[32]|[InitScript|[[32|[45|[45|[32]]]]|[PrivDir|[[32]|%% Line 279
+																	   [ListenPort|[]]]]]]]])
+							      ( <_cor20> when 'true' ->
+								    primop 'match_fail'
+									({'badmatch',_cor20})
+								-| ['compiler_generated'] )
+							    end
+							( <_cor19> when 'true' ->
+							      primop 'match_fail'
+								  ({'badmatch',_cor19})
+							  -| ['compiler_generated'] )
+						      end
+						  %% Line 280
+						  <'use_port'> when 'true' ->
+						      %% Line 281
+						      call 'lists':'concat'
+							  ([Wish|[[32]|[InitScript|[[32|[45|[45|[32]]]]|[PrivDir|[]]]]]])
+						  ( <_cor22> when 'true' ->
+							primop 'match_fail'
+							    ({'case_clause',_cor22})
+						    -| ['compiler_generated'] )
+						end
+					    in  let <_cor27> =
+						    %% Line 288
+						    case call 'timer':'tc'
+							     ('erlang', 'open_port', [{'spawn',_cor23}|[Options|[]]]) of
+						      %% Line 289
+						      <{_X_T,Port1}>
+							  when call 'erlang':'is_port'
+								(Port1) ->
+							  do  %% Line 291
+							      call 'erlang':'link'
+								  (Port1)
+							      %% Line 292
+							      Port1
+						      %% Line 293
+						      <{_X_T,{'error',_X_Reason1}}> when 'true' ->
+							  let <_cor25> =
+							      %% Line 295
+							      call 'erlang':'self'
+								  ()
+							  in  do  %% Line 295
+								  call 'erlang':'!'
+								      (_cor1, {_cor25,'error','backend_died'})
+								  %% Line 296
+								  call 'erlang':'exit'
+								      ('normal')
+						      ( <_cor26> when 'true' ->
+							    primop 'match_fail'
+								({'case_clause',_cor26})
+							-| ['compiler_generated'] )
+						    end
+						in  let <_cor33> =
+							%% Line 300
+							case _cor0 of
+							  %% Line 301
+							  <'use_socket'> when 'true' ->
+							      let <_cor30> =
+								  %% Line 306
+								  receive
+								    %% Line 307
+								    <{'connected',Socket}> when 'true' ->
+									%% Line 308
+									Socket
+								    %% Line 310
+								    <{'EXIT',_X_Pid,_X_Reason2}> when 'true' ->
+									let <_cor29> =
+									    %% Line 311
+									    call 'erlang':'self'
+										()
+									in  do  %% Line 311
+										call 'erlang':'!'
+										    (_cor1, {_cor29,'error','backend_died'})
+										%% Line 312
+										call 'erlang':'exit'
+										    ('normal')
+								  after 'infinity' ->
+								    'true'
+							      in  %% Line 316
+								  {'state',{'socket',_cor30},_cor1}
+							  %% Line 317
+							  <'use_port'> when 'true' ->
+							      %% Line 318
+							      {'state',{'port',_cor27},_cor1}
+							  ( <_cor32> when 'true' ->
+								primop 'match_fail'
+								    ({'case_clause',_cor32})
+							    -| ['compiler_generated'] )
+							end
+						    in  let <_cor35> =
+							    %% Line 321
+							    call 'erlang':'self'
+								()
+							in  do  %% Line 321
+								call 'erlang':'!'
+								    (_cor1, {_cor35,'ok'})
+								%% Line 322
+								apply 'idle'/1
+								    (_cor33)
+'search_wish'/2 =
+    %% Line 324
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Gstk> when 'true' ->
+	      let <_cor2> =
+		  %% Line 325
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 325
+		      call 'erlang':'!'
+			  (Gstk, {_cor2,'error','backend_died'})
+		      %% Line 326
+		      call 'erlang':'exit'
+			  ('normal')
+	  %% Line 327
+	  <[WishName|WishNames],Gstk> when 'true' ->
+	      %% Line 328
+	      case call 'os':'find_executable'
+		       (WishName) of
+		%% Line 329
+		<'false'> when 'true' ->
+		    %% Line 330
+		    apply 'search_wish'/2
+			(WishNames, Gstk)
+		%% Line 331
+		<Wish> when 'true' ->
+		    %% Line 332
+		    Wish
+	      end
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'search_wish',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'wait_for_connection'/2 =
+    %% Line 339
+    fun (_cor1,_cor0) ->
+	%% Line 340
+	case call 'gen_tcp':'accept'
+		 (_cor0, 20000) of
+	  <{'ok',Sock}> when 'true' ->
+	      %% Line 342
+	      case call 'gen_tcp':'controlling_process'
+		       (Sock, _cor1) of
+		<'ok'> when 'true' ->
+		    %% Line 343
+		    call 'erlang':'!'
+			(_cor1, {'connected',Sock})
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'idle'/1 =
+    %% Line 349
+    fun (_cor0) ->
+	%% Line 352
+	receive
+	  %% Line 354
+	  <{'call',Cmd}> when 'true' ->
+	      do  %% Line 355
+		  apply 'output'/2
+		      (_cor0, Cmd)
+		  %% Line 356
+		  apply 'idle'/1
+		      (_cor0)
+	  %% Line 358
+	  <{'exec',Cmd}> when 'true' ->
+	      do  %% Line 359
+		  apply 'collect_exec_calls'/4
+		      (Cmd, [], 0, _cor0)
+		  %% Line 360
+		  apply 'idle'/1
+		      (_cor0)
+	  %% Line 362
+	  <{_X_Port,{'data',Input}}> when 'true' ->
+	      do  %% Line 364
+		  apply 'handle_input'/2
+		      (_cor0, Input)
+		  %% Line 365
+		  apply 'idle'/1
+		      (_cor0)
+	  %% Line 367
+	  <{'tcp',_X_Sock,Input}> when 'true' ->
+	      do  %% Line 369
+		  apply 'handle_input'/2
+		      (_cor0, Input)
+		  %% Line 370
+		  apply 'idle'/1
+		      (_cor0)
+	  %% Line 372
+	  <{'ping',From}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 373
+		  call 'erlang':'self'
+		      ()
+	      in  %% Line 373
+		  ( case _cor0 of
+		      ( <( {'state',_rec0,_cor6}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    do  call 'erlang':'!'
+				    (From, {'pong',_cor3,_rec0})
+				%% Line 374
+				apply 'idle'/1
+				    (_cor0)
+			-| ['compiler_generated'] )
+		      ( <_cor7> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	  %% Line 376
+	  <{'stop',From}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 377
+		  call 'erlang':'self'
+		      ()
+	      in  %% Line 377
+		  call 'erlang':'!'
+		      (From, {'stopped',_cor4})
+	  %% Line 381
+	  <{'EXIT',_X_Pid,'normal'}> when 'true' ->
+	      %% Line 383
+	      apply 'idle'/1
+		  (_cor0)
+	  %% Line 385
+	  <{'EXIT',Pid,Reason}> when 'true' ->
+	      %% Line 388
+	      call 'erlang':'exit'
+		  ({'port_handler',Pid,Reason})
+	  %% Line 390
+	  <Other> when 'true' ->
+	      do  %% Line 392
+		  call 'gs':'error'
+		      ([103|[115|[116|[107|[95|[112|[111|[114|[116|[95|[104|[97|[110|[100|[108|[101|[114|[58|[32|[103|[111|[116|[32|[111|[116|[104|[101|[114|[58|[32|[126|[119|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Other|[]])
+		  %% Line 393
+		  apply 'idle'/1
+		      (_cor0)
+	after 'infinity' ->
+	  'true'
+'collect_exec_calls'/4 =
+    %% Line 400
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Cmd,Queue,QueueLen,State>
+	      when call 'erlang':'<'
+		    (QueueLen,
+		     4) ->
+	      %% Line 401
+	      receive
+		%% Line 402
+		<{'exec',NewCmd}> when 'true' ->
+		    let <_cor5> =
+			%% Line 404
+			call 'erlang':'+'
+			    (QueueLen, 1)
+		    in  %% Line 404
+			apply 'collect_exec_calls'/4
+			    (NewCmd, [Cmd|Queue], _cor5, State)
+	      after %% Line 405
+		    0 ->
+		%% Line 406
+		case <> of
+		  %% Line 407
+		  <>
+		      when call 'erlang':'=='
+			    (QueueLen,
+			     0) ->
+		      %% Line 408
+		      apply 'output'/2
+			  (State, Cmd)
+		  %% Line 409
+		  <> when 'true' ->
+		      let <_cor4> =
+			  %% Line 410
+			  apply 'join_cmd_reverse'/3
+			      (Cmd, Queue, [])
+		      in  %% Line 410
+			  apply 'output'/2
+			      (State, _cor4)
+		end
+	  %% Line 413
+	  <Cmd,Queue,_X_QueueLen,State> when 'true' ->
+	      let <String> =
+		  %% Line 414
+		  apply 'join_cmd_reverse'/3
+		      (Cmd, Queue, [])
+	      in  %% Line 416
+		  apply 'output'/2
+		      (State, String)
+	end
+'join_cmd_reverse'/3 =
+    %% Line 419
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Cmd,[],DeepStr> when 'true' ->
+	      %% Line 420
+	      [DeepStr|Cmd]
+	  %% Line 421
+	  <Cmd,[Cmd1|Cmds],DeepStr> when 'true' ->
+	      %% Line 422
+	      apply 'join_cmd_reverse'/3
+		  (Cmd, Cmds, [Cmd1|[59|DeepStr]])
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'join_cmd_reverse',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_input'/2 =
+    %% Line 434
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <State,[Type|Data]> when 'true' ->
+	      %% Line 435
+	      ( case State of
+		  ( <( {'state',_cor8,_rec1}
+		       -| ['compiler_generated'] )> when 'true' ->
+			%% Line 436
+			case Type of
+			  %% Line 437
+			  <1> when 'true' ->
+			      %% Line 438
+			      apply 'handle_event'/2
+				  (_rec1, Data)
+			  %% Line 440
+			  <2> when 'true' ->
+			      %% Line 441
+			      call 'erlang':'!'
+				  (_rec1, {'result',Data})
+			  %% Line 443
+			  <3> when 'true' ->
+			      %% Line 444
+			      call 'erlang':'!'
+				  (_rec1, {'bad_result',Data})
+			  %% Line 446
+			  <4> when 'true' ->
+			      %% Line 447
+			      call 'gs':'error'
+				  ([103|[115|[116|[107|[95|[112|[111|[114|[116|[95|[104|[97|[110|[100|[108|[101|[114|[58|[32|[101|[114|[114|[111|[114|[32|[105|[110|[32|[105|[110|[112|[117|[116|[32|[58|[32|[126|[115|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Data|[]])
+			  ( <_cor5> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor5})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor9> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'handle_input',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'output'/2 =
+    %% Line 454
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'state',{'socket',Sock},_cor6},Cmd> when 'true' ->
+	      let <_cor7> =
+		  %% Line 456
+		  call 'gen_tcp':'send'
+		      (Sock, Cmd)
+	      in  %% Line 456
+		  case _cor7 of
+		    <'ok'> when 'true' ->
+			( _cor7
+			  -| ['compiler_generated'] )
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor2})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 458
+	  <{'state',{'port',Port},_cor8},Cmd> when 'true' ->
+	      let <_cor3> =
+		  %% Line 460
+		  call 'erlang':'self'
+		      ()
+	      in  %% Line 460
+		  call 'erlang':'!'
+		      (Port, {_cor3,{'command',Cmd}})
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'output',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_event'/2 =
+    %% Line 463
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <GstkPid,Bytes>
+	      when call 'erlang':'is_list'
+		    (Bytes) ->
+	      let <Event> =
+		  %% Line 464
+		  call 'tcl2erl':'parse_event'
+		      (Bytes)
+	      in  %% Line 466
+		  call 'gstk':'event'
+		      (GstkPid, Event)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'handle_event',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('gstk_port_handler')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('gstk_port_handler', _cor0)
+end

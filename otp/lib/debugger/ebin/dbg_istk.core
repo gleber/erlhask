@@ -1,0 +1,743 @@
+module 'dbg_istk' ['backtrace'/2,
+		   'bindings'/1,
+		   'delayed_stacktrace'/0,
+		   'delayed_stacktrace'/2,
+		   'delayed_to_external'/0,
+		   'from_external'/1,
+		   'in_use_p'/2,
+		   'init'/0,
+		   'module_info'/0,
+		   'module_info'/1,
+		   'pop'/0,
+		   'pop'/1,
+		   'push'/3,
+		   'stack_frame'/2,
+		   'stack_level'/0]
+    attributes []
+'init'/0 =
+    %% Line 38
+    fun () ->
+	%% Line 39
+	apply 'init'/1
+	    ([])
+'delayed_to_external'/0 =
+    %% Line 41
+    fun () ->
+	let <Stack> =
+	    %% Line 42
+	    call 'erlang':'get'
+		('dbg_istk')
+	in  %% Line 43
+	    ( fun () ->
+		  let <_cor1> =
+		      call 'erlang':'term_to_binary'
+			  (Stack)
+		  in  {'stack',_cor1}
+	      -| [{'id',{0,0,'-delayed_to_external/0-fun-0-'}}] )
+'from_external'/1 =
+    %% Line 45
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'stack',Stk}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 46
+		  call 'erlang':'binary_to_term'
+		      (Stk)
+	      in  %% Line 46
+		  call 'erlang':'put'
+		      ('dbg_istk', _cor1)
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'from_external',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'init'/1 =
+    %% Line 48
+    fun (_cor0) ->
+	%% Line 49
+	call 'erlang':'put'
+	    ('dbg_istk', _cor0)
+'push'/3 =
+    %% Line 65
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Bs,Ieval = {'ieval',Le,%% Line 66
+				  Li,Mod,Name,%% Line 66
+					      As,_cor15},%% Line 66
+							 Lc> when 'true' ->
+	      let <Entry> =
+		  %% Line 67
+		  {'e',Le,{Mod,Name,As},Li,Bs,Lc}
+	      in  %% Line 68
+		  case call 'erlang':'get'
+			   ('trace_stack') of
+		    %% Line 69
+		    <'false'> when 'true' ->
+			let <_rec0> =
+			    %% Line 70
+			    call 'erlang':'+'
+				(Le, 1)
+			in  %% Line 70
+			    call 'erlang':'setelement'
+				(2, Ieval, _rec0)
+		    %% Line 71
+		    <'no_tail'>
+			when call 'erlang':'=:='
+			      (Lc,
+			       'true') ->
+			%% Line 72
+			Ieval
+		    %% Line 73
+		    <_cor23> when 'true' ->
+			let <_cor7> =
+			    %% Line 74
+			    call 'erlang':'get'
+				('dbg_istk')
+			in  do  %% Line 74
+				call 'erlang':'put'
+				    ('dbg_istk', [Entry|_cor7])
+				let <_rec2> =
+				    %% Line 75
+				    call 'erlang':'+'
+					(Le, 1)
+				in  %% Line 75
+				    call 'erlang':'setelement'
+					(2, Ieval, _rec2)
+		  end
+	  ( <_cor14,_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14,_cor13,_cor12})
+		  -| [{'function_name',{'push',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'pop'/0 =
+    %% Line 78
+    fun () ->
+	%% Line 79
+	case call 'erlang':'get'
+		 ('trace_stack') of
+	  %% Line 80
+	  <'false'> when 'true' ->
+	      'ignore'
+	  %% Line 81
+	  <_cor2> when 'true' ->
+	      %% Line 82
+	      case call 'erlang':'get'
+		       ('dbg_istk') of
+		%% Line 83
+		<[_X_Entry|Entries]> when 'true' ->
+		    %% Line 84
+		    call 'erlang':'put'
+			('dbg_istk', Entries)
+		%% Line 85
+		<[]> when 'true' ->
+		    %% Line 86
+		    'ignore'
+		( <_cor0> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor0})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'pop'/1 =
+    %% Line 90
+    fun (_cor0) ->
+	%% Line 91
+	case call 'erlang':'get'
+		 ('trace_stack') of
+	  %% Line 92
+	  <'false'> when 'true' ->
+	      'ignore'
+	  %% Line 93
+	  <_cor5> when 'true' ->
+	      let <_cor1> =
+		  %% Line 94
+		  call 'erlang':'get'
+		      ('dbg_istk')
+	      in  let <_cor2> =
+		      %% Line 94
+		      apply 'pop'/2
+			  (_cor0, _cor1)
+		  in  %% Line 94
+		      call 'erlang':'put'
+			  ('dbg_istk', _cor2)
+	end
+'pop'/2 =
+    %% Line 97
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Level,[{'e',Le,_cor4,_cor5,_cor6,_cor7}|Stack]>
+	      when call 'erlang':'=<'
+		    (Level,
+		     Le) ->
+	      %% Line 98
+	      apply 'pop'/2
+		  (Level, Stack)
+	  %% Line 99
+	  <_X_Level,Stack> when 'true' ->
+	      %% Line 100
+	      Stack
+	end
+'stack_level'/0 =
+    %% Line 105
+    fun () ->
+	let <_cor0> =
+	    %% Line 106
+	    call 'erlang':'get'
+		('dbg_istk')
+	in  %% Line 106
+	    apply 'stack_level'/1
+		(_cor0)
+'stack_level'/1 =
+    %% Line 108
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      1
+	  %% Line 109
+	  <[{'e',Le,_cor2,_cor3,_cor4,_cor5}|_cor6]> when 'true' ->
+	      Le
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'stack_level',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'delayed_stacktrace'/0 =
+    %% Line 119
+    fun () ->
+	let <Stack0> =
+	    %% Line 120
+	    call 'erlang':'get'
+		('dbg_istk')
+	in  %% Line 121
+	    ( fun (_cor7) ->
+		  let <Stack> =
+		      %% Line 122
+		      apply 'stacktrace'/3
+			  (_cor7, Stack0, [])
+		  in  %% Line 123
+		      ( letrec
+			    'lc$^0'/1 =
+				fun (_cor4) ->
+				    case _cor4 of
+				      <[{ArityOnly,_cor9}|_cor3]> when 'true' ->
+					  let <_cor5> =
+					      apply 'finalize'/1
+						  (ArityOnly)
+					  in  let <_cor6> =
+						  apply 'lc$^0'/1
+						      (_cor3)
+					      in  ( [_cor5|_cor6]
+						    -| ['compiler_generated'] )
+				      ( <[_cor2|_cor3]> when 'true' ->
+					    apply 'lc$^0'/1
+						(_cor3)
+					-| ['compiler_generated'] )
+				      <[]> when 'true' ->
+					  []
+				      ( <_cor4> when 'true' ->
+					    ( primop 'match_fail'
+						  ({'function_clause',_cor4})
+					      -| [{'function_name',{'lc$^0',1}}] )
+					-| ['compiler_generated'] )
+				    end
+			in  apply 'lc$^0'/1
+				(Stack)
+			-| ['list_comprehension'] )
+	      -| [{'id',{0,0,'-delayed_stacktrace/0-fun-0-'}}] )
+'delayed_stacktrace'/2 =
+    %% Line 126
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'include_args',Ieval> when 'true' ->
+	      %% Line 127
+	      case Ieval of
+		<{'ieval',_cor28,Li,Mod,Name,As,_cor29}> when 'true' ->
+		    let <_cor3> =
+			%% Line 128
+			call 'erlang':'get'
+			    ('dbg_istk')
+		    in  let <Stack0> =
+			    %% Line 128
+			    [{'e','undefined',{Mod,Name,As},Li,'undefined','undefined'}|_cor3]
+			in  %% Line 129
+			    ( fun (_cor13) ->
+				  %% Line 130
+				  case apply 'stacktrace'/3
+					   (_cor13, Stack0, []) of
+				    %% Line 131
+				    <[]> when 'true' ->
+					%% Line 132
+					[]
+				    %% Line 133
+				    <[{_cor30,WithArgs}|Stack]> when 'true' ->
+					let <_cor5> =
+					    %% Line 134
+					    apply 'finalize'/1
+						(WithArgs)
+					in  let <_cor11> =
+						%% Line 135
+						( letrec
+						      'lc$^0'/1 =
+							  fun (_cor8) ->
+							      case _cor8 of
+								<[{ArityOnly,_cor31}|_cor7]> when 'true' ->
+								    let <_cor9> =
+									apply 'finalize'/1
+									    (ArityOnly)
+								    in  let <_cor10> =
+									    apply 'lc$^0'/1
+										(_cor7)
+									in  ( [_cor9|_cor10]
+									      -| ['compiler_generated'] )
+								( <[_cor6|_cor7]> when 'true' ->
+								      apply 'lc$^0'/1
+									  (_cor7)
+								  -| ['compiler_generated'] )
+								<[]> when 'true' ->
+								    []
+								( <_cor8> when 'true' ->
+								      ( primop 'match_fail'
+									    ({'function_clause',_cor8})
+									-| [{'function_name',{'lc$^0',1}}] )
+								  -| ['compiler_generated'] )
+							      end
+						  in  apply 'lc$^0'/1
+							  (Stack)
+						  -| ['list_comprehension'] )
+					    in  %% Line 134
+						[_cor5|_cor11]
+				    ( <_cor12> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor12})
+				      -| ['compiler_generated'] )
+				  end
+			      -| [{'id',{0,0,'-delayed_stacktrace/2-fun-0-'}}] )
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 138
+	  <'no_args',Ieval> when 'true' ->
+	      %% Line 139
+	      case Ieval of
+		<{'ieval',_cor32,Li,Mod,Name,As,_cor33}> when 'true' ->
+		    let <_cor16> =
+			%% Line 140
+			call 'erlang':'get'
+			    ('dbg_istk')
+		    in  let <Stack0> =
+			    %% Line 140
+			    [{'e','undefined',{Mod,Name,As},Li,'undefined','undefined'}|_cor16]
+			in  %% Line 141
+			    ( fun (_cor24) ->
+				  let <Stack> =
+				      %% Line 142
+				      apply 'stacktrace'/3
+					  (_cor24, Stack0, [])
+				  in  %% Line 143
+				      ( letrec
+					    'lc$^1'/1 =
+						fun (_cor21) ->
+						    case _cor21 of
+						      <[{ArityOnly,_cor34}|_cor20]> when 'true' ->
+							  let <_cor22> =
+							      apply 'finalize'/1
+								  (ArityOnly)
+							  in  let <_cor23> =
+								  apply 'lc$^1'/1
+								      (_cor20)
+							      in  ( [_cor22|_cor23]
+								    -| ['compiler_generated'] )
+						      ( <[_cor19|_cor20]> when 'true' ->
+							    apply 'lc$^1'/1
+								(_cor20)
+							-| ['compiler_generated'] )
+						      <[]> when 'true' ->
+							  []
+						      ( <_cor21> when 'true' ->
+							    ( primop 'match_fail'
+								  ({'function_clause',_cor21})
+							      -| [{'function_name',{'lc$^1',1}}] )
+							-| ['compiler_generated'] )
+						    end
+					in  apply 'lc$^1'/1
+						(Stack)
+					-| ['list_comprehension'] )
+			      -| [{'id',{0,0,'-delayed_stacktrace/2-fun-1-'}}] )
+		( <_cor15> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor15})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor27,_cor26> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor27,_cor26})
+		  -| [{'function_name',{'delayed_stacktrace',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'stacktrace'/3 =
+    %% Line 146
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <N,[{'e',_cor10,_cor11,_cor12,_cor13,'true'}|T],Acc> when 'true' ->
+	      %% Line 147
+	      apply 'stacktrace'/3
+		  (N, T, Acc)
+	  %% Line 148
+	  <N,[E|T],[]> when 'true' ->
+	      let <_cor4> =
+		  %% Line 149
+		  call 'erlang':'-'
+		      (N, 1)
+	      in  let <_cor3> =
+		      %% Line 149
+		      apply 'normalize'/1
+			  (E)
+		  in  %% Line 149
+		      apply 'stacktrace'/3
+			  (_cor4, T, [_cor3|[]])
+	  %% Line 150
+	  <N,[E|T],Acc = [{P,_cor14}|_cor15]>
+	      when call 'erlang':'>'
+		    (N,
+		     0) ->
+	      %% Line 151
+	      case apply 'normalize'/1
+		       (E) of
+		%% Line 152
+		<{_cor16,_cor17}>
+		    when call 'erlang':'=:='
+			  (_cor16,
+			   P) ->
+		    %% Line 153
+		    apply 'stacktrace'/3
+			(N, T, Acc)
+		%% Line 154
+		<New> when 'true' ->
+		    let <_cor5> =
+			%% Line 155
+			call 'erlang':'-'
+			    (N, 1)
+		    in  %% Line 155
+			apply 'stacktrace'/3
+			    (_cor5, T, [New|Acc])
+	      end
+	  %% Line 157
+	  <_cor18,_cor19,Acc> when 'true' ->
+	      %% Line 158
+	      call 'lists':'reverse'
+		  (Acc)
+	end
+'normalize'/1 =
+    %% Line 160
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'e',_cor6,{M,Fun,As},Li,_cor7,_cor8}>
+	      when call 'erlang':'is_function'
+		    (Fun) ->
+	      let <Loc> = {%% Line 161
+		   M,%% Line 161
+		     Li}
+	      in  let <_cor2> =
+		      %% Line 162
+		      call 'erlang':'length'
+			  (As)
+		  in  %% Line 162
+		      {{Fun,_cor2,Loc},{Fun,As,Loc}}
+	  %% Line 163
+	  <{'e',_cor9,{M,F,As},Li,_cor10,_cor11}> when 'true' ->
+	      let <Loc> = {%% Line 164
+		   M,%% Line 164
+		     Li}
+	      in  let <_cor4> =
+		      %% Line 165
+		      call 'erlang':'length'
+			  (As)
+		  in  %% Line 165
+		      {{M,F,_cor4,Loc},{M,F,As,Loc}}
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5})
+		  -| [{'function_name',{'normalize',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'finalize'/1 =
+    %% Line 167
+    fun (_cor0) ->
+	case _cor0 of
+	  <{M,F,A,Loc}> when 'true' ->
+	      let <_cor1> =
+		  apply 'line'/1
+		      (Loc)
+	      in  {M,F,A,_cor1}
+	  %% Line 168
+	  <{Fun,A,Loc}> when 'true' ->
+	      let <_cor2> =
+		  apply 'line'/1
+		      (Loc)
+	      in  {Fun,A,_cor2}
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'finalize',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'line'/1 =
+    %% Line 170
+    fun (_cor0) ->
+	case _cor0 of
+	  <{Mod,Line}>
+	      when call 'erlang':'>'
+		    (Line,
+		     0) ->
+	      let <_cor1> =
+		  %% Line 171
+		  call 'erlang':'atom_to_list'
+		      (Mod)
+	      in  let <_cor2> =
+		      %% Line 171
+		      call 'erlang':'++'
+			  (_cor1, [46|[101|[114|[108]]]])
+		  in  %% Line 171
+		      [{'file',_cor2}|[{'line',Line}|[]]]
+	  %% Line 172
+	  <_cor4> when 'true' ->
+	      []
+	end
+'bindings'/1 =
+    %% Line 177
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 178
+	    call 'erlang':'get'
+		('dbg_istk')
+	in  %% Line 178
+	    apply 'bindings'/2
+		(_cor0, _cor1)
+'bindings'/2 =
+    %% Line 180
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <SP,[{'e',_cor4,_cor5,_cor6,Bs,_cor7}|_cor8]>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     SP) ->
+	      %% Line 181
+	      Bs
+	  %% Line 182
+	  <SP,[_X_Entry|Entries]> when 'true' ->
+	      %% Line 183
+	      apply 'bindings'/2
+		  (SP, Entries)
+	  %% Line 184
+	  <_X_SP,[]> when 'true' ->
+	      %% Line 185
+	      call 'erl_eval':'new_bindings'
+		  ()
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'bindings',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'stack_frame'/2 =
+    %% Line 196
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'up',SP> when 'true' ->
+	      let <_cor2> =
+		  %% Line 197
+		  call 'erlang':'get'
+		      ('dbg_istk')
+	      in  %% Line 197
+		  apply 'stack_frame'/3
+		      (SP, 'up', _cor2)
+	  %% Line 198
+	  <'down',SP> when 'true' ->
+	      let <_cor3> =
+		  %% Line 199
+		  call 'erlang':'get'
+		      ('dbg_istk')
+	      in  let <_cor4> =
+		      %% Line 199
+		      call 'lists':'reverse'
+			  (_cor3)
+		  in  %% Line 199
+		      apply 'stack_frame'/3
+			  (SP, 'down', _cor4)
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'stack_frame',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'stack_frame'/3 =
+    %% Line 201
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <SP,'up',[{'e',Le,{Cm,_cor7,_cor8},Li,Bs,_cor9}|_cor10]>
+	      when %% Line 202
+		call 'erlang':'<'
+		    (Le,
+		     SP) ->
+	      %% Line 203
+	      {Le,{Cm,Li},Bs}
+	  %% Line 204
+	  <SP,'down',[{'e',Le,{Cm,_cor11,_cor12},Li,Bs,_cor13}|_cor14]>
+	      when %% Line 205
+		call 'erlang':'>'
+		    (Le,
+		     SP) ->
+	      %% Line 206
+	      {Le,{Cm,Li},Bs}
+	  %% Line 207
+	  <SP,Dir,[{'e',_cor15,_cor16,_cor17,_cor18,_cor19}|Stack]>
+	      when call 'erlang':'=:='
+		    (_cor15,
+		     SP) ->
+	      %% Line 208
+	      case Stack of
+		%% Line 209
+		<[{'e',Le,{Cm,_cor20,_cor21},Li,Bs,_cor22}|_cor23]> when 'true' ->
+		    %% Line 210
+		    {Le,{Cm,Li},Bs}
+		%% Line 211
+		<[]>
+		    when call 'erlang':'=:='
+			  (Dir,
+			   'up') ->
+		    %% Line 212
+		    'top'
+		%% Line 213
+		<[]>
+		    when call 'erlang':'=:='
+			  (Dir,
+			   'down') ->
+		    %% Line 214
+		    'bottom'
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 216
+	  <SP,Dir,[_X_Entry|Stack]> when 'true' ->
+	      %% Line 217
+	      apply 'stack_frame'/3
+		  (SP, Dir, Stack)
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'stack_frame',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'backtrace'/2 =
+    %% Line 223
+    fun (_cor1,_cor0) ->
+	%% Line 224
+	case _cor0 of
+	  <{'ieval',Level,_cor14,Mod,Name,As,_cor15}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 225
+		  call 'erlang':'get'
+		      ('dbg_istk')
+	      in  let <Stack0> =
+		      %% Line 225
+		      [{'e',Level,{Mod,Name,As},'undefined','undefined','undefined'}|_cor3]
+		  in  let <_cor6> =
+			  %% Line 226
+			  case _cor1 of
+			    %% Line 227
+			    <'all'> when 'true' ->
+				Stack0
+			    %% Line 228
+			    <N> when 'true' ->
+				call 'lists':'sublist'
+				    (Stack0, N)
+			  end
+		      in  %% Line 230
+			  ( letrec
+				'lc$^0'/1 =
+				    fun (_cor10) ->
+					case _cor10 of
+					  <[{'e',Le,MFA,_cor16,_cor17,_cor18}|_cor9]> when 'true' ->
+					      let <_cor11> =
+						  apply 'lc$^0'/1
+						      (_cor9)
+					      in  ( [{Le,MFA}|_cor11]
+						    -| ['compiler_generated'] )
+					  ( <[_cor8|_cor9]> when 'true' ->
+						apply 'lc$^0'/1
+						    (_cor9)
+					    -| ['compiler_generated'] )
+					  <[]> when 'true' ->
+					      []
+					  ( <_cor10> when 'true' ->
+						( primop 'match_fail'
+						      ({'function_clause',_cor10})
+						  -| [{'function_name',{'lc$^0',1}}] )
+					    -| ['compiler_generated'] )
+					end
+			    in  apply 'lc$^0'/1
+				    (_cor6)
+			    -| ['list_comprehension'] )
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'in_use_p'/2 =
+    %% Line 237
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Mod,_cor9>
+	      when call 'erlang':'=:='
+		    (_cor9,
+		     Mod) ->
+	      'true'
+	  %% Line 238
+	  <Mod,_X_Cm> when 'true' ->
+	      %% Line 239
+	      case call 'erlang':'get'
+		       ('trace_stack') of
+		%% Line 240
+		<'false'> when 'true' ->
+		    'true'
+		%% Line 241
+		<_cor10> when 'true' ->
+		    let <_cor5> =
+			%% Line 242
+			( fun (_cor3) ->
+			      case _cor3 of
+				<{'e',_cor11,{M,_cor12,_cor13},_cor14,_cor15,_cor16}>
+				    when call 'erlang':'=:='
+					  (M,
+					   Mod) ->
+				    'true'
+				%% Line 243
+				<_cor17> when 'true' ->
+				    'false'
+			      end
+			  -| [{'id',{0,0,'-in_use_p/2-fun-0-'}}] )
+		    in  let <_cor2> =
+			    %% Line 244
+			    call 'erlang':'get'
+				('dbg_istk')
+			in  %% Line 242
+			    call 'lists':'any'
+				(_cor5, _cor2)
+	      end
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('dbg_istk')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('dbg_istk', _cor0)
+end

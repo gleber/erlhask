@@ -1,0 +1,4843 @@
+module 'ssh_connection_handler' ['adjust_window'/3,
+				 'channel_info'/3,
+				 'close'/2,
+				 'code_change'/4,
+				 'connected'/2,
+				 'connection_info'/2,
+				 'global_request'/4,
+				 'handle_event'/3,
+				 'handle_info'/3,
+				 'handle_sync_event'/4,
+				 'hello'/2,
+				 'info'/1,
+				 'info'/2,
+				 'init'/1,
+				 'kexinit'/2,
+				 'key_exchange'/2,
+				 'module_info'/0,
+				 'module_info'/1,
+				 'new_keys'/2,
+				 'open_channel'/6,
+				 'renegotiate'/1,
+				 'renegotiate_data'/1,
+				 'reply_request'/3,
+				 'request'/6,
+				 'request'/7,
+				 'send'/5,
+				 'send_eof'/2,
+				 'start_connection'/4,
+				 'start_link'/3,
+				 'stop'/1,
+				 'terminate'/3,
+				 'userauth'/2]
+    attributes [%% Line 30
+		'behaviour' =
+		    %% Line 30
+		    ['gen_fsm'],
+		%% Line 64
+		'type' =
+		    %% Line 64
+		    [{{'record','ssh'},[{'record_field',68,{'atom',68,'role'}}|[{'record_field',69,{'atom',69,'peer'}}|[{'record_field',71,{'atom',71,'c_vsn'}}|[{'record_field',72,{'atom',72,'s_vsn'}}|[{'record_field',74,{'atom',74,'c_version'}}|[{'record_field',75,{'atom',75,'s_version'}}|[{'record_field',77,{'atom',77,'c_keyinit'}}|[{'record_field',78,{'atom',78,'s_keyinit'}}|[{'record_field',80,{'atom',80,'algorithms'}}|[{'record_field',82,{'atom',82,'kex'}}|[{'record_field',83,{'atom',83,'hkey'}}|[{'record_field',84,{'atom',84,'key_cb'}}|[{'record_field',85,{'atom',85,'io_cb'}}|[{'record_field',87,{'atom',87,'send_mac'},{'atom',87,'none'}}|[{'record_field',88,{'atom',88,'send_mac_key'}}|[{'record_field',89,{'atom',89,'send_mac_size'},{'integer',89,0}}|[{'record_field',91,{'atom',91,'recv_mac'},{'atom',91,'none'}}|[{'record_field',92,{'atom',92,'recv_mac_key'}}|[{'record_field',93,{'atom',93,'recv_mac_size'},{'integer',93,0}}|[{'record_field',95,{'atom',95,'encrypt'},{'atom',95,'none'}}|[{'record_field',96,{'atom',96,'encrypt_keys'}}|[{'record_field',97,{'atom',97,'encrypt_block_size'},{'integer',97,8}}|[{'record_field',98,{'atom',98,'encrypt_ctx'}}|[{'record_field',100,{'atom',100,'decrypt'},{'atom',100,'none'}}|[{'record_field',101,{'atom',101,'decrypt_keys'}}|[{'record_field',102,{'atom',102,'decrypt_block_size'},{'integer',102,8}}|[{'record_field',103,{'atom',103,'decrypt_ctx'}}|[{'record_field',105,{'atom',105,'compress'},{'atom',105,'none'}}|[{'record_field',106,{'atom',106,'compress_ctx'}}|[{'record_field',107,{'atom',107,'decompress'},{'atom',107,'none'}}|[{'record_field',108,{'atom',108,'decompress_ctx'}}|[{'record_field',110,{'atom',110,'c_lng'},{'atom',110,'none'}}|[{'record_field',111,{'atom',111,'s_lng'},{'atom',111,'none'}}|[{'record_field',113,{'atom',113,'user_ack'},{'atom',113,'true'}}|[{'record_field',114,{'atom',114,'timeout'},{'atom',114,'infinity'}}|[{'record_field',116,{'atom',116,'shared_secret'}}|[{'record_field',117,{'atom',117,'exchanged_hash'}}|[{'record_field',118,{'atom',118,'session_id'}}|[{'record_field',120,{'atom',120,'opts'},{'nil',120}}|[{'record_field',121,{'atom',121,'send_sequence'},{'integer',121,0}}|[{'record_field',122,{'atom',122,'recv_sequence'},{'integer',122,0}}|[{'record_field',123,{'atom',123,'keyex_key'}}|[{'record_field',124,{'atom',124,'keyex_info'}}|[{'record_field',127,{'atom',127,'user'}}|[{'record_field',128,{'atom',128,'service'}}|[{'record_field',129,{'atom',129,'userauth_quiet_mode'}}|[{'record_field',130,{'atom',130,'userauth_supported_methods'}}|[{'record_field',131,{'atom',131,'userauth_methods'}}|[{'record_field',132,{'atom',132,'userauth_preference'}}|[{'record_field',133,{'atom',133,'available_host_keys'}}|[{'record_field',134,{'atom',134,'authenticated'},{'atom',134,'false'}}]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],[]}],
+		%% Line 137
+		'type' =
+		    %% Line 137
+		    [{{'record','alg'},[{'record_field',139,{'atom',139,'kex'}}|[{'record_field',140,{'atom',140,'hkey'}}|[{'record_field',141,{'atom',141,'send_mac'}}|[{'record_field',142,{'atom',142,'recv_mac'}}|[{'record_field',143,{'atom',143,'encrypt'}}|[{'record_field',144,{'atom',144,'decrypt'}}|[{'record_field',145,{'atom',145,'compress'}}|[{'record_field',146,{'atom',146,'decompress'}}|[{'record_field',147,{'atom',147,'c_lng'}}|[{'record_field',148,{'atom',148,'s_lng'}}]]]]]]]]]],[]}],
+		%% Line 151
+		'type' =
+		    %% Line 151
+		    [{{'record','ssh_key'},[{'record_field',153,{'atom',153,'type'}}|[{'record_field',154,{'atom',154,'public'}}|[{'record_field',155,{'atom',155,'private'}}|[{'record_field',156,{'atom',156,'comment'},{'string',156,[]}}]]]],[]}],
+		%% Line 159
+		'type' =
+		    %% Line 159
+		    [{{'record','ssh_pty'},[{'record_field',159,{'atom',159,'term'},{'string',159,[]}}|[{'record_field',160,{'atom',160,'width'},{'integer',160,80}}|[{'record_field',161,{'atom',161,'height'},{'integer',161,25}}|[{'record_field',162,{'atom',162,'pixel_width'},{'integer',162,1024}}|[{'record_field',163,{'atom',163,'pixel_height'},{'integer',163,768}}|[{'record_field',164,{'atom',164,'modes'},{'bin',164,[]}}]]]]]],[]}],
+		%% Line 52
+		'type' =
+		    %% Line 52
+		    [{{'record','ssh_msg_disconnect'},[{'record_field',54,{'atom',54,'code'}}|[{'record_field',55,{'atom',55,'description'}}|[{'record_field',56,{'atom',56,'language'}}]]],[]}],
+		%% Line 59
+		'type' =
+		    %% Line 59
+		    [{{'record','ssh_msg_ignore'},[{'record_field',61,{'atom',61,'data'}}],[]}],
+		%% Line 64
+		'type' =
+		    %% Line 64
+		    [{{'record','ssh_msg_unimplemented'},[{'record_field',66,{'atom',66,'sequence'}}],[]}],
+		%% Line 69
+		'type' =
+		    %% Line 69
+		    [{{'record','ssh_msg_debug'},[{'record_field',71,{'atom',71,'always_display'}}|[{'record_field',72,{'atom',72,'message'}}|[{'record_field',73,{'atom',73,'language'}}]]],[]}],
+		%% Line 77
+		'type' =
+		    %% Line 77
+		    [{{'record','ssh_msg_service_request'},[{'record_field',79,{'atom',79,'name'}}],[]}],
+		%% Line 82
+		'type' =
+		    %% Line 82
+		    [{{'record','ssh_msg_service_accept'},[{'record_field',84,{'atom',84,'name'}}],[]}],
+		%% Line 87
+		'type' =
+		    %% Line 87
+		    [{{'record','ssh_msg_kexinit'},[{'record_field',89,{'atom',89,'cookie'}}|[{'record_field',90,{'atom',90,'kex_algorithms'}}|[{'record_field',91,{'atom',91,'server_host_key_algorithms'}}|[{'record_field',92,{'atom',92,'encryption_algorithms_client_to_server'}}|[{'record_field',93,{'atom',93,'encryption_algorithms_server_to_client'}}|[{'record_field',94,{'atom',94,'mac_algorithms_client_to_server'}}|[{'record_field',95,{'atom',95,'mac_algorithms_server_to_client'}}|[{'record_field',96,{'atom',96,'compression_algorithms_client_to_server'}}|[{'record_field',97,{'atom',97,'compression_algorithms_server_to_client'}}|[{'record_field',98,{'atom',98,'languages_client_to_server'}}|[{'record_field',99,{'atom',99,'languages_server_to_client'}}|[{'record_field',100,{'atom',100,'first_kex_packet_follows'},{'atom',100,'false'}}|[{'record_field',102,{'atom',102,'reserved'},{'integer',102,0}}]]]]]]]]]]]]],[]}],
+		%% Line 115
+		'type' =
+		    %% Line 115
+		    [{{'record','ssh_msg_kexdh_init'},[{'record_field',117,{'atom',117,'e'}}],[]}],
+		%% Line 120
+		'type' =
+		    %% Line 120
+		    [{{'record','ssh_msg_kexdh_reply'},[{'record_field',122,{'atom',122,'public_host_key'}}|[{'record_field',123,{'atom',123,'f'}}|[{'record_field',124,{'atom',124,'h_sig'}}]]],[]}],
+		%% Line 127
+		'type' =
+		    %% Line 127
+		    [{{'record','ssh_msg_newkeys'},[],[]}],
+		%% Line 143
+		'type' =
+		    %% Line 143
+		    [{{'record','ssh_msg_kex_dh_gex_request'},[{'record_field',145,{'atom',145,'min'}}|[{'record_field',146,{'atom',146,'n'}}|[{'record_field',147,{'atom',147,'max'}}]]],[]}],
+		%% Line 150
+		'type' =
+		    %% Line 150
+		    [{{'record','ssh_msg_kex_dh_gex_request_old'},[{'record_field',152,{'atom',152,'n'}}],[]}],
+		%% Line 155
+		'type' =
+		    %% Line 155
+		    [{{'record','ssh_msg_kex_dh_gex_group'},[{'record_field',157,{'atom',157,'p'}}|[{'record_field',158,{'atom',158,'g'}}]],[]}],
+		%% Line 161
+		'type' =
+		    %% Line 161
+		    [{{'record','ssh_msg_kex_dh_gex_init'},[{'record_field',163,{'atom',163,'e'}}],[]}],
+		%% Line 166
+		'type' =
+		    %% Line 166
+		    [{{'record','ssh_msg_kex_dh_gex_reply'},[{'record_field',168,{'atom',168,'public_host_key'}}|[{'record_field',169,{'atom',169,'f'}}|[{'record_field',170,{'atom',170,'h_sig'}}]]],[]}],
+		%% Line 37
+		'type' =
+		    %% Line 37
+		    [{{'record','ssh_msg_userauth_request'},[{'record_field',39,{'atom',39,'user'}}|[{'record_field',40,{'atom',40,'service'}}|[{'record_field',41,{'atom',41,'method'}}|[{'record_field',42,{'atom',42,'data'}}]]]],[]}],
+		%% Line 45
+		'type' =
+		    %% Line 45
+		    [{{'record','ssh_msg_userauth_failure'},[{'record_field',47,{'atom',47,'authentications'}}|[{'record_field',48,{'atom',48,'partial_success'}}]],[]}],
+		%% Line 51
+		'type' =
+		    %% Line 51
+		    [{{'record','ssh_msg_userauth_success'},[],[]}],
+		%% Line 55
+		'type' =
+		    %% Line 55
+		    [{{'record','ssh_msg_userauth_banner'},[{'record_field',57,{'atom',57,'message'}}|[{'record_field',58,{'atom',58,'language'}}]],[]}],
+		%% Line 61
+		'type' =
+		    %% Line 61
+		    [{{'record','ssh_msg_userauth_passwd_changereq'},[{'record_field',63,{'atom',63,'prompt'}}|[{'record_field',64,{'atom',64,'languge'}}]],[]}],
+		%% Line 67
+		'type' =
+		    %% Line 67
+		    [{{'record','ssh_msg_userauth_pk_ok'},[{'record_field',69,{'atom',69,'algorithm_name'}}|[{'record_field',70,{'atom',70,'key_blob'}}]],[]}],
+		%% Line 73
+		'type' =
+		    %% Line 73
+		    [{{'record','ssh_msg_userauth_info_request'},[{'record_field',74,{'atom',74,'name'}}|[{'record_field',75,{'atom',75,'instruction'}}|[{'record_field',76,{'atom',76,'language_tag'}}|[{'record_field',77,{'atom',77,'num_prompts'}}|[{'record_field',78,{'atom',78,'data'}}]]]]],[]}],
+		%% Line 80
+		'type' =
+		    %% Line 80
+		    [{{'record','ssh_msg_userauth_info_response'},[{'record_field',81,{'atom',81,'num_responses'}}|[{'record_field',82,{'atom',82,'data'}}]],[]}],
+		%% Line 24
+		'type' =
+		    %% Line 24
+		    [{'channel_id',{'type',24,'integer',[]},[]}],
+		%% Line 55
+		'type' =
+		    %% Line 55
+		    [{{'record','ssh_msg_global_request'},[{'record_field',57,{'atom',57,'name'}}|[{'record_field',58,{'atom',58,'want_reply'}}|[{'record_field',59,{'atom',59,'data'}}]]],[]}],
+		%% Line 62
+		'type' =
+		    %% Line 62
+		    [{{'record','ssh_msg_request_success'},[{'record_field',64,{'atom',64,'data'}}],[]}],
+		%% Line 67
+		'type' =
+		    %% Line 67
+		    [{{'record','ssh_msg_request_failure'},[],[]}],
+		%% Line 72
+		'type' =
+		    %% Line 72
+		    [{{'record','ssh_msg_channel_open'},[{'record_field',74,{'atom',74,'channel_type'}}|[{'record_field',75,{'atom',75,'sender_channel'}}|[{'record_field',76,{'atom',76,'initial_window_size'}}|[{'record_field',77,{'atom',77,'maximum_packet_size'}}|[{'record_field',78,{'atom',78,'data'}}]]]]],[]}],
+		%% Line 81
+		'type' =
+		    %% Line 81
+		    [{{'record','ssh_msg_channel_open_confirmation'},[{'record_field',83,{'atom',83,'recipient_channel'}}|[{'record_field',84,{'atom',84,'sender_channel'}}|[{'record_field',85,{'atom',85,'initial_window_size'}}|[{'record_field',86,{'atom',86,'maximum_packet_size'}}|[{'record_field',87,{'atom',87,'data'}}]]]]],[]}],
+		%% Line 101
+		'type' =
+		    %% Line 101
+		    [{{'record','ssh_msg_channel_open_failure'},[{'record_field',103,{'atom',103,'recipient_channel'}}|[{'record_field',104,{'atom',104,'reason'}}|[{'record_field',105,{'atom',105,'description'}}|[{'record_field',106,{'atom',106,'lang'}}]]]],[]}],
+		%% Line 110
+		'type' =
+		    %% Line 110
+		    [{{'record','ssh_msg_channel_window_adjust'},[{'record_field',112,{'atom',112,'recipient_channel'}}|[{'record_field',113,{'atom',113,'bytes_to_add'}}]],[]}],
+		%% Line 116
+		'type' =
+		    %% Line 116
+		    [{{'record','ssh_msg_channel_data'},[{'record_field',118,{'atom',118,'recipient_channel'}}|[{'record_field',119,{'atom',119,'data'}}]],[]}],
+		%% Line 129
+		'type' =
+		    %% Line 129
+		    [{{'record','ssh_msg_channel_extended_data'},[{'record_field',131,{'atom',131,'recipient_channel'}}|[{'record_field',132,{'atom',132,'data_type_code'}}|[{'record_field',133,{'atom',133,'data'}}]]],[]}],
+		%% Line 136
+		'type' =
+		    %% Line 136
+		    [{{'record','ssh_msg_channel_eof'},[{'record_field',138,{'atom',138,'recipient_channel'}}],[]}],
+		%% Line 141
+		'type' =
+		    %% Line 141
+		    [{{'record','ssh_msg_channel_close'},[{'record_field',143,{'atom',143,'recipient_channel'}}],[]}],
+		%% Line 147
+		'type' =
+		    %% Line 147
+		    [{{'record','ssh_msg_channel_request'},[{'record_field',149,{'atom',149,'recipient_channel'}}|[{'record_field',150,{'atom',150,'request_type'}}|[{'record_field',151,{'atom',151,'want_reply'}}|[{'record_field',152,{'atom',152,'data'}}]]]],[]}],
+		%% Line 156
+		'type' =
+		    %% Line 156
+		    [{{'record','ssh_msg_channel_success'},[{'record_field',158,{'atom',158,'recipient_channel'}}],[]}],
+		%% Line 162
+		'type' =
+		    %% Line 162
+		    [{{'record','ssh_msg_channel_failure'},[{'record_field',164,{'atom',164,'recipient_channel'}}],[]}],
+		%% Line 235
+		'type' =
+		    %% Line 235
+		    [{{'record','channel'},[{'record_field',237,{'atom',237,'type'}}|[{'record_field',238,{'atom',238,'sys'}}|[{'record_field',239,{'atom',239,'user'}}|[{'record_field',240,{'atom',240,'flow_control'}}|[{'record_field',242,{'atom',242,'local_id'}}|[{'record_field',244,{'atom',244,'recv_window_size'}}|[{'record_field',245,{'atom',245,'recv_packet_size'}}|[{'record_field',246,{'atom',246,'recv_close'},{'atom',246,'false'}}|[{'record_field',248,{'atom',248,'remote_id'}}|[{'record_field',249,{'atom',249,'send_window_size'}}|[{'record_field',250,{'atom',250,'send_packet_size'}}|[{'record_field',251,{'atom',251,'sent_close'},{'atom',251,'false'}}|[{'record_field',252,{'atom',252,'send_buf'},{'nil',252}}]]]]]]]]]]]]],[]}],
+		%% Line 255
+		'type' =
+		    %% Line 255
+		    [{{'record','connection'},[{'record_field',256,{'atom',256,'requests'},{'nil',256}}|[{'record_field',257,{'atom',257,'channel_cache'}}|[{'record_field',258,{'atom',258,'port_bindings'}}|[{'record_field',259,{'atom',259,'channel_id_seed'}}|[{'record_field',260,{'atom',260,'cli_spec'}}|[{'record_field',261,{'atom',261,'address'}}|[{'record_field',262,{'atom',262,'port'}}|[{'record_field',263,{'atom',263,'options'}}|[{'record_field',264,{'atom',264,'exec'}}|[{'record_field',265,{'atom',265,'system_supervisor'}}|[{'record_field',266,{'atom',266,'sub_system_supervisor'}}|[{'record_field',267,{'atom',267,'connection_supervisor'}}]]]]]]]]]]]],[]}],
+		%% Line 53
+		'type' =
+		    %% Line 53
+		    [{{'record','state'},[{'record_field',54,{'atom',54,'role'}}|[{'record_field',55,{'atom',55,'client'}}|[{'record_field',56,{'atom',56,'starter'}}|[{'record_field',57,{'atom',57,'auth_user'}}|[{'record_field',58,{'atom',58,'connection_state'}}|[{'record_field',59,{'atom',59,'latest_channel_id'},{'integer',59,0}}|[{'record_field',60,{'atom',60,'idle_timer_ref'}}|[{'record_field',61,{'atom',61,'transport_protocol'}}|[{'record_field',62,{'atom',62,'transport_cb'}}|[{'record_field',63,{'atom',63,'transport_close_tag'}}|[{'record_field',64,{'atom',64,'ssh_params'}}|[{'record_field',65,{'atom',65,'socket'}}|[{'record_field',66,{'atom',66,'decoded_data_buffer'}}|[{'record_field',67,{'atom',67,'encoded_data_buffer'}}|[{'record_field',68,{'atom',68,'undecoded_packet_length'}}|[{'record_field',69,{'atom',69,'key_exchange_init_msg'}}|[{'record_field',70,{'atom',70,'renegotiate'},{'atom',70,'false'}}|[{'record_field',71,{'atom',71,'connection_queue'}}|[{'record_field',72,{'atom',72,'address'}}|[{'record_field',73,{'atom',73,'port'}}|[{'record_field',74,{'atom',74,'opts'}}]]]]]]]]]]]]]]]]]]]]],[]}],
+		%% Line 77
+		'type' =
+		    %% Line 77
+		    [{'state_name',{'type',77,'union',[{'atom',77,'hello'}|[{'atom',77,'kexinit'}|[{'atom',77,'key_exchange'}|[{'atom',77,'new_keys'}|[{'atom',77,'userauth'}|[{'atom',77,'connection'}]]]]]]},[]}],
+		%% Line 78
+		'type' =
+		    %% Line 78
+		    [{'gen_fsm_state_return',{'type',78,'union',[{'type',78,'tuple',[{'atom',78,'next_state'}|[{'type',78,'state_name',[]}|[{'type',78,'term',[]}]]]}|[{'type',79,'tuple',[{'atom',79,'next_state'}|[{'type',79,'state_name',[]}|[{'type',79,'term',[]}|[{'type',79,'timeout',[]}]]]]}|[{'type',80,'tuple',[{'atom',80,'stop'}|[{'type',80,'term',[]}|[{'type',80,'term',[]}]]]}]]]},[]}],
+		%% Line 87
+		'spec' =
+		    %% Line 87
+		    [{{'start_connection',4},[{'type',87,'fun',[{'type',87,'product',[{'type',87,'union',[{'atom',87,'client'}|[{'atom',87,'server'}]]}|[{'type',87,'port',[]}|[{'remote_type',87,[{'atom',87,'proplists'}|[{'atom',87,'proplist'}|[[]]]]}|[{'type',88,'timeout',[]}]]]]}|[{'type',88,'union',[{'type',88,'tuple',[{'atom',88,'ok'}|[{'type',88,'pid',[]}]]}|[{'type',88,'tuple',[{'atom',88,'error'}|[{'type',88,'term',[]}]]}]]}]]}]}],
+		%% Line 167
+		'spec' =
+		    %% Line 167
+		    [{{'open_channel',6},[{'type',167,'fun',[{'type',167,'product',[{'type',167,'pid',[]}|[{'type',167,'string',[]}|[{'type',167,'iodata',[]}|[{'type',167,'integer',[]}|[{'type',167,'integer',[]}|[{'type',168,'timeout',[]}]]]]]]}|[{'type',168,'union',[{'type',168,'tuple',[{'atom',168,'open'}|[{'type',168,'channel_id',[]}]]}|[{'type',168,'tuple',[{'atom',168,'error'}|[{'type',168,'term',[]}]]}]]}]]}]}],
+		%% Line 178
+		'spec' =
+		    %% Line 178
+		    [{{'request',7},[{'type',178,'fun',[{'type',178,'product',[{'type',178,'pid',[]}|[{'type',178,'pid',[]}|[{'type',178,'channel_id',[]}|[{'type',178,'string',[]}|[{'type',178,'boolean',[]}|[{'type',178,'iodata',[]}|[{'type',179,'timeout',[]}]]]]]]]}|[{'type',179,'union',[{'atom',179,'success'}|[{'atom',179,'failure'}|[{'atom',179,'ok'}|[{'type',179,'tuple',[{'atom',179,'error'}|[{'type',179,'term',[]}]]}]]]]}]]}]}],
+		%% Line 188
+		'spec' =
+		    %% Line 188
+		    [{{'request',6},[{'type',188,'fun',[{'type',188,'product',[{'type',188,'pid',[]}|[{'type',188,'channel_id',[]}|[{'type',188,'string',[]}|[{'type',188,'boolean',[]}|[{'type',188,'iodata',[]}|[{'type',189,'timeout',[]}]]]]]]}|[{'type',189,'union',[{'atom',189,'success'}|[{'atom',189,'failure'}|[{'type',189,'tuple',[{'atom',189,'error'}|[{'atom',189,'timeout'}]]}]]]}]]}]}],
+		%% Line 197
+		'spec' =
+		    %% Line 197
+		    [{{'reply_request',3},[{'type',197,'fun',[{'type',197,'product',[{'type',197,'pid',[]}|[{'type',197,'union',[{'atom',197,'success'}|[{'atom',197,'failure'}]]}|[{'type',197,'channel_id',[]}]]]}|[{'atom',197,'ok'}]]}]}],
+		%% Line 203
+		'spec' =
+		    %% Line 203
+		    [{{'global_request',4},[{'type',203,'fun',[{'type',203,'product',[{'type',203,'pid',[]}|[{'type',203,'string',[]}|[{'type',203,'boolean',[]}|[{'type',203,'iolist',[]}]]]]}|[{'type',203,'union',[{'atom',203,'ok'}|[{'atom',203,'error'}]]}]]}]}],
+		%% Line 217
+		'spec' =
+		    %% Line 217
+		    [{{'send',5},[{'type',217,'fun',[{'type',217,'product',[{'type',217,'pid',[]}|[{'type',217,'channel_id',[]}|[{'type',217,'integer',[]}|[{'type',217,'iodata',[]}|[{'type',217,'timeout',[]}]]]]]}|[{'type',218,'union',[{'atom',218,'ok'}|[{'type',218,'tuple',[{'atom',218,'error'}|[{'atom',218,'timeout'}]]}|[{'type',218,'tuple',[{'atom',218,'error'}|[{'atom',218,'closed'}]]}]]]}]]}]}],
+		%% Line 224
+		'spec' =
+		    %% Line 224
+		    [{{'send_eof',2},[{'type',224,'fun',[{'type',224,'product',[{'type',224,'pid',[]}|[{'type',224,'channel_id',[]}]]}|[{'type',224,'union',[{'atom',224,'ok'}|[{'type',224,'tuple',[{'atom',224,'error'}|[{'atom',224,'closed'}]]}]]}]]}]}],
+		%% Line 230
+		'spec' =
+		    %% Line 230
+		    [{{'connection_info',2},[{'type',230,'fun',[{'type',230,'product',[{'type',230,'pid',[]}|[{'type',230,'list',[{'type',230,'atom',[]}]}]]}|[{'remote_type',230,[{'atom',230,'proplists'}|[{'atom',230,'proplist'}|[[]]]]}]]}]}],
+		%% Line 236
+		'spec' =
+		    %% Line 236
+		    [{{'channel_info',3},[{'type',236,'fun',[{'type',236,'product',[{'type',236,'pid',[]}|[{'type',236,'channel_id',[]}|[{'type',236,'list',[{'type',236,'atom',[]}]}]]]}|[{'remote_type',236,[{'atom',236,'proplists'}|[{'atom',236,'proplist'}|[[]]]]}]]}]}],
+		%% Line 242
+		'spec' =
+		    %% Line 242
+		    [{{'adjust_window',3},[{'type',242,'fun',[{'type',242,'product',[{'type',242,'pid',[]}|[{'type',242,'channel_id',[]}|[{'type',242,'integer',[]}]]]}|[{'atom',242,'ok'}]]}]}],
+		%% Line 247
+		'spec' =
+		    %% Line 247
+		    [{{'renegotiate',1},[{'type',247,'fun',[{'type',247,'product',[{'type',247,'pid',[]}]}|[{'atom',247,'ok'}]]}]}],
+		%% Line 253
+		'spec' =
+		    %% Line 253
+		    [{{'renegotiate_data',1},[{'type',253,'fun',[{'type',253,'product',[{'type',253,'pid',[]}]}|[{'atom',253,'ok'}]]}]}],
+		%% Line 259
+		'spec' =
+		    %% Line 259
+		    [{{'close',2},[{'type',259,'fun',[{'type',259,'product',[{'type',259,'pid',[]}|[{'type',259,'channel_id',[]}]]}|[{'atom',259,'ok'}]]}]}],
+		%% Line 265
+		'spec' =
+		    %% Line 265
+		    [{{'stop',1},[{'type',265,'fun',[{'type',265,'product',[{'type',265,'pid',[]}]}|[{'type',265,'union',[{'atom',265,'ok'}|[{'type',265,'tuple',[{'atom',265,'error'}|[{'type',265,'term',[]}]]}]]}]]}]}],
+		%% Line 287
+		'spec' =
+		    %% Line 287
+		    [{{'hello',2},[{'type',287,'fun',[{'type',287,'product',[{'type',287,'union',[{'atom',287,'socket_control'}|[{'type',287,'tuple',[{'atom',287,'info_line'}|[{'type',287,'list',[]}]]}|[{'type',287,'tuple',[{'atom',287,'version_exchange'}|[{'type',287,'list',[]}]]}]]]}|[{'type',288,'record',[{'atom',288,'state'}]}]]}|[{'type',288,'gen_fsm_state_return',[]}]]}]}],
+		%% Line 323
+		'spec' =
+		    %% Line 323
+		    [{{'kexinit',2},[{'type',323,'fun',[{'type',323,'product',[{'type',323,'tuple',[{'type',323,'record',[{'atom',323,'ssh_msg_kexinit'}]}|[{'type',323,'binary',[]}]]}|[{'type',323,'record',[{'atom',323,'state'}]}]]}|[{'type',323,'gen_fsm_state_return',[]}]]}]}],
+		%% Line 341
+		'spec' =
+		    %% Line 341
+		    [{{'key_exchange',2},[{'type',341,'fun',[{'type',341,'product',[{'type',341,'union',[{'type',341,'record',[{'atom',341,'ssh_msg_kexdh_init'}]}|[{'type',341,'record',[{'atom',341,'ssh_msg_kexdh_reply'}]}|[{'type',342,'record',[{'atom',342,'ssh_msg_kex_dh_gex_group'}]}|[{'type',342,'record',[{'atom',342,'ssh_msg_kex_dh_gex_request'}]}|[{'type',343,'record',[{'atom',343,'ssh_msg_kex_dh_gex_request'}]}|[{'type',343,'record',[{'atom',343,'ssh_msg_kex_dh_gex_reply'}]}]]]]]]}|[{'type',343,'record',[{'atom',343,'state'}]}]]}|[{'type',344,'gen_fsm_state_return',[]}]]}]}],
+		%% Line 384
+		'spec' =
+		    %% Line 384
+		    [{{'new_keys',2},[{'type',384,'fun',[{'type',384,'product',[{'type',384,'record',[{'atom',384,'ssh_msg_newkeys'}]}|[{'type',384,'record',[{'atom',384,'state'}]}]]}|[{'type',384,'gen_fsm_state_return',[]}]]}]}],
+		%% Line 394
+		'spec' =
+		    %% Line 394
+		    [{{'userauth',2},[{'type',394,'fun',[{'type',394,'product',[{'type',394,'union',[{'type',394,'record',[{'atom',394,'ssh_msg_service_request'}]}|[{'type',394,'record',[{'atom',394,'ssh_msg_service_accept'}]}|[{'type',395,'record',[{'atom',395,'ssh_msg_userauth_request'}]}|[{'type',395,'record',[{'atom',395,'ssh_msg_userauth_info_request'}]}|[{'type',396,'record',[{'atom',396,'ssh_msg_userauth_info_response'}]}|[{'type',396,'record',[{'atom',396,'ssh_msg_userauth_success'}]}|[{'type',397,'record',[{'atom',397,'ssh_msg_userauth_failure'}]}|[{'type',397,'record',[{'atom',397,'ssh_msg_userauth_banner'}]}]]]]]]]]}|[{'type',398,'record',[{'atom',398,'state'}]}]]}|[{'type',398,'gen_fsm_state_return',[]}]]}]}],
+		%% Line 512
+		'spec' =
+		    %% Line 512
+		    [{{'connected',2},[{'type',512,'fun',[{'type',512,'product',[{'type',512,'tuple',[{'type',512,'record',[{'atom',512,'ssh_msg_kexinit'}]}|[{'type',512,'binary',[]}]]}|[{'type',513,'record',[{'atom',513,'state'}]}]]}|[{'type',513,'gen_fsm_state_return',[]}]]}]}],
+		%% Line 522
+		'spec' =
+		    %% Line 522
+		    [{{'handle_event',3},[{'type',522,'fun',[{'type',522,'product',[{'type',522,'union',[{'type',522,'record',[{'atom',522,'ssh_msg_disconnect'}]}|[{'type',522,'record',[{'atom',522,'ssh_msg_ignore'}]}|[{'type',522,'record',[{'atom',522,'ssh_msg_debug'}]}|[{'type',523,'record',[{'atom',523,'ssh_msg_unimplemented'}]}|[{'type',523,'tuple',[{'atom',523,'adjust_window'}|[{'type',523,'integer',[]}|[{'type',523,'integer',[]}]]]}|[{'type',524,'tuple',[{'atom',524,'reply_request'}|[{'type',524,'union',[{'atom',524,'success'}|[{'atom',524,'failure'}]]}|[{'type',524,'integer',[]}]]]}|[{'atom',524,'renegotiate'}|[{'atom',525,'data_size'}|[{'type',525,'tuple',[{'atom',525,'request'}|[{'type',525,'pid',[]}|[{'type',525,'integer',[]}|[{'type',525,'integer',[]}|[{'type',525,'iolist',[]}]]]]]}|[{'type',526,'tuple',[{'atom',526,'request'}|[{'type',526,'integer',[]}|[{'type',526,'integer',[]}|[{'type',526,'iolist',[]}]]]]}]]]]]]]]]]}|[{'type',526,'state_name',[]}|[{'type',527,'record',[{'atom',527,'state'}]}]]]}|[{'type',527,'gen_fsm_state_return',[]}]]}]}],
+		%% Line 628
+		'spec' =
+		    %% Line 628
+		    [{{'handle_sync_event',4},[{'type',628,'fun',[{'type',628,'product',[{'type',628,'union',[{'type',628,'tuple',[{'atom',628,'request'}|[{'type',628,'pid',[]}|[{'type',628,'channel_id',[]}|[{'type',628,'integer',[]}|[{'type',628,'binary',[]}|[{'type',628,'timeout',[]}]]]]]]}|[{'type',629,'tuple',[{'atom',629,'request'}|[{'type',629,'channel_id',[]}|[{'type',629,'integer',[]}|[{'type',629,'binary',[]}|[{'type',629,'timeout',[]}]]]]]}|[{'type',630,'tuple',[{'atom',630,'global_request'}|[{'type',630,'pid',[]}|[{'type',630,'integer',[]}|[{'type',630,'boolean',[]}|[{'type',630,'binary',[]}]]]]]}|[{'type',630,'tuple',[{'atom',630,'eof'}|[{'type',630,'integer',[]}]]}|[{'type',631,'tuple',[{'atom',631,'open'}|[{'type',631,'pid',[]}|[{'type',631,'integer',[]}|[{'type',631,'channel_id',[]}|[{'type',631,'integer',[]}|[{'type',631,'binary',[]}|[{'var',631,'_'}]]]]]]]}|[{'type',632,'tuple',[{'atom',632,'send_window'}|[{'type',632,'channel_id',[]}]]}|[{'type',632,'tuple',[{'atom',632,'recv_window'}|[{'type',632,'channel_id',[]}]]}|[{'type',633,'tuple',[{'atom',633,'connection_info'}|[{'type',633,'list',[{'type',633,'union',[{'atom',633,'client_version'}|[{'atom',633,'server_version'}|[{'atom',633,'peer'}|[{'atom',634,'sockname'}]]]]}]}]]}|[{'type',634,'tuple',[{'atom',634,'channel_info'}|[{'type',634,'channel_id',[]}|[{'type',634,'list',[{'type',634,'union',[{'atom',634,'recv_window'}|[{'atom',635,'send_window'}]]}]}]]]}|[{'type',636,'tuple',[{'atom',636,'close'}|[{'type',636,'channel_id',[]}]]}|[{'atom',636,'stop'}]]]]]]]]]]]}|[{'type',636,'term',[]}|[{'type',636,'state_name',[]}|[{'type',636,'record',[{'atom',636,'state'}]}]]]]}|[{'type',637,'gen_fsm_state_return',[]}]]}]}],
+		%% Line 794
+		'spec' =
+		    %% Line 794
+		    [{{'handle_info',3},[{'type',794,'fun',[{'type',794,'product',[{'type',794,'union',[{'type',794,'tuple',[{'type',794,'atom',[]}|[{'type',794,'port',[]}|[{'type',794,'binary',[]}]]]}|[{'type',794,'tuple',[{'type',794,'atom',[]}|[{'type',794,'port',[]}]]}|[{'type',795,'term',[]}]]]}|[{'type',795,'state_name',[]}|[{'type',795,'record',[{'atom',795,'state'}]}]]]}|[{'type',795,'gen_fsm_state_return',[]}]]}]}],
+		%% Line 908
+		'spec' =
+		    %% Line 908
+		    [{{'terminate',3},[{'type',908,'fun',[{'type',908,'product',[{'ann_type',908,[{'var',908,'Reason'}|[{'type',908,'term',[]}]]}|[{'type',908,'state_name',[]}|[{'type',908,'record',[{'atom',908,'state'}]}]]]}|[{'var',908,'_'}]]}]}],
+		%% Line 953
+		'spec' =
+		    %% Line 953
+		    [{{'code_change',4},[{'type',953,'fun',[{'type',953,'product',[{'ann_type',953,[{'var',953,'OldVsn'}|[{'type',953,'term',[]}]]}|[{'type',953,'state_name',[]}|[{'ann_type',953,[{'var',953,'Oldstate'}|[{'type',953,'term',[]}]]}|[{'ann_type',953,[{'var',953,'Extra'}|[{'type',953,'term',[]}]]}]]]]}|[{'type',954,'tuple',[{'atom',954,'ok'}|[{'type',954,'state_name',[]}|[{'type',954,'record',[{'atom',954,'state'}]}]]]}]]}]}]]
+'start_connection'/4 =
+    %% Line 90
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Role = 'client',Socket,Options,Timeout> when 'true' ->
+	      %% Line 91
+	      try
+		  %% Line 92
+		  case call 'sshc_sup':'start_child'
+			   ([Role|[Socket|[Options|[]]]]) of
+		    <{'ok',Pid}> when 'true' ->
+			%% Line 93
+			case %% Line 94
+			     call 'proplists':'get_value'
+				 ('transport', Options, {'tcp','gen_tcp','tcp_closed'}) of
+			  <{_cor31,Callback,_cor32}> when 'true' ->
+			      %% Line 95
+			      case apply 'socket_control'/3
+				       (Socket, Pid, Callback) of
+				<'ok'> when 'true' ->
+				    let <Ref> =
+					%% Line 96
+					call 'erlang':'monitor'
+					    ('process', Pid)
+				    in  %% Line 97
+					apply 'handshake'/3
+					    (Pid, Ref, Timeout)
+				( <_cor6> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor6})
+				  -| ['compiler_generated'] )
+			      end
+			  ( <_cor5> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor5})
+			    -| ['compiler_generated'] )
+			end
+		    ( <_cor4> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor4})
+		      -| ['compiler_generated'] )
+		  end
+	      of <_cor8> ->
+		  _cor8
+	      catch <_cor11,_cor10,_cor9> ->
+		  case <_cor11,_cor10,_cor9> of
+		    %% Line 99
+		    <'exit',{'noproc',_cor33},_cor34> when 'true' ->
+			%% Line 100
+			{'error','ssh_not_started'}
+		    %% Line 101
+		    <_cor35,Error,_cor36> when 'true' ->
+			%% Line 102
+			{'error',Error}
+		  end
+	  %% Line 105
+	  <Role = 'server',Socket,Options,Timeout> when 'true' ->
+	      %% Line 106
+	      try
+		  let <Sups> =
+		      %% Line 107
+		      call 'proplists':'get_value'
+			  ('supervisors', Options)
+		  in  let <ConnectionSup> =
+			  %% Line 108
+			  call 'proplists':'get_value'
+			      ('connection_sup', Sups)
+		      in  let <_cor14> =
+			      %% Line 109
+			      call 'erlang':'self'
+				  ()
+			  in  let <_cor15> =
+				  %% Line 109
+				  call 'proplists':'get_value'
+				      ('ssh_opts', Options, [])
+			      in  let <Opts> =
+				      %% Line 109
+				      [{'supervisors',Sups}|[{'user_pid',_cor14}|_cor15]]
+				  in  %% Line 110
+				      case call 'ssh_connection_sup':'start_child'
+					       (ConnectionSup, [Role|[Socket|[Opts|[]]]]) of
+					<{'ok',Pid}> when 'true' ->
+					    %% Line 111
+					    case call 'proplists':'get_value'
+						     ('transport', Options, {'tcp','gen_tcp','tcp_closed'}) of
+					      <{_cor37,Callback,_cor38}> when 'true' ->
+						  do  %% Line 112
+						      apply 'socket_control'/3
+							  (Socket, Pid, Callback)
+						      %% Line 113
+						      case call 'proplists':'get_value'
+							       ('parallel_login', Opts, 'false') of
+							%% Line 114
+							<'true'> when 'true' ->
+							    let <_cor20> =
+								%% Line 115
+								( fun () ->
+								      let <Ref> =
+									  %% Line 116
+									  call 'erlang':'monitor'
+									      ('process', Pid)
+								      in  %% Line 117
+									  apply 'handshake'/3
+									      (Pid, Ref, Timeout)
+								  -| [{'id',{0,0,'-start_connection/4-fun-0-'}}] )
+							    in  %% Line 115
+								call 'erlang':'spawn'
+								    (_cor20)
+							%% Line 119
+							<'false'> when 'true' ->
+							    let <Ref> =
+								%% Line 120
+								call 'erlang':'monitor'
+								    ('process', Pid)
+							    in  %% Line 121
+								apply 'handshake'/3
+								    (Pid, Ref, Timeout)
+							( <_cor22> when 'true' ->
+							      primop 'match_fail'
+								  ({'case_clause',_cor22})
+							  -| ['compiler_generated'] )
+						      end
+					      ( <_cor18> when 'true' ->
+						    primop 'match_fail'
+							({'badmatch',_cor18})
+						-| ['compiler_generated'] )
+					    end
+					( <_cor17> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor17})
+					  -| ['compiler_generated'] )
+				      end
+	      of <_cor23> ->
+		  _cor23
+	      catch <_cor26,_cor25,_cor24> ->
+		  case <_cor26,_cor25,_cor24> of
+		    %% Line 124
+		    <'exit',{'noproc',_cor39},_cor40> when 'true' ->
+			%% Line 125
+			{'error','ssh_not_started'}
+		    %% Line 126
+		    <_cor41,Error,_cor42> when 'true' ->
+			%% Line 127
+			{'error',Error}
+		  end
+	  ( <_cor30,_cor29,_cor28,_cor27> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor30,_cor29,_cor28,_cor27})
+		  -| [{'function_name',{'start_connection',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'start_link'/3 =
+    %% Line 130
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 131
+	    call 'proc_lib':'spawn_link'
+		('ssh_connection_handler', 'init', [[_cor2|[_cor1|[_cor0|[]]]]|[]])
+	in  %% Line 131
+	    {'ok',_cor3}
+'init'/1 =
+    %% Line 133
+    fun (_cor0) ->
+	case _cor0 of
+	  <[Role|[Socket|[SshOpts|[]]]]> when 'true' ->
+	      do  %% Line 134
+		  call 'erlang':'process_flag'
+		      ('trap_exit', 'true')
+		  %% Line 135
+		  case call 'ssh_transport':'versions'
+			   (Role, SshOpts) of
+		    <{NumVsn,StrVsn}> when 'true' ->
+			%% Line 136
+			case %% Line 137
+			     call 'proplists':'get_value'
+				 ('transport', SshOpts, {'tcp','gen_tcp','tcp_closed'}) of
+			  <{Protocol,Callback,CloseTag}> when 'true' ->
+			      let <Cache> =
+				  %% Line 138
+				  call 'ssh_channel':'cache_create'
+				      ()
+			      in  let <State0> =
+				      %% Line 139
+				      {'state',%% Line 140
+					       Role,'undefined','undefined','undefined',%% Line 141
+											{'connection',%% Line 144
+												      [],Cache,%% Line 143
+													       [],%% Line 142
+														  0,%% Line 260
+														    'undefined',%% Line 261
+																'undefined',%% Line 262
+																	    'undefined',%% Line 145
+																			SshOpts,%% Line 264
+																				'undefined',%% Line 265
+																					    'undefined',%% Line 266
+																							'undefined',%% Line 267
+																								    'undefined'},0,'undefined',%% Line 149
+																											       Protocol,%% Line 150
+																													Callback,%% Line 151
+																														 CloseTag,'undefined',%% Line 146
+																																      Socket,%% Line 147
+																																	     #{}#,%% Line 148
+																																		  #{}#,'undefined','undefined','false','undefined','undefined','undefined',%% Line 152
+																																											   SshOpts}
+				  in  let <State> =
+					  %% Line 155
+					  apply 'init_role'/1
+					      (State0)
+				      in  %% Line 157
+					  try
+					      apply 'init_ssh'/5
+						  (Role, NumVsn, StrVsn, SshOpts, Socket)
+					  of <_cor6> ->
+					      %% Line 160
+					      case State of
+						<{'state',_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35}> when 'true' ->
+						    let <_cor9> =
+							call 'erlang':'setelement'
+							    (12, State, _cor6)
+						    in  call 'gen_fsm':'enter_loop'
+							    ('ssh_connection_handler', [], 'hello', _cor9)
+						( <_cor36> when 'true' ->
+						      ( call ( 'erlang'
+							       -| ['compiler_generated'] ):( 'error'
+											     -| ['compiler_generated'] )
+							    (( {'badrecord','state'}
+							       -| ['compiler_generated'] ))
+							-| ['compiler_generated'] )
+						  -| ['compiler_generated'] )
+					      end
+					  catch <_cor13,_cor12,_cor11> ->
+					      %% Line 163
+					      call 'gen_fsm':'enter_loop'
+						  ('ssh_connection_handler', [], 'error', {_cor12,State0})
+			  ( <_cor2> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor2})
+			    -| ['compiler_generated'] )
+			end
+		    ( <_cor1> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor1})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'open_channel'/6 =
+    %% Line 170
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor6> =
+	    %% Line 173
+	    call 'erlang':'self'
+		()
+	in  %% Line 173
+	    apply 'sync_send_all_state_event'/2
+		(_cor5, {'open',_cor6,_cor4,_cor2,_cor1,_cor3,_cor0})
+'request'/7 =
+    %% Line 181
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <ConnectionHandler,ChannelPid,ChannelId,Type,'true',Data,Timeout> when 'true' ->
+	      %% Line 182
+	      apply 'sync_send_all_state_event'/2
+		  (ConnectionHandler, {'request',ChannelPid,ChannelId,Type,Data,%% Line 183
+										Timeout})
+	  %% Line 184
+	  <ConnectionHandler,ChannelPid,ChannelId,Type,'false',Data,_cor14> when 'true' ->
+	      %% Line 185
+	      apply 'send_all_state_event'/2
+		  (ConnectionHandler, {'request',ChannelPid,ChannelId,Type,Data})
+	  ( <_cor13,_cor12,_cor11,_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11,_cor10,_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'request',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'request'/6 =
+    %% Line 191
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <ConnectionHandler,ChannelId,Type,'true',Data,Timeout> when 'true' ->
+	      %% Line 192
+	      apply 'sync_send_all_state_event'/2
+		  (ConnectionHandler, {'request',ChannelId,Type,Data,Timeout})
+	  %% Line 193
+	  <ConnectionHandler,ChannelId,Type,'false',Data,_cor12> when 'true' ->
+	      %% Line 194
+	      apply 'send_all_state_event'/2
+		  (ConnectionHandler, {'request',ChannelId,Type,Data})
+	  ( <_cor11,_cor10,_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'request',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'reply_request'/3 =
+    %% Line 199
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 200
+	apply 'send_all_state_event'/2
+	    (_cor2, {'reply_request',_cor1,_cor0})
+'global_request'/4 =
+    %% Line 205
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <ConnectionHandler,Type,Reply = 'true',Data> when 'true' ->
+	      let <_cor4> =
+		  %% Line 207
+		  call 'erlang':'self'
+		      ()
+	      in  %% Line 206
+		  case apply 'sync_send_all_state_event'/2
+			   (ConnectionHandler, %% Line 207
+					       {'global_request',_cor4,Type,Reply,Data}) of
+		    %% Line 208
+		    <{'ssh_cm',_cor11,{'success',_cor12}}>
+			when call 'erlang':'=:='
+			      (_cor11,
+			       ConnectionHandler) ->
+			%% Line 209
+			'ok'
+		    %% Line 210
+		    <{'ssh_cm',_cor13,{'failure',_cor14}}>
+			when call 'erlang':'=:='
+			      (_cor13,
+			       ConnectionHandler) ->
+			%% Line 211
+			'error'
+		    ( <_cor5> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor5})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 213
+	  <ConnectionHandler,Type,Reply = 'false',Data> when 'true' ->
+	      let <_cor6> =
+		  %% Line 214
+		  call 'erlang':'self'
+		      ()
+	      in  %% Line 214
+		  apply 'send_all_state_event'/2
+		      (ConnectionHandler, {'global_request',_cor6,Type,Reply,Data})
+	  ( <_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'global_request',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'send'/5 =
+    %% Line 220
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 221
+	apply 'sync_send_all_state_event'/2
+	    (_cor4, {'data',_cor3,_cor2,_cor1,_cor0})
+'send_eof'/2 =
+    %% Line 226
+    fun (_cor1,_cor0) ->
+	%% Line 227
+	apply 'sync_send_all_state_event'/2
+	    (_cor1, {'eof',_cor0})
+'connection_info'/2 =
+    %% Line 232
+    fun (_cor1,_cor0) ->
+	%% Line 233
+	apply 'sync_send_all_state_event'/2
+	    (_cor1, {'connection_info',_cor0})
+'channel_info'/3 =
+    %% Line 238
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 239
+	apply 'sync_send_all_state_event'/2
+	    (_cor2, {'channel_info',_cor1,_cor0})
+'adjust_window'/3 =
+    %% Line 244
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 245
+	apply 'send_all_state_event'/2
+	    (_cor2, {'adjust_window',_cor1,_cor0})
+'renegotiate'/1 =
+    %% Line 249
+    fun (_cor0) ->
+	%% Line 250
+	apply 'send_all_state_event'/2
+	    (_cor0, 'renegotiate')
+'renegotiate_data'/1 =
+    %% Line 255
+    fun (_cor0) ->
+	%% Line 256
+	apply 'send_all_state_event'/2
+	    (_cor0, 'data_size')
+'close'/2 =
+    %% Line 261
+    fun (_cor1,_cor0) ->
+	%% Line 262
+	apply 'sync_send_all_state_event'/2
+	    (_cor1, {'close',_cor0})
+'stop'/1 =
+    %% Line 267
+    fun (_cor0) ->
+	%% Line 268
+	case apply 'sync_send_all_state_event'/2
+		 (_cor0, 'stop') of
+	  %% Line 269
+	  <{'error','closed'}> when 'true' ->
+	      %% Line 270
+	      'ok'
+	  %% Line 271
+	  <Other> when 'true' ->
+	      %% Line 272
+	      Other
+	end
+'info'/1 =
+    %% Line 275
+    fun (_cor0) ->
+	%% Line 276
+	apply 'info'/2
+	    (_cor0, {'info','all'})
+'info'/2 =
+    %% Line 278
+    fun (_cor1,_cor0) ->
+	%% Line 279
+	apply 'sync_send_all_state_event'/2
+	    (_cor1, {'info',_cor0})
+'hello'/2 =
+    %% Line 291
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'socket_control',State = {'state',_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,Ssh,Socket,_cor27,_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 292
+		  apply 'string_version'/1
+		      (Ssh)
+	      in  let <VsnMsg> =
+		      %% Line 292
+		      call 'ssh_transport':'hello_version_msg'
+			  (_cor2)
+		  in  do  %% Line 293
+			  apply 'send_msg'/2
+			      (VsnMsg, State)
+			  do  %% Line 294
+			      call 'inet':'setopts'
+				  (Socket, [{'packet','line'}|[{'active','once'}]])
+			      %% Line 295
+			      {'next_state','hello',State}
+	  %% Line 297
+	  <{'info_line',_X_Line},State = {'state',_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45,_cor46,Socket,_cor47,_cor48,_cor49,_cor50,_cor51,_cor52,_cor53,_cor54,_cor55}> when 'true' ->
+	      do  %% Line 298
+		  call 'inet':'setopts'
+		      (Socket, [{'active','once'}])
+		  %% Line 299
+		  {'next_state','hello',State}
+	  %% Line 301
+	  <{'version_exchange',Version},State = {'state',_cor56,_cor57,_cor58,_cor59,_cor60,_cor61,_cor62,_cor63,_cor64,_cor65,Ssh0,%% Line 302
+																    Socket,_cor66,_cor67,_cor68,_cor69,_cor70,_cor71,_cor72,_cor73,_cor74}> when 'true' ->
+	      %% Line 303
+	      case call 'ssh_transport':'handle_hello_version'
+		       (Version) of
+		<{NumVsn,StrVsn}> when 'true' ->
+		    %% Line 304
+		    case apply 'handle_version'/3
+			     (NumVsn, StrVsn, Ssh0) of
+		      %% Line 305
+		      <{'ok',Ssh1}> when 'true' ->
+			  do  %% Line 306
+			      call 'inet':'setopts'
+				  (Socket, [{'packet',0}|[{'mode','binary'}|[{'active','once'}]]])
+			      %% Line 307
+			      case call 'ssh_transport':'key_exchange_init_msg'
+				       (Ssh1) of
+				<{KeyInitMsg,SshPacket,Ssh}> when 'true' ->
+				    do  %% Line 308
+					apply 'send_msg'/2
+					    (SshPacket, State)
+					let <_cor7> =
+					    %% Line 310
+					    call 'erlang':'setelement'
+						(17, State, %% Line 311
+							    KeyInitMsg)
+					in  let <_cor9> =
+						%% Line 309
+						call 'erlang':'setelement'
+						    (12, _cor7, Ssh)
+					    in  let <_cor10> =
+						    %% Line 309
+						    apply 'next_packet'/1
+							(_cor9)
+						in  %% Line 309
+						    {'next_state','kexinit',_cor10}
+				( <_cor5> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor5})
+				  -| ['compiler_generated'] )
+			      end
+		      %% Line 312
+		      <'not_supported'> when 'true' ->
+			  let <_cor11> =
+			      %% Line 317
+			      call 'erlang':'++'
+				  (StrVsn, [32|[110|[111|[116|[32|[115|[117|[112|[112|[111|[114|[116|[101|[100]]]]]]]]]]]]]])
+			  in  let <_cor12> =
+				  %% Line 316
+				  call 'erlang':'++'
+				      ([80|[114|[111|[116|[111|[99|[111|[108|[32|[118|[101|[114|[115|[105|[111|[110|[32]]]]]]]]]]]]]]]]], _cor11)
+			      in  let <DisconnectMsg> =
+				      %% Line 314
+				      {'ssh_msg_disconnect',%% Line 315
+							    8,_cor12,%% Line 318
+								     [101|[110]]}
+				  in  %% Line 319
+				      apply 'handle_disconnect'/2
+					  (DisconnectMsg, State)
+		      ( <_cor14> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor14})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor16,_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15})
+		  -| [{'function_name',{'hello',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'kexinit'/2 =
+    %% Line 325
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Kex = {'ssh_msg_kexinit',_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27},Payload},State = %% Line 326
+																		  {'state',_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,Ssh0 = {'ssh',Role,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45,_cor46,_cor47,_cor48,_cor49,_cor50,_cor51,_cor52,_cor53,_cor54,_cor55,_cor56,_cor57,_cor58,_cor59,_cor60,_cor61,_cor62,_cor63,_cor64,_cor65,_cor66,_cor67,_cor68,_cor69,_cor70,_cor71,_cor72,_cor73,_cor74,_cor75,_cor76,_cor77,_cor78,_cor79,_cor80,_cor81,_cor82,_cor83,_cor84,_cor85,_cor86,_cor87},_cor88,_cor89,_cor90,_cor91,%% Line 327
+																																																																													       OwnKex,_cor92,_cor93,_cor94,_cor95,_cor96}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 329
+		  apply 'opposite_role'/1
+		      (Role)
+	      in  let <Ssh1> =
+		      %% Line 329
+		      call 'ssh_transport':'key_init'
+			  (_cor2, Ssh0, Payload)
+		  in  %% Line 330
+		      case call 'ssh_transport':'handle_kexinit_msg'
+			       (Kex, OwnKex, Ssh1) of
+			%% Line 331
+			<{'ok',NextKexMsg,Ssh}>
+			    when call 'erlang':'=:='
+				  (Role,
+				   'client') ->
+			    do  %% Line 332
+				apply 'send_msg'/2
+				    (NextKexMsg, State)
+				let <_cor6> =
+				    %% Line 334
+				    call 'erlang':'setelement'
+					(12, State, Ssh)
+				in  let <_cor7> =
+					%% Line 334
+					apply 'next_packet'/1
+					    (_cor6)
+				    in  %% Line 333
+					{'next_state','key_exchange',_cor7}
+			%% Line 335
+			<{'ok',Ssh}>
+			    when call 'erlang':'=:='
+				  (Role,
+				   'server') ->
+			    let <_cor10> =
+				%% Line 337
+				call 'erlang':'setelement'
+				    (12, State, Ssh)
+			    in  let <_cor11> =
+				    %% Line 337
+				    apply 'next_packet'/1
+					(_cor10)
+				in  %% Line 336
+				    {'next_state','key_exchange',_cor11}
+			( <_cor12> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor12})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor14,_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14,_cor13})
+		  -| [{'function_name',{'kexinit',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'key_exchange'/2 =
+    %% Line 347
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Msg = {'ssh_msg_kexdh_init',_cor31},State = %% Line 348
+						       {'state',_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,Ssh0 = {'ssh','server',_cor42,_cor43,_cor44,_cor45,_cor46,_cor47,_cor48,_cor49,_cor50,_cor51,_cor52,_cor53,_cor54,_cor55,_cor56,_cor57,_cor58,_cor59,_cor60,_cor61,_cor62,_cor63,_cor64,_cor65,_cor66,_cor67,_cor68,_cor69,_cor70,_cor71,_cor72,_cor73,_cor74,_cor75,_cor76,_cor77,_cor78,_cor79,_cor80,_cor81,_cor82,_cor83,_cor84,_cor85,_cor86,_cor87,_cor88,_cor89,_cor90,_cor91},_cor92,_cor93,_cor94,_cor95,_cor96,_cor97,_cor98,_cor99,_cor100,_cor101}> when 'true' ->
+	      %% Line 349
+	      case call 'ssh_transport':'handle_kexdh_init'
+		       (Msg, Ssh0) of
+		%% Line 350
+		<{'ok',KexdhReply,Ssh1}> when 'true' ->
+		    do  %% Line 351
+			apply 'send_msg'/2
+			    (KexdhReply, State)
+			%% Line 352
+			case call 'ssh_transport':'new_keys_message'
+				 (Ssh1) of
+			  <{'ok',NewKeys,Ssh}> when 'true' ->
+			      do  %% Line 353
+				  apply 'send_msg'/2
+				      (NewKeys, State)
+				  let <_cor5> =
+				      %% Line 354
+				      call 'erlang':'setelement'
+					  (12, State, Ssh)
+				  in  let <_cor6> =
+					  %% Line 354
+					  apply 'next_packet'/1
+					      (_cor5)
+				      in  %% Line 354
+					  {'next_state','new_keys',_cor6}
+			  ( <_cor2> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor2})
+			    -| ['compiler_generated'] )
+			end
+		( <_cor7> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor7})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 357
+	  <Msg = {'ssh_msg_kexdh_reply',_cor124,_cor125,_cor126},State = %% Line 358
+									 {'state',_cor127,_cor128,_cor129,_cor130,_cor131,_cor132,_cor133,_cor134,_cor135,_cor136,Ssh0 = {'ssh','client',_cor137,_cor138,_cor139,_cor140,_cor141,_cor142,_cor143,_cor144,_cor145,_cor146,_cor147,_cor148,_cor149,_cor150,_cor151,_cor152,_cor153,_cor154,_cor155,_cor156,_cor157,_cor158,_cor159,_cor160,_cor161,_cor162,_cor163,_cor164,_cor165,_cor166,_cor167,_cor168,_cor169,_cor170,_cor171,_cor172,_cor173,_cor174,_cor175,_cor176,_cor177,_cor178,_cor179,_cor180,_cor181,_cor182,_cor183,_cor184,_cor185,_cor186},_cor187,_cor188,_cor189,_cor190,_cor191,_cor192,_cor193,_cor194,_cor195,_cor196}> when 'true' ->
+	      %% Line 359
+	      case call 'ssh_transport':'handle_kexdh_reply'
+		       (Msg, Ssh0) of
+		<{'ok',NewKeys,Ssh}> when 'true' ->
+		    do  %% Line 360
+			apply 'send_msg'/2
+			    (NewKeys, State)
+			let <_cor11> =
+			    %% Line 361
+			    call 'erlang':'setelement'
+				(12, State, Ssh)
+			in  let <_cor12> =
+				%% Line 361
+				apply 'next_packet'/1
+				    (_cor11)
+			    in  %% Line 361
+				{'next_state','new_keys',_cor12}
+		( <_cor8> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor8})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 363
+	  <Msg = {'ssh_msg_kex_dh_gex_group',_cor219,_cor220},State = %% Line 364
+								      {'state',_cor221,_cor222,_cor223,_cor224,_cor225,_cor226,_cor227,_cor228,_cor229,_cor230,Ssh0 = {'ssh','server',_cor231,_cor232,_cor233,_cor234,_cor235,_cor236,_cor237,_cor238,_cor239,_cor240,_cor241,_cor242,_cor243,_cor244,_cor245,_cor246,_cor247,_cor248,_cor249,_cor250,_cor251,_cor252,_cor253,_cor254,_cor255,_cor256,_cor257,_cor258,_cor259,_cor260,_cor261,_cor262,_cor263,_cor264,_cor265,_cor266,_cor267,_cor268,_cor269,_cor270,_cor271,_cor272,_cor273,_cor274,_cor275,_cor276,_cor277,_cor278,_cor279,_cor280},_cor281,_cor282,_cor283,_cor284,_cor285,_cor286,_cor287,_cor288,_cor289,_cor290}> when 'true' ->
+	      %% Line 365
+	      case call 'ssh_transport':'handle_kex_dh_gex_group'
+		       (Msg, Ssh0) of
+		<{'ok',NextKexMsg,Ssh1}> when 'true' ->
+		    do  %% Line 366
+			apply 'send_msg'/2
+			    (NextKexMsg, State)
+			%% Line 367
+			case call 'ssh_transport':'new_keys_message'
+				 (Ssh1) of
+			  <{'ok',NewKeys,Ssh}> when 'true' ->
+			      do  %% Line 368
+				  apply 'send_msg'/2
+				      (NewKeys, State)
+				  let <_cor17> =
+				      %% Line 369
+				      call 'erlang':'setelement'
+					  (12, State, Ssh)
+				  in  let <_cor18> =
+					  %% Line 369
+					  apply 'next_packet'/1
+					      (_cor17)
+				      in  %% Line 369
+					  {'next_state','new_keys',_cor18}
+			  ( <_cor14> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor14})
+			    -| ['compiler_generated'] )
+			end
+		( <_cor13> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor13})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 371
+	  <Msg = {'ssh_msg_kex_dh_gex_request',_cor313,_cor314,_cor315},State = %% Line 372
+										{'state',_cor316,_cor317,_cor318,_cor319,_cor320,_cor321,_cor322,_cor323,_cor324,_cor325,Ssh0 = {'ssh','client',_cor326,_cor327,_cor328,_cor329,_cor330,_cor331,_cor332,_cor333,_cor334,_cor335,_cor336,_cor337,_cor338,_cor339,_cor340,_cor341,_cor342,_cor343,_cor344,_cor345,_cor346,_cor347,_cor348,_cor349,_cor350,_cor351,_cor352,_cor353,_cor354,_cor355,_cor356,_cor357,_cor358,_cor359,_cor360,_cor361,_cor362,_cor363,_cor364,_cor365,_cor366,_cor367,_cor368,_cor369,_cor370,_cor371,_cor372,_cor373,_cor374,_cor375},_cor376,_cor377,_cor378,_cor379,_cor380,_cor381,_cor382,_cor383,_cor384,_cor385}> when 'true' ->
+	      %% Line 373
+	      case call 'ssh_transport':'handle_kex_dh_gex_request'
+		       (Msg, Ssh0) of
+		<{'ok',NextKexMsg,Ssh}> when 'true' ->
+		    do  %% Line 374
+			apply 'send_msg'/2
+			    (NextKexMsg, State)
+			let <_cor22> =
+			    %% Line 375
+			    call 'erlang':'setelement'
+				(12, State, Ssh)
+			in  let <_cor23> =
+				%% Line 375
+				apply 'next_packet'/1
+				    (_cor22)
+			    in  %% Line 375
+				{'next_state','new_keys',_cor23}
+		( <_cor19> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor19})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 377
+	  <Msg = {'ssh_msg_kex_dh_gex_reply',_cor408,_cor409,_cor410},State = %% Line 378
+									      {'state',_cor411,_cor412,_cor413,_cor414,_cor415,_cor416,_cor417,_cor418,_cor419,_cor420,Ssh0 = {'ssh','client',_cor421,_cor422,_cor423,_cor424,_cor425,_cor426,_cor427,_cor428,_cor429,_cor430,_cor431,_cor432,_cor433,_cor434,_cor435,_cor436,_cor437,_cor438,_cor439,_cor440,_cor441,_cor442,_cor443,_cor444,_cor445,_cor446,_cor447,_cor448,_cor449,_cor450,_cor451,_cor452,_cor453,_cor454,_cor455,_cor456,_cor457,_cor458,_cor459,_cor460,_cor461,_cor462,_cor463,_cor464,_cor465,_cor466,_cor467,_cor468,_cor469,_cor470},_cor471,_cor472,_cor473,_cor474,_cor475,_cor476,_cor477,_cor478,_cor479,_cor480}> when 'true' ->
+	      %% Line 379
+	      case call 'ssh_transport':'handle_kex_dh_gex_reply'
+		       (Msg, Ssh0) of
+		<{'ok',NewKeys,Ssh}> when 'true' ->
+		    do  %% Line 380
+			apply 'send_msg'/2
+			    (NewKeys, State)
+			let <_cor27> =
+			    %% Line 381
+			    call 'erlang':'setelement'
+				(12, State, Ssh)
+			in  let <_cor28> =
+				%% Line 381
+				apply 'next_packet'/1
+				    (_cor27)
+			    in  %% Line 381
+				{'next_state','new_keys',_cor28}
+		( <_cor24> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor24})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor30,_cor29> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor30,_cor29})
+		  -| [{'function_name',{'key_exchange',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'new_keys'/2 =
+    %% Line 387
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Msg = {'ssh_msg_newkeys'},State0 = {'state',_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,Ssh0,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29}> when 'true' ->
+	      %% Line 388
+	      case call 'ssh_transport':'handle_new_keys'
+		       (Msg, Ssh0) of
+		<{'ok',Ssh}> when 'true' ->
+		    let <_cor5> =
+			%% Line 390
+			call 'erlang':'setelement'
+			    (12, State0, Ssh)
+		    in  %% Line 389
+			case %% Line 390
+			     apply 'after_new_keys'/1
+				 (_cor5) of
+			  <{NextStateName,State}> when 'true' ->
+			      let <_cor7> =
+				  %% Line 391
+				  apply 'next_packet'/1
+				      (State)
+			      in  %% Line 391
+				  {'next_state',NextStateName,_cor7}
+			  ( <_cor6> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor6})
+			    -| ['compiler_generated'] )
+			end
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8})
+		  -| [{'function_name',{'new_keys',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'userauth'/2 =
+    %% Line 401
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Msg = {'ssh_msg_service_request',[115|[115|[104|[45|[117|[115|[101|[114|[97|[117|[116|[104]]]]]]]]]]]]},State = %% Line 402
+															   {'state',_cor75,_cor76,_cor77,_cor78,_cor79,_cor80,_cor81,_cor82,_cor83,_cor84,Ssh0 = {'ssh','server',_cor85,_cor86,_cor87,_cor88,_cor89,_cor90,_cor91,_cor92,_cor93,_cor94,_cor95,_cor96,_cor97,_cor98,_cor99,_cor100,_cor101,_cor102,_cor103,_cor104,_cor105,_cor106,_cor107,_cor108,_cor109,_cor110,_cor111,_cor112,_cor113,_cor114,_cor115,_cor116,_cor117,_cor118,_cor119,_cor120,%% Line 403
+																																																														  SessionId,_cor121,_cor122,_cor123,_cor124,_cor125,_cor126,_cor127,_cor128,_cor129,_cor130,_cor131,_cor132,_cor133},_cor134,_cor135,_cor136,_cor137,_cor138,_cor139,_cor140,_cor141,_cor142,_cor143}> when 'true' ->
+	      %% Line 404
+	      case call 'ssh_auth':'handle_userauth_request'
+		       (Msg, SessionId, Ssh0) of
+		<{'ok',{Reply,Ssh}}> when 'true' ->
+		    do  %% Line 405
+			apply 'send_msg'/2
+			    (Reply, State)
+			let <_cor5> =
+			    %% Line 406
+			    call 'erlang':'setelement'
+				(12, State, Ssh)
+			in  let <_cor6> =
+				%% Line 406
+				apply 'next_packet'/1
+				    (_cor5)
+			    in  %% Line 406
+				{'next_state','userauth',_cor6}
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 408
+	  <{'ssh_msg_service_accept',[115|[115|[104|[45|[117|[115|[101|[114|[97|[117|[116|[104]]]]]]]]]]]]},State = %% Line 409
+														    {'state',_cor166,_cor167,_cor168,_cor169,_cor170,_cor171,_cor172,_cor173,_cor174,_cor175,Ssh0 = {'ssh','client',_cor176,_cor177,_cor178,_cor179,_cor180,_cor181,_cor182,_cor183,_cor184,_cor185,_cor186,_cor187,_cor188,_cor189,_cor190,_cor191,_cor192,_cor193,_cor194,_cor195,_cor196,_cor197,_cor198,_cor199,_cor200,_cor201,_cor202,_cor203,_cor204,_cor205,_cor206,_cor207,_cor208,_cor209,_cor210,_cor211,_cor212,_cor213,_cor214,_cor215,_cor216,_cor217,_cor218,%% Line 410
+																																																																							    [115|[115|[104|[45|[117|[115|[101|[114|[97|[117|[116|[104]]]]]]]]]]]],_cor219,_cor220,_cor221,_cor222,_cor223,_cor224},_cor225,_cor226,_cor227,_cor228,_cor229,_cor230,_cor231,_cor232,_cor233,_cor234}> when 'true' ->
+	      %% Line 412
+	      case call 'ssh_auth':'init_userauth_request_msg'
+		       (Ssh0) of
+		<{Msg,Ssh}> when 'true' ->
+		    do  %% Line 413
+			apply 'send_msg'/2
+			    (Msg, State)
+			%% Line 414
+			( case Ssh of
+			    ( <( {'ssh',_cor235,_cor236,_cor237,_cor238,_cor239,_cor240,_cor241,_cor242,_cor243,_cor244,_cor245,_cor246,_cor247,_cor248,_cor249,_cor250,_cor251,_cor252,_cor253,_cor254,_cor255,_cor256,_cor257,_cor258,_cor259,_cor260,_cor261,_cor262,_cor263,_cor264,_cor265,_cor266,_cor267,_cor268,_cor269,_cor270,_cor271,_cor272,_cor273,_cor274,_cor275,_cor276,_cor277,_rec13,_cor278,_cor279,_cor280,_cor281,_cor282,_cor283,_cor284}
+				 -| ['compiler_generated'] )> when 'true' ->
+				  let <_cor12> =
+				      call 'erlang':'setelement'
+					  (12, State, Ssh)
+				  in  let <_cor14> =
+					  call 'erlang':'setelement'
+					      (5, _cor12, _rec13)
+				      in  let <_cor15> =
+					      apply 'next_packet'/1
+						  (_cor14)
+					  in  {'next_state','userauth',_cor15}
+			      -| ['compiler_generated'] )
+			    ( <_cor285> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','ssh'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		( <_cor7> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor7})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 416
+	  <Msg = {'ssh_msg_userauth_request',_cor308,[115|[115|[104|[45|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110]]]]]]]]]]]]]],%% Line 417
+																      [110|[111|[110|[101]]]],_cor309},State = %% Line 418
+																					       {'state',_cor310,_cor311,_cor312,_cor313,_cor314,_cor315,_cor316,_cor317,_cor318,_cor319,Ssh0 = {'ssh','server',_cor320,_cor321,_cor322,_cor323,_cor324,_cor325,_cor326,_cor327,_cor328,_cor329,_cor330,_cor331,_cor332,_cor333,_cor334,_cor335,_cor336,_cor337,_cor338,_cor339,_cor340,_cor341,_cor342,_cor343,_cor344,_cor345,_cor346,_cor347,_cor348,_cor349,_cor350,_cor351,_cor352,_cor353,_cor354,_cor355,SessionId,_cor356,_cor357,_cor358,_cor359,_cor360,_cor361,%% Line 419
+																																																																															 [115|[115|[104|[45|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110]]]]]]]]]]]]]],_cor362,_cor363,_cor364,_cor365,_cor366,_cor367},_cor368,_cor369,_cor370,_cor371,_cor372,_cor373,_cor374,_cor375,_cor376,_cor377}> when 'true' ->
+	      %% Line 421
+	      case %% Line 422
+		   call 'ssh_auth':'handle_userauth_request'
+		       (Msg, SessionId, Ssh0) of
+		<{'not_authorized',{_X_User,_X_Reason},{Reply,Ssh}}> when 'true' ->
+		    do  %% Line 423
+			apply 'send_msg'/2
+			    (Reply, State)
+			let <_cor19> =
+			    %% Line 424
+			    call 'erlang':'setelement'
+				(12, State, Ssh)
+			in  let <_cor20> =
+				%% Line 424
+				apply 'next_packet'/1
+				    (_cor19)
+			    in  %% Line 424
+				{'next_state','userauth',_cor20}
+		( <_cor16> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor16})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 426
+	  <Msg = {'ssh_msg_userauth_request',_cor400,[115|[115|[104|[45|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110]]]]]]]]]]]]]],%% Line 427
+																      Method,_cor401},State = %% Line 428
+																			      {'state',_cor402,_cor403,%% Line 431
+																						       Pid,_cor404,_cor405,_cor406,_cor407,_cor408,_cor409,_cor410,Ssh0 = {'ssh','server',%% Line 430
+																																	  {_cor411,Address},_cor412,_cor413,_cor414,_cor415,_cor416,_cor417,_cor418,_cor419,_cor420,_cor421,_cor422,_cor423,_cor424,_cor425,_cor426,_cor427,_cor428,_cor429,_cor430,_cor431,_cor432,_cor433,_cor434,_cor435,_cor436,_cor437,_cor438,_cor439,_cor440,_cor441,_cor442,_cor443,_cor444,_cor445,_cor446,SessionId,_cor447,_cor448,_cor449,_cor450,_cor451,_cor452,%% Line 429
+																																																																													      [115|[115|[104|[45|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110]]]]]]]]]]]]]],_cor453,_cor454,_cor455,_cor456,_cor457,_cor458},_cor459,_cor460,_cor461,_cor462,_cor463,_cor464,_cor465,_cor466,_cor467,%% Line 431
+																																																																																																							Opts}> when 'true' ->
+	      %% Line 432
+	      case call 'ssh_auth':'handle_userauth_request'
+		       (Msg, SessionId, Ssh0) of
+		%% Line 433
+		<{'authorized',User,{Reply,Ssh}}> when 'true' ->
+		    do  %% Line 434
+			apply 'send_msg'/2
+			    (Reply, State)
+			do  %% Line 435
+			    call 'erlang':'!'
+				(Pid, 'ssh_connected')
+			    do  %% Line 436
+				apply 'connected_fun'/4
+				    (User, Address, Method, Opts)
+				let <_cor22> =
+				    %% Line 438
+				    call 'erlang':'setelement'
+					(12, State, Ssh)
+				in  let <_cor24> =
+					%% Line 438
+					call 'erlang':'setelement'
+					    (5, _cor22, User)
+				    in  let <_cor25> =
+					    %% Line 438
+					    apply 'next_packet'/1
+						(_cor24)
+					in  %% Line 437
+					    {'next_state','connected',_cor25}
+		%% Line 439
+		<{'not_authorized',{User,Reason},{Reply,Ssh}}> when 'true' ->
+		    do  %% Line 440
+			apply 'retry_fun'/4
+			    (User, Address, Reason, Opts)
+			do  %% Line 441
+			    apply 'send_msg'/2
+				(Reply, State)
+			    let <_cor28> =
+				%% Line 442
+				call 'erlang':'setelement'
+				    (12, State, Ssh)
+			    in  let <_cor29> =
+				    %% Line 442
+				    apply 'next_packet'/1
+					(_cor28)
+				in  %% Line 442
+				    {'next_state','userauth',_cor29}
+		( <_cor30> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor30})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 445
+	  <Msg = {'ssh_msg_userauth_info_request',_cor512,_cor513,_cor514,_cor515,_cor516},State = %% Line 446
+												   {'state',_cor517,_cor518,_cor519,_cor520,_cor521,_cor522,_cor523,_cor524,_cor525,_cor526,Ssh0 = {'ssh','client',_cor527,_cor528,_cor529,_cor530,_cor531,_cor532,_cor533,_cor534,_cor535,_cor536,_cor537,%% Line 447
+																																					   IoCb,_cor538,_cor539,_cor540,_cor541,_cor542,_cor543,_cor544,_cor545,_cor546,_cor547,_cor548,_cor549,_cor550,_cor551,_cor552,_cor553,_cor554,_cor555,_cor556,_cor557,_cor558,_cor559,_cor560,_cor561,_cor562,_cor563,_cor564,_cor565,_cor566,_cor567,_cor568,_cor569,_cor570,_cor571,_cor572,_cor573,_cor574,_cor575},_cor576,_cor577,_cor578,_cor579,_cor580,_cor581,_cor582,_cor583,_cor584,_cor585}> when 'true' ->
+	      %% Line 448
+	      case call 'ssh_auth':'handle_userauth_info_request'
+		       (Msg, IoCb, Ssh0) of
+		<{'ok',{Reply,Ssh}}> when 'true' ->
+		    do  %% Line 449
+			apply 'send_msg'/2
+			    (Reply, State)
+			let <_cor34> =
+			    %% Line 450
+			    call 'erlang':'setelement'
+				(12, State, Ssh)
+			in  let <_cor35> =
+				%% Line 450
+				apply 'next_packet'/1
+				    (_cor34)
+			    in  %% Line 450
+				{'next_state','userauth',_cor35}
+		( <_cor31> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor31})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 452
+	  <Msg = {'ssh_msg_userauth_info_response',_cor608,_cor609},State = %% Line 453
+									    {'state',_cor610,_cor611,_cor612,_cor613,_cor614,_cor615,_cor616,_cor617,_cor618,_cor619,Ssh0 = {'ssh','server',_cor620,_cor621,_cor622,_cor623,_cor624,_cor625,_cor626,_cor627,_cor628,_cor629,_cor630,_cor631,_cor632,_cor633,_cor634,_cor635,_cor636,_cor637,_cor638,_cor639,_cor640,_cor641,_cor642,_cor643,_cor644,_cor645,_cor646,_cor647,_cor648,_cor649,_cor650,_cor651,_cor652,_cor653,_cor654,_cor655,_cor656,_cor657,_cor658,_cor659,_cor660,_cor661,_cor662,_cor663,_cor664,_cor665,_cor666,_cor667,_cor668,_cor669},_cor670,_cor671,_cor672,_cor673,_cor674,_cor675,_cor676,_cor677,_cor678,_cor679}> when 'true' ->
+	      %% Line 454
+	      case call 'ssh_auth':'handle_userauth_info_response'
+		       (Msg, Ssh0) of
+		<{'ok',{Reply,Ssh}}> when 'true' ->
+		    do  %% Line 455
+			apply 'send_msg'/2
+			    (Reply, State)
+			let <_cor39> =
+			    %% Line 456
+			    call 'erlang':'setelement'
+				(12, State, Ssh)
+			in  let <_cor40> =
+				%% Line 456
+				apply 'next_packet'/1
+				    (_cor39)
+			    in  %% Line 456
+				{'next_state','userauth',_cor40}
+		( <_cor36> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor36})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 458
+	  <{'ssh_msg_userauth_success'},State = {'state',_cor702,_cor703,%% Line 459
+									 Pid,_cor704,_cor705,_cor706,_cor707,_cor708,_cor709,_cor710,Ssh = {'ssh','client',_cor711,_cor712,_cor713,_cor714,_cor715,_cor716,_cor717,_cor718,_cor719,_cor720,_cor721,_cor722,_cor723,_cor724,_cor725,_cor726,_cor727,_cor728,_cor729,_cor730,_cor731,_cor732,_cor733,_cor734,_cor735,_cor736,_cor737,_cor738,_cor739,_cor740,_cor741,_cor742,_cor743,_cor744,_cor745,_cor746,_cor747,_cor748,_cor749,_cor750,_cor751,_cor752,_cor753,_cor754,_cor755,_cor756,_cor757,_cor758,_cor759,_cor760},_cor761,_cor762,_cor763,_cor764,_cor765,_cor766,_cor767,_cor768,_cor769,_cor770}> when 'true' ->
+	      do  %% Line 460
+		  call 'erlang':'!'
+		      (Pid, 'ssh_connected')
+		  let <_cor43> =
+		      %% Line 462
+		      call 'erlang':'setelement'
+			  (52, Ssh, 'true')
+		  in  let <_cor47> =
+			  %% Line 461
+			  call 'erlang':'setelement'
+			      (12, State, _cor43)
+		      in  let <_cor48> =
+			      %% Line 461
+			      apply 'next_packet'/1
+				  (_cor47)
+			  in  %% Line 461
+			      {'next_state','connected',_cor48}
+	  %% Line 463
+	  <{'ssh_msg_userauth_failure',_cor845,_cor846},State = %% Line 464
+								{'state',_cor847,_cor848,_cor849,_cor850,_cor851,_cor852,_cor853,_cor854,_cor855,_cor856,{'ssh','client',_cor857,_cor858,_cor859,_cor860,_cor861,_cor862,_cor863,_cor864,_cor865,_cor866,_cor867,_cor868,_cor869,_cor870,_cor871,_cor872,_cor873,_cor874,_cor875,_cor876,_cor877,_cor878,_cor879,_cor880,_cor881,_cor882,_cor883,_cor884,_cor885,_cor886,_cor887,_cor888,_cor889,_cor890,_cor891,_cor892,_cor893,_cor894,_cor895,_cor896,_cor897,_cor898,_cor899,_cor900,_cor901,_cor902,%% Line 465
+																																																																			 [],_cor903,_cor904,_cor905},_cor906,_cor907,_cor908,_cor909,_cor910,_cor911,_cor912,_cor913,_cor914,_cor915}> when 'true' ->
+	      %% Line 472
+	      apply 'handle_disconnect'/2
+		  ({'ssh_msg_disconnect',14,[85|[110|[97|[98|[108|[101|[32|[116|[111|[32|[99|[111|[110|[110|[101|[99|[116|[32|[117|[115|[105|[110|[103|[32|[116|[104|[101|[32|[97|[118|[97|[105|[108|[97|[98|[108|[101|[32|[97|[117|[116|[104|[101|[110|[116|[105|[99|[97|[116|[105|[111|[110|[32|[109|[101|[116|[104|[111|[100|[115]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],[101|[110]]}, State)
+	  %% Line 475
+	  <{'ssh_msg_userauth_failure',Methodes,_cor916},State = %% Line 476
+								 {'state',_cor917,_cor918,_cor919,_cor920,_cor921,_cor922,_cor923,_cor924,_cor925,_cor926,Ssh0 = {'ssh','client',_cor927,_cor928,_cor929,_cor930,_cor931,_cor932,_cor933,_cor934,_cor935,_cor936,_cor937,_cor938,_cor939,_cor940,_cor941,_cor942,_cor943,_cor944,_cor945,_cor946,_cor947,_cor948,_cor949,_cor950,_cor951,_cor952,_cor953,_cor954,_cor955,_cor956,_cor957,_cor958,_cor959,_cor960,_cor961,_cor962,_cor963,_cor964,_cor965,_cor966,_cor967,_cor968,_cor969,_cor970,_cor971,_cor972,%% Line 477
+																																																																				 'none',_cor973,_cor974,_cor975},_cor976,_cor977,_cor978,_cor979,_cor980,_cor981,_cor982,_cor983,_cor984,_cor985}> when 'true' ->
+	      let <AuthMethods> =
+		  %% Line 478
+		  call 'string':'tokens'
+		      (Methodes, [44])
+	      in  let <_cor53> =
+		      %% Line 479
+		      call 'erlang':'setelement'
+			  (49, Ssh0, AuthMethods)
+		  in  %% Line 480
+		      case call 'ssh_auth':'userauth_request_msg'
+			       (_cor53) of
+			%% Line 481
+			<{'disconnect',DisconnectMsg,{Msg,Ssh}}> when 'true' ->
+			    do  %% Line 482
+				apply 'send_msg'/2
+				    (Msg, State)
+				let <_cor57> =
+				    %% Line 483
+				    call 'erlang':'setelement'
+					(12, State, Ssh)
+				in  %% Line 483
+				    apply 'handle_disconnect'/2
+					(DisconnectMsg, _cor57)
+			%% Line 484
+			<{Msg,Ssh}> when 'true' ->
+			    do  %% Line 485
+				apply 'send_msg'/2
+				    (Msg, State)
+				let <_cor60> =
+				    %% Line 486
+				    call 'erlang':'setelement'
+					(12, State, Ssh)
+				in  let <_cor61> =
+					%% Line 486
+					apply 'next_packet'/1
+					    (_cor60)
+				    in  %% Line 486
+					{'next_state','userauth',_cor61}
+			( <_cor62> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor62})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 490
+	  <{'ssh_msg_userauth_failure',_cor1082,_cor1083},State = %% Line 491
+								  {'state',_cor1084,_cor1085,_cor1086,_cor1087,_cor1088,_cor1089,_cor1090,_cor1091,_cor1092,_cor1093,Ssh0 = {'ssh','client',_cor1094,_cor1095,_cor1096,_cor1097,_cor1098,_cor1099,_cor1100,_cor1101,_cor1102,_cor1103,_cor1104,_cor1105,_cor1106,_cor1107,_cor1108,_cor1109,_cor1110,_cor1111,_cor1112,_cor1113,_cor1114,_cor1115,_cor1116,_cor1117,_cor1118,_cor1119,_cor1120,_cor1121,_cor1122,_cor1123,_cor1124,_cor1125,_cor1126,_cor1127,_cor1128,_cor1129,_cor1130,_cor1131,_cor1132,_cor1133,_cor1134,_cor1135,_cor1136,_cor1137,_cor1138,_cor1139,_cor1140,_cor1141,_cor1142,_cor1143},_cor1144,_cor1145,_cor1146,_cor1147,_cor1148,_cor1149,_cor1150,_cor1151,_cor1152,_cor1153}> when 'true' ->
+	      %% Line 492
+	      case call 'ssh_auth':'userauth_request_msg'
+		       (Ssh0) of
+		%% Line 493
+		<{'disconnect',DisconnectMsg,{Msg,Ssh}}> when 'true' ->
+		    do  %% Line 494
+			apply 'send_msg'/2
+			    (Msg, State)
+			let <_cor65> =
+			    %% Line 495
+			    call 'erlang':'setelement'
+				(12, State, Ssh)
+			in  %% Line 495
+			    apply 'handle_disconnect'/2
+				(DisconnectMsg, _cor65)
+		%% Line 496
+		<{Msg,Ssh}> when 'true' ->
+		    do  %% Line 497
+			apply 'send_msg'/2
+			    (Msg, State)
+			let <_cor68> =
+			    %% Line 498
+			    call 'erlang':'setelement'
+				(12, State, Ssh)
+			in  let <_cor69> =
+				%% Line 498
+				apply 'next_packet'/1
+				    (_cor68)
+			    in  %% Line 498
+				{'next_state','userauth',_cor69}
+		( <_cor70> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor70})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 501
+	  <{'ssh_msg_userauth_banner',_cor1198,_cor1199},State = %% Line 502
+								 {'state',_cor1200,_cor1201,_cor1202,_cor1203,_cor1204,_cor1205,_cor1206,_cor1207,_cor1208,_cor1209,{'ssh',%% Line 503
+																					   'client',_cor1210,_cor1211,_cor1212,_cor1213,_cor1214,_cor1215,_cor1216,_cor1217,_cor1218,_cor1219,_cor1220,_cor1221,_cor1222,_cor1223,_cor1224,_cor1225,_cor1226,_cor1227,_cor1228,_cor1229,_cor1230,_cor1231,_cor1232,_cor1233,_cor1234,_cor1235,_cor1236,_cor1237,_cor1238,_cor1239,_cor1240,_cor1241,_cor1242,_cor1243,_cor1244,_cor1245,_cor1246,_cor1247,_cor1248,_cor1249,_cor1250,_cor1251,_cor1252,_cor1253,'true',_cor1254,_cor1255,_cor1256,_cor1257,_cor1258},_cor1259,_cor1260,_cor1261,_cor1262,_cor1263,_cor1264,_cor1265,_cor1266,_cor1267,_cor1268}> when 'true' ->
+	      let <_cor71> =
+		  %% Line 504
+		  apply 'next_packet'/1
+		      (State)
+	      in  %% Line 504
+		  {'next_state','userauth',_cor71}
+	  %% Line 505
+	  <{'ssh_msg_userauth_banner',Msg,_cor1269},State = %% Line 506
+							    {'state',_cor1270,_cor1271,_cor1272,_cor1273,_cor1274,_cor1275,_cor1276,_cor1277,_cor1278,_cor1279,%% Line 507
+																			       {'ssh','client',_cor1280,_cor1281,_cor1282,_cor1283,_cor1284,_cor1285,_cor1286,_cor1287,_cor1288,_cor1289,_cor1290,_cor1291,_cor1292,_cor1293,_cor1294,_cor1295,_cor1296,_cor1297,_cor1298,_cor1299,_cor1300,_cor1301,_cor1302,_cor1303,_cor1304,_cor1305,_cor1306,_cor1307,_cor1308,_cor1309,_cor1310,_cor1311,_cor1312,_cor1313,_cor1314,_cor1315,_cor1316,_cor1317,_cor1318,_cor1319,_cor1320,_cor1321,_cor1322,_cor1323,'false',_cor1324,_cor1325,_cor1326,_cor1327,_cor1328},_cor1329,_cor1330,_cor1331,_cor1332,_cor1333,_cor1334,_cor1335,_cor1336,_cor1337,_cor1338}> when 'true' ->
+	      do  %% Line 508
+		  call 'io':'format'
+		      ([126|[115]], [Msg|[]])
+		  let <_cor72> =
+		      %% Line 509
+		      apply 'next_packet'/1
+			  (State)
+		  in  %% Line 509
+		      {'next_state','userauth',_cor72}
+	  ( <_cor74,_cor73> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor74,_cor73})
+		  -| [{'function_name',{'userauth',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'connected'/2 =
+    %% Line 515
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Event = {{'ssh_msg_kexinit',_cor7,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19},_X_Payload},State> when 'true' ->
+	      %% Line 516
+	      case State of
+		<{'state',_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40}> when 'true' ->
+		    let <_cor4> =
+			call 'erlang':'setelement'
+			    (18, State, 'true')
+		    in  apply 'kexinit'/2
+			    (Event, _cor4)
+		( <_cor41> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'connected',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_event'/3 =
+    %% Line 530
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <DisconnectMsg = {'ssh_msg_disconnect',_cor56,Desc,_cor57},_X_StateName,State = {'state',_cor58,_cor59,_cor60,_cor61,_cor62,_cor63,_cor64,_cor65,_cor66,_cor67,_cor68,_cor69,_cor70,_cor71,_cor72,_cor73,_cor74,_cor75,_cor76,_cor77,_cor78}> when 'true' ->
+	      do  %% Line 531
+		  apply 'handle_disconnect'/2
+		      (DisconnectMsg, State)
+		  %% Line 532
+		  {'stop',{'shutdown',Desc},State}
+	  %% Line 534
+	  <{'ssh_msg_ignore',_cor79},StateName,State> when 'true' ->
+	      let <_cor3> =
+		  %% Line 535
+		  apply 'next_packet'/1
+		      (State)
+	      in  %% Line 535
+		  {'next_state',StateName,_cor3}
+	  %% Line 537
+	  <{'ssh_msg_debug','true',DbgMsg,_cor80},%% Line 538
+						  StateName,%% Line 538
+							    State> when 'true' ->
+	      do  %% Line 539
+		  call 'io':'format'
+		      ([68|[69|[66|[85|[71|[58|[32|[126|[112|[10]]]]]]]]]], [DbgMsg|[]])
+		  let <_cor4> =
+		      %% Line 540
+		      apply 'next_packet'/1
+			  (State)
+		  in  %% Line 540
+		      {'next_state',StateName,_cor4}
+	  %% Line 542
+	  <{'ssh_msg_debug',_cor81,_cor82,_cor83},StateName,State> when 'true' ->
+	      let <_cor5> =
+		  %% Line 543
+		  apply 'next_packet'/1
+		      (State)
+	      in  %% Line 543
+		  {'next_state',StateName,_cor5}
+	  %% Line 545
+	  <{'ssh_msg_unimplemented',_cor84},StateName,State> when 'true' ->
+	      let <_cor6> =
+		  %% Line 546
+		  apply 'next_packet'/1
+		      (State)
+	      in  %% Line 546
+		  {'next_state',StateName,_cor6}
+	  %% Line 548
+	  <{'adjust_window',ChannelId,Bytes},StateName,State0 = %% Line 549
+								{'state',_cor85,_cor86,_cor87,_cor88,%% Line 550
+												     {'connection',_cor89,Cache,_cor90,_cor91,_cor92,_cor93,_cor94,_cor95,_cor96,_cor97,_cor98,_cor99},_cor100,_cor101,_cor102,_cor103,_cor104,_cor105,_cor106,_cor107,_cor108,_cor109,_cor110,_cor111,_cor112,_cor113,_cor114,_cor115}> when 'true' ->
+	      let <_cor13> =
+		  %% Line 552
+		  case call 'ssh_channel':'cache_lookup'
+			   (Cache, ChannelId) of
+		    %% Line 553
+		    <Channel = {'channel',_cor116,_cor117,_cor118,_cor119,_cor120,WinSize,_cor121,_cor122,Id,_cor123,_cor124,_cor125,_cor126}> when 'true' ->
+			let <_rec28> =
+			    %% Line 555
+			    call 'erlang':'+'
+				(WinSize, Bytes)
+			in  let <_cor10> =
+				%% Line 554
+				call 'erlang':'setelement'
+				    (7, Channel, _rec28)
+			    in  do  %% Line 554
+				    call 'ssh_channel':'cache_update'
+					(Cache, _cor10)
+				    let <Msg> =
+					%% Line 556
+					call 'ssh_connection':'channel_adjust_window_msg'
+					    (Id, Bytes)
+				    in  %% Line 557
+					apply 'send_replies'/2
+					    ([{'connection_reply',Msg}|[]], State0)
+		    %% Line 558
+		    <'undefined'> when 'true' ->
+			%% Line 559
+			State0
+		    ( <_cor12> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor12})
+		      -| ['compiler_generated'] )
+		  end
+	      in  let <_cor15> =
+		      %% Line 561
+		      apply 'next_packet'/1
+			  (_cor13)
+		  in  %% Line 561
+		      {'next_state',StateName,_cor15}
+	  %% Line 563
+	  <{'reply_request','success',ChannelId},StateName,State0 = %% Line 564
+								    {'state',_cor141,_cor142,_cor143,_cor144,%% Line 565
+													     {'connection',_cor145,Cache,_cor146,_cor147,_cor148,_cor149,_cor150,_cor151,_cor152,_cor153,_cor154,_cor155},_cor156,_cor157,_cor158,_cor159,_cor160,_cor161,_cor162,_cor163,_cor164,_cor165,_cor166,_cor167,_cor168,_cor169,_cor170,_cor171}> when 'true' ->
+	      let <_cor18> =
+		  %% Line 566
+		  case call 'ssh_channel':'cache_lookup'
+			   (Cache, ChannelId) of
+		    %% Line 567
+		    <{'channel',_cor172,_cor173,_cor174,_cor175,_cor176,_cor177,_cor178,_cor179,RemoteId,_cor180,_cor181,_cor182,_cor183}> when 'true' ->
+			let <Msg> =
+			    %% Line 568
+			    call 'ssh_connection':'channel_success_msg'
+				(RemoteId)
+			in  %% Line 569
+			    apply 'send_replies'/2
+				([{'connection_reply',Msg}|[]], State0)
+		    %% Line 570
+		    <'undefined'> when 'true' ->
+			%% Line 571
+			State0
+		    ( <_cor17> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor17})
+		      -| ['compiler_generated'] )
+		  end
+	      in  %% Line 573
+		  {'next_state',StateName,_cor18}
+	  %% Line 575
+	  <'renegotiate','connected',State = {'state',_cor184,_cor185,_cor186,_cor187,_cor188,_cor189,_cor190,_cor191,_cor192,_cor193,Ssh0,_cor194,_cor195,_cor196,_cor197,_cor198,_cor199,_cor200,_cor201,_cor202,_cor203}> when 'true' ->
+	      %% Line 577
+	      case call 'ssh_transport':'key_exchange_init_msg'
+		       (Ssh0) of
+		<{KeyInitMsg,SshPacket,Ssh}> when 'true' ->
+		    do  %% Line 578
+			apply 'send_msg'/2
+			    (SshPacket, State)
+			let <_cor21> =
+			    %% Line 579
+			    call 'erlang':'self'
+				()
+			in  do  %% Line 579
+				call 'timer':'apply_after'
+				    (3600000, 'gen_fsm', 'send_all_state_event', [_cor21|['renegotiate']])
+				let <_cor23> =
+				    %% Line 583
+				    call 'erlang':'setelement'
+					(18, State, 'true')
+				in  let <_cor24> =
+					%% Line 582
+					call 'erlang':'setelement'
+					    (17, _cor23, KeyInitMsg)
+				    in  let <_cor26> =
+					    %% Line 581
+					    call 'erlang':'setelement'
+						(12, _cor24, Ssh)
+					in  let <_cor27> =
+						%% Line 581
+						apply 'next_packet'/1
+						    (_cor26)
+					    in  %% Line 580
+						{'next_state','kexinit',_cor27}
+		( <_cor20> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor20})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 585
+	  <'renegotiate',StateName,State> when 'true' ->
+	      let <_cor28> =
+		  %% Line 586
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 586
+		      call 'timer':'apply_after'
+			  (3600000, 'gen_fsm', 'send_all_state_event', [_cor28|['renegotiatie']])
+		      %% Line 588
+		      {'next_state',StateName,State}
+	  %% Line 591
+	  <'data_size','connected',State = {'state',_cor226,_cor227,_cor228,_cor229,_cor230,_cor231,_cor232,_cor233,_cor234,_cor235,Ssh0,_cor236,_cor237,_cor238,_cor239,_cor240,_cor241,_cor242,_cor243,_cor244,_cor245}> when 'true' ->
+	      %% Line 592
+	      case call 'inet':'getstat'
+		       (_cor236, ['send_oct']) of
+		<{'ok',[{'send_oct',Sent}|[]]}> when 'true' ->
+		    let <MaxSent> =
+			%% Line 593
+			call 'proplists':'get_value'
+			    ('rekey_limit', _cor245, 1024000000)
+		    in  let <_cor35> =
+			    %% Line 594
+			    call 'erlang':'self'
+				()
+			in  do  %% Line 594
+				call 'timer':'apply_after'
+				    (60000, 'gen_fsm', 'send_all_state_event', [_cor35|['data_size']])
+				%% Line 595
+				case call 'erlang':'>='
+					 (Sent, MaxSent) of
+				  %% Line 596
+				  <'true'> when 'true' ->
+				      %% Line 597
+				      case call 'ssh_transport':'key_exchange_init_msg'
+					       (Ssh0) of
+					<{KeyInitMsg,SshPacket,Ssh}> when 'true' ->
+					    do  %% Line 598
+						apply 'send_msg'/2
+						    (SshPacket, State)
+						let <_cor38> =
+						    %% Line 602
+						    call 'erlang':'setelement'
+							(18, State, 'true')
+						in  let <_cor39> =
+							%% Line 601
+							call 'erlang':'setelement'
+							    (17, _cor38, KeyInitMsg)
+						    in  let <_cor41> =
+							    %% Line 600
+							    call 'erlang':'setelement'
+								(12, _cor39, Ssh)
+							in  let <_cor42> =
+								%% Line 600
+								apply 'next_packet'/1
+								    (_cor41)
+							    in  %% Line 599
+								{'next_state','kexinit',_cor42}
+					( <_cor36> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor36})
+					  -| ['compiler_generated'] )
+				      end
+				  %% Line 603
+				  <_cor310> when 'true' ->
+				      let <_cor43> =
+					  %% Line 604
+					  apply 'next_packet'/1
+					      (State)
+				      in  %% Line 604
+					  {'next_state','connected',_cor43}
+				end
+		( <_cor31> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor31})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 606
+	  <'data_size',StateName,State> when 'true' ->
+	      %% Line 607
+	      {'next_state',StateName,State}
+	  %% Line 609
+	  <{'request',ChannelPid,ChannelId,Type,Data},StateName,State0> when 'true' ->
+	      %% Line 610
+	      case apply 'handle_request'/7
+		       (ChannelPid, ChannelId, %% Line 611
+					       Type, %% Line 611
+						     Data, %% Line 612
+							   'false', %% Line 612
+								    'none', %% Line 612
+									    State0) of
+		<{{'replies',Replies},State1}> when 'true' ->
+		    let <State> =
+			%% Line 613
+			apply 'send_replies'/2
+			    (Replies, State1)
+		    in  let <_cor47> =
+			    %% Line 614
+			    apply 'next_packet'/1
+				(State)
+			in  %% Line 614
+			    {'next_state',StateName,_cor47}
+		( <_cor45> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor45})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 616
+	  <{'request',ChannelId,Type,Data},StateName,State0> when 'true' ->
+	      %% Line 617
+	      case apply 'handle_request'/6
+		       (ChannelId, Type, Data, %% Line 618
+					       'false', %% Line 618
+							'none', %% Line 618
+								State0) of
+		<{{'replies',Replies},State1}> when 'true' ->
+		    let <State> =
+			%% Line 619
+			apply 'send_replies'/2
+			    (Replies, State1)
+		    in  let <_cor50> =
+			    %% Line 620
+			    apply 'next_packet'/1
+				(State)
+			in  %% Line 620
+			    {'next_state',StateName,_cor50}
+		( <_cor48> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor48})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 622
+	  <{'unknown',Data},StateName,State> when 'true' ->
+	      let <Msg> = {%% Line 623
+		   'ssh_msg_unimplemented',%% Line 623
+					   Data}
+	      in  do  %% Line 624
+		      apply 'send_msg'/2
+			  (Msg, State)
+		      let <_cor52> =
+			  %% Line 625
+			  apply 'next_packet'/1
+			      (State)
+		      in  %% Line 625
+			  {'next_state',StateName,_cor52}
+	  ( <_cor55,_cor54,_cor53> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor55,_cor54,_cor53})
+		  -| [{'function_name',{'handle_event',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_sync_event'/4 =
+    %% Line 639
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <{'request',ChannelPid,ChannelId,Type,Data,Timeout},From,StateName,State0> when 'true' ->
+	      %% Line 640
+	      case apply 'handle_request'/7
+		       (ChannelPid, %% Line 641
+				    ChannelId, %% Line 641
+					       Type, %% Line 641
+						     Data, %% Line 642
+							   'true', %% Line 642
+								   From, %% Line 642
+									 State0) of
+		<{{'replies',Replies},State1}> when 'true' ->
+		    let <State> =
+			%% Line 645
+			apply 'send_replies'/2
+			    (Replies, State1)
+		    in  do  %% Line 646
+			    apply 'start_timeout'/3
+				(ChannelId, From, Timeout)
+			    do  %% Line 647
+				apply 'handle_idle_timeout'/1
+				    (State)
+				let <_cor6> =
+				    %% Line 648
+				    apply 'next_packet'/1
+					(State)
+				in  %% Line 648
+				    {'next_state',StateName,_cor6}
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 650
+	  <{'request',ChannelId,Type,Data,Timeout},From,StateName,State0> when 'true' ->
+	      %% Line 651
+	      case apply 'handle_request'/6
+		       (ChannelId, Type, Data, %% Line 652
+					       'true', %% Line 652
+						       From, %% Line 652
+							     State0) of
+		<{{'replies',Replies},State1}> when 'true' ->
+		    let <State> =
+			%% Line 655
+			apply 'send_replies'/2
+			    (Replies, State1)
+		    in  do  %% Line 656
+			    apply 'start_timeout'/3
+				(ChannelId, From, Timeout)
+			    do  %% Line 657
+				apply 'handle_idle_timeout'/1
+				    (State)
+				let <_cor9> =
+				    %% Line 658
+				    apply 'next_packet'/1
+					(State)
+				in  %% Line 658
+				    {'next_state',StateName,_cor9}
+		( <_cor7> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor7})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 660
+	  <Request = {'global_request',Pid,_cor81,_cor82,_cor83},From,StateName,State0 = %% Line 661
+											 {'state',_cor84,_cor85,_cor86,_cor87,%% Line 662
+															      {'connection',_cor88,Cache,_cor89,_cor90,_cor91,_cor92,_cor93,_cor94,_cor95,_cor96,_cor97,_cor98},_cor99,_cor100,_cor101,_cor102,_cor103,_cor104,_cor105,_cor106,_cor107,_cor108,_cor109,_cor110,_cor111,_cor112,_cor113,_cor114}> when 'true' ->
+	      let <State1> =
+		  %% Line 663
+		  apply 'handle_global_request'/2
+		      (Request, State0)
+	      in  %% Line 665
+		  ( case call 'ssh_channel':'cache_find'
+			     (Pid, Cache) of
+		      ( <( {'channel',_cor115,_cor116,_cor117,_cor118,_rec34,_cor119,_cor120,_cor121,_cor122,_cor123,_cor124,_cor125,_cor126}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    let <State> =
+				apply 'add_request'/4
+				    ('true', _rec34, From, State1)
+			    in  let <_cor15> =
+				    %% Line 666
+				    apply 'next_packet'/1
+					(State)
+				in  %% Line 666
+				    {'next_state',StateName,_cor15}
+			-| ['compiler_generated'] )
+		      ( <_cor127> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','channel'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	  %% Line 668
+	  <{'data',ChannelId,Type,Data,Timeout},From,StateName,State0 = %% Line 669
+									{'state',_cor128,_cor129,_cor130,_cor131,Connection0 = {'connection',_cor132,_X_Cache,_cor133,_cor134,_cor135,_cor136,_cor137,_cor138,_cor139,_cor140,_cor141,_cor142},_cor143,_cor144,_cor145,_cor146,_cor147,_cor148,_cor149,_cor150,_cor151,_cor152,_cor153,_cor154,_cor155,_cor156,_cor157,_cor158}> when 'true' ->
+	      %% Line 672
+	      case call 'ssh_connection':'channel_data'
+		       (ChannelId, Type, Data, Connection0, From) of
+		%% Line 673
+		<{{'replies',Replies},Connection}> when 'true' ->
+		    let <_cor18> =
+			%% Line 674
+			call 'erlang':'setelement'
+			    (6, State0, Connection)
+		    in  let <State> =
+			    %% Line 674
+			    apply 'send_replies'/2
+				(Replies, _cor18)
+			in  do  %% Line 675
+				apply 'start_timeout'/3
+				    (ChannelId, From, Timeout)
+				let <_cor20> =
+				    %% Line 676
+				    apply 'next_packet'/1
+					(State)
+				in  %% Line 676
+				    {'next_state',StateName,_cor20}
+		%% Line 677
+		<{'noreply',Connection}> when 'true' ->
+		    do  %% Line 678
+			apply 'start_timeout'/3
+			    (ChannelId, From, Timeout)
+			let <_cor23> =
+			    %% Line 679
+			    call 'erlang':'setelement'
+				(6, State0, Connection)
+			in  let <_cor24> =
+				%% Line 679
+				apply 'next_packet'/1
+				    (_cor23)
+			    in  %% Line 679
+				{'next_state',StateName,_cor24}
+		( <_cor25> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor25})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 682
+	  <{'eof',ChannelId},_X_From,StateName,State0 = %% Line 683
+							{'state',_cor203,_cor204,_cor205,_cor206,%% Line 684
+												 {'connection',_cor207,Cache,_cor208,_cor209,_cor210,_cor211,_cor212,_cor213,_cor214,_cor215,_cor216,_cor217},_cor218,_cor219,_cor220,_cor221,_cor222,_cor223,_cor224,_cor225,_cor226,_cor227,_cor228,_cor229,_cor230,_cor231,_cor232,_cor233}> when 'true' ->
+	      %% Line 685
+	      case call 'ssh_channel':'cache_lookup'
+		       (Cache, ChannelId) of
+		%% Line 686
+		<{'channel',_cor234,_cor235,_cor236,_cor237,_cor238,_cor239,_cor240,_cor241,Id,_cor242,_cor243,'false',_cor244}> when 'true' ->
+		    let <_cor26> =
+			%% Line 688
+			call 'ssh_connection':'channel_eof_msg'
+			    (Id)
+		    in  let <State> =
+			    %% Line 687
+			    apply 'send_replies'/2
+				([{'connection_reply',_cor26}|%% Line 688
+							      []], %% Line 688
+								   State0)
+			in  let <_cor28> =
+				%% Line 689
+				apply 'next_packet'/1
+				    (State)
+			    in  %% Line 689
+				{'reply','ok',StateName,_cor28}
+		%% Line 690
+		<_cor245> when 'true' ->
+		    %% Line 691
+		    {'reply',{'error','closed'},StateName,State0}
+	      end
+	  %% Line 694
+	  <{'open',ChannelPid,Type,InitialWindowSize,MaxPacketSize,Data,Timeout},%% Line 695
+										 From,%% Line 695
+										      StateName,State0 = %% Line 695
+													 {'state',_cor246,_cor247,_cor248,_cor249,%% Line 696
+																		  {'connection',_cor250,Cache,_cor251,_cor252,_cor253,_cor254,_cor255,_cor256,_cor257,_cor258,_cor259,_cor260},_cor261,_cor262,_cor263,_cor264,_cor265,_cor266,_cor267,_cor268,_cor269,_cor270,_cor271,_cor272,_cor273,_cor274,_cor275,_cor276}> when 'true' ->
+	      do  %% Line 697
+		  call 'erlang':'monitor'
+		      ('process', ChannelPid)
+		  %% Line 698
+		  case apply 'new_channel_id'/1
+			   (State0) of
+		    <{ChannelId,State1}> when 'true' ->
+			let <Msg> =
+			    %% Line 699
+			    call 'ssh_connection':'channel_open_msg'
+				(Type, ChannelId, %% Line 700
+						  InitialWindowSize, %% Line 701
+								     MaxPacketSize, %% Line 701
+										    Data)
+			in  let <State2> =
+				%% Line 702
+				apply 'send_replies'/2
+				    ([{'connection_reply',Msg}|[]], State1)
+			    in  let <Channel> =
+				    %% Line 703
+				    {'channel',Type,%% Line 704
+						    [110|[111|[110|[101]]]],%% Line 705
+									    ChannelPid,'undefined',%% Line 706
+												   ChannelId,%% Line 707
+													     InitialWindowSize,%% Line 708
+															       MaxPacketSize,'false','undefined','undefined','undefined','false',[]}
+				in  do  %% Line 709
+					call 'ssh_channel':'cache_update'
+					    (Cache, Channel)
+					let <State> =
+					    %% Line 710
+					    apply 'add_request'/4
+						('true', ChannelId, From, State2)
+					in  do  %% Line 711
+						apply 'start_timeout'/3
+						    (ChannelId, From, Timeout)
+						let <_cor35> =
+						    %% Line 712
+						    apply 'remove_timer_ref'/1
+							(State)
+						in  let <_cor36> =
+							%% Line 712
+							apply 'next_packet'/1
+							    (_cor35)
+						    in  %% Line 712
+							{'next_state',StateName,_cor36}
+		    ( <_cor30> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor30})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 714
+	  <{'send_window',ChannelId},_X_From,StateName,State = %% Line 715
+							       {'state',_cor277,_cor278,_cor279,_cor280,%% Line 716
+													{'connection',_cor281,Cache,_cor282,_cor283,_cor284,_cor285,_cor286,_cor287,_cor288,_cor289,_cor290,_cor291},_cor292,_cor293,_cor294,_cor295,_cor296,_cor297,_cor298,_cor299,_cor300,_cor301,_cor302,_cor303,_cor304,_cor305,_cor306,_cor307}> when 'true' ->
+	      let <_cor38> =
+		  %% Line 717
+		  case call 'ssh_channel':'cache_lookup'
+			   (Cache, ChannelId) of
+		    %% Line 718
+		    <{'channel',_cor308,_cor309,_cor310,_cor311,_cor312,_cor313,_cor314,_cor315,_cor316,WinSize,%% Line 719
+														Packsize,_cor317,_cor318}> when 'true' ->
+			%% Line 720
+			{'ok',{WinSize,Packsize}}
+		    %% Line 721
+		    <'undefined'> when 'true' ->
+			%% Line 722
+			{'error','einval'}
+		    ( <_cor37> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor37})
+		      -| ['compiler_generated'] )
+		  end
+	      in  let <_cor40> =
+		      %% Line 724
+		      apply 'next_packet'/1
+			  (State)
+		  in  %% Line 724
+		      {'reply',_cor38,StateName,_cor40}
+	  %% Line 726
+	  <{'recv_window',ChannelId},_X_From,StateName,State = %% Line 727
+							       {'state',_cor319,_cor320,_cor321,_cor322,{'connection',_cor323,Cache,_cor324,_cor325,_cor326,_cor327,_cor328,_cor329,_cor330,_cor331,_cor332,_cor333},_cor334,_cor335,_cor336,_cor337,_cor338,_cor339,_cor340,_cor341,_cor342,_cor343,_cor344,_cor345,_cor346,_cor347,_cor348,_cor349}> when 'true' ->
+	      let <_cor42> =
+		  %% Line 730
+		  case call 'ssh_channel':'cache_lookup'
+			   (Cache, ChannelId) of
+		    %% Line 731
+		    <{'channel',_cor350,_cor351,_cor352,_cor353,_cor354,WinSize,%% Line 732
+										Packsize,_cor355,_cor356,_cor357,_cor358,_cor359,_cor360}> when 'true' ->
+			%% Line 733
+			{'ok',{WinSize,Packsize}}
+		    %% Line 734
+		    <'undefined'> when 'true' ->
+			%% Line 735
+			{'error','einval'}
+		    ( <_cor41> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor41})
+		      -| ['compiler_generated'] )
+		  end
+	      in  let <_cor44> =
+		      %% Line 737
+		      apply 'next_packet'/1
+			  (State)
+		  in  %% Line 737
+		      {'reply',_cor42,StateName,_cor44}
+	  %% Line 739
+	  <{'connection_info',Options},_X_From,StateName,State> when 'true' ->
+	      let <Info> =
+		  %% Line 740
+		  apply 'ssh_info'/3
+		      (Options, State, [])
+	      in  %% Line 741
+		  {'reply',Info,StateName,State}
+	  %% Line 743
+	  <{'channel_info',ChannelId,Options},_X_From,StateName,State = %% Line 744
+									{'state',_cor361,_cor362,_cor363,_cor364,{'connection',_cor365,Cache,_cor366,_cor367,_cor368,_cor369,_cor370,_cor371,_cor372,_cor373,_cor374,_cor375},_cor376,_cor377,_cor378,_cor379,_cor380,_cor381,_cor382,_cor383,_cor384,_cor385,_cor386,_cor387,_cor388,_cor389,_cor390,_cor391}> when 'true' ->
+	      %% Line 745
+	      case call 'ssh_channel':'cache_lookup'
+		       (Cache, ChannelId) of
+		%% Line 746
+		<Channel = {'channel',_cor392,_cor393,_cor394,_cor395,_cor396,_cor397,_cor398,_cor399,_cor400,_cor401,_cor402,_cor403,_cor404}> when 'true' ->
+		    let <Info> =
+			%% Line 747
+			apply 'ssh_channel_info'/3
+			    (Options, Channel, [])
+		    in  %% Line 748
+			{'reply',Info,StateName,State}
+		%% Line 749
+		<'undefined'> when 'true' ->
+		    %% Line 750
+		    {'reply',[],StateName,State}
+		( <_cor47> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor47})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 753
+	  <{'info',ChannelPid},_X_From,StateName,State = %% Line 754
+							 {'state',_cor405,_cor406,_cor407,_cor408,%% Line 755
+												  {'connection',_cor409,Cache,_cor410,_cor411,_cor412,_cor413,_cor414,_cor415,_cor416,_cor417,_cor418,_cor419},_cor420,_cor421,_cor422,_cor423,_cor424,_cor425,_cor426,_cor427,_cor428,_cor429,_cor430,_cor431,_cor432,_cor433,_cor434,_cor435}> when 'true' ->
+	      let <_cor60> =
+		  %% Line 757
+		  ( fun (_cor57,_cor56) ->
+			case <_cor57,_cor56> of
+			  <Channel,Acc>
+			      when let <_cor48> =
+				    call 'erlang':'=:='
+					(ChannelPid, 'all')
+				in  let <_cor55> =
+					%% Line 758
+					( try
+					      ( case <> of
+						  ( <>
+							when ( call ( 'erlang'
+								   -| ['compiler_generated'] ):( 'is_record'
+												 -| ['compiler_generated'] )
+								(Channel,
+								 ( 'channel'
+								   -| ['compiler_generated'] ),
+								 ( 14
+								   -| ['compiler_generated'] ))
+							    -| ['compiler_generated'] ) ->
+							let <_cor53> =
+							    ( call 'erlang':'element'
+								  (4, Channel)
+							      -| ['compiler_generated'] )
+							in  ( call 'erlang':'=='
+								  (_cor53, ChannelPid)
+							      -| ['compiler_generated'] )
+						    -| ['compiler_generated'] )
+						  ( <> when 'true' ->
+							'false'
+						    -| ['compiler_generated'] )
+						end
+						-| ['compiler_generated'] )
+					  of <Try> ->
+					      Try
+					  catch <T,R> ->
+					      'false'
+					  -| ['compiler_generated'] )
+				    in  call 'erlang':'or'
+					    (_cor48, _cor55) ->
+			      %% Line 759
+			      [Channel|Acc]
+			  %% Line 760
+			  <_cor436,Acc> when 'true' ->
+			      %% Line 761
+			      Acc
+			end
+		    -| [{'id',{0,0,'-handle_sync_event/4-fun-0-'}}] )
+	      in  let <Result> =
+		      %% Line 756
+		      call 'ssh_channel':'cache_foldl'
+			  (_cor60, %% Line 762
+				   [], %% Line 762
+				       Cache)
+		  in  %% Line 763
+		      {'reply',{'ok',Result},StateName,State}
+	  %% Line 765
+	  <{'close',ChannelId},_cor437,StateName,State0 = %% Line 766
+							  {'state',_cor438,_cor439,_cor440,_cor441,%% Line 767
+												   {'connection',_cor442,Cache,_cor443,_cor444,_cor445,_cor446,_cor447,_cor448,_cor449,_cor450,_cor451,_cor452},_cor453,_cor454,_cor455,_cor456,_cor457,_cor458,_cor459,_cor460,_cor461,_cor462,_cor463,_cor464,_cor465,_cor466,_cor467,_cor468}> when 'true' ->
+	      let <_cor68> =
+		  %% Line 769
+		  case call 'ssh_channel':'cache_lookup'
+			   (Cache, ChannelId) of
+		    %% Line 770
+		    <Channel = {'channel',_cor469,_cor470,_cor471,_cor472,_cor473,_cor474,_cor475,_cor476,Id,_cor477,_cor478,_cor479,_cor480}> when 'true' ->
+			let <_cor62> =
+			    %% Line 772
+			    call 'ssh_connection':'channel_close_msg'
+				(Id)
+			in  let <State1> =
+				%% Line 771
+				apply 'send_replies'/2
+				    ([{'connection_reply',_cor62}|%% Line 772
+								  []], %% Line 772
+								       State0)
+			    in  let <_cor66> =
+				    %% Line 773
+				    call 'erlang':'setelement'
+					(13, Channel, 'true')
+				in  do  %% Line 773
+					call 'ssh_channel':'cache_update'
+					    (Cache, _cor66)
+					do  %% Line 774
+					    apply 'handle_idle_timeout'/1
+						(State1)
+					    %% Line 775
+					    State1
+		    %% Line 776
+		    <'undefined'> when 'true' ->
+			%% Line 777
+			State0
+		    ( <_cor67> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor67})
+		      -| ['compiler_generated'] )
+		  end
+	      in  let <_cor70> =
+		      %% Line 779
+		      apply 'next_packet'/1
+			  (_cor68)
+		  in  %% Line 779
+		      {'reply','ok',StateName,_cor70}
+	  %% Line 781
+	  <'stop',_cor495,_X_StateName,State0 = {'state',%% Line 782
+							 Role,_cor496,_cor497,_cor498,Connection0,_cor499,_cor500,_cor501,_cor502,_cor503,_cor504,_cor505,_cor506,_cor507,_cor508,_cor509,_cor510,_cor511,_cor512,_cor513,%% Line 783
+																											  Opts}> when 'true' ->
+	      %% Line 784
+	      case %% Line 785
+		   call 'ssh_connection':'handle_msg'
+		       ({'ssh_msg_disconnect',11,[85|[115|[101|[114|[32|[99|[108|[111|[115|[101|[100|[32|[100|[111|[119|[110|[32|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110]]]]]]]]]]]]]]]]]]]]]]]]]]],[101|[110]]}, %% Line 787
+																											  Connection0, %% Line 787
+																												       Role) of
+		<{'disconnect',Reason,{{'replies',Replies},Connection}}> when 'true' ->
+		    let <State> =
+			%% Line 788
+			apply 'send_replies'/2
+			    (Replies, State0)
+		    in  let <SSHOpts> =
+			    %% Line 789
+			    call 'proplists':'get_value'
+				('ssh_opts', Opts)
+			in  do  %% Line 790
+				apply 'disconnect_fun'/2
+				    (Reason, SSHOpts)
+				%% Line 791
+				case State of
+				  <{'state',_cor514,_cor515,_cor516,_cor517,_cor518,_cor519,_cor520,_cor521,_cor522,_cor523,_cor524,_cor525,_cor526,_cor527,_cor528,_cor529,_cor530,_cor531,_cor532,_cor533,_cor534}> when 'true' ->
+				      let <_cor76> =
+					  call 'erlang':'setelement'
+					      (6, State, Connection)
+				      in  {'stop','normal','ok',_cor76}
+				  ( <_cor535> when 'true' ->
+					( call ( 'erlang'
+						 -| ['compiler_generated'] ):( 'error'
+									       -| ['compiler_generated'] )
+					      (( {'badrecord','state'}
+						 -| ['compiler_generated'] ))
+					  -| ['compiler_generated'] )
+				    -| ['compiler_generated'] )
+				end
+		( <_cor71> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor71})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor80,_cor79,_cor78,_cor77> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor80,_cor79,_cor78,_cor77})
+		  -| [{'function_name',{'handle_sync_event',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_info'/3 =
+    %% Line 798
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{Protocol,Socket,Version = [83|[83|[72|[45|_cor54]]]]},'hello',State = %% Line 799
+										  {'state',_cor55,_cor56,_cor57,_cor58,_cor59,_cor60,_cor61,_cor62,_cor63,_cor64,_cor65,_cor66,_cor67,_cor68,_cor69,_cor70,_cor71,_cor72,_cor73,_cor74,_cor75}>
+	      when let <_cor76> =
+		    call 'erlang':'=:='
+			(_cor62, %% Line 800
+				 Protocol)
+		in  let <_cor77> =
+			call 'erlang':'=:='
+			    (_cor66, %% Line 799
+				     Socket)
+		    in  call 'erlang':'and'
+			    (_cor76, _cor77) ->
+	      %% Line 801
+	      apply 'event'/3
+		  ({'version_exchange',Version}, 'hello', State)
+	  %% Line 803
+	  <{Protocol,Socket,Info},'hello',State = %% Line 804
+						  {'state',_cor78,_cor79,_cor80,_cor81,_cor82,_cor83,_cor84,_cor85,_cor86,_cor87,_cor88,_cor89,_cor90,_cor91,_cor92,_cor93,_cor94,_cor95,_cor96,_cor97,_cor98}>
+	      when let <_cor99> =
+		    call 'erlang':'=:='
+			(_cor85, %% Line 805
+				 Protocol)
+		in  let <_cor100> =
+			call 'erlang':'=:='
+			    (_cor89, %% Line 804
+				     Socket)
+		    in  call 'erlang':'and'
+			    (_cor99, _cor100) ->
+	      %% Line 806
+	      apply 'event'/3
+		  ({'info_line',Info}, 'hello', State)
+	  %% Line 808
+	  <{Protocol,Socket,Data},Statename,State0 = %% Line 809
+						     {'state',_cor101,_cor102,_cor103,_cor104,_cor105,_cor106,_cor107,_cor108,_cor109,_cor110,Ssh0 = %% Line 811
+																		     {'ssh',_cor111,_cor112,_cor113,_cor114,_cor115,_cor116,_cor117,_cor118,_cor119,_cor120,_cor121,_cor122,_cor123,_cor124,_cor125,_cor126,_cor127,_cor128,%% Line 812
+																																					    MacSize,_cor129,_cor130,_cor131,_cor132,_cor133,_cor134,BlockSize,_cor135,_cor136,_cor137,_cor138,_cor139,_cor140,_cor141,_cor142,_cor143,_cor144,_cor145,_cor146,_cor147,_cor148,_cor149,_cor150,_cor151,_cor152,_cor153,_cor154,_cor155,_cor156,_cor157,_cor158,_cor159},_cor160,%% Line 813
+																																																																							       #{}#,%% Line 814
+																																																																								    EncData0,_cor161,_cor162,_cor163,_cor164,_cor165,_cor166,_cor167}>
+	      when let <_cor168> =
+		    call 'erlang':'=:='
+			(_cor108, %% Line 810
+				  Protocol)
+		in  let <_cor169> =
+			call 'erlang':'=:='
+			    (_cor160, %% Line 809
+				      Socket)
+		    in  call 'erlang':'and'
+			    (_cor168, _cor169) ->
+	      let <_cor5> =
+		  %% Line 819
+		  call 'erlang':'size'
+		      (EncData0)
+	      in  let <_cor4> =
+		      %% Line 819
+		      call 'erlang':'size'
+			  (Data)
+		  in  let <_cor6> =
+			  %% Line 819
+			  call 'erlang':'+'
+			      (_cor5, _cor4)
+		      in  let <_cor3> =
+			      %% Line 819
+			      call 'erlang':'max'
+				  (8, BlockSize)
+			  in  %% Line 819
+			      case <> of
+				%% Line 820
+				<>
+				    when call 'erlang':'>='
+					  (_cor6,
+					   _cor3) ->
+				    let <_cor7> =
+					%% Line 823
+					#{#<EncData0>('all',8,'binary',['unsigned'|['big']]),
+					  #<%% Line 824
+					    Data>(%% Line 824
+						  'all',8,'binary',['unsigned'|['big']])}#
+				    in  %% Line 821
+					case %% Line 823
+					     call 'ssh_transport':'decrypt_first_block'
+						 (_cor7, %% Line 824
+							 Ssh0) of
+					  <{Ssh,SshPacketLen,DecData,EncData}> when 'true' ->
+					      %% Line 825
+					      case <> of
+						%% Line 826
+						<>
+						    when call 'erlang':'>'
+							  (SshPacketLen,
+							   262144) ->
+						    let <_cor10> =
+							%% Line 831
+							call 'erlang':'integer_to_list'
+							    (SshPacketLen)
+						    in  let <_cor11> =
+							    %% Line 831
+							    call 'erlang':'++'
+								([66|[97|[100|[32|[112|[97|[99|[107|[101|[116|[32|[108|[101|[110|[103|[116|[104|[32]]]]]]]]]]]]]]]]]], _cor10)
+							in  let <DisconnectMsg> =
+								%% Line 828
+								{'ssh_msg_disconnect',%% Line 829
+										      2,_cor11,%% Line 832
+											       [101|[110]]}
+							    in  %% Line 833
+								apply 'handle_disconnect'/2
+								    (DisconnectMsg, State0)
+						%% Line 834
+						<> when 'true' ->
+						    let <_cor13> =
+							%% Line 836
+							call 'erlang':'+'
+							    (SshPacketLen, 4)
+						    in  let <_cor14> =
+							    %% Line 836
+							    call 'erlang':'-'
+								(_cor13, %% Line 837
+									 BlockSize)
+							in  let <RemainingSshPacketLen> =
+								%% Line 837
+								call 'erlang':'+'
+								    (_cor14, MacSize)
+							    in  let <_cor18> =
+								    %% Line 838
+								    call 'erlang':'setelement'
+									(12, State0, Ssh)
+								in  %% Line 839
+								    apply 'handle_ssh_packet_data'/5
+									(RemainingSshPacketLen, %% Line 840
+												DecData, %% Line 840
+													 EncData, %% Line 840
+														  Statename, _cor18)
+					      end
+					  ( <_cor8> when 'true' ->
+						primop 'match_fail'
+						    ({'badmatch',_cor8})
+					    -| ['compiler_generated'] )
+					end
+				%% Line 843
+				<> when 'true' ->
+				    let <_rec40> =
+					%% Line 846
+					#{#<EncData0>('all',8,'binary',['unsigned'|['big']]),
+					  #<Data>('all',8,'binary',['unsigned'|['big']])}#
+				    in  let <_cor24> =
+					    %% Line 845
+					    call 'erlang':'setelement'
+						(15, State0, _rec40)
+					in  let <_cor25> =
+						%% Line 845
+						apply 'next_packet'/1
+						    (_cor24)
+					    in  %% Line 844
+						{'next_state',Statename,_cor25}
+			      end
+	  %% Line 849
+	  <{Protocol,Socket,Data},Statename,State = %% Line 850
+						    {'state',_cor214,_cor215,_cor216,_cor217,_cor218,_cor219,_cor220,_cor221,_cor222,_cor223,_cor224,_cor225,%% Line 852
+																			     DecData,%% Line 853
+																				     EncData,%% Line 854
+																					     Len,_cor226,_cor227,_cor228,_cor229,_cor230,_cor231}>
+	      when let <_cor234> =
+		    call 'erlang':'=:='
+			(_cor221, %% Line 851
+				  Protocol)
+		in  let <_cor232> =
+			call 'erlang':'=:='
+			    (_cor225, %% Line 850
+				      Socket)
+		    in  let <_cor233> =
+			    %% Line 855
+			    call 'erlang':'is_integer'
+				(Len)
+			in  let <_cor235> =
+				call 'erlang':'and'
+				    (_cor232, _cor233)
+			    in  call 'erlang':'and'
+				    (_cor234, _cor235) ->
+	      let <_cor27> =
+		  %% Line 856
+		  #{#<EncData>('all',8,'binary',['unsigned'|['big']]),
+		    #<Data>('all',8,'binary',['unsigned'|['big']])}#
+	      in  %% Line 856
+		  apply 'handle_ssh_packet_data'/5
+		      (Len, DecData, _cor27, %% Line 857
+					     Statename, %% Line 857
+							State)
+	  %% Line 859
+	  <{CloseTag,_X_Socket},_X_StateName,State = %% Line 860
+						     {'state',_cor236,_cor237,_cor238,_cor239,_cor240,_cor241,_cor242,_cor243,_cor244,_cor245,%% Line 861
+																	      {'ssh',_X_Role,_cor246,_cor247,_cor248,_cor249,_cor250,_cor251,_cor252,_cor253,_cor254,_cor255,_cor256,_cor257,_cor258,_cor259,_cor260,_cor261,_cor262,_cor263,_cor264,_cor265,_cor266,_cor267,_cor268,_cor269,_cor270,_cor271,_cor272,_cor273,_cor274,_cor275,_cor276,_cor277,_cor278,_cor279,_cor280,_cor281,_cor282,_X_Opts,_cor283,_cor284,_cor285,_cor286,_cor287,_cor288,_cor289,_cor290,_cor291,_cor292,_cor293,_cor294},_cor295,_cor296,_cor297,_cor298,_cor299,_cor300,_cor301,_cor302,_cor303,_cor304}>
+	      when call 'erlang':'=:='
+		    (_cor245,
+		     %% Line 860
+		     CloseTag) ->
+	      %% Line 866
+	      apply 'handle_disconnect'/2
+		  ({'ssh_msg_disconnect',11,[67|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[99|[108|[111|[115|[101|[100]]]]]]]]]]]]]]]]],[101|[110]]}, State)
+	  %% Line 868
+	  <{'timeout',Request = {_cor305,From}},Statename,State = %% Line 869
+								  {'state',_cor306,_cor307,_cor308,_cor309,Connection = {'connection',Requests,_cor310,_cor311,_cor312,_cor313,_cor314,_cor315,_cor316,_cor317,_cor318,_cor319,_cor320},_cor321,_cor322,_cor323,_cor324,_cor325,_cor326,_cor327,_cor328,_cor329,_cor330,_cor331,_cor332,_cor333,_cor334,_cor335,_cor336}> when 'true' ->
+	      %% Line 870
+	      case call 'lists':'member'
+		       (Request, Requests) of
+		%% Line 871
+		<'true'> when 'true' ->
+		    do  %% Line 872
+			call 'gen_fsm':'reply'
+			    (From, {'error','timeout'})
+			let <_rec44> =
+			    %% Line 876
+			    call 'lists':'delete'
+				(Request, Requests)
+			in  let <_cor32> =
+				%% Line 875
+				call 'erlang':'setelement'
+				    (2, Connection, _rec44)
+			    in  let <_cor36> =
+				    %% Line 874
+				    call 'erlang':'setelement'
+					(6, State, _cor32)
+				in  %% Line 873
+				    {'next_state',Statename,_cor36}
+		%% Line 877
+		<'false'> when 'true' ->
+		    %% Line 878
+		    {'next_state',Statename,State}
+		( <_cor37> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor37})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 882
+	  <{'DOWN',_X_Ref,'process',ChannelPid,_X_Reason},Statename,State0> when 'true' ->
+	      %% Line 883
+	      case apply 'handle_channel_down'/2
+		       (ChannelPid, State0) of
+		<{{'replies',Replies},State1}> when 'true' ->
+		    let <State> =
+			%% Line 884
+			apply 'send_replies'/2
+			    (Replies, State1)
+		    in  let <_cor40> =
+			    %% Line 885
+			    apply 'next_packet'/1
+				(State)
+			in  %% Line 885
+			    {'next_state',Statename,_cor40}
+		( <_cor38> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor38})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 888
+	  <{'EXIT',_X_Sup,Reason},_X_StateName,State> when 'true' ->
+	      %% Line 889
+	      {'stop',{'shutdown',Reason},State}
+	  %% Line 891
+	  <{'check_cache',_cor372,_cor373},%% Line 892
+					   StateName,State = %% Line 892
+							     {'state',_cor374,_cor375,_cor376,_cor377,%% Line 893
+												      {'connection',_cor378,Cache,_cor379,_cor380,_cor381,_cor382,_cor383,_cor384,_cor385,_cor386,_cor387,_cor388},_cor389,_cor390,_cor391,_cor392,_cor393,_cor394,_cor395,_cor396,_cor397,_cor398,_cor399,_cor400,_cor401,_cor402,_cor403,_cor404}> when 'true' ->
+	      let <_cor41> =
+		  %% Line 894
+		  apply 'check_cache'/2
+		      (State, Cache)
+	      in  %% Line 894
+		  {'next_state',StateName,_cor41}
+	  %% Line 896
+	  <UnexpectedMessage,StateName,State = {'state',_cor405,_cor406,_cor407,_cor408,_cor409,_cor410,_cor411,_cor412,_cor413,_cor414,SshParams,_cor415,_cor416,_cor417,_cor418,_cor419,_cor420,_cor421,_cor422,_cor423,_cor424}> when 'true' ->
+	      %% Line 902
+	      ( case SshParams of
+		  ( <( {'ssh',_rec46,_cor425,_cor426,_cor427,_cor428,_cor429,_cor430,_cor431,_cor432,_cor433,_cor434,_cor435,_cor436,_cor437,_cor438,_cor439,_cor440,_cor441,_cor442,_cor443,_cor444,_cor445,_cor446,_cor447,_cor448,_cor449,_cor450,_cor451,_cor452,_cor453,_cor454,_cor455,_cor456,_cor457,_cor458,_cor459,_cor460,_cor461,_cor462,_cor463,_cor464,_cor465,_cor466,_cor467,_cor468,_cor469,_cor470,_cor471,_cor472,_cor473,_cor474}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor48> =
+			    %% Line 903
+			    call 'proplists':'get_value'
+				('address', _cor462)
+			in  let <_cor49> =
+				call 'io_lib':'format'
+				    ([85|[110|[101|[120|[112|[101|[99|[116|[101|[100|[32|[109|[101|[115|[115|[97|[103|[101|[32|[39|[126|[112|[39|[32|[114|[101|[99|[101|[105|[118|[101|[100|[32|[105|[110|[32|[115|[116|[97|[116|[101|[32|[39|[126|[112|[39|[10|[82|[111|[108|[101|[58|[32|[126|[112|[10|[80|[101|[101|[114|[58|[32|[126|[112|[10|[76|[111|[99|[97|[108|[32|[65|[100|[100|[114|[101|[115|[115|[58|[32|[126|[112|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [UnexpectedMessage|[StateName|[_rec46|[_cor425|%% Line 903
+																																																																				       [_cor48|[]]]]]])
+			    in  let <Msg> =
+				    call 'lists':'flatten'
+					(_cor49)
+				in  do  %% Line 904
+					call 'error_logger':'info_report'
+					    (Msg)
+					%% Line 905
+					{'next_state',StateName,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor475> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','ssh'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  ( <_cor53,_cor52,_cor51> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor53,_cor52,_cor51})
+		  -| [{'function_name',{'handle_info',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'terminate'/3 =
+    %% Line 910
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'normal',_cor20,{'state',_cor21,_cor22,_cor23,_cor24,%% Line 911
+								Connection,_cor25,_cor26,_cor27,Transport,_cor28,_cor29,%% Line 912
+															Socket,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,_cor38}> when 'true' ->
+	      do  %% Line 913
+		  apply 'terminate_subsytem'/1
+		      (Connection)
+		  do  catch
+			  %% Line 914
+			  call Transport:'close'
+			      (Socket)
+		      %% Line 915
+		      'ok'
+	  %% Line 918
+	  <'shutdown',StateName,State = {'state',_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45,_cor46,_cor47,_cor48,Ssh0,_cor49,_cor50,_cor51,_cor52,_cor53,_cor54,_cor55,_cor56,_cor57,_cor58}> when 'true' ->
+	      %% Line 923
+	      case call 'ssh_transport':'ssh_packet'
+		       ({'ssh_msg_disconnect',11,[65|[112|[112|[108|[105|[99|[97|[116|[105|[111|[110|[32|[115|[104|[117|[116|[100|[111|[119|[110]]]]]]]]]]]]]]]]]]]],[101|[110]]}, Ssh0) of
+		<{SshPacket,Ssh}> when 'true' ->
+		    do  %% Line 924
+			apply 'send_msg'/2
+			    (SshPacket, State)
+			let <_cor7> =
+			    %% Line 925
+			    call 'erlang':'setelement'
+				(12, State, Ssh)
+			in  %% Line 925
+			    apply 'terminate'/3
+				('normal', StateName, _cor7)
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 927
+	  <{'shutdown',Msg = {'ssh_msg_disconnect',_cor81,_cor82,_cor83}},StateName,State = %% Line 928
+											    {'state',_cor84,_cor85,_cor86,_cor87,_cor88,_cor89,_cor90,_cor91,_cor92,_cor93,Ssh0,_cor94,_cor95,_cor96,_cor97,_cor98,_cor99,_cor100,_cor101,_cor102,_cor103}> when 'true' ->
+	      %% Line 929
+	      case call 'ssh_transport':'ssh_packet'
+		       (Msg, Ssh0) of
+		<{SshPacket,Ssh}> when 'true' ->
+		    do  %% Line 930
+			apply 'send_msg'/2
+			    (SshPacket, State)
+			let <_cor11> =
+			    %% Line 931
+			    call 'erlang':'setelement'
+				(12, State, Ssh)
+			in  %% Line 931
+			    apply 'terminate'/3
+				('normal', StateName, _cor11)
+		( <_cor8> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor8})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 932
+	  <{'shutdown',_cor126},StateName,State> when 'true' ->
+	      %% Line 933
+	      apply 'terminate'/3
+		  ('normal', StateName, State)
+	  %% Line 934
+	  <Reason,StateName,State = {'state',_cor127,_cor128,_X_Pid,_cor129,%% Line 935
+									    Connection,_cor130,_cor131,_cor132,_cor133,_cor134,Ssh0,_cor135,_cor136,_cor137,_cor138,_cor139,_cor140,_cor141,_cor142,_cor143,_cor144}> when 'true' ->
+	      do  %% Line 936
+		  apply 'terminate_subsytem'/1
+		      (Connection)
+		  do  %% Line 937
+		      apply 'log_error'/1
+			  (Reason)
+		      %% Line 942
+		      case call 'ssh_transport':'ssh_packet'
+			       ({'ssh_msg_disconnect',11,[73|[110|[116|[101|[114|[110|[97|[108|[32|[101|[114|[114|[111|[114]]]]]]]]]]]]]],[101|[110]]}, Ssh0) of
+			<{SshPacket,Ssh}> when 'true' ->
+			    do  %% Line 943
+				apply 'send_msg'/2
+				    (SshPacket, State)
+				let <_cor16> =
+				    %% Line 944
+				    call 'erlang':'setelement'
+					(12, State, Ssh)
+				in  %% Line 944
+				    apply 'terminate'/3
+					('normal', StateName, _cor16)
+			( <_cor13> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor13})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor19,_cor18,_cor17> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor19,_cor18,_cor17})
+		  -| [{'function_name',{'terminate',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'terminate_subsytem'/1 =
+    %% Line 946
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'connection',_cor2,_cor3,_cor4,_cor5,_cor6,_cor7,_cor8,_cor9,_cor10,SysSup,%% Line 947
+										       SubSysSup,_cor11}>
+	      when %% Line 947
+		call 'erlang':'is_pid'
+		    (SubSysSup) ->
+	      %% Line 948
+	      call 'ssh_system_sup':'stop_subsystem'
+		  (SysSup, SubSysSup)
+	  %% Line 949
+	  <_cor12> when 'true' ->
+	      %% Line 950
+	      'ok'
+	end
+'code_change'/4 =
+    %% Line 956
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 957
+	{'ok',_cor2,_cor1}
+'init_role'/1 =
+    %% Line 962
+    fun (_cor0) ->
+	case _cor0 of
+	  <State0 = {'state','client',_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45,_cor46,Opts}> when 'true' ->
+	      let <Pid> =
+		  %% Line 963
+		  call 'proplists':'get_value'
+		      ('user_pid', Opts)
+	      in  let <TimerRef> =
+		      %% Line 964
+		      apply 'get_idle_time'/1
+			  (Opts)
+		  in  let <_cor3> =
+			  %% Line 965
+			  call 'erlang':'self'
+			      ()
+		      in  do  %% Line 965
+			      call 'timer':'apply_after'
+				  (3600000, 'gen_fsm', 'send_all_state_event', [_cor3|['renegotiate']])
+			      let <_cor4> =
+				  %% Line 967
+				  call 'erlang':'self'
+				      ()
+			      in  do  %% Line 966
+				      call 'timer':'apply_after'
+					  (60000, 'gen_fsm', 'send_all_state_event', %% Line 967
+										     [_cor4|['data_size']])
+				      let <_cor6> =
+					  %% Line 969
+					  call 'erlang':'setelement'
+					      (8, State0, TimerRef)
+				      in  %% Line 968
+					  call 'erlang':'setelement'
+					      (4, _cor6, Pid)
+	  %% Line 970
+	  <State = {'state','server',_cor69,_cor70,_cor71,Connection,_cor72,_cor73,_cor74,_cor75,_cor76,_cor77,_cor78,_cor79,_cor80,_cor81,_cor82,_cor83,_cor84,_cor85,_cor86,Opts}> when 'true' ->
+	      let <Sups> =
+		  %% Line 971
+		  call 'proplists':'get_value'
+		      ('supervisors', Opts)
+	      in  let <Pid> =
+		      %% Line 972
+		      call 'proplists':'get_value'
+			  ('user_pid', Opts)
+		  in  let <SystemSup> =
+			  %% Line 973
+			  call 'proplists':'get_value'
+			      ('system_sup', Sups)
+		      in  let <SubSystemSup> =
+			      %% Line 974
+			      call 'proplists':'get_value'
+				  ('subsystem_sup', Sups)
+			  in  let <ConnectionSup> =
+				  %% Line 975
+				  call 'proplists':'get_value'
+				      ('connection_sup', Sups)
+			      in  let <Shell> =
+				      %% Line 976
+				      call 'proplists':'get_value'
+					  ('shell', Opts)
+				  in  let <Exec> =
+					  %% Line 977
+					  call 'proplists':'get_value'
+					      ('exec', Opts)
+				      in  let <CliSpec> =
+					      %% Line 978
+					      call 'proplists':'get_value'
+						  ('ssh_cli', Opts, {'ssh_cli',[Shell|[]]})
+					  in  %% Line 980
+					      case Connection of
+						<{'connection',_cor87,_cor88,_cor89,_cor90,_cor91,_cor92,_cor93,_cor94,_cor95,_cor96,_cor97,_cor98}> when 'true' ->
+						    let <_cor17> =
+							%% Line 984
+							call 'erlang':'setelement'
+							    (13, Connection, ConnectionSup)
+						    in  let <_cor18> =
+							    %% Line 983
+							    call 'erlang':'setelement'
+								(12, _cor17, SubSystemSup)
+							in  let <_cor19> =
+								%% Line 982
+								call 'erlang':'setelement'
+								    (11, _cor18, SystemSup)
+							    in  let <_cor20> =
+								    %% Line 981
+								    call 'erlang':'setelement'
+									(10, _cor19, Exec)
+								in  let <_cor22> =
+									call 'erlang':'setelement'
+									    (6, _cor20, CliSpec)
+								    in  let <_cor25> =
+									    call 'erlang':'setelement'
+										(6, State, _cor22)
+									in  call 'erlang':'setelement'
+										(4, _cor25, Pid)
+						( <_cor99> when 'true' ->
+						      ( call ( 'erlang'
+							       -| ['compiler_generated'] ):( 'error'
+											     -| ['compiler_generated'] )
+							    (( {'badrecord','connection'}
+							       -| ['compiler_generated'] ))
+							-| ['compiler_generated'] )
+						  -| ['compiler_generated'] )
+					      end
+	  ( <_cor27> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor27})
+		  -| [{'function_name',{'init_role',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_idle_time'/1 =
+    %% Line 987
+    fun (_cor0) ->
+	%% Line 988
+	case call 'proplists':'get_value'
+		 ('idle_time', _cor0) of
+	  %% Line 989
+	  <'infinity'> when 'true' ->
+	      %% Line 990
+	      'infinity'
+	  %% Line 991
+	  <_X_IdleTime> when 'true' ->
+	      %% Line 992
+	      'undefined'
+	end
+'init_ssh'/5 =
+    %% Line 995
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Role = 'client',Vsn,Version,Options,Socket> when 'true' ->
+	      let <_cor6> =
+		  %% Line 996
+		  case call 'proplists':'get_value'
+			   ('user_interaction', Options, 'true') of
+		    %% Line 997
+		    <'true'> when 'true' ->
+			%% Line 998
+			'ssh_io'
+		    %% Line 999
+		    <'false'> when 'true' ->
+			%% Line 1000
+			'ssh_no_io'
+		    ( <_cor5> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor5})
+		      -| ['compiler_generated'] )
+		  end
+	      in  let <AuthMethods> =
+		      %% Line 1003
+		      call 'proplists':'get_value'
+			  ('auth_methods', Options, %% Line 1004
+						    [112|[117|[98|[108|[105|[99|[107|[101|[121|[44|[107|[101|[121|[98|[111|[97|[114|[100|[45|[105|[110|[116|[101|[114|[97|[99|[116|[105|[118|[101|[44|[112|[97|[115|[115|[119|[111|[114|[100]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+		  in  %% Line 1005
+		      case call 'inet':'peername'
+			       (Socket) of
+			<{'ok',PeerAddr}> when 'true' ->
+			    let <PeerName> =
+				%% Line 1007
+				call 'proplists':'get_value'
+				    ('host', Options)
+			    in  let <KeyCb> =
+				    %% Line 1008
+				    call 'proplists':'get_value'
+					('key_cb', Options, 'ssh_file')
+				in  let <_cor13> =
+					%% Line 1015
+					call 'proplists':'get_value'
+					    ('quiet_mode', Options, 'false')
+				    in  let <_cor12> =
+					    %% Line 1019
+					    apply 'supported_host_keys'/3
+						(Role, KeyCb, Options)
+					in  %% Line 1010
+					    {'ssh',Role,%% Line 1018
+							{PeerName,PeerAddr},%% Line 1011
+									    Vsn,'undefined',%% Line 1012
+											    Version,'undefined','undefined','undefined','undefined','undefined','undefined',%% Line 1013
+																					    KeyCb,_cor6,'none','undefined',0,'none','undefined',0,'none','undefined',8,'undefined','none','undefined',8,'undefined','none','undefined','none','undefined','none','none','true','infinity','undefined','undefined','undefined',%% Line 1016
+																																																	      Options,0,0,'undefined','undefined','undefined','undefined',_cor13,%% Line 1017
+																																																										 AuthMethods,'undefined','undefined',_cor12,'false'}
+			( <_cor9> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor9})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 1022
+	  <Role = 'server',Vsn,Version,Options,Socket> when 'true' ->
+	      let <AuthMethods> =
+		  %% Line 1024
+		  call 'proplists':'get_value'
+		      ('auth_methods', Options, %% Line 1025
+						[112|[117|[98|[108|[105|[99|[107|[101|[121|[44|[107|[101|[121|[98|[111|[97|[114|[100|[45|[105|[110|[116|[101|[114|[97|[99|[116|[105|[118|[101|[44|[112|[97|[115|[115|[119|[111|[114|[100]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+	      in  %% Line 1026
+		  case call 'inet':'peername'
+			   (Socket) of
+		    <{'ok',PeerAddr}> when 'true' ->
+			let <KeyCb> =
+			    %% Line 1027
+			    call 'proplists':'get_value'
+				('key_cb', Options, 'ssh_file')
+			in  let <_cor18> =
+				%% Line 1033
+				call 'proplists':'get_value'
+				    ('io_cb', Options, 'ssh_io')
+			    in  let <_cor17> =
+				    %% Line 1037
+				    apply 'supported_host_keys'/3
+					(Role, KeyCb, Options)
+				in  %% Line 1029
+				    {'ssh',Role,%% Line 1036
+						{'undefined',PeerAddr},'undefined',%% Line 1030
+										   Vsn,'undefined',%% Line 1031
+												   Version,'undefined','undefined','undefined','undefined','undefined',%% Line 1032
+																				       KeyCb,_cor18,'none','undefined',0,'none','undefined',0,'none','undefined',8,'undefined','none','undefined',8,'undefined','none','undefined','none','undefined','none','none','true','infinity','undefined','undefined','undefined',%% Line 1034
+																																																	  Options,0,0,'undefined','undefined','undefined','undefined','undefined',%% Line 1035
+																																																										  AuthMethods,'undefined','undefined',_cor17,'false'}
+		    ( <_cor15> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor15})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor23,_cor22,_cor21,_cor20,_cor19> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor23,_cor22,_cor21,_cor20,_cor19})
+		  -| [{'function_name',{'init_ssh',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'supported_host_keys'/3 =
+    %% Line 1040
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'client',_cor18,Options> when 'true' ->
+	      %% Line 1041
+	      try
+		  let <_cor3> =
+		      %% Line 1042
+		      call 'proplists':'get_value'
+			  ('pref_public_key_algs', Options, 'false')
+		  in  %% Line 1042
+		      case apply 'extract_algs'/2
+			       (_cor3, []) of
+			%% Line 1043
+			<'false'> when 'true' ->
+			    %% Line 1044
+			    [[115|[115|[104|[45|[114|[115|[97]]]]]]]|[[115|[115|[104|[45|[100|[115|[115]]]]]]]]]
+			%% Line 1045
+			<Algs> when 'true' ->
+			    %% Line 1046
+			    Algs
+		      end
+	      of <_cor5> ->
+		  _cor5
+	      catch <_cor8,_cor7,_cor6> ->
+		  case <_cor8,_cor7,_cor6> of
+		    %% Line 1049
+		    <'exit',Reason,_cor19> when 'true' ->
+			%% Line 1050
+			{'stop',{'shutdown',Reason}}
+		    ( <_cor8,_cor7,_cor6> when 'true' ->
+			  primop 'raise'
+			      (_cor6, _cor7)
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 1052
+	  <'server',KeyCb,Options> when 'true' ->
+	      let <_cor14> =
+		  %% Line 1053
+		  ( fun (_cor11,_cor10) ->
+			%% Line 1054
+			case apply 'available_host_key'/3
+				 (KeyCb, _cor11, Options) of
+			  %% Line 1055
+			  <{'error',_cor20}> when 'true' ->
+			      _cor10
+			  %% Line 1057
+			  <Alg> when 'true' ->
+			      %% Line 1058
+			      [Alg|_cor10]
+			end
+		    -| [{'id',{0,0,'-supported_host_keys/3-fun-0-'}}] )
+	      in  %% Line 1053
+		  call 'lists':'foldl'
+		      (_cor14, %% Line 1060
+			       [], %% Line 1062
+				   [[115|[115|[104|[45|[100|[115|[115]]]]]]]|[[115|[115|[104|[45|[114|[115|[97]]]]]]]]])
+	  ( <_cor17,_cor16,_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor17,_cor16,_cor15})
+		  -| [{'function_name',{'supported_host_keys',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'extract_algs'/2 =
+    %% Line 1063
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'false',_cor5> when 'true' ->
+	      %% Line 1064
+	      'false'
+	  %% Line 1065
+	  <[],[]> when 'true' ->
+	      %% Line 1066
+	      'false'
+	  %% Line 1067
+	  <[],NewList> when 'true' ->
+	      %% Line 1068
+	      call 'lists':'reverse'
+		  (NewList)
+	  %% Line 1069
+	  <[H|T],NewList> when 'true' ->
+	      %% Line 1070
+	      case H of
+		%% Line 1071
+		<'ssh-dss'> when 'true' ->
+		    %% Line 1072
+		    apply 'extract_algs'/2
+			(T, [[115|[115|[104|[45|[100|[115|[115]]]]]]]|NewList])
+		%% Line 1073
+		<'ssh-rsa'> when 'true' ->
+		    %% Line 1074
+		    apply 'extract_algs'/2
+			(T, [[115|[115|[104|[45|[114|[115|[97]]]]]]]|NewList])
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'extract_algs',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'available_host_key'/3 =
+    %% Line 1076
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <KeyCb,Alg = [115|[115|[104|[45|[100|[115|[115]]]]]]],Opts> when 'true' ->
+	      %% Line 1077
+	      case call KeyCb:'host_key'
+		       ('ssh-dss', Opts) of
+		%% Line 1078
+		<{'ok',_cor8}> when 'true' ->
+		    %% Line 1079
+		    Alg
+		%% Line 1080
+		<Other> when 'true' ->
+		    %% Line 1081
+		    Other
+	      end
+	  %% Line 1083
+	  <KeyCb,Alg = [115|[115|[104|[45|[114|[115|[97]]]]]]],Opts> when 'true' ->
+	      %% Line 1084
+	      case call KeyCb:'host_key'
+		       ('ssh-rsa', Opts) of
+		%% Line 1085
+		<{'ok',_cor9}> when 'true' ->
+		    %% Line 1086
+		    Alg
+		%% Line 1087
+		<Other> when 'true' ->
+		    %% Line 1088
+		    Other
+	      end
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'available_host_key',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'send_msg'/2 =
+    %% Line 1091
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Msg,{'state',_cor4,_cor5,_cor6,_cor7,_cor8,_cor9,_cor10,_cor11,Transport,_cor12,_cor13,Socket,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22}> when 'true' ->
+	      %% Line 1092
+	      call Transport:'send'
+		  (Socket, Msg)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'send_msg',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_version'/3 =
+    %% Line 1094
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <NumVsn = {2,0},StrVsn,Ssh0> when 'true' ->
+	      let <Ssh> =
+		  %% Line 1095
+		  apply 'counterpart_versions'/3
+		      (NumVsn, StrVsn, Ssh0)
+	      in  %% Line 1096
+		  {'ok',Ssh}
+	  %% Line 1097
+	  <_cor7,_cor8,_cor9> when 'true' ->
+	      %% Line 1098
+	      'not_supported'
+	end
+'string_version'/1 =
+    %% Line 1100
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'ssh','client',_cor2,_cor3,_cor4,Vsn,_cor5,_cor6,_cor7,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45,_cor46,_cor47,_cor48,_cor49,_cor50}> when 'true' ->
+	      %% Line 1101
+	      Vsn
+	  %% Line 1102
+	  <{'ssh','server',_cor51,_cor52,_cor53,_cor54,Vsn,_cor55,_cor56,_cor57,_cor58,_cor59,_cor60,_cor61,_cor62,_cor63,_cor64,_cor65,_cor66,_cor67,_cor68,_cor69,_cor70,_cor71,_cor72,_cor73,_cor74,_cor75,_cor76,_cor77,_cor78,_cor79,_cor80,_cor81,_cor82,_cor83,_cor84,_cor85,_cor86,_cor87,_cor88,_cor89,_cor90,_cor91,_cor92,_cor93,_cor94,_cor95,_cor96,_cor97,_cor98,_cor99}> when 'true' ->
+	      %% Line 1103
+	      Vsn
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'string_version',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'send_event'/2 =
+    %% Line 1105
+    fun (_cor1,_cor0) ->
+	%% Line 1106
+	call 'gen_fsm':'send_event'
+	    (_cor1, _cor0)
+'send_all_state_event'/2 =
+    %% Line 1108
+    fun (_cor1,_cor0) ->
+	%% Line 1109
+	call 'gen_fsm':'send_all_state_event'
+	    (_cor1, _cor0)
+'sync_send_all_state_event'/2 =
+    %% Line 1111
+    fun (_cor1,_cor0) ->
+	%% Line 1112
+	try
+	    call 'gen_fsm':'sync_send_all_state_event'
+		(_cor1, _cor0, 'infinity')
+	of <_cor2> ->
+	    _cor2
+	catch <_cor5,_cor4,_cor3> ->
+	    case <_cor5,_cor4,_cor3> of
+	      %% Line 1114
+	      <'exit',{'noproc',_cor8},_cor9> when 'true' ->
+		  %% Line 1115
+		  {'error','closed'}
+	      %% Line 1116
+	      <'exit',{'normal',_cor10},_cor11> when 'true' ->
+		  %% Line 1117
+		  {'error','closed'}
+	      %% Line 1118
+	      <'exit',{{'shutdown',_cor12},_cor13},_cor14> when 'true' ->
+		  %% Line 1119
+		  {'error','closed'}
+	      ( <_cor5,_cor4,_cor3> when 'true' ->
+		    primop 'raise'
+			(_cor3, _cor4)
+		-| ['compiler_generated'] )
+	    end
+'event'/3 =
+    %% Line 1123
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Event = {'ssh_msg_disconnect',_cor11,_cor12,_cor13},StateName,State> when 'true' ->
+	      %% Line 1124
+	      apply 'handle_event'/3
+		  (Event, StateName, State)
+	  %% Line 1125
+	  <Event = {'ssh_msg_ignore',_cor14},StateName,State> when 'true' ->
+	      %% Line 1126
+	      apply 'handle_event'/3
+		  (Event, StateName, State)
+	  %% Line 1127
+	  <Event = {'ssh_msg_debug',_cor15,_cor16,_cor17},StateName,State> when 'true' ->
+	      %% Line 1128
+	      apply 'handle_event'/3
+		  (Event, StateName, State)
+	  %% Line 1129
+	  <Event = {'ssh_msg_unimplemented',_cor18},StateName,State> when 'true' ->
+	      %% Line 1130
+	      apply 'handle_event'/3
+		  (Event, StateName, State)
+	  %% Line 1132
+	  <Event,StateName,State> when 'true' ->
+	      %% Line 1133
+	      try
+		  %% Line 1134
+		  call 'ssh_connection_handler':StateName
+		      (Event, State)
+	      of <_cor3> ->
+		  _cor3
+	      catch <_cor6,_cor5,_cor4> ->
+		  case <_cor6,_cor5,_cor4> of
+		    %% Line 1136
+		    <'throw',DisconnectMsg = {'ssh_msg_disconnect',_cor19,_cor20,_cor21},_cor22> when 'true' ->
+			%% Line 1137
+			apply 'handle_disconnect'/2
+			    (DisconnectMsg, State)
+		    %% Line 1138
+		    <'throw',{ErrorToDisplay,DisconnectMsg = {'ssh_msg_disconnect',_cor23,_cor24,_cor25}},_cor26> when 'true' ->
+			%% Line 1139
+			apply 'handle_disconnect'/3
+			    (DisconnectMsg, State, ErrorToDisplay)
+		    %% Line 1140
+		    <_cor27,Error,_cor28> when 'true' ->
+			do  %% Line 1141
+			    apply 'log_error'/1
+				(Error)
+			    let <_cor7> =
+				%% Line 1142
+				apply 'error_code'/1
+				    (StateName)
+			    in  %% Line 1142
+				apply 'handle_disconnect'/2
+				    ({'ssh_msg_disconnect',_cor7,%% Line 1143
+								 [73|[110|[116|[101|[114|[110|[97|[108|[32|[101|[114|[114|[111|[114]]]]]]]]]]]]]],%% Line 1144
+																		  [101|[110]]}, %% Line 1144
+																				State)
+		  end
+	end
+'error_code'/1 =
+    %% Line 1146
+    fun (_cor0) ->
+	case _cor0 of
+	  <'key_exchange'> when 'true' ->
+	      %% Line 1147
+	      3
+	  %% Line 1148
+	  <'new_keys'> when 'true' ->
+	      %% Line 1149
+	      3
+	  %% Line 1150
+	  <_cor2> when 'true' ->
+	      %% Line 1151
+	      7
+	end
+'generate_event'/4 =
+    %% Line 1153
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Msg = #{#<Byte>(8,1,'integer',['unsigned'|['big']]),
+		   #<_cor84>('all',8,'binary',['unsigned'|['big']])}#,StateName,State0 = %% Line 1154
+											 {'state',%% Line 1155
+												  Role,_cor85,%% Line 1156
+													      User,_cor86,%% Line 1159
+															  Connection0,_cor87,_cor88,_cor89,_cor90,_cor91,_cor92,_cor93,_cor94,_cor95,_cor96,_cor97,%% Line 1158
+																										   Renegotiation,_cor98,_cor99,_cor100,%% Line 1157
+																														       Opts},%% Line 1159
+																															     EncData>
+	      when let <_cor4> =
+		    %% Line 1160
+		    call 'erlang':'=='
+			(Byte, 80)
+		in  let <_cor5> =
+			%% Line 1161
+			call 'erlang':'=='
+			    (Byte, 81)
+		    in  let <_cor6> =
+			    %% Line 1162
+			    call 'erlang':'=='
+				(Byte, 82)
+			in  let <_cor7> =
+				%% Line 1163
+				call 'erlang':'=='
+				    (Byte, 90)
+			    in  let <_cor8> =
+				    %% Line 1164
+				    call 'erlang':'=='
+					(Byte, 91)
+				in  let <_cor9> =
+					%% Line 1165
+					call 'erlang':'=='
+					    (Byte, 92)
+				    in  let <_cor10> =
+					    %% Line 1166
+					    call 'erlang':'=='
+						(Byte, 93)
+					in  let <_cor11> =
+						%% Line 1167
+						call 'erlang':'=='
+						    (Byte, 94)
+					    in  let <_cor12> =
+						    %% Line 1168
+						    call 'erlang':'=='
+							(Byte, 95)
+						in  let <_cor13> =
+							%% Line 1169
+							call 'erlang':'=='
+							    (Byte, 96)
+						    in  let <_cor14> =
+							    %% Line 1170
+							    call 'erlang':'=='
+								(Byte, 97)
+							in  let <_cor15> =
+								%% Line 1171
+								call 'erlang':'=='
+								    (Byte, 98)
+							    in  let <_cor16> =
+								    %% Line 1172
+								    call 'erlang':'=='
+									(Byte, 99)
+								in  let <_cor17> =
+									%% Line 1173
+									call 'erlang':'=='
+									    (Byte, 100)
+								    in  let <_cor18> =
+									    %% Line 1172
+									    call 'erlang':'or'
+										(_cor16, _cor17)
+									in  let <_cor19> =
+										%% Line 1171
+										call 'erlang':'or'
+										    (_cor15, _cor18)
+									    in  let <_cor20> =
+										    %% Line 1170
+										    call 'erlang':'or'
+											(_cor14, _cor19)
+										in  let <_cor21> =
+											%% Line 1169
+											call 'erlang':'or'
+											    (_cor13, _cor20)
+										    in  let <_cor22> =
+											    %% Line 1168
+											    call 'erlang':'or'
+												(_cor12, _cor21)
+											in  let <_cor23> =
+												%% Line 1167
+												call 'erlang':'or'
+												    (_cor11, _cor22)
+											    in  let <_cor24> =
+												    %% Line 1166
+												    call 'erlang':'or'
+													(_cor10, _cor23)
+												in  let <_cor25> =
+													%% Line 1165
+													call 'erlang':'or'
+													    (_cor9, _cor24)
+												    in  let <_cor26> =
+													    %% Line 1164
+													    call 'erlang':'or'
+														(_cor8, _cor25)
+													in  let <_cor27> =
+														%% Line 1163
+														call 'erlang':'or'
+														    (_cor7, _cor26)
+													    in  let <_cor28> =
+														    %% Line 1162
+														    call 'erlang':'or'
+															(_cor6, _cor27)
+														in  let <_cor29> =
+															%% Line 1161
+															call 'erlang':'or'
+															    (_cor5, _cor28)
+														    in  %% Line 1160
+															call 'erlang':'or'
+															    (_cor4, _cor29) ->
+	      let <ConnectionMsg> =
+		  %% Line 1174
+		  call 'ssh_message':'decode'
+		      (Msg)
+	      in  let <State1> =
+		      %% Line 1175
+		      apply 'generate_event_new_state'/2
+			  (State0, EncData)
+		  in  %% Line 1176
+		      try
+			  call 'ssh_connection':'handle_msg'
+			      (ConnectionMsg, Connection0, Role)
+		      of <_cor32> ->
+			  case _cor32 of
+			    %% Line 1177
+			    <{{'replies',Replies},Connection}> when 'true' ->
+				%% Line 1178
+				case State1 of
+				  <{'state',_cor101,_cor102,_cor103,_cor104,_cor105,_cor106,_cor107,_cor108,_cor109,_cor110,_cor111,_cor112,_cor113,_cor114,_cor115,_cor116,_cor117,_cor118,_cor119,_cor120,_cor121}> when 'true' ->
+				      let <_cor35> =
+					  call 'erlang':'setelement'
+					      (6, State1, Connection)
+				      in  let <State> =
+					      apply 'send_replies'/2
+						  (Replies, _cor35)
+					  in  let <_cor37> =
+						  %% Line 1179
+						  apply 'next_packet'/1
+						      (State)
+					      in  %% Line 1179
+						  {'next_state',StateName,_cor37}
+				  ( <_cor122> when 'true' ->
+					( call ( 'erlang'
+						 -| ['compiler_generated'] ):( 'error'
+									       -| ['compiler_generated'] )
+					      (( {'badrecord','state'}
+						 -| ['compiler_generated'] ))
+					  -| ['compiler_generated'] )
+				    -| ['compiler_generated'] )
+				end
+			    %% Line 1180
+			    <{'noreply',Connection}> when 'true' ->
+				%% Line 1181
+				case State1 of
+				  <{'state',_cor123,_cor124,_cor125,_cor126,_cor127,_cor128,_cor129,_cor130,_cor131,_cor132,_cor133,_cor134,_cor135,_cor136,_cor137,_cor138,_cor139,_cor140,_cor141,_cor142,_cor143}> when 'true' ->
+				      let <_cor40> =
+					  call 'erlang':'setelement'
+					      (6, State1, Connection)
+				      in  let <_cor41> =
+					      apply 'next_packet'/1
+						  (_cor40)
+					  in  {'next_state',StateName,_cor41}
+				  ( <_cor144> when 'true' ->
+					( call ( 'erlang'
+						 -| ['compiler_generated'] ):( 'error'
+									       -| ['compiler_generated'] )
+					      (( {'badrecord','state'}
+						 -| ['compiler_generated'] ))
+					  -| ['compiler_generated'] )
+				    -| ['compiler_generated'] )
+				end
+			    %% Line 1182
+			    <{'disconnect',{_cor145,Reason},{{'replies',Replies},Connection}}>
+				when %% Line 1183
+				  try
+				      ( case <> of
+					  ( <>
+						when call 'erlang':'=:='
+						      (Role,
+						       'client') ->
+						let <_cor44> =
+						    call 'erlang':'=/='
+							(StateName, 'connected')
+						in  let <_cor43> =
+							call 'erlang':'not'
+							    (Renegotiation)
+						    in  call 'erlang':'and'
+							    (_cor44, _cor43)
+					    -| ['compiler_generated'] )
+					  ( <> when 'true' ->
+						'false'
+					    -| ['compiler_generated'] )
+					end
+					-| ['compiler_generated'] )
+				  of <Try> ->
+				      Try
+				  catch <T,R> ->
+				      'false' ->
+				%% Line 1184
+				case State1 of
+				  <{'state',_cor146,_cor147,_cor148,_cor149,_cor150,_cor151,_cor152,_cor153,_cor154,_cor155,_cor156,_cor157,_cor158,_cor159,_cor160,_cor161,_cor162,_cor163,_cor164,_cor165,_cor166}> when 'true' ->
+				      let <_cor49> =
+					  call 'erlang':'setelement'
+					      (6, State1, Connection)
+				      in  let <State> =
+					      apply 'send_replies'/2
+						  (Replies, _cor49)
+					  in  let <_cor51> =
+						  %% Line 1185
+						  call 'erlang':'self'
+						      ()
+					      in  do  %% Line 1185
+						      call 'erlang':'!'
+							  (User, {_cor51,'not_connected',Reason})
+						      %% Line 1187
+						      case State of
+							<{'state',_cor168,_cor169,_cor170,_cor171,_cor172,_cor173,_cor174,_cor175,_cor176,_cor177,_cor178,_cor179,_cor180,_cor181,_cor182,_cor183,_cor184,_cor185,_cor186,_cor187,_cor188}> when 'true' ->
+							    let <_cor54> =
+								call 'erlang':'setelement'
+								    (6, State, Connection)
+							    in  let <_cor55> =
+								    apply 'next_packet'/1
+									(_cor54)
+								in  {'stop',{'shutdown','normal'},_cor55}
+							( <_cor189> when 'true' ->
+							      ( call ( 'erlang'
+								       -| ['compiler_generated'] ):( 'error'
+												     -| ['compiler_generated'] )
+								    (( {'badrecord','state'}
+								       -| ['compiler_generated'] ))
+								-| ['compiler_generated'] )
+							  -| ['compiler_generated'] )
+						      end
+				  ( <_cor167> when 'true' ->
+					( call ( 'erlang'
+						 -| ['compiler_generated'] ):( 'error'
+									       -| ['compiler_generated'] )
+					      (( {'badrecord','state'}
+						 -| ['compiler_generated'] ))
+					  -| ['compiler_generated'] )
+				    -| ['compiler_generated'] )
+				end
+			    %% Line 1188
+			    <{'disconnect',Reason,{{'replies',Replies},Connection}}> when 'true' ->
+				%% Line 1189
+				case State1 of
+				  <{'state',_cor190,_cor191,_cor192,_cor193,_cor194,_cor195,_cor196,_cor197,_cor198,_cor199,_cor200,_cor201,_cor202,_cor203,_cor204,_cor205,_cor206,_cor207,_cor208,_cor209,_cor210}> when 'true' ->
+				      let <_cor58> =
+					  call 'erlang':'setelement'
+					      (6, State1, Connection)
+				      in  let <State> =
+					      apply 'send_replies'/2
+						  (Replies, _cor58)
+					  in  let <SSHOpts> =
+						  %% Line 1190
+						  call 'proplists':'get_value'
+						      ('ssh_opts', Opts)
+					      in  do  %% Line 1191
+						      apply 'disconnect_fun'/2
+							  (Reason, SSHOpts)
+						      %% Line 1192
+						      case State of
+							<{'state',_cor212,_cor213,_cor214,_cor215,_cor216,_cor217,_cor218,_cor219,_cor220,_cor221,_cor222,_cor223,_cor224,_cor225,_cor226,_cor227,_cor228,_cor229,_cor230,_cor231,_cor232}> when 'true' ->
+							    let <_cor63> =
+								call 'erlang':'setelement'
+								    (6, State, Connection)
+							    in  {'stop',{'shutdown','normal'},_cor63}
+							( <_cor233> when 'true' ->
+							      ( call ( 'erlang'
+								       -| ['compiler_generated'] ):( 'error'
+												     -| ['compiler_generated'] )
+								    (( {'badrecord','state'}
+								       -| ['compiler_generated'] ))
+								-| ['compiler_generated'] )
+							  -| ['compiler_generated'] )
+						      end
+				  ( <_cor211> when 'true' ->
+					( call ( 'erlang'
+						 -| ['compiler_generated'] ):( 'error'
+									       -| ['compiler_generated'] )
+					      (( {'badrecord','state'}
+						 -| ['compiler_generated'] ))
+					  -| ['compiler_generated'] )
+				    -| ['compiler_generated'] )
+				end
+			    ( <_cor64> when 'true' ->
+				  primop 'match_fail'
+				      ({'try_clause',_cor64})
+			      -| ['compiler_generated'] )
+			  end
+		      catch <_cor67,_cor66,_cor65> ->
+			  %% Line 1195
+			  case %% Line 1196
+			       call 'ssh_connection':'handle_msg'
+				   (%% Line 1197
+				    {'ssh_msg_disconnect',11,[73|[110|[116|[101|[114|[110|[97|[108|[32|[101|[114|[114|[111|[114]]]]]]]]]]]]]],[101|[110]]}, %% Line 1199
+																			    Connection0, %% Line 1199
+																					 Role) of
+			    <{'disconnect',Reason,{{'replies',Replies},Connection}}> when 'true' ->
+				%% Line 1200
+				case State1 of
+				  <{'state',_cor236,_cor237,_cor238,_cor239,_cor240,_cor241,_cor242,_cor243,_cor244,_cor245,_cor246,_cor247,_cor248,_cor249,_cor250,_cor251,_cor252,_cor253,_cor254,_cor255,_cor256}> when 'true' ->
+				      let <_cor71> =
+					  call 'erlang':'setelement'
+					      (6, State1, Connection)
+				      in  let <State> =
+					      apply 'send_replies'/2
+						  (Replies, _cor71)
+					  in  let <SSHOpts> =
+						  %% Line 1201
+						  call 'proplists':'get_value'
+						      ('ssh_opts', Opts)
+					      in  do  %% Line 1202
+						      apply 'disconnect_fun'/2
+							  (Reason, SSHOpts)
+						      %% Line 1203
+						      case State of
+							<{'state',_cor258,_cor259,_cor260,_cor261,_cor262,_cor263,_cor264,_cor265,_cor266,_cor267,_cor268,_cor269,_cor270,_cor271,_cor272,_cor273,_cor274,_cor275,_cor276,_cor277,_cor278}> when 'true' ->
+							    let <_cor76> =
+								call 'erlang':'setelement'
+								    (6, State, Connection)
+							    in  {'stop',{'shutdown',_cor66},_cor76}
+							( <_cor279> when 'true' ->
+							      ( call ( 'erlang'
+								       -| ['compiler_generated'] ):( 'error'
+												     -| ['compiler_generated'] )
+								    (( {'badrecord','state'}
+								       -| ['compiler_generated'] ))
+								-| ['compiler_generated'] )
+							  -| ['compiler_generated'] )
+						      end
+				  ( <_cor257> when 'true' ->
+					( call ( 'erlang'
+						 -| ['compiler_generated'] ):( 'error'
+									       -| ['compiler_generated'] )
+					      (( {'badrecord','state'}
+						 -| ['compiler_generated'] ))
+					  -| ['compiler_generated'] )
+				    -| ['compiler_generated'] )
+				end
+			    ( <_cor68> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor68})
+			      -| ['compiler_generated'] )
+			  end
+	  %% Line 1206
+	  <Msg,StateName,State0,EncData> when 'true' ->
+	      let <Event> =
+		  %% Line 1207
+		  call 'ssh_message':'decode'
+		      (Msg)
+	      in  let <State> =
+		      %% Line 1208
+		      apply 'generate_event_new_state'/2
+			  (State0, EncData)
+		  in  %% Line 1209
+		      case Event of
+			%% Line 1210
+			<{'ssh_msg_kexinit',_cor280,_cor281,_cor282,_cor283,_cor284,_cor285,_cor286,_cor287,_cor288,_cor289,_cor290,_cor291,_cor292}> when 'true' ->
+			    %% Line 1212
+			    apply 'event'/3
+				({Event,Msg}, StateName, State)
+			%% Line 1213
+			<_cor293> when 'true' ->
+			    %% Line 1214
+			    apply 'event'/3
+				(Event, StateName, State)
+		      end
+	end
+'handle_request'/7 =
+    %% Line 1218
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <ChannelPid,ChannelId,Type,Data,WantReply,From,State0 = %% Line 1219
+								  {'state',_cor18,_cor19,_cor20,_cor21,%% Line 1220
+												       {'connection',_cor22,Cache,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31,_cor32},_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45,_cor46,_cor47,_cor48}> when 'true' ->
+	      %% Line 1221
+	      case call 'ssh_channel':'cache_lookup'
+		       (Cache, ChannelId) of
+		%% Line 1222
+		<Channel = {'channel',_cor49,_cor50,_cor51,_cor52,_cor53,_cor54,_cor55,_cor56,Id,_cor57,_cor58,_cor59,_cor60}> when 'true' ->
+		    do  %% Line 1223
+			apply 'update_sys'/4
+			    (Cache, Channel, Type, ChannelPid)
+			let <Msg> =
+			    %% Line 1224
+			    call 'ssh_connection':'channel_request_msg'
+				(Id, Type, %% Line 1225
+					   WantReply, %% Line 1225
+						      Data)
+			in  let <Replies> =
+				%% Line 1226
+				[{'connection_reply',Msg}|[]]
+			    in  let <State> =
+				    %% Line 1227
+				    apply 'add_request'/4
+					(WantReply, ChannelId, From, State0)
+				in  %% Line 1228
+				    {{'replies',Replies},State}
+		%% Line 1229
+		<'undefined'> when 'true' ->
+		    %% Line 1230
+		    {{'replies',[]},State0}
+		( <_cor10> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor10})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor17,_cor16,_cor15,_cor14,_cor13,_cor12,_cor11> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor17,_cor16,_cor15,_cor14,_cor13,_cor12,_cor11})
+		  -| [{'function_name',{'handle_request',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_request'/6 =
+    %% Line 1233
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <ChannelId,Type,Data,WantReply,From,State0 = %% Line 1234
+						       {'state',_cor16,_cor17,_cor18,_cor19,%% Line 1235
+											    {'connection',_cor20,Cache,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30},_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45,_cor46}> when 'true' ->
+	      %% Line 1236
+	      case call 'ssh_channel':'cache_lookup'
+		       (Cache, ChannelId) of
+		%% Line 1237
+		<{'channel',_cor47,_cor48,_cor49,_cor50,_cor51,_cor52,_cor53,_cor54,Id,_cor55,_cor56,_cor57,_cor58}> when 'true' ->
+		    let <Msg> =
+			%% Line 1238
+			call 'ssh_connection':'channel_request_msg'
+			    (Id, Type, %% Line 1239
+				       WantReply, %% Line 1239
+						  Data)
+		    in  let <Replies> =
+			    %% Line 1240
+			    [{'connection_reply',Msg}|[]]
+			in  let <State> =
+				%% Line 1241
+				apply 'add_request'/4
+				    (WantReply, ChannelId, From, State0)
+			    in  %% Line 1242
+				{{'replies',Replies},State}
+		%% Line 1243
+		<'undefined'> when 'true' ->
+		    %% Line 1244
+		    {{'replies',[]},State0}
+		( <_cor9> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor9})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor15,_cor14,_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14,_cor13,_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'handle_request',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_global_request'/2 =
+    %% Line 1247
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'global_request',ChannelPid,Type = %% Line 1248
+					       [116|[99|[112|[105|[112|[45|[102|[111|[114|[119|[97|[114|[100]]]]]]]]]]]]],%% Line 1248
+															  WantReply,Data = %% Line 1249
+																	   #{#<IPLen>(32,1,'integer',['unsigned'|['big']]),
+																	     #<%% Line 1250
+																	       IP>(IPLen,8,'binary',['unsigned'|['big']]),
+																	     #<%% Line 1250
+																	       Port>(%% Line 1250
+																		     32,1,'integer',['unsigned'|['big']])}#},State = %% Line 1251
+																								     {'state',_cor15,_cor16,_cor17,_cor18,Connection0 = %% Line 1252
+																															{'connection',_cor19,Cache,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29},_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45}> when 'true' ->
+	      do  %% Line 1254
+		  call 'ssh_channel':'cache_update'
+		      (Cache, {'channel',%% Line 1255
+					 [102|[111|[114|[119|[97|[114|[100|[101|[100|[45|[116|[99|[112|[105|[112]]]]]]]]]]]]]]],%% Line 1256
+																'none',ChannelPid,'undefined','undefined','undefined','undefined','false','undefined','undefined','undefined','false',[]})
+		  let <Connection> =
+		      %% Line 1257
+		      call 'ssh_connection':'bind'
+			  (IP, Port, ChannelPid, Connection0)
+		  in  let <Msg> =
+			  %% Line 1258
+			  call 'ssh_connection':'global_request_msg'
+			      (Type, WantReply, Data)
+		      in  let <_cor6> =
+			      %% Line 1259
+			      call 'erlang':'setelement'
+				  (6, State, Connection)
+			  in  %% Line 1259
+			      apply 'send_replies'/2
+				  ([{'connection_reply',Msg}|[]], _cor6)
+	  %% Line 1261
+	  <{'global_request',_X_Pid,Type = [99|[97|[110|[99|[101|[108|[45|[116|[99|[112|[105|[112|[45|[102|[111|[114|[119|[97|[114|[100]]]]]]]]]]]]]]]]]]]],%% Line 1262
+																			    WantReply,Data = %% Line 1262
+																					     #{#<IPLen>(32,1,'integer',['unsigned'|['big']]),
+																					       #<%% Line 1263
+																						 IP>(IPLen,8,'binary',['unsigned'|['big']]),
+																					       #<%% Line 1263
+																						 Port>(%% Line 1263
+																						       32,1,'integer',['unsigned'|['big']])}#},State = %% Line 1264
+																												       {'state',_cor68,_cor69,_cor70,_cor71,Connection0,_cor72,_cor73,_cor74,_cor75,_cor76,_cor77,_cor78,_cor79,_cor80,_cor81,_cor82,_cor83,_cor84,_cor85,_cor86,_cor87}> when 'true' ->
+	      let <Connection> =
+		  %% Line 1265
+		  call 'ssh_connection':'unbind'
+		      (IP, Port, Connection0)
+	      in  let <Msg> =
+		      %% Line 1266
+		      call 'ssh_connection':'global_request_msg'
+			  (Type, WantReply, Data)
+		  in  let <_cor11> =
+			  %% Line 1267
+			  call 'erlang':'setelement'
+			      (6, State, Connection)
+		      in  %% Line 1267
+			  apply 'send_replies'/2
+			      ([{'connection_reply',Msg}|[]], _cor11)
+	  %% Line 1269
+	  <{'global_request',_cor110,Type = [99|[97|[110|[99|[101|[108|[45|[116|[99|[112|[105|[112|[45|[102|[111|[114|[119|[97|[114|[100]]]]]]]]]]]]]]]]]]]],%% Line 1270
+																			     WantReply,%% Line 1270
+																				       Data},%% Line 1270
+																					     State> when 'true' ->
+	      let <Msg> =
+		  %% Line 1271
+		  call 'ssh_connection':'global_request_msg'
+		      (Type, WantReply, Data)
+	      in  %% Line 1272
+		  apply 'send_replies'/2
+		      ([{'connection_reply',Msg}|[]], State)
+	  ( <_cor14,_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14,_cor13})
+		  -| [{'function_name',{'handle_global_request',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_idle_timeout'/1 =
+    %% Line 1274
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'state',_cor4,_cor5,_cor6,_cor7,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,Opts}> when 'true' ->
+	      %% Line 1275
+	      case call 'proplists':'get_value'
+		       ('idle_time', Opts, 'infinity') of
+		%% Line 1276
+		<'infinity'> when 'true' ->
+		    %% Line 1277
+		    'ok'
+		%% Line 1278
+		<IdleTime> when 'true' ->
+		    let <_cor1> =
+			%% Line 1279
+			call 'erlang':'self'
+			    ()
+		    in  %% Line 1279
+			call 'erlang':'send_after'
+			    (IdleTime, _cor1, {'check_cache',[],[]})
+	      end
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'handle_idle_timeout',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_channel_down'/2 =
+    %% Line 1282
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <ChannelPid,State = {'state',_cor18,_cor19,_cor20,_cor21,%% Line 1283
+								   {'connection',_cor22,Cache,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31,_cor32},_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45,_cor46,_cor47,_cor48}> when 'true' ->
+	      let <_cor14> =
+		  %% Line 1286
+		  ( fun (_cor11,_cor10) ->
+			case <_cor11,_cor10> of
+			  <Channel = {'channel',_cor49,_cor50,_cor51,_cor52,_cor53,_cor54,_cor55,_cor56,_cor57,_cor58,_cor59,_cor60,_cor61},Acc>
+			      when call 'erlang':'=='
+				    (_cor51,
+				     ChannelPid) ->
+			      do  %% Line 1287
+				  call 'ssh_channel':'cache_delete'
+				      (Cache, _cor53)
+				  %% Line 1289
+				  Acc
+			  %% Line 1290
+			  <_cor75,Acc> when 'true' ->
+			      %% Line 1291
+			      Acc
+			end
+		    -| [{'id',{0,0,'-handle_channel_down/2-fun-0-'}}] )
+	      in  do  %% Line 1285
+		      call 'ssh_channel':'cache_foldl'
+			  (_cor14, %% Line 1292
+				   [], %% Line 1292
+				       Cache)
+		      let <_cor15> =
+			  %% Line 1293
+			  apply 'check_cache'/2
+			      (State, Cache)
+		      in  %% Line 1293
+			  {{'replies',[]},_cor15}
+	  ( <_cor17,_cor16> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor17,_cor16})
+		  -| [{'function_name',{'handle_channel_down',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'update_sys'/4 =
+    %% Line 1295
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 1297
+	case _cor2 of
+	  <{'channel',_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24}> when 'true' ->
+	      let <_cor5> =
+		  call 'erlang':'setelement'
+		      (4, _cor2, _cor0)
+	      in  let <_cor7> =
+		      call 'erlang':'setelement'
+			  (3, _cor5, _cor1)
+		  in  call 'ssh_channel':'cache_update'
+			  (_cor3, _cor7)
+	  ( <_cor25> when 'true' ->
+		( call ( 'erlang'
+			 -| ['compiler_generated'] ):( 'error'
+						       -| ['compiler_generated'] )
+		      (( {'badrecord','channel'}
+			 -| ['compiler_generated'] ))
+		  -| ['compiler_generated'] )
+	    -| ['compiler_generated'] )
+	end
+'add_request'/4 =
+    %% Line 1298
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <'false',_X_ChannelId,_X_From,State> when 'true' ->
+	      %% Line 1299
+	      State
+	  %% Line 1300
+	  <'true',ChannelId,From,State = {'state',_cor15,_cor16,_cor17,_cor18,Connection = %% Line 1301
+											   {'connection',Requests0,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29},_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45}> when 'true' ->
+	      let <Requests> =
+		  %% Line 1303
+		  [{ChannelId,From}|Requests0]
+	      in  let <_cor7> =
+		      %% Line 1304
+		      call 'erlang':'setelement'
+			  (2, Connection, Requests)
+		  in  %% Line 1304
+		      call 'erlang':'setelement'
+			  (6, State, _cor7)
+	  ( <_cor14,_cor13,_cor12,_cor11> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14,_cor13,_cor12,_cor11})
+		  -| [{'function_name',{'add_request',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'new_channel_id'/1 =
+    %% Line 1306
+    fun (_cor0) ->
+	case _cor0 of
+	  <State = {'state',_cor10,_cor11,_cor12,_cor13,Connection = {'connection',_cor14,_cor15,_cor16,Id,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24},_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40}> when 'true' ->
+	      let <_rec73> =
+		  %% Line 1310
+		  call 'erlang':'+'
+		      (Id, 1)
+	      in  let <_cor4> =
+		      %% Line 1310
+		      call 'erlang':'setelement'
+			  (5, Connection, _rec73)
+		  in  let <_cor8> =
+			  %% Line 1309
+			  call 'erlang':'setelement'
+			      (6, State, _cor4)
+		      in  %% Line 1309
+			  {Id,_cor8}
+	  ( <_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9})
+		  -| [{'function_name',{'new_channel_id',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'generate_event_new_state'/2 =
+    %% Line 1311
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <State = {'state',_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,Ssh = %% Line 1312
+													{'ssh',_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45,_cor46,_cor47,_cor48,_cor49,_cor50,_cor51,_cor52,_cor53,_cor54,_cor55,_cor56,_cor57,_cor58,_cor59,_cor60,_cor61,_cor62,_cor63,SeqNum0,_cor64,_cor65,_cor66,_cor67,_cor68,_cor69,_cor70,_cor71,_cor72,_cor73},_cor74,_cor75,_cor76,_cor77,_cor78,_cor79,_cor80,_cor81,_cor82,_cor83},%% Line 1313
+																																																																			     EncData> when 'true' ->
+	      let <SeqNum> =
+		  %% Line 1314
+		  call 'ssh_transport':'next_seqnum'
+		      (SeqNum0)
+	      in  let <_cor5> =
+		      %% Line 1315
+		      call 'erlang':'setelement'
+			  (42, Ssh, SeqNum)
+		  in  let <_cor8> =
+			  %% Line 1318
+			  call 'erlang':'setelement'
+			      (16, State, 'undefined')
+		      in  let <_cor9> =
+			      %% Line 1317
+			      call 'erlang':'setelement'
+				  (15, _cor8, EncData)
+			  in  let <_cor10> =
+				  %% Line 1316
+				  call 'erlang':'setelement'
+				      (14, _cor9, #{}#)
+			      in  %% Line 1315
+				  call 'erlang':'setelement'
+				      (12, _cor10, _cor5)
+	  ( <_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12})
+		  -| [{'function_name',{'generate_event_new_state',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'next_packet'/1 =
+    %% Line 1320
+    fun (_cor0) ->
+	case _cor0 of
+	  <State = {'state',_cor6,_cor7,_cor8,_cor9,_cor10,_cor11,_cor12,%% Line 1324
+									 Protocol,_cor13,_cor14,%% Line 1322
+												{'ssh',_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,BlockSize,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45,_cor46,_cor47,_cor48,_cor49,_cor50,_cor51,_cor52,_cor53,_cor54,_cor55,_cor56,_cor57,_cor58,_cor59,_cor60,_cor61,_cor62,_cor63,_cor64},%% Line 1323
+																																																										Socket,#{}#,%% Line 1321
+																																																											    Buff,_cor65,_cor66,_cor67,_cor68,_cor69,_cor70,_cor71}>
+	      when %% Line 1324
+		call 'erlang':'=/='
+		    (Buff,
+		     #{}#) ->
+	      let <_cor2> =
+		  %% Line 1325
+		  call 'erlang':'size'
+		      (Buff)
+	      in  let <_cor1> =
+		      %% Line 1325
+		      call 'erlang':'max'
+			  (8, BlockSize)
+		  in  do  %% Line 1325
+			  case <> of
+			    %% Line 1326
+			    <>
+				when call 'erlang':'>='
+				      (_cor2,
+				       _cor1) ->
+				let <_cor3> =
+				    %% Line 1330
+				    call 'erlang':'self'
+					()
+				in  %% Line 1330
+				    call 'erlang':'!'
+					(_cor3, {Protocol,Socket,#{}#})
+			    %% Line 1331
+			    <> when 'true' ->
+				%% Line 1332
+				call 'inet':'setopts'
+				    (Socket, [{'active','once'}])
+			  end
+			  %% Line 1334
+			  State
+	  %% Line 1336
+	  <State = {'state',_cor72,_cor73,_cor74,_cor75,_cor76,_cor77,_cor78,_cor79,_cor80,_cor81,_cor82,Socket,_cor83,_cor84,_cor85,_cor86,_cor87,_cor88,_cor89,_cor90,_cor91}> when 'true' ->
+	      do  %% Line 1337
+		  call 'inet':'setopts'
+		      (Socket, [{'active','once'}])
+		  %% Line 1338
+		  State
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5})
+		  -| [{'function_name',{'next_packet',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'after_new_keys'/1 =
+    %% Line 1340
+    fun (_cor0) ->
+	case _cor0 of
+	  <State = {'state',_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,'true',_cor25,_cor26,_cor27,_cor28}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 1341
+		  call 'erlang':'setelement'
+		      (18, State, 'false')
+	      in  %% Line 1341
+		  {'connected',_cor3}
+	  %% Line 1342
+	  <State = {'state',_cor51,_cor52,_cor53,_cor54,_cor55,_cor56,_cor57,_cor58,_cor59,_cor60,Ssh0 = %% Line 1343
+													 {'ssh','client',_cor61,_cor62,_cor63,_cor64,_cor65,_cor66,_cor67,_cor68,_cor69,_cor70,_cor71,_cor72,_cor73,_cor74,_cor75,_cor76,_cor77,_cor78,_cor79,_cor80,_cor81,_cor82,_cor83,_cor84,_cor85,_cor86,_cor87,_cor88,_cor89,_cor90,_cor91,_cor92,_cor93,_cor94,_cor95,_cor96,_cor97,_cor98,_cor99,_cor100,_cor101,_cor102,_cor103,_cor104,_cor105,_cor106,_cor107,_cor108,_cor109,_cor110},_cor111,_cor112,_cor113,_cor114,_cor115,'false',_cor116,_cor117,_cor118,_cor119}> when 'true' ->
+	      %% Line 1344
+	      case call 'ssh_auth':'service_request_msg'
+		       (Ssh0) of
+		<{Msg,Ssh}> when 'true' ->
+		    do  %% Line 1345
+			apply 'send_msg'/2
+			    (Msg, State)
+			let <_cor7> =
+			    %% Line 1346
+			    call 'erlang':'setelement'
+				(12, State, Ssh)
+			in  %% Line 1346
+			    {'userauth',_cor7}
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1347
+	  <State = {'state',_cor142,_cor143,_cor144,_cor145,_cor146,_cor147,_cor148,_cor149,_cor150,_cor151,%% Line 1348
+													    {'ssh','server',_cor152,_cor153,_cor154,_cor155,_cor156,_cor157,_cor158,_cor159,_cor160,_cor161,_cor162,_cor163,_cor164,_cor165,_cor166,_cor167,_cor168,_cor169,_cor170,_cor171,_cor172,_cor173,_cor174,_cor175,_cor176,_cor177,_cor178,_cor179,_cor180,_cor181,_cor182,_cor183,_cor184,_cor185,_cor186,_cor187,_cor188,_cor189,_cor190,_cor191,_cor192,_cor193,_cor194,_cor195,_cor196,_cor197,_cor198,_cor199,_cor200,_cor201},_cor202,_cor203,_cor204,_cor205,_cor206,'false',_cor207,_cor208,_cor209,_cor210}> when 'true' ->
+	      %% Line 1349
+	      {'userauth',State}
+	  ( <_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8})
+		  -| [{'function_name',{'after_new_keys',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_ssh_packet_data'/5 =
+    %% Line 1351
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <EncSize> =
+	    %% Line 1353
+	    call 'erlang':'size'
+		(_cor2)
+	in  %% Line 1354
+	    case <> of
+	      %% Line 1355
+	      <>
+		  when call 'erlang':'>'
+			(_cor4,
+			 EncSize) ->
+		  %% Line 1357
+		  case _cor0 of
+		    <{'state',_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,_cor42}> when 'true' ->
+			let <_cor7> =
+			    %% Line 1359
+			    call 'erlang':'setelement'
+				(16, _cor0, _cor4)
+			in  let <_cor8> =
+				%% Line 1358
+				call 'erlang':'setelement'
+				    (15, _cor7, _cor2)
+			    in  let <_cor10> =
+				    call 'erlang':'setelement'
+					(14, _cor8, _cor3)
+				in  let <_cor11> =
+					apply 'next_packet'/1
+					    (_cor10)
+				    in  {'next_state',_cor1,_cor11}
+		    ( <_cor43> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','state'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+	      %% Line 1361
+	      <> when 'true' ->
+		  %% Line 1363
+		  case _cor0 of
+		    <{'state',_cor44,_cor45,_cor46,_cor47,_cor48,_cor49,_cor50,_cor51,_cor52,_cor53,_cor54,_cor55,_cor56,_cor57,_cor58,_cor59,_cor60,_cor61,_cor62,_cor63,_cor64}> when 'true' ->
+			let <_cor13> =
+			    %% Line 1364
+			    call 'erlang':'setelement'
+				(15, _cor0, _cor2)
+			in  let <_cor15> =
+				call 'erlang':'setelement'
+				    (14, _cor13, _cor3)
+			    in  apply 'handle_ssh_packet'/3
+				    (_cor4, _cor1, _cor15)
+		    ( <_cor65> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','state'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+	    end
+'handle_ssh_packet'/3 =
+    %% Line 1368
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Length,StateName,State0 = {'state',_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,%% Line 1371
+											       _X_Protocol,_cor23,_cor24,%% Line 1370
+															 Ssh0,%% Line 1372
+															      _X_Socket,DecData0,%% Line 1369
+																		 EncData0,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31}> when 'true' ->
+	      %% Line 1373
+	      case %% Line 1374
+		   call 'ssh_transport':'unpack'
+		       (EncData0, Length, Ssh0) of
+		<{Ssh1,DecData,EncData,Mac}> when 'true' ->
+		    let <SshPacket> =
+			%% Line 1375
+			#{#<DecData0>('all',8,'binary',['unsigned'|['big']]),
+			  #<DecData>('all',8,'binary',['unsigned'|['big']])}#
+		    in  %% Line 1376
+			case call 'ssh_transport':'is_valid_mac'
+				 (Mac, SshPacket, Ssh1) of
+			  %% Line 1377
+			  <'true'> when 'true' ->
+			      let <PacketData> =
+				  %% Line 1378
+				  call 'ssh_transport':'msg_data'
+				      (SshPacket)
+			      in  %% Line 1379
+				  case call 'ssh_transport':'decompress'
+					   (Ssh1, PacketData) of
+				    <{_cor32,Msg}>
+					when call 'erlang':'=:='
+					      (_cor32,
+					       Ssh1) ->
+					let <_cor8> =
+					    %% Line 1384
+					    call 'erlang':'setelement'
+						(14, State0, #{}#)
+					in  let <_cor10> =
+						%% Line 1381
+						call 'erlang':'setelement'
+						    (12, _cor8, Ssh1)
+					    in  %% Line 1380
+						apply 'generate_event'/4
+						    (Msg, StateName, _cor10, %% Line 1384
+									     EncData)
+				    ( <_cor6> when 'true' ->
+					  primop 'match_fail'
+					      ({'badmatch',_cor6})
+				      -| ['compiler_generated'] )
+				  end
+			  %% Line 1385
+			  <'false'> when 'true' ->
+			      %% Line 1390
+			      apply 'handle_disconnect'/2
+				  ({'ssh_msg_disconnect',2,[66|[97|[100|[32|[109|[97|[99]]]]]]],[101|[110]]}, State0)
+			  ( <_cor12> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor12})
+			    -| ['compiler_generated'] )
+			end
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor15,_cor14,_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14,_cor13})
+		  -| [{'function_name',{'handle_ssh_packet',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_disconnect'/2 =
+    %% Line 1393
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Msg = {'ssh_msg_disconnect',_cor9,Desc,_cor10},State0 = {'state',%% Line 1394
+									    Role,_cor11,_cor12,_cor13,Connection0,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29}> when 'true' ->
+	      %% Line 1395
+	      case call 'ssh_connection':'handle_msg'
+		       (Msg, Connection0, Role) of
+		<{'disconnect',_cor30,{{'replies',Replies},Connection}}> when 'true' ->
+		    let <State> =
+			%% Line 1396
+			apply 'send_replies'/2
+			    (Replies, State0)
+		    in  %% Line 1397
+			case State of
+			  <{'state',_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45,_cor46,_cor47,_cor48,_cor49,_cor50,_cor51}> when 'true' ->
+			      let <_cor6> =
+				  call 'erlang':'setelement'
+				      (6, State, Connection)
+			      in  {'stop',{'shutdown',Desc},_cor6}
+			  ( <_cor52> when 'true' ->
+				( call ( 'erlang'
+					 -| ['compiler_generated'] ):( 'error'
+								       -| ['compiler_generated'] )
+				      (( {'badrecord','state'}
+					 -| ['compiler_generated'] ))
+				  -| ['compiler_generated'] )
+			    -| ['compiler_generated'] )
+			end
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7})
+		  -| [{'function_name',{'handle_disconnect',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_disconnect'/3 =
+    %% Line 1398
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Msg = {'ssh_msg_disconnect',_cor11,Desc,_cor12},State0 = {'state',%% Line 1399
+									     Role,_cor13,_cor14,_cor15,Connection0,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31},%% Line 1399
+																												    ErrorMsg> when 'true' ->
+	      %% Line 1400
+	      case call 'ssh_connection':'handle_msg'
+		       (Msg, Connection0, Role) of
+		<{'disconnect',_cor32,{{'replies',Replies},Connection}}> when 'true' ->
+		    let <State> =
+			%% Line 1401
+			apply 'send_replies'/2
+			    (Replies, State0)
+		    in  %% Line 1402
+			case State of
+			  <{'state',_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45,_cor46,_cor47,_cor48,_cor49,_cor50,_cor51,_cor52,_cor53}> when 'true' ->
+			      let <_cor7> =
+				  call 'erlang':'setelement'
+				      (6, State, Connection)
+			      in  {'stop',{'shutdown',{Desc,ErrorMsg}},_cor7}
+			  ( <_cor54> when 'true' ->
+				( call ( 'erlang'
+					 -| ['compiler_generated'] ):( 'error'
+								       -| ['compiler_generated'] )
+				      (( {'badrecord','state'}
+					 -| ['compiler_generated'] ))
+				  -| ['compiler_generated'] )
+			    -| ['compiler_generated'] )
+			end
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'handle_disconnect',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'counterpart_versions'/3 =
+    %% Line 1404
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <NumVsn,StrVsn,Ssh = {'ssh','server',_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45,_cor46,_cor47,_cor48,_cor49,_cor50,_cor51,_cor52,_cor53,_cor54,_cor55,_cor56,_cor57,_cor58,_cor59,_cor60,_cor61}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 1405
+		  call 'erlang':'setelement'
+		      (6, Ssh, StrVsn)
+	      in  %% Line 1405
+		  call 'erlang':'setelement'
+		      (4, _cor4, NumVsn)
+	  %% Line 1406
+	  <NumVsn,StrVsn,Ssh = {'ssh','client',_cor114,_cor115,_cor116,_cor117,_cor118,_cor119,_cor120,_cor121,_cor122,_cor123,_cor124,_cor125,_cor126,_cor127,_cor128,_cor129,_cor130,_cor131,_cor132,_cor133,_cor134,_cor135,_cor136,_cor137,_cor138,_cor139,_cor140,_cor141,_cor142,_cor143,_cor144,_cor145,_cor146,_cor147,_cor148,_cor149,_cor150,_cor151,_cor152,_cor153,_cor154,_cor155,_cor156,_cor157,_cor158,_cor159,_cor160,_cor161,_cor162,_cor163}> when 'true' ->
+	      let <_cor7> =
+		  %% Line 1407
+		  call 'erlang':'setelement'
+		      (7, Ssh, StrVsn)
+	      in  %% Line 1407
+		  call 'erlang':'setelement'
+		      (5, _cor7, NumVsn)
+	  ( <_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'counterpart_versions',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'opposite_role'/1 =
+    %% Line 1409
+    fun (_cor0) ->
+	case _cor0 of
+	  <'client'> when 'true' ->
+	      %% Line 1410
+	      'server'
+	  %% Line 1411
+	  <'server'> when 'true' ->
+	      %% Line 1412
+	      'client'
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'opposite_role',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'connected_fun'/4 =
+    %% Line 1413
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 1414
+	case call 'proplists':'get_value'
+		 ('connectfun', _cor0) of
+	  %% Line 1415
+	  <'undefined'> when 'true' ->
+	      %% Line 1416
+	      'ok'
+	  %% Line 1417
+	  <Fun> when 'true' ->
+	      catch
+		  %% Line 1418
+		  apply Fun
+		      (_cor3, _cor2, _cor1)
+	end
+'retry_fun'/4 =
+    %% Line 1421
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <_cor10,_cor11,'undefined',_cor12> when 'true' ->
+	      %% Line 1422
+	      'ok'
+	  %% Line 1424
+	  <User,PeerAddr,{'error',Reason},Opts> when 'true' ->
+	      %% Line 1425
+	      case call 'proplists':'get_value'
+		       ('failfun', Opts) of
+		%% Line 1426
+		<'undefined'> when 'true' ->
+		    %% Line 1427
+		    'ok'
+		%% Line 1428
+		<Fun> when 'true' ->
+		    %% Line 1429
+		    apply 'do_retry_fun'/4
+			(Fun, User, PeerAddr, Reason)
+	      end
+	  %% Line 1432
+	  <User,PeerAddr,Reason,Opts> when 'true' ->
+	      %% Line 1433
+	      case call 'proplists':'get_value'
+		       ('infofun', Opts) of
+		%% Line 1434
+		<'undefined'> when 'true' ->
+		    %% Line 1435
+		    'ok'
+		%% Line 1436
+		<Fun> when 'true' ->
+		    %% Line 1437
+		    apply 'do_retry_fun'/4
+			(Fun, User, PeerAddr, Reason)
+	      end
+	end
+'do_retry_fun'/4 =
+    %% Line 1440
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 1441
+	case call 'erlang':'fun_info'
+		 (_cor3, 'arity') of
+	  %% Line 1442
+	  <{'arity',2}> when 'true' ->
+	      catch
+		  %% Line 1443
+		  apply _cor3
+		      (_cor2, _cor0)
+	  %% Line 1444
+	  <{'arity',3}> when 'true' ->
+	      catch
+		  %% Line 1445
+		  apply _cor3
+		      (_cor2, _cor1, _cor0)
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'ssh_info'/3 =
+    %% Line 1448
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_X_State,Acc> when 'true' ->
+	      %% Line 1449
+	      Acc
+	  %% Line 1450
+	  <['client_version'|Rest],State = {'state',_cor7,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,{'ssh',_cor17,_cor18,IntVsn,_cor19,%% Line 1451
+																			  StringVsn,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34,_cor35,_cor36,_cor37,_cor38,_cor39,_cor40,_cor41,_cor42,_cor43,_cor44,_cor45,_cor46,_cor47,_cor48,_cor49,_cor50,_cor51,_cor52,_cor53,_cor54,_cor55,_cor56,_cor57,_cor58,_cor59,_cor60,_cor61,_cor62,_cor63,_cor64,_cor65},_cor66,_cor67,_cor68,_cor69,_cor70,_cor71,_cor72,_cor73,_cor74,_cor75},%% Line 1451
+																																																																					      Acc> when 'true' ->
+	      %% Line 1452
+	      apply 'ssh_info'/3
+		  (Rest, State, [{'client_version',{IntVsn,StringVsn}}|Acc])
+	  %% Line 1454
+	  <['server_version'|Rest],State = {'state',_cor76,_cor77,_cor78,_cor79,_cor80,_cor81,_cor82,_cor83,_cor84,_cor85,{'ssh',_cor86,_cor87,_cor88,IntVsn,_cor89,%% Line 1455
+																				    StringVsn,_cor90,_cor91,_cor92,_cor93,_cor94,_cor95,_cor96,_cor97,_cor98,_cor99,_cor100,_cor101,_cor102,_cor103,_cor104,_cor105,_cor106,_cor107,_cor108,_cor109,_cor110,_cor111,_cor112,_cor113,_cor114,_cor115,_cor116,_cor117,_cor118,_cor119,_cor120,_cor121,_cor122,_cor123,_cor124,_cor125,_cor126,_cor127,_cor128,_cor129,_cor130,_cor131,_cor132,_cor133,_cor134},_cor135,_cor136,_cor137,_cor138,_cor139,_cor140,_cor141,_cor142,_cor143,_cor144},%% Line 1455
+																																																																											      Acc> when 'true' ->
+	      %% Line 1456
+	      apply 'ssh_info'/3
+		  (Rest, State, [{'server_version',{IntVsn,StringVsn}}|Acc])
+	  %% Line 1457
+	  <['peer'|Rest],State = {'state',_cor145,_cor146,_cor147,_cor148,_cor149,_cor150,_cor151,_cor152,_cor153,_cor154,{'ssh',_cor155,Peer,_cor156,_cor157,_cor158,_cor159,_cor160,_cor161,_cor162,_cor163,_cor164,_cor165,_cor166,_cor167,_cor168,_cor169,_cor170,_cor171,_cor172,_cor173,_cor174,_cor175,_cor176,_cor177,_cor178,_cor179,_cor180,_cor181,_cor182,_cor183,_cor184,_cor185,_cor186,_cor187,_cor188,_cor189,_cor190,_cor191,_cor192,_cor193,_cor194,_cor195,_cor196,_cor197,_cor198,_cor199,_cor200,_cor201,_cor202,_cor203,_cor204},_cor205,_cor206,_cor207,_cor208,_cor209,_cor210,_cor211,_cor212,_cor213,_cor214},Acc> when 'true' ->
+	      %% Line 1458
+	      apply 'ssh_info'/3
+		  (Rest, State, [{'peer',Peer}|Acc])
+	  %% Line 1459
+	  <['sockname'|Rest],State = {'state',_cor215,_cor216,_cor217,_cor218,_cor219,_cor220,_cor221,_cor222,_cor223,_cor224,_cor225,Socket,_cor226,_cor227,_cor228,_cor229,_cor230,_cor231,_cor232,_cor233,_cor234},Acc> when 'true' ->
+	      %% Line 1460
+	      case call 'inet':'sockname'
+		       (Socket) of
+		<{'ok',SockName}> when 'true' ->
+		    %% Line 1461
+		    apply 'ssh_info'/3
+			(Rest, State, [{'sockname',SockName}|Acc])
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1462
+	  <['user'|Rest],State = {'state',_cor235,_cor236,_cor237,User,_cor238,_cor239,_cor240,_cor241,_cor242,_cor243,_cor244,_cor245,_cor246,_cor247,_cor248,_cor249,_cor250,_cor251,_cor252,_cor253,_cor254},Acc> when 'true' ->
+	      %% Line 1463
+	      apply 'ssh_info'/3
+		  (Rest, State, [{'user',User}|Acc])
+	  %% Line 1464
+	  <[_cor255|Rest],State,Acc> when 'true' ->
+	      %% Line 1465
+	      apply 'ssh_info'/3
+		  (Rest, State, Acc)
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'ssh_info',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'ssh_channel_info'/3 =
+    %% Line 1467
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_cor6,Acc> when 'true' ->
+	      %% Line 1468
+	      Acc
+	  %% Line 1470
+	  <['recv_window'|Rest],Channel = {'channel',_cor7,_cor8,_cor9,_cor10,_cor11,WinSize,%% Line 1471
+											     Packsize,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17},%% Line 1472
+																		 Acc> when 'true' ->
+	      %% Line 1473
+	      apply 'ssh_channel_info'/3
+		  (Rest, Channel, [{'recv_window',{{'win_size',WinSize},%% Line 1474
+									{'packet_size',Packsize}}}|%% Line 1474
+												   Acc])
+	  %% Line 1475
+	  <['send_window'|Rest],Channel = {'channel',_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,WinSize,%% Line 1476
+															    Packsize,_cor27,_cor28},%% Line 1477
+																		    Acc> when 'true' ->
+	      %% Line 1478
+	      apply 'ssh_channel_info'/3
+		  (Rest, Channel, [{'send_window',{{'win_size',WinSize},%% Line 1479
+									{'packet_size',Packsize}}}|%% Line 1479
+												   Acc])
+	  %% Line 1480
+	  <[_cor29|Rest],Channel,Acc> when 'true' ->
+	      %% Line 1481
+	      apply 'ssh_channel_info'/3
+		  (Rest, Channel, Acc)
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'ssh_channel_info',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'log_error'/1 =
+    %% Line 1483
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 1486
+	    call 'erlang':'get_stacktrace'
+		()
+	in  let <Report> =
+		%% Line 1484
+		call 'io_lib':'format'
+		    ([69|[114|[108|[97|[110|[103|[32|[115|[115|[104|[32|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[104|[97|[110|[100|[108|[101|[114|[32|[102|[97|[105|[108|[101|[100|[32|[119|[105|[116|[104|[32|[114|[101|[97|[115|[111|[110|[58|[32|[126|[112|[32|[126|[110|[44|[32|[83|[116|[97|[99|[107|[116|[114|[97|[99|[101|[58|[32|[126|[112|[32|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 1486
+																																																							[_cor0|[_cor1|[]]])
+	    in  do  %% Line 1487
+		    call 'error_logger':'error_report'
+			(Report)
+		    %% Line 1488
+		    [73|[110|[116|[101|[114|[110|[97|[108|[32|[101|[114|[114|[111|[114]]]]]]]]]]]]]]
+'send_replies'/2 =
+    %% Line 1490
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],State> when 'true' ->
+	      %% Line 1491
+	      State
+	  %% Line 1492
+	  <[{'connection_reply',Data}|Rest],State = {'state',_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,Ssh0,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27}> when 'true' ->
+	      %% Line 1493
+	      case call 'ssh_transport':'ssh_packet'
+		       (Data, Ssh0) of
+		<{Packet,Ssh}> when 'true' ->
+		    do  %% Line 1494
+			apply 'send_msg'/2
+			    (Packet, State)
+			let <_cor5> =
+			    %% Line 1495
+			    call 'erlang':'setelement'
+				(12, State, Ssh)
+			in  %% Line 1495
+			    apply 'send_replies'/2
+				(Rest, _cor5)
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1496
+	  <[Msg|Rest],State> when 'true' ->
+	      do  catch
+		      %% Line 1497
+		      apply 'send_reply'/1
+			  (Msg)
+		  %% Line 1498
+		  apply 'send_replies'/2
+		      (Rest, State)
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'send_replies',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'send_reply'/1 =
+    %% Line 1500
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'channel_data',Pid,Data}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 1501
+		  call 'erlang':'self'
+		      ()
+	      in  %% Line 1501
+		  call 'erlang':'!'
+		      (Pid, {'ssh_cm',_cor1,Data})
+	  %% Line 1502
+	  <{'channel_requst_reply',From,Data}> when 'true' ->
+	      %% Line 1503
+	      call 'gen_fsm':'reply'
+		  (From, Data)
+	  %% Line 1504
+	  <{'flow_control',Cache,Channel,From,Msg}> when 'true' ->
+	      %% Line 1505
+	      case Channel of
+		<{'channel',_cor6,_cor7,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18}> when 'true' ->
+		    let <_cor4> =
+			call 'erlang':'setelement'
+			    (5, Channel, 'undefined')
+		    in  do  call 'ssh_channel':'cache_update'
+				(Cache, _cor4)
+			    %% Line 1506
+			    call 'gen_fsm':'reply'
+				(From, Msg)
+		( <_cor19> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','channel'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1507
+	  <{'flow_control',From,Msg}> when 'true' ->
+	      %% Line 1508
+	      call 'gen_fsm':'reply'
+		  (From, Msg)
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5})
+		  -| [{'function_name',{'send_reply',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'disconnect_fun'/2 =
+    %% Line 1510
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_cor5,'undefined'> when 'true' ->
+	      %% Line 1511
+	      'ok'
+	  %% Line 1512
+	  <Reason,Opts> when 'true' ->
+	      %% Line 1513
+	      case call 'proplists':'get_value'
+		       ('disconnectfun', Opts) of
+		%% Line 1514
+		<'undefined'> when 'true' ->
+		    %% Line 1515
+		    'ok'
+		%% Line 1516
+		<Fun> when 'true' ->
+		    catch
+			%% Line 1517
+			apply Fun
+			    (Reason)
+	      end
+	end
+'check_cache'/2 =
+    %% Line 1520
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <State = {'state',_cor7,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,Opts},Cache> when 'true' ->
+	      let <_cor2> =
+		  %% Line 1522
+		  call 'ets':'info'
+		      (Cache)
+	      in  %% Line 1522
+		  case call 'proplists':'get_value'
+			   ('size', _cor2) of
+		    %% Line 1523
+		    <0> when 'true' ->
+			%% Line 1524
+			case call 'proplists':'get_value'
+				 ('idle_time', Opts, 'infinity') of
+			  %% Line 1525
+			  <'infinity'> when 'true' ->
+			      %% Line 1526
+			      State
+			  %% Line 1527
+			  <Time> when 'true' ->
+			      %% Line 1528
+			      apply 'handle_idle_timer'/2
+				  (Time, State)
+			end
+		    %% Line 1530
+		    <_cor27> when 'true' ->
+			%% Line 1531
+			State
+		  end
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'check_cache',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_idle_timer'/2 =
+    %% Line 1534
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Time,State = {'state',_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,'undefined',_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26,_cor27}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 1535
+		  call 'erlang':'self'
+		      ()
+	      in  let <TimerRef> =
+		      %% Line 1535
+		      call 'erlang':'send_after'
+			  (Time, _cor2, {'EXIT',[],[84|[105|[109|[101|[111|[117|[116]]]]]]]})
+		  in  %% Line 1536
+		      call 'erlang':'setelement'
+			  (8, State, TimerRef)
+	  %% Line 1537
+	  <_cor50,State> when 'true' ->
+	      %% Line 1538
+	      State
+	end
+'remove_timer_ref'/1 =
+    %% Line 1540
+    fun (_cor0) ->
+	%% Line 1541
+	( case _cor0 of
+	    ( <( {'state',_cor7,_cor8,_cor9,_cor10,_cor11,_cor12,_rec90,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  case _rec90 of
+		    %% Line 1542
+		    <'infinity'> when 'true' ->
+			_cor0
+		    %% Line 1544
+		    <'undefined'> when 'true' ->
+			_cor0
+		    %% Line 1546
+		    <TimerRef> when 'true' ->
+			do  %% Line 1547
+			    call 'erlang':'cancel_timer'
+				(TimerRef)
+			    %% Line 1548
+			    call 'erlang':'setelement'
+				(8, _cor0, 'undefined')
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor27> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'socket_control'/3 =
+    %% Line 1551
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 1552
+	case call _cor0:'controlling_process'
+		 (_cor2, _cor1) of
+	  %% Line 1553
+	  <'ok'> when 'true' ->
+	      %% Line 1554
+	      apply 'send_event'/2
+		  (_cor1, 'socket_control')
+	  %% Line 1555
+	  <{'error',Reason}> when 'true' ->
+	      %% Line 1556
+	      {'error',Reason}
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'handshake'/3 =
+    %% Line 1559
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 1560
+	receive
+	  %% Line 1561
+	  <'ssh_connected'> when 'true' ->
+	      do  %% Line 1562
+		  call 'erlang':'demonitor'
+		      (_cor1)
+		  %% Line 1563
+		  {'ok',_cor2}
+	  %% Line 1564
+	  <{_cor8,'not_connected',Reason}>
+	      when call 'erlang':'=:='
+		    (_cor8,
+		     _cor2) ->
+	      %% Line 1565
+	      {'error',Reason}
+	  %% Line 1566
+	  <{_cor9,'user_password'}>
+	      when call 'erlang':'=:='
+		    (_cor9,
+		     _cor2) ->
+	      let <Pass> =
+		  %% Line 1567
+		  call 'io':'get_password'
+		      ()
+	      in  do  %% Line 1568
+		      call 'erlang':'!'
+			  (_cor2, Pass)
+		      %% Line 1569
+		      apply 'handshake'/3
+			  (_cor2, _cor1, _cor0)
+	  %% Line 1570
+	  <{_cor10,'question'}>
+	      when call 'erlang':'=:='
+		    (_cor10,
+		     _cor2) ->
+	      let <Answer> =
+		  %% Line 1571
+		  call 'io':'get_line'
+		      ([])
+	      in  do  %% Line 1572
+		      call 'erlang':'!'
+			  (_cor2, Answer)
+		      %% Line 1573
+		      apply 'handshake'/3
+			  (_cor2, _cor1, _cor0)
+	  %% Line 1574
+	  <{'DOWN',_cor11,'process',_cor12,{'shutdown',Reason}}>
+	      when call 'erlang':'=:='
+		    (_cor12,
+		     _cor2) ->
+	      %% Line 1575
+	      {'error',Reason}
+	  %% Line 1576
+	  <{'DOWN',_cor13,'process',_cor14,Reason}>
+	      when call 'erlang':'=:='
+		    (_cor14,
+		     _cor2) ->
+	      %% Line 1577
+	      {'error',Reason}
+	after _cor0 ->
+	  do  %% Line 1579
+	      apply 'stop'/1
+		  (_cor2)
+	      %% Line 1580
+	      {'error',_cor0}
+'start_timeout'/3 =
+    %% Line 1583
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_cor7,_cor8,'infinity'> when 'true' ->
+	      %% Line 1584
+	      'ok'
+	  %% Line 1585
+	  <Channel,From,Time> when 'true' ->
+	      let <_cor3> =
+		  %% Line 1586
+		  call 'erlang':'self'
+		      ()
+	      in  %% Line 1586
+		  call 'erlang':'send_after'
+		      (Time, _cor3, {'timeout',{Channel,From}})
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ssh_connection_handler')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ssh_connection_handler', _cor0)
+end

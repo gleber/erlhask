@@ -1,0 +1,214 @@
+module 'unix_telnet' ['connect'/6,
+		      'connect1'/7,
+		      'get_prompt_regexp'/0,
+		      'get_username_and_password'/1,
+		      'module_info'/0,
+		      'module_info'/1]
+    attributes []
+'get_prompt_regexp'/0 =
+    %% Line 72
+    fun () ->
+	%% Line 73
+	[108|[111|[103|[105|[110|[58|[32|[124|[80|[97|[115|[115|[119|[111|[114|[100|[58|[32|[124|[92|[36|[32|[124|[62|[32]]]]]]]]]]]]]]]]]]]]]]]]]
+'connect'/6 =
+    %% Line 93
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 94
+	case _cor0 of
+	  %% Line 95
+	  <{Username,Password}> when 'true' ->
+	      %% Line 96
+	      apply 'connect1'/7
+		  (_cor5, _cor4, _cor3, _cor2, _cor1, %% Line 97
+						      Username, %% Line 97
+								Password)
+	  %% Line 98
+	  <KeyOrName> when 'true' ->
+	      %% Line 99
+	      case apply 'get_username_and_password'/1
+		       (KeyOrName) of
+		%% Line 100
+		<{'ok',{Username,Password}}> when 'true' ->
+		    %% Line 101
+		    apply 'connect1'/7
+			(_cor5, _cor4, _cor3, _cor2, _cor1, %% Line 102
+							    Username, %% Line 102
+								      Password)
+		%% Line 103
+		<Error> when 'true' ->
+		    %% Line 104
+		    Error
+	      end
+	end
+'connect1'/7 =
+    %% Line 108
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 109
+	    call 'ct_telnet':'start_gen_log'
+		([117|[110|[105|[120|[95|[116|[101|[108|[110|[101|[116|[32|[99|[111|[110|[110|[101|[99|[116]]]]]]]]]]]]]]]]]]])
+	    let <_cor18> =
+		%% Line 111
+		case call 'ct_telnet_client':'open'
+			 (_cor5, _cor4, _cor3, _cor2, _cor6) of
+		  %% Line 112
+		  <{'ok',Pid}> when 'true' ->
+		      %% Line 113
+		      case call 'ct_telnet':'silent_teln_expect'
+			       (_cor6, Pid, [], %% Line 114
+						['prompt'], %% Line 114
+							    [108|[111|[103|[105|[110|[58|[32|[124|[80|[97|[115|[115|[119|[111|[114|[100|[58|[32|[124|[92|[36|[32|[124|[62|[32]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 114
+																									[]) of
+			%% Line 115
+			<{'ok',{'prompt',[108|[111|[103|[105|[110|[58|[32]]]]]]]},_cor27}> when 'true' ->
+			    do  %% Line 116
+				call 'ct_telnet':'log'
+				    (_cor6, 'send', [76|[111|[103|[103|[105|[110|[103|[32|[105|[110|[32|[116|[111|[32|[126|[112|[58|[126|[112]]]]]]]]]]]]]]]]]]], [_cor5|[_cor4|[]]])
+				%% Line 117
+				case call 'ct_telnet_client':'send_data'
+					 (Pid, _cor1) of
+				  <'ok'> when 'true' ->
+				      do  %% Line 118
+					  call 'ct_telnet':'log'
+					      (_cor6, 'send', [85|[115|[101|[114|[110|[97|[109|[101|[58|[32|[126|[116|[115]]]]]]]]]]]]], [_cor1|[]])
+					  %% Line 119
+					  case call 'ct_telnet':'silent_teln_expect'
+						   (_cor6, Pid, [], %% Line 120
+								    'prompt', %% Line 120
+									      [108|[111|[103|[105|[110|[58|[32|[124|[80|[97|[115|[115|[119|[111|[114|[100|[58|[32|[124|[92|[36|[32|[124|[62|[32]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 120
+																											  []) of
+					    %% Line 121
+					    <{'ok',{'prompt',[80|[97|[115|[115|[119|[111|[114|[100|[58|[32]]]]]]]]]]},_cor28}> when 'true' ->
+						%% Line 122
+						case call 'ct_telnet_client':'send_data'
+							 (Pid, _cor0) of
+						  <'ok'> when 'true' ->
+						      let <_cor9> =
+							  %% Line 123
+							  call 'erlang':'length'
+							      (_cor0)
+						      in  let <Stars> =
+							      %% Line 123
+							      call 'lists':'duplicate'
+								  (_cor9, 42)
+							  in  do  %% Line 124
+								  call 'ct_telnet':'log'
+								      (_cor6, 'send', [80|[97|[115|[115|[119|[111|[114|[100|[58|[32|[126|[115]]]]]]]]]]]], [Stars|[]])
+								  %% Line 125
+								  case call 'ct_telnet_client':'send_data'
+									   (Pid, []) of
+								    <'ok'> when 'true' ->
+									%% Line 126
+									case call 'ct_telnet':'silent_teln_expect'
+										 (_cor6, Pid, [], %% Line 127
+												  'prompt', %% Line 128
+													    [108|[111|[103|[105|[110|[58|[32|[124|[80|[97|[115|[115|[119|[111|[114|[100|[58|[32|[124|[92|[36|[32|[124|[62|[32]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 128
+																															[]) of
+									  %% Line 129
+									  <{'ok',{'prompt',Prompt},_cor29}>
+									      when let <_cor12> =
+										    %% Line 130
+										    call 'erlang':'=/='
+											(Prompt, [108|[111|[103|[105|[110|[58|[32]]]]]]])
+										in  let <_cor13> =
+											%% Line 131
+											call 'erlang':'=/='
+											    (Prompt, [80|[97|[115|[115|[119|[111|[114|[100|[58|[32]]]]]]]]]])
+										    in  %% Line 130
+											call 'erlang':'and'
+											    (_cor12, _cor13) ->
+									      %% Line 132
+									      {'ok',Pid}
+									  %% Line 133
+									  <Error> when 'true' ->
+									      do  %% Line 134
+										  call 'ct_telnet':'log'
+										      (_cor6, 'recv', [80|[97|[115|[115|[119|[111|[114|[100|[32|[102|[97|[105|[108|[101|[100|[10|[126|[112|[10]]]]]]]]]]]]]]]]]]], %% Line 135
+																										   [Error|[]])
+										  %% Line 136
+										  {'error',Error}
+									end
+								    ( <_cor11> when 'true' ->
+									  primop 'match_fail'
+									      ({'badmatch',_cor11})
+								      -| ['compiler_generated'] )
+								  end
+						  ( <_cor8> when 'true' ->
+							primop 'match_fail'
+							    ({'badmatch',_cor8})
+						    -| ['compiler_generated'] )
+						end
+					    %% Line 138
+					    <Error> when 'true' ->
+						do  %% Line 139
+						    call 'ct_telnet':'log'
+							(_cor6, 'recv', [76|[111|[103|[105|[110|[32|[116|[111|[32|[126|[112|[58|[126|[112|[32|[102|[97|[105|[108|[101|[100|[10|[126|[112|[10]]]]]]]]]]]]]]]]]]]]]]]]], [_cor5|[_cor4|[Error|[]]]])
+						    %% Line 140
+						    {'error',Error}
+					  end
+				  ( <_cor7> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor7})
+				    -| ['compiler_generated'] )
+				end
+			%% Line 142
+			<{'ok',[{'prompt',_X_OtherPrompt1}|[{'prompt',_X_OtherPrompt2}|[]]],_cor30}> when 'true' ->
+			    %% Line 143
+			    {'ok',Pid}
+			%% Line 144
+			<Error> when 'true' ->
+			    do  %% Line 145
+				call 'ct_telnet':'log'
+				    (_cor6, 'conn_error', %% Line 146
+							  [68|[105|[100|[32|[110|[111|[116|[32|[103|[101|[116|[32|[101|[120|[112|[101|[99|[116|[101|[100|[32|[112|[114|[111|[109|[112|[116|[32|[102|[114|[111|[109|[32|[126|[112|[58|[126|[112|[10|[126|[112|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 147
+																																					    [_cor5|[_cor4|[Error|[]]]])
+				%% Line 148
+				{'error',Error}
+		      end
+		  %% Line 150
+		  <Error> when 'true' ->
+		      do  %% Line 151
+			  call 'ct_telnet':'log'
+			      (_cor6, 'conn_error', %% Line 152
+						    [67|[111|[117|[108|[100|[32|[110|[111|[116|[32|[111|[112|[101|[110|[32|[116|[101|[108|[110|[101|[116|[32|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[116|[111|[32|[126|[112|[58|[126|[112|[10|[126|[112|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 153
+																																						       [_cor5|[_cor4|[Error|[]]]])
+			  %% Line 154
+			  Error
+		end
+	    in  do  %% Line 156
+		    call 'ct_telnet':'end_gen_log'
+			()
+		    _cor18
+'get_username_and_password'/1 =
+    %% Line 159
+    fun (_cor0) ->
+	%% Line 160
+	case call 'ct':'get_config'
+		 ({_cor0,'username'}) of
+	  %% Line 161
+	  <'undefined'> when 'true' ->
+	      %% Line 162
+	      {'error',{'no_username',_cor0}}
+	  %% Line 163
+	  <Username> when 'true' ->
+	      %% Line 164
+	      case call 'ct':'get_config'
+		       ({_cor0,'password'}) of
+		%% Line 165
+		<'undefined'> when 'true' ->
+		    %% Line 166
+		    {'error',{'no_password',_cor0}}
+		%% Line 167
+		<Password> when 'true' ->
+		    %% Line 168
+		    {'ok',{Username,Password}}
+	      end
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('unix_telnet')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('unix_telnet', _cor0)
+end

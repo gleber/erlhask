@@ -1,0 +1,4393 @@
+module 'hipe_rtl_to_ppc' ['module_info'/0,
+			  'module_info'/1,
+			  'translate'/1]
+    attributes []
+'translate'/1 =
+    %% Line 44
+    fun (_cor0) ->
+	do  %% Line 45
+	    call 'hipe_gensym':'init'
+		('ppc')
+	    let <_cor1> =
+		%% Line 46
+		call 'hipe_ppc_registers':'first_virtual'
+		    ()
+	    in  do  %% Line 46
+		    call 'hipe_gensym':'set_var'
+			('ppc', _cor1)
+		    let <_cor2> =
+			%% Line 47
+			call 'hipe_gensym':'get_label'
+			    ('rtl')
+		    in  do  %% Line 47
+			    call 'hipe_gensym':'set_label'
+				('ppc', _cor2)
+			    let <Map0> =
+				%% Line 48
+				apply 'vmap_empty'/0
+				    ()
+			    in  let <_cor4> =
+				    %% Line 49
+				    call 'hipe_rtl':'rtl_params'
+					(_cor0)
+				in  %% Line 49
+				    case apply 'conv_formals'/2
+					     (_cor4, Map0) of
+				      <{Formals,Map1}> when 'true' ->
+					  let <OldData> =
+					      %% Line 50
+					      call 'hipe_rtl':'rtl_data'
+						  (_cor0)
+					  in  let <_cor7> =
+						  %% Line 51
+						  call 'hipe_rtl':'rtl_code'
+						      (_cor0)
+					      in  %% Line 51
+						  case apply 'conv_insn_list'/3
+							   (_cor7, Map1, OldData) of
+						    <{Code0,NewData}> when 'true' ->
+							%% Line 52
+							case apply 'split_args'/1
+								 (Formals) of
+							  <{RegFormals,_cor20}> when 'true' ->
+							      let <_cor14> =
+								  %% Line 54
+								  case RegFormals of
+								    %% Line 55
+								    <[]> when 'true' ->
+									Code0
+								    %% Line 56
+								    <_cor21> when 'true' ->
+									let <_cor10> =
+									    call 'hipe_gensym':'get_next_label'
+										('ppc')
+									in  let <_cor11> =
+										call 'hipe_ppc':'mk_label'
+										    (_cor10)
+									    in  let <_cor12> =
+										    %% Line 57
+										    apply 'move_formals'/2
+											(RegFormals, Code0)
+										in  [_cor11|_cor12]
+								  end
+							      in  let <IsClosure> =
+								      %% Line 59
+								      call 'hipe_rtl':'rtl_is_closure'
+									  (_cor0)
+								  in  let <IsLeaf> =
+									  %% Line 60
+									  call 'hipe_rtl':'rtl_is_leaf'
+									      (_cor0)
+								      in  let <_cor18> =
+									      %% Line 61
+									      call 'hipe_rtl':'rtl_fun'
+										  (_cor0)
+									  in  %% Line 61
+									      call 'hipe_ppc':'mk_defun'
+										  (_cor18, %% Line 62
+											   Formals, %% Line 63
+												    IsClosure, %% Line 64
+													       IsLeaf, _cor14, %% Line 66
+															       NewData, %% Line 67
+																	[], %% Line 68
+																	    [])
+							  ( <_cor9> when 'true' ->
+								primop 'match_fail'
+								    ({'badmatch',_cor9})
+							    -| ['compiler_generated'] )
+							end
+						    ( <_cor8> when 'true' ->
+							  primop 'match_fail'
+							      ({'badmatch',_cor8})
+						      -| ['compiler_generated'] )
+						  end
+				      ( <_cor5> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_cor5})
+					-| ['compiler_generated'] )
+				    end
+'conv_insn_list'/3 =
+    %% Line 70
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[H|T],Map,Data> when 'true' ->
+	      %% Line 71
+	      case apply 'conv_insn'/3
+		       (H, Map, Data) of
+		<{NewH,NewMap,NewData1}> when 'true' ->
+		    %% Line 73
+		    case apply 'conv_insn_list'/3
+			     (T, NewMap, NewData1) of
+		      <{NewT,NewData2}> when 'true' ->
+			  let <_cor5> =
+			      %% Line 74
+			      call 'erlang':'++'
+				  (NewH, NewT)
+			  in  %% Line 74
+			      {_cor5,NewData2}
+		      ( <_cor4> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor4})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 75
+	  <[],_cor9,Data> when 'true' ->
+	      %% Line 76
+	      {[],Data}
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'conv_insn_list',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'conv_insn'/3 =
+    %% Line 78
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 79
+	case _cor2 of
+	  %% Line 80
+	  <{'alu',_cor7,_cor8,_cor9,_cor10}> when 'true' ->
+	      apply 'conv_alu'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 81
+	  <{'alub',_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18}> when 'true' ->
+	      apply 'conv_alub'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 82
+	  <{'branch',_cor19,_cor20,_cor21,_cor22,_cor23,_cor24}> when 'true' ->
+	      apply 'conv_branch'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 83
+	  <{'call',_cor25,_cor26,_cor27,_cor28,_cor29,_cor30,_cor31}> when 'true' ->
+	      apply 'conv_call'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 84
+	  <{'comment',_cor32}> when 'true' ->
+	      apply 'conv_comment'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 85
+	  <{'enter',_cor33,_cor34,_cor35}> when 'true' ->
+	      apply 'conv_enter'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 86
+	  <{'goto',_cor36}> when 'true' ->
+	      apply 'conv_goto'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 87
+	  <{'label',_cor37}> when 'true' ->
+	      apply 'conv_label'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 88
+	  <{'load',_cor38,_cor39,_cor40,_cor41,_cor42}> when 'true' ->
+	      apply 'conv_load'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 89
+	  <{'load_address',_cor43,_cor44,_cor45}> when 'true' ->
+	      apply 'conv_load_address'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 90
+	  <{'load_atom',_cor46,_cor47}> when 'true' ->
+	      apply 'conv_load_atom'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 91
+	  <{'move',_cor48,_cor49}> when 'true' ->
+	      apply 'conv_move'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 92
+	  <{'return',_cor50}> when 'true' ->
+	      apply 'conv_return'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 93
+	  <{'store',_cor51,_cor52,_cor53,_cor54}> when 'true' ->
+	      apply 'conv_store'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 94
+	  <{'switch',_cor55,_cor56,_cor57}> when 'true' ->
+	      apply 'conv_switch'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 95
+	  <{'fconv',_cor58,_cor59}> when 'true' ->
+	      apply 'conv_fconv'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 96
+	  <{'fmove',_cor60,_cor61}> when 'true' ->
+	      apply 'conv_fmove'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 97
+	  <{'fload',_cor62,_cor63,_cor64}> when 'true' ->
+	      apply 'conv_fload'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 98
+	  <{'fstore',_cor65,_cor66,_cor67}> when 'true' ->
+	      apply 'conv_fstore'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 99
+	  <{'fp',_cor68,_cor69,_cor70,_cor71}> when 'true' ->
+	      apply 'conv_fp_binary'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 100
+	  <{'fp_unop',_cor72,_cor73,_cor74}> when 'true' ->
+	      apply 'conv_fp_unary'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 101
+	  <_cor75> when 'true' ->
+	      call 'erlang':'exit'
+		  ({'hipe_rtl_to_ppc','conv_insn',_cor2})
+	end
+'conv_fconv'/3 =
+    %% Line 104
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 106
+	    call 'hipe_rtl':'fconv_dst'
+		(_cor2)
+	in  %% Line 106
+	    case apply 'conv_fpreg'/2
+		     (_cor3, _cor1) of
+	      <{Dst,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 107
+		      call 'hipe_rtl':'fconv_src'
+			  (_cor2)
+		  in  %% Line 107
+		      case apply 'conv_src'/2
+			       (_cor5, Map0) of
+			<{Src,Map1}> when 'true' ->
+			    let <I2> =
+				%% Line 108
+				apply 'mk_fconv'/2
+				    (Dst, Src)
+			    in  %% Line 109
+				{I2,Map1,_cor0}
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_fconv'/2 =
+    %% Line 111
+    fun (_cor1,_cor0) ->
+	let <CSP> =
+	    %% Line 112
+	    call 'hipe_ppc':'mk_temp'
+		(1, 'untagged')
+	in  %% Line 113
+	    case call 'erlang':'get'
+		     ('hipe_target_arch') of
+	      %% Line 114
+	      <'powerpc'> when 'true' ->
+		  let <R0> =
+		      %% Line 115
+		      call 'hipe_ppc':'mk_temp'
+			  (0, 'untagged')
+		  in  let <RTmp1> =
+			  %% Line 116
+			  call 'hipe_ppc':'mk_new_temp'
+			      ('untagged')
+		      in  let <RTmp2> =
+			      %% Line 117
+			      call 'hipe_ppc':'mk_new_temp'
+				  ('untagged')
+			  in  let <RTmp3> =
+				  %% Line 118
+				  call 'hipe_ppc':'mk_new_temp'
+				      ('untagged')
+			      in  let <FTmp1> =
+				      %% Line 119
+				      call 'hipe_ppc':'mk_new_temp'
+					  ('double')
+				  in  let <FTmp2> =
+					  %% Line 120
+					  call 'hipe_ppc':'mk_new_temp'
+					      ('double')
+				      in  let <_cor9> =
+					      %% Line 121
+					      call 'hipe_ppc':'mk_pseudo_li'
+						  (RTmp1, {'fconv_constant','c_const'})
+					  in  let <_cor10> =
+						  %% Line 122
+						  call 'hipe_ppc':'mk_lfd'
+						      (FTmp1, 0, RTmp1)
+					      in  let <_cor11> =
+						      %% Line 123
+						      call 'hipe_ppc':'mk_uimm16'
+							  (32768)
+						  in  let <_cor12> =
+							  %% Line 123
+							  call 'hipe_ppc':'mk_alu'
+							      ('xoris', RTmp2, _cor0, _cor11)
+						      in  let <_cor13> =
+							      %% Line 124
+							      call 'hipe_ppc':'mk_store'
+								  ('stw', RTmp2, 28, CSP)
+							  in  let <_cor14> =
+								  %% Line 125
+								  call 'hipe_ppc':'mk_simm16'
+								      (17200)
+							      in  let <_cor15> =
+								      %% Line 125
+								      call 'hipe_ppc':'mk_alu'
+									  ('addis', RTmp3, R0, _cor14)
+								  in  let <_cor16> =
+									  %% Line 126
+									  call 'hipe_ppc':'mk_store'
+									      ('stw', RTmp3, 24, CSP)
+								      in  let <_cor17> =
+									      %% Line 127
+									      call 'hipe_ppc':'mk_lfd'
+										  (FTmp2, 24, CSP)
+									  in  let <_cor18> =
+										  %% Line 128
+										  call 'hipe_ppc':'mk_fp_binary'
+										      ('fsub', _cor1, FTmp2, FTmp1)
+									      in  %% Line 121
+										  [_cor9|%% Line 122
+											 [_cor10|%% Line 123
+												 [_cor12|%% Line 124
+													 [_cor13|%% Line 125
+														 [_cor15|%% Line 126
+															 [_cor16|%% Line 127
+																 [_cor17|%% Line 128
+																	 [_cor18|[]]]]]]]]]
+	      %% Line 129
+	      <'ppc64'> when 'true' ->
+		  let <_cor19> =
+		      %% Line 130
+		      call 'hipe_ppc':'mk_store'
+			  ('std', _cor0, 24, CSP)
+		  in  let <_cor20> =
+			  %% Line 131
+			  call 'hipe_ppc':'mk_lfd'
+			      (_cor1, 24, CSP)
+		      in  let <_cor21> =
+			      %% Line 132
+			      call 'hipe_ppc':'mk_fp_unary'
+				  ('fcfid', _cor1, _cor1)
+			  in  %% Line 130
+			      [_cor19|%% Line 131
+				      [_cor20|%% Line 132
+					      [_cor21|[]]]]
+	      ( <_cor22> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor22})
+		-| ['compiler_generated'] )
+	    end
+'conv_fmove'/3 =
+    %% Line 135
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 137
+	    call 'hipe_rtl':'fmove_dst'
+		(_cor2)
+	in  %% Line 137
+	    case apply 'conv_fpreg'/2
+		     (_cor3, _cor1) of
+	      <{Dst,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 138
+		      call 'hipe_rtl':'fmove_src'
+			  (_cor2)
+		  in  %% Line 138
+		      case apply 'conv_fpreg'/2
+			       (_cor5, Map0) of
+			<{Src,Map1}> when 'true' ->
+			    let <I2> =
+				%% Line 139
+				apply 'mk_fmove'/2
+				    (Dst, Src)
+			    in  %% Line 140
+				{I2,Map1,_cor0}
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_fmove'/2 =
+    %% Line 142
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 143
+	    call 'hipe_ppc':'mk_pseudo_fmove'
+		(_cor1, _cor0)
+	in  %% Line 143
+	    [_cor2|[]]
+'conv_fload'/3 =
+    %% Line 145
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 147
+	    call 'hipe_rtl':'fload_dst'
+		(_cor2)
+	in  %% Line 147
+	    case apply 'conv_fpreg'/2
+		     (_cor3, _cor1) of
+	      <{Dst,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 148
+		      call 'hipe_rtl':'fload_src'
+			  (_cor2)
+		  in  %% Line 148
+		      case apply 'conv_src'/2
+			       (_cor5, Map0) of
+			<{Base1,Map1}> when 'true' ->
+			    let <_cor7> =
+				%% Line 149
+				call 'hipe_rtl':'fload_offset'
+				    (_cor2)
+			    in  %% Line 149
+				case apply 'conv_src'/2
+					 (_cor7, Map1) of
+				  <{Base2,Map2}> when 'true' ->
+				      let <I2> =
+					  %% Line 150
+					  apply 'mk_fload'/3
+					      (Dst, Base1, Base2)
+				      in  %% Line 151
+					  {I2,Map2,_cor0}
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor8})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_fload'/3 =
+    %% Line 153
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 154
+	case call 'hipe_ppc':'is_temp'
+		 (_cor1) of
+	  %% Line 155
+	  <'true'> when 'true' ->
+	      %% Line 156
+	      case call 'hipe_ppc':'is_temp'
+		       (_cor0) of
+		%% Line 157
+		<'true'> when 'true' ->
+		    %% Line 158
+		    apply 'mk_fload_rr'/3
+			(_cor2, _cor1, _cor0)
+		%% Line 159
+		<_cor9> when 'true' ->
+		    %% Line 160
+		    apply 'mk_fload_ri'/3
+			(_cor2, _cor1, _cor0)
+	      end
+	  %% Line 162
+	  <_cor10> when 'true' ->
+	      %% Line 163
+	      case call 'hipe_ppc':'is_temp'
+		       (_cor0) of
+		%% Line 164
+		<'true'> when 'true' ->
+		    %% Line 165
+		    apply 'mk_fload_ri'/3
+			(_cor2, _cor0, _cor1)
+		%% Line 166
+		<_cor11> when 'true' ->
+		    %% Line 167
+		    apply 'mk_fload_ii'/3
+			(_cor2, _cor1, _cor0)
+	      end
+	end
+'mk_fload_ii'/3 =
+    %% Line 171
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 172
+	    call 'io':'format'
+		([126|[119|[58|[32|[82|[84|[76|[32|[102|[108|[111|[97|[100|[32|[119|[105|[116|[104|[32|[116|[119|[111|[32|[105|[109|[109|[101|[100|[105|[97|[116|[101|[115|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], ['hipe_rtl_to_ppc'])
+	    let <Tmp> =
+		%% Line 173
+		apply 'new_untagged_temp'/0
+		    ()
+	    in  let <_cor4> =
+		    %% Line 175
+		    apply 'mk_fload_ri'/3
+			(_cor2, Tmp, _cor0)
+		in  %% Line 174
+		    apply 'mk_li'/3
+			(Tmp, _cor1, _cor4)
+'mk_fload_ri'/3 =
+    %% Line 177
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 178
+	call 'hipe_ppc':'mk_fload'
+	    (_cor2, _cor0, _cor1, 'new')
+'mk_fload_rr'/3 =
+    %% Line 180
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 181
+	    call 'hipe_ppc':'mk_lfdx'
+		(_cor2, _cor1, _cor0)
+	in  %% Line 181
+	    [_cor3|[]]
+'conv_fstore'/3 =
+    %% Line 183
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 185
+	    call 'hipe_rtl':'fstore_base'
+		(_cor2)
+	in  %% Line 185
+	    case apply 'conv_dst'/2
+		     (_cor3, _cor1) of
+	      <{Base1,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 186
+		      call 'hipe_rtl':'fstore_src'
+			  (_cor2)
+		  in  %% Line 186
+		      case apply 'conv_fpreg'/2
+			       (_cor5, Map0) of
+			<{Src,Map1}> when 'true' ->
+			    let <_cor7> =
+				%% Line 187
+				call 'hipe_rtl':'fstore_offset'
+				    (_cor2)
+			    in  %% Line 187
+				case apply 'conv_src'/2
+					 (_cor7, Map1) of
+				  <{Base2,Map2}> when 'true' ->
+				      let <I2> =
+					  %% Line 188
+					  apply 'mk_fstore'/3
+					      (Src, Base1, Base2)
+				      in  %% Line 189
+					  {I2,Map2,_cor0}
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor8})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_fstore'/3 =
+    %% Line 191
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 192
+	case call 'hipe_ppc':'is_temp'
+		 (_cor0) of
+	  %% Line 193
+	  <'true'> when 'true' ->
+	      %% Line 194
+	      apply 'mk_fstore_rr'/3
+		  (_cor2, _cor1, _cor0)
+	  %% Line 195
+	  <_cor7> when 'true' ->
+	      %% Line 196
+	      apply 'mk_fstore_ri'/3
+		  (_cor2, _cor1, _cor0)
+	end
+'mk_fstore_ri'/3 =
+    %% Line 199
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 200
+	call 'hipe_ppc':'mk_fstore'
+	    (_cor2, _cor0, _cor1, 'new')
+'mk_fstore_rr'/3 =
+    %% Line 202
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 203
+	    call 'hipe_ppc':'mk_stfdx'
+		(_cor2, _cor1, _cor0)
+	in  %% Line 203
+	    [_cor3|[]]
+'conv_fp_binary'/3 =
+    %% Line 205
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 206
+	    call 'hipe_rtl':'fp_dst'
+		(_cor2)
+	in  %% Line 206
+	    case apply 'conv_fpreg'/2
+		     (_cor3, _cor1) of
+	      <{Dst,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 207
+		      call 'hipe_rtl':'fp_src1'
+			  (_cor2)
+		  in  %% Line 207
+		      case apply 'conv_fpreg'/2
+			       (_cor5, Map0) of
+			<{Src1,Map1}> when 'true' ->
+			    let <_cor7> =
+				%% Line 208
+				call 'hipe_rtl':'fp_src2'
+				    (_cor2)
+			    in  %% Line 208
+				case apply 'conv_fpreg'/2
+					 (_cor7, Map1) of
+				  <{Src2,Map2}> when 'true' ->
+				      let <RtlFpOp> =
+					  %% Line 209
+					  call 'hipe_rtl':'fp_op'
+					      (_cor2)
+				      in  let <I2> =
+					      %% Line 210
+					      apply 'mk_fp_binary'/4
+						  (Dst, Src1, RtlFpOp, Src2)
+					  in  %% Line 211
+					      {I2,Map2,_cor0}
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor8})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_fp_binary'/4 =
+    %% Line 213
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 215
+	    case _cor1 of
+	      %% Line 216
+	      <'fadd'> when 'true' ->
+		  'fadd'
+	      %% Line 217
+	      <'fdiv'> when 'true' ->
+		  'fdiv'
+	      %% Line 218
+	      <'fmul'> when 'true' ->
+		  'fmul'
+	      %% Line 219
+	      <'fsub'> when 'true' ->
+		  'fsub'
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor4})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor7> =
+		%% Line 221
+		call 'hipe_ppc':'mk_fp_binary'
+		    (_cor5, _cor3, _cor2, _cor0)
+	    in  %% Line 221
+		[_cor7|[]]
+'conv_fp_unary'/3 =
+    %% Line 223
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 224
+	    call 'hipe_rtl':'fp_unop_dst'
+		(_cor2)
+	in  %% Line 224
+	    case apply 'conv_fpreg'/2
+		     (_cor3, _cor1) of
+	      <{Dst,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 225
+		      call 'hipe_rtl':'fp_unop_src'
+			  (_cor2)
+		  in  %% Line 225
+		      case apply 'conv_fpreg'/2
+			       (_cor5, Map0) of
+			<{Src,Map1}> when 'true' ->
+			    let <RtlFpUnOp> =
+				%% Line 226
+				call 'hipe_rtl':'fp_unop_op'
+				    (_cor2)
+			    in  let <I2> =
+				    %% Line 227
+				    apply 'mk_fp_unary'/3
+					(Dst, Src, RtlFpUnOp)
+				in  %% Line 228
+				    {I2,Map1,_cor0}
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_fp_unary'/3 =
+    %% Line 230
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 232
+	case _cor0 of
+	  %% Line 233
+	  <'fchs'> when 'true' ->
+	      let <_cor6> =
+		  %% Line 235
+		  call 'hipe_ppc':'mk_fp_unary'
+		      ('fneg', _cor2, _cor1)
+	      in  %% Line 235
+		  [_cor6|[]]
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'conv_alu'/3 =
+    %% Line 237
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 239
+	    call 'hipe_rtl':'alu_dst'
+		(_cor2)
+	in  %% Line 239
+	    case apply 'conv_dst'/2
+		     (_cor3, _cor1) of
+	      <{Dst,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 240
+		      call 'hipe_rtl':'alu_src1'
+			  (_cor2)
+		  in  %% Line 240
+		      case apply 'conv_src'/2
+			       (_cor5, Map0) of
+			<{Src1,Map1}> when 'true' ->
+			    let <_cor7> =
+				%% Line 241
+				call 'hipe_rtl':'alu_src2'
+				    (_cor2)
+			    in  %% Line 241
+				case apply 'conv_src'/2
+					 (_cor7, Map1) of
+				  <{Src2,Map2}> when 'true' ->
+				      let <RtlAluOp> =
+					  %% Line 242
+					  call 'hipe_rtl':'alu_op'
+					      (_cor2)
+				      in  let <I2> =
+					      %% Line 243
+					      apply 'mk_alu'/4
+						  (Dst, Src1, RtlAluOp, Src2)
+					  in  %% Line 244
+					      {I2,Map2,_cor0}
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor8})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_alu'/4 =
+    %% Line 246
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 247
+	case call 'hipe_ppc':'is_temp'
+		 (_cor2) of
+	  %% Line 248
+	  <'true'> when 'true' ->
+	      %% Line 249
+	      case call 'hipe_ppc':'is_temp'
+		       (_cor0) of
+		%% Line 250
+		<'true'> when 'true' ->
+		    %% Line 251
+		    apply 'mk_alu_rr'/4
+			(_cor3, _cor2, _cor1, _cor0)
+		%% Line 252
+		<_cor11> when 'true' ->
+		    %% Line 253
+		    apply 'mk_alu_ri'/4
+			(_cor3, _cor2, _cor1, _cor0)
+	      end
+	  %% Line 255
+	  <_cor12> when 'true' ->
+	      %% Line 256
+	      case call 'hipe_ppc':'is_temp'
+		       (_cor0) of
+		%% Line 257
+		<'true'> when 'true' ->
+		    %% Line 258
+		    apply 'mk_alu_ir'/4
+			(_cor3, _cor2, _cor1, _cor0)
+		%% Line 259
+		<_cor13> when 'true' ->
+		    %% Line 260
+		    apply 'mk_alu_ii'/4
+			(_cor3, _cor2, _cor1, _cor0)
+	      end
+	end
+'mk_alu_ii'/4 =
+    %% Line 264
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 265
+	    call 'io':'format'
+		([126|[119|[58|[32|[82|[84|[76|[32|[97|[108|[117|[32|[119|[105|[116|[104|[32|[116|[119|[111|[32|[105|[109|[109|[101|[100|[105|[97|[116|[101|[115|[32|[40|[126|[119|[32|[126|[119|[32|[126|[119|[41|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 266
+																																   ['hipe_rtl_to_ppc'|[_cor2|[_cor1|[_cor0|[]]]]])
+	    let <Tmp> =
+		%% Line 267
+		apply 'new_untagged_temp'/0
+		    ()
+	    in  let <_cor5> =
+		    %% Line 269
+		    apply 'mk_alu_ri'/4
+			(_cor3, Tmp, _cor1, _cor0)
+		in  %% Line 268
+		    apply 'mk_li'/3
+			(Tmp, _cor2, _cor5)
+'mk_alu_ir'/4 =
+    %% Line 271
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 272
+	case apply 'rtl_aluop_commutes'/1
+		 (_cor1) of
+	  %% Line 273
+	  <'true'> when 'true' ->
+	      %% Line 274
+	      apply 'mk_alu_ri'/4
+		  (_cor3, _cor0, _cor1, _cor2)
+	  %% Line 275
+	  <_cor11> when 'true' ->
+	      let <Tmp> =
+		  %% Line 276
+		  apply 'new_untagged_temp'/0
+		      ()
+	      in  let <_cor5> =
+		      %% Line 278
+		      apply 'mk_alu_rr'/4
+			  (_cor3, Tmp, _cor1, _cor0)
+		  in  %% Line 277
+		      apply 'mk_li'/3
+			  (Tmp, _cor2, _cor5)
+	end
+'mk_alu_ri'/4 =
+    %% Line 281
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 282
+	case _cor1 of
+	  %% Line 283
+	  <'sub'> when 'true' ->
+	      let <_cor4> =
+		  %% Line 284
+		  call 'erlang':'-'
+		      (_cor0)
+	      in  %% Line 284
+		  apply 'mk_alu_ri_addi'/3
+		      (_cor3, _cor2, _cor4)
+	  %% Line 285
+	  <'add'> when 'true' ->
+	      %% Line 286
+	      apply 'mk_alu_ri_addi'/3
+		  (_cor3, _cor2, _cor0)
+	  %% Line 287
+	  <'mul'> when 'true' ->
+	      %% Line 288
+	      apply 'mk_alu_ri_simm16'/5
+		  (_cor3, _cor2, _cor1, 'mulli', _cor0)
+	  %% Line 289
+	  <'and'> when 'true' ->
+	      %% Line 290
+	      case <> of
+		<>
+		    when try
+			  let <_cor6> =
+			      call 'erlang':'band'
+				  (_cor0, -4294967296)
+			  in  call 'erlang':'=:='
+				  (_cor6, 0)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 291
+		    case apply 'rlwinm_mask'/1
+			     (_cor0) of
+		      %% Line 292
+		      <{MB,ME}> when 'true' ->
+			  let <_cor7> =
+			      %% Line 293
+			      call 'hipe_ppc':'mk_unary'
+				  ({'rlwinm',0,MB,ME}, _cor3, _cor2)
+			  in  %% Line 293
+			      [_cor7|[]]
+		      %% Line 294
+		      <_cor14> when 'true' ->
+			  %% Line 295
+			  apply 'mk_alu_ri_bitop'/5
+			      (_cor3, _cor2, _cor1, 'andi.', _cor0)
+		    end
+		%% Line 297
+		<> when 'true' ->
+		    %% Line 298
+		    apply 'mk_alu_ri_bitop'/5
+			(_cor3, _cor2, _cor1, 'andi.', _cor0)
+	      end
+	  %% Line 300
+	  <'or'> when 'true' ->
+	      %% Line 301
+	      apply 'mk_alu_ri_bitop'/5
+		  (_cor3, _cor2, _cor1, 'ori', _cor0)
+	  %% Line 302
+	  <'xor'> when 'true' ->
+	      %% Line 303
+	      apply 'mk_alu_ri_bitop'/5
+		  (_cor3, _cor2, _cor1, 'xori', _cor0)
+	  %% Line 304
+	  <_cor15> when 'true' ->
+	      %% Line 305
+	      apply 'mk_alu_ri_shift'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	end
+'rlwinm_mask'/1 =
+    %% Line 308
+    fun (_cor0) ->
+	let <Res1> =
+	    %% Line 309
+	    apply 'rlwinm_mask2'/1
+		(_cor0)
+	in  %% Line 310
+	    case Res1 of
+	      %% Line 311
+	      <{_X_MB,_X_ME}> when 'true' ->
+		  Res1
+	      %% Line 312
+	      <[]> when 'true' ->
+		  let <_cor2> =
+		      %% Line 313
+		      call 'erlang':'bnot'
+			  (_cor0)
+		  in  %% Line 313
+		      case apply 'rlwinm_mask2'/1
+			       (_cor2) of
+			%% Line 314
+			<{MB,ME}> when 'true' ->
+			    let <_cor4> =
+				call 'erlang':'+'
+				    (ME, 1)
+			    in  let <_cor3> =
+				    call 'erlang':'-'
+					(MB, 1)
+				in  {_cor4,_cor3}
+			%% Line 315
+			<[]> when 'true' ->
+			    []
+			( <_cor5> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor5})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor6> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor6})
+		-| ['compiler_generated'] )
+	    end
+'rlwinm_mask2'/1 =
+    %% Line 319
+    fun (_cor0) ->
+	%% Line 320
+	case call 'erlang':'band'
+		 (_cor0, 4294967295) of
+	  %% Line 321
+	  <0> when 'true' ->
+	      []
+	  %% Line 322
+	  <Word> when 'true' ->
+	      let <MB> =
+		  %% Line 323
+		  apply 'lsb_log2'/1
+		      (Word)
+	      in  let <_cor2> =
+		      %% Line 324
+		      call 'erlang':'bsr'
+			  (Word, MB)
+		  in  let <_cor3> =
+			  %% Line 324
+			  call 'erlang':'bnot'
+			      (_cor2)
+		      in  %% Line 324
+			  case call 'erlang':'band'
+				   (_cor3, 4294967295) of
+			    %% Line 325
+			    <0> when 'true' ->
+				[]
+			    %% Line 326
+			    <Word1> when 'true' ->
+				let <ME1> =
+				    %% Line 327
+				    apply 'lsb_log2'/1
+					(Word1)
+				in  let <_cor5> =
+					%% Line 328
+					call 'erlang':'+'
+					    (MB, ME1)
+				    in  %% Line 328
+					case call 'erlang':'bsr'
+						 (Word, _cor5) of
+					  %% Line 329
+					  <0> when 'true' ->
+					      let <_cor6> =
+						  %% Line 330
+						  call 'erlang':'+'
+						      (MB, ME1)
+					      in  let <ME> =
+						      %% Line 330
+						      call 'erlang':'-'
+							  (_cor6, 1)
+						  in  let <_cor9> =
+							  %% Line 331
+							  call 'erlang':'-'
+							      (31, ME)
+						      in  let <_cor8> =
+							      %% Line 331
+							      call 'erlang':'-'
+								  (31, MB)
+							  in  %% Line 331
+							      {_cor9,_cor8}
+					  %% Line 332
+					  <_cor14> when 'true' ->
+					      %% Line 333
+					      []
+					end
+			  end
+	end
+'lsb_log2'/1 =
+    %% Line 338
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 339
+	    call 'erlang':'-'
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 339
+		call 'erlang':'band'
+		    (_cor0, _cor1)
+	    in  %% Line 339
+		apply 'bitN_log2'/2
+		    (_cor2, 0)
+'bitN_log2'/2 =
+    %% Line 341
+    fun (_cor1,_cor0) ->
+	%% Line 342
+	case <> of
+	  <>
+	      when call 'erlang':'>'
+		    (_cor1,
+		     65535) ->
+	      let <_cor3> =
+		  %% Line 343
+		  call 'erlang':'bsr'
+		      (_cor1, 16)
+	      in  let <_cor2> =
+		      %% Line 343
+		      call 'erlang':'+'
+			  (_cor0, 16)
+		  in  %% Line 343
+		      apply 'bitN_log2'/2
+			  (_cor3, _cor2)
+	  %% Line 344
+	  <> when 'true' ->
+	      let <_cor4> =
+		  %% Line 345
+		  call 'erlang':'-'
+		      (_cor1, 1)
+	      in  let <_cor5> =
+		      %% Line 345
+		      apply 'hweight16'/1
+			  (_cor4)
+		  in  %% Line 345
+		      call 'erlang':'+'
+			  (_cor0, _cor5)
+	end
+'hweight16'/1 =
+    %% Line 348
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 349
+	    call 'erlang':'band'
+		(_cor0, 21845)
+	in  let <_cor1> =
+		%% Line 349
+		call 'erlang':'bsr'
+		    (_cor0, 1)
+	    in  let <_cor2> =
+		    %% Line 349
+		    call 'erlang':'band'
+			(_cor1, 21845)
+		in  let <Res1> =
+			%% Line 349
+			call 'erlang':'+'
+			    (_cor3, _cor2)
+		    in  let <_cor7> =
+			    %% Line 350
+			    call 'erlang':'band'
+				(Res1, 13107)
+			in  let <_cor5> =
+				%% Line 350
+				call 'erlang':'bsr'
+				    (Res1, 2)
+			    in  let <_cor6> =
+				    %% Line 350
+				    call 'erlang':'band'
+					(_cor5, 13107)
+				in  let <Res2> =
+					%% Line 350
+					call 'erlang':'+'
+					    (_cor7, _cor6)
+				    in  let <_cor11> =
+					    %% Line 351
+					    call 'erlang':'band'
+						(Res2, 3855)
+					in  let <_cor9> =
+						%% Line 351
+						call 'erlang':'bsr'
+						    (Res2, 4)
+					    in  let <_cor10> =
+						    %% Line 351
+						    call 'erlang':'band'
+							(_cor9, 3855)
+						in  let <Res3> =
+							%% Line 351
+							call 'erlang':'+'
+							    (_cor11, _cor10)
+						    in  let <_cor15> =
+							    %% Line 352
+							    call 'erlang':'band'
+								(Res3, 255)
+							in  let <_cor13> =
+								%% Line 352
+								call 'erlang':'bsr'
+								    (Res3, 8)
+							    in  let <_cor14> =
+								    %% Line 352
+								    call 'erlang':'band'
+									(_cor13, 255)
+								in  %% Line 352
+								    call 'erlang':'+'
+									(_cor15, _cor14)
+'mk_alu_ri_addi'/3 =
+    %% Line 354
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 355
+	apply 'mk_alu_ri_simm16'/5
+	    (_cor2, _cor1, 'add', 'addi', _cor0)
+'mk_alu_ri_simm16'/5 =
+    %% Line 357
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 358
+	case <> of
+	  <>
+	      when try
+		    let <_cor5> =
+			call 'erlang':'is_integer'
+			    (_cor0)
+		    in  let <_cor7> =
+			    call 'erlang':'=<'
+				(-32768, _cor0)
+			in  let <_cor8> =
+				call 'erlang':'<'
+				    (_cor0, 32768)
+			    in  let <_cor9> =
+				    call 'erlang':'and'
+					(_cor7, _cor8)
+				in  call 'erlang':'and'
+					(_cor5, _cor9)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor10> =
+		  %% Line 360
+		  call 'hipe_ppc':'mk_simm16'
+		      (_cor0)
+	      in  let <_cor11> =
+		      %% Line 359
+		      call 'hipe_ppc':'mk_alu'
+			  (_cor1, _cor4, _cor3, _cor10)
+		  in  %% Line 359
+		      [_cor11|%% Line 360
+			      []]
+	  %% Line 361
+	  <> when 'true' ->
+	      %% Line 362
+	      apply 'mk_alu_ri_rr'/4
+		  (_cor4, _cor3, _cor2, _cor0)
+	end
+'mk_alu_ri_bitop'/5 =
+    %% Line 365
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 366
+	case <> of
+	  <>
+	      when try
+		    let <_cor5> =
+			call 'erlang':'is_integer'
+			    (_cor0)
+		    in  let <_cor6> =
+			    call 'erlang':'=<'
+				(0, _cor0)
+			in  let <_cor7> =
+				call 'erlang':'<'
+				    (_cor0, 65536)
+			    in  let <_cor8> =
+				    call 'erlang':'and'
+					(_cor6, _cor7)
+				in  call 'erlang':'and'
+					(_cor5, _cor8)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor9> =
+		  %% Line 368
+		  call 'hipe_ppc':'mk_uimm16'
+		      (_cor0)
+	      in  let <_cor10> =
+		      %% Line 367
+		      call 'hipe_ppc':'mk_alu'
+			  (_cor1, _cor4, _cor3, _cor9)
+		  in  %% Line 367
+		      [_cor10|%% Line 368
+			      []]
+	  %% Line 369
+	  <> when 'true' ->
+	      %% Line 370
+	      apply 'mk_alu_ri_rr'/4
+		  (_cor4, _cor3, _cor2, _cor0)
+	end
+'mk_alu_ri_shift'/4 =
+    %% Line 373
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 374
+	case call 'erlang':'get'
+		 ('hipe_target_arch') of
+	  %% Line 375
+	  <'ppc64'> when 'true' ->
+	      %% Line 376
+	      case <> of
+		<>
+		    when let <_cor4> =
+			  call 'erlang':'<'
+			      (_cor0, 64)
+		      in  let <_cor5> =
+			      call 'erlang':'>='
+				  (_cor0, 0)
+			  in  call 'erlang':'and'
+				  (_cor4, _cor5) ->
+		    let <_cor7> =
+			%% Line 378
+			case _cor1 of
+			  %% Line 379
+			  <'sll'> when 'true' ->
+			      'sldi'
+			  %% Line 380
+			  <'srl'> when 'true' ->
+			      'srdi'
+			  %% Line 381
+			  <'sra'> when 'true' ->
+			      'sradi'
+			  ( <_cor6> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor6})
+			    -| ['compiler_generated'] )
+			end
+		    in  let <_cor9> =
+			    %% Line 384
+			    call 'hipe_ppc':'mk_uimm16'
+				(_cor0)
+			in  let <_cor10> =
+				%% Line 383
+				call 'hipe_ppc':'mk_alu'
+				    (_cor7, _cor3, _cor2, _cor9)
+			    in  %% Line 383
+				[_cor10|%% Line 384
+					[]]
+		%% Line 385
+		<> when 'true' ->
+		    %% Line 386
+		    apply 'mk_alu_ri_rr'/4
+			(_cor3, _cor2, _cor1, _cor0)
+	      end
+	  %% Line 388
+	  <'powerpc'> when 'true' ->
+	      %% Line 389
+	      case <> of
+		<>
+		    when let <_cor11> =
+			  call 'erlang':'<'
+			      (_cor0, 32)
+		      in  let <_cor12> =
+			      call 'erlang':'>='
+				  (_cor0, 0)
+			  in  call 'erlang':'and'
+				  (_cor11, _cor12) ->
+		    let <_cor14> =
+			%% Line 391
+			case _cor1 of
+			  %% Line 392
+			  <'sll'> when 'true' ->
+			      'slwi'
+			  %% Line 393
+			  <'srl'> when 'true' ->
+			      'srwi'
+			  %% Line 394
+			  <'sra'> when 'true' ->
+			      'srawi'
+			  ( <_cor13> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor13})
+			    -| ['compiler_generated'] )
+			end
+		    in  let <_cor16> =
+			    %% Line 397
+			    call 'hipe_ppc':'mk_uimm16'
+				(_cor0)
+			in  let <_cor17> =
+				%% Line 396
+				call 'hipe_ppc':'mk_alu'
+				    (_cor14, _cor3, _cor2, _cor16)
+			    in  %% Line 396
+				[_cor17|%% Line 397
+					[]]
+		%% Line 398
+		<> when 'true' ->
+		    %% Line 399
+		    apply 'mk_alu_ri_rr'/4
+			(_cor3, _cor2, _cor1, _cor0)
+	      end
+	  ( <_cor18> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor18})
+	    -| ['compiler_generated'] )
+	end
+'mk_alu_ri_rr'/4 =
+    %% Line 403
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <Tmp> =
+	    %% Line 404
+	    apply 'new_untagged_temp'/0
+		()
+	in  let <_cor5> =
+		%% Line 406
+		apply 'mk_alu_rr'/4
+		    (_cor3, _cor2, _cor1, Tmp)
+	    in  %% Line 405
+		apply 'mk_li'/3
+		    (Tmp, _cor0, _cor5)
+'mk_alu_rr'/4 =
+    %% Line 408
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 409
+	case _cor1 of
+	  %% Line 410
+	  <'sub'> when 'true' ->
+	      let <_cor4> =
+		  %% Line 411
+		  call 'hipe_ppc':'mk_alu'
+		      ('subf', _cor3, _cor0, _cor2)
+	      in  %% Line 411
+		  [_cor4|[]]
+	  %% Line 412
+	  <_cor15> when 'true' ->
+	      let <_cor5> =
+		  %% Line 414
+		  call 'erlang':'get'
+		      ('hipe_target_arch')
+	      in  let <_cor7> =
+		      %% Line 414
+		      case <_cor5,_cor1> of
+			%% Line 415
+			<_cor16,'add'> when 'true' ->
+			    'add'
+			%% Line 416
+			<_cor17,'or'> when 'true' ->
+			    'or'
+			%% Line 417
+			<_cor18,'and'> when 'true' ->
+			    'and'
+			%% Line 418
+			<_cor19,'xor'> when 'true' ->
+			    'xor'
+			%% Line 420
+			<'powerpc','mul'> when 'true' ->
+			    'mullw'
+			%% Line 421
+			<'powerpc','sll'> when 'true' ->
+			    'slw'
+			%% Line 422
+			<'powerpc','srl'> when 'true' ->
+			    'srw'
+			%% Line 423
+			<'powerpc','sra'> when 'true' ->
+			    'sraw'
+			%% Line 425
+			<'ppc64','mul'> when 'true' ->
+			    'mulld'
+			%% Line 426
+			<'ppc64','sll'> when 'true' ->
+			    'sld'
+			%% Line 427
+			<'ppc64','srl'> when 'true' ->
+			    'srd'
+			%% Line 428
+			<'ppc64','sra'> when 'true' ->
+			    'srad'
+			( <_fol100,_fol101> when 'true' ->
+			      let <_cor6> = {_fol100,_fol101}
+			      in  primop 'match_fail'
+				      ({'case_clause',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+		  in  let <_cor9> =
+			  %% Line 430
+			  call 'hipe_ppc':'mk_alu'
+			      (_cor7, _cor3, _cor2, _cor0)
+		      in  %% Line 430
+			  [_cor9|[]]
+	end
+'conv_alub'/3 =
+    %% Line 433
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 435
+	    call 'hipe_rtl':'alub_dst'
+		(_cor2)
+	in  %% Line 435
+	    case apply 'conv_dst'/2
+		     (_cor3, _cor1) of
+	      <{Dst,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 436
+		      call 'hipe_rtl':'alub_src1'
+			  (_cor2)
+		  in  %% Line 436
+		      case apply 'conv_src'/2
+			       (_cor5, Map0) of
+			<{Src1,Map1}> when 'true' ->
+			    let <_cor7> =
+				%% Line 437
+				call 'hipe_rtl':'alub_src2'
+				    (_cor2)
+			    in  %% Line 437
+				case apply 'conv_src'/2
+					 (_cor7, Map1) of
+				  <{Src2,Map2}> when 'true' ->
+				      let <_cor10> =
+					  %% Line 439
+					  call 'hipe_rtl':'alub_op'
+					      (_cor2)
+				      in  let <_cor9> =
+					      %% Line 439
+					      call 'hipe_rtl':'alub_cond'
+						  (_cor2)
+					  in  let <AluOp,BCond> =
+						  %% Line 439
+						  case <_cor10,_cor9> of
+						    %% Line 440
+						    <'add','ltu'> when 'true' ->
+							%% Line 441
+							<'addc','eq'>
+						    %% Line 442
+						    <RtlAlubOp,RtlAlubCond> when 'true' ->
+							let <_cor12> =
+							    %% Line 443
+							    apply 'conv_alub_op'/1
+								(RtlAlubOp)
+							in  let <_cor11> =
+								%% Line 443
+								apply 'conv_alub_cond'/1
+								    (RtlAlubCond)
+							    in  <_cor12,_cor11>
+						  end
+					      in  let <_cor18> =
+						      %% Line 446
+						      call 'hipe_rtl':'alub_true_label'
+							  (_cor2)
+						  in  let <_cor17> =
+							  %% Line 447
+							  call 'hipe_rtl':'alub_false_label'
+							      (_cor2)
+						      in  let <_cor16> =
+							      %% Line 448
+							      call 'hipe_rtl':'alub_pred'
+								  (_cor2)
+							  in  let <BC> =
+								  %% Line 445
+								  apply 'mk_pseudo_bc'/4
+								      (BCond, _cor18, _cor17, _cor16)
+							      in  let <_cor24> =
+								      %% Line 450
+								      case <AluOp,BCond> of
+									%% Line 451
+									<'addc','eq'> when 'true' ->
+									    let <TmpR> =
+										%% Line 452
+										apply 'new_untagged_temp'/0
+										    ()
+									    in  let <_cor21> =
+										    %% Line 453
+										    call 'hipe_ppc':'mk_mfspr'
+											(TmpR, 'xer')
+										in  let <_cor22> =
+											%% Line 454
+											call 'hipe_ppc':'mk_mtcr'
+											    (TmpR)
+										    in  %% Line 453
+											[_cor21|%% Line 454
+												[_cor22|%% Line 455
+													BC]]
+									%% Line 456
+									<_fol108,_fol109> when 'true' ->
+									    BC
+								      end
+								  in  let <NewSrc1,NewSrc2> =
+									  %% Line 459
+									  case AluOp of
+									    %% Line 460
+									    <'subf'> when 'true' ->
+										<Src2,Src1>
+									    %% Line 461
+									    <_cor35> when 'true' ->
+										<Src1,Src2>
+									  end
+								      in  let <I1> =
+									      %% Line 463
+									      apply 'mk_alub'/5
+										  (Dst, NewSrc1, AluOp, NewSrc2, BCond)
+									  in  let <_cor30> =
+										  %% Line 464
+										  call 'erlang':'++'
+										      (I1, _cor24)
+									      in  %% Line 464
+										  {_cor30,Map2,_cor0}
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor8})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'conv_alub_op'/1 =
+    %% Line 466
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 467
+	    call 'erlang':'get'
+		('hipe_target_arch')
+	in  %% Line 467
+	    case <_cor1,_cor0> of
+	      %% Line 468
+	      <_cor4,'add'> when 'true' ->
+		  'add'
+	      %% Line 469
+	      <_cor5,'sub'> when 'true' ->
+		  'subf'
+	      %% Line 470
+	      <_cor6,'or'> when 'true' ->
+		  'or'
+	      %% Line 471
+	      <_cor7,'and'> when 'true' ->
+		  'and'
+	      %% Line 472
+	      <_cor8,'xor'> when 'true' ->
+		  'xor'
+	      %% Line 474
+	      <'powerpc','mul'> when 'true' ->
+		  'mullw'
+	      %% Line 475
+	      <'powerpc','sll'> when 'true' ->
+		  'slw'
+	      %% Line 476
+	      <'powerpc','srl'> when 'true' ->
+		  'srw'
+	      %% Line 477
+	      <'powerpc','sra'> when 'true' ->
+		  'sraw'
+	      %% Line 479
+	      <'ppc64','mul'> when 'true' ->
+		  'mulld'
+	      %% Line 480
+	      <'ppc64','sll'> when 'true' ->
+		  'sld'
+	      %% Line 481
+	      <'ppc64','srl'> when 'true' ->
+		  'srd'
+	      %% Line 482
+	      <'ppc64','sra'> when 'true' ->
+		  'srad'
+	      ( <_fol115,_fol116> when 'true' ->
+		    let <_cor2> = {_fol115,_fol116}
+		    in  primop 'match_fail'
+			    ({'case_clause',_cor2})
+		-| ['compiler_generated'] )
+	    end
+'aluop_commutes'/1 =
+    %% Line 485
+    fun (_cor0) ->
+	%% Line 486
+	case _cor0 of
+	  %% Line 487
+	  <'add'> when 'true' ->
+	      'true'
+	  %% Line 488
+	  <'addc'> when 'true' ->
+	      'true'
+	  %% Line 489
+	  <'subf'> when 'true' ->
+	      'false'
+	  %% Line 490
+	  <'mullw'> when 'true' ->
+	      'true'
+	  %% Line 491
+	  <'or'> when 'true' ->
+	      'true'
+	  %% Line 492
+	  <'and'> when 'true' ->
+	      'true'
+	  %% Line 493
+	  <'xor'> when 'true' ->
+	      'true'
+	  %% Line 494
+	  <'slw'> when 'true' ->
+	      'false'
+	  %% Line 495
+	  <'srw'> when 'true' ->
+	      'false'
+	  %% Line 496
+	  <'sraw'> when 'true' ->
+	      'false'
+	  %% Line 497
+	  <'mulld'> when 'true' ->
+	      'true'
+	  %% Line 498
+	  <'sld'> when 'true' ->
+	      'false'
+	  %% Line 499
+	  <'srd'> when 'true' ->
+	      'false'
+	  %% Line 500
+	  <'srad'> when 'true' ->
+	      'false'
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'conv_alub_cond'/1 =
+    %% Line 503
+    fun (_cor0) ->
+	%% Line 504
+	case _cor0 of
+	  %% Line 505
+	  <'eq'> when 'true' ->
+	      'eq'
+	  %% Line 506
+	  <'ne'> when 'true' ->
+	      'ne'
+	  %% Line 507
+	  <'gt'> when 'true' ->
+	      'gt'
+	  %% Line 508
+	  <'ge'> when 'true' ->
+	      'ge'
+	  %% Line 509
+	  <'lt'> when 'true' ->
+	      'lt'
+	  %% Line 510
+	  <'le'> when 'true' ->
+	      'le'
+	  %% Line 511
+	  <'overflow'> when 'true' ->
+	      'so'
+	  %% Line 512
+	  <'not_overflow'> when 'true' ->
+	      'ns'
+	  %% Line 513
+	  <_cor3> when 'true' ->
+	      call 'erlang':'exit'
+		  ({'hipe_rtl_to_ppc','conv_alub_cond',_cor0})
+	end
+'mk_alub'/5 =
+    %% Line 516
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 517
+	case call 'hipe_ppc':'is_temp'
+		 (_cor3) of
+	  %% Line 518
+	  <'true'> when 'true' ->
+	      %% Line 519
+	      case call 'hipe_ppc':'is_temp'
+		       (_cor1) of
+		%% Line 520
+		<'true'> when 'true' ->
+		    %% Line 521
+		    apply 'mk_alub_rr'/5
+			(_cor4, _cor3, _cor2, _cor1, _cor0)
+		%% Line 522
+		<_cor13> when 'true' ->
+		    %% Line 523
+		    apply 'mk_alub_ri'/5
+			(_cor4, _cor3, _cor2, _cor1, _cor0)
+	      end
+	  %% Line 525
+	  <_cor14> when 'true' ->
+	      %% Line 526
+	      case call 'hipe_ppc':'is_temp'
+		       (_cor1) of
+		%% Line 527
+		<'true'> when 'true' ->
+		    %% Line 528
+		    apply 'mk_alub_ir'/5
+			(_cor4, _cor3, _cor2, _cor1, _cor0)
+		%% Line 529
+		<_cor15> when 'true' ->
+		    %% Line 530
+		    apply 'mk_alub_ii'/5
+			(_cor4, _cor3, _cor2, _cor1, _cor0)
+	      end
+	end
+'mk_alub_ii'/5 =
+    %% Line 534
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 535
+	    call 'io':'format'
+		([126|[119|[58|[32|[82|[84|[76|[32|[97|[108|[117|[98|[32|[119|[105|[116|[104|[32|[116|[119|[111|[32|[105|[109|[109|[101|[100|[105|[97|[116|[101|[115|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], ['hipe_rtl_to_ppc'])
+	    let <Tmp> =
+		%% Line 536
+		apply 'new_untagged_temp'/0
+		    ()
+	    in  let <_cor6> =
+		    %% Line 538
+		    apply 'mk_alub_ri'/5
+			(_cor4, Tmp, _cor2, _cor1, _cor0)
+		in  %% Line 537
+		    apply 'mk_li'/3
+			(Tmp, _cor3, _cor6)
+'mk_alub_ir'/5 =
+    %% Line 540
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 541
+	case apply 'aluop_commutes'/1
+		 (_cor2) of
+	  %% Line 542
+	  <'true'> when 'true' ->
+	      %% Line 543
+	      apply 'mk_alub_ri'/5
+		  (_cor4, _cor1, _cor2, _cor3, _cor0)
+	  %% Line 544
+	  <_cor13> when 'true' ->
+	      let <Tmp> =
+		  %% Line 545
+		  apply 'new_untagged_temp'/0
+		      ()
+	      in  let <_cor6> =
+		      %% Line 547
+		      apply 'mk_alub_rr'/5
+			  (_cor4, Tmp, _cor2, _cor1, _cor0)
+		  in  %% Line 546
+		      apply 'mk_li'/3
+			  (Tmp, _cor3, _cor6)
+	end
+'mk_alub_ri'/5 =
+    %% Line 550
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 551
+	case call 'erlang':'is_integer'
+		 (_cor1) of
+	  <'true'> when 'true' ->
+	      %% Line 552
+	      case _cor0 of
+		%% Line 553
+		<'so'> when 'true' ->
+		    apply 'mk_alub_ri_OE'/4
+			(_cor4, _cor3, _cor2, _cor1)
+		%% Line 554
+		<'ns'> when 'true' ->
+		    apply 'mk_alub_ri_OE'/4
+			(_cor4, _cor3, _cor2, _cor1)
+		%% Line 555
+		<_cor12> when 'true' ->
+		    apply 'mk_alub_ri_Rc'/4
+			(_cor4, _cor3, _cor2, _cor1)
+	      end
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'mk_alub_ri_OE'/4 =
+    %% Line 558
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <Tmp> =
+	    %% Line 562
+	    apply 'new_untagged_temp'/0
+		()
+	in  let <_cor5> =
+		%% Line 564
+		apply 'mk_alub_rr_OE'/4
+		    (_cor3, _cor2, _cor1, Tmp)
+	    in  %% Line 563
+		apply 'mk_li'/3
+		    (Tmp, _cor0, _cor5)
+'mk_alub_ri_Rc'/4 =
+    %% Line 566
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 567
+	case _cor1 of
+	  %% Line 568
+	  <'subf'> when 'true' ->
+	      let <_cor4> =
+		  %% Line 569
+		  call 'erlang':'-'
+		      (_cor0)
+	      in  %% Line 569
+		  apply 'mk_alub_ri_Rc_addi'/5
+		      (_cor3, _cor2, _cor4, 'addic.', 'add.')
+	  %% Line 570
+	  <'add'> when 'true' ->
+	      %% Line 571
+	      apply 'mk_alub_ri_Rc_addi'/5
+		  (_cor3, _cor2, _cor0, 'addic.', 'add.')
+	  %% Line 572
+	  <'addc'> when 'true' ->
+	      %% Line 573
+	      apply 'mk_alub_ri_Rc_addi'/5
+		  (_cor3, _cor2, _cor0, 'addic', 'addc')
+	  %% Line 574
+	  <'mullw'> when 'true' ->
+	      %% Line 575
+	      apply 'mk_alub_ri_Rc_rr'/4
+		  (_cor3, _cor2, 'mullw.', _cor0)
+	  %% Line 576
+	  <'mulld'> when 'true' ->
+	      %% Line 577
+	      apply 'mk_alub_ri_Rc_rr'/4
+		  (_cor3, _cor2, 'mulld.', _cor0)
+	  %% Line 578
+	  <'or'> when 'true' ->
+	      %% Line 579
+	      apply 'mk_alub_ri_Rc_rr'/4
+		  (_cor3, _cor2, 'or.', _cor0)
+	  %% Line 580
+	  <'xor'> when 'true' ->
+	      %% Line 581
+	      apply 'mk_alub_ri_Rc_rr'/4
+		  (_cor3, _cor2, 'xor.', _cor0)
+	  %% Line 582
+	  <'and'> when 'true' ->
+	      %% Line 583
+	      case <> of
+		%% Line 584
+		<>
+		    when try
+			  let <_cor6> =
+			      call 'erlang':'band'
+				  (_cor0, -4294967296)
+			  in  call 'erlang':'=:='
+				  (_cor6, 0)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 585
+		    case apply 'rlwinm_mask'/1
+			     (_cor0) of
+		      %% Line 586
+		      <{MB,ME}> when 'true' ->
+			  let <_cor7> =
+			      %% Line 587
+			      call 'hipe_ppc':'mk_unary'
+				  ({'rlwinm.',0,MB,ME}, _cor3, _cor2)
+			  in  %% Line 587
+			      [_cor7|[]]
+		      %% Line 588
+		      <_cor14> when 'true' ->
+			  %% Line 589
+			  apply 'mk_alub_ri_Rc_andi'/3
+			      (_cor3, _cor2, _cor0)
+		    end
+		%% Line 591
+		<> when 'true' ->
+		    %% Line 592
+		    apply 'mk_alub_ri_Rc_andi'/3
+			(_cor3, _cor2, _cor0)
+	      end
+	  %% Line 594
+	  <_cor15> when 'true' ->
+	      %% Line 595
+	      apply 'mk_alub_ri_Rc_shift'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	end
+'mk_alub_ri_Rc_addi'/5 =
+    %% Line 598
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 599
+	case <> of
+	  <>
+	      when try
+		    let <_cor5> =
+			call 'erlang':'is_integer'
+			    (_cor2)
+		    in  let <_cor7> =
+			    call 'erlang':'=<'
+				(-32768, _cor2)
+			in  let <_cor8> =
+				call 'erlang':'<'
+				    (_cor2, 32768)
+			    in  let <_cor9> =
+				    call 'erlang':'and'
+					(_cor7, _cor8)
+				in  call 'erlang':'and'
+					(_cor5, _cor9)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor10> =
+		  %% Line 601
+		  call 'hipe_ppc':'mk_simm16'
+		      (_cor2)
+	      in  let <_cor11> =
+		      %% Line 600
+		      call 'hipe_ppc':'mk_alu'
+			  (_cor1, _cor4, _cor3, _cor10)
+		  in  %% Line 600
+		      [_cor11|%% Line 601
+			      []]
+	  %% Line 602
+	  <> when 'true' ->
+	      %% Line 603
+	      apply 'mk_alub_ri_Rc_rr'/4
+		  (_cor4, _cor3, _cor0, _cor2)
+	end
+'mk_alub_ri_Rc_andi'/3 =
+    %% Line 606
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 607
+	case <> of
+	  <>
+	      when let <_cor3> =
+		    call 'erlang':'<'
+			(_cor0, 65536)
+		in  let <_cor4> =
+			call 'erlang':'>='
+			    (_cor0, 0)
+		    in  call 'erlang':'and'
+			    (_cor3, _cor4) ->
+	      let <_cor5> =
+		  %% Line 609
+		  call 'hipe_ppc':'mk_uimm16'
+		      (_cor0)
+	      in  let <_cor6> =
+		      %% Line 608
+		      call 'hipe_ppc':'mk_alu'
+			  ('andi.', _cor2, _cor1, _cor5)
+		  in  %% Line 608
+		      [_cor6|%% Line 609
+			     []]
+	  %% Line 610
+	  <> when 'true' ->
+	      %% Line 611
+	      apply 'mk_alub_ri_Rc_rr'/4
+		  (_cor2, _cor1, 'and.', _cor0)
+	end
+'mk_alub_ri_Rc_shift'/4 =
+    %% Line 614
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <AluOpIDot,MaxIShift> =
+	    %% Line 616
+	    case _cor1 of
+	      %% Line 617
+	      <'slw'> when 'true' ->
+		  <'slwi.',32>
+	      %% Line 618
+	      <'srw'> when 'true' ->
+		  <'srwi.',32>
+	      %% Line 619
+	      <'sraw'> when 'true' ->
+		  <'srawi.',32>
+	      %% Line 620
+	      <'sld'> when 'true' ->
+		  <'sldi.',64>
+	      %% Line 621
+	      <'srd'> when 'true' ->
+		  <'srdi.',64>
+	      %% Line 622
+	      <'srad'> when 'true' ->
+		  <'sradi.',64>
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor4})
+		-| ['compiler_generated'] )
+	    end
+	in  %% Line 624
+	    case <> of
+	      <>
+		  when let <_cor7> =
+			call 'erlang':'<'
+			    (_cor0, MaxIShift)
+		    in  let <_cor8> =
+			    call 'erlang':'>='
+				(_cor0, 0)
+			in  call 'erlang':'and'
+				(_cor7, _cor8) ->
+		  let <_cor9> =
+		      %% Line 626
+		      call 'hipe_ppc':'mk_uimm16'
+			  (_cor0)
+		  in  let <_cor10> =
+			  %% Line 625
+			  call 'hipe_ppc':'mk_alu'
+			      (AluOpIDot, _cor3, _cor2, _cor9)
+		      in  %% Line 625
+			  [_cor10|%% Line 626
+				  []]
+	      %% Line 627
+	      <> when 'true' ->
+		  let <_cor12> =
+		      %% Line 629
+		      case _cor1 of
+			%% Line 630
+			<'slw'> when 'true' ->
+			    'slw.'
+			%% Line 631
+			<'srw'> when 'true' ->
+			    'srw.'
+			%% Line 632
+			<'sraw'> when 'true' ->
+			    'sraw.'
+			%% Line 633
+			<'sld'> when 'true' ->
+			    'sld.'
+			%% Line 634
+			<'srd'> when 'true' ->
+			    'srd.'
+			%% Line 635
+			<'srad'> when 'true' ->
+			    'srad.'
+			( <_cor11> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor11})
+			  -| ['compiler_generated'] )
+		      end
+		  in  %% Line 637
+		      apply 'mk_alub_ri_Rc_rr'/4
+			  (_cor3, _cor2, _cor12, _cor0)
+	    end
+'mk_alub_ri_Rc_rr'/4 =
+    %% Line 640
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <Tmp> =
+	    %% Line 641
+	    apply 'new_untagged_temp'/0
+		()
+	in  let <_cor5> =
+		%% Line 643
+		call 'hipe_ppc':'mk_alu'
+		    (_cor1, _cor3, _cor2, Tmp)
+	    in  %% Line 642
+		apply 'mk_li'/3
+		    (Tmp, _cor0, %% Line 643
+				 [_cor5|[]])
+'mk_alub_rr'/5 =
+    %% Line 645
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 646
+	case _cor0 of
+	  %% Line 647
+	  <'so'> when 'true' ->
+	      apply 'mk_alub_rr_OE'/4
+		  (_cor4, _cor3, _cor2, _cor1)
+	  %% Line 648
+	  <'ns'> when 'true' ->
+	      apply 'mk_alub_rr_OE'/4
+		  (_cor4, _cor3, _cor2, _cor1)
+	  %% Line 649
+	  <_cor11> when 'true' ->
+	      apply 'mk_alub_rr_Rc'/4
+		  (_cor4, _cor3, _cor2, _cor1)
+	end
+'mk_alub_rr_OE'/4 =
+    %% Line 652
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 654
+	    case _cor1 of
+	      %% Line 655
+	      <'subf'> when 'true' ->
+		  'subfo.'
+	      %% Line 656
+	      <'add'> when 'true' ->
+		  'addo.'
+	      %% Line 657
+	      <'mullw'> when 'true' ->
+		  'mullwo.'
+	      %% Line 658
+	      <'mulld'> when 'true' ->
+		  'mulldo.'
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor4})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor7> =
+		%% Line 661
+		call 'hipe_ppc':'mk_alu'
+		    (_cor5, _cor3, _cor2, _cor0)
+	    in  %% Line 661
+		[_cor7|[]]
+'mk_alub_rr_Rc'/4 =
+    %% Line 663
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 665
+	    case _cor1 of
+	      %% Line 666
+	      <'subf'> when 'true' ->
+		  'subf.'
+	      %% Line 667
+	      <'add'> when 'true' ->
+		  'add.'
+	      %% Line 668
+	      <'addc'> when 'true' ->
+		  'addc'
+	      %% Line 669
+	      <'mullw'> when 'true' ->
+		  'mullw.'
+	      %% Line 670
+	      <'mulld'> when 'true' ->
+		  'mulld.'
+	      %% Line 671
+	      <'or'> when 'true' ->
+		  'or.'
+	      %% Line 672
+	      <'and'> when 'true' ->
+		  'and.'
+	      %% Line 673
+	      <'xor'> when 'true' ->
+		  'xor.'
+	      %% Line 674
+	      <'slw'> when 'true' ->
+		  'slw.'
+	      %% Line 675
+	      <'sld'> when 'true' ->
+		  'sld.'
+	      %% Line 676
+	      <'srw'> when 'true' ->
+		  'srw.'
+	      %% Line 677
+	      <'srd'> when 'true' ->
+		  'srd.'
+	      %% Line 678
+	      <'sraw'> when 'true' ->
+		  'sraw.'
+	      %% Line 679
+	      <'srad'> when 'true' ->
+		  'srad.'
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor4})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor7> =
+		%% Line 681
+		call 'hipe_ppc':'mk_alu'
+		    (_cor5, _cor3, _cor2, _cor0)
+	    in  %% Line 681
+		[_cor7|[]]
+'conv_branch'/3 =
+    %% Line 683
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 685
+	    call 'hipe_rtl':'branch_src1'
+		(_cor2)
+	in  %% Line 685
+	    case apply 'conv_src'/2
+		     (_cor3, _cor1) of
+	      <{Src1,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 686
+		      call 'hipe_rtl':'branch_src2'
+			  (_cor2)
+		  in  %% Line 686
+		      case apply 'conv_src'/2
+			       (_cor5, Map0) of
+			<{Src2,Map1}> when 'true' ->
+			    let <_cor7> =
+				%% Line 687
+				call 'hipe_rtl':'branch_cond'
+				    (_cor2)
+			    in  %% Line 687
+				case apply 'conv_branch_cond'/1
+					 (_cor7) of
+				  <{BCond,Sign}> when 'true' ->
+				      let <_cor11> =
+					  %% Line 689
+					  call 'hipe_rtl':'branch_true_label'
+					      (_cor2)
+				      in  let <_cor10> =
+					      %% Line 690
+					      call 'hipe_rtl':'branch_false_label'
+						  (_cor2)
+					  in  let <_cor9> =
+						  %% Line 691
+						  call 'hipe_rtl':'branch_pred'
+						      (_cor2)
+					      in  let <I2> =
+						      %% Line 688
+						      apply 'mk_branch'/7
+							  (Src1, BCond, Sign, Src2, _cor11, _cor10, _cor9)
+						  in  %% Line 692
+						      {I2,Map1,_cor0}
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor8})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'conv_branch_cond'/1 =
+    %% Line 694
+    fun (_cor0) ->
+	%% Line 695
+	case _cor0 of
+	  %% Line 696
+	  <'gtu'> when 'true' ->
+	      {'gt','unsigned'}
+	  %% Line 697
+	  <'geu'> when 'true' ->
+	      {'ge','unsigned'}
+	  %% Line 698
+	  <'ltu'> when 'true' ->
+	      {'lt','unsigned'}
+	  %% Line 699
+	  <'leu'> when 'true' ->
+	      {'le','unsigned'}
+	  %% Line 700
+	  <_cor4> when 'true' ->
+	      let <_cor1> =
+		  apply 'conv_alub_cond'/1
+		      (_cor0)
+	      in  {_cor1,'signed'}
+	end
+'mk_branch'/7 =
+    %% Line 703
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 704
+	case call 'hipe_ppc':'is_temp'
+		 (_cor6) of
+	  %% Line 705
+	  <'true'> when 'true' ->
+	      %% Line 706
+	      case call 'hipe_ppc':'is_temp'
+		       (_cor3) of
+		%% Line 707
+		<'true'> when 'true' ->
+		    %% Line 708
+		    apply 'mk_branch_rr'/7
+			(_cor6, _cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+		%% Line 709
+		<_cor18> when 'true' ->
+		    %% Line 710
+		    apply 'mk_branch_ri'/7
+			(_cor6, _cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+	      end
+	  %% Line 712
+	  <_cor19> when 'true' ->
+	      %% Line 713
+	      case call 'hipe_ppc':'is_temp'
+		       (_cor3) of
+		%% Line 714
+		<'true'> when 'true' ->
+		    let <NewBCond> =
+			%% Line 715
+			apply 'commute_bcond'/1
+			    (_cor5)
+		    in  %% Line 716
+			apply 'mk_branch_ri'/7
+			    (_cor3, NewBCond, _cor4, _cor6, _cor2, _cor1, _cor0)
+		%% Line 717
+		<_cor20> when 'true' ->
+		    %% Line 718
+		    apply 'mk_branch_ii'/7
+			(_cor6, _cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+	      end
+	end
+'commute_bcond'/1 =
+    %% Line 722
+    fun (_cor0) ->
+	%% Line 723
+	case _cor0 of
+	  %% Line 724
+	  <'eq'> when 'true' ->
+	      'eq'
+	  %% Line 725
+	  <'ne'> when 'true' ->
+	      'ne'
+	  %% Line 726
+	  <'gt'> when 'true' ->
+	      'lt'
+	  %% Line 727
+	  <'ge'> when 'true' ->
+	      'le'
+	  %% Line 728
+	  <'lt'> when 'true' ->
+	      'gt'
+	  %% Line 729
+	  <'le'> when 'true' ->
+	      'ge'
+	  %% Line 731
+	  <_cor3> when 'true' ->
+	      call 'erlang':'exit'
+		  ({'hipe_rtl_to_ppc','commute_bcond',_cor0})
+	end
+'mk_branch_ii'/7 =
+    %% Line 734
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 735
+	    call 'io':'format'
+		([126|[119|[58|[32|[82|[84|[76|[32|[98|[114|[97|[110|[99|[104|[32|[119|[105|[116|[104|[32|[116|[119|[111|[32|[105|[109|[109|[101|[100|[105|[97|[116|[101|[115|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], ['hipe_rtl_to_ppc'])
+	    let <Tmp> =
+		%% Line 736
+		apply 'new_untagged_temp'/0
+		    ()
+	    in  let <_cor8> =
+		    %% Line 738
+		    apply 'mk_branch_ri'/7
+			(Tmp, _cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+		in  %% Line 737
+		    apply 'mk_li'/3
+			(Tmp, _cor6, _cor8)
+'mk_branch_ri'/7 =
+    %% Line 741
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <FixSrc2,NewSrc2,CmpOp> =
+	    %% Line 743
+	    case _cor4 of
+	      %% Line 744
+	      <'signed'> when 'true' ->
+		  %% Line 745
+		  case <> of
+		    <>
+			when try
+			      let <_cor7> =
+				  call 'erlang':'is_integer'
+				      (_cor3)
+			      in  let <_cor9> =
+				      call 'erlang':'=<'
+					  (-32768, _cor3)
+				  in  let <_cor10> =
+					  call 'erlang':'<'
+					      (_cor3, 32768)
+				      in  let <_cor11> =
+					      call 'erlang':'and'
+						  (_cor9, _cor10)
+					  in  call 'erlang':'and'
+						  (_cor7, _cor11)
+			  of <Try> ->
+			      Try
+			  catch <T,R> ->
+			      'false' ->
+			let <_cor13> =
+			    %% Line 746
+			    call 'hipe_ppc':'mk_simm16'
+				(_cor3)
+			in  let <_cor12> =
+				%% Line 746
+				call 'hipe_ppc':'cmpiop_word'
+				    ()
+			    in  %% Line 746
+				<[],_cor13,_cor12>
+		    %% Line 747
+		    <> when 'true' ->
+			let <Tmp> =
+			    %% Line 748
+			    apply 'new_untagged_temp'/0
+				()
+			in  let <_cor16> =
+				%% Line 749
+				apply 'mk_li'/2
+				    (Tmp, _cor3)
+			    in  let <_cor15> =
+				    %% Line 749
+				    call 'hipe_ppc':'cmpop_word'
+					()
+				in  <_cor16,%% Line 749
+					    Tmp,_cor15>
+		  end
+	      %% Line 751
+	      <'unsigned'> when 'true' ->
+		  %% Line 752
+		  case <> of
+		    <>
+			when try
+			      let <_cor17> =
+				  call 'erlang':'is_integer'
+				      (_cor3)
+			      in  let <_cor18> =
+				      call 'erlang':'=<'
+					  (0, _cor3)
+				  in  let <_cor19> =
+					  call 'erlang':'<'
+					      (_cor3, 65536)
+				      in  let <_cor20> =
+					      call 'erlang':'and'
+						  (_cor18, _cor19)
+					  in  call 'erlang':'and'
+						  (_cor17, _cor20)
+			  of <Try> ->
+			      Try
+			  catch <T,R> ->
+			      'false' ->
+			let <_cor22> =
+			    %% Line 753
+			    call 'hipe_ppc':'mk_uimm16'
+				(_cor3)
+			in  let <_cor21> =
+				%% Line 753
+				call 'hipe_ppc':'cmpliop_word'
+				    ()
+			    in  %% Line 753
+				<[],_cor22,_cor21>
+		    %% Line 754
+		    <> when 'true' ->
+			let <Tmp> =
+			    %% Line 755
+			    apply 'new_untagged_temp'/0
+				()
+			in  let <_cor25> =
+				%% Line 756
+				apply 'mk_li'/2
+				    (Tmp, _cor3)
+			    in  let <_cor24> =
+				    %% Line 756
+				    call 'hipe_ppc':'cmplop_word'
+					()
+				in  <_cor25,%% Line 756
+					    Tmp,_cor24>
+		  end
+	      ( <_cor26> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor26})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor29> =
+		%% Line 760
+		apply 'mk_cmp_bc'/7
+		    (CmpOp, _cor6, NewSrc2, _cor5, _cor2, _cor1, _cor0)
+	    in  %% Line 759
+		call 'erlang':'++'
+		    (FixSrc2, _cor29)
+'mk_branch_rr'/7 =
+    %% Line 762
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor8> =
+	    %% Line 764
+	    case _cor4 of
+	      %% Line 765
+	      <'signed'> when 'true' ->
+		  call 'hipe_ppc':'cmpop_word'
+		      ()
+	      %% Line 766
+	      <'unsigned'> when 'true' ->
+		  call 'hipe_ppc':'cmplop_word'
+		      ()
+	      ( <_cor7> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor7})
+		-| ['compiler_generated'] )
+	    end
+	in  %% Line 768
+	    apply 'mk_cmp_bc'/7
+		(_cor8, _cor6, _cor3, _cor5, _cor2, _cor1, _cor0)
+'mk_cmp_bc'/7 =
+    %% Line 770
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor7> =
+	    %% Line 771
+	    call 'hipe_ppc':'mk_cmp'
+		(_cor6, _cor5, _cor4)
+	in  let <_cor8> =
+		%% Line 772
+		apply 'mk_pseudo_bc'/4
+		    (_cor3, _cor2, _cor1, _cor0)
+	    in  %% Line 771
+		[_cor7|_cor8]
+'conv_call'/3 =
+    %% Line 774
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 775
+	    call 'hipe_rtl':'call_arglist'
+		(_cor2)
+	in  %% Line 775
+	    case apply 'conv_src_list'/2
+		     (_cor3, _cor1) of
+	      <{Args,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 776
+		      call 'hipe_rtl':'call_dstlist'
+			  (_cor2)
+		  in  %% Line 776
+		      case apply 'conv_dst_list'/2
+			       (_cor5, Map0) of
+			<{Dsts,Map1}> when 'true' ->
+			    let <_cor7> =
+				%% Line 777
+				call 'hipe_rtl':'call_fun'
+				    (_cor2)
+			    in  %% Line 777
+				case apply 'conv_fun'/2
+					 (_cor7, Map1) of
+				  <{Fun,Map2}> when 'true' ->
+				      let <ContLab> =
+					  %% Line 778
+					  call 'hipe_rtl':'call_continuation'
+					      (_cor2)
+				      in  let <ExnLab> =
+					      %% Line 779
+					      call 'hipe_rtl':'call_fail'
+						  (_cor2)
+					  in  let <Linkage> =
+						  %% Line 780
+						  call 'hipe_rtl':'call_type'
+						      (_cor2)
+					      in  let <I2> =
+						      %% Line 781
+						      apply 'mk_call'/6
+							  (Dsts, Fun, Args, ContLab, ExnLab, Linkage)
+						  in  %% Line 782
+						      {I2,Map2,_cor0}
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor8})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_call'/6 =
+    %% Line 784
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 785
+	case call 'hipe_ppc':'is_prim'
+		 (_cor4) of
+	  %% Line 786
+	  <'true'> when 'true' ->
+	      %% Line 787
+	      apply 'mk_primop_call'/6
+		  (_cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 788
+	  <'false'> when 'true' ->
+	      %% Line 789
+	      apply 'mk_general_call'/6
+		  (_cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+	  ( <_cor6> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor6})
+	    -| ['compiler_generated'] )
+	end
+'mk_primop_call'/6 =
+    %% Line 792
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 793
+	case call 'hipe_ppc':'prim_prim'
+		 (_cor4) of
+	  %% Line 794
+	  <'extsh'> when 'true' ->
+	      %% Line 795
+	      apply 'mk_extsh_call'/5
+		  (_cor5, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 796
+	  <'lhbrx'> when 'true' ->
+	      %% Line 797
+	      apply 'mk_lhbrx_call'/5
+		  (_cor5, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 798
+	  <'lwbrx'> when 'true' ->
+	      %% Line 799
+	      apply 'mk_lwbrx_call'/5
+		  (_cor5, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 800
+	  <_cor13> when 'true' ->
+	      %% Line 801
+	      apply 'mk_general_call'/6
+		  (_cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+	end
+'mk_extsh_call'/5 =
+    %% Line 804
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[Dst|[]],[Src|[]],[],[],'not_remote'> when 'true' ->
+	      %% Line 805
+	      case call 'hipe_ppc':'is_temp'
+		       (Src) of
+		<'true'> when 'true' ->
+		    let <_cor6> =
+			%% Line 806
+			call 'hipe_ppc':'mk_unary'
+			    ('extsh', Dst, Src)
+		    in  %% Line 806
+			[_cor6|[]]
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor11,_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'mk_extsh_call',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_lhbrx_call'/5 =
+    %% Line 808
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Dsts,[Base|[Offset|[]]],[],[],'not_remote'> when 'true' ->
+	      %% Line 809
+	      case Dsts of
+		%% Line 810
+		<[Dst|[]]> when 'true' ->
+		    apply 'mk_loadx'/4
+			('lhbrx', Dst, Base, Offset)
+		%% Line 811
+		<[]> when 'true' ->
+		    []
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor10,_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'mk_lhbrx_call',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_lwbrx_call'/5 =
+    %% Line 814
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[Dst|[]],[Base|[Offset|[]]],[],[],'not_remote'> when 'true' ->
+	      %% Line 815
+	      apply 'mk_loadx'/4
+		  ('lwbrx', Dst, Base, Offset)
+	  ( <_cor9,_cor8,_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'mk_lwbrx_call',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_loadx'/4 =
+    %% Line 817
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 818
+	case call 'hipe_ppc':'is_temp'
+		 (_cor1) of
+	  <'true'> when 'true' ->
+	      let <FixOff,NewOff> =
+		  %% Line 820
+		  case call 'hipe_ppc':'is_temp'
+			   (_cor0) of
+		    %% Line 821
+		    <'true'> when 'true' ->
+			<[],_cor0>
+		    %% Line 822
+		    <'false'> when 'true' ->
+			let <Tmp> =
+			    %% Line 823
+			    apply 'new_untagged_temp'/0
+				()
+			in  let <_cor6> =
+				%% Line 824
+				apply 'mk_li'/2
+				    (Tmp, _cor0)
+			    in  <_cor6,%% Line 824
+				       Tmp>
+		    ( <_cor7> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor7})
+		      -| ['compiler_generated'] )
+		  end
+	      in  let <_cor10> =
+		      %% Line 826
+		      call 'hipe_ppc':'mk_loadx'
+			  (_cor3, _cor2, _cor1, NewOff)
+		  in  %% Line 826
+		      call 'erlang':'++'
+			  (FixOff, [_cor10|[]])
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'mk_general_call'/6 =
+    %% Line 828
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <RealContLab,Tail> =
+	    %% Line 832
+	    case apply 'mk_call_results'/1
+		     (_cor5) of
+	      %% Line 833
+	      <[]> when 'true' ->
+		  %% Line 838
+		  case _cor2 of
+		    %% Line 839
+		    <[]> when 'true' ->
+			let <NewContLab> =
+			    %% Line 840
+			    call 'hipe_gensym':'get_next_label'
+				('ppc')
+			in  let <_cor7> =
+				%% Line 841
+				call 'hipe_ppc':'mk_label'
+				    (NewContLab)
+			    in  %% Line 841
+				<NewContLab,[_cor7|[]]>
+		    %% Line 842
+		    <_cor31> when 'true' ->
+			%% Line 843
+			<_cor2,[]>
+		  end
+	      %% Line 845
+	      <Moves> when 'true' ->
+		  let <NewContLab> =
+		      %% Line 849
+		      call 'hipe_gensym':'get_next_label'
+			  ('ppc')
+		  in  %% Line 850
+		      case _cor2 of
+			%% Line 851
+			<[]> when 'true' ->
+			    let <_cor10> =
+				%% Line 855
+				call 'hipe_ppc':'mk_label'
+				    (NewContLab)
+			    in  %% Line 854
+				<NewContLab,%% Line 855
+					    [_cor10|%% Line 856
+						    Moves]>
+			%% Line 857
+			<_cor32> when 'true' ->
+			    let <_cor11> =
+				%% Line 860
+				call 'hipe_ppc':'mk_label'
+				    (NewContLab)
+			    in  let <_cor12> =
+				    %% Line 862
+				    call 'hipe_ppc':'mk_b_label'
+					(_cor2)
+				in  let <_cor13> =
+					%% Line 861
+					call 'erlang':'++'
+					    (Moves, %% Line 862
+						    [_cor12|[]])
+				    in  %% Line 859
+					<NewContLab,%% Line 860
+						    [_cor11|_cor13]>
+		      end
+	    end
+	in  let <_cor18> =
+		%% Line 865
+		call 'erlang':'length'
+		    (_cor3)
+	    in  let <SDesc> =
+		    %% Line 865
+		    call 'hipe_ppc':'mk_sdesc'
+			(_cor1, 0, _cor18, {})
+		in  %% Line 866
+		    case apply 'fix_func'/1
+			     (_cor4) of
+		      <{FixFunC,FunC}> when 'true' ->
+			  let <CallInsn> =
+			      %% Line 867
+			      call 'hipe_ppc':'mk_pseudo_call'
+				  (FunC, SDesc, RealContLab, _cor0)
+			  in  %% Line 868
+			      case apply 'split_args'/1
+				       (_cor3) of
+				<{RegArgs,StkArgs}> when 'true' ->
+				    let <_cor23> =
+					%% Line 870
+					apply 'move_actuals'/2
+					    (RegArgs, [CallInsn|Tail])
+				    in  let <_cor24> =
+					    %% Line 870
+					    apply 'mk_push_args'/2
+						(StkArgs, _cor23)
+					in  %% Line 869
+					    call 'erlang':'++'
+						(FixFunC, _cor24)
+				( <_cor22> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor22})
+				  -| ['compiler_generated'] )
+			      end
+		      ( <_cor20> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor20})
+			-| ['compiler_generated'] )
+		    end
+'mk_call_results'/1 =
+    %% Line 872
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 873
+	      []
+	  %% Line 874
+	  <[Dst|[]]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 875
+		  call 'hipe_ppc_registers':'return_value'
+		      ()
+	      in  let <RV> =
+		      %% Line 875
+		      call 'hipe_ppc':'mk_temp'
+			  (_cor1, 'tagged')
+		  in  let <_cor3> =
+			  %% Line 876
+			  call 'hipe_ppc':'mk_pseudo_move'
+			      (Dst, RV)
+		      in  %% Line 876
+			  [_cor3|[]]
+	  %% Line 877
+	  <Dsts> when 'true' ->
+	      %% Line 878
+	      call 'erlang':'exit'
+		  ({'hipe_rtl_to_ppc','mk_call_results',Dsts})
+	end
+'fix_func'/1 =
+    %% Line 880
+    fun (_cor0) ->
+	%% Line 881
+	case call 'hipe_ppc':'is_temp'
+		 (_cor0) of
+	  %% Line 882
+	  <'true'> when 'true' ->
+	      let <_cor1> =
+		  call 'hipe_ppc':'mk_mtspr'
+		      ('ctr', _cor0)
+	      in  {[_cor1|[]],'ctr'}
+	  %% Line 883
+	  <_cor4> when 'true' ->
+	      {[],_cor0}
+	end
+'mk_push_args'/2 =
+    %% Line 886
+    fun (_cor1,_cor0) ->
+	%% Line 887
+	case call 'erlang':'length'
+		 (_cor1) of
+	  %% Line 888
+	  <0> when 'true' ->
+	      _cor0
+	  %% Line 890
+	  <NrStkArgs> when 'true' ->
+	      let <_cor2> =
+		  %% Line 891
+		  call 'hipe_ppc':'mk_pseudo_call_prepare'
+		      (NrStkArgs)
+	      in  let <_cor3> =
+		      %% Line 892
+		      apply 'word_size'/0
+			  ()
+		  in  let <_cor4> =
+			  %% Line 892
+			  call 'erlang':'*'
+			      (NrStkArgs, _cor3)
+		      in  let <_cor5> =
+			      %% Line 892
+			      apply 'mk_store_args'/3
+				  (_cor1, _cor4, _cor0)
+			  in  %% Line 891
+			      [_cor2|_cor5]
+	end
+'mk_store_args'/3 =
+    %% Line 895
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Arg|Args],PrevOffset,Tail> when 'true' ->
+	      let <_cor3> =
+		  %% Line 896
+		  apply 'word_size'/0
+		      ()
+	      in  let <Offset> =
+		      %% Line 896
+		      call 'erlang':'-'
+			  (PrevOffset, _cor3)
+		  in  let <Src,FixSrc> =
+			  %% Line 898
+			  case call 'hipe_ppc':'is_temp'
+				   (Arg) of
+			    %% Line 899
+			    <'true'> when 'true' ->
+				%% Line 900
+				<Arg,[]>
+			    %% Line 901
+			    <_cor17> when 'true' ->
+				let <Tmp> =
+				    %% Line 902
+				    apply 'new_tagged_temp'/0
+					()
+				in  let <_cor6> =
+					%% Line 903
+					apply 'mk_li'/2
+					    (Tmp, Arg)
+				    in  %% Line 903
+					<Tmp,_cor6>
+			  end
+		      in  let <_cor11> =
+			      %% Line 905
+			      call 'hipe_ppc':'stop_word'
+				  ()
+			  in  let <_cor10> =
+				  %% Line 905
+				  apply 'mk_sp'/0
+				      ()
+			      in  let <Store> =
+				      %% Line 905
+				      call 'hipe_ppc':'mk_store'
+					  (_cor11, Src, Offset, _cor10)
+				  in  let <_cor13> =
+					  %% Line 906
+					  call 'erlang':'++'
+					      (FixSrc, [Store|Tail])
+				      in  %% Line 906
+					  apply 'mk_store_args'/3
+					      (Args, Offset, _cor13)
+	  %% Line 907
+	  <[],_cor18,Tail> when 'true' ->
+	      %% Line 908
+	      Tail
+	  ( <_cor16,_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15,_cor14})
+		  -| [{'function_name',{'mk_store_args',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'conv_comment'/3 =
+    %% Line 910
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 911
+	    call 'hipe_rtl':'comment_text'
+		(_cor2)
+	in  let <_cor4> =
+		%% Line 911
+		call 'hipe_ppc':'mk_comment'
+		    (_cor3)
+	    in  let <I2> =
+		    %% Line 911
+		    [_cor4|[]]
+		in  %% Line 912
+		    {I2,_cor1,_cor0}
+'conv_enter'/3 =
+    %% Line 914
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 915
+	    call 'hipe_rtl':'enter_arglist'
+		(_cor2)
+	in  %% Line 915
+	    case apply 'conv_src_list'/2
+		     (_cor3, _cor1) of
+	      <{Args,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 916
+		      call 'hipe_rtl':'enter_fun'
+			  (_cor2)
+		  in  %% Line 916
+		      case apply 'conv_fun'/2
+			       (_cor5, Map0) of
+			<{Fun,Map1}> when 'true' ->
+			    let <_cor7> =
+				%% Line 917
+				call 'hipe_rtl':'enter_type'
+				    (_cor2)
+			    in  let <I2> =
+				    %% Line 917
+				    apply 'mk_enter'/3
+					(Fun, Args, _cor7)
+				in  %% Line 918
+				    {I2,Map1,_cor0}
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_enter'/3 =
+    %% Line 920
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 921
+	case apply 'fix_func'/1
+		 (_cor2) of
+	  <{FixFunC,FunC}> when 'true' ->
+	      let <Arity> =
+		  %% Line 922
+		  call 'erlang':'length'
+		      (_cor1)
+	      in  %% Line 923
+		  case apply 'split_args'/1
+			   (_cor1) of
+		    <{RegArgs,StkArgs}> when 'true' ->
+			let <_cor6> =
+			    %% Line 926
+			    call 'hipe_ppc':'mk_pseudo_tailcall_prepare'
+				()
+			in  let <_cor7> =
+				%% Line 927
+				call 'hipe_ppc':'mk_pseudo_tailcall'
+				    (FunC, Arity, StkArgs, _cor0)
+			    in  let <_cor8> =
+				    %% Line 925
+				    apply 'move_actuals'/2
+					(RegArgs, %% Line 926
+						  [_cor6|%% Line 927
+							 [_cor7|[]]])
+				in  %% Line 924
+				    call 'erlang':'++'
+					(FixFunC, _cor8)
+		    ( <_cor5> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor5})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'conv_goto'/3 =
+    %% Line 929
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 930
+	    call 'hipe_rtl':'goto_label'
+		(_cor2)
+	in  let <_cor4> =
+		%% Line 930
+		call 'hipe_ppc':'mk_b_label'
+		    (_cor3)
+	    in  let <I2> =
+		    %% Line 930
+		    [_cor4|[]]
+		in  %% Line 931
+		    {I2,_cor1,_cor0}
+'conv_label'/3 =
+    %% Line 933
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 934
+	    call 'hipe_rtl':'label_name'
+		(_cor2)
+	in  let <_cor4> =
+		%% Line 934
+		call 'hipe_ppc':'mk_label'
+		    (_cor3)
+	    in  let <I2> =
+		    %% Line 934
+		    [_cor4|[]]
+		in  %% Line 935
+		    {I2,_cor1,_cor0}
+'conv_load'/3 =
+    %% Line 937
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 938
+	    call 'hipe_rtl':'load_dst'
+		(_cor2)
+	in  %% Line 938
+	    case apply 'conv_dst'/2
+		     (_cor3, _cor1) of
+	      <{Dst,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 939
+		      call 'hipe_rtl':'load_src'
+			  (_cor2)
+		  in  %% Line 939
+		      case apply 'conv_src'/2
+			       (_cor5, Map0) of
+			<{Base1,Map1}> when 'true' ->
+			    let <_cor7> =
+				%% Line 940
+				call 'hipe_rtl':'load_offset'
+				    (_cor2)
+			    in  %% Line 940
+				case apply 'conv_src'/2
+					 (_cor7, Map1) of
+				  <{Base2,Map2}> when 'true' ->
+				      let <LoadSize> =
+					  %% Line 941
+					  call 'hipe_rtl':'load_size'
+					      (_cor2)
+				      in  let <LoadSign> =
+					      %% Line 942
+					      call 'hipe_rtl':'load_sign'
+						  (_cor2)
+					  in  let <I2> =
+						  %% Line 943
+						  apply 'mk_load'/5
+						      (Dst, Base1, Base2, LoadSize, LoadSign)
+					      in  %% Line 944
+						  {I2,Map2,_cor0}
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor8})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_load'/5 =
+    %% Line 946
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <LdOp,Rest> =
+	    %% Line 948
+	    case <_cor1,_cor0> of
+	      %% Line 949
+	      <'byte','signed'> when 'true' ->
+		  let <_cor5> =
+		      call 'hipe_ppc':'mk_unary'
+			  ('extsb', _cor4, _cor4)
+		  in  <'lbz',[_cor5|[]]>
+	      %% Line 950
+	      <'byte','unsigned'> when 'true' ->
+		  <'lbz',[]>
+	      %% Line 951
+	      <'int16','signed'> when 'true' ->
+		  <'lha',[]>
+	      %% Line 952
+	      <'int16','unsigned'> when 'true' ->
+		  <'lhz',[]>
+	      %% Line 953
+	      <'int32','signed'> when 'true' ->
+		  %% Line 954
+		  case call 'erlang':'get'
+			   ('hipe_target_arch') of
+		    %% Line 955
+		    <'powerpc'> when 'true' ->
+			<'lwz',[]>
+		    %% Line 956
+		    <'ppc64'> when 'true' ->
+			<'lwa',[]>
+		    ( <_cor6> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor6})
+		      -| ['compiler_generated'] )
+		  end
+	      %% Line 958
+	      <'int32','unsigned'> when 'true' ->
+		  <'lwz',[]>
+	      %% Line 959
+	      <'word',_cor19> when 'true' ->
+		  let <_cor7> =
+		      call 'hipe_ppc':'ldop_word'
+			  ()
+		  in  <_cor7,[]>
+	      ( <_fol263,_fol264> when 'true' ->
+		    let <_cor8> = {_fol263,_fol264}
+		    in  primop 'match_fail'
+			    ({'case_clause',_cor8})
+		-| ['compiler_generated'] )
+	    end
+	in  %% Line 961
+	    case call 'hipe_ppc':'is_temp'
+		     (_cor3) of
+	      %% Line 962
+	      <'true'> when 'true' ->
+		  %% Line 963
+		  case call 'hipe_ppc':'is_temp'
+			   (_cor2) of
+		    %% Line 964
+		    <'true'> when 'true' ->
+			%% Line 965
+			apply 'mk_load_rr'/5
+			    (_cor4, _cor3, _cor2, LdOp, Rest)
+		    %% Line 966
+		    <_cor20> when 'true' ->
+			%% Line 967
+			apply 'mk_load_ri'/5
+			    (_cor4, _cor3, _cor2, LdOp, Rest)
+		  end
+	      %% Line 969
+	      <_cor21> when 'true' ->
+		  %% Line 970
+		  case call 'hipe_ppc':'is_temp'
+			   (_cor2) of
+		    %% Line 971
+		    <'true'> when 'true' ->
+			%% Line 972
+			apply 'mk_load_ri'/5
+			    (_cor4, _cor2, _cor3, LdOp, Rest)
+		    %% Line 973
+		    <_cor22> when 'true' ->
+			%% Line 974
+			apply 'mk_load_ii'/5
+			    (_cor4, _cor3, _cor2, LdOp, Rest)
+		  end
+	    end
+'mk_load_ii'/5 =
+    %% Line 978
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 979
+	    call 'io':'format'
+		([126|[119|[58|[32|[82|[84|[76|[32|[108|[111|[97|[100|[32|[119|[105|[116|[104|[32|[116|[119|[111|[32|[105|[109|[109|[101|[100|[105|[97|[116|[101|[115|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], ['hipe_rtl_to_ppc'])
+	    let <Tmp> =
+		%% Line 980
+		apply 'new_untagged_temp'/0
+		    ()
+	    in  let <_cor6> =
+		    %% Line 982
+		    apply 'mk_load_ri'/5
+			(_cor4, Tmp, _cor2, _cor1, _cor0)
+		in  %% Line 981
+		    apply 'mk_li'/3
+			(Tmp, _cor3, _cor6)
+'mk_load_ri'/5 =
+    %% Line 984
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 985
+	call 'hipe_ppc':'mk_load'
+	    (_cor1, _cor4, _cor2, _cor3, 'new', _cor0)
+'mk_load_rr'/5 =
+    %% Line 987
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <LdxOp> =
+	    %% Line 988
+	    call 'hipe_ppc':'ldop_to_ldxop'
+		(_cor1)
+	in  let <_cor6> =
+		%% Line 989
+		call 'hipe_ppc':'mk_loadx'
+		    (LdxOp, _cor4, _cor3, _cor2)
+	    in  %% Line 989
+		[_cor6|_cor0]
+'conv_load_address'/3 =
+    %% Line 991
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 992
+	    call 'hipe_rtl':'load_address_dst'
+		(_cor2)
+	in  %% Line 992
+	    case apply 'conv_dst'/2
+		     (_cor3, _cor1) of
+	      <{Dst,Map0}> when 'true' ->
+		  let <Addr> =
+		      %% Line 993
+		      call 'hipe_rtl':'load_address_addr'
+			  (_cor2)
+		  in  let <Type> =
+			  %% Line 994
+			  call 'hipe_rtl':'load_address_type'
+			      (_cor2)
+		      in  let <Src> = {%% Line 995
+			       Addr,%% Line 995
+				    Type}
+			  in  let <_cor8> =
+				  %% Line 996
+				  call 'hipe_ppc':'mk_pseudo_li'
+				      (Dst, Src)
+			      in  let <I2> =
+				      %% Line 996
+				      [_cor8|[]]
+				  in  %% Line 997
+				      {I2,Map0,_cor0}
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'conv_load_atom'/3 =
+    %% Line 999
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 1000
+	    call 'hipe_rtl':'load_atom_dst'
+		(_cor2)
+	in  %% Line 1000
+	    case apply 'conv_dst'/2
+		     (_cor3, _cor1) of
+	      <{Dst,Map0}> when 'true' ->
+		  let <Src> =
+		      %% Line 1001
+		      call 'hipe_rtl':'load_atom_atom'
+			  (_cor2)
+		  in  let <_cor6> =
+			  %% Line 1002
+			  call 'hipe_ppc':'mk_pseudo_li'
+			      (Dst, Src)
+		      in  let <I2> =
+			      %% Line 1002
+			      [_cor6|[]]
+			  in  %% Line 1003
+			      {I2,Map0,_cor0}
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'conv_move'/3 =
+    %% Line 1005
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 1006
+	    call 'hipe_rtl':'move_dst'
+		(_cor2)
+	in  %% Line 1006
+	    case apply 'conv_dst'/2
+		     (_cor3, _cor1) of
+	      <{Dst,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 1007
+		      call 'hipe_rtl':'move_src'
+			  (_cor2)
+		  in  %% Line 1007
+		      case apply 'conv_src'/2
+			       (_cor5, Map0) of
+			<{Src,Map1}> when 'true' ->
+			    let <I2> =
+				%% Line 1008
+				apply 'mk_move'/3
+				    (Dst, Src, [])
+			    in  %% Line 1009
+				{I2,Map1,_cor0}
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_move'/3 =
+    %% Line 1011
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 1012
+	case call 'hipe_ppc':'is_temp'
+		 (_cor1) of
+	  %% Line 1013
+	  <'true'> when 'true' ->
+	      let <_cor3> =
+		  call 'hipe_ppc':'mk_pseudo_move'
+		      (_cor2, _cor1)
+	      in  [_cor3|_cor0]
+	  %% Line 1014
+	  <_cor8> when 'true' ->
+	      apply 'mk_li'/3
+		  (_cor2, _cor1, _cor0)
+	end
+'conv_return'/3 =
+    %% Line 1017
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 1019
+	    call 'hipe_rtl':'return_varlist'
+		(_cor2)
+	in  %% Line 1019
+	    case apply 'conv_src_list'/2
+		     (_cor3, _cor1) of
+	      <{[Arg|[]],Map0}> when 'true' ->
+		  let <_cor6> =
+		      %% Line 1020
+		      apply 'mk_rv'/0
+			  ()
+		  in  let <_cor5> =
+			  %% Line 1021
+			  call 'hipe_ppc':'mk_blr'
+			      ()
+		      in  let <I2> =
+			      %% Line 1020
+			      apply 'mk_move'/3
+				  (_cor6, Arg, %% Line 1021
+					       [_cor5|[]])
+			  in  %% Line 1022
+			      {I2,Map0,_cor0}
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'conv_store'/3 =
+    %% Line 1024
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 1025
+	    call 'hipe_rtl':'store_base'
+		(_cor2)
+	in  %% Line 1025
+	    case apply 'conv_dst'/2
+		     (_cor3, _cor1) of
+	      <{Base1,Map0}> when 'true' ->
+		  let <_cor5> =
+		      %% Line 1026
+		      call 'hipe_rtl':'store_src'
+			  (_cor2)
+		  in  %% Line 1026
+		      case apply 'conv_src'/2
+			       (_cor5, Map0) of
+			<{Src,Map1}> when 'true' ->
+			    let <_cor7> =
+				%% Line 1027
+				call 'hipe_rtl':'store_offset'
+				    (_cor2)
+			    in  %% Line 1027
+				case apply 'conv_src'/2
+					 (_cor7, Map1) of
+				  <{Base2,Map2}> when 'true' ->
+				      let <StoreSize> =
+					  %% Line 1028
+					  call 'hipe_rtl':'store_size'
+					      (_cor2)
+				      in  let <I2> =
+					      %% Line 1029
+					      apply 'mk_store'/4
+						  (Src, Base1, Base2, StoreSize)
+					  in  %% Line 1030
+					      {I2,Map2,_cor0}
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor8})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor6> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor6})
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'mk_store'/4 =
+    %% Line 1032
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 1034
+	    case _cor0 of
+	      %% Line 1035
+	      <'byte'> when 'true' ->
+		  'stb'
+	      %% Line 1036
+	      <'int16'> when 'true' ->
+		  'sth'
+	      %% Line 1037
+	      <'int32'> when 'true' ->
+		  'stw'
+	      %% Line 1038
+	      <'word'> when 'true' ->
+		  call 'hipe_ppc':'stop_word'
+		      ()
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor4})
+		-| ['compiler_generated'] )
+	    end
+	in  %% Line 1040
+	    case call 'hipe_ppc':'is_temp'
+		     (_cor3) of
+	      %% Line 1041
+	      <'true'> when 'true' ->
+		  %% Line 1042
+		  apply 'mk_store2'/4
+		      (_cor3, _cor2, _cor1, _cor5)
+	      %% Line 1043
+	      <_cor14> when 'true' ->
+		  let <Tmp> =
+		      %% Line 1044
+		      apply 'new_untagged_temp'/0
+			  ()
+		  in  let <_cor8> =
+			  %% Line 1046
+			  apply 'mk_store2'/4
+			      (Tmp, _cor2, _cor1, _cor5)
+		      in  %% Line 1045
+			  apply 'mk_li'/3
+			      (Tmp, _cor3, _cor8)
+	    end
+'mk_store2'/4 =
+    %% Line 1049
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 1050
+	case call 'hipe_ppc':'is_temp'
+		 (_cor1) of
+	  %% Line 1051
+	  <'true'> when 'true' ->
+	      %% Line 1052
+	      apply 'mk_store_rr'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 1053
+	  <_cor9> when 'true' ->
+	      %% Line 1054
+	      apply 'mk_store_ri'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	end
+'mk_store_ri'/4 =
+    %% Line 1057
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 1058
+	call 'hipe_ppc':'mk_store'
+	    (_cor0, _cor3, _cor1, _cor2, 'new', [])
+'mk_store_rr'/4 =
+    %% Line 1060
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <StxOp> =
+	    %% Line 1061
+	    call 'hipe_ppc':'stop_to_stxop'
+		(_cor0)
+	in  let <_cor5> =
+		%% Line 1062
+		call 'hipe_ppc':'mk_storex'
+		    (StxOp, _cor3, _cor2, _cor1)
+	    in  %% Line 1062
+		[_cor5|[]]
+'conv_switch'/3 =
+    %% Line 1064
+    fun (_cor2,_cor1,_cor0) ->
+	let <Labels> =
+	    %% Line 1065
+	    call 'hipe_rtl':'switch_labels'
+		(_cor2)
+	in  let <_cor8> =
+		%% Line 1066
+		( letrec
+		      'lc$^0'/1 =
+			  fun (_cor6) ->
+			      case _cor6 of
+				<[L|_cor5]> when 'true' ->
+				    let <_cor7> =
+					apply 'lc$^0'/1
+					    (_cor5)
+				    in  ( [{'label',L}|_cor7]
+					  -| ['compiler_generated'] )
+				<[]> when 'true' ->
+				    []
+				( <_cor6> when 'true' ->
+				      ( primop 'match_fail'
+					    ({'function_clause',_cor6})
+					-| [{'function_name',{'lc$^0',1}}] )
+				  -| ['compiler_generated'] )
+			      end
+		  in  apply 'lc$^0'/1
+			  (Labels)
+		  -| ['list_comprehension'] )
+	    in  let <_cor11> =
+		    %% Line 1068
+		    case call 'hipe_rtl':'switch_sort_order'
+			     (_cor2) of
+		      %% Line 1069
+		      <[]> when 'true' ->
+			  %% Line 1070
+			  call 'hipe_consttab':'insert_block'
+			      (_cor0, 'word', _cor8)
+		      %% Line 1071
+		      <SortOrder> when 'true' ->
+			  %% Line 1072
+			  call 'hipe_consttab':'insert_sorted_block'
+			      (_cor0, %% Line 1073
+				      'word', _cor8, %% Line 1073
+						     SortOrder)
+		    end
+		in  %% Line 1067
+		    case _cor11 of
+		      <{NewData,JTabLab}> when 'true' ->
+			  let <_cor13> =
+			      %% Line 1076
+			      call 'hipe_rtl':'switch_src'
+				  (_cor2)
+			  in  %% Line 1076
+			      case apply 'conv_dst'/2
+				       (_cor13, _cor1) of
+				<{IndexR,Map1}> when 'true' ->
+				    let <JTabR> =
+					%% Line 1077
+					apply 'new_untagged_temp'/0
+					    ()
+				    in  let <OffsetR> =
+					    %% Line 1078
+					    apply 'new_untagged_temp'/0
+						()
+					in  let <DestR> =
+						%% Line 1079
+						apply 'new_untagged_temp'/0
+						    ()
+					    in  let <_cor19> =
+						    %% Line 1081
+						    case call 'erlang':'get'
+							     ('hipe_target_arch') of
+						      %% Line 1082
+						      <'powerpc'> when 'true' ->
+							  'slwi'
+						      %% Line 1083
+						      <'ppc64'> when 'true' ->
+							  'sldi'
+						      ( <_cor18> when 'true' ->
+							    primop 'match_fail'
+								({'case_clause',_cor18})
+							-| ['compiler_generated'] )
+						    end
+						in  let <_cor21> =
+							%% Line 1086
+							call 'hipe_ppc':'mk_pseudo_li'
+							    (JTabR, {JTabLab,'constant'})
+						    in  let <_cor22> =
+							    %% Line 1088
+							    apply 'log2_word_size'/0
+								()
+							in  let <_cor23> =
+								%% Line 1088
+								call 'hipe_ppc':'mk_uimm16'
+								    (_cor22)
+							    in  let <_cor24> =
+								    %% Line 1087
+								    call 'hipe_ppc':'mk_alu'
+									(_cor19, OffsetR, IndexR, _cor23)
+								in  let <_cor25> =
+									%% Line 1089
+									call 'hipe_ppc':'ldop_wordx'
+									    ()
+								    in  let <_cor26> =
+									    %% Line 1089
+									    call 'hipe_ppc':'mk_loadx'
+										(_cor25, DestR, JTabR, OffsetR)
+									in  let <_cor27> =
+										%% Line 1090
+										call 'hipe_ppc':'mk_mtspr'
+										    ('ctr', DestR)
+									    in  let <_cor28> =
+										    %% Line 1091
+										    call 'hipe_ppc':'mk_bctr'
+											(Labels)
+										in  let <I2> =
+											%% Line 1086
+											[_cor21|%% Line 1087
+												[_cor24|%% Line 1089
+													[_cor26|%% Line 1090
+														[_cor27|%% Line 1091
+															[_cor28|[]]]]]]
+										    in  %% Line 1092
+											{I2,Map1,NewData}
+				( <_cor14> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor14})
+				  -| ['compiler_generated'] )
+			      end
+		      ( <_cor12> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor12})
+			-| ['compiler_generated'] )
+		    end
+'mk_pseudo_bc'/4 =
+    %% Line 1098
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 1099
+	case _cor3 of
+	  %% Line 1100
+	  <'so'> when 'true' ->
+	      let <NewTrueLabel> =
+		  %% Line 1101
+		  call 'hipe_gensym':'get_next_label'
+		      ('ppc')
+	      in  let <ZeroR> =
+		      %% Line 1102
+		      apply 'new_untagged_temp'/0
+			  ()
+		  in  let <_cor6> =
+			  %% Line 1103
+			  call 'hipe_ppc':'mk_pseudo_bc'
+			      (_cor3, NewTrueLabel, _cor1, _cor0)
+		      in  let <_cor7> =
+			      %% Line 1104
+			      call 'hipe_ppc':'mk_label'
+				  (NewTrueLabel)
+			  in  let <_cor8> =
+				  %% Line 1106
+				  call 'hipe_ppc':'mk_mtspr'
+				      ('xer', ZeroR)
+			      in  let <_cor9> =
+				      %% Line 1107
+				      call 'hipe_ppc':'mk_b_label'
+					  (_cor2)
+				  in  let <_cor10> =
+					  %% Line 1105
+					  apply 'mk_li'/3
+					      (ZeroR, 0, %% Line 1106
+							 [_cor8|%% Line 1107
+								[_cor9|[]]])
+				      in  %% Line 1103
+					  [_cor6|%% Line 1104
+						 [_cor7|_cor10]]
+	  %% Line 1108
+	  <'ns'> when 'true' ->
+	      let <NewFalseLabel> =
+		  %% Line 1109
+		  call 'hipe_gensym':'get_next_label'
+		      ('ppc')
+	      in  let <ZeroR> =
+		      %% Line 1110
+		      apply 'new_untagged_temp'/0
+			  ()
+		  in  let <_cor13> =
+			  %% Line 1111
+			  call 'hipe_ppc':'mk_pseudo_bc'
+			      (_cor3, _cor2, NewFalseLabel, _cor0)
+		      in  let <_cor14> =
+			      %% Line 1112
+			      call 'hipe_ppc':'mk_label'
+				  (NewFalseLabel)
+			  in  let <_cor15> =
+				  %% Line 1114
+				  call 'hipe_ppc':'mk_mtspr'
+				      ('xer', ZeroR)
+			      in  let <_cor16> =
+				      %% Line 1115
+				      call 'hipe_ppc':'mk_b_label'
+					  (_cor1)
+				  in  let <_cor17> =
+					  %% Line 1113
+					  apply 'mk_li'/3
+					      (ZeroR, 0, %% Line 1114
+							 [_cor15|%% Line 1115
+								 [_cor16|[]]])
+				      in  %% Line 1111
+					  [_cor13|%% Line 1112
+						  [_cor14|_cor17]]
+	  %% Line 1116
+	  <_cor24> when 'true' ->
+	      let <_cor18> =
+		  %% Line 1117
+		  call 'hipe_ppc':'mk_pseudo_bc'
+		      (_cor3, _cor2, _cor1, _cor0)
+	      in  %% Line 1117
+		  [_cor18|[]]
+	end
+'mk_li'/2 =
+    %% Line 1122
+    fun (_cor1,_cor0) ->
+	apply 'mk_li'/3
+	    (_cor1, _cor0, [])
+'mk_li'/3 =
+    %% Line 1124
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 1125
+	call 'hipe_ppc':'mk_li'
+	    (_cor2, _cor1, _cor0)
+'rtl_aluop_commutes'/1 =
+    %% Line 1129
+    fun (_cor0) ->
+	%% Line 1130
+	case _cor0 of
+	  %% Line 1131
+	  <'add'> when 'true' ->
+	      'true'
+	  %% Line 1132
+	  <'mul'> when 'true' ->
+	      'true'
+	  %% Line 1133
+	  <'or'> when 'true' ->
+	      'true'
+	  %% Line 1134
+	  <'and'> when 'true' ->
+	      'true'
+	  %% Line 1135
+	  <'xor'> when 'true' ->
+	      'true'
+	  %% Line 1136
+	  <_cor3> when 'true' ->
+	      'false'
+	end
+'split_args'/1 =
+    %% Line 1144
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 1145
+	    call 'hipe_ppc_registers':'nr_args'
+		()
+	in  %% Line 1145
+	    apply 'split_args'/4
+		(0, _cor1, _cor0, [])
+'split_args'/4 =
+    %% Line 1147
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <I,N,[Arg|Args],RegArgs>
+	      when call 'erlang':'<'
+		    (I,
+		     N) ->
+	      let <Reg> =
+		  %% Line 1148
+		  call 'hipe_ppc_registers':'arg'
+		      (I)
+	      in  let <Temp> =
+		      %% Line 1149
+		      call 'hipe_ppc':'mk_temp'
+			  (Reg, 'tagged')
+		  in  let <_cor6> =
+			  %% Line 1150
+			  call 'erlang':'+'
+			      (I, 1)
+		      in  %% Line 1150
+			  apply 'split_args'/4
+			      (_cor6, N, Args, [{Arg,Temp}|RegArgs])
+	  %% Line 1151
+	  <_cor11,_cor12,StkArgs,RegArgs> when 'true' ->
+	      %% Line 1152
+	      {RegArgs,StkArgs}
+	end
+'move_actuals'/2 =
+    %% Line 1157
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{Src,Dst}|Actuals],Rest> when 'true' ->
+	      let <_cor2> =
+		  %% Line 1158
+		  apply 'mk_move'/3
+		      (Dst, Src, Rest)
+	      in  %% Line 1158
+		  apply 'move_actuals'/2
+		      (Actuals, _cor2)
+	  %% Line 1159
+	  <[],Rest> when 'true' ->
+	      %% Line 1160
+	      Rest
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'move_actuals',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'move_formals'/2 =
+    %% Line 1165
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{Dst,Src}|Formals],Rest> when 'true' ->
+	      let <_cor2> =
+		  %% Line 1166
+		  call 'hipe_ppc':'mk_pseudo_move'
+		      (Dst, Src)
+	      in  %% Line 1166
+		  apply 'move_formals'/2
+		      (Formals, [_cor2|Rest])
+	  %% Line 1167
+	  <[],Rest> when 'true' ->
+	      %% Line 1168
+	      Rest
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'move_formals',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'conv_fun'/2 =
+    %% Line 1172
+    fun (_cor1,_cor0) ->
+	%% Line 1173
+	case call 'hipe_rtl':'is_var'
+		 (_cor1) of
+	  %% Line 1174
+	  <'true'> when 'true' ->
+	      %% Line 1175
+	      apply 'conv_dst'/2
+		  (_cor1, _cor0)
+	  %% Line 1176
+	  <'false'> when 'true' ->
+	      %% Line 1177
+	      case call 'hipe_rtl':'is_reg'
+		       (_cor1) of
+		%% Line 1178
+		<'true'> when 'true' ->
+		    %% Line 1179
+		    apply 'conv_dst'/2
+			(_cor1, _cor0)
+		%% Line 1180
+		<'false'> when 'true' ->
+		    %% Line 1181
+		    case <> of
+		      <>
+			  when call 'erlang':'is_atom'
+				(_cor1) ->
+			  let <_cor2> =
+			      %% Line 1182
+			      call 'hipe_ppc':'mk_prim'
+				  (_cor1)
+			  in  %% Line 1182
+			      {_cor2,_cor0}
+		      %% Line 1183
+		      <> when 'true' ->
+			  let <_cor3> =
+			      %% Line 1184
+			      apply 'conv_mfa'/1
+				  (_cor1)
+			  in  %% Line 1184
+			      {_cor3,_cor0}
+		    end
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'conv_mfa'/1 =
+    %% Line 1191
+    fun (_cor0) ->
+	case _cor0 of
+	  <{M,F,A}>
+	      when try
+		    let <_cor1> =
+			call 'erlang':'is_atom'
+			    (M)
+		    in  let <_cor2> =
+			    call 'erlang':'is_atom'
+				(F)
+			in  let <_cor3> =
+				call 'erlang':'is_integer'
+				    (A)
+			    in  let <_cor4> =
+				    call 'erlang':'and'
+					(_cor2, _cor3)
+				in  call 'erlang':'and'
+					(_cor1, _cor4)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 1192
+	      call 'hipe_ppc':'mk_mfa'
+		  (M, F, A)
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5})
+		  -| [{'function_name',{'conv_mfa',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'conv_src'/2 =
+    %% Line 1197
+    fun (_cor1,_cor0) ->
+	%% Line 1198
+	case call 'hipe_rtl':'is_imm'
+		 (_cor1) of
+	  %% Line 1199
+	  <'true'> when 'true' ->
+	      let <Value> =
+		  %% Line 1200
+		  call 'hipe_rtl':'imm_value'
+		      (_cor1)
+	      in  %% Line 1201
+		  case <> of
+		    <>
+			when call 'erlang':'is_integer'
+			      (Value) ->
+			%% Line 1202
+			{Value,_cor0}
+		    ( <> when 'true' ->
+			  primop 'match_fail'
+			      ('if_clause')
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 1204
+	  <'false'> when 'true' ->
+	      %% Line 1205
+	      apply 'conv_dst'/2
+		  (_cor1, _cor0)
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'conv_src_list'/2 =
+    %% Line 1208
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[O|Os],Map> when 'true' ->
+	      %% Line 1209
+	      case apply 'conv_src'/2
+		       (O, Map) of
+		<{V,Map1}> when 'true' ->
+		    %% Line 1210
+		    case apply 'conv_src_list'/2
+			     (Os, Map1) of
+		      <{Vs,Map2}> when 'true' ->
+			  %% Line 1211
+			  {[V|Vs],Map2}
+		      ( <_cor3> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor3})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1212
+	  <[],Map> when 'true' ->
+	      %% Line 1213
+	      {[],Map}
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'conv_src_list',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'conv_fpreg'/2 =
+    %% Line 1217
+    fun (_cor1,_cor0) ->
+	%% Line 1218
+	case call 'hipe_rtl':'is_fpreg'
+		 (_cor1) of
+	  %% Line 1219
+	  <'true'> when 'true' ->
+	      apply 'conv_dst'/2
+		  (_cor1, _cor0)
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'conv_dst'/2 =
+    %% Line 1222
+    fun (_cor1,_cor0) ->
+	let <Name,Type> =
+	    %% Line 1224
+	    case call 'hipe_rtl':'is_var'
+		     (_cor1) of
+	      %% Line 1225
+	      <'true'> when 'true' ->
+		  let <_cor2> =
+		      %% Line 1226
+		      call 'hipe_rtl':'var_index'
+			  (_cor1)
+		  in  <_cor2,%% Line 1226
+			     'tagged'>
+	      %% Line 1227
+	      <'false'> when 'true' ->
+		  %% Line 1228
+		  case call 'hipe_rtl':'is_fpreg'
+			   (_cor1) of
+		    %% Line 1229
+		    <'true'> when 'true' ->
+			let <_cor3> =
+			    %% Line 1230
+			    call 'hipe_rtl':'fpreg_index'
+				(_cor1)
+			in  <_cor3,%% Line 1230
+				   'double'>
+		    %% Line 1231
+		    <'false'> when 'true' ->
+			let <_cor4> =
+			    %% Line 1232
+			    call 'hipe_rtl':'reg_index'
+				(_cor1)
+			in  <_cor4,%% Line 1232
+				   'untagged'>
+		    ( <_cor5> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor5})
+		      -| ['compiler_generated'] )
+		  end
+	      ( <_cor6> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor6})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor10> =
+		%% Line 1236
+		case Type of
+		  %% Line 1237
+		  <'double'> when 'true' ->
+		      call 'hipe_ppc_registers':'is_precoloured_fpr'
+			  (Name)
+		  %% Line 1238
+		  <_cor19> when 'true' ->
+		      call 'hipe_ppc_registers':'is_precoloured_gpr'
+			  (Name)
+		end
+	    in  %% Line 1240
+		case _cor10 of
+		  %% Line 1241
+		  <'true'> when 'true' ->
+		      let <_cor12> =
+			  %% Line 1242
+			  call 'hipe_ppc':'mk_temp'
+			      (Name, Type)
+		      in  %% Line 1242
+			  {_cor12,_cor0}
+		  %% Line 1243
+		  <'false'> when 'true' ->
+		      %% Line 1244
+		      case apply 'vmap_lookup'/2
+			       (_cor0, _cor1) of
+			%% Line 1245
+			<{'value',NewTemp}> when 'true' ->
+			    %% Line 1246
+			    {NewTemp,_cor0}
+			%% Line 1247
+			<_cor20> when 'true' ->
+			    let <NewTemp> =
+				%% Line 1248
+				call 'hipe_ppc':'mk_new_temp'
+				    (Type)
+			    in  let <_cor14> =
+				    %% Line 1249
+				    apply 'vmap_bind'/3
+					(_cor0, _cor1, NewTemp)
+				in  %% Line 1249
+				    {NewTemp,_cor14}
+		      end
+		  ( <_cor16> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor16})
+		    -| ['compiler_generated'] )
+		end
+'conv_dst_list'/2 =
+    %% Line 1253
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[O|Os],Map> when 'true' ->
+	      %% Line 1254
+	      case apply 'conv_dst'/2
+		       (O, Map) of
+		<{Dst,Map1}> when 'true' ->
+		    %% Line 1255
+		    case apply 'conv_dst_list'/2
+			     (Os, Map1) of
+		      <{Dsts,Map2}> when 'true' ->
+			  %% Line 1256
+			  {[Dst|Dsts],Map2}
+		      ( <_cor3> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor3})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 1257
+	  <[],Map> when 'true' ->
+	      %% Line 1258
+	      {[],Map}
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'conv_dst_list',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'conv_formals'/2 =
+    %% Line 1260
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 1261
+	    call 'hipe_ppc_registers':'nr_args'
+		()
+	in  %% Line 1261
+	    apply 'conv_formals'/4
+		(_cor2, _cor1, _cor0, [])
+'conv_formals'/4 =
+    %% Line 1263
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <N,[O|Os],Map,Res> when 'true' ->
+	      let <_cor5> =
+		  %% Line 1265
+		  case call 'hipe_rtl':'is_var'
+			   (O) of
+		    %% Line 1266
+		    <'true'> when 'true' ->
+			'tagged'
+		    %% Line 1267
+		    <_cor16> when 'true' ->
+			'untagged'
+		  end
+	      in  let <_cor7> =
+		      %% Line 1270
+		      case <> of
+			<>
+			    when call 'erlang':'>'
+				  (N,
+				   0) ->
+			    call 'hipe_ppc':'mk_new_temp'
+				(_cor5)
+			%% Line 1271
+			<> when 'true' ->
+			    call 'hipe_ppc':'mk_new_nonallocatable_temp'
+				(_cor5)
+		      end
+		  in  let <Map1> =
+			  %% Line 1273
+			  apply 'vmap_bind'/3
+			      (Map, O, _cor7)
+		      in  let <_cor10> =
+			      %% Line 1274
+			      call 'erlang':'-'
+				  (N, 1)
+			  in  %% Line 1274
+			      apply 'conv_formals'/4
+				  (_cor10, Os, Map1, [_cor7|Res])
+	  %% Line 1275
+	  <_cor17,[],Map,Res> when 'true' ->
+	      let <_cor11> =
+		  %% Line 1276
+		  call 'lists':'reverse'
+		      (Res)
+	      in  %% Line 1276
+		  {_cor11,Map}
+	  ( <_cor15,_cor14,_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14,_cor13,_cor12})
+		  -| [{'function_name',{'conv_formals',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_sp'/0 =
+    %% Line 1280
+    fun () ->
+	let <_cor0> =
+	    %% Line 1281
+	    call 'hipe_ppc_registers':'stack_pointer'
+		()
+	in  %% Line 1281
+	    call 'hipe_ppc':'mk_temp'
+		(_cor0, 'untagged')
+'mk_rv'/0 =
+    %% Line 1285
+    fun () ->
+	let <_cor0> =
+	    %% Line 1286
+	    call 'hipe_ppc_registers':'return_value'
+		()
+	in  %% Line 1286
+	    call 'hipe_ppc':'mk_temp'
+		(_cor0, 'tagged')
+'new_untagged_temp'/0 =
+    %% Line 1290
+    fun () ->
+	%% Line 1291
+	call 'hipe_ppc':'mk_new_temp'
+	    ('untagged')
+'new_tagged_temp'/0 =
+    %% Line 1295
+    fun () ->
+	%% Line 1296
+	call 'hipe_ppc':'mk_new_temp'
+	    ('tagged')
+'vmap_empty'/0 =
+    %% Line 1300
+    fun () ->
+	%% Line 1301
+	call 'gb_trees':'empty'
+	    ()
+'vmap_lookup'/2 =
+    %% Line 1303
+    fun (_cor1,_cor0) ->
+	%% Line 1304
+	call 'gb_trees':'lookup'
+	    (_cor0, _cor1)
+'vmap_bind'/3 =
+    %% Line 1306
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 1307
+	call 'gb_trees':'insert'
+	    (_cor1, _cor0, _cor2)
+'word_size'/0 =
+    %% Line 1309
+    fun () ->
+	%% Line 1310
+	call 'hipe_rtl_arch':'word_size'
+	    ()
+'log2_word_size'/0 =
+    %% Line 1312
+    fun () ->
+	%% Line 1313
+	call 'hipe_rtl_arch':'log2_word_size'
+	    ()
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_rtl_to_ppc')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_rtl_to_ppc', _cor0)
+end

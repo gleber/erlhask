@@ -1,0 +1,226 @@
+module 'client_server' ['init_connect'/1,
+			'module_info'/0,
+			'module_info'/1,
+			'start'/0]
+    attributes []
+'start'/0 =
+    %% Line 26
+    fun () ->
+	do  %% Line 28
+	    call 'application':'start'
+		('crypto')
+	    do  %% Line 29
+		call 'application':'start'
+		    ('public_key')
+		do  %% Line 30
+		    call 'application':'start'
+			('ssl')
+		    let <_cor0> =
+			%% Line 34
+			apply 'mk_opts'/1
+			    ('listen')
+		    in  %% Line 34
+			case call 'ssl':'listen'
+				 (0, _cor0) of
+			  <{'ok',LSock}> when 'true' ->
+			      %% Line 35
+			      case call 'ssl':'sockname'
+				       (LSock) of
+				<{'ok',{_cor8,LPort}}> when 'true' ->
+				    do  %% Line 36
+					call 'io':'fwrite'
+					    ([76|[105|[115|[116|[101|[110|[58|[32|[112|[111|[114|[116|[32|[61|[32|[126|[119|[46|[126|[110]]]]]]]]]]]]]]]]]]]], [LPort|[]])
+					do  %% Line 39
+					    call 'erlang':'spawn'
+						('client_server', 'init_connect', [LPort|[]])
+					    %% Line 42
+					    case call 'ssl':'transport_accept'
+						     (LSock) of
+					      <{'ok',ASock}> when 'true' ->
+						  %% Line 43
+						  case call 'ssl':'ssl_accept'
+							   (ASock) of
+						    <'ok'> when 'true' ->
+							do  %% Line 44
+							    call 'io':'fwrite'
+								([65|[99|[99|[101|[112|[116|[58|[32|[97|[99|[99|[101|[112|[116|[101|[100|[46|[126|[110]]]]]]]]]]]]]]]]]]])
+							    %% Line 45
+							    case call 'ssl':'peercert'
+								     (ASock) of
+							      <{'ok',Cert}> when 'true' ->
+								  let <_cor6> =
+								      %% Line 46
+								      call 'public_key':'pkix_decode_cert'
+									  (Cert, 'otp')
+								  in  do  %% Line 46
+									  call 'io':'fwrite'
+									      ([65|[99|[99|[101|[112|[116|[58|[32|[112|[101|[101|[114|[32|[99|[101|[114|[116|[58|[126|[110|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]], [_cor6|[]])
+									  do  %% Line 47
+									      call 'io':'fwrite'
+										  ([65|[99|[99|[101|[112|[116|[58|[32|[115|[101|[110|[100|[105|[110|[103|[32|[34|[104|[101|[108|[108|[111|[34|[46|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]])
+									      do  %% Line 48
+										  call 'ssl':'send'
+										      (ASock, [104|[101|[108|[108|[111]]]]])
+										  %% Line 49
+										  case call 'ssl':'recv'
+											   (ASock, 0) of
+										    <{'error','closed'}> when 'true' ->
+											do  %% Line 50
+											    call 'io':'fwrite'
+												([65|[99|[99|[101|[112|[116|[58|[32|[100|[101|[116|[101|[99|[116|[101|[100|[32|[99|[108|[111|[115|[101|[100|[46|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]])
+											    do  %% Line 51
+												call 'ssl':'close'
+												    (ASock)
+												do  %% Line 52
+												    call 'io':'fwrite'
+													([76|[105|[115|[116|[101|[110|[58|[32|[99|[108|[111|[115|[105|[110|[103|[32|[97|[110|[100|[32|[116|[101|[114|[109|[105|[110|[97|[116|[105|[110|[103|[46|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+												    do  %% Line 53
+													call 'ssl':'close'
+													    (LSock)
+													%% Line 54
+													call 'application':'stop'
+													    ('ssl')
+										    ( <_cor7> when 'true' ->
+											  primop 'match_fail'
+											      ({'badmatch',_cor7})
+										      -| ['compiler_generated'] )
+										  end
+							      ( <_cor5> when 'true' ->
+								    primop 'match_fail'
+									({'badmatch',_cor5})
+								-| ['compiler_generated'] )
+							    end
+						    ( <_cor4> when 'true' ->
+							  primop 'match_fail'
+							      ({'badmatch',_cor4})
+						      -| ['compiler_generated'] )
+						  end
+					      ( <_cor3> when 'true' ->
+						    primop 'match_fail'
+							({'badmatch',_cor3})
+						-| ['compiler_generated'] )
+					    end
+				( <_cor2> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor2})
+				  -| ['compiler_generated'] )
+			      end
+			  ( <_cor1> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor1})
+			    -| ['compiler_generated'] )
+			end
+'init_connect'/1 =
+    %% Line 58
+    fun (_cor0) ->
+	%% Line 59
+	case call 'inet':'gethostname'
+		 () of
+	  <{'ok',Host}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 60
+		  apply 'mk_opts'/1
+		      ('connect')
+	      in  %% Line 60
+		  case call 'ssl':'connect'
+			   (Host, _cor0, _cor2) of
+		    <{'ok',CSock}> when 'true' ->
+			do  %% Line 61
+			    call 'io':'fwrite'
+				([67|[111|[110|[110|[101|[99|[116|[58|[32|[99|[111|[110|[110|[101|[99|[116|[101|[100|[46|[126|[110]]]]]]]]]]]]]]]]]]]]])
+			    %% Line 62
+			    case call 'ssl':'peercert'
+				     (CSock) of
+			      <{'ok',Cert}> when 'true' ->
+				  let <_cor5> =
+				      %% Line 63
+				      call 'public_key':'pkix_decode_cert'
+					  (Cert, 'otp')
+				  in  do  %% Line 63
+					  call 'io':'fwrite'
+					      ([67|[111|[110|[110|[101|[99|[116|[58|[32|[112|[101|[101|[114|[32|[99|[101|[114|[116|[58|[126|[110|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [_cor5|[]])
+					  %% Line 64
+					  case call 'ssl':'recv'
+						   (CSock, 0) of
+					    <{'ok',Data}> when 'true' ->
+						do  %% Line 65
+						    call 'io':'fwrite'
+							([67|[111|[110|[110|[101|[99|[116|[58|[32|[103|[111|[116|[32|[100|[97|[116|[97|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]], [Data|[]])
+						    do  %% Line 66
+							call 'io':'fwrite'
+							    ([67|[111|[110|[110|[101|[99|[116|[58|[32|[99|[108|[111|[115|[105|[110|[103|[32|[97|[110|[100|[32|[116|[101|[114|[109|[105|[110|[97|[116|[105|[110|[103|[46|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+							%% Line 67
+							call 'ssl':'close'
+							    (CSock)
+					    ( <_cor6> when 'true' ->
+						  primop 'match_fail'
+						      ({'badmatch',_cor6})
+					      -| ['compiler_generated'] )
+					  end
+			      ( <_cor4> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor4})
+				-| ['compiler_generated'] )
+			    end
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'mk_opts'/1 =
+    %% Line 69
+    fun (_cor0) ->
+	case _cor0 of
+	  <'listen'> when 'true' ->
+	      %% Line 70
+	      apply 'mk_opts'/1
+		  ([115|[101|[114|[118|[101|[114]]]]]])
+	  %% Line 71
+	  <'connect'> when 'true' ->
+	      %% Line 72
+	      apply 'mk_opts'/1
+		  ([99|[108|[105|[101|[110|[116]]]]]])
+	  %% Line 73
+	  <Role> when 'true' ->
+	      let <_cor1> =
+		  %% Line 74
+		  call 'code':'lib_dir'
+		      ('ssl')
+	      in  let <Dir> =
+		      %% Line 74
+		      call 'filename':'join'
+			  ([_cor1|[[101|[120|[97|[109|[112|[108|[101|[115]]]]]]]]|[[99|[101|[114|[116|[115]]]]]|[[101|[116|[99]]]]]]])
+		  in  let <_cor3> =
+			  %% Line 78
+			  call 'filename':'join'
+			      ([Dir|[Role|[[99|[97|[99|[101|[114|[116|[115|[46|[112|[101|[109]]]]]]]]]]]]]])
+		      in  let <_cor4> =
+			      %% Line 79
+			      call 'filename':'join'
+				  ([Dir|[Role|[[99|[101|[114|[116|[46|[112|[101|[109]]]]]]]]]]])
+			  in  let <_cor5> =
+				  %% Line 80
+				  call 'filename':'join'
+				      ([Dir|[Role|[[107|[101|[121|[46|[112|[101|[109]]]]]]]]]])
+			      in  %% Line 75
+				  [{'active','false'}|%% Line 76
+						      [{'verify',2}|%% Line 77
+								    [{'depth',2}|%% Line 78
+										 [{'cacertfile',_cor3}|%% Line 79
+												       [{'certfile',_cor4}|%% Line 80
+															   [{'keyfile',_cor5}|[]]]]]]]
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('client_server')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('client_server', _cor0)
+end

@@ -1,0 +1,557 @@
+module 'global_search' ['init_names'/1,
+			'init_send'/1,
+			'init_whereis'/1,
+			'module_info'/0,
+			'module_info'/1,
+			'names_test'/1,
+			'send_test'/1,
+			'start'/2,
+			'whereis_test'/1]
+    attributes [%% Line 72
+		'spec' =
+		    %% Line 72
+		    [{{'init_send',1},[{'type',72,'fun',[{'type',72,'product',[{'var',72,'_'}]}|[{'type',72,'no_return',[]}]]}]}],
+		%% Line 119
+		'spec' =
+		    %% Line 119
+		    [{{'init_whereis',1},[{'type',119,'fun',[{'type',119,'product',[{'var',119,'_'}]}|[{'type',119,'no_return',[]}]]}]}],
+		%% Line 151
+		'spec' =
+		    %% Line 151
+		    [{{'init_names',1},[{'type',151,'fun',[{'type',151,'product',[{'var',151,'_'}]}|[{'type',151,'no_return',[]}]]}]}],
+		%% Line 173
+		'spec' =
+		    %% Line 173
+		    [{{'end_loop',0},[{'type',173,'fun',[{'type',173,'product',[]}|[{'type',173,'no_return',[]}]]}]}]]
+'start'/2 =
+    %% Line 43
+    fun (_cor1,_cor0) ->
+	%% Line 44
+	case _cor1 of
+	  %% Line 45
+	  <'send'> when 'true' ->
+	      %% Line 46
+	      call 'erlang':'spawn_link'
+		  ('global_search', 'init_send', [_cor0|[]])
+	  %% Line 47
+	  <'whereis'> when 'true' ->
+	      %% Line 48
+	      call 'erlang':'spawn_link'
+		  ('global_search', 'init_whereis', [_cor0|[]])
+	  %% Line 49
+	  <'names'> when 'true' ->
+	      %% Line 50
+	      call 'erlang':'spawn_link'
+		  ('global_search', 'init_names', [_cor0|[]])
+	  %% Line 52
+	  <'send_test'> when 'true' ->
+	      %% Line 53
+	      call 'erlang':'spawn_link'
+		  ('global_search', 'send_test', [_cor0|[]])
+	  %% Line 54
+	  <'whereis_test'> when 'true' ->
+	      %% Line 55
+	      call 'erlang':'spawn_link'
+		  ('global_search', 'whereis_test', [_cor0|[]])
+	  %% Line 56
+	  <'names_test'> when 'true' ->
+	      %% Line 57
+	      call 'erlang':'spawn_link'
+		  ('global_search', 'names_test', [_cor0|[]])
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'init_send'/1 =
+    %% Line 73
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'any',NodesList,Name,Msg,From}> when 'true' ->
+	      do  %% Line 74
+		  case apply 'whereis_any_loop'/2
+			   (NodesList, Name) of
+		    %% Line 75
+		    <'undefined'> when 'true' ->
+			let <Res> = {%% Line 76
+			     'badarg',%% Line 76
+				      {Name,Msg}}
+			in  let <_cor2> =
+				%% Line 77
+				call 'erlang':'self'
+				    ()
+			    in  %% Line 77
+				call 'gen_server':'cast'
+				    ('global_group', {'send_res',Res,Name,Msg,_cor2,From})
+		    %% Line 78
+		    <Pid> when 'true' ->
+			let <_cor3> =
+			    %% Line 79
+			    call 'erlang':'self'
+				()
+			in  %% Line 79
+			    call 'gen_server':'cast'
+				('global_group', {'send_res',Pid,Name,Msg,_cor3,From})
+		  end
+		  %% Line 81
+		  apply 'end_loop'/0
+		      ()
+	  %% Line 82
+	  <{'group',Nodes,Name,Msg,From}> when 'true' ->
+	      do  %% Line 83
+		  case apply 'whereis_group_loop'/2
+			   (Nodes, Name) of
+		    %% Line 84
+		    <'group_down'> when 'true' ->
+			let <Res> = {%% Line 85
+			     'badarg',%% Line 85
+				      {Name,Msg}}
+			in  let <_cor6> =
+				%% Line 86
+				call 'erlang':'self'
+				    ()
+			    in  %% Line 86
+				call 'gen_server':'cast'
+				    ('global_group', {'send_res',Res,Name,Msg,_cor6,From})
+		    %% Line 87
+		    <'undefined'> when 'true' ->
+			let <Res> = {%% Line 88
+			     'badarg',%% Line 88
+				      {Name,Msg}}
+			in  let <_cor8> =
+				%% Line 89
+				call 'erlang':'self'
+				    ()
+			    in  %% Line 89
+				call 'gen_server':'cast'
+				    ('global_group', {'send_res',Res,Name,Msg,_cor8,From})
+		    %% Line 90
+		    <Pid> when 'true' ->
+			let <_cor9> =
+			    %% Line 91
+			    call 'erlang':'self'
+				()
+			in  %% Line 91
+			    call 'gen_server':'cast'
+				('global_group', {'send_res',Pid,Name,Msg,_cor9,From})
+		  end
+		  %% Line 93
+		  apply 'end_loop'/0
+		      ()
+	  %% Line 94
+	  <{'node',Node,Name,Msg,From}> when 'true' ->
+	      do  %% Line 95
+		  case apply 'whereis_check_node'/2
+			   (Node, Name) of
+		    %% Line 96
+		    <'node_down'> when 'true' ->
+			let <Res> = {%% Line 97
+			     'badarg',%% Line 97
+				      {Name,Msg}}
+			in  let <_cor12> =
+				%% Line 98
+				call 'erlang':'self'
+				    ()
+			    in  %% Line 98
+				call 'gen_server':'cast'
+				    ('global_group', {'send_res',Res,Name,Msg,_cor12,From})
+		    %% Line 99
+		    <'undefined'> when 'true' ->
+			let <Res> = {%% Line 100
+			     'badarg',%% Line 100
+				      {Name,Msg}}
+			in  let <_cor14> =
+				%% Line 101
+				call 'erlang':'self'
+				    ()
+			    in  %% Line 101
+				call 'gen_server':'cast'
+				    ('global_group', {'send_res',Res,Name,Msg,_cor14,From})
+		    %% Line 102
+		    <Pid> when 'true' ->
+			let <_cor15> =
+			    %% Line 103
+			    call 'erlang':'self'
+				()
+			in  %% Line 103
+			    call 'gen_server':'cast'
+				('global_group', {'send_res',Pid,Name,Msg,_cor15,From})
+		  end
+		  %% Line 105
+		  apply 'end_loop'/0
+		      ()
+	  ( <_cor17> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor17})
+		  -| [{'function_name',{'init_send',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'init_whereis'/1 =
+    %% Line 120
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'any',NodesList,Name,From}> when 'true' ->
+	      let <R> =
+		  %% Line 121
+		  apply 'whereis_any_loop'/2
+		      (NodesList, Name)
+	      in  let <_cor2> =
+		      %% Line 122
+		      call 'erlang':'self'
+			  ()
+		  in  do  %% Line 122
+			  call 'gen_server':'cast'
+			      ('global_group', {'find_name_res',R,_cor2,From})
+			  %% Line 123
+			  apply 'end_loop'/0
+			      ()
+	  %% Line 124
+	  <{'group',Nodes,Name,From}> when 'true' ->
+	      do  %% Line 125
+		  case apply 'whereis_group_loop'/2
+			   (Nodes, Name) of
+		    %% Line 126
+		    <'group_down'> when 'true' ->
+			let <_cor3> =
+			    %% Line 127
+			    call 'erlang':'self'
+				()
+			in  %% Line 127
+			    call 'gen_server':'cast'
+				('global_group', {'find_name_res','undefined',_cor3,From})
+		    %% Line 128
+		    <R> when 'true' ->
+			let <_cor4> =
+			    %% Line 129
+			    call 'erlang':'self'
+				()
+			in  %% Line 129
+			    call 'gen_server':'cast'
+				('global_group', {'find_name_res',R,_cor4,From})
+		  end
+		  %% Line 131
+		  apply 'end_loop'/0
+		      ()
+	  %% Line 132
+	  <{'node',Node,Name,From}> when 'true' ->
+	      do  %% Line 133
+		  case apply 'whereis_check_node'/2
+			   (Node, Name) of
+		    %% Line 134
+		    <'node_down'> when 'true' ->
+			let <_cor6> =
+			    %% Line 135
+			    call 'erlang':'self'
+				()
+			in  %% Line 135
+			    call 'gen_server':'cast'
+				('global_group', {'find_name_res','undefined',_cor6,From})
+		    %% Line 136
+		    <R> when 'true' ->
+			let <_cor7> =
+			    %% Line 137
+			    call 'erlang':'self'
+				()
+			in  %% Line 137
+			    call 'gen_server':'cast'
+				('global_group', {'find_name_res',R,_cor7,From})
+		  end
+		  %% Line 139
+		  apply 'end_loop'/0
+		      ()
+	  ( <_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9})
+		  -| [{'function_name',{'init_whereis',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'init_names'/1 =
+    %% Line 152
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'group',Nodes,From}> when 'true' ->
+	      do  %% Line 153
+		  case apply 'names_group_loop'/1
+			   (Nodes) of
+		    %% Line 154
+		    <'group_down'> when 'true' ->
+			let <_cor1> =
+			    %% Line 155
+			    call 'erlang':'self'
+				()
+			in  %% Line 155
+			    call 'gen_server':'cast'
+				('global_group', {'registered_names_res',[],_cor1,From})
+		    %% Line 156
+		    <R> when 'true' ->
+			let <_cor2> =
+			    %% Line 157
+			    call 'erlang':'self'
+				()
+			in  %% Line 157
+			    call 'gen_server':'cast'
+				('global_group', {'registered_names_res',R,_cor2,From})
+		  end
+		  %% Line 159
+		  apply 'end_loop'/0
+		      ()
+	  %% Line 160
+	  <{'node',Node,From}> when 'true' ->
+	      do  %% Line 161
+		  case apply 'names_check_node'/1
+			   (Node) of
+		    %% Line 162
+		    <'node_down'> when 'true' ->
+			let <_cor4> =
+			    %% Line 163
+			    call 'erlang':'self'
+				()
+			in  %% Line 163
+			    call 'gen_server':'cast'
+				('global_group', {'registered_names_res',[],_cor4,From})
+		    %% Line 164
+		    <R> when 'true' ->
+			let <_cor5> =
+			    %% Line 165
+			    call 'erlang':'self'
+				()
+			in  %% Line 165
+			    call 'gen_server':'cast'
+				('global_group', {'registered_names_res',R,_cor5,From})
+		  end
+		  %% Line 167
+		  apply 'end_loop'/0
+		      ()
+	  ( <_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7})
+		  -| [{'function_name',{'init_names',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'end_loop'/0 =
+    %% Line 175
+    fun () ->
+	%% Line 176
+	receive
+	  %% Line 177
+	  <'kill'> when 'true' ->
+	      %% Line 178
+	      call 'erlang':'exit'
+		  ('normal')
+	after 'infinity' ->
+	  'true'
+'whereis_any_loop'/2 =
+    %% Line 184
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_X_Name> when 'true' ->
+	      %% Line 185
+	      'undefined'
+	  %% Line 186
+	  <[{_X_Group_name,Nodes}|T],Name> when 'true' ->
+	      %% Line 187
+	      case apply 'whereis_group_loop'/2
+		       (Nodes, Name) of
+		%% Line 188
+		<'group_down'> when 'true' ->
+		    %% Line 189
+		    apply 'whereis_any_loop'/2
+			(T, Name)
+		%% Line 190
+		<'undefined'> when 'true' ->
+		    %% Line 191
+		    apply 'whereis_any_loop'/2
+			(T, Name)
+		%% Line 192
+		<R> when 'true' ->
+		    %% Line 193
+		    R
+	      end
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'whereis_any_loop',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'whereis_group_loop'/2 =
+    %% Line 199
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_X_Name> when 'true' ->
+	      %% Line 200
+	      'group_down'
+	  %% Line 201
+	  <[Node|T],Name> when 'true' ->
+	      %% Line 202
+	      case apply 'whereis_check_node'/2
+		       (Node, Name) of
+		%% Line 203
+		<'node_down'> when 'true' ->
+		    %% Line 204
+		    apply 'whereis_group_loop'/2
+			(T, Name)
+		%% Line 205
+		<R> when 'true' ->
+		    %% Line 206
+		    R
+	      end
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'whereis_group_loop',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'whereis_check_node'/2 =
+    %% Line 211
+    fun (_cor1,_cor0) ->
+	%% Line 212
+	case call 'net_adm':'ping'
+		 (_cor1) of
+	  %% Line 213
+	  <'pang'> when 'true' ->
+	      %% Line 214
+	      'node_down'
+	  %% Line 215
+	  <'pong'> when 'true' ->
+	      do  %% Line 216
+		  call 'erlang':'monitor_node'
+		      (_cor1, 'true')
+		  let <_cor2> =
+		      %% Line 217
+		      call 'erlang':'self'
+			  ()
+		  in  do  %% Line 217
+			  call 'gen_server':'cast'
+			      ({'global_group',_cor1}, {'find_name',_cor2,_cor0})
+			  %% Line 218
+			  receive
+			    %% Line 219
+			    <{'nodedown',_cor6}>
+				when call 'erlang':'=:='
+				      (_cor6,
+				       _cor1) ->
+				%% Line 220
+				'node_down'
+			    %% Line 221
+			    <{'find_name_res',Result}> when 'true' ->
+				do  %% Line 222
+				    call 'erlang':'monitor_node'
+					(_cor1, 'false')
+				    %% Line 223
+				    Result
+			  after 'infinity' ->
+			    'true'
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'names_group_loop'/1 =
+    %% Line 233
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 234
+	      'group_down'
+	  %% Line 235
+	  <[Node|T]> when 'true' ->
+	      %% Line 236
+	      case apply 'names_check_node'/1
+		       (Node) of
+		%% Line 237
+		<'node_down'> when 'true' ->
+		    %% Line 238
+		    apply 'names_group_loop'/1
+			(T)
+		%% Line 239
+		<R> when 'true' ->
+		    %% Line 240
+		    R
+	      end
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'names_group_loop',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'names_check_node'/1 =
+    %% Line 245
+    fun (_cor0) ->
+	%% Line 246
+	case call 'net_adm':'ping'
+		 (_cor0) of
+	  %% Line 247
+	  <'pang'> when 'true' ->
+	      %% Line 248
+	      'node_down'
+	  %% Line 249
+	  <'pong'> when 'true' ->
+	      do  %% Line 250
+		  call 'erlang':'monitor_node'
+		      (_cor0, 'true')
+		  let <_cor1> =
+		      %% Line 251
+		      call 'erlang':'self'
+			  ()
+		  in  do  %% Line 251
+			  call 'gen_server':'cast'
+			      ({'global_group',_cor0}, {'registered_names',_cor1})
+			  %% Line 252
+			  receive
+			    %% Line 253
+			    <{'nodedown',_cor4}>
+				when call 'erlang':'=:='
+				      (_cor4,
+				       _cor0) ->
+				%% Line 254
+				'node_down'
+			    %% Line 255
+			    <{'registered_names_res',Result}> when 'true' ->
+				do  %% Line 256
+				    call 'erlang':'monitor_node'
+					(_cor0, 'false')
+				    %% Line 257
+				    Result
+			  after 'infinity' ->
+			    'true'
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'send_test'/1 =
+    %% Line 269
+    fun (_cor0) ->
+	do  %% Line 270
+	    call 'timer':'sleep'
+		(5000)
+	    %% Line 271
+	    call 'erlang':'exit'
+		('testing_exit')
+'whereis_test'/1 =
+    %% Line 273
+    fun (_cor0) ->
+	do  %% Line 274
+	    call 'timer':'sleep'
+		(5000)
+	    %% Line 275
+	    call 'erlang':'exit'
+		('testing_exit')
+'names_test'/1 =
+    %% Line 277
+    fun (_cor0) ->
+	do  %% Line 278
+	    call 'timer':'sleep'
+		(5000)
+	    %% Line 279
+	    call 'erlang':'exit'
+		('testing_exit')
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('global_search')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('global_search', _cor0)
+end

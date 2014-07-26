@@ -1,0 +1,260 @@
+module 'user_sup' ['init'/1,
+		   'module_info'/0,
+		   'module_info'/1,
+		   'relay'/1,
+		   'start'/0,
+		   'terminate'/2]
+    attributes [%% Line 26
+		'behaviour' =
+		    %% Line 26
+		    ['supervisor_bridge'],
+		%% Line 33
+		'spec' =
+		    %% Line 33
+		    [{{'start',0},[{'type',33,'fun',[{'type',33,'product',[]}|[{'type',33,'union',[{'type',33,'tuple',[{'atom',33,'error'}|[{'type',33,'tuple',[{'atom',33,'already_started'}|[{'type',33,'pid',[]}]]}]]}|[{'type',33,'tuple',[{'atom',33,'ok'}|[{'type',33,'pid',[]}]]}]]}]]}]}],
+		%% Line 38
+		'spec' =
+		    %% Line 38
+		    [{{'init',1},[{'type',38,'fun',[{'type',38,'product',[{'type',38,'nil',[]}]}|[{'type',38,'union',[{'atom',38,'ignore'}|[{'type',38,'tuple',[{'atom',38,'error'}|[{'atom',38,'nouser'}]]}|[{'type',38,'tuple',[{'atom',38,'ok'}|[{'type',38,'pid',[]}|[{'type',38,'pid',[]}]]]}]]]}]]}]}],
+		%% Line 66
+		'spec' =
+		    %% Line 66
+		    [{{'relay',1},[{'type',66,'fun',[{'type',66,'product',[{'type',66,'pid',[]}]}|[{'type',66,'no_return',[]}]]}]}],
+		%% Line 85
+		'spec' =
+		    %% Line 85
+		    [{{'terminate',2},[{'type',85,'fun',[{'type',85,'product',[{'type',85,'term',[]}|[{'type',85,'pid',[]}]]}|[{'atom',85,'ok'}]]}]}]]
+'start'/0 =
+    %% Line 35
+    fun () ->
+	%% Line 36
+	call 'supervisor_bridge':'start_link'
+	    ('user_sup', [])
+'init'/1 =
+    %% Line 40
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 41
+	      case apply 'get_user'/0
+		       () of
+		%% Line 42
+		<'nouser'> when 'true' ->
+		    %% Line 43
+		    'ignore'
+		%% Line 44
+		<{'master',Master}> when 'true' ->
+		    let <Pid> =
+			%% Line 45
+			apply 'start_slave'/1
+			    (Master)
+		    in  %% Line 46
+			{'ok',Pid,Pid}
+		%% Line 47
+		<{M,F,A}> when 'true' ->
+		    %% Line 48
+		    case apply 'start_user'/3
+			     (M, F, A) of
+		      %% Line 49
+		      <{'ok',Pid}> when 'true' ->
+			  %% Line 50
+			  {'ok',Pid,Pid}
+		      %% Line 51
+		      <Error> when 'true' ->
+			  %% Line 52
+			  Error
+		    end
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'start_slave'/1 =
+    %% Line 56
+    fun (_cor0) ->
+	%% Line 57
+	case call 'rpc':'call'
+		 (_cor0, 'erlang', 'whereis', ['user']) of
+	  %% Line 58
+	  <User>
+	      when call 'erlang':'is_pid'
+		    (User) ->
+	      %% Line 59
+	      call 'erlang':'spawn'
+		  ('user_sup', 'relay', [User|[]])
+	  %% Line 60
+	  <_cor3> when 'true' ->
+	      do  %% Line 61
+		  call 'error_logger':'error_msg'
+		      ([67|[97|[110|[110|[111|[116|[32|[103|[101|[116|[32|[114|[101|[109|[111|[116|[101|[32|[117|[115|[101|[114]]]]]]]]]]]]]]]]]]]]]], [])
+		  do  %% Line 62
+		      receive
+			
+		      after 1000 ->
+			'ok'
+		      %% Line 63
+		      call 'erlang':'halt'
+			  ()
+	end
+'relay'/1 =
+    %% Line 68
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 69
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 69
+		call 'erlang':'register'
+		    ('user', _cor1)
+		%% Line 70
+		apply 'relay1'/1
+		    (_cor0)
+'relay1'/1 =
+    %% Line 72
+    fun (_cor0) ->
+	%% Line 73
+	receive
+	  %% Line 74
+	  <X> when 'true' ->
+	      do  %% Line 75
+		  call 'erlang':'!'
+		      (_cor0, X)
+		  %% Line 76
+		  apply 'relay1'/1
+		      (_cor0)
+	after 'infinity' ->
+	  'true'
+'terminate'/2 =
+    %% Line 87
+    fun (_cor1,_cor0) ->
+	do  %% Line 88
+	    receive
+	      
+	    after 1000 ->
+	      'ok'
+	    do  %% Line 89
+		call 'erlang':'exit'
+		    (_cor0, 'kill')
+		%% Line 90
+		'ok'
+'start_user'/3 =
+    %% Line 98
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 99
+	    call 'erlang':'apply'
+		(_cor2, _cor1, _cor0)
+	    %% Line 100
+	    apply 'wait_for_user_p'/1
+		(100)
+'wait_for_user_p'/1 =
+    %% Line 102
+    fun (_cor0) ->
+	case _cor0 of
+	  <0> when 'true' ->
+	      %% Line 103
+	      {'error','nouser'}
+	  %% Line 104
+	  <N> when 'true' ->
+	      %% Line 105
+	      case call 'erlang':'whereis'
+		       ('user') of
+		%% Line 106
+		<Pid>
+		    when call 'erlang':'is_pid'
+			  (Pid) ->
+		    do  %% Line 107
+			call 'erlang':'link'
+			    (Pid)
+			%% Line 108
+			{'ok',Pid}
+		%% Line 109
+		<_cor4> when 'true' ->
+		    do  %% Line 110
+			receive
+			  
+			after 100 ->
+			  'ok'
+			let <_cor1> =
+			    %% Line 111
+			    call 'erlang':'-'
+				(N, 1)
+			in  %% Line 111
+			    apply 'wait_for_user_p'/1
+				(_cor1)
+	      end
+	end
+'get_user'/0 =
+    %% Line 114
+    fun () ->
+	let <Flags> =
+	    %% Line 115
+	    call 'init':'get_arguments'
+		()
+	in  %% Line 116
+	    apply 'check_flags'/2
+		(Flags, {'user_drv','start',[]})
+'check_flags'/2 =
+    %% Line 120
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'nouser',[]}|T],_cor6> when 'true' ->
+	      apply 'check_flags'/2
+		  (T, 'nouser')
+	  %% Line 121
+	  <[{'user',[User|[]]}|T],_cor7> when 'true' ->
+	      let <_cor2> =
+		  %% Line 122
+		  call 'erlang':'list_to_atom'
+		      (User)
+	      in  %% Line 122
+		  apply 'check_flags'/2
+		      (T, {_cor2,'start',[]})
+	  %% Line 123
+	  <[{'noshell',[]}|T],_cor8> when 'true' ->
+	      apply 'check_flags'/2
+		  (T, {'user','start',[]})
+	  %% Line 124
+	  <[{'oldshell',[]}|T],_cor9> when 'true' ->
+	      apply 'check_flags'/2
+		  (T, {'user','start',[]})
+	  %% Line 125
+	  <[{'noinput',[]}|T],_cor10> when 'true' ->
+	      apply 'check_flags'/2
+		  (T, {'user','start_out',[]})
+	  %% Line 126
+	  <[{'master',[Node|[]]}|T],_cor11> when 'true' ->
+	      let <_cor3> =
+		  %% Line 127
+		  call 'erlang':'list_to_atom'
+		      (Node)
+	      in  %% Line 127
+		  apply 'check_flags'/2
+		      (T, {'master',_cor3})
+	  %% Line 128
+	  <[_X_H|T],User> when 'true' ->
+	      apply 'check_flags'/2
+		  (T, User)
+	  %% Line 129
+	  <[],User> when 'true' ->
+	      User
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'check_flags',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('user_sup')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('user_sup', _cor0)
+end

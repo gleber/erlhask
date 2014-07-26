@@ -1,0 +1,1448 @@
+module 'hipe_x86' ['alu_dst'/1,
+		   'alu_op'/1,
+		   'alu_src'/1,
+		   'call_fun'/1,
+		   'call_linkage'/1,
+		   'call_sdesc'/1,
+		   'cmovcc_cc'/1,
+		   'cmovcc_dst'/1,
+		   'cmovcc_src'/1,
+		   'cmp_dst'/1,
+		   'cmp_src'/1,
+		   'defun_code'/1,
+		   'defun_data'/1,
+		   'defun_formals'/1,
+		   'defun_is_closure'/1,
+		   'defun_is_leaf'/1,
+		   'defun_mfa'/1,
+		   'defun_var_range'/1,
+		   'fmove_dst'/1,
+		   'fmove_src'/1,
+		   'fp_binop_dst'/1,
+		   'fp_binop_op'/1,
+		   'fp_binop_src'/1,
+		   'fp_unop_arg'/1,
+		   'fp_unop_op'/1,
+		   'imul_imm_opt'/1,
+		   'imul_src'/1,
+		   'imul_temp'/1,
+		   'is_fmove'/1,
+		   'is_imm'/1,
+		   'is_label'/1,
+		   'is_move'/1,
+		   'is_prim'/1,
+		   'is_temp'/1,
+		   'jcc_cc'/1,
+		   'jcc_label'/1,
+		   'jmp_fun_fun'/1,
+		   'jmp_fun_linkage'/1,
+		   'jmp_label_label'/1,
+		   'jmp_switch_jtab'/1,
+		   'jmp_switch_temp'/1,
+		   'label_label'/1,
+		   'lea_mem'/1,
+		   'lea_temp'/1,
+		   'mem_type'/1,
+		   'mk_alu'/3,
+		   'mk_call'/3,
+		   'mk_cmp'/2,
+		   'mk_comment'/1,
+		   'mk_defun'/8,
+		   'mk_fmove'/2,
+		   'mk_fp_binop'/3,
+		   'mk_fp_unop'/2,
+		   'mk_fpreg'/1,
+		   'mk_fpreg'/2,
+		   'mk_imm'/1,
+		   'mk_imm_from_addr'/2,
+		   'mk_imm_from_atom'/1,
+		   'mk_imul'/3,
+		   'mk_jcc'/2,
+		   'mk_jmp_fun'/2,
+		   'mk_jmp_label'/1,
+		   'mk_jmp_switch'/3,
+		   'mk_label'/1,
+		   'mk_lea'/2,
+		   'mk_mem'/3,
+		   'mk_mfa'/3,
+		   'mk_move'/2,
+		   'mk_move64'/2,
+		   'mk_movsx'/2,
+		   'mk_movzx'/2,
+		   'mk_new_nonallocatable_temp'/1,
+		   'mk_new_temp'/1,
+		   'mk_prim'/1,
+		   'mk_pseudo_call'/4,
+		   'mk_pseudo_jcc'/4,
+		   'mk_pseudo_spill'/1,
+		   'mk_pseudo_tailcall'/4,
+		   'mk_pseudo_tailcall_prepare'/0,
+		   'mk_push'/1,
+		   'mk_ret'/1,
+		   'mk_sdesc'/4,
+		   'mk_shift'/3,
+		   'mk_temp'/2,
+		   'module_info'/0,
+		   'module_info'/1,
+		   'move64_dst'/1,
+		   'move64_src'/1,
+		   'move_dst'/1,
+		   'move_src'/1,
+		   'movsx_dst'/1,
+		   'movsx_src'/1,
+		   'movzx_dst'/1,
+		   'movzx_src'/1,
+		   'pop_dst'/1,
+		   'prim_prim'/1,
+		   'pseudo_call_contlab'/1,
+		   'pseudo_call_fun'/1,
+		   'pseudo_call_linkage'/1,
+		   'pseudo_call_sdesc'/1,
+		   'pseudo_tailcall_fun'/1,
+		   'pseudo_tailcall_linkage'/1,
+		   'pseudo_tailcall_stkargs'/1,
+		   'push_src'/1,
+		   'ret_npop'/1,
+		   'shift_dst'/1,
+		   'shift_op'/1,
+		   'shift_src'/1,
+		   'temp_is_allocatable'/1,
+		   'temp_reg'/1,
+		   'temp_type'/1,
+		   'test_dst'/1,
+		   'test_src'/1]
+    attributes [%% Line 64
+		'type' =
+		    %% Line 64
+		    [{{'record','x86_temp'},[{'record_field',64,{'atom',64,'reg'}}|[{'record_field',64,{'atom',64,'type'}}|[{'record_field',64,{'atom',64,'allocatable'}}]]],[]}],
+		%% Line 65
+		'type' =
+		    %% Line 65
+		    [{{'record','x86_imm'},[{'record_field',65,{'atom',65,'value'}}],[]}],
+		%% Line 66
+		'type' =
+		    %% Line 66
+		    [{{'record','x86_mem'},[{'record_field',66,{'atom',66,'base'}}|[{'record_field',66,{'atom',66,'off'}}|[{'record_field',66,{'atom',66,'type'}}]]],[]}],
+		%% Line 67
+		'type' =
+		    %% Line 67
+		    [{{'record','x86_fpreg'},[{'record_field',67,{'atom',67,'reg'}}|[{'record_field',67,{'atom',67,'pseudo'}}]],[]}],
+		%% Line 68
+		'type' =
+		    %% Line 68
+		    [{{'record','x86_mfa'},[{'typed_record_field',{'record_field',68,{'atom',68,'m'}},{'type',68,'union',[{'atom',68,'undefined'}|[{'type',68,'atom',[]}]]}}|[{'typed_record_field',{'record_field',68,{'atom',68,'f'}},{'type',68,'union',[{'atom',68,'undefined'}|[{'type',68,'atom',[]}]]}}|[{'typed_record_field',{'record_field',68,{'atom',68,'a'}},{'type',68,'union',[{'atom',68,'undefined'}|[{'type',68,'arity',[]}]]}}]]],[]}],
+		%% Line 69
+		'type' =
+		    %% Line 69
+		    [{{'record','x86_prim'},[{'record_field',69,{'atom',69,'prim'}}],[]}],
+		%% Line 70
+		'type' =
+		    %% Line 70
+		    [{{'record','x86_sdesc'},[{'record_field',70,{'atom',70,'exnlab'}}|[{'record_field',70,{'atom',70,'fsize'}}|[{'typed_record_field',{'record_field',70,{'atom',70,'arity'}},{'type',70,'union',[{'atom',70,'undefined'}|[{'type',70,'arity',[]}]]}}|[{'typed_record_field',{'record_field',70,{'atom',70,'live'}},{'type',70,'union',[{'atom',70,'undefined'}|[{'type',70,'tuple','any'}]]}}]]]],[]}],
+		%% Line 78
+		'type' =
+		    %% Line 78
+		    [{{'record','alu'},[{'record_field',78,{'atom',78,'aluop'}}|[{'record_field',78,{'atom',78,'src'}}|[{'record_field',78,{'atom',78,'dst'}}]]],[]}],
+		%% Line 79
+		'type' =
+		    %% Line 79
+		    [{{'record','call'},[{'record_field',79,{'atom',79,'fun'}}|[{'record_field',79,{'atom',79,'sdesc'}}|[{'record_field',79,{'atom',79,'linkage'}}]]],[]}],
+		%% Line 80
+		'type' =
+		    %% Line 80
+		    [{{'record','cmovcc'},[{'record_field',80,{'atom',80,'cc'}}|[{'record_field',80,{'atom',80,'src'}}|[{'record_field',80,{'atom',80,'dst'}}]]],[]}],
+		%% Line 81
+		'type' =
+		    %% Line 81
+		    [{{'record','cmp'},[{'record_field',81,{'atom',81,'src'}}|[{'record_field',81,{'atom',81,'dst'}}]],[]}],
+		%% Line 82
+		'type' =
+		    %% Line 82
+		    [{{'record','comment'},[{'record_field',82,{'atom',82,'term'}}],[]}],
+		%% Line 83
+		'type' =
+		    %% Line 83
+		    [{{'record','fmove'},[{'record_field',83,{'atom',83,'src'}}|[{'record_field',83,{'atom',83,'dst'}}]],[]}],
+		%% Line 84
+		'type' =
+		    %% Line 84
+		    [{{'record','fp_binop'},[{'record_field',84,{'atom',84,'op'}}|[{'record_field',84,{'atom',84,'src'}}|[{'record_field',84,{'atom',84,'dst'}}]]],[]}],
+		%% Line 85
+		'type' =
+		    %% Line 85
+		    [{{'record','fp_unop'},[{'record_field',85,{'atom',85,'op'}}|[{'record_field',85,{'atom',85,'arg'}}]],[]}],
+		%% Line 86
+		'type' =
+		    %% Line 86
+		    [{{'record','imul'},[{'record_field',86,{'atom',86,'imm_opt'}}|[{'record_field',86,{'atom',86,'src'}}|[{'record_field',86,{'atom',86,'temp'}}]]],[]}],
+		%% Line 87
+		'type' =
+		    %% Line 87
+		    [{{'record','jcc'},[{'record_field',87,{'atom',87,'cc'}}|[{'record_field',87,{'atom',87,'label'}}]],[]}],
+		%% Line 88
+		'type' =
+		    %% Line 88
+		    [{{'record','jmp_fun'},[{'record_field',88,{'atom',88,'fun'}}|[{'record_field',88,{'atom',88,'linkage'}}]],[]}],
+		%% Line 89
+		'type' =
+		    %% Line 89
+		    [{{'record','jmp_label'},[{'record_field',89,{'atom',89,'label'}}],[]}],
+		%% Line 90
+		'type' =
+		    %% Line 90
+		    [{{'record','jmp_switch'},[{'record_field',90,{'atom',90,'temp'}}|[{'record_field',90,{'atom',90,'jtab'}}|[{'record_field',90,{'atom',90,'labels'}}]]],[]}],
+		%% Line 91
+		'type' =
+		    %% Line 91
+		    [{{'record','label'},[{'record_field',91,{'atom',91,'label'}}],[]}],
+		%% Line 92
+		'type' =
+		    %% Line 92
+		    [{{'record','lea'},[{'record_field',92,{'atom',92,'mem'}}|[{'record_field',92,{'atom',92,'temp'}}]],[]}],
+		%% Line 93
+		'type' =
+		    %% Line 93
+		    [{{'record','move'},[{'record_field',93,{'atom',93,'src'}}|[{'record_field',93,{'atom',93,'dst'}}]],[]}],
+		%% Line 94
+		'type' =
+		    %% Line 94
+		    [{{'record','move64'},[{'record_field',94,{'atom',94,'imm'}}|[{'record_field',94,{'atom',94,'dst'}}]],[]}],
+		%% Line 95
+		'type' =
+		    %% Line 95
+		    [{{'record','movsx'},[{'record_field',95,{'atom',95,'src'}}|[{'record_field',95,{'atom',95,'dst'}}]],[]}],
+		%% Line 96
+		'type' =
+		    %% Line 96
+		    [{{'record','movzx'},[{'record_field',96,{'atom',96,'src'}}|[{'record_field',96,{'atom',96,'dst'}}]],[]}],
+		%% Line 97
+		'type' =
+		    %% Line 97
+		    [{{'record','pseudo_call'},[{'record_field',97,{'atom',97,'fun'}}|[{'record_field',97,{'atom',97,'sdesc'}}|[{'record_field',97,{'atom',97,'contlab'}}|[{'record_field',97,{'atom',97,'linkage'}}]]]],[]}],
+		%% Line 98
+		'type' =
+		    %% Line 98
+		    [{{'record','pseudo_jcc'},[{'record_field',98,{'atom',98,'cc'}}|[{'record_field',98,{'atom',98,'true_label'}}|[{'record_field',98,{'atom',98,'false_label'}}|[{'record_field',98,{'atom',98,'pred'}}]]]],[]}],
+		%% Line 99
+		'type' =
+		    %% Line 99
+		    [{{'record','pseudo_spill'},[{'record_field',99,{'atom',99,'args'},{'nil',99}}],[]}],
+		%% Line 100
+		'type' =
+		    %% Line 100
+		    [{{'record','pseudo_tailcall'},[{'record_field',100,{'atom',100,'fun'}}|[{'record_field',100,{'atom',100,'arity'}}|[{'record_field',100,{'atom',100,'stkargs'}}|[{'record_field',100,{'atom',100,'linkage'}}]]]],[]}],
+		%% Line 101
+		'type' =
+		    %% Line 101
+		    [{{'record','pseudo_tailcall_prepare'},[],[]}],
+		%% Line 102
+		'type' =
+		    %% Line 102
+		    [{{'record','push'},[{'record_field',102,{'atom',102,'src'}}],[]}],
+		%% Line 103
+		'type' =
+		    %% Line 103
+		    [{{'record','pop'},[{'record_field',103,{'atom',103,'dst'}}],[]}],
+		%% Line 104
+		'type' =
+		    %% Line 104
+		    [{{'record','ret'},[{'record_field',104,{'atom',104,'npop'}}],[]}],
+		%% Line 105
+		'type' =
+		    %% Line 105
+		    [{{'record','shift'},[{'record_field',105,{'atom',105,'shiftop'}}|[{'record_field',105,{'atom',105,'src'}}|[{'record_field',105,{'atom',105,'dst'}}]]],[]}],
+		%% Line 106
+		'type' =
+		    %% Line 106
+		    [{{'record','test'},[{'record_field',106,{'atom',106,'src'}}|[{'record_field',106,{'atom',106,'dst'}}]],[]}],
+		%% Line 22
+		'type' =
+		    %% Line 22
+		    [{'ct_alignment',{'type',22,'union',[{'integer',22,4}|[{'integer',22,8}]]},[]}],
+		%% Line 24
+		'type' =
+		    %% Line 24
+		    [{'hipe_constlbl',{'type',24,'non_neg_integer',[]},[]}],
+		%% Line 25
+		'type' =
+		    %% Line 25
+		    [{'hipe_consttab',{'type',25,'tuple',[{'remote_type',25,[{'atom',25,'dict'}|[{'atom',25,'dict'}|[[]]]]}|[{'type',25,'list',[{'type',25,'hipe_constlbl',[]}]}|[{'type',25,'hipe_constlbl',[]}]]]},[]}],
+		%% Line 112
+		'type' =
+		    %% Line 112
+		    [{{'record','defun'},[{'typed_record_field',{'record_field',112,{'atom',112,'mfa'}},{'type',112,'union',[{'atom',112,'undefined'}|[{'type',112,'mfa',[]}]]}}|[{'record_field',112,{'atom',112,'formals'}}|[{'record_field',112,{'atom',112,'code'}}|[{'typed_record_field',{'record_field',113,{'atom',113,'data'}},{'type',113,'union',[{'atom',113,'undefined'}|[{'type',113,'hipe_consttab',[]}]]}}|[{'typed_record_field',{'record_field',114,{'atom',114,'isclosure'}},{'type',114,'union',[{'atom',114,'undefined'}|[{'type',114,'boolean',[]}]]}}|[{'typed_record_field',{'record_field',115,{'atom',115,'isleaf'}},{'type',115,'union',[{'atom',115,'undefined'}|[{'type',115,'boolean',[]}]]}}|[{'record_field',116,{'atom',116,'var_range'}}|[{'record_field',116,{'atom',116,'label_range'}}]]]]]]]],[]}]]
+'mk_temp'/2 =
+    %% Line 224
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Reg,Type>
+	      when call 'erlang':'is_integer'
+		    (Reg) ->
+	      %% Line 225
+	      {'x86_temp',Reg,Type,'true'}
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'mk_temp',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_nonallocatable_temp'/2 =
+    %% Line 226
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Reg,Type>
+	      when call 'erlang':'is_integer'
+		    (Reg) ->
+	      %% Line 227
+	      {'x86_temp',Reg,Type,'false'}
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'mk_nonallocatable_temp',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_new_temp'/1 =
+    %% Line 228
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 229
+	    call 'hipe_gensym':'get_next_var'
+		('x86')
+	in  %% Line 229
+	    apply 'mk_temp'/2
+		(_cor1, _cor0)
+'mk_new_nonallocatable_temp'/1 =
+    %% Line 230
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 231
+	    call 'hipe_gensym':'get_next_var'
+		('x86')
+	in  %% Line 231
+	    apply 'mk_nonallocatable_temp'/2
+		(_cor1, _cor0)
+'is_temp'/1 =
+    %% Line 232
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'x86_temp',_cor3,_cor4,_cor5}> when 'true' ->
+	      'true'
+	  <_cor6> when 'true' ->
+	      'false'
+	end
+'temp_reg'/1 =
+    %% Line 233
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'x86_temp',Reg,_cor2,_cor3}>
+	      when call 'erlang':'is_integer'
+		    (Reg) ->
+	      Reg
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'temp_reg',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'temp_type'/1 =
+    %% Line 234
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'x86_temp',_cor2,Type,_cor3}> when 'true' ->
+	      Type
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'temp_type',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'temp_is_allocatable'/1 =
+    %% Line 235
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'x86_temp',_cor2,_cor3,A}> when 'true' ->
+	      A
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'temp_is_allocatable',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_imm'/1 =
+    %% Line 237
+    fun (_cor0) ->
+	{'x86_imm',_cor0}
+'mk_imm_from_addr'/2 =
+    %% Line 238
+    fun (_cor1,_cor0) ->
+	%% Line 239
+	apply 'mk_imm'/1
+	    ({_cor1,_cor0})
+'mk_imm_from_atom'/1 =
+    %% Line 240
+    fun (_cor0) ->
+	%% Line 241
+	apply 'mk_imm'/1
+	    (_cor0)
+'is_imm'/1 =
+    %% Line 242
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'x86_imm',_cor3}> when 'true' ->
+	      'true'
+	  <_cor4> when 'true' ->
+	      'false'
+	end
+'mk_mem'/3 =
+    %% Line 245
+    fun (_cor2,_cor1,_cor0) ->
+	{'x86_mem',_cor2,_cor1,_cor0}
+'mem_type'/1 =
+    %% Line 249
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'x86_mem',_cor2,_cor3,Type}> when 'true' ->
+	      Type
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'mem_type',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_fpreg'/1 =
+    %% Line 251
+    fun (_cor0) ->
+	{'x86_fpreg',_cor0,'true'}
+'mk_fpreg'/2 =
+    %% Line 252
+    fun (_cor1,_cor0) ->
+	{'x86_fpreg',_cor1,_cor0}
+'mk_mfa'/3 =
+    %% Line 257
+    fun (_cor2,_cor1,_cor0) ->
+	{'x86_mfa',_cor2,_cor1,_cor0}
+'mk_prim'/1 =
+    %% Line 260
+    fun (_cor0) ->
+	{'x86_prim',_cor0}
+'is_prim'/1 =
+    %% Line 261
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'x86_prim',_cor3}> when 'true' ->
+	      'true'
+	  <_cor4> when 'true' ->
+	      'false'
+	end
+'prim_prim'/1 =
+    %% Line 262
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'x86_prim',Prim}> when 'true' ->
+	      Prim
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'prim_prim',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_sdesc'/4 =
+    %% Line 264
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 265
+	{'x86_sdesc',_cor3,_cor2,_cor1,_cor0}
+'insn_type'/1 =
+    %% Line 267
+    fun (_cor0) ->
+	%% Line 268
+	call 'erlang':'element'
+	    (1, _cor0)
+'is_insn_type'/2 =
+    %% Line 270
+    fun (_cor1,_cor0) ->
+	%% Line 271
+	case apply 'insn_type'/1
+		 (_cor1) of
+	  %% Line 272
+	  <_cor5>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     _cor0) ->
+	      'true'
+	  %% Line 273
+	  <_cor6> when 'true' ->
+	      'false'
+	end
+'mk_alu'/3 =
+    %% Line 276
+    fun (_cor2,_cor1,_cor0) ->
+	{'alu',_cor2,_cor1,_cor0}
+'alu_op'/1 =
+    %% Line 278
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'alu',Op,_cor2,_cor3}> when 'true' ->
+	      Op
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'alu_op',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'alu_src'/1 =
+    %% Line 279
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'alu',_cor2,Src,_cor3}> when 'true' ->
+	      Src
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'alu_src',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'alu_dst'/1 =
+    %% Line 280
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'alu',_cor2,_cor3,Dst}> when 'true' ->
+	      Dst
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'alu_dst',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_call'/3 =
+    %% Line 282
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 283
+	    apply 'check_linkage'/1
+		(_cor0)
+	    %% Line 284
+	    {'call',_cor2,_cor1,_cor0}
+'call_fun'/1 =
+    %% Line 286
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'call',Fun,_cor2,_cor3}> when 'true' ->
+	      Fun
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'call_fun',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'call_sdesc'/1 =
+    %% Line 287
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'call',_cor2,SDesc,_cor3}> when 'true' ->
+	      SDesc
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'call_sdesc',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'call_linkage'/1 =
+    %% Line 288
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'call',_cor2,_cor3,Linkage}> when 'true' ->
+	      Linkage
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'call_linkage',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'check_linkage'/1 =
+    %% Line 290
+    fun (_cor0) ->
+	%% Line 291
+	case _cor0 of
+	  %% Line 292
+	  <'remote'> when 'true' ->
+	      []
+	  %% Line 293
+	  <'not_remote'> when 'true' ->
+	      []
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'cmovcc_cc'/1 =
+    %% Line 298
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'cmovcc',Cc,_cor2,_cor3}> when 'true' ->
+	      Cc
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'cmovcc_cc',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'cmovcc_src'/1 =
+    %% Line 299
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'cmovcc',_cor2,Src,_cor3}> when 'true' ->
+	      Src
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'cmovcc_src',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'cmovcc_dst'/1 =
+    %% Line 300
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'cmovcc',_cor2,_cor3,Dst}> when 'true' ->
+	      Dst
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'cmovcc_dst',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_cmp'/2 =
+    %% Line 302
+    fun (_cor1,_cor0) ->
+	{'cmp',_cor1,_cor0}
+'cmp_src'/1 =
+    %% Line 304
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'cmp',Src,_cor2}> when 'true' ->
+	      Src
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'cmp_src',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'cmp_dst'/1 =
+    %% Line 305
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'cmp',_cor2,Dst}> when 'true' ->
+	      Dst
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'cmp_dst',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'test_src'/1 =
+    %% Line 308
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'test',Src,_cor2}> when 'true' ->
+	      Src
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'test_src',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'test_dst'/1 =
+    %% Line 309
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'test',_cor2,Dst}> when 'true' ->
+	      Dst
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'test_dst',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_comment'/1 =
+    %% Line 311
+    fun (_cor0) ->
+	{'comment',_cor0}
+'mk_fmove'/2 =
+    %% Line 315
+    fun (_cor1,_cor0) ->
+	{'fmove',_cor1,_cor0}
+'is_fmove'/1 =
+    %% Line 316
+    fun (_cor0) ->
+	apply 'is_insn_type'/2
+	    (_cor0, 'fmove')
+'fmove_src'/1 =
+    %% Line 317
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'fmove',Src,_cor2}> when 'true' ->
+	      Src
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'fmove_src',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'fmove_dst'/1 =
+    %% Line 318
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'fmove',_cor2,Dst}> when 'true' ->
+	      Dst
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'fmove_dst',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_fp_unop'/2 =
+    %% Line 320
+    fun (_cor1,_cor0) ->
+	{'fp_unop',_cor1,_cor0}
+'fp_unop_arg'/1 =
+    %% Line 322
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'fp_unop',_cor2,Arg}> when 'true' ->
+	      Arg
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'fp_unop_arg',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'fp_unop_op'/1 =
+    %% Line 323
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'fp_unop',Op,_cor2}> when 'true' ->
+	      Op
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'fp_unop_op',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_fp_binop'/3 =
+    %% Line 325
+    fun (_cor2,_cor1,_cor0) ->
+	{'fp_binop',_cor2,_cor1,_cor0}
+'fp_binop_src'/1 =
+    %% Line 327
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'fp_binop',_cor2,Src,_cor3}> when 'true' ->
+	      Src
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'fp_binop_src',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'fp_binop_dst'/1 =
+    %% Line 328
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'fp_binop',_cor2,_cor3,Dst}> when 'true' ->
+	      Dst
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'fp_binop_dst',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'fp_binop_op'/1 =
+    %% Line 329
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'fp_binop',Op,_cor2,_cor3}> when 'true' ->
+	      Op
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'fp_binop_op',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_imul'/3 =
+    %% Line 331
+    fun (_cor2,_cor1,_cor0) ->
+	{'imul',_cor2,_cor1,_cor0}
+'imul_imm_opt'/1 =
+    %% Line 332
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'imul',ImmOpt,_cor2,_cor3}> when 'true' ->
+	      ImmOpt
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'imul_imm_opt',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'imul_src'/1 =
+    %% Line 333
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'imul',_cor2,Src,_cor3}> when 'true' ->
+	      Src
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'imul_src',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'imul_temp'/1 =
+    %% Line 334
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'imul',_cor2,_cor3,Temp}> when 'true' ->
+	      Temp
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'imul_temp',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_jcc'/2 =
+    %% Line 336
+    fun (_cor1,_cor0) ->
+	{'jcc',_cor1,_cor0}
+'jcc_cc'/1 =
+    %% Line 338
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'jcc',Cc,_cor2}> when 'true' ->
+	      Cc
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'jcc_cc',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'jcc_label'/1 =
+    %% Line 339
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'jcc',_cor2,Label}> when 'true' ->
+	      Label
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'jcc_label',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_jmp_fun'/2 =
+    %% Line 341
+    fun (_cor1,_cor0) ->
+	do  %% Line 342
+	    apply 'check_linkage'/1
+		(_cor0)
+	    %% Line 343
+	    {'jmp_fun',_cor1,_cor0}
+'jmp_fun_fun'/1 =
+    %% Line 345
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'jmp_fun',Fun,_cor2}> when 'true' ->
+	      Fun
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'jmp_fun_fun',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'jmp_fun_linkage'/1 =
+    %% Line 346
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'jmp_fun',_cor2,Linkage}> when 'true' ->
+	      Linkage
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'jmp_fun_linkage',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_jmp_label'/1 =
+    %% Line 348
+    fun (_cor0) ->
+	{'jmp_label',_cor0}
+'jmp_label_label'/1 =
+    %% Line 350
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'jmp_label',Label}> when 'true' ->
+	      Label
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'jmp_label_label',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_jmp_switch'/3 =
+    %% Line 352
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 353
+	{'jmp_switch',_cor2,_cor1,_cor0}
+'jmp_switch_temp'/1 =
+    %% Line 355
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'jmp_switch',Temp,_cor2,_cor3}> when 'true' ->
+	      Temp
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'jmp_switch_temp',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'jmp_switch_jtab'/1 =
+    %% Line 356
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'jmp_switch',_cor2,JTab,_cor3}> when 'true' ->
+	      JTab
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'jmp_switch_jtab',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_label'/1 =
+    %% Line 359
+    fun (_cor0) ->
+	{'label',_cor0}
+'is_label'/1 =
+    %% Line 360
+    fun (_cor0) ->
+	apply 'is_insn_type'/2
+	    (_cor0, 'label')
+'label_label'/1 =
+    %% Line 361
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'label',Label}> when 'true' ->
+	      Label
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'label_label',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_lea'/2 =
+    %% Line 363
+    fun (_cor1,_cor0) ->
+	{'lea',_cor1,_cor0}
+'lea_mem'/1 =
+    %% Line 365
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'lea',Mem,_cor2}> when 'true' ->
+	      Mem
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'lea_mem',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'lea_temp'/1 =
+    %% Line 366
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'lea',_cor2,Temp}> when 'true' ->
+	      Temp
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'lea_temp',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_move'/2 =
+    %% Line 368
+    fun (_cor1,_cor0) ->
+	{'move',_cor1,_cor0}
+'is_move'/1 =
+    %% Line 369
+    fun (_cor0) ->
+	apply 'is_insn_type'/2
+	    (_cor0, 'move')
+'move_src'/1 =
+    %% Line 370
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'move',Src,_cor2}> when 'true' ->
+	      Src
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'move_src',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'move_dst'/1 =
+    %% Line 371
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'move',_cor2,Dst}> when 'true' ->
+	      Dst
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'move_dst',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_move64'/2 =
+    %% Line 373
+    fun (_cor1,_cor0) ->
+	{'move64',_cor1,_cor0}
+'move64_src'/1 =
+    %% Line 375
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'move64',Imm,_cor2}> when 'true' ->
+	      Imm
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'move64_src',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'move64_dst'/1 =
+    %% Line 376
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'move64',_cor2,Dst}> when 'true' ->
+	      Dst
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'move64_dst',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_movsx'/2 =
+    %% Line 378
+    fun (_cor1,_cor0) ->
+	{'movsx',_cor1,_cor0}
+'movsx_src'/1 =
+    %% Line 380
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'movsx',Src,_cor2}> when 'true' ->
+	      Src
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'movsx_src',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'movsx_dst'/1 =
+    %% Line 381
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'movsx',_cor2,Dst}> when 'true' ->
+	      Dst
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'movsx_dst',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_movzx'/2 =
+    %% Line 383
+    fun (_cor1,_cor0) ->
+	{'movzx',_cor1,_cor0}
+'movzx_src'/1 =
+    %% Line 385
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'movzx',Src,_cor2}> when 'true' ->
+	      Src
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'movzx_src',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'movzx_dst'/1 =
+    %% Line 386
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'movzx',_cor2,Dst}> when 'true' ->
+	      Dst
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'movzx_dst',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_pseudo_call'/4 =
+    %% Line 388
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 389
+	    apply 'check_linkage'/1
+		(_cor0)
+	    %% Line 390
+	    {'pseudo_call',_cor3,_cor2,_cor1,_cor0}
+'pseudo_call_fun'/1 =
+    %% Line 392
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'pseudo_call',Fun,_cor2,_cor3,_cor4}> when 'true' ->
+	      Fun
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'pseudo_call_fun',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'pseudo_call_sdesc'/1 =
+    %% Line 393
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'pseudo_call',_cor2,SDesc,_cor3,_cor4}> when 'true' ->
+	      SDesc
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'pseudo_call_sdesc',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'pseudo_call_contlab'/1 =
+    %% Line 394
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'pseudo_call',_cor2,_cor3,ContLab,_cor4}> when 'true' ->
+	      ContLab
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'pseudo_call_contlab',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'pseudo_call_linkage'/1 =
+    %% Line 395
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'pseudo_call',_cor2,_cor3,_cor4,Linkage}> when 'true' ->
+	      Linkage
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'pseudo_call_linkage',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_pseudo_jcc'/4 =
+    %% Line 397
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 398
+	case <> of
+	  <>
+	      when call 'erlang':'>='
+		    (_cor0,
+		     5.00000000000000000000e-01) ->
+	      let <_cor5> =
+		  %% Line 399
+		  apply 'neg_cc'/1
+		      (_cor3)
+	      in  let <_cor4> =
+		      %% Line 399
+		      call 'erlang':'-'
+			  (1.00000000000000000000e+00, _cor0)
+		  in  %% Line 399
+		      apply 'mk_pseudo_jcc_simple'/4
+			  (_cor5, _cor1, _cor2, _cor4)
+	  %% Line 400
+	  <> when 'true' ->
+	      %% Line 401
+	      apply 'mk_pseudo_jcc_simple'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	end
+'neg_cc'/1 =
+    %% Line 403
+    fun (_cor0) ->
+	%% Line 404
+	case _cor0 of
+	  %% Line 405
+	  <'e'> when 'true' ->
+	      'ne'
+	  %% Line 406
+	  <'ne'> when 'true' ->
+	      'e'
+	  %% Line 407
+	  <'g'> when 'true' ->
+	      'le'
+	  %% Line 408
+	  <'a'> when 'true' ->
+	      'be'
+	  %% Line 409
+	  <'ge'> when 'true' ->
+	      'l'
+	  %% Line 410
+	  <'ae'> when 'true' ->
+	      'b'
+	  %% Line 411
+	  <'l'> when 'true' ->
+	      'ge'
+	  %% Line 412
+	  <'b'> when 'true' ->
+	      'ae'
+	  %% Line 413
+	  <'le'> when 'true' ->
+	      'g'
+	  %% Line 414
+	  <'be'> when 'true' ->
+	      'a'
+	  %% Line 415
+	  <'o'> when 'true' ->
+	      'no'
+	  %% Line 416
+	  <'no'> when 'true' ->
+	      'o'
+	  %% Line 417
+	  <_cor3> when 'true' ->
+	      call 'erlang':'exit'
+		  ({'hipe_x86',{[117|[110|[107|[110|[111|[119|[110|[32|[99|[99]]]]]]]]]],_cor0}})
+	end
+'mk_pseudo_jcc_simple'/4 =
+    %% Line 419
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 420
+	{'pseudo_jcc',_cor3,_cor2,_cor1,_cor0}
+'mk_pseudo_spill'/1 =
+    %% Line 427
+    fun (_cor0) ->
+	%% Line 428
+	{'pseudo_spill',_cor0}
+'mk_pseudo_tailcall'/4 =
+    %% Line 430
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 431
+	    apply 'check_linkage'/1
+		(_cor0)
+	    %% Line 432
+	    {'pseudo_tailcall',_cor3,_cor2,_cor1,_cor0}
+'pseudo_tailcall_fun'/1 =
+    %% Line 434
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'pseudo_tailcall',Fun,_cor2,_cor3,_cor4}> when 'true' ->
+	      Fun
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'pseudo_tailcall_fun',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'pseudo_tailcall_stkargs'/1 =
+    %% Line 436
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'pseudo_tailcall',_cor2,_cor3,StkArgs,_cor4}> when 'true' ->
+	      StkArgs
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'pseudo_tailcall_stkargs',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'pseudo_tailcall_linkage'/1 =
+    %% Line 437
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'pseudo_tailcall',_cor2,_cor3,_cor4,Linkage}> when 'true' ->
+	      Linkage
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'pseudo_tailcall_linkage',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_pseudo_tailcall_prepare'/0 =
+    %% Line 439
+    fun () ->
+	{'pseudo_tailcall_prepare'}
+'mk_push'/1 =
+    %% Line 442
+    fun (_cor0) ->
+	{'push',_cor0}
+'push_src'/1 =
+    %% Line 444
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'push',Src}> when 'true' ->
+	      Src
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'push_src',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'pop_dst'/1 =
+    %% Line 448
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'pop',Dst}> when 'true' ->
+	      Dst
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'pop_dst',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_ret'/1 =
+    %% Line 450
+    fun (_cor0) ->
+	{'ret',_cor0}
+'ret_npop'/1 =
+    %% Line 452
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'ret',NPop}> when 'true' ->
+	      NPop
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'ret_npop',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_shift'/3 =
+    %% Line 454
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 455
+	{'shift',_cor2,_cor1,_cor0}
+'shift_op'/1 =
+    %% Line 457
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'shift',ShiftOp,_cor2,_cor3}> when 'true' ->
+	      ShiftOp
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'shift_op',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'shift_src'/1 =
+    %% Line 458
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'shift',_cor2,Src,_cor3}> when 'true' ->
+	      Src
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'shift_src',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'shift_dst'/1 =
+    %% Line 459
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'shift',_cor2,_cor3,Dst}> when 'true' ->
+	      Dst
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'shift_dst',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_defun'/8 =
+    %% Line 461
+    fun (_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 462
+	{'defun',_cor7,_cor6,_cor3,_cor2,_cor5,_cor4,_cor1,_cor0}
+'defun_mfa'/1 =
+    %% Line 465
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'defun',MFA,_cor2,_cor3,_cor4,_cor5,_cor6,_cor7,_cor8}> when 'true' ->
+	      MFA
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'defun_mfa',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'defun_formals'/1 =
+    %% Line 466
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'defun',_cor2,Formals,_cor3,_cor4,_cor5,_cor6,_cor7,_cor8}> when 'true' ->
+	      Formals
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'defun_formals',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'defun_is_closure'/1 =
+    %% Line 467
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'defun',_cor2,_cor3,_cor4,_cor5,IsClosure,_cor6,_cor7,_cor8}> when 'true' ->
+	      IsClosure
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'defun_is_closure',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'defun_is_leaf'/1 =
+    %% Line 468
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'defun',_cor2,_cor3,_cor4,_cor5,_cor6,IsLeaf,_cor7,_cor8}> when 'true' ->
+	      IsLeaf
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'defun_is_leaf',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'defun_code'/1 =
+    %% Line 469
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'defun',_cor2,_cor3,Code,_cor4,_cor5,_cor6,_cor7,_cor8}> when 'true' ->
+	      Code
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'defun_code',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'defun_data'/1 =
+    %% Line 470
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'defun',_cor2,_cor3,_cor4,Data,_cor5,_cor6,_cor7,_cor8}> when 'true' ->
+	      Data
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'defun_data',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'defun_var_range'/1 =
+    %% Line 471
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'defun',_cor2,_cor3,_cor4,_cor5,_cor6,_cor7,VarRange,_cor8}> when 'true' ->
+	      VarRange
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'defun_var_range',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_x86')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_x86', _cor0)
+end

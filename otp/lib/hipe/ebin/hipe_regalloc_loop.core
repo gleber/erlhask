@@ -1,0 +1,137 @@
+module 'hipe_regalloc_loop' ['module_info'/0,
+			     'module_info'/1,
+			     'ra'/5,
+			     'ra_fp'/4]
+    attributes [%% Line 301
+		'type' =
+		    %% Line 301
+		    [{{'record','comp_servers'},[{'typed_record_field',{'record_field',301,{'atom',301,'pp_server'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'range'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}|[{'typed_record_field',{'record_field',301,{'atom',301,'type'}},{'type',301,'union',[{'atom',301,'undefined'}|[{'type',301,'pid',[]}]]}}]]],[]}],
+		%% Line 307
+		'type' =
+		    %% Line 307
+		    [{'comp_option',{'type',307,'union',[{'type',307,'atom',[]}|[{'type',307,'tuple',[{'type',307,'atom',[]}|[{'type',307,'atom',[]}]]}]]},[]}],
+		%% Line 308
+		'type' =
+		    %% Line 308
+		    [{'comp_options',{'type',308,'list',[{'type',308,'comp_option',[]}]},[]}],
+		%% Line 310
+		'type' =
+		    %% Line 310
+		    [{'hipe_architecture',{'type',311,'union',[{'atom',311,'amd64'}|[{'atom',311,'arm'}|[{'atom',311,'powerpc'}|[{'atom',311,'ppc64'}|[{'atom',311,'ultrasparc'}|[{'atom',311,'x86'}]]]]]]},[]}],
+		%% Line 313
+		'type' =
+		    %% Line 313
+		    [{'hipe_map',{'type',313,'list',[{'type',313,'tuple',[{'type',313,'non_neg_integer',[]}|[{'type',314,'union',[{'atom',314,'unknown'}|[{'type',314,'tuple',[{'type',314,'union',[{'atom',314,'reg'}|[{'atom',314,'fp_reg'}|[{'atom',314,'spill'}]]]}|[{'type',315,'non_neg_integer',[]}]]}]]}]]}]},[]}],
+		%% Line 316
+		'type' =
+		    %% Line 316
+		    [{'hipe_temp_map',{'type',316,'tuple','any'},[]}],
+		%% Line 317
+		'type' =
+		    %% Line 317
+		    [{'hipe_spill_map',{'type',317,'list',[{'type',317,'tuple',[{'type',317,'non_neg_integer',[]}|[{'type',317,'tuple',[{'atom',317,'spill'}|[{'type',317,'non_neg_integer',[]}]]}]]}]},[]}]]
+'ra'/5 =
+    %% Line 28
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 29
+	case %% Line 30
+	     apply 'ra_common'/5
+		 (_cor4, _cor3, _cor2, _cor1, _cor0) of
+	  <{NewDefun,Coloring,_X_NewSpillIndex}> when 'true' ->
+	      %% Line 31
+	      {NewDefun,Coloring}
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'ra_fp'/4 =
+    %% Line 33
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 34
+	apply 'ra_common'/5
+	    (_cor3, 0, _cor2, _cor1, _cor0)
+'ra_common'/5 =
+    %% Line 36
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <CFG> =
+	    %% Line 38
+	    call _cor0:'defun_to_cfg'
+		(_cor4)
+	in  let <SpillLimit> =
+		%% Line 39
+		call _cor0:'number_of_temporaries'
+		    (CFG)
+	    in  %% Line 40
+		apply 'alloc'/6
+		    (_cor4, SpillLimit, _cor3, _cor2, _cor1, _cor0)
+'alloc'/6 =
+    %% Line 42
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <CFG> =
+	    %% Line 44
+	    call _cor0:'defun_to_cfg'
+		(_cor5)
+	in  %% Line 45
+	    case %% Line 46
+		 call _cor1:'regalloc'
+		     (CFG, _cor3, _cor4, _cor0, _cor2) of
+	      <{Coloring,_X_NewSpillIndex}> when 'true' ->
+		  %% Line 47
+		  case call _cor0:'check_and_rewrite'
+			   (_cor5, Coloring) of
+		    <{NewDefun,DidSpill}> when 'true' ->
+			%% Line 48
+			case DidSpill of
+			  %% Line 49
+			  <'false'> when 'true' ->
+			      let <TempMap> =
+				  %% Line 51
+				  call 'hipe_temp_map':'cols2tuple'
+				      (Coloring, _cor0)
+			      in  %% Line 52
+				  case %% Line 53
+				       call 'hipe_spillmin':'stackalloc'
+					   (CFG, [], _cor3, _cor2, _cor0, %% Line 54
+									  TempMap) of
+				    <{TempMap2,NewSpillIndex2}> when 'true' ->
+					let <_cor11> =
+					    %% Line 56
+					    call 'hipe_temp_map':'to_substlist'
+						(TempMap)
+					in  let <Coloring2> =
+						%% Line 56
+						call 'hipe_spillmin':'mapmerge'
+						    (_cor11, TempMap2)
+					    in  %% Line 63
+						{NewDefun,Coloring2,NewSpillIndex2}
+				    ( <_cor10> when 'true' ->
+					  primop 'match_fail'
+					      ({'badmatch',_cor10})
+				      -| ['compiler_generated'] )
+				  end
+			  %% Line 64
+			  <_cor20> when 'true' ->
+			      %% Line 67
+			      apply 'alloc'/6
+				  (NewDefun, _cor4, _cor3, _cor2, _cor1, _cor0)
+			end
+		    ( <_cor8> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor8})
+		      -| ['compiler_generated'] )
+		  end
+	      ( <_cor7> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor7})
+		-| ['compiler_generated'] )
+	    end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_regalloc_loop')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_regalloc_loop', _cor0)
+end

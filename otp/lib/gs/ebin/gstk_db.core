@@ -1,0 +1,1035 @@
+module 'gstk_db' ['counter'/2,
+		  'default_container_opts'/3,
+		  'default_opts'/3,
+		  'delete_bgrp'/2,
+		  'delete_event'/3,
+		  'delete_gstkid'/2,
+		  'delete_kid'/3,
+		  'delete_widget'/2,
+		  'get_deleted'/1,
+		  'init'/1,
+		  'insert'/3,
+		  'insert_bgrp'/2,
+		  'insert_def'/3,
+		  'insert_event'/4,
+		  'insert_gs'/2,
+		  'insert_opt'/3,
+		  'insert_opts'/3,
+		  'insert_widget'/2,
+		  'is_inserted'/3,
+		  'lookup'/2,
+		  'lookup_def'/3,
+		  'lookup_event'/3,
+		  'lookup_gstkid'/2,
+		  'lookup_gstkid'/3,
+		  'lookup_ids'/2,
+		  'lookup_item'/3,
+		  'lookup_kids'/2,
+		  'module_info'/0,
+		  'module_info'/1,
+		  'opt'/3,
+		  'opt'/4,
+		  'opt_or_not'/3,
+		  'update_widget'/2]
+    attributes []
+'init'/1 =
+    %% Line 68
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 69
+	    call 'ets':'new'
+		('gstk_db', ['public'|['set']])
+	in  do  %% Line 69
+		call 'erlang':'put'
+		    ('events', _cor1)
+		let <_cor2> =
+		    %% Line 70
+		    call 'ets':'new'
+			('gstk_db', ['public'|['bag']])
+		in  do  %% Line 70
+			call 'erlang':'put'
+			    ('kids', _cor2)
+			let <_cor3> =
+			    %% Line 71
+			    call 'ets':'new'
+				('gstk_db', ['public'|['bag']])
+			in  do  %% Line 71
+				call 'erlang':'put'
+				    ('defaults', _cor3)
+				let <_cor4> =
+				    %% Line 72
+				    call 'ets':'new'
+					('gstk_db', ['public'|['bag']])
+				in  do  %% Line 72
+					call 'erlang':'put'
+					    ('deleted', _cor4)
+					let <_cor5> =
+					    %% Line 73
+					    call 'ets':'new'
+						('gstk_db', ['public'|['set']])
+					in  do  %% Line 73
+						call 'erlang':'put'
+						    ('options', _cor5)
+						%% Line 74
+						call 'ets':'new'
+						    ('gstk_db', ['public'|['set']])
+'insert'/3 =
+    %% Line 80
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 81
+	call 'ets':'insert'
+	    (_cor2, {_cor1,_cor0})
+'lookup'/2 =
+    %% Line 84
+    fun (_cor1,_cor0) ->
+	%% Line 86
+	case call 'ets':'lookup'
+		 (_cor1, _cor0) of
+	  %% Line 87
+	  <[{_cor7,Value}|[]]>
+	      when call 'erlang':'=:='
+		    (_cor7,
+		     _cor0) ->
+	      Value
+	  %% Line 88
+	  <_cor8> when 'true' ->
+	      'undefined'
+	end
+'delete'/2 =
+    %% Line 93
+    fun (_cor1,_cor0) ->
+	%% Line 94
+	call 'ets':'delete'
+	    (_cor1, _cor0)
+'insert_event'/4 =
+    %% Line 105
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 106
+	( case _cor2 of
+	    ( <( {'gstkid',_rec0,_cor23,_cor24,_cor25,_cor26,_cor27}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <_cor8> =
+		      %% Line 108
+		      case _cor0 of
+			%% Line 109
+			<[]> when 'true' ->
+			    apply 'opt'/3
+				(_cor3, _rec0, 'data')
+			%% Line 110
+			<_X_Other1> when 'true' ->
+			    _cor0
+		      end
+		  in  let <Events> =
+			  %% Line 112
+			  apply 'lookup_events'/2
+			      (_cor3, _rec0)
+		      in  %% Line 113
+			  case call 'lists':'keysearch'
+				   (_cor1, 2, Events) of
+			    %% Line 114
+			    <{'value',{Etag,_cor29,_cor30}}> when 'true' ->
+				let <NewEvents> =
+				    %% Line 116
+				    call 'lists':'keyreplace'
+					(_cor1, 2, Events, {Etag,_cor1,_cor8})
+				in  let <_cor12> =
+					%% Line 117
+					call 'erlang':'get'
+					    ('events')
+				    in  do  %% Line 117
+					    call 'ets':'insert'
+						(_cor12, {{'events',_rec0},NewEvents})
+					    let <_cor13> =
+						%% Line 118
+						call 'gstk':'to_ascii'
+						    (_rec0)
+					    in  %% Line 118
+						[35|[_cor13|[[32]|[Etag|[]]]]]
+			    %% Line 119
+			    <_X_Other2> when 'true' ->
+				let <Etag> =
+				    %% Line 120
+				    apply 'etag'/1
+					(_cor1)
+				in  let <NewEvents> =
+					%% Line 121
+					[{Etag,_cor1,_cor8}|Events]
+				    in  let <_cor16> =
+					    %% Line 122
+					    call 'erlang':'get'
+						('events')
+					in  do  %% Line 122
+						call 'ets':'insert'
+						    (_cor16, {{'events',_rec0},NewEvents})
+						let <_cor17> =
+						    %% Line 123
+						    call 'gstk':'to_ascii'
+							(_rec0)
+						in  %% Line 123
+						    [35|[_cor17|[[32]|[Etag|[]]]]]
+			  end
+	      -| ['compiler_generated'] )
+	    ( <_cor28> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','gstkid'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'etag'/1 =
+    %% Line 126
+    fun (_cor0) ->
+	%% Line 127
+	case _cor0 of
+	  %% Line 128
+	  <'click'> when 'true' ->
+	      [99]
+	  %% Line 129
+	  <'doubleclick'> when 'true' ->
+	      [100|[99]]
+	  %% Line 130
+	  <'configure'> when 'true' ->
+	      [99|[111]]
+	  %% Line 131
+	  <'enter'> when 'true' ->
+	      [101]
+	  %% Line 132
+	  <'leave'> when 'true' ->
+	      [108]
+	  %% Line 133
+	  <'motion'> when 'true' ->
+	      [109]
+	  %% Line 134
+	  <'buttonpress'> when 'true' ->
+	      [98|[112]]
+	  %% Line 135
+	  <'buttonrelease'> when 'true' ->
+	      [98|[114]]
+	  %% Line 136
+	  <'focus'> when 'true' ->
+	      [102]
+	  %% Line 137
+	  <'destroy'> when 'true' ->
+	      [100]
+	  %% Line 138
+	  <'keypress'> when 'true' ->
+	      [107|[112]]
+	  %% Line 139
+	  <'keyrelease'> when 'true' ->
+	      [107|[114]]
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'lookup_events'/2 =
+    %% Line 142
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 143
+	    call 'erlang':'get'
+		('events')
+	in  %% Line 143
+	    case apply 'lookup'/2
+		     (_cor2, {'events',_cor0}) of
+	      %% Line 144
+	      <'undefined'> when 'true' ->
+		  []
+	      %% Line 145
+	      <Events> when 'true' ->
+		  Events
+	    end
+'lookup_event'/3 =
+    %% Line 148
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 149
+	    apply 'lookup_events'/2
+		(_cor2, _cor1)
+	in  %% Line 149
+	    case call 'lists':'keysearch'
+		     (_cor0, 1, _cor3) of
+	      %% Line 150
+	      <{'value',{_cor8,Etype,Edata}}>
+		  when call 'erlang':'=:='
+			(_cor8,
+			 _cor0) ->
+		  %% Line 151
+		  {Etype,Edata}
+	      %% Line 152
+	      <_X_Other> when 'true' ->
+		  %% Line 153
+		  'nonexisting_event'
+	    end
+'delete_event'/3 =
+    %% Line 156
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 157
+	( case _cor1 of
+	    ( <( {'gstkid',_rec1,_cor12,_cor13,_cor14,_cor15,_cor16}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <_cor6> =
+		      %% Line 158
+		      apply 'lookup_events'/2
+			  (_cor2, _rec1)
+		  in  let <NewEvents> =
+			  %% Line 158
+			  call 'lists':'keydelete'
+			      (_cor0, 2, _cor6)
+		      in  let <_cor8> =
+			      %% Line 159
+			      call 'erlang':'get'
+				  ('events')
+			  in  %% Line 159
+			      call 'ets':'insert'
+				  (_cor8, {{'events',_rec1},NewEvents})
+	      -| ['compiler_generated'] )
+	    ( <_cor17> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','gstkid'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'insert_bgrp'/2 =
+    %% Line 164
+    fun (_cor1,_cor0) ->
+	%% Line 165
+	case call 'ets':'lookup'
+		 (_cor1, _cor0) of
+	  %% Line 166
+	  <[]> when 'true' ->
+	      %% Line 167
+	      case _cor0 of
+		<{_X_Bgrp,RG,_X_Owner}> when 'true' ->
+		    do  %% Line 168
+			apply 'insert'/3
+			    (_cor1, _cor0, {0,RG})
+			%% Line 169
+			RG
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 170
+	  <[{_cor7,{Counter,RG}}|[]]> when 'true' ->
+	      let <_cor3> =
+		  %% Line 171
+		  call 'erlang':'+'
+		      (Counter, 1)
+	      in  do  %% Line 171
+		      apply 'insert'/3
+			  (_cor1, _cor0, {_cor3,RG})
+		      %% Line 172
+		      RG
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'delete_bgrp'/2 =
+    %% Line 176
+    fun (_cor1,_cor0) ->
+	%% Line 177
+	case call 'ets':'lookup'
+		 (_cor1, _cor0) of
+	  %% Line 178
+	  <[]> when 'true' ->
+	      %% Line 179
+	      'true'
+	  %% Line 180
+	  <[{_cor6,{0,_X_RG}}|[]]> when 'true' ->
+	      do  %% Line 181
+		  apply 'delete'/2
+		      (_cor1, _cor0)
+		  %% Line 182
+		  'true'
+	  %% Line 183
+	  <[{_cor7,{Counter,RG}}|[]]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 184
+		  call 'erlang':'-'
+		      (Counter, 1)
+	      in  do  %% Line 184
+		      apply 'insert'/3
+			  (_cor1, _cor0, {_cor2,RG})
+		      %% Line 185
+		      'true'
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'update_widget'/2 =
+    %% Line 192
+    fun (_cor1,_cor0) ->
+	%% Line 193
+	( case _cor0 of
+	    ( <( {'gstkid',_rec2,_cor7,_cor8,_cor9,_cor10,_cor11}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  do  %% Line 194
+		      apply 'insert'/3
+			  (_cor1, _rec2, _cor0)
+		      _cor0
+	      -| ['compiler_generated'] )
+	    ( <_cor12> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','gstkid'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'insert_gs'/2 =
+    %% Line 197
+    fun (_cor1,_cor0) ->
+	%% Line 198
+	apply 'update_widget'/2
+	    (_cor1, _cor0)
+'insert_widget'/2 =
+    %% Line 200
+    fun (_cor1,_cor0) ->
+	%% Line 201
+	( case _cor0 of
+	    ( <( {'gstkid',_rec3,_cor9,_cor10,_cor11,_cor12,_cor13}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  do  %% Line 202
+		      apply 'insert_kid'/3
+			  (_cor1, _cor12, _rec3)
+		      do  %% Line 203
+			  apply 'insert'/3
+			      (_cor1, _rec3, _cor0)
+			  _cor0
+	      -| ['compiler_generated'] )
+	    ( <_cor14> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','gstkid'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'insert_kid'/3 =
+    %% Line 206
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 207
+	    call 'erlang':'get'
+		('kids')
+	in  %% Line 207
+	    call 'ets':'insert'
+		(_cor3, {{'kids',_cor1},_cor0})
+'delete_kid'/3 =
+    %% Line 209
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 210
+	    call 'erlang':'get'
+		('kids')
+	in  %% Line 210
+	    call 'ets':'match_delete'
+		(_cor3, {{'kids',_cor1},_cor0})
+'lookup_kids'/2 =
+    %% Line 212
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 213
+	    call 'erlang':'get'
+		('kids')
+	in  let <_cor3> =
+		%% Line 213
+		call 'ets':'match'
+		    (_cor2, {{'kids',_cor0},'$1'})
+	    in  %% Line 213
+		apply 'ril'/1
+		    (_cor3)
+'insert_opt'/3 =
+    %% Line 218
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_X_DB,Id,{'default',ObjType,Opt}> when 'true' ->
+	      %% Line 219
+	      apply 'insert_def'/3
+		  (Id, ObjType, Opt)
+	  %% Line 220
+	  <_X_DB,{'gstkid',Id,_cor8,_cor9,_cor10,_cor11,_cor12},{Key,Val}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 221
+		  call 'erlang':'get'
+		      ('options')
+	      in  %% Line 221
+		  call 'ets':'insert'
+		      (_cor3, {{Id,Key},Val})
+	  %% Line 222
+	  <_X_DB,Id,{Key,Val}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 223
+		  call 'erlang':'get'
+		      ('options')
+	      in  %% Line 223
+		  call 'ets':'insert'
+		      (_cor4, {{Id,Key},Val})
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'insert_opt',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'insert_opts'/3 =
+    %% Line 225
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_X_DB,_X_Id,[]> when 'true' ->
+	      'done'
+	  %% Line 226
+	  <DB,Id,[Opt|Opts]> when 'true' ->
+	      do  %% Line 227
+		  apply 'insert_opt'/3
+		      (DB, Id, Opt)
+		  %% Line 228
+		  apply 'insert_opts'/3
+		      (DB, Id, Opts)
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'insert_opts',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'insert_def'/3 =
+    %% Line 230
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'gstkid',ID,_cor7,_cor8,_cor9,_cor10,_cor11},ObjType,{Key,Val}> when 'true' ->
+	      %% Line 231
+	      apply 'insert_def'/3
+		  (ID, ObjType, {Key,Val})
+	  %% Line 232
+	  <ID,ObjType,{Key,Val}> when 'true' ->
+	      let <Def> =
+		  %% Line 233
+		  call 'erlang':'get'
+		      ('defaults')
+	      in  do  %% Line 234
+		      call 'ets':'match_delete'
+			  (Def, {{ID,ObjType},{Key,'_'}})
+		      %% Line 235
+		      call 'ets':'insert'
+			  (Def, {{ID,ObjType},{Key,Val}})
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'insert_def',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'lookup_def'/3 =
+    %% Line 237
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 238
+	    call 'erlang':'get'
+		('defaults')
+	in  %% Line 238
+	    case call 'ets':'match'
+		     (_cor3, {{_cor2,_cor1},{_cor0,'$1'}}) of
+	      %% Line 239
+	      <[]> when 'true' ->
+		  'false'
+	      %% Line 240
+	      <[[Val|[]]|[]]> when 'true' ->
+		  {'value',Val}
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'opt'/3 =
+    %% Line 243
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <DB,{'gstkid',Id,_cor8,_cor9,_cor10,_cor11,_cor12},Opt> when 'true' ->
+	      apply 'opt'/3
+		  (DB, Id, Opt)
+	  %% Line 244
+	  <_X_DB,Id,Opt> when 'true' ->
+	      let <_cor3> =
+		  %% Line 245
+		  call 'erlang':'get'
+		      ('options')
+	      in  %% Line 245
+		  case call 'ets':'lookup'
+			   (_cor3, {Id,Opt}) of
+		    <[{_cor13,Value}|[]]> when 'true' ->
+			%% Line 246
+			Value
+		    ( <_cor4> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor4})
+		      -| ['compiler_generated'] )
+		  end
+	end
+'opt_or_not'/3 =
+    %% Line 248
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <DB,{'gstkid',Id,_cor8,_cor9,_cor10,_cor11,_cor12},Opt> when 'true' ->
+	      apply 'opt_or_not'/3
+		  (DB, Id, Opt)
+	  %% Line 249
+	  <_X_DB,Id,Opt> when 'true' ->
+	      let <_cor3> =
+		  %% Line 250
+		  call 'erlang':'get'
+		      ('options')
+	      in  %% Line 250
+		  case call 'ets':'lookup'
+			   (_cor3, {Id,Opt}) of
+		    %% Line 251
+		    <[{_cor13,Value}|[]]> when 'true' ->
+			{'value',Value}
+		    %% Line 252
+		    <_cor14> when 'true' ->
+			'false'
+		  end
+	end
+'opt'/4 =
+    %% Line 255
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <DB,{'gstkid',Id,_cor10,_cor11,_cor12,_cor13,_cor14},Opt,ElseVal> when 'true' ->
+	      apply 'opt'/4
+		  (DB, Id, Opt, ElseVal)
+	  %% Line 256
+	  <_X_DB,Id,Opt,ElseVal> when 'true' ->
+	      let <_cor4> =
+		  %% Line 257
+		  call 'erlang':'get'
+		      ('options')
+	      in  %% Line 257
+		  case call 'ets':'lookup'
+			   (_cor4, {Id,Opt}) of
+		    %% Line 258
+		    <[{_cor15,Value}|[]]> when 'true' ->
+			%% Line 259
+			Value
+		    %% Line 260
+		    <_cor16> when 'true' ->
+			ElseVal
+		  end
+	end
+'default_container_opts'/3 =
+    %% Line 266
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 267
+	    call 'erlang':'get'
+		('defaults')
+	in  let <L> =
+		%% Line 267
+		call 'ets':'match'
+		    (_cor3, {{_cor1,'$1'},'$2'})
+	    in  let <_cor5> =
+		    %% Line 268
+		    apply 'fix_def_for_container'/2
+			(L, _cor0)
+		in  %% Line 268
+		    call 'lists':'sort'
+			(_cor5)
+'default_opts'/3 =
+    %% Line 270
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 271
+	    call 'erlang':'get'
+		('defaults')
+	in  let <L1> =
+		%% Line 271
+		call 'ets':'lookup'
+		    (_cor3, {_cor1,_cor0})
+	    in  let <_cor5> =
+		    %% Line 272
+		    call 'erlang':'get'
+			('defaults')
+		in  let <L2> =
+			%% Line 272
+			call 'ets':'lookup'
+			    (_cor5, {_cor1,'all'})
+		    in  let <_cor7> =
+			    %% Line 273
+			    apply 'fix_def'/2
+				(L1, L2)
+			in  %% Line 273
+			    call 'lists':'sort'
+				(_cor7)
+'fix_def'/2 =
+    %% Line 275
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{_cor5,Opt}|Opts],Opts2> when 'true' ->
+	      let <_cor2> =
+		  %% Line 276
+		  apply 'fix_def'/2
+		      (Opts, Opts2)
+	      in  %% Line 276
+		  [Opt|_cor2]
+	  %% Line 277
+	  <[],[]> when 'true' ->
+	      []
+	  %% Line 278
+	  <[],Opts> when 'true' ->
+	      %% Line 279
+	      apply 'fix_def'/2
+		  (Opts, [])
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'fix_def',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'fix_def_for_container'/2 =
+    %% Line 286
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[['all'|[{Key,Val}|[]]]|Opts],ChildType> when 'true' ->
+	      let <_cor2> =
+		  %% Line 288
+		  apply 'fix_def_for_container'/2
+		      (Opts, ChildType)
+	      in  %% Line 287
+		  [{{'default','all',Key},Val}|[{Key,Val}|_cor2]]
+	  %% Line 289
+	  <[[ChildType|[{Key,Val}|[]]]|Opts],_cor7>
+	      when call 'erlang':'=:='
+		    (_cor7,
+		     ChildType) ->
+	      let <_cor3> =
+		  %% Line 291
+		  apply 'fix_def_for_container'/2
+		      (Opts, ChildType)
+	      in  %% Line 290
+		  [{{'default',ChildType,Key},Val}|[{Key,Val}|_cor3]]
+	  %% Line 292
+	  <[[ChildType2|[{Key,Val}|[]]]|Opts],_X_ChildType> when 'true' ->
+	      let <_cor4> =
+		  %% Line 293
+		  apply 'fix_def_for_container'/2
+		      (Opts, ChildType2)
+	      in  %% Line 293
+		  [{{'default',ChildType2,Key},Val}|_cor4]
+	  %% Line 294
+	  <[],_cor8> when 'true' ->
+	      []
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'fix_def_for_container',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'lookup_gstkid'/3 =
+    %% Line 299
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <DB,Name,Owner>
+	      when call 'erlang':'is_atom'
+		    (Name) ->
+	      let <ID> =
+		  %% Line 300
+		  apply 'lookup'/2
+		      (DB, {Owner,Name})
+	      in  %% Line 301
+		  apply 'lookup'/2
+		      (DB, ID)
+	  %% Line 303
+	  <DB,ID,_X_Owner> when 'true' ->
+	      %% Line 304
+	      apply 'lookup'/2
+		  (DB, ID)
+	end
+'lookup_gstkid'/2 =
+    %% Line 307
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_DB,Name>
+	      when call 'erlang':'is_atom'
+		    (Name) ->
+	      %% Line 308
+	      call 'erlang':'exit'
+		  ({'must use owner',Name})
+	  %% Line 310
+	  <DB,ID> when 'true' ->
+	      %% Line 311
+	      apply 'lookup'/2
+		  (DB, ID)
+	end
+'lookup_ids'/2 =
+    %% Line 314
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 315
+	    call 'ets':'match'
+		(_cor1, {'$1',{'gstkid','_','_','_',_cor0,'_','_'}})
+	in  %% Line 315
+	    apply 'ril'/1
+		(_cor2)
+'lookup_item'/3 =
+    %% Line 317
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 321
+	case call 'ets':'match'
+		 (_cor2, {'$1',{'gstkid','_',_cor1,_cor0,'_','_','_'}}) of
+	  %% Line 322
+	  <[[Id|[]]|[]]> when 'true' ->
+	      %% Line 323
+	      Id
+	  %% Line 324
+	  <[]> when 'true' ->
+	      let <Pattern> =
+		  %% Line 325
+		  {'$1',{'gstkid','_',_cor1,{'_',_cor0},'_','_','image'}}
+	      in  %% Line 326
+		  case call 'ets':'match'
+			   (_cor2, Pattern) of
+		    <[[Id|[]]|[]]> when 'true' ->
+			%% Line 327
+			Id
+		    ( <_cor4> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor4})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'counter'/2 =
+    %% Line 334
+    fun (_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 336
+	    case call 'ets':'lookup'
+		     (_cor1, _cor0) of
+	      %% Line 337
+	      <[{_cor7,Value}|[]]>
+		  when call 'erlang':'=:='
+			(_cor7,
+			 _cor0) ->
+		  call 'erlang':'+'
+		      (Value, 1)
+	      %% Line 338
+	      <_cor8> when 'true' ->
+		  0
+	    end
+	in  do  %% Line 340
+		call 'ets':'insert'
+		    (_cor1, {_cor0,_cor3})
+		_cor3
+'delete_widgets'/2 =
+    %% Line 347
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <DB,[ID|Rest]> when 'true' ->
+	      do  %% Line 348
+		  apply 'delete_widget'/2
+		      (DB, ID)
+		  %% Line 349
+		  apply 'delete_widgets'/2
+		      (DB, Rest)
+	  %% Line 350
+	  <_cor4,[]> when 'true' ->
+	      %% Line 351
+	      'true'
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'delete_widgets',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'delete_widget'/2 =
+    %% Line 354
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <DB,{'gstkid',ID,_cor5,_cor6,_cor7,_cor8,_cor9}> when 'true' ->
+	      %% Line 355
+	      apply 'delete_widget'/2
+		  (DB, ID)
+	  %% Line 356
+	  <DB,ID> when 'true' ->
+	      let <_cor2> =
+		  %% Line 357
+		  apply 'lookup_kids'/2
+		      (DB, ID)
+	      in  do  %% Line 357
+		      apply 'delete_widgets'/2
+			  (DB, _cor2)
+		      %% Line 358
+		      apply 'delete_id'/2
+			  (DB, ID)
+	end
+'delete_gstkid'/2 =
+    %% Line 360
+    fun (_cor1,_cor0) ->
+	%% Line 361
+	apply 'delete_id'/2
+	    (_cor1, _cor0)
+'delete_id'/2 =
+    %% Line 363
+    fun (_cor1,_cor0) ->
+	do  %% Line 364
+	    case apply 'lookup_gstkid'/2
+		     (_cor1, _cor0) of
+	      %% Line 365
+	      <'undefined'> when 'true' ->
+		  'ok'
+	      %% Line 367
+	      <_X_Gstkid> when 'true' ->
+		  let <_cor2> =
+		      %% Line 368
+		      call 'erlang':'get'
+			  ('options')
+		  in  let <_cor3> =
+			  %% Line 369
+			  call 'erlang':'get'
+			      ('defaults')
+		      in  do  %% Line 368
+			      call 'gstk':'worker_do'
+				  ({'match_delete',[{_cor2,[{{_cor0,'_'},'_'}|[]]}|%% Line 369
+										   [{_cor3,[{{_cor0,'_'},'_'}|[]]}|[]]]})
+			      let <_cor4> =
+				  %% Line 370
+				  call 'erlang':'get'
+				      ('deleted')
+			      in  do  %% Line 370
+				      call 'ets':'insert'
+					  (_cor4, {'deleted',_cor0})
+				      %% Line 371
+				      apply 'delete'/2
+					  (_cor1, _cor0)
+	    end
+	    let <_cor6> =
+		%% Line 373
+		call 'erlang':'get'
+		    ('kids')
+	    in  do  %% Line 373
+		    call 'ets':'delete'
+			(_cor6, {'kids',_cor0})
+		    let <_cor7> =
+			%% Line 374
+			call 'erlang':'get'
+			    ('events')
+		    in  do  %% Line 374
+			    apply 'delete'/2
+				(_cor7, {'events',_cor0})
+			    %% Line 375
+			    'true'
+'get_deleted'/1 =
+    %% Line 377
+    fun (_cor0) ->
+	let <Dd> =
+	    %% Line 378
+	    call 'erlang':'get'
+		('deleted')
+	in  let <_cor2> =
+		%% Line 379
+		call 'ets':'lookup'
+		    (Dd, 'deleted')
+	    in  let <R> =
+		    %% Line 379
+		    apply 'fix_deleted'/1
+			(_cor2)
+		in  do  %% Line 380
+			call 'ets':'delete'
+			    (Dd, 'deleted')
+			%% Line 381
+			R
+'fix_deleted'/1 =
+    %% Line 383
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{_cor3,Id}|Dd]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 384
+		  apply 'fix_deleted'/1
+		      (Dd)
+	      in  %% Line 384
+		  [Id|_cor1]
+	  %% Line 385
+	  <[]> when 'true' ->
+	      []
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'fix_deleted',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'is_inserted'/3 =
+    %% Line 391
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <DB,{'gstkid',ID,_cor9,_cor10,_cor11,_cor12,_cor13},What> when 'true' ->
+	      %% Line 392
+	      apply 'is_inserted'/3
+		  (DB, ID, What)
+	  %% Line 393
+	  <_X_DB,ID,What> when 'true' ->
+	      let <_cor3> =
+		  %% Line 394
+		  call 'erlang':'get'
+		      ('events')
+	      in  %% Line 394
+		  case apply 'lookup'/2
+			   (_cor3, {'events',ID}) of
+		    %% Line 395
+		    <'undefined'> when 'true' ->
+			'false'
+		    %% Line 396
+		    <Events> when 'true' ->
+			%% Line 397
+			case call 'lists':'keysearch'
+				 (What, 2, Events) of
+			  %% Line 398
+			  <{'value',_cor14}> when 'true' ->
+			      'true'
+			  %% Line 399
+			  <_X_Other> when 'true' ->
+			      'false'
+			end
+		  end
+	end
+'ril'/1 =
+    %% Line 408
+    fun (_cor0) ->
+	case _cor0 of
+	  <[[Foo|[]]|Rest]> when 'true' ->
+	      let <_cor1> =
+		  apply 'ril'/1
+		      (Rest)
+	      in  [Foo|_cor1]
+	  %% Line 409
+	  <[]> when 'true' ->
+	      []
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'ril',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('gstk_db')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('gstk_db', _cor0)
+end

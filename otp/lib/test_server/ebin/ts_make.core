@@ -1,0 +1,245 @@
+module 'ts_make' ['make'/1,
+		  'make'/3,
+		  'module_info'/0,
+		  'module_info'/1,
+		  'unmake'/1]
+    attributes []
+'make'/1 =
+    %% Line 27
+    fun (_cor0) ->
+	case _cor0 of
+	  <Config>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      let <DataDir> =
+		  %% Line 28
+		  call 'proplists':'get_value'
+		      ('data_dir', Config)
+	      in  let <Makefile> =
+		      %% Line 29
+		      call 'proplists':'get_value'
+			  ('makefile', Config)
+		  in  let <Make> =
+			  %% Line 30
+			  call 'proplists':'get_value'
+			      ('make_command', Config)
+		      in  %% Line 31
+			  case apply 'make'/3
+				   (Make, DataDir, Makefile) of
+			    %% Line 32
+			    <'ok'> when 'true' ->
+				'ok'
+			    %% Line 33
+			    <{'error',Reason}> when 'true' ->
+				call 'erlang':'exit'
+				    ({'make_failed',Reason})
+			    ( <_cor4> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor4})
+			      -| ['compiler_generated'] )
+			  end
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5})
+		  -| [{'function_name',{'make',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'unmake'/1 =
+    %% Line 36
+    fun (_cor0) ->
+	case _cor0 of
+	  <Config>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      %% Line 37
+	      'ok'
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'unmake',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'make'/3 =
+    %% Line 42
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 43
+	    call 'os':'type'
+		()
+	in  %% Line 43
+	    case apply 'run_make_script'/4
+		     (_cor3, _cor2, _cor1, _cor0) of
+	      <{RunFile,RunCmd,Script}> when 'true' ->
+		  %% Line 44
+		  case call 'file':'write_file'
+			   (RunFile, Script) of
+		    %% Line 45
+		    <'ok'> when 'true' ->
+			let <Log> =
+			    %% Line 46
+			    call 'filename':'join'
+				(_cor1, [109|[97|[107|[101|[46|[108|[111|[103]]]]]]]])
+			in  do  %% Line 47
+				call 'file':'delete'
+				    (Log)
+				let <Port> =
+				    %% Line 48
+				    call 'erlang':'open_port'
+					({'spawn',RunCmd}, ['eof'|['stream'|['in'|['stderr_to_stdout']]]])
+				in  %% Line 49
+				    case apply 'get_port_data'/3
+					     (Port, [], 'false') of
+				      %% Line 50
+				      <[42|[111|[107|[42|_cor12]]]]> when 'true' ->
+					  'ok'
+				      %% Line 51
+				      <[42|[101|[114|[114|[111|[114|[42|_cor13]]]]]]]> when 'true' ->
+					  {'error','make'}
+				      %% Line 52
+				      <Other> when 'true' ->
+					  {'error',{'make',Other}}
+				    end
+		    %% Line 54
+		    <Error> when 'true' ->
+			Error
+		  end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'get_port_data'/3 =
+    %% Line 57
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 58
+	receive
+	  %% Line 59
+	  <{_cor8,{'data',Bytes}}>
+	      when call 'erlang':'=:='
+		    (_cor8,
+		     _cor2) ->
+	      %% Line 60
+	      case apply 'update_last'/3
+		       (Bytes, _cor1, _cor0) of
+		<{Last,Complete}> when 'true' ->
+		    %% Line 61
+		    apply 'get_port_data'/3
+			(_cor2, Last, Complete)
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 62
+	  <{_cor9,'eof'}>
+	      when call 'erlang':'=:='
+		    (_cor9,
+		     _cor2) ->
+	      let <Result> =
+		  %% Line 63
+		  apply 'update_last'/3
+		      ('eof', _cor1, _cor0)
+	      in  do  %% Line 64
+		      call 'erlang':'unlink'
+			  (_cor2)
+		      do  %% Line 65
+			  call 'erlang':'exit'
+			      (_cor2, 'die')
+			  %% Line 66
+			  Result
+	after 'infinity' ->
+	  'true'
+'update_last'/3 =
+    %% Line 69
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[C|Rest],Line,'true'> when 'true' ->
+	      let <_cor3> =
+		  %% Line 70
+		  call 'erlang':'list_to_binary'
+		      (Line)
+	      in  do  %% Line 70
+		      call 'io':'put_chars'
+			  (_cor3)
+		      do  %% Line 71
+			  call 'io':'nl'
+			      ()
+			  %% Line 72
+			  apply 'update_last'/3
+			      ([C|Rest], [], 'false')
+	  %% Line 73
+	  <[13|Rest],Result,Complete> when 'true' ->
+	      %% Line 74
+	      apply 'update_last'/3
+		  (Rest, Result, Complete)
+	  %% Line 75
+	  <[10|Rest],Result,_X_Complete> when 'true' ->
+	      let <_cor4> =
+		  %% Line 76
+		  call 'lists':'reverse'
+		      (Result)
+	      in  %% Line 76
+		  apply 'update_last'/3
+		      (Rest, _cor4, 'true')
+	  %% Line 77
+	  <[C|Rest],Result,Complete> when 'true' ->
+	      %% Line 78
+	      apply 'update_last'/3
+		  (Rest, [C|Result], Complete)
+	  %% Line 79
+	  <[],Result,Complete> when 'true' ->
+	      %% Line 80
+	      {Result,Complete}
+	  %% Line 81
+	  <'eof',Result,_cor9> when 'true' ->
+	      let <_cor5> =
+		  %% Line 82
+		  call 'erlang':'list_to_binary'
+		      (Result)
+	      in  %% Line 82
+		  call 'unicode':'characters_to_list'
+		      (_cor5)
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'update_last',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'run_make_script'/4 =
+    %% Line 84
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <{'win32',_cor9},Make,Dir,Makefile> when 'true' ->
+	      let <_cor4> =
+		  %% Line 88
+		  call 'filename':'nativename'
+		      (Dir)
+	      in  %% Line 85
+		  {[114|[117|[110|[95|[109|[97|[107|[101|[46|[98|[97|[116]]]]]]]]]]]],%% Line 86
+										      [46|[92|[114|[117|[110|[95|[109|[97|[107|[101]]]]]]]]]],%% Line 87
+																	      [[64|[101|[99|[104|[111|[32|[111|[102|[102|[13|[10]]]]]]]]]]]|%% Line 88
+																									    [[99|[100|[32|[34]]]]|[_cor4|[[34|[13|[10]]]|%% Line 89
+																															 [Make|[[32|[45|[102|[32]]]]|[Makefile|[[32|[13|[10]]]|[[105|[102|[32|[101|[114|[114|[111|[114|[108|[101|[118|[101|[108|[32|[49|[32|[101|[99|[104|[111|[32|[42|[101|[114|[114|[111|[114|[42|[13|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]|[[105|[102|[32|[110|[111|[116|[32|[101|[114|[114|[111|[114|[108|[101|[118|[101|[108|[32|[49|[32|[101|[99|[104|[111|[32|[42|[111|[107|[42|[13|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}
+	  %% Line 92
+	  <{'unix',_cor10},Make,Dir,Makefile> when 'true' ->
+	      %% Line 93
+	      {[114|[117|[110|[95|[109|[97|[107|[101]]]]]]]],%% Line 94
+							     [47|[98|[105|[110|[47|[115|[104|[32|[46|[47|[114|[117|[110|[95|[109|[97|[107|[101]]]]]]]]]]]]]]]]]],%% Line 95
+																				 [[35|[33|[47|[98|[105|[110|[47|[115|[104|[10]]]]]]]]]]|%% Line 96
+																											[[99|[100|[32|[34]]]]|[Dir|[[34|[10]]|%% Line 97
+																															      [Make|[[32|[45|[102|[32]]]]|[Makefile|[[32|[50|[62|[38|[49|[10]]]]]]|[[99|[97|[115|[101|[32|[36|[63|[32|[105|[110|[10]]]]]]]]]]]|[[32|[32|[48|[41|[32|[101|[99|[104|[111|[32|[39|[42|[111|[107|[42|[39|[59|[59|[10]]]]]]]]]]]]]]]]]]]|[[32|[32|[42|[41|[32|[101|[99|[104|[111|[32|[39|[42|[101|[114|[114|[111|[114|[42|[39|[59|[59|[10]]]]]]]]]]]]]]]]]]]]]]|[[101|[115|[97|[99|[10]]]]]]]]]]]]]]]]]}
+	  %% Line 102
+	  <_X_Other,_X_Make,_X_Dir,_X_Makefile> when 'true' ->
+	      %% Line 103
+	      call 'erlang':'exit'
+		  ('dont_know_how_to_make_script_on_this_platform')
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ts_make')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ts_make', _cor0)
+end

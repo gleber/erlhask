@@ -1,0 +1,905 @@
+module 'error_logger_file_h' ['code_change'/3,
+			      'handle_call'/2,
+			      'handle_event'/2,
+			      'handle_info'/2,
+			      'init'/1,
+			      'module_info'/0,
+			      'module_info'/1,
+			      'terminate'/2]
+    attributes [%% Line 21
+		'behaviour' =
+		    %% Line 21
+		    ['gen_event']]
+'init'/1 =
+    %% Line 39
+    fun (_cor0) ->
+	case _cor0 of
+	  <{File,{'error_logger',Buf}}> when 'true' ->
+	      %% Line 40
+	      case apply 'init'/2
+		       (File, 'error_logger') of
+		%% Line 41
+		<{'ok',{Fd,_cor3,PrevHandler}}>
+		    when call 'erlang':'=:='
+			  (_cor3,
+			   File) ->
+		    do  %% Line 42
+			apply 'write_events'/2
+			    (Fd, Buf)
+			%% Line 43
+			{'ok',{Fd,File,PrevHandler}}
+		%% Line 44
+		<Error> when 'true' ->
+		    %% Line 45
+		    Error
+	      end
+	  %% Line 48
+	  <File> when 'true' ->
+	      %% Line 49
+	      apply 'init'/2
+		  (File, [])
+	end
+'init'/2 =
+    %% Line 51
+    fun (_cor1,_cor0) ->
+	do  %% Line 52
+	    call 'erlang':'process_flag'
+		('trap_exit', 'true')
+	    %% Line 53
+	    case call 'file':'open'
+		     (_cor1, ['write']) of
+	      %% Line 54
+	      <{'ok',Fd}> when 'true' ->
+		  %% Line 55
+		  {'ok',{Fd,_cor1,_cor0}}
+	      %% Line 56
+	      <Error> when 'true' ->
+		  %% Line 57
+		  Error
+	    end
+'handle_event'/2 =
+    %% Line 60
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{_X_Type,GL,_X_Msg},State>
+	      when try
+		    let <_cor3> =
+			call 'erlang':'node'
+			    (GL)
+		    in  let <_cor2> =
+			    call 'erlang':'node'
+				()
+			in  call 'erlang':'=/='
+				(_cor3, _cor2)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 61
+	      {'ok',State}
+	  %% Line 62
+	  <Event,{Fd,File,PrevHandler}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 63
+		  apply 'tag_event'/1
+		      (Event)
+	      in  do  %% Line 63
+		      apply 'write_event'/2
+			  (Fd, _cor4)
+		      %% Line 64
+		      {'ok',{Fd,File,PrevHandler}}
+	  %% Line 65
+	  <_cor7,State> when 'true' ->
+	      %% Line 66
+	      {'ok',State}
+	end
+'handle_info'/2 =
+    %% Line 68
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'EXIT',Fd,_X_Reason},{_cor9,_X_File,PrevHandler}>
+	      when call 'erlang':'=:='
+		    (_cor9,
+		     Fd) ->
+	      %% Line 69
+	      case PrevHandler of
+		%% Line 70
+		<[]> when 'true' ->
+		    %% Line 71
+		    'remove_handler'
+		%% Line 72
+		<_cor10> when 'true' ->
+		    %% Line 73
+		    {'swap_handler','install_prev',[],PrevHandler,'go_back'}
+	      end
+	  %% Line 75
+	  <{'emulator',GL,Chars},{Fd,File,PrevHandler}>
+	      when %% Line 76
+		try
+		    let <_cor4> =
+			call 'erlang':'node'
+			    (GL)
+		    in  let <_cor3> =
+			    call 'erlang':'node'
+				()
+			in  call 'erlang':'=='
+				(_cor4, _cor3)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor5> =
+		  %% Line 77
+		  apply 'tag_event'/1
+		      ({'emulator',GL,Chars})
+	      in  do  %% Line 77
+		      apply 'write_event'/2
+			  (Fd, _cor5)
+		      %% Line 78
+		      {'ok',{Fd,File,PrevHandler}}
+	  %% Line 79
+	  <{'emulator','noproc',Chars},{Fd,File,PrevHandler}> when 'true' ->
+	      let <_cor6> =
+		  %% Line 80
+		  apply 'tag_event'/1
+		      ({'emulator','noproc',Chars})
+	      in  do  %% Line 80
+		      apply 'write_event'/2
+			  (Fd, _cor6)
+		      %% Line 81
+		      {'ok',{Fd,File,PrevHandler}}
+	  %% Line 82
+	  <_cor11,State> when 'true' ->
+	      %% Line 83
+	      {'ok',State}
+	end
+'handle_call'/2 =
+    %% Line 85
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'filename',{Fd,File,Prev}> when 'true' ->
+	      %% Line 86
+	      {'ok',File,{Fd,File,Prev}}
+	  %% Line 87
+	  <_X_Query,State> when 'true' ->
+	      %% Line 88
+	      {'ok',{'error','bad_query'},State}
+	end
+'terminate'/2 =
+    %% Line 90
+    fun (_cor1,_cor0) ->
+	do  %% Line 91
+	    case _cor0 of
+	      %% Line 92
+	      <{Fd,_X_File,_X_Prev}> when 'true' ->
+		  %% Line 93
+		  case call 'file':'close'
+			   (Fd) of
+		    <'ok'> when 'true' ->
+			'ok'
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor2})
+		      -| ['compiler_generated'] )
+		  end
+	      %% Line 94
+	      <_cor7> when 'true' ->
+		  'ok'
+	    end
+	    %% Line 97
+	    []
+'code_change'/3 =
+    %% Line 99
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 100
+	{'ok',_cor1}
+'tag_event'/1 =
+    %% Line 106
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 107
+	    call 'erlang':'universaltime'
+		()
+	in  %% Line 107
+	    {_cor1,_cor0}
+'write_events'/2 =
+    %% Line 109
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    call 'lists':'reverse'
+		(_cor0)
+	in  apply 'write_events1'/2
+		(_cor1, _cor2)
+'write_events1'/2 =
+    %% Line 111
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Fd,[Event|Es]> when 'true' ->
+	      do  %% Line 112
+		  apply 'write_event'/2
+		      (Fd, Event)
+		  %% Line 113
+		  apply 'write_events1'/2
+		      (Fd, Es)
+	  %% Line 114
+	  <_cor4,[]> when 'true' ->
+	      %% Line 115
+	      'ok'
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'write_events1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'write_event'/2 =
+    %% Line 117
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Fd,{Time,{'error',_X_GL,{Pid,Format,Args}}}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 118
+		  apply 'maybe_utc'/1
+		      (Time)
+	      in  let <T> =
+		      %% Line 118
+		      apply 'write_time'/1
+			  (_cor2)
+		  in  let <_cor5> =
+			  catch
+			      let <_cor4> =
+				  %% Line 119
+				  apply 'add_node'/2
+				      (Format, Pid)
+			      in  %% Line 119
+				  call 'io_lib':'format'
+				      (_cor4, Args)
+		      in  %% Line 119
+			  case _cor5 of
+			    %% Line 120
+			    <S>
+				when call 'erlang':'is_list'
+				      (_cor5) ->
+				let <_cor6> =
+				    %% Line 121
+				    call 'erlang':'++'
+					(T, S)
+				in  %% Line 121
+				    call 'io':'format'
+					(Fd, _cor6, [])
+			    %% Line 122
+			    <_cor56> when 'true' ->
+				let <F> =
+				    %% Line 123
+				    apply 'add_node'/2
+					([69|[82|[82|[79|[82|[58|[32|[126|[112|[32|[45|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]], Pid)
+				in  let <_cor8> =
+					%% Line 124
+					call 'erlang':'++'
+					    (T, F)
+				    in  %% Line 124
+					call 'io':'format'
+					    (Fd, _cor8, [Format|[Args|[]]])
+			  end
+	  %% Line 126
+	  <Fd,{Time,{'emulator',_X_GL,Chars}}> when 'true' ->
+	      let <_cor10> =
+		  %% Line 127
+		  apply 'maybe_utc'/1
+		      (Time)
+	      in  let <T> =
+		      %% Line 127
+		      apply 'write_time'/1
+			  (_cor10)
+		  in  let <_cor12> =
+			  catch
+			      %% Line 128
+			      call 'io_lib':'format'
+				  (Chars, [])
+		      in  %% Line 128
+			  case _cor12 of
+			    %% Line 129
+			    <S>
+				when call 'erlang':'is_list'
+				      (_cor12) ->
+				let <_cor13> =
+				    %% Line 130
+				    call 'erlang':'++'
+					(T, S)
+				in  %% Line 130
+				    call 'io':'format'
+					(Fd, _cor13, [])
+			    %% Line 131
+			    <_cor57> when 'true' ->
+				let <_cor14> =
+				    %% Line 132
+				    call 'erlang':'++'
+					(T, [69|[82|[82|[79|[82|[58|[32|[126|[112|[32|[126|[110]]]]]]]]]]]])
+				in  %% Line 132
+				    call 'io':'format'
+					(Fd, _cor14, [Chars|[]])
+			  end
+	  %% Line 134
+	  <Fd,{Time,{'info',_X_GL,{Pid,Info,_cor58}}}> when 'true' ->
+	      let <_cor16> =
+		  %% Line 135
+		  apply 'maybe_utc'/1
+		      (Time)
+	      in  let <T> =
+		      %% Line 135
+		      apply 'write_time'/1
+			  (_cor16)
+		  in  let <_cor18> =
+			  %% Line 136
+			  apply 'add_node'/2
+			      ([126|[112|[126|[110]]]], Pid)
+		      in  let <_cor19> =
+			      %% Line 136
+			      call 'erlang':'++'
+				  (T, _cor18)
+			  in  %% Line 136
+			      call 'io':'format'
+				  (Fd, _cor19, [Info|[]])
+	  %% Line 137
+	  <Fd,{Time,{'error_report',_X_GL,{Pid,'std_error',Rep}}}> when 'true' ->
+	      let <_cor20> =
+		  %% Line 138
+		  apply 'maybe_utc'/1
+		      (Time)
+	      in  let <T> =
+		      %% Line 138
+		      apply 'write_time'/1
+			  (_cor20)
+		  in  let <S> =
+			  %% Line 139
+			  apply 'format_report'/1
+			      (Rep)
+		      in  let <_cor23> =
+			      %% Line 140
+			      apply 'add_node'/2
+				  ([], Pid)
+			  in  let <_cor24> =
+				  %% Line 140
+				  call 'erlang':'++'
+				      (S, _cor23)
+			      in  let <_cor25> =
+				      %% Line 140
+				      call 'erlang':'++'
+					  (T, _cor24)
+				  in  %% Line 140
+				      call 'io':'format'
+					  (Fd, _cor25, [])
+	  %% Line 141
+	  <Fd,{Time,{'info_report',_X_GL,{Pid,'std_info',Rep}}}> when 'true' ->
+	      let <_cor26> =
+		  %% Line 142
+		  apply 'maybe_utc'/1
+		      (Time)
+	      in  let <T> =
+		      %% Line 142
+		      apply 'write_time'/2
+			  (_cor26, [73|[78|[70|[79|[32|[82|[69|[80|[79|[82|[84]]]]]]]]]]])
+		  in  let <S> =
+			  %% Line 143
+			  apply 'format_report'/1
+			      (Rep)
+		      in  let <_cor29> =
+			      %% Line 144
+			      apply 'add_node'/2
+				  ([], Pid)
+			  in  let <_cor30> =
+				  %% Line 144
+				  call 'erlang':'++'
+				      (S, _cor29)
+			      in  let <_cor31> =
+				      %% Line 144
+				      call 'erlang':'++'
+					  (T, _cor30)
+				  in  %% Line 144
+				      call 'io':'format'
+					  (Fd, _cor31, [])
+	  %% Line 145
+	  <Fd,{Time,{'info_msg',_X_GL,{Pid,Format,Args}}}> when 'true' ->
+	      let <_cor32> =
+		  %% Line 146
+		  apply 'maybe_utc'/1
+		      (Time)
+	      in  let <T> =
+		      %% Line 146
+		      apply 'write_time'/2
+			  (_cor32, [73|[78|[70|[79|[32|[82|[69|[80|[79|[82|[84]]]]]]]]]]])
+		  in  let <_cor35> =
+			  catch
+			      let <_cor34> =
+				  %% Line 147
+				  apply 'add_node'/2
+				      (Format, Pid)
+			      in  %% Line 147
+				  call 'io_lib':'format'
+				      (_cor34, Args)
+		      in  %% Line 147
+			  case _cor35 of
+			    %% Line 148
+			    <S>
+				when call 'erlang':'is_list'
+				      (_cor35) ->
+				let <_cor36> =
+				    %% Line 149
+				    call 'erlang':'++'
+					(T, S)
+				in  %% Line 149
+				    call 'io':'format'
+					(Fd, _cor36, [])
+			    %% Line 150
+			    <_cor59> when 'true' ->
+				let <F> =
+				    %% Line 151
+				    apply 'add_node'/2
+					([69|[82|[82|[79|[82|[58|[32|[126|[112|[32|[45|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]], Pid)
+				in  let <_cor38> =
+					%% Line 152
+					call 'erlang':'++'
+					    (T, F)
+				    in  %% Line 152
+					call 'io':'format'
+					    (Fd, _cor38, [Format|[Args|[]]])
+			  end
+	  %% Line 154
+	  <Fd,{Time,{'warning_report',_X_GL,{Pid,'std_warning',Rep}}}> when 'true' ->
+	      let <_cor40> =
+		  %% Line 155
+		  apply 'maybe_utc'/1
+		      (Time)
+	      in  let <T> =
+		      %% Line 155
+		      apply 'write_time'/2
+			  (_cor40, [87|[65|[82|[78|[73|[78|[71|[32|[82|[69|[80|[79|[82|[84]]]]]]]]]]]]]])
+		  in  let <S> =
+			  %% Line 156
+			  apply 'format_report'/1
+			      (Rep)
+		      in  let <_cor43> =
+			      %% Line 157
+			      apply 'add_node'/2
+				  ([], Pid)
+			  in  let <_cor44> =
+				  %% Line 157
+				  call 'erlang':'++'
+				      (S, _cor43)
+			      in  let <_cor45> =
+				      %% Line 157
+				      call 'erlang':'++'
+					  (T, _cor44)
+				  in  %% Line 157
+				      call 'io':'format'
+					  (Fd, _cor45, [])
+	  %% Line 158
+	  <Fd,{Time,{'warning_msg',_X_GL,{Pid,Format,Args}}}> when 'true' ->
+	      let <_cor46> =
+		  %% Line 159
+		  apply 'maybe_utc'/1
+		      (Time)
+	      in  let <T> =
+		      %% Line 159
+		      apply 'write_time'/2
+			  (_cor46, [87|[65|[82|[78|[73|[78|[71|[32|[82|[69|[80|[79|[82|[84]]]]]]]]]]]]]])
+		  in  let <_cor49> =
+			  catch
+			      let <_cor48> =
+				  %% Line 160
+				  apply 'add_node'/2
+				      (Format, Pid)
+			      in  %% Line 160
+				  call 'io_lib':'format'
+				      (_cor48, Args)
+		      in  %% Line 160
+			  case _cor49 of
+			    %% Line 161
+			    <S>
+				when call 'erlang':'is_list'
+				      (_cor49) ->
+				let <_cor50> =
+				    %% Line 162
+				    call 'erlang':'++'
+					(T, S)
+				in  %% Line 162
+				    call 'io':'format'
+					(Fd, _cor50, [])
+			    %% Line 163
+			    <_cor60> when 'true' ->
+				let <F> =
+				    %% Line 164
+				    apply 'add_node'/2
+					([69|[82|[82|[79|[82|[58|[32|[126|[112|[32|[45|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]], Pid)
+				in  let <_cor52> =
+					%% Line 165
+					call 'erlang':'++'
+					    (T, F)
+				    in  %% Line 165
+					call 'io':'format'
+					    (Fd, _cor52, [Format|[Args|[]]])
+			  end
+	  %% Line 167
+	  <_cor61,_cor62> when 'true' ->
+	      %% Line 168
+	      'ok'
+	end
+'maybe_utc'/1 =
+    %% Line 170
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 171
+	    case call 'application':'get_env'
+		     ('sasl', 'utc_log') of
+	      %% Line 172
+	      <{'ok',Val}> when 'true' ->
+		  Val
+	      %% Line 173
+	      <'undefined'> when 'true' ->
+		  %% Line 175
+		  case call 'application':'get_env'
+			   ('stdlib', 'utc_log') of
+		    %% Line 176
+		    <{'ok',Val}> when 'true' ->
+			Val
+		    %% Line 177
+		    <'undefined'> when 'true' ->
+			'false'
+		    ( <_cor1> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor1})
+		      -| ['compiler_generated'] )
+		  end
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor2})
+		-| ['compiler_generated'] )
+	    end
+	in  %% Line 180
+	    apply 'maybe_utc'/2
+		(_cor0, _cor3)
+'maybe_utc'/2 =
+    %% Line 182
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Time,'true'> when 'true' ->
+	      {'utc',Time}
+	  %% Line 183
+	  <Time,_cor5> when 'true' ->
+	      let <_cor2> =
+		  call 'calendar':'universal_time_to_local_time'
+		      (Time)
+	      in  {'local',_cor2}
+	end
+'format_report'/1 =
+    %% Line 185
+    fun (_cor0) ->
+	case _cor0 of
+	  <Rep>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      %% Line 186
+	      case apply 'string_p'/1
+		       (Rep) of
+		%% Line 187
+		<'true'> when 'true' ->
+		    %% Line 188
+		    call 'io_lib':'format'
+			([126|[115|[126|[110]]]], [Rep|[]])
+		%% Line 189
+		<_cor3> when 'true' ->
+		    %% Line 190
+		    apply 'format_rep'/1
+			(Rep)
+	      end
+	  %% Line 192
+	  <Rep> when 'true' ->
+	      %% Line 193
+	      call 'io_lib':'format'
+		  ([126|[112|[126|[110]]]], [Rep|[]])
+	end
+'format_rep'/1 =
+    %% Line 195
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{Tag,Data}|Rep]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 196
+		  call 'io_lib':'format'
+		      ([32|[32|[32|[32|[126|[112|[58|[32|[126|[112|[126|[110]]]]]]]]]]]], [Tag|[Data|[]]])
+	      in  let <_cor1> =
+		      %% Line 196
+		      apply 'format_rep'/1
+			  (Rep)
+		  in  %% Line 196
+		      call 'erlang':'++'
+			  (_cor2, _cor1)
+	  %% Line 197
+	  <[Other|Rep]> when 'true' ->
+	      let <_cor4> =
+		  %% Line 198
+		  call 'io_lib':'format'
+		      ([32|[32|[32|[32|[126|[112|[126|[110]]]]]]]], [Other|[]])
+	      in  let <_cor3> =
+		      %% Line 198
+		      apply 'format_rep'/1
+			  (Rep)
+		  in  %% Line 198
+		      call 'erlang':'++'
+			  (_cor4, _cor3)
+	  %% Line 199
+	  <_cor6> when 'true' ->
+	      %% Line 200
+	      []
+	end
+'add_node'/2 =
+    %% Line 202
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <X,Pid>
+	      when call 'erlang':'is_atom'
+		    (X) ->
+	      let <_cor2> =
+		  %% Line 203
+		  call 'erlang':'atom_to_list'
+		      (X)
+	      in  %% Line 203
+		  apply 'add_node'/2
+		      (_cor2, Pid)
+	  %% Line 204
+	  <X,Pid>
+	      when try
+		    let <_cor4> =
+			call 'erlang':'node'
+			    (Pid)
+		    in  let <_cor3> =
+			    call 'erlang':'node'
+				()
+			in  call 'erlang':'=/='
+				(_cor4, _cor3)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor5> =
+		  %% Line 205
+		  call 'erlang':'node'
+		      (Pid)
+	      in  %% Line 205
+		  call 'lists':'concat'
+		      ([X|[[42|[42|[32|[97|[116|[32|[110|[111|[100|[101|[32]]]]]]]]]]]|[_cor5|[[32|[42|[42|[126|[110]]]]]]]]])
+	  %% Line 206
+	  <X,_cor8> when 'true' ->
+	      %% Line 207
+	      X
+	end
+'string_p'/1 =
+    %% Line 209
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 210
+	      'false'
+	  %% Line 211
+	  <Term> when 'true' ->
+	      %% Line 212
+	      apply 'string_p1'/1
+		  (Term)
+	end
+'string_p1'/1 =
+    %% Line 214
+    fun (_cor0) ->
+	case _cor0 of
+	  <[H|T]>
+	      when try
+		    let <_cor1> =
+			call 'erlang':'is_integer'
+			    (H)
+		    in  let <_cor2> =
+			    call 'erlang':'>='
+				(H, 32)
+			in  let <_cor3> =
+				call 'erlang':'<'
+				    (H, 255)
+			    in  let <_cor4> =
+				    call 'erlang':'and'
+					(_cor2, _cor3)
+				in  call 'erlang':'and'
+					(_cor1, _cor4)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 215
+	      apply 'string_p1'/1
+		  (T)
+	  %% Line 216
+	  <[10|T]> when 'true' ->
+	      apply 'string_p1'/1
+		  (T)
+	  %% Line 217
+	  <[13|T]> when 'true' ->
+	      apply 'string_p1'/1
+		  (T)
+	  %% Line 218
+	  <[9|T]> when 'true' ->
+	      apply 'string_p1'/1
+		  (T)
+	  %% Line 219
+	  <[11|T]> when 'true' ->
+	      apply 'string_p1'/1
+		  (T)
+	  %% Line 220
+	  <[8|T]> when 'true' ->
+	      apply 'string_p1'/1
+		  (T)
+	  %% Line 221
+	  <[12|T]> when 'true' ->
+	      apply 'string_p1'/1
+		  (T)
+	  %% Line 222
+	  <[27|T]> when 'true' ->
+	      apply 'string_p1'/1
+		  (T)
+	  %% Line 223
+	  <[H|T]>
+	      when call 'erlang':'is_list'
+		    (H) ->
+	      %% Line 224
+	      case apply 'string_p1'/1
+		       (H) of
+		%% Line 225
+		<'true'> when 'true' ->
+		    apply 'string_p1'/1
+			(T)
+		%% Line 226
+		<_cor7> when 'true' ->
+		    'false'
+	      end
+	  %% Line 228
+	  <[]> when 'true' ->
+	      'true'
+	  %% Line 229
+	  <_cor8> when 'true' ->
+	      'false'
+	end
+'write_time'/1 =
+    %% Line 231
+    fun (_cor0) ->
+	apply 'write_time'/2
+	    (_cor0, [69|[82|[82|[79|[82|[32|[82|[69|[80|[79|[82|[84]]]]]]]]]]]])
+'write_time'/2 =
+    %% Line 233
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'utc',{{Y,Mo,D},{H,Mi,S}}},Type> when 'true' ->
+	      let <_cor2> =
+		  %% Line 235
+		  apply 'month'/1
+		      (Mo)
+	      in  let <_cor3> =
+		      %% Line 235
+		      apply 't'/1
+			  (H)
+		  in  let <_cor4> =
+			  %% Line 235
+			  apply 't'/1
+			      (Mi)
+		      in  let <_cor5> =
+			      %% Line 235
+			      apply 't'/1
+				  (S)
+			  in  %% Line 234
+			      call 'io_lib':'format'
+				  ([126|[110|[61|[126|[115|[61|[61|[61|[61|[32|[126|[112|[45|[126|[115|[45|[126|[112|[58|[58|[126|[115|[58|[126|[115|[58|[126|[115|[32|[85|[84|[67|[32|[61|[61|[61|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 235
+																														    [Type|[D|[_cor2|[Y|[_cor3|[_cor4|[_cor5|[]]]]]]]])
+	  %% Line 236
+	  <{'local',{{Y,Mo,D},{H,Mi,S}}},Type> when 'true' ->
+	      let <_cor6> =
+		  %% Line 238
+		  apply 'month'/1
+		      (Mo)
+	      in  let <_cor7> =
+		      %% Line 238
+		      apply 't'/1
+			  (H)
+		  in  let <_cor8> =
+			  %% Line 238
+			  apply 't'/1
+			      (Mi)
+		      in  let <_cor9> =
+			      %% Line 238
+			      apply 't'/1
+				  (S)
+			  in  %% Line 237
+			      call 'io_lib':'format'
+				  ([126|[110|[61|[126|[115|[61|[61|[61|[61|[32|[126|[112|[45|[126|[115|[45|[126|[112|[58|[58|[126|[115|[58|[126|[115|[58|[126|[115|[32|[61|[61|[61|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 238
+																												[Type|[D|[_cor6|[Y|[_cor7|[_cor8|[_cor9|[]]]]]]]])
+	  ( <_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10})
+		  -| [{'function_name',{'write_time',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'t'/1 =
+    %% Line 240
+    fun (_cor0) ->
+	case _cor0 of
+	  <X>
+	      when call 'erlang':'is_integer'
+		    (_cor0) ->
+	      let <_cor1> =
+		  %% Line 241
+		  call 'erlang':'integer_to_list'
+		      (X)
+	      in  %% Line 241
+		  apply 't1'/1
+		      (_cor1)
+	  %% Line 242
+	  <_cor3> when 'true' ->
+	      %% Line 243
+	      []
+	end
+'t1'/1 =
+    %% Line 244
+    fun (_cor0) ->
+	case _cor0 of
+	  <[X|[]]> when 'true' ->
+	      [48|[X|[]]]
+	  %% Line 245
+	  <X> when 'true' ->
+	      X
+	end
+'month'/1 =
+    %% Line 247
+    fun (_cor0) ->
+	case _cor0 of
+	  <1> when 'true' ->
+	      [74|[97|[110]]]
+	  %% Line 248
+	  <2> when 'true' ->
+	      [70|[101|[98]]]
+	  %% Line 249
+	  <3> when 'true' ->
+	      [77|[97|[114]]]
+	  %% Line 250
+	  <4> when 'true' ->
+	      [65|[112|[114]]]
+	  %% Line 251
+	  <5> when 'true' ->
+	      [77|[97|[121]]]
+	  %% Line 252
+	  <6> when 'true' ->
+	      [74|[117|[110]]]
+	  %% Line 253
+	  <7> when 'true' ->
+	      [74|[117|[108]]]
+	  %% Line 254
+	  <8> when 'true' ->
+	      [65|[117|[103]]]
+	  %% Line 255
+	  <9> when 'true' ->
+	      [83|[101|[112]]]
+	  %% Line 256
+	  <10> when 'true' ->
+	      [79|[99|[116]]]
+	  %% Line 257
+	  <11> when 'true' ->
+	      [78|[111|[118]]]
+	  %% Line 258
+	  <12> when 'true' ->
+	      [68|[101|[99]]]
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'month',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('error_logger_file_h')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('error_logger_file_h', _cor0)
+end

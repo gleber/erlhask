@@ -1,0 +1,2700 @@
+module 'egd_render' ['binary'/1,
+		     'binary'/2,
+		     'eps'/1,
+		     'module_info'/0,
+		     'module_info'/1]
+    attributes [%% Line 19
+		'type' =
+		    %% Line 19
+		    [{'rgba_float',{'type',19,'tuple',[{'type',19,'float',[]}|[{'type',19,'float',[]}|[{'type',19,'float',[]}|[{'type',19,'float',[]}]]]]},[]}],
+		%% Line 20
+		'type' =
+		    %% Line 20
+		    [{'rgba_byte',{'type',20,'tuple',[{'type',20,'byte',[]}|[{'type',20,'byte',[]}|[{'type',20,'byte',[]}|[{'type',20,'byte',[]}]]]]},[]}],
+		%% Line 21
+		'type' =
+		    %% Line 21
+		    [{'rgb',{'type',21,'tuple',[{'type',21,'byte',[]}|[{'type',21,'byte',[]}|[{'type',21,'byte',[]}]]]},[]}],
+		%% Line 23
+		'type' =
+		    %% Line 23
+		    [{{'record','image_object'},[{'record_field',24,{'atom',24,'type'}}|[{'record_field',25,{'atom',25,'points'},{'nil',25}}|[{'record_field',26,{'atom',26,'span'}}|[{'record_field',27,{'atom',27,'internals'}}|[{'record_field',28,{'atom',28,'intervals'}}|[{'record_field',29,{'atom',29,'color'}}]]]]]],[]}],
+		%% Line 31
+		'type' =
+		    %% Line 31
+		    [{{'record','image'},[{'record_field',32,{'atom',32,'width'}}|[{'record_field',33,{'atom',33,'height'}}|[{'record_field',34,{'atom',34,'objects'},{'nil',34}}|[{'record_field',35,{'atom',35,'background'},{'tuple',35,[{'float',35,1.00000000000000000000e+00}|[{'float',35,1.00000000000000000000e+00}|[{'float',35,1.00000000000000000000e+00}|[{'float',35,1.00000000000000000000e+00}]]]]}}|[{'record_field',36,{'atom',36,'image'}}]]]]],[]}]]
+'binary'/1 =
+    %% Line 32
+    fun (_cor0) ->
+	%% Line 33
+	apply 'binary'/2
+	    (_cor0, 'opaque')
+'binary'/2 =
+    %% Line 35
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 36
+	    apply 'precompile'/1
+		(_cor1)
+	in  %% Line 36
+	    apply 'parallel_binary'/2
+		(_cor2, _cor0)
+'parallel_binary'/2 =
+    %% Line 38
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Image = {'image',_cor26,Height,_cor27,_cor28,_cor29},Type> when 'true' ->
+	      let <_cor2> =
+		  %% Line 39
+		  call 'erlang':'system_info'
+		      ('schedulers')
+	      in  let <_2398> =
+		      %% Line 39
+		      call 'erlang':'min'
+			  (_cor2, Height)
+		  in  %% Line 39
+		      case _2398 of
+			%% Line 40
+			<1> when 'true' ->
+			    let <_cor19> =
+				%% Line 46
+				( letrec
+				      'lc$^0'/1 =
+					  fun (_cor15) ->
+					      case _cor15 of
+						<[Y|_cor13]> when 'true' ->
+						    let <_cor16> =
+							call 'erlang':'-'
+							    (_cor26, 1)
+						    in  let <_cor17> =
+							    apply 'scanline'/4
+								(Y, _cor27, {0,0,_cor16,_cor28}, _cor0)
+							in  let <_cor18> =
+								%% Line 47
+								apply 'lc$^0'/1
+								    (_cor13)
+							    in  ( [_cor17|_cor18]
+								  -| ['compiler_generated'] )
+						<[]> when 'true' ->
+						    []
+						( <_7280> when 'true' ->
+						      ( primop 'match_fail'
+							    ({'function_clause',_cor15})
+							-| [{'function_name',{'lc$^0',1}}] )
+						  -| ['compiler_generated'] )
+					      end
+				  in  let <_cor14> =
+					  %% Line 47
+					  call 'lists':'seq'
+					      (1, Height)
+				      in  apply 'lc$^0'/1
+					      (_cor14)
+				  -| ['list_comprehension'] )
+			    in  %% Line 46
+				call 'erlang':'list_to_binary'
+				    (_cor19)
+			%% Line 48
+			<Np> when 'true' ->
+			    let <Pids> =
+				%% Line 49
+				apply 'start_workers'/2
+				    (_2398, _cor0)
+			    in  let <_cor3> =
+				    %% Line 96
+				    fun () ->
+					let <_2666> =
+					    call 'erlang':'length'
+						(Pids)
+					in  apply 'handle_workers'/3
+						(Height, Height, _2666)
+				in  let <Handler> =
+					%% Line 96
+					call 'erlang':'spawn_link'
+					    (_cor3)
+				    in  do  %% Line 51
+					    apply 'init_workers'/3
+						(_cor1, Handler, Pids)
+					    let <Res> =
+						%% Line 118
+						apply 'receive_binaries'/2
+						    (Height, [])
+					    in  do  %% Line 53
+						    apply 'finish_workers'/1
+							(Pids)
+						    Res
+		      end
+	  ( <_cor25,_cor24> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'parallel_binary',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'start_workers'/2 =
+    %% Line 57
+    fun (_cor1,_cor0) ->
+	%% Line 58
+	apply 'start_workers'/3
+	    (_cor1, _cor0, [])
+'start_workers'/3 =
+    %% Line 60
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <0,_cor9,Pids> when 'true' ->
+	      _cor0
+	  %% Line 61
+	  <Np,Type,Pids>
+	      when call 'erlang':'>'
+		    (_cor2,
+		     0) ->
+	      let <_cor5> =
+		  %% Line 62
+		  call 'erlang':'-'
+		      (_cor2, 1)
+	      in  let <_cor3> =
+		      %% Line 62
+		      fun () ->
+			  apply 'worker'/1
+			      (_cor1)
+		  in  let <_cor4> =
+			  %% Line 62
+			  call 'erlang':'spawn_link'
+			      (_cor3)
+		      in  %% Line 62
+			  apply 'start_workers'/3
+			      (_cor5, _cor1, [_cor4|_cor0])
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'start_workers',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'worker'/1 =
+    %% Line 64
+    fun (_cor0) ->
+	%% Line 65
+	receive
+	  %% Line 66
+	  <{Pid,'data',{'image',W,_cor2,Os,Bg,_cor3}}> when 'true' ->
+	      %% Line 67
+	      apply 'worker'/5
+		  (Os, W, Bg, _cor0, Pid)
+	after 'infinity' ->
+	  'true'
+'worker'/5 =
+    %% Line 70
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 71
+	receive
+	  %% Line 72
+	  <{Pid,'scan',{Ys,Ye}}> when 'true' ->
+	      let <_cor11> =
+		  %% Line 73
+		  fun (_cor9) ->
+		      let <_cor6> =
+			  %% Line 75
+			  call 'erlang':'-'
+			      (_cor3, 1)
+		      in  let <_cor7> =
+			      %% Line 75
+			      apply 'scanline'/4
+				  (_cor9, _cor4, {0,0,_cor6,_cor2}, _cor1)
+			  in  let <Bin> =
+				  %% Line 75
+				  call 'erlang':'list_to_binary'
+				      (_cor7)
+			      in  %% Line 76
+				  call 'erlang':'!'
+				      (_cor0, {'scan',_cor9,Bin})
+	      in  let <_cor5> =
+		      %% Line 77
+		      call 'lists':'seq'
+			  (Ys, Ye)
+		  in  do  %% Line 73
+			  call 'lists':'foreach'
+			      (_cor11, _cor5)
+			  let <_cor12> =
+			      %% Line 78
+			      call 'erlang':'self'
+				  ()
+			  in  do  %% Line 78
+				  call 'erlang':'!'
+				      (Pid, {_cor12,'scan_complete'})
+				  %% Line 79
+				  apply 'worker'/5
+				      (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 80
+	  <{Pid,'scan',Y}> when 'true' ->
+	      let <_cor13> =
+		  %% Line 81
+		  call 'erlang':'-'
+		      (_cor3, 1)
+	      in  let <_cor14> =
+		      %% Line 81
+		      apply 'scanline'/4
+			  (Y, _cor4, {0,0,_cor13,_cor2}, _cor1)
+		  in  let <Bin> =
+			  %% Line 81
+			  call 'erlang':'list_to_binary'
+			      (_cor14)
+		      in  do  %% Line 82
+			      call 'erlang':'!'
+				  (_cor0, {'scan',Y,Bin})
+			      let <_cor16> =
+				  %% Line 83
+				  call 'erlang':'self'
+				      ()
+			      in  do  %% Line 83
+				      call 'erlang':'!'
+					  (Pid, {_cor16,'scan_complete'})
+				      %% Line 84
+				      apply 'worker'/5
+					  (_cor4, _cor3, _cor2, _cor1, _cor0)
+	  %% Line 85
+	  <{_cor22,'done'}> when 'true' ->
+	      %% Line 86
+	      'ok'
+	after 'infinity' ->
+	  'true'
+'init_workers'/3 =
+    %% Line 89
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_X_Image,_X_Handler,[]> when 'true' ->
+	      'ok'
+	  %% Line 90
+	  <Image,Handler,[Pid|Pids]> when 'true' ->
+	      let <_cor3> =
+		  %% Line 91
+		  call 'erlang':'self'
+		      ()
+	      in  do  do  %% Line 91
+			  call 'erlang':'!'
+			      (Pid, {_cor3,'data',_cor2})
+			  %% Line 92
+			  call 'erlang':'!'
+			      (_cor1, {Pid,'scan_complete'})
+		      %% Line 93
+		      apply 'init_workers'/3
+			  (_cor2, _cor1, Pids)
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'init_workers',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_workers'/3 =
+    %% Line 98
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_cor15,0,_cor16> when 'true' ->
+	      'ok'
+	  %% Line 99
+	  <H,Hi,Np>
+	      when call 'erlang':'>'
+		    (_cor2,
+		     0) ->
+	      let <_cor3> =
+		  %% Line 100
+		  call 'erlang':'*'
+		      (2, _cor0)
+	      in  let <_cor4> =
+		      %% Line 100
+		      call 'erlang':'/'
+			  (_cor1, _cor3)
+		  in  let <N> =
+			  %% Line 100
+			  call 'erlang':'trunc'
+			      (_cor4)
+		      in  %% Line 101
+			  receive
+			    %% Line 102
+			    <{Pid,'scan_complete'}> when 'true' ->
+				%% Line 103
+				case <> of
+				  <>
+				      when call 'erlang':'<'
+					    (N,
+					     2) ->
+				      let <_cor6> =
+					  %% Line 104
+					  call 'erlang':'self'
+					      ()
+				      in  do  %% Line 104
+					      call 'erlang':'!'
+						  (Pid, {_cor6,'scan',_cor1})
+					      let <_cor7> =
+						  %% Line 105
+						  call 'erlang':'-'
+						      (_cor1, 1)
+					      in  %% Line 105
+						  apply 'handle_workers'/3
+						      (_cor2, _cor7, _cor0)
+				  %% Line 106
+				  <> when 'true' ->
+				      let <_cor9> =
+					  %% Line 107
+					  call 'erlang':'self'
+					      ()
+				      in  let <_cor8> =
+					      %% Line 107
+					      call 'erlang':'-'
+						  (_cor1, N)
+					  in  do  %% Line 107
+						  call 'erlang':'!'
+						      (Pid, {_cor9,'scan',{_cor8,_cor1}})
+						  let <_cor10> =
+						      %% Line 108
+						      call 'erlang':'-'
+							  (_cor1, 1)
+						  in  let <_cor11> =
+							  %% Line 108
+							  call 'erlang':'-'
+							      (_cor10, N)
+						      in  %% Line 108
+							  apply 'handle_workers'/3
+							      (_cor2, _cor11, _cor0)
+				end
+			  after 'infinity' ->
+			    'true'
+	  ( <_cor14,_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'handle_workers',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'finish_workers'/1 =
+    %% Line 112
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      'ok'
+	  %% Line 113
+	  <[Pid|Pids]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 114
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 114
+		      call 'erlang':'!'
+			  (Pid, {_cor1,'done'})
+		      %% Line 115
+		      apply 'finish_workers'/1
+			  (Pids)
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'finish_workers',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'receive_binaries'/2 =
+    %% Line 120
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <0,Bins> when 'true' ->
+	      call 'erlang':'list_to_binary'
+		  (_cor0)
+	  %% Line 121
+	  <H,Bins>
+	      when call 'erlang':'>'
+		    (_cor1,
+		     0) ->
+	      %% Line 122
+	      receive
+		%% Line 123
+		<{'scan',_cor5,Bin}>
+		    when call 'erlang':'=:='
+			  (_cor5,
+			   _cor1) ->
+		    let <_cor2> =
+			%% Line 124
+			call 'erlang':'-'
+			    (_cor1, 1)
+		    in  %% Line 124
+			apply 'receive_binaries'/2
+			    (_cor2, [Bin|_cor0])
+	      after 'infinity' ->
+		'true'
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'receive_binaries',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'scanline'/4 =
+    %% Line 127
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Y,Os,LSB = {_cor25,_cor26,Width,_cor27},Type> when 'true' ->
+	      let <_cor4> =
+		  %% Line 128
+		  call 'erlang':'-'
+		      (_cor3, 1)
+	      in  let <OLSs> =
+		      %% Line 128
+		      apply 'parse_objects_on_line'/3
+			  (_cor4, Width, _cor2)
+		  in  let <RLSs> =
+			  %% Line 129
+			  apply 'resulting_line_spans'/2
+			      ([_cor1|OLSs], _cor0)
+		      in  %% Line 130
+			  ( letrec
+				'lc$^0'/1 =
+				    fun (_cor9) ->
+					case _cor9 of
+					  <[{_cor28,Xl,Xr,{R,G,B,_cor29}}|_cor8]> when 'true' ->
+					      let <_cor17> =
+						  call 'erlang':'-'
+						      (Xr, Xl)
+					      in  let <_cor18> =
+						      call 'erlang':'+'
+							  (_cor17, 1)
+						  in  let <_cor14> =
+							  call 'erlang':'*'
+							      (R, 255)
+						      in  let <_cor15> =
+							      call 'erlang':'trunc'
+								  (_cor14)
+							  in  let <_cor12> =
+								  call 'erlang':'*'
+								      (G, 255)
+							      in  let <_cor13> =
+								      call 'erlang':'trunc'
+									  (_cor12)
+								  in  let <_cor10> =
+									  call 'erlang':'*'
+									      (B, 255)
+								      in  let <_cor11> =
+									      call 'erlang':'trunc'
+										  (_cor10)
+									  in  let <_cor16> =
+										  #{#<_cor15>(8,1,'integer',['unsigned'|['big']]),
+										    #<_cor13>(8,1,'integer',['unsigned'|['big']]),
+										    #<_cor11>(8,1,'integer',['unsigned'|['big']])}#
+									      in  let <_cor19> =
+										      call 'lists':'duplicate'
+											  (_cor18, _cor16)
+										  in  let <_cor20> =
+											  apply 'lc$^0'/1
+											      (_cor8)
+										      in  ( [_cor19|_cor20]
+											    -| ['compiler_generated'] )
+					  ( <[_cor7|_cor8]> when 'true' ->
+						apply 'lc$^0'/1
+						    (_cor8)
+					    -| ['compiler_generated'] )
+					  <[]> when 'true' ->
+					      []
+					  ( <_3824> when 'true' ->
+						( primop 'match_fail'
+						      ({'function_clause',_cor9})
+						  -| [{'function_name',{'lc$^0',1}}] )
+					    -| ['compiler_generated'] )
+					end
+			    in  apply 'lc$^0'/1
+				    (RLSs)
+			    -| ['list_comprehension'] )
+	  ( <_cor24,_cor23,_cor22,_cor21> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'scanline',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'resulting_line_spans'/2 =
+    %% Line 132
+    fun (_cor1,_cor0) ->
+	let <Trans> =
+	    %% Line 139
+	    apply 'line_spans_to_trans'/3
+		(_cor1, [], 0)
+	in  %% Line 136
+	    apply 'trans_to_line_spans'/2
+		(Trans, _cor0)
+'line_spans_to_trans'/3 =
+    %% Line 141
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],Db,_cor8> when 'true' ->
+	      %% Line 142
+	      call 'lists':'sort'
+		  (_cor1)
+	  %% Line 143
+	  <[{_cor9,L,R,C}|LSs],Db,Z> when 'true' ->
+	      let <_cor4> =
+		  %% Line 144
+		  call 'erlang':'+'
+		      (R, 1)
+	      in  let <_cor3> =
+		      %% Line 144
+		      call 'erlang':'+'
+			  (_cor0, 1)
+		  in  %% Line 144
+		      apply 'line_spans_to_trans'/3
+			  (LSs, [{{L,_cor0,'start'},C}|[{{_cor4,_cor0,'stop'},C}|_cor1]], _cor3)
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'line_spans_to_trans',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'trans_to_line_spans'/2 =
+    %% Line 146
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 147
+	    apply 'simplify_trans'/5
+		(_cor1, _cor0, [], {0.00000000000000000000e+00,0.00000000000000000000e+00,0.00000000000000000000e+00,0.00000000000000000000e+00}, [])
+	in  %% Line 150
+	    apply 'trans_to_line_spans1'/2
+		(_cor2, [])
+'trans_to_line_spans1'/2 =
+    %% Line 152
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Spans> when 'true' ->
+	      _cor0
+	  %% Line 154
+	  <[_cor5|[]],Spans> when 'true' ->
+	      _cor0
+	  %% Line 156
+	  <[{L1,_cor6}|[{L2,C2}|SimpleTrans]],Spans> when 'true' ->
+	      let <_cor2> =
+		  %% Line 158
+		  call 'erlang':'-'
+		      (L1, 1)
+	      in  %% Line 158
+		  apply 'trans_to_line_spans1'/2
+		      ([{L2,C2}|SimpleTrans], [{0,L2,_cor2,C2}|_cor0])
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'trans_to_line_spans1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'simplify_trans'/5 =
+    %% Line 160
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_cor16,_cor17,_cor18,Acc> when 'true' ->
+	      _cor0
+	  %% Line 162
+	  <Trans = [{{L,_cor19,_cor20},_cor21}|_cor22],Type,Layers,OldC,Acc> when 'true' ->
+	      let <_cor7> =
+		  %% Line 164
+		  fun (_cor5) ->
+		      case _cor5 of
+			<{{L1,_cor23,_cor24},_cor25}>
+			    when call 'erlang':'=='
+				  (L1,
+				   L) ->
+			    %% Line 165
+			    'true'
+			%% Line 166
+			<_cor26> when 'true' ->
+			    %% Line 167
+			    'false'
+		      end
+	      in  let <_2442> =
+		      %% Line 164
+		      call 'lists':'splitwith'
+			  (_cor7, _cor4)
+		  in  %% Line 163
+		      case _2442 of
+			<{NextTrans,RestTrans}> when 'true' ->
+			    let <_3851> =
+				%% Line 169
+				apply 'color'/4
+				    (NextTrans, _cor2, _cor3, _cor1)
+			    in  %% Line 169
+				case _3851 of
+				  <{C,NewLayers}> when 'true' ->
+				      %% Line 170
+				      case _cor1 of
+					%% Line 171
+					<_cor27>
+					    when call 'erlang':'=:='
+						  (_cor1,
+						   C) ->
+					    %% Line 172
+					    apply 'simplify_trans'/5
+						(RestTrans, _cor3, NewLayers, _cor1, _cor0)
+					%% Line 173
+					<_cor28> when 'true' ->
+					    %% Line 174
+					    apply 'simplify_trans'/5
+						(RestTrans, _cor3, NewLayers, C, [{L,C}|_cor0])
+				      end
+				  ( <_cor9> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_3851})
+				    -| ['compiler_generated'] )
+				end
+			( <_cor8> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_2442})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor15,_cor14,_cor13,_cor12,_cor11> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'simplify_trans',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'color'/4 =
+    %% Line 177
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_2387> =
+	    %% Line 178
+	    apply 'modify_layers'/2
+		(_cor2, _cor3)
+	in  %% Line 178
+	    case _2387 of
+	      %% Line 179
+	      <_cor10>
+		  when call 'erlang':'=:='
+			(_2387,
+			 _cor2) ->
+		  %% Line 180
+		  {_cor0,_cor2}
+	      %% Line 181
+	      <NewLayers> when 'true' ->
+		  let <_cor4> =
+		      %% Line 182
+		      apply 'color'/2
+			  (_2387, _cor1)
+		  in  %% Line 182
+		      {_cor4,_2387}
+	    end
+'color'/2 =
+    %% Line 185
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],_cor4> when 'true' ->
+	      {0.00000000000000000000e+00,0.00000000000000000000e+00,0.00000000000000000000e+00,0.00000000000000000000e+00}
+	  %% Line 186
+	  <[{_cor5,C}|_cor6],'opaque'> when 'true' ->
+	      C
+	  %% Line 187
+	  <Layers,'alpha'> when 'true' ->
+	      apply 'color1'/2
+		  ({0.00000000000000000000e+00,0.00000000000000000000e+00,0.00000000000000000000e+00,0.00000000000000000000e+00}, _cor1)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'color',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'color1'/2 =
+    %% Line 189
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Color,[]> when 'true' ->
+	      _cor1
+	  %% Line 190
+	  <Color,[{_cor5,C}|Layers]> when 'true' ->
+	      let <_cor2> =
+		  apply 'alpha_blend'/2
+		      (_cor1, C)
+	      in  apply 'color1'/2
+		      (_cor2, Layers)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'color1',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'modify_layers'/2 =
+    %% Line 192
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Layers,[]> when 'true' ->
+	      _cor1
+	  %% Line 193
+	  <Layers,[{{_cor6,Z,'start'},C}|Trans]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 198
+		  case <_cor1,Z,C> of
+		    <[H = {Z1,_cor7}|_7748],_1912,_7288>
+			when call 'erlang':'>'
+			      (Z1,
+			       Z) ->
+			let <_cor3> =
+			    %% Line 199
+			    apply 'add_layer'/3
+				(_7748, Z, C)
+			in  %% Line 199
+			    [H|_cor3]
+		    %% Line 200
+		    <_6001,_2477,_2069> when 'true' ->
+			%% Line 201
+			[{Z,C}|_cor1]
+		  end
+	      in  %% Line 194
+		  apply 'modify_layers'/2
+		      (_cor2, Trans)
+	  %% Line 195
+	  <Layers,[{{_cor7,Z,'stop'},C}|Trans]> when 'true' ->
+	      let <_cor3> =
+		  %% Line 204
+		  call 'erlang':'--'
+		      (_cor1, [{Z,C}|[]])
+	      in  %% Line 196
+		  apply 'modify_layers'/2
+		      (_cor3, Trans)
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'modify_layers',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'add_layer'/3 =
+    %% Line 198
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[H = {Z1,_cor7}|Layers],Z,C>
+	      when call 'erlang':'>'
+		    (Z1,
+		     _cor1) ->
+	      let <_cor3> =
+		  %% Line 199
+		  apply 'add_layer'/3
+		      (Layers, _cor1, _cor0)
+	      in  %% Line 199
+		  [H|_cor3]
+	  %% Line 200
+	  <Layers,Z,C> when 'true' ->
+	      %% Line 201
+	      [{_cor1,_cor0}|_cor2]
+	end
+'alpha_blend'/2 =
+    %% Line 206
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{R1,G1,B1,A1},{R2,G2,B2,A2}>
+	      when let <_cor2> =
+		    call 'erlang':'is_float'
+			(A1)
+		in  let <_cor3> =
+			call 'erlang':'is_float'
+			    (A2)
+		    in  call 'erlang':'and'
+			    (_cor2, _cor3) ->
+	      let <_cor4> =
+		  %% Line 207
+		  call 'erlang':'-'
+		      (1.00000000000000000000e+00, A1)
+	      in  let <Beta> =
+		      %% Line 207
+		      call 'erlang':'*'
+			  (A2, _cor4)
+		  in  let <A> =
+			  %% Line 208
+			  call 'erlang':'+'
+			      (A1, Beta)
+		      in  let <_cor8> =
+			      %% Line 209
+			      call 'erlang':'*'
+				  (R1, A1)
+			  in  let <_cor7> =
+				  %% Line 209
+				  call 'erlang':'*'
+				      (R2, Beta)
+			      in  let <R> =
+				      %% Line 209
+				      call 'erlang':'+'
+					  (_cor8, _cor7)
+				  in  let <_cor11> =
+					  %% Line 210
+					  call 'erlang':'*'
+					      (G1, A1)
+				      in  let <_cor10> =
+					      %% Line 210
+					      call 'erlang':'*'
+						  (G2, Beta)
+					  in  let <G> =
+						  %% Line 210
+						  call 'erlang':'+'
+						      (_cor11, _cor10)
+					      in  let <_cor14> =
+						      %% Line 211
+						      call 'erlang':'*'
+							  (B1, A1)
+						  in  let <_cor13> =
+							  %% Line 211
+							  call 'erlang':'*'
+							      (B2, Beta)
+						      in  let <B> =
+							      %% Line 211
+							      call 'erlang':'+'
+								  (_cor14, _cor13)
+							  in  %% Line 212
+							      {R,G,B,A}
+	  ( <_cor17,_cor16> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'alpha_blend',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'parse_objects_on_line'/3 =
+    %% Line 214
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 215
+	apply 'parse_objects_on_line'/5
+	    (_cor2, 1, _cor1, _cor0, [])
+'parse_objects_on_line'/5 =
+    %% Line 216
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <_X_Y,_X_Z,_cor15,[],Out> when 'true' ->
+	      call 'lists':'flatten'
+		  (_cor0)
+	  %% Line 217
+	  <Y,Z,Width,[O|Os],Out> when 'true' ->
+	      let <_1038> =
+		  %% Line 218
+		  apply 'is_object_on_line'/2
+		      (_cor4, O)
+	      in  %% Line 218
+		  case _1038 of
+		    %% Line 219
+		    <'false'> when 'true' ->
+			let <_cor5> =
+			    %% Line 220
+			    call 'erlang':'+'
+				(_cor3, 1)
+			in  %% Line 220
+			    apply 'parse_objects_on_line'/5
+				(_cor4, _cor5, _cor2, Os, _cor0)
+		    %% Line 221
+		    <'true'> when 'true' ->
+			%% Line 253
+			( case O of
+			    ( <( {'image_object',_rec3,_cor8,_cor9,_cor10,_cor11,_cor12}
+				 -| ['compiler_generated'] )> when 'true' ->
+				  let <OLs> =
+				      apply 'object_line_data'/4
+					  (_cor4, _cor3, O, _rec3)
+				  in  let <TOLs> =
+					  apply 'trim_object_line_data'/3
+					      (OLs, _cor2, [])
+				      in  let <_cor8> =
+					      call 'erlang':'+'
+						  (_cor3, 1)
+					  in  apply 'parse_objects_on_line'/5
+						  (_cor4, _cor8, _cor2, Os, [TOLs|_cor0])
+			      -| ['compiler_generated'] )
+			    ( <_cor13> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','image_object'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		    ( <_cor9> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_1038})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor14,_cor13,_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'parse_objects_on_line',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'trim_object_line_data'/3 =
+    %% Line 229
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_cor8,Out> when 'true' ->
+	      _cor0
+	  %% Line 231
+	  <[{_cor9,Xl,_cor10,_cor11}|OLs],Width,Out>
+	      when call 'erlang':'>'
+		    (Xl,
+		     _cor1) ->
+	      %% Line 232
+	      apply 'trim_object_line_data'/3
+		  (OLs, _cor1, _cor0)
+	  %% Line 233
+	  <[{_cor12,_cor13,Xr,_cor14}|OLs],Width,Out>
+	      when call 'erlang':'<'
+		    (Xr,
+		     0) ->
+	      %% Line 234
+	      apply 'trim_object_line_data'/3
+		  (OLs, _cor1, _cor0)
+	  %% Line 235
+	  <[{Z,Xl,Xr,C}|OLs],Width,Out> when 'true' ->
+	      let <_cor4> =
+		  %% Line 236
+		  call 'erlang':'max'
+		      (0, Xl)
+	      in  let <_cor3> =
+		      %% Line 236
+		      call 'erlang':'min'
+			  (Xr, _cor1)
+		  in  %% Line 236
+		      apply 'trim_object_line_data'/3
+			  (OLs, _cor1, [{Z,_cor4,_cor3,C}|_cor0])
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'trim_object_line_data',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'object_line_data'/4 =
+    %% Line 254
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Y,Z,{'image_object',_cor42,_cor43,{X0,Y0,X1,Y1},_cor44,_cor45,C},'rectangle'> when 'true' ->
+	      %% Line 255
+	      case <> of
+		%% Line 256
+		<>
+		    when let <_cor4> =
+			  call 'erlang':'=:='
+			      (Y0, _cor3)
+		      in  let <_cor5> =
+			      call 'erlang':'=:='
+				  (Y1, _cor3)
+			  in  call 'erlang':'or'
+				  (_cor4, _cor5) ->
+		    %% Line 257
+		    [{_cor2,X0,X1,C}|[]]
+		%% Line 258
+		<> when 'true' ->
+		    %% Line 259
+		    [{_cor2,X0,X0,C}|%% Line 260
+				     [{_cor2,X1,X1,C}|[]]]
+	      end
+	  %% Line 263
+	  <_X_Y,Z,{'image_object',_cor46,_cor47,{X0,_cor48,X1,_cor49},_cor50,_cor51,C},'filled_rectangle'> when 'true' ->
+	      %% Line 264
+	      [{_cor2,X0,X1,C}|[]]
+	  %% Line 266
+	  <Y,Z,{'image_object',_cor52,_cor53,{X0,Y0,X1,Y1},{Xr,Yr,Yr2},_cor54,C},'filled_ellipse'> when 'true' ->
+	      %% Line 267
+	      case <> of
+		%% Line 268
+		<>
+		    when let <_cor7> =
+			  try
+			      let <_cor6> =
+				  call 'erlang':'-'
+				      (X1, X0)
+			      in  call 'erlang':'=='
+				      (_cor6, 0)
+			  of <Try> ->
+			      Try
+			  catch <T,R> ->
+			      'false'
+		      in  let <_cor9> =
+			      try
+				  let <_cor8> =
+				      call 'erlang':'-'
+					  (Y1, Y0)
+				  in  call 'erlang':'=='
+					  (_cor8, 0)
+			      of <Try> ->
+				  Try
+			      catch <T,R> ->
+				  'false'
+			  in  call 'erlang':'or'
+				  (_cor7, _cor9) ->
+		    %% Line 269
+		    [{_cor2,X0,X1,C}|[]]
+		%% Line 270
+		<> when 'true' ->
+		    let <_cor10> =
+			%% Line 271
+			call 'erlang':'-'
+			    (_cor3, Y0)
+		    in  let <_cor11> =
+			    %% Line 271
+			    call 'erlang':'-'
+				(_cor10, Yr)
+			in  let <Yo> =
+				%% Line 271
+				call 'erlang':'trunc'
+				    (_cor11)
+			    in  let <Yo2> =
+				    %% Line 272
+				    call 'erlang':'*'
+					(Yo, Yo)
+				in  let <_cor14> =
+					%% Line 273
+					call 'erlang':'/'
+					    (Yo2, Yr2)
+				    in  let <_cor15> =
+					    %% Line 273
+					    call 'erlang':'-'
+						(1, _cor14)
+					in  let <_cor16> =
+						%% Line 273
+						call 'math':'sqrt'
+						    (_cor15)
+					    in  let <Xo> =
+						    %% Line 273
+						    call 'erlang':'*'
+							(_cor16, Xr)
+						in  let <_cor21> =
+							%% Line 274
+							call 'erlang':'-'
+							    (X0, Xo)
+						    in  let <_cor22> =
+							    %% Line 274
+							    call 'erlang':'+'
+								(_cor21, Xr)
+							in  let <_cor23> =
+								%% Line 274
+								call 'erlang':'round'
+								    (_cor22)
+							    in  let <_cor18> =
+								    %% Line 274
+								    call 'erlang':'+'
+									(X0, Xo)
+								in  let <_cor19> =
+									%% Line 274
+									call 'erlang':'+'
+									    (_cor18, Xr)
+								    in  let <_cor20> =
+									    %% Line 274
+									    call 'erlang':'round'
+										(_cor19)
+									in  %% Line 274
+									    [{_cor2,_cor23,_cor20,C}|[]]
+	      end
+	  %% Line 277
+	  <Y,Z,{'image_object',_cor55,_cor56,_cor57,_cor58,Is,C},'filled_triangle'> when 'true' ->
+	      let <_1931> =
+		  %% Line 278
+		  call 'lists':'keyfind'
+		      (_cor3, 1, Is)
+	      in  %% Line 278
+		  case _1931 of
+		    %% Line 279
+		    <{_cor59,Xl,Xr}>
+			when call 'erlang':'=:='
+			      (_cor59,
+			       _cor3) ->
+			[{_cor2,Xl,Xr,C}|[]]
+		    %% Line 280
+		    <'false'> when 'true' ->
+			[]
+		    ( <_cor24> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_1931})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 283
+	  <Y,Z,{'image_object',_cor60,_cor61,_cor62,_cor63,Is,C},'line'> when 'true' ->
+	      %% Line 284
+	      case call 'dict':'find'
+		       (_cor3, Is) of
+		%% Line 285
+		<{'ok',Ls}> when 'true' ->
+		    ( letrec
+			  'lc$^0'/1 =
+			      fun (_cor27) ->
+				  case _cor27 of
+				    <[{Xl,Xr}|_cor26]> when 'true' ->
+					let <_cor28> =
+					    apply 'lc$^0'/1
+						(_cor26)
+					in  ( [{_cor2,Xl,Xr,C}|_cor28]
+					      -| ['compiler_generated'] )
+				    ( <[_cor25|_cor26]> when 'true' ->
+					  apply 'lc$^0'/1
+					      (_cor26)
+				      -| ['compiler_generated'] )
+				    <[]> when 'true' ->
+					[]
+				    ( <_1533> when 'true' ->
+					  ( primop 'match_fail'
+						({'function_clause',_cor27})
+					    -| [{'function_name',{'lc$^0',1}}] )
+				      -| ['compiler_generated'] )
+				  end
+		      in  case Ls of
+			    <[{Xl,Xr}|_cor26]> when 'true' ->
+				let <_cor28> =
+				    apply 'lc$^0'/1
+					(_cor26)
+				in  ( [{_cor2,Xl,Xr,C}|_cor28]
+				      -| ['compiler_generated'] )
+			    ( <[_cor25|_cor26]> when 'true' ->
+				  apply 'lc$^0'/1
+				      (_cor26)
+			      -| ['compiler_generated'] )
+			    <[]> when 'true' ->
+				[]
+			    ( <_1533> when 'true' ->
+				  primop 'match_fail'
+				      ({'function_clause',Ls})
+			      -| ['compiler_generated'] )
+			  end
+		      -| ['list_comprehension'] )
+		%% Line 286
+		<_cor64> when 'true' ->
+		    []
+	      end
+	  %% Line 289
+	  <Y,Z,{'image_object',_cor65,_cor66,_cor67,_cor68,Is,C},'polygon'> when 'true' ->
+	      %% Line 290
+	      ( letrec
+		    'lc$^1'/1 =
+			fun (_cor32) ->
+			    case _cor32 of
+			      <[{Yp,Xl,Xr}|_cor31]>
+				  when call 'erlang':'=:='
+					(Yp,
+					 _cor3) ->
+				  let <_cor33> =
+				      apply 'lc$^1'/1
+					  (_cor31)
+				  in  ( [{_cor2,Xl,Xr,C}|_cor33]
+					-| ['compiler_generated'] )
+			      ( <[_cor30|_cor31]> when 'true' ->
+				    apply 'lc$^1'/1
+					(_cor31)
+				-| ['compiler_generated'] )
+			      <[]> when 'true' ->
+				  []
+			      ( <_1553> when 'true' ->
+				    ( primop 'match_fail'
+					  ({'function_clause',_cor32})
+				      -| [{'function_name',{'lc$^1',1}}] )
+				-| ['compiler_generated'] )
+			    end
+		in  apply 'lc$^1'/1
+			(Is)
+		-| ['list_comprehension'] )
+	  %% Line 292
+	  <Y,Z,{'image_object',_cor69,_cor70,_cor71,_cor72,Is,C},'text_horizontal'> when 'true' ->
+	      %% Line 293
+	      ( letrec
+		    'lc$^2'/1 =
+			fun (_cor36) ->
+			    case _cor36 of
+			      <[{Yg,Xl,Xr}|_cor35]>
+				  when call 'erlang':'=:='
+					(Yg,
+					 _cor3) ->
+				  let <_cor37> =
+				      apply 'lc$^2'/1
+					  (_cor35)
+				  in  ( [{_cor2,Xl,Xr,C}|_cor37]
+					-| ['compiler_generated'] )
+			      ( <[_cor34|_cor35]> when 'true' ->
+				    apply 'lc$^2'/1
+					(_cor35)
+				-| ['compiler_generated'] )
+			      <[]> when 'true' ->
+				  []
+			      ( <_3610> when 'true' ->
+				    ( primop 'match_fail'
+					  ({'function_clause',_cor36})
+				      -| [{'function_name',{'lc$^2',1}}] )
+				-| ['compiler_generated'] )
+			    end
+		in  apply 'lc$^2'/1
+			(Is)
+		-| ['list_comprehension'] )
+	  %% Line 295
+	  <_cor73,Z,{'image_object',_cor74,_cor75,{X0,_cor76,X1,_cor77},_cor78,_cor79,C},_cor80> when 'true' ->
+	      %% Line 296
+	      [{_cor2,X0,X1,C}|[]]
+	  ( <_cor41,_cor40,_cor39,_cor38> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'object_line_data',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'is_object_on_line'/2 =
+    %% Line 298
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Y,{'image_object',_cor4,_cor5,Span,_cor6,_cor7,_cor8}> when 'true' ->
+	      %% Line 301
+	      case <_cor1,Span> of
+		<_4602,{_2410,Y0,_2289,Y1}>
+		    when let <_cor2> =
+			  call 'erlang':'<'
+			      (_cor1, Y0)
+		      in  let <_cor3> =
+			      call 'erlang':'>'
+				  (_cor1, Y1)
+			  in  call 'erlang':'or'
+				  (_cor2, _cor3) ->
+		    'false'
+		%% Line 302
+		<_6112,_cor9> when 'true' ->
+		    'true'
+	      end
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'is_object_on_line',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'precompile'/1 =
+    %% Line 308
+    fun (_cor0) ->
+	case _cor0 of
+	  <Image = {'image',_cor5,_cor6,Os,_cor7,_cor8}> when 'true' ->
+	      let <_rec4> =
+		  %% Line 309
+		  apply 'precompile_objects'/1
+		      (Os)
+	      in  %% Line 309
+		  call 'erlang':'setelement'
+		      (4, _cor0, _rec4)
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'precompile',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'precompile_objects'/1 =
+    %% Line 311
+    fun (_cor0) ->
+	apply 'precompile_objects'/2
+	    (_cor0, [])
+'precompile_objects'/2 =
+    %% Line 312
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Out> when 'true' ->
+	      call 'lists':'reverse'
+		  (_cor0)
+	  %% Line 314
+	  <[O = {'image_object','line',[P0|[P1|[]]],_cor43,_cor44,_cor45,_cor46}|Os],Out> when 'true' ->
+	      let <_cor2> =
+		  %% Line 315
+		  apply 'line_ls'/2
+		      (P0, P1)
+	      in  let <_2741> =
+		      %% Line 506
+		      call 'dict':'new'
+			  ()
+		  in  let <_rec6> =
+			  %% Line 506
+			  apply 'ls_list2dict'/2
+			      (_cor2, _2741)
+		      in  let <_cor6> =
+			      %% Line 315
+			      call 'erlang':'setelement'
+				  (6, O, _rec6)
+			  in  %% Line 315
+			      apply 'precompile_objects'/2
+				  (Os, [_cor6|_cor0])
+	  %% Line 317
+	  <[O = {'image_object','filled_triangle',[P0|[P1|[P2|[]]]],_cor54,_cor55,_cor56,_cor57}|Os],Out> when 'true' ->
+	      let <_rec8> =
+		  %% Line 318
+		  apply 'triangle_ls'/3
+		      (P0, P1, P2)
+	      in  let <_cor10> =
+		      %% Line 318
+		      call 'erlang':'setelement'
+			  (6, O, _rec8)
+		  in  %% Line 318
+		      apply 'precompile_objects'/2
+			  (Os, [_cor10|_cor0])
+	  %% Line 320
+	  <[O = {'image_object','polygon',Pts,_cor65,_cor66,_cor67,_cor68}|Os],Out> when 'true' ->
+	      let <_rec10> =
+		  %% Line 321
+		  apply 'polygon_ls'/1
+		      (Pts)
+	      in  let <_cor14> =
+		      %% Line 321
+		      call 'erlang':'setelement'
+			  (6, O, _rec10)
+		  in  %% Line 321
+		      apply 'precompile_objects'/2
+			  (Os, [_cor14|_cor0])
+	  %% Line 323
+	  <[O = {'image_object','filled_ellipse',_cor76,{X0,Y0,X1,Y1},_cor77,_cor78,_cor79}|Os],Out> when 'true' ->
+	      let <_cor15> =
+		  %% Line 324
+		  call 'erlang':'-'
+		      (X1, X0)
+	      in  let <Xr> =
+		      %% Line 324
+		      call 'erlang':'/'
+			  (_cor15, 2)
+		  in  let <_cor17> =
+			  %% Line 325
+			  call 'erlang':'-'
+			      (Y1, Y0)
+		      in  let <Yr> =
+			      %% Line 325
+			      call 'erlang':'/'
+				  (_cor17, 2)
+			  in  let <Yr2> =
+				  %% Line 326
+				  call 'erlang':'*'
+				      (Yr, Yr)
+			      in  let <_rec12> = {Xr,Yr,Yr2}
+				  in  let <_cor23> =
+					  %% Line 327
+					  call 'erlang':'setelement'
+					      (5, O, _rec12)
+				      in  %% Line 327
+					  apply 'precompile_objects'/2
+					      (Os, [_cor23|_cor0])
+	  %% Line 329
+	  <[O = {'image_object','arc',[P0|[P1|[]]],_cor87,D,_cor88,_cor89}|Os],Out> when 'true' ->
+	      let <Es> =
+		  %% Line 330
+		  call 'egd_primitives':'arc_to_edges'
+		      (P0, P1, D)
+	      in  let <_cor31> =
+		      %% Line 331
+		      fun (_cor28,_cor27) ->
+			  case <_cor28,_cor27> of
+			    %% Line 332
+			    <{Ep0,Ep1},D0> when 'true' ->
+				let <_cor26> =
+				    %% Line 333
+				    apply 'line_ls'/2
+					(Ep0, Ep1)
+				in  %% Line 333
+				    apply 'ls_list2dict'/2
+					(_cor26, _cor27)
+			    ( <_cor30,_cor29> when 'true' ->
+				  ( primop 'match_fail'
+					({'function_clause',_cor28,_cor27})
+				    -| [{'function_name',{'-precompile_objects/2-fun-0-',2}}] )
+			      -| ['compiler_generated'] )
+			  end
+		  in  let <_cor25> =
+			  %% Line 334
+			  call 'dict':'new'
+			      ()
+		      in  let <Ls> =
+			      %% Line 331
+			      call 'lists':'foldl'
+				  (_cor31, _cor25, Es)
+			  in  let <_cor34> =
+				  %% Line 335
+				  call 'erlang':'setelement'
+				      (6, O, Ls)
+			      in  let <_cor36> =
+				      %% Line 335
+				      call 'erlang':'setelement'
+					  (2, _cor34, 'line')
+				  in  %% Line 335
+				      apply 'precompile_objects'/2
+					  (Os, [_cor36|_cor0])
+	  %% Line 337
+	  <[O = {'image_object','text_horizontal',[P0|[]],_cor97,{Font,Text},_cor98,_cor99}|Os],Out> when 'true' ->
+	      let <_rec15> =
+		  %% Line 338
+		  apply 'text_horizontal_ls'/3
+		      (P0, Font, Text)
+	      in  let <_cor40> =
+		      %% Line 338
+		      call 'erlang':'setelement'
+			  (6, O, _rec15)
+		  in  %% Line 338
+		      apply 'precompile_objects'/2
+			  (Os, [_cor40|_cor0])
+	  %% Line 340
+	  <[O|Os],Out> when 'true' ->
+	      %% Line 341
+	      apply 'precompile_objects'/2
+		  (Os, [O|_cor0])
+	  ( <_cor42,_cor41> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'precompile_objects',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'triangle_ls'/3 =
+    %% Line 345
+    fun (_cor2,_cor1,_cor0) ->
+	let <_3553> =
+	    %% Line 354
+	    apply 'tri_pt_ysort'/1
+		([_cor2|[_cor1|[_cor0|[]]]])
+	in  %% Line 354
+	    case _3553 of
+	      <[Sp1|[Sp2|[Sp3|[]]]]> when 'true' ->
+		  let <_cor6> =
+		      %% Line 355
+		      apply 'line_ls'/2
+			  (Sp1, Sp2)
+		  in  let <_cor7> =
+			  %% Line 355
+			  apply 'tri_ls_ysort'/1
+			      (_cor6)
+		      in  let <_cor4> =
+			      %% Line 355
+			      apply 'line_ls'/2
+				  (Sp1, Sp3)
+			  in  let <_cor5> =
+				  %% Line 355
+				  apply 'tri_ls_ysort'/1
+				      (_cor4)
+			      in  %% Line 355
+				  apply 'triangle_ls_lp'/5
+				      (_cor7, Sp2, _cor5, Sp3, [])
+	      ( <_cor3> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_3553})
+		-| ['compiler_generated'] )
+	    end
+'triangle_ls_lp'/5 =
+    %% Line 362
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[],_cor26,[],_cor27,Out> when 'true' ->
+	      _cor0
+	  %% Line 363
+	  <LSs1,P1,[],P2,Out> when 'true' ->
+	      let <_cor5> =
+		  %% Line 364
+		  apply 'line_ls'/2
+		      (_cor1, _cor3)
+	      in  let <SLSs> =
+		      %% Line 364
+		      apply 'tri_ls_ysort'/1
+			  (_cor5)
+		  in  let <N2> =
+			  %% Line 365
+			  call 'erlang':'length'
+			      (SLSs)
+		      in  let <N1> =
+			      %% Line 366
+			      call 'erlang':'length'
+				  (_cor4)
+			  in  %% Line 367
+			      case <> of
+				%% Line 368
+				<>
+				    when call 'erlang':'>'
+					  (N1,
+					   N2) ->
+				    %% Line 369
+				    case _cor4 of
+				      <[_cor28|ILSs]> when 'true' ->
+					  %% Line 370
+					  apply 'triangle_ls_lp'/3
+					      (ILSs, SLSs, _cor0)
+				      ( <_cor9> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_cor4})
+					-| ['compiler_generated'] )
+				    end
+				%% Line 371
+				<>
+				    when call 'erlang':'>'
+					  (N2,
+					   N1) ->
+				    %% Line 372
+				    case SLSs of
+				      <[_cor29|ILSs]> when 'true' ->
+					  %% Line 373
+					  apply 'triangle_ls_lp'/3
+					      (_cor4, ILSs, _cor0)
+				      ( <_cor10> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',SLSs})
+					-| ['compiler_generated'] )
+				    end
+				%% Line 374
+				<> when 'true' ->
+				    %% Line 375
+				    apply 'triangle_ls_lp'/3
+					(_cor4, SLSs, _cor0)
+			      end
+	  %% Line 377
+	  <[],P1,LSs2,P2,Out> when 'true' ->
+	      let <_cor11> =
+		  %% Line 378
+		  apply 'line_ls'/2
+		      (_cor3, _cor1)
+	      in  let <SLSs> =
+		      %% Line 378
+		      apply 'tri_ls_ysort'/1
+			  (_cor11)
+		  in  let <N1> =
+			  %% Line 379
+			  call 'erlang':'length'
+			      (SLSs)
+		      in  let <N2> =
+			      %% Line 380
+			      call 'erlang':'length'
+				  (_cor2)
+			  in  %% Line 381
+			      case <> of
+				%% Line 382
+				<>
+				    when call 'erlang':'>'
+					  (N1,
+					   N2) ->
+				    %% Line 383
+				    case SLSs of
+				      <[_cor30|ILSs]> when 'true' ->
+					  %% Line 384
+					  apply 'triangle_ls_lp'/3
+					      (ILSs, _cor2, _cor0)
+				      ( <_cor15> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',SLSs})
+					-| ['compiler_generated'] )
+				    end
+				%% Line 385
+				<>
+				    when call 'erlang':'>'
+					  (N2,
+					   N1) ->
+				    %% Line 386
+				    case _cor2 of
+				      <[_cor31|ILSs]> when 'true' ->
+					  %% Line 387
+					  apply 'triangle_ls_lp'/3
+					      (SLSs, ILSs, _cor0)
+				      ( <_cor16> when 'true' ->
+					    primop 'match_fail'
+						({'badmatch',_cor2})
+					-| ['compiler_generated'] )
+				    end
+				%% Line 388
+				<> when 'true' ->
+				    %% Line 389
+				    apply 'triangle_ls_lp'/3
+					(SLSs, _cor2, _cor0)
+			      end
+	  %% Line 391
+	  <[LS1|LSs1],P1,[LS2|LSs2],P2,Out> when 'true' ->
+	      %% Line 392
+	      case LS1 of
+		<{Y,Xl1,Xr1}> when 'true' ->
+		    %% Line 393
+		    case LS2 of
+		      <{_cor32,Xl2,Xr2}> when 'true' ->
+			  let <Xr> =
+			      %% Line 394
+			      call 'lists':'max'
+				  ([Xl1|[Xr1|[Xl2|[Xr2|[]]]]])
+			  in  let <Xl> =
+				  %% Line 395
+				  call 'lists':'min'
+				      ([Xl1|[Xr1|[Xl2|[Xr2|[]]]]])
+			      in  %% Line 396
+				  apply 'triangle_ls_lp'/5
+				      (LSs1, _cor3, LSs2, _cor1, [{Y,Xl,Xr}|_cor0])
+		      ( <_cor18> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',LS2})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor17> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',LS1})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor25,_cor24,_cor23,_cor22,_cor21> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'triangle_ls_lp',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'triangle_ls_lp'/3 =
+    %% Line 398
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],[],Out> when 'true' ->
+	      _cor0
+	  %% Line 399
+	  <[],_cor10,Out> when 'true' ->
+	      _cor0
+	  %% Line 400
+	  <_cor11,[],Out> when 'true' ->
+	      _cor0
+	  %% Line 401
+	  <[LS1|LSs1],[LS2|LSs2],Out> when 'true' ->
+	      %% Line 402
+	      case LS1 of
+		<{Y,Xl1,Xr1}> when 'true' ->
+		    %% Line 403
+		    case LS2 of
+		      <{_cor12,Xl2,Xr2}> when 'true' ->
+			  let <Xr> =
+			      %% Line 404
+			      call 'lists':'max'
+				  ([Xl1|[Xr1|[Xl2|[Xr2|[]]]]])
+			  in  let <Xl> =
+				  %% Line 405
+				  call 'lists':'min'
+				      ([Xl1|[Xr1|[Xl2|[Xr2|[]]]]])
+			      in  %% Line 406
+				  apply 'triangle_ls_lp'/3
+				      (LSs1, LSs2, [{Y,Xl,Xr}|_cor0])
+		      ( <_cor4> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',LS2})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',LS1})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'triangle_ls_lp',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'tri_pt_ysort'/1 =
+    %% Line 408
+    fun (_cor0) ->
+	let <_cor5> =
+	    %% Line 411
+	    fun (_cor2,_cor1) ->
+		case <_cor2,_cor1> of
+		  <{_cor7,Y1},{_cor8,Y2}> when 'true' ->
+		      %% Line 412
+		      case <> of
+			<>
+			    when call 'erlang':'>'
+				  (Y1,
+				   Y2) ->
+			    'false'
+			<> when 'true' ->
+			    'true'
+		      end
+		  ( <_cor4,_cor3> when 'true' ->
+			( primop 'match_fail'
+			      ({'function_clause',_cor2,_cor1})
+			  -| [{'function_name',{'-tri_pt_ysort/1-fun-0-',2}}] )
+		    -| ['compiler_generated'] )
+		end
+	in  %% Line 410
+	    call 'lists':'sort'
+		(_cor5, _cor0)
+'tri_ls_ysort'/1 =
+    %% Line 415
+    fun (_cor0) ->
+	let <_cor5> =
+	    %% Line 418
+	    fun (_cor2,_cor1) ->
+		case <_cor2,_cor1> of
+		  <{Y1,_cor7,_cor8},{Y2,_cor9,_cor10}> when 'true' ->
+		      %% Line 419
+		      case <> of
+			<>
+			    when call 'erlang':'>'
+				  (Y1,
+				   Y2) ->
+			    'false'
+			<> when 'true' ->
+			    'true'
+		      end
+		  ( <_cor4,_cor3> when 'true' ->
+			( primop 'match_fail'
+			      ({'function_clause',_cor2,_cor1})
+			  -| [{'function_name',{'-tri_ls_ysort/1-fun-0-',2}}] )
+		    -| ['compiler_generated'] )
+		end
+	in  %% Line 417
+	    call 'lists':'sort'
+		(_cor5, _cor0)
+'polygon_ls'/1 =
+    %% Line 442
+    fun (_cor0) ->
+	let <Tris> =
+	    %% Line 444
+	    apply 'polygon_tri'/1
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 446
+		apply 'polygon_tri_ls'/2
+		    (Tris, [])
+	    in  %% Line 446
+		call 'lists':'flatten'
+		    (_cor2)
+'polygon_tri_ls'/2 =
+    %% Line 448
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Out> when 'true' ->
+	      _cor0
+	  %% Line 449
+	  <[{P1,P2,P3}|Tris],Out> when 'true' ->
+	      let <_cor2> =
+		  %% Line 450
+		  apply 'triangle_ls'/3
+		      (P1, P2, P3)
+	      in  %% Line 450
+		  apply 'polygon_tri_ls'/2
+		      (Tris, [_cor2|_cor0])
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'polygon_tri_ls',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'polygon_tri'/1 =
+    %% Line 452
+    fun (_cor0) ->
+	let <_cor5> =
+	    %% Line 484
+	    ( letrec
+		  'lc$^0'/1 =
+		      fun (_cor3) ->
+			  case _cor3 of
+			    <[{X,_cor9}|_cor2]> when 'true' ->
+				let <_cor4> =
+				    apply 'lc$^0'/1
+					(_cor2)
+				in  ( [X|_cor4]
+				      -| ['compiler_generated'] )
+			    ( <[_cor1|_cor2]> when 'true' ->
+				  apply 'lc$^0'/1
+				      (_cor2)
+			      -| ['compiler_generated'] )
+			    <[]> when 'true' ->
+				[]
+			    ( <_5559> when 'true' ->
+				  primop 'match_fail'
+				      ({'function_clause',_cor3})
+			      -| ['compiler_generated'] )
+			  end
+	      in  case _cor0 of
+		    <[{X,_cor9}|_cor2]> when 'true' ->
+			let <_cor4> =
+			    apply 'lc$^0'/1
+				(_cor2)
+			in  ( [X|_cor4]
+			      -| ['compiler_generated'] )
+		    ( <[_cor1|_cor2]> when 'true' ->
+			  apply 'lc$^0'/1
+			      (_cor2)
+		      -| ['compiler_generated'] )
+		    <[]> when 'true' ->
+			[]
+		    ( <_5559> when 'true' ->
+			  primop 'match_fail'
+			      ({'function_clause',_cor0})
+		      -| ['compiler_generated'] )
+		  end
+	      -| ['list_comprehension'] )
+	in  let <_cor7> =
+		%% Line 485
+		call 'lists':'min'
+		    (_cor5)
+	    in  let <_cor1> =
+		    %% Line 485
+		    apply 'polygon_lm_pt'/3
+			(_cor0, _cor7, [])
+		in  %% Line 453
+		    apply 'polygon_tri'/2
+			(_cor1, [])
+'polygon_tri'/2 =
+    %% Line 456
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[P1|[P2|[P3|[]]]],Tris> when 'true' ->
+	      [{P1,P2,P3}|_cor0]
+	  %% Line 457
+	  <[P2|[P1|[P3|Pts]]],Tris> when 'true' ->
+	      let <_3281> =
+		  %% Line 458
+		  apply 'polygon_tri_test'/4
+		      (P1, P2, P3, Pts)
+	      in  %% Line 458
+		  case _3281 of
+		    %% Line 459
+		    <'false'> when 'true' ->
+			let <_5985> =
+			    [P2|[P3|Pts]]
+			in  let <_cor5> =
+				%% Line 484
+				( letrec
+				      'lc$^0'/1 =
+					  fun (_cor3) ->
+					      case _cor3 of
+						<[{X,_cor9}|_cor2]> when 'true' ->
+						    let <_cor4> =
+							apply 'lc$^0'/1
+							    (_cor2)
+						    in  ( [X|_cor4]
+							  -| ['compiler_generated'] )
+						( <[_5466|_cor2]> when 'true' ->
+						      apply 'lc$^0'/1
+							  (_cor2)
+						  -| ['compiler_generated'] )
+						<[]> when 'true' ->
+						    []
+						( <_5559> when 'true' ->
+						      primop 'match_fail'
+							  ({'function_clause',_cor3})
+						  -| ['compiler_generated'] )
+					      end
+				  in  case _5985 of
+					<[{X,_cor9}|_cor2]> when 'true' ->
+					    let <_cor4> =
+						apply 'lc$^0'/1
+						    (_cor2)
+					    in  ( [X|_cor4]
+						  -| ['compiler_generated'] )
+					( <[_5466|_cor2]> when 'true' ->
+					      apply 'lc$^0'/1
+						  (_cor2)
+					  -| ['compiler_generated'] )
+					<[]> when 'true' ->
+					    []
+					( <_5559> when 'true' ->
+					      primop 'match_fail'
+						  ({'function_clause',_5985})
+					  -| ['compiler_generated'] )
+				      end
+				  -| ['list_comprehension'] )
+			    in  let <_cor7> =
+				    %% Line 485
+				    call 'lists':'min'
+					(_cor5)
+				in  let <_cor2> =
+					%% Line 485
+					apply 'polygon_lm_pt'/3
+					    (_5985, _cor7, [])
+				    in  apply 'polygon_tri'/2
+					    (_cor2, [{P1,P2,P3}|_cor0])
+		    %% Line 460
+		    <[LmPt|Ptsn]> when 'true' ->
+			apply 'polygon_tri'/2
+			    ([P2|[P1|[LmPt|[P3|Ptsn]]]], _cor0)
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_3281})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'polygon_tri',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'polygon_tri_test'/4 =
+    %% Line 463
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 464
+	apply 'polygon_tri_test'/5
+	    (_cor3, _cor2, _cor1, _cor0, [])
+'polygon_tri_test'/5 =
+    %% Line 466
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <_cor12,_cor13,_cor14,[],_cor15> when 'true' ->
+	      'false'
+	  %% Line 467
+	  <P1,P2,P3,[Pt|Pts],Ptsr> when 'true' ->
+	      let <_385> =
+		  %% Line 468
+		  apply 'point_inside_triangle'/4
+		      (Pt, _cor4, _cor3, _cor2)
+	      in  %% Line 468
+		  case _385 of
+		    %% Line 469
+		    <'false'> when 'true' ->
+			apply 'polygon_tri_test'/5
+			    (_cor4, _cor3, _cor2, Pts, [Pt|_cor0])
+		    %% Line 470
+		    <'true'> when 'true' ->
+			let <_cor5> =
+			    call 'lists':'reverse'
+				(_cor0)
+			in  [Pt|call 'erlang':'++'
+				    (Pts, _cor5)]
+		    ( <_cor6> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_385})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor11,_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'polygon_tri_test',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'polygon_lm_pt'/1 =
+    %% Line 483
+    fun (_cor0) ->
+	let <_cor5> =
+	    %% Line 484
+	    ( letrec
+		  'lc$^0'/1 =
+		      fun (_cor3) ->
+			  case _cor3 of
+			    <[{X,_cor9}|_cor2]> when 'true' ->
+				let <_cor4> =
+				    apply 'lc$^0'/1
+					(_cor2)
+				in  ( [X|_cor4]
+				      -| ['compiler_generated'] )
+			    ( <[_cor1|_cor2]> when 'true' ->
+				  apply 'lc$^0'/1
+				      (_cor2)
+			      -| ['compiler_generated'] )
+			    <[]> when 'true' ->
+				[]
+			    ( <_5559> when 'true' ->
+				  ( primop 'match_fail'
+					({'function_clause',_cor3})
+				    -| [{'function_name',{'lc$^0',1}}] )
+			      -| ['compiler_generated'] )
+			  end
+	      in  apply 'lc$^0'/1
+		      (_cor0)
+	      -| ['list_comprehension'] )
+	in  let <_cor7> =
+		%% Line 485
+		call 'lists':'min'
+		    (_cor5)
+	    in  %% Line 485
+		apply 'polygon_lm_pt'/3
+		    (_cor0, _cor7, [])
+'polygon_lm_pt'/3 =
+    %% Line 487
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Pt0|[Ptm = {X,_cor7}|Pts]],Xmin,Ptsr>
+	      when call 'erlang':'>'
+		    (X,
+		     _cor1) ->
+	      %% Line 488
+	      apply 'polygon_lm_pt'/3
+		  ([Ptm|Pts], _cor1, [Pt0|_cor0])
+	  %% Line 489
+	  <Pts,_cor8,Ptsr> when 'true' ->
+	      let <_cor3> =
+		  %% Line 490
+		  call 'lists':'reverse'
+		      (_cor0)
+	      in  %% Line 490
+		  call 'erlang':'++'
+		      (_cor2, _cor3)
+	end
+'points_same_side'/4 =
+    %% Line 496
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <{P1x,P1y},{P2x,P2y},{L1x,L1y},{L2x,L2y}> when 'true' ->
+	      let <_cor15> =
+		  %% Line 497
+		  call 'erlang':'-'
+		      (P1x, L1x)
+	      in  let <_cor14> =
+		      %% Line 497
+		      call 'erlang':'-'
+			  (L2y, L1y)
+		  in  let <_cor16> =
+			  %% Line 497
+			  call 'erlang':'*'
+			      (_cor15, _cor14)
+		      in  let <_cor10> =
+			      %% Line 497
+			      call 'erlang':'-'
+				  (L2x, L1x)
+			  in  let <_cor9> =
+				  %% Line 497
+				  call 'erlang':'-'
+				      (P1y, L1y)
+			      in  let <_cor11> =
+				      %% Line 497
+				      call 'erlang':'*'
+					  (_cor10, _cor9)
+				  in  let <_cor8> =
+					  %% Line 498
+					  call 'erlang':'-'
+					      (P2x, L1x)
+				      in  let <_cor12> =
+					      %% Line 497
+					      call 'erlang':'*'
+						  (_cor11, _cor8)
+					  in  let <_cor7> =
+						  %% Line 498
+						  call 'erlang':'-'
+						      (L2y, L1y)
+					      in  let <_cor13> =
+						      %% Line 498
+						      call 'erlang':'*'
+							  (_cor12, _cor7)
+						  in  let <_cor17> =
+							  %% Line 497
+							  call 'erlang':'-'
+							      (_cor16, _cor13)
+						      in  let <_cor5> =
+							      %% Line 498
+							      call 'erlang':'-'
+								  (L2x, L1x)
+							  in  let <_cor4> =
+								  %% Line 498
+								  call 'erlang':'-'
+								      (P2y, L1y)
+							      in  let <_cor6> =
+								      %% Line 498
+								      call 'erlang':'*'
+									  (_cor5, _cor4)
+								  in  let <_cor18> =
+									  %% Line 498
+									  call 'erlang':'-'
+									      (_cor17, _cor6)
+								      in  %% Line 498
+									  call 'erlang':'>='
+									      (_cor18, 0)
+	  ( <_cor22,_cor21,_cor20,_cor19> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'points_same_side',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'point_inside_triangle'/4 =
+    %% Line 500
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor6> =
+	    %% Line 501
+	    apply 'points_same_side'/4
+		(_cor3, _cor2, _cor1, _cor0)
+	in  let <_cor5> =
+		%% Line 502
+		apply 'points_same_side'/4
+		    (_cor3, _cor1, _cor2, _cor0)
+	    in  let <_cor7> =
+		    %% Line 501
+		    call 'erlang':'and'
+			(_cor6, _cor5)
+		in  let <_cor4> =
+			%% Line 503
+			apply 'points_same_side'/4
+			    (_cor3, _cor0, _cor2, _cor1)
+		    in  %% Line 502
+			call 'erlang':'and'
+			    (_cor7, _cor4)
+'ls_list2dict'/2 =
+    %% Line 507
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],D> when 'true' ->
+	      _cor0
+	  %% Line 508
+	  <[{Y,Xl,Xr}|Ls],D> when 'true' ->
+	      let <_7024> =
+		  %% Line 509
+		  call 'dict':'is_key'
+		      (Y, _cor0)
+	      in  %% Line 509
+		  case _7024 of
+		    %% Line 510
+		    <'false'> when 'true' ->
+			let <_cor2> =
+			    call 'dict':'store'
+				(Y, [{Xl,Xr}|[]], _cor0)
+			in  apply 'ls_list2dict'/2
+				(Ls, _cor2)
+		    %% Line 511
+		    <'true'> when 'true' ->
+			let <_cor3> =
+			    call 'dict':'append'
+				(Y, {Xl,Xr}, _cor0)
+			in  apply 'ls_list2dict'/2
+				(Ls, _cor3)
+		    ( <_cor4> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_7024})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'ls_list2dict',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'line_ls'/2 =
+    %% Line 524
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Xi0,Yi0},{Xi1,Yi1}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 526
+		  call 'erlang':'-'
+		      (Yi1, Yi0)
+	      in  let <_cor5> =
+		      %% Line 526
+		      call 'erlang':'abs'
+			  (_cor4)
+		  in  let <_cor2> =
+			  %% Line 526
+			  call 'erlang':'-'
+			      (Xi1, Xi0)
+		      in  let <_cor3> =
+			      %% Line 526
+			      call 'erlang':'abs'
+				  (_cor2)
+			  in  let <Steep> =
+				  %% Line 526
+				  call 'erlang':'>'
+				      (_cor5, _cor3)
+			      in  let <Xs0,Ys0,Xs1,Ys1> =
+				      %% Line 528
+				      case Steep of
+					%% Line 529
+					<'true'> when 'true' ->
+					    <Yi0,Xi0,Yi1,Xi1>
+					%% Line 530
+					<'false'> when 'true' ->
+					    <Xi0,Yi0,Xi1,Yi1>
+					( <_cor7> when 'true' ->
+					      primop 'match_fail'
+						  ({'case_clause',Steep})
+					  -| ['compiler_generated'] )
+				      end
+				  in  let <X0,Y0,X1,Y1> =
+					  %% Line 533
+					  case <> of
+					    %% Line 534
+					    <>
+						when call 'erlang':'>'
+						      (Xs0,
+						       Xs1) ->
+						<Xs1,Ys1,Xs0,Ys0>
+					    %% Line 535
+					    <> when 'true' ->
+						<Xs0,Ys0,Xs1,Ys1>
+					  end
+				      in  let <DX> =
+					      %% Line 538
+					      call 'erlang':'-'
+						  (X1, X0)
+					  in  let <_cor14> =
+						  %% Line 539
+						  call 'erlang':'-'
+						      (Y1, Y0)
+					      in  let <DY> =
+						      %% Line 539
+						      call 'erlang':'abs'
+							  (_cor14)
+						  in  let <_cor16> =
+							  %% Line 541
+							  call 'erlang':'-'
+							      (DX)
+						      in  let <Error> =
+							      %% Line 541
+							      call 'erlang':'/'
+								  (_cor16, 2)
+							  in  let <_cor19> =
+								  %% Line 543
+								  case <> of
+								    %% Line 544
+								    <>
+									when call 'erlang':'<'
+									      (Y0,
+									       Y1) ->
+									1
+								    %% Line 545
+								    <> when 'true' ->
+									-1
+								  end
+							      in  %% Line 547
+								  apply 'line_ls_step'/10
+								      (X0, X1, Y0, DX, DY, _cor19, Error, X0, Steep, [])
+	  ( <_cor22,_cor21> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'line_ls',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'line_ls_step'/10 =
+    %% Line 556
+    fun (_cor9,_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor9,_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <X,X1,Y,Dx,Dy,Ys,E,X0,Steep = 'false',LSs>
+	      when let <_cor10> =
+		    call 'erlang':'<'
+			(_cor9, _cor8)
+		in  let <_cor11> =
+			call 'erlang':'>='
+			    (_cor3, 0)
+		    in  call 'erlang':'and'
+			    (_cor10, _cor11) ->
+	      let <_cor16> =
+		  %% Line 557
+		  call 'erlang':'+'
+		      (_cor9, 1)
+	      in  let <_cor15> =
+		      %% Line 557
+		      call 'erlang':'+'
+			  (_cor7, _cor4)
+		  in  let <_cor13> =
+			  %% Line 557
+			  call 'erlang':'-'
+			      (_cor3, _cor6)
+		      in  let <_cor14> =
+			      %% Line 557
+			      call 'erlang':'+'
+				  (_cor13, _cor5)
+			  in  let <_cor12> =
+				  %% Line 557
+				  call 'erlang':'+'
+				      (_cor9, 1)
+			      in  %% Line 557
+				  apply 'line_ls_step'/10
+				      (_cor16, _cor8, _cor15, _cor6, _cor5, _cor4, _cor14, _cor12, _cor1, [{_cor7,_cor2,_cor9}|_cor0])
+	  %% Line 558
+	  <X,X1,Y,Dx,Dy,Ys,E,X0,Steep = 'false',LSs>
+	      when call 'erlang':'<'
+		    (_cor9,
+		     _cor8) ->
+	      let <_cor18> =
+		  %% Line 559
+		  call 'erlang':'+'
+		      (_cor9, 1)
+	      in  let <_cor17> =
+		      %% Line 559
+		      call 'erlang':'+'
+			  (_cor3, _cor5)
+		  in  %% Line 559
+		      apply 'line_ls_step'/10
+			  (_cor18, _cor8, _cor7, _cor6, _cor5, _cor4, _cor17, _cor2, _cor1, _cor0)
+	  %% Line 560
+	  <X,_X_X1,Y,_X_Dx,_X_Dy,_X_Ys,_X_E,X0,'false',LSs> when 'true' ->
+	      %% Line 561
+	      [{_cor7,_cor2,_cor9}|_cor0]
+	  %% Line 562
+	  <X,X1,Y,Dx,Dy,Ys,E,_X_X0,Steep = 'true',LSs>
+	      when let <_cor19> =
+		    call 'erlang':'=<'
+			(_cor9, _cor8)
+		in  let <_cor20> =
+			call 'erlang':'>='
+			    (_cor3, 0)
+		    in  call 'erlang':'and'
+			    (_cor19, _cor20) ->
+	      let <_cor24> =
+		  %% Line 563
+		  call 'erlang':'+'
+		      (_cor9, 1)
+	      in  let <_cor23> =
+		      %% Line 563
+		      call 'erlang':'+'
+			  (_cor7, _cor4)
+		  in  let <_cor21> =
+			  %% Line 563
+			  call 'erlang':'-'
+			      (_cor3, _cor6)
+		      in  let <_cor22> =
+			      %% Line 563
+			      call 'erlang':'+'
+				  (_cor21, _cor5)
+			  in  %% Line 563
+			      apply 'line_ls_step'/10
+				  (_cor24, _cor8, _cor23, _cor6, _cor5, _cor4, _cor22, _cor9, _cor1, [{_cor9,_cor7,_cor7}|_cor0])
+	  %% Line 564
+	  <X,X1,Y,Dx,Dy,Ys,E,X0,Steep = 'true',LSs>
+	      when call 'erlang':'=<'
+		    (_cor9,
+		     _cor8) ->
+	      let <_cor26> =
+		  %% Line 565
+		  call 'erlang':'+'
+		      (_cor9, 1)
+	      in  let <_cor25> =
+		      %% Line 565
+		      call 'erlang':'+'
+			  (_cor3, _cor5)
+		  in  %% Line 565
+		      apply 'line_ls_step'/10
+			  (_cor26, _cor8, _cor7, _cor6, _cor5, _cor4, _cor25, _cor2, _cor1, [{_cor9,_cor7,_cor7}|_cor0])
+	  %% Line 566
+	  <_X_X,_cor37,_X_Y,_X_Dx,_X_Dy,_X_Ys,_X_E,_X_X0,_cor38,LSs> when 'true' ->
+	      _cor0
+	end
+'text_horizontal_ls'/3 =
+    %% Line 571
+    fun (_cor2,_cor1,_cor0) ->
+	let <_792> =
+	    %% Line 572
+	    call 'egd_font':'size'
+		(_cor1)
+	in  %% Line 572
+	    case _792 of
+	      <{_X_Fw,Fh}> when 'true' ->
+		  %% Line 573
+		  apply 'text_intervals'/5
+		      (_cor2, Fh, _cor1, _cor0, [])
+	      ( <_cor3> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_792})
+		-| ['compiler_generated'] )
+	    end
+'text_intervals'/5 =
+    %% Line 593
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <_cor17,_cor18,_cor19,[],Out> when 'true' ->
+	      call 'lists':'flatten'
+		  (_cor0)
+	  %% Line 594
+	  <{Xtl,Ytl},Fh,Font,[Code|Chars],Out> when 'true' ->
+	      let <_3466> =
+		  %% Line 595
+		  call 'egd_font':'glyph'
+		      (_cor2, Code)
+	      in  %% Line 595
+		  case _3466 of
+		    <{{_X_Gw,Gh,Gx0,Gy0,Gxm},LSs}> when 'true' ->
+			let <_cor6> =
+			    %% Line 597
+			    call 'erlang':'-'
+				(_cor3, Gh)
+			in  let <Yo> =
+				%% Line 597
+				call 'erlang':'+'
+				    (_cor6, Gy0)
+			    in  let <_cor9> =
+				    %% Line 598
+				    call 'erlang':'+'
+					(Xtl, Gx0)
+				in  let <_cor8> =
+					%% Line 598
+					call 'erlang':'+'
+					    (Ytl, Yo)
+				    in  let <GLSs> =
+					    %% Line 598
+					    apply 'text_intervals_vertical'/3
+						({_cor9,_cor8}, LSs, [])
+					in  let <_cor11> =
+						%% Line 599
+						call 'erlang':'+'
+						    (Xtl, Gxm)
+					    in  %% Line 599
+						apply 'text_intervals'/5
+						    ({_cor11,Ytl}, _cor3, _cor2, Chars, [GLSs|_cor0])
+		    ( <_cor5> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_3466})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor16,_cor15,_cor14,_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3,_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'text_intervals',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'text_intervals_vertical'/3 =
+    %% Line 601
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_cor15,[],Out> when 'true' ->
+	      _cor0
+	  %% Line 602
+	  <{Xtl,Ytl},[LS|LSs],Out> when 'true' ->
+	      let <_cor9> =
+		  %% Line 604
+		  fun (_cor6,_cor5) ->
+		      case <_cor6,_cor5> of
+			<{Xl,Xr},RLSs> when 'true' ->
+			    let <_cor4> =
+				%% Line 605
+				call 'erlang':'+'
+				    (Xl, Xtl)
+			    in  let <_cor3> =
+				    %% Line 605
+				    call 'erlang':'+'
+					(Xr, Xtl)
+				in  %% Line 605
+				    [{Ytl,_cor4,_cor3}|_cor5]
+			( <_cor8,_cor7> when 'true' ->
+			      ( primop 'match_fail'
+				    ({'function_clause',_cor6,_cor5})
+				-| [{'function_name',{'-text_intervals_vertical/3-fun-0-',2}}] )
+			  -| ['compiler_generated'] )
+		      end
+	      in  let <H> =
+		      %% Line 603
+		      call 'lists':'foldl'
+			  (_cor9, %% Line 606
+				  [], LS)
+		  in  let <_cor11> =
+			  %% Line 607
+			  call 'erlang':'+'
+			      (Ytl, 1)
+		      in  %% Line 607
+			  apply 'text_intervals_vertical'/3
+			      ({Xtl,_cor11}, LSs, [H|_cor0])
+	  ( <_cor14,_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'text_intervals_vertical',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'eps'/1 =
+    %% Line 612
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'image',W,H,Os,_cor5,_cor6}> when 'true' ->
+	      let <_6577> =
+		  %% Line 652
+		  [W|[H|[]]]
+	      in  let <_cor2> =
+		      %% Line 649
+		      call 'io_lib':'format'
+			  (%% Line 652
+			   [37|[33|[80|[83|[45|[65|[100|[111|[98|[101|[45|[51|[46|[48|[32|[69|[80|[83|[70|[45|[51|[46|[48|[10|[37|[37|[67|[114|[101|[97|[116|[111|[114|[58|[32|[67|[114|[101|[97|[116|[101|[100|[32|[98|[121|[32|[101|[103|[100|[10|[37|[37|[66|[111|[117|[110|[100|[105|[110|[103|[66|[111|[120|[58|[32|[48|[32|[48|[32|[126|[112|[32|[126|[112|[10|[37|[37|[76|[97|[110|[103|[117|[97|[103|[101|[76|[101|[118|[101|[108|[58|[32|[50|[10|[37|[37|[80|[97|[103|[101|[115|[58|[32|[49|[10|[37|[37|[68|[111|[99|[117|[109|[101|[110|[116|[68|[97|[116|[97|[58|[32|[67|[108|[101|[97|[110|[55|[66|[105|[116|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], _6577)
+		  in  let <_cor2> =
+			  %% Line 649
+			  call 'lists':'flatten'
+			      (_cor2)
+		      in  let <_cor1> =
+			      %% Line 652
+			      call 'erlang':'++'
+				  (_cor2, %% Line 653
+					  [37|[37|[66|[101|[103|[105|[110|[80|[114|[111|[108|[111|[103|[10|[47|[101|[108|[108|[105|[112|[115|[101|[32|[123|[55|[32|[100|[105|[99|[116|[32|[98|[101|[103|[105|[110|[10|[47|[101|[110|[100|[97|[110|[103|[108|[101|[32|[101|[120|[99|[104|[32|[100|[101|[102|[10|[47|[115|[116|[97|[114|[116|[97|[110|[103|[108|[101|[32|[101|[120|[99|[104|[32|[100|[101|[102|[10|[47|[121|[114|[97|[100|[105|[117|[115|[32|[101|[120|[99|[104|[32|[100|[101|[102|[10|[47|[120|[114|[97|[100|[105|[117|[115|[32|[101|[120|[99|[104|[32|[100|[101|[102|[10|[47|[121|[67|[32|[101|[120|[99|[104|[32|[100|[101|[102|[10|[47|[120|[67|[32|[101|[120|[99|[104|[32|[100|[101|[102|[10|[47|[115|[97|[118|[101|[109|[97|[116|[114|[105|[120|[32|[109|[97|[116|[114|[105|[120|[32|[99|[117|[114|[114|[101|[110|[116|[109|[97|[116|[114|[105|[120|[32|[100|[101|[102|[10|[120|[67|[32|[121|[67|[32|[116|[114|[97|[110|[115|[108|[97|[116|[101|[10|[120|[114|[97|[100|[105|[117|[115|[32|[121|[114|[97|[100|[105|[117|[115|[32|[115|[99|[97|[108|[101|[10|[48|[32|[48|[32|[49|[32|[115|[116|[97|[114|[116|[97|[110|[103|[108|[101|[32|[101|[110|[100|[97|[110|[103|[108|[101|[32|[97|[114|[99|[10|[115|[97|[118|[101|[109|[97|[116|[114|[105|[120|[32|[115|[101|[116|[109|[97|[116|[114|[105|[120|[10|[101|[110|[100|[10|[125|[32|[100|[101|[102|[10|[37|[37|[69|[110|[100|[80|[114|[111|[108|[111|[103|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+			  in  let <_cor2> =
+				  %% Line 615
+				  apply 'eps_objects'/3
+				      (H, Os, [])
+			      in  %% Line 613
+				  call 'erlang':'list_to_binary'
+				      ([_cor1|[_cor2|[[37|[37|[69|[79|[70|[10]]]]]]]]])
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor0})
+		  -| [{'function_name',{'eps',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'eps_objects'/3 =
+    %% Line 616
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_cor7,[],Out> when 'true' ->
+	      call 'lists':'flatten'
+		  (_cor0)
+	  %% Line 617
+	  <H,[O|Os],Out> when 'true' ->
+	      let <_cor3> =
+		  apply 'eps_object'/2
+		      (_cor2, O)
+	      in  apply 'eps_objects'/3
+		      (_cor2, Os, [_cor3|_cor0])
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'eps_objects',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'eps_object'/2 =
+    %% Line 619
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <H,{'image_object','text_horizontal',[{X,Y}|[]],_cor39,{_X_Font,Text},_cor40,{R,G,B,_cor41}}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 621
+		  call 'erlang':'+'
+		      (Y, 10)
+	      in  let <_cor3> =
+		      %% Line 621
+		      call 'erlang':'-'
+			  (_cor1, _cor2)
+		  in  %% Line 620
+		      apply 's'/2
+			  ([47|[84|[105|[109|[101|[115|[45|[82|[111|[109|[97|[110|[32|[102|[105|[110|[100|[102|[111|[110|[116|[10|[49|[52|[32|[115|[99|[97|[108|[101|[102|[111|[110|[116|[10|[115|[101|[116|[102|[111|[110|[116|[10|[126|[46|[52|[102|[32|[126|[46|[52|[102|[32|[126|[46|[52|[102|[32|[115|[101|[116|[114|[103|[98|[99|[111|[108|[111|[114|[10|[110|[101|[119|[112|[97|[116|[104|[10|[126|[112|[32|[126|[112|[32|[109|[111|[118|[101|[116|[111|[10|[40|[126|[115|[41|[32|[115|[104|[111|[119|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 621
+																																																																											      [R|[G|[B|[X|[_cor3|[Text|[]]]]]]])
+	  %% Line 622
+	  <H,{'image_object','filled_ellipse',[{X1,Y1p}|[{X2,Y2p}|[]]],_cor42,_cor43,_cor44,{R,G,B,_cor45}}> when 'true' ->
+	      let <Y1> =
+		  %% Line 623
+		  call 'erlang':'-'
+		      (_cor1, Y1p)
+	      in  let <Y2> =
+		      %% Line 624
+		      call 'erlang':'-'
+			  (_cor1, Y2p)
+		  in  let <_cor6> =
+			  %% Line 625
+			  call 'erlang':'-'
+			      (X2, X1)
+		      in  let <_cor7> =
+			      %% Line 625
+			      call 'erlang':'/'
+				  (_cor6, 2)
+			  in  let <Xr> =
+				  %% Line 625
+				  call 'erlang':'trunc'
+				      (_cor7)
+			      in  let <_cor9> =
+				      %% Line 626
+				      call 'erlang':'-'
+					  (Y2, Y1)
+				  in  let <_cor10> =
+					  %% Line 626
+					  call 'erlang':'/'
+					      (_cor9, 2)
+				      in  let <Yr> =
+					      %% Line 626
+					      call 'erlang':'trunc'
+						  (_cor10)
+					  in  let <Cx> =
+						  %% Line 627
+						  call 'erlang':'+'
+						      (X1, Xr)
+					      in  let <Cy> =
+						      %% Line 628
+						      call 'erlang':'+'
+							  (Y1, Yr)
+						  in  %% Line 629
+						      apply 's'/2
+							  ([126|[46|[52|[102|[32|[126|[46|[52|[102|[32|[126|[46|[52|[102|[32|[115|[101|[116|[114|[103|[98|[99|[111|[108|[111|[114|[10|[110|[101|[119|[112|[97|[116|[104|[10|[126|[112|[32|[126|[112|[32|[126|[112|[32|[126|[112|[32|[48|[32|[51|[54|[48|[32|[101|[108|[108|[105|[112|[115|[101|[32|[102|[105|[108|[108|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 630
+																																																					      [R|[G|[B|[Cx|[Cy|[Xr|[Yr|[]]]]]]]])
+	  %% Line 631
+	  <H,{'image_object','arc',[P0|[P1|[]]],_cor46,D,_cor47,{R,G,B,_cor48}}> when 'true' ->
+	      let <Es> =
+		  %% Line 632
+		  call 'egd_primitives':'arc_to_edges'
+		      (P0, P1, D)
+	      in  let <_208> =
+		      %% Line 633
+		      [R|[G|[B|[]]]]
+		  in  let <_cor2> =
+			  %% Line 649
+			  call 'io_lib':'format'
+			      ([126|[46|[52|[102|[32|[126|[46|[52|[102|[32|[126|[46|[52|[102|[32|[115|[101|[116|[114|[103|[98|[99|[111|[108|[111|[114|[10]]]]]]]]]]]]]]]]]]]]]]]]]]], _208)
+		      in  let <_cor15> =
+			      %% Line 649
+			      call 'lists':'flatten'
+				  (_cor2)
+			  in  let <_cor23> =
+				  %% Line 633
+				  fun (_cor20,_cor19) ->
+				      case <_cor20,_cor19> of
+					%% Line 634
+					<{{X1,Y1},{X2,Y2}},Eps> when 'true' ->
+					    let <_cor16> =
+						%% Line 635
+						call 'erlang':'-'
+						    (_cor1, Y1)
+					    in  let <_cor17> =
+						    %% Line 635
+						    call 'erlang':'-'
+							(_cor1, Y2)
+						in  let <_2601> =
+							%% Line 635
+							[X1|[_cor16|[X2|[_cor17|[]]]]]
+						    in  let <_cor2> =
+							    %% Line 649
+							    call 'io_lib':'format'
+								([110|[101|[119|[112|[97|[116|[104|[10|[126|[112|[32|[126|[112|[32|[109|[111|[118|[101|[116|[111|[10|[126|[112|[32|[126|[112|[32|[108|[105|[110|[101|[116|[111|[10|[49|[32|[115|[101|[116|[108|[105|[110|[101|[119|[105|[100|[116|[104|[10|[115|[116|[114|[111|[107|[101|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], _2601)
+							in  let <_cor18> =
+								%% Line 649
+								call 'lists':'flatten'
+								    (_cor2)
+							    in  %% Line 635
+								[_cor18|_cor19]
+					( <_cor22,_cor21> when 'true' ->
+					      ( primop 'match_fail'
+						    ({'function_clause',_cor20,_cor19})
+						-| [{'function_name',{'-eps_object/2-fun-0-',2}}] )
+					  -| ['compiler_generated'] )
+				      end
+			      in  let <_cor24> =
+				      %% Line 633
+				      call 'lists':'foldl'
+					  (_cor23, %% Line 636
+						   [], Es)
+				  in  %% Line 633
+				      [_cor15|_cor24]
+	  %% Line 638
+	  <H,{'image_object','line',[{X1,Y1}|[{X2,Y2}|[]]],_cor49,_cor50,_cor51,{R,G,B,_cor52}}> when 'true' ->
+	      let <_cor25> =
+		  %% Line 640
+		  call 'erlang':'-'
+		      (_cor1, Y1)
+	      in  let <_cor26> =
+		      %% Line 640
+		      call 'erlang':'-'
+			  (_cor1, Y2)
+		  in  %% Line 639
+		      apply 's'/2
+			  ([126|[46|[52|[102|[32|[126|[46|[52|[102|[32|[126|[46|[52|[102|[32|[115|[101|[116|[114|[103|[98|[99|[111|[108|[111|[114|[10|[110|[101|[119|[112|[97|[116|[104|[10|[126|[112|[32|[126|[112|[32|[109|[111|[118|[101|[116|[111|[10|[126|[112|[32|[126|[112|[32|[108|[105|[110|[101|[116|[111|[10|[49|[32|[115|[101|[116|[108|[105|[110|[101|[119|[105|[100|[116|[104|[10|[115|[116|[114|[111|[107|[101|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 640
+																																																														      [R|[G|[B|[X1|[_cor25|[X2|[_cor26|[]]]]]]]])
+	  %% Line 641
+	  <H,{'image_object','rectangle',[{X1,Y1}|[{X2,Y2}|[]]],_cor53,_cor54,_cor55,{R,G,B,_cor56}}> when 'true' ->
+	      let <_cor27> =
+		  %% Line 643
+		  call 'erlang':'-'
+		      (_cor1, Y1)
+	      in  let <_cor28> =
+		      %% Line 643
+		      call 'erlang':'-'
+			  (_cor1, Y1)
+		  in  let <_cor29> =
+			  %% Line 643
+			  call 'erlang':'-'
+			      (_cor1, Y2)
+		      in  let <_cor30> =
+			      %% Line 643
+			      call 'erlang':'-'
+				  (_cor1, Y2)
+			  in  let <_cor31> =
+				  %% Line 643
+				  call 'erlang':'-'
+				      (_cor1, Y1)
+			      in  %% Line 642
+				  apply 's'/2
+				      ([126|[46|[52|[102|[32|[126|[46|[52|[102|[32|[126|[46|[52|[102|[32|[115|[101|[116|[114|[103|[98|[99|[111|[108|[111|[114|[10|[110|[101|[119|[112|[97|[116|[104|[10|[126|[112|[32|[126|[112|[32|[109|[111|[118|[101|[116|[111|[10|[126|[112|[32|[126|[112|[32|[108|[105|[110|[101|[116|[111|[10|[126|[112|[32|[126|[112|[32|[108|[105|[110|[101|[116|[111|[10|[126|[112|[32|[126|[112|[32|[108|[105|[110|[101|[116|[111|[10|[126|[112|[32|[126|[112|[32|[108|[105|[110|[101|[116|[111|[10|[49|[32|[115|[101|[116|[108|[105|[110|[101|[119|[105|[100|[116|[104|[10|[115|[116|[114|[111|[107|[101|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 643
+																																																																																												   [R|[G|[B|[X1|[_cor27|[X2|[_cor28|[X2|[_cor29|[X1|[_cor30|[X1|[_cor31|[]]]]]]]]]]]]]])
+	  %% Line 644
+	  <H,{'image_object','filled_rectangle',[{X1,Y1}|[{X2,Y2}|[]]],_cor57,_cor58,_cor59,{R,G,B,_cor60}}> when 'true' ->
+	      let <_cor32> =
+		  %% Line 646
+		  call 'erlang':'-'
+		      (_cor1, Y1)
+	      in  let <_cor33> =
+		      %% Line 646
+		      call 'erlang':'-'
+			  (_cor1, Y1)
+		  in  let <_cor34> =
+			  %% Line 646
+			  call 'erlang':'-'
+			      (_cor1, Y2)
+		      in  let <_cor35> =
+			      %% Line 646
+			      call 'erlang':'-'
+				  (_cor1, Y2)
+			  in  let <_cor36> =
+				  %% Line 646
+				  call 'erlang':'-'
+				      (_cor1, Y1)
+			      in  %% Line 645
+				  apply 's'/2
+				      ([126|[46|[52|[102|[32|[126|[46|[52|[102|[32|[126|[46|[52|[102|[32|[115|[101|[116|[114|[103|[98|[99|[111|[108|[111|[114|[10|[110|[101|[119|[112|[97|[116|[104|[10|[126|[112|[32|[126|[112|[32|[109|[111|[118|[101|[116|[111|[10|[126|[112|[32|[126|[112|[32|[108|[105|[110|[101|[116|[111|[10|[126|[112|[32|[126|[112|[32|[108|[105|[110|[101|[116|[111|[10|[126|[112|[32|[126|[112|[32|[108|[105|[110|[101|[116|[111|[10|[126|[112|[32|[126|[112|[32|[108|[105|[110|[101|[116|[111|[10|[99|[108|[111|[115|[101|[112|[97|[116|[104|[10|[102|[105|[108|[108|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 646
+																																																																																							 [R|[G|[B|[X1|[_cor32|[X2|[_cor33|[X2|[_cor34|[X1|[_cor35|[X1|[_cor36|[]]]]]]]]]]]]]])
+	  %% Line 647
+	  <_cor61,_cor62> when 'true' ->
+	      []
+	end
+'s'/2 =
+    %% Line 649
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    call 'io_lib':'format'
+		(_cor1, _cor0)
+	in  call 'lists':'flatten'
+		(_cor2)
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('egd_render')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('egd_render', _cor0)
+end

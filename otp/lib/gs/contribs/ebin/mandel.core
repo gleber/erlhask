@@ -1,0 +1,1400 @@
+module 'mandel' ['module_info'/0,
+		 'module_info'/1,
+		 'refresher'/1,
+		 'respond'/2,
+		 'start'/0,
+		 'start'/1,
+		 'start_client'/2,
+		 'start_server'/1]
+    attributes [%% Line 26
+		'author' =
+		    %% Line 26
+		    ['(mbj,eklas)@erlang.ericsson.se']]
+'start'/0 =
+    %% Line 54
+    fun () ->
+	%% Line 55
+	apply 'start'/1
+	    ([])
+'start'/1 =
+    %% Line 63
+    fun (_cor0) ->
+	let <Nodes1> =
+	    %% Line 64
+	    call 'erlang':'nodes'
+		()
+	in  let <_cor7> =
+		%% Line 65
+		case apply 'get_option'/3
+			 ('hosts', _cor0, 'all_found_nodes') of
+		  %% Line 66
+		  <'all_found_nodes'>
+		      when call 'erlang':'=:='
+			    (Nodes1,
+			     []) ->
+		      let <_cor2> =
+			  %% Line 67
+			  call 'erlang':'node'
+			      ()
+		      in  let <N> =
+			      %% Line 67
+			      [_cor2|[]]
+			  in  do  %% Line 68
+				  call 'erlang':'spawn'
+				      ('mandel', 'start_server', [N|[]])
+				  %% Line 69
+				  N
+		  %% Line 70
+		  <'all_found_nodes'> when 'true' ->
+		      let <_cor4> =
+			  %% Line 71
+			  apply 'dir'/0
+			      ()
+		      in  do  %% Line 71
+			      apply 'start_nodes'/2
+				  (_cor4, Nodes1)
+			      %% Line 72
+			      Nodes1
+		  %% Line 73
+		  <Hosts> when 'true' ->
+		      do  %% Line 74
+			  apply 'start_slaves'/1
+			      (Hosts)
+			  let <_cor5> =
+			      %% Line 75
+			      apply 'dir'/0
+				  ()
+			  in  do  %% Line 75
+				  apply 'start_nodes'/2
+				      (_cor5, Nodes1)
+				  %% Line 76
+				  Nodes1
+		end
+	    in  %% Line 78
+		call 'erlang':'spawn'
+		    ('mandel', 'start_client', [_cor0|[_cor7|[]]])
+'dir'/0 =
+    %% Line 86
+    fun () ->
+	let <GsPrivDir> =
+	    %% Line 87
+	    call 'code':'priv_dir'
+		('gs')
+	in  %% Line 88
+	    call 'filename':'join'
+		(GsPrivDir, [46|[46|[47|[99|[111|[110|[116|[114|[105|[98|[115|[47|[101|[98|[105|[110]]]]]]]]]]]]]]]])
+'start_slaves'/1 =
+    %% Line 91
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      'ok'
+	  %% Line 92
+	  <[Host|Hs]> when 'true' ->
+	      %% Line 93
+	      case call 'slave':'start'
+		       (Host) of
+		<{'ok',Name}> when 'true' ->
+		    do  %% Line 94
+			call 'io':'format'
+			    ([104|[111|[115|[116|[32|[126|[112|[32|[105|[115|[32|[117|[112|[126|[110]]]]]]]]]]]]]]], [Name|[]])
+			%% Line 95
+			apply 'start_slaves'/1
+			    (Hs)
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'start_slaves',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'start_nodes'/2 =
+    %% Line 97
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_Dir,[]> when 'true' ->
+	      'ok'
+	  %% Line 98
+	  <Dir,[Node|Nodes]> when 'true' ->
+	      do  %% Line 99
+		  call 'rpc':'call'
+		      (Node, 'code', 'add_path', [Dir|[]])
+		  let <_cor2> =
+		      %% Line 100
+		      call 'erlang':'node'
+			  ()
+		  in  do  %% Line 100
+			  call 'erlang':'spawn_link'
+			      (Node, 'mandel', 'start_server', [[_cor2|[]]|[]])
+			  do  %% Line 101
+			      call 'io':'format'
+				  ([115|[116|[97|[114|[116|[101|[100|[32|[109|[97|[110|[100|[101|[108|[115|[101|[114|[118|[101|[114|[32|[97|[116|[32|[110|[111|[100|[101|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Node|[]])
+			      %% Line 102
+			      apply 'start_nodes'/2
+				  (Dir, Nodes)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'start_nodes',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'start_client'/2 =
+    %% Line 104
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 105
+	    apply 'get_option'/3
+		('window', _cor1, 100)
+	in  let <_cor3> =
+		%% Line 105
+		call 'erlang':'div'
+		    (_cor2, 10)
+	    in  let <Wt> =
+		    %% Line 105
+		    call 'erlang':'*'
+			(_cor3, 10)
+		in  let <_cor5> =
+			%% Line 106
+			apply 'get_option'/3
+			    ('window', _cor1, 100)
+		    in  let <_cor6> =
+			    %% Line 106
+			    call 'erlang':'div'
+				(_cor5, 10)
+			in  let <Ht> =
+				%% Line 106
+				call 'erlang':'*'
+				    (_cor6, 10)
+			    in  let <S> =
+				    %% Line 107
+				    call 'gs':'start'
+					()
+				in  let <_cor9> =
+					%% Line 108
+					call 'erlang':'-'
+					    (Wt, 1)
+				    in  let <_cor10> =
+					    %% Line 108
+					    call 'erlang':'-'
+						(Ht, 1)
+					in  let <Win> =
+						%% Line 108
+						call 'gs':'create'
+						    ('window', 'win1', S, [{'title',[77|[97|[110|[100|[101|[108]]]]]]}|[{'width',_cor9}|[{'height',_cor10}|%% Line 109
+																			   [{'configure','true'}]]]])
+					    in  let <Canvas> =
+						    %% Line 110
+						    call 'gs':'create'
+							('canvas', 'can1', Win, [{'width',Wt}|[{'height',Ht}|[]]])
+						in  let <Image> =
+							%% Line 111
+							call 'gs':'image'
+							    (Canvas, [{'buttonpress','true'}])
+						    in  let <MaxIters> =
+							    %% Line 112
+							    apply 'get_option'/3
+								('maxiter', _cor1, 100)
+							in  do  %% Line 113
+								call 'timer':'apply_after'
+								    (8000, 'mandel', 'refresher', [Image|[]])
+								let <CT> =
+								    %% Line 114
+								    apply 'make_color_table'/1
+									(MaxIters)
+								in  let <_cor23> =
+									%% Line 116
+									apply 'get_option'/3
+									    ('xmax', _cor1, 2)
+								    in  let <_cor24> =
+									    %% Line 116
+									    apply 'try_random'/3
+										(_cor23, -2, 2)
+									in  let <_cor20> =
+										%% Line 117
+										apply 'get_option'/3
+										    ('ymax', _cor1, 2)
+									    in  let <_cor21> =
+										    %% Line 117
+										    apply 'try_random'/3
+											(_cor20, -2, 2)
+										in  let <_cor17> =
+											%% Line 118
+											apply 'get_option'/3
+											    ('range', _cor1, 4)
+										    in  let <_cor18> =
+											    %% Line 118
+											    apply 'try_random'/3
+												(_cor17, 0, 4)
+											in  let <_cor16> =
+												%% Line 120
+												apply 'get_option'/3
+												    ('zoomstep', _cor1, 1.69999999999999995559e+00)
+											    in  let <State2> =
+												    %% Line 115
+												    {'state',Image,Wt,Ht,_cor24,_cor21,_cor18,%% Line 119
+																	      MaxIters,%% Line 119
+																		       CT,_cor16}
+												in  let <ToDo> =
+													%% Line 121
+													apply 'make_jobs'/1
+													    (State2)
+												    in  do  %% Line 122
+													    call 'gs':'config'
+														(Win, [{'map','true'}])
+													    %% Line 123
+													    apply 'main'/4
+														(State2, [], _cor0, ToDo)
+'try_random'/3 =
+    %% Line 125
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'random',Low,High> when 'true' ->
+	      let <_cor4> =
+		  %% Line 126
+		  call 'random':'uniform'
+		      ()
+	      in  let <_cor3> =
+		      %% Line 126
+		      call 'erlang':'-'
+			  (High, Low)
+		  in  let <_cor5> =
+			  %% Line 126
+			  call 'erlang':'*'
+			      (_cor4, _cor3)
+		      in  %% Line 126
+			  call 'erlang':'+'
+			      (_cor5, Low)
+	  %% Line 127
+	  <Float,_X_Low,_X_High>
+	      when call 'erlang':'is_number'
+		    (Float) ->
+	      Float
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'try_random',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'main'/4 =
+    %% Line 134
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <State,[],PassiveNodes,[]> when 'true' ->
+	      %% Line 135
+	      apply 'wait_event'/4
+		  (State, [], PassiveNodes, [])
+	  %% Line 136
+	  <State,ActiveNodes,PassiveNodes,[]> when 'true' ->
+	      %% Line 139
+	      apply 'wait_event'/4
+		  (State, ActiveNodes, PassiveNodes, [])
+	  %% Line 140
+	  <State,ActiveNodes,[Node|PassiveNodes],[Job|ToDo]> when 'true' ->
+	      do  %% Line 143
+		  apply 'distribute_job'/2
+		      (Node, Job)
+		  %% Line 144
+		  apply 'main'/4
+		      (State, [Node|ActiveNodes], PassiveNodes, ToDo)
+	  %% Line 145
+	  <State,ActiveNodes,[],ToDo> when 'true' ->
+	      %% Line 147
+	      apply 'wait_event'/4
+		  (State, ActiveNodes, [], ToDo)
+	  ( <_cor8,_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'main',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'wait_event'/4 =
+    %% Line 149
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 150
+	receive
+	  %% Line 151
+	  <{'calculation_done',{Node,Job}}> when 'true' ->
+	      do  %% Line 152
+		  case <> of
+		    %% Line 153
+		    <>
+			when ( try
+				( case <> of
+				    ( <>
+					  when ( call ( 'erlang'
+						     -| ['compiler_generated'] ):( 'is_record'
+										   -| ['compiler_generated'] )
+						  (_cor3,
+						   ( 'state'
+						     -| ['compiler_generated'] ),
+						   ( 10
+						     -| ['compiler_generated'] ))
+					      -| ['compiler_generated'] ) ->
+					  ( case <> of
+					      ( <>
+						    when ( call ( 'erlang'
+							       -| ['compiler_generated'] ):( 'is_record'
+											     -| ['compiler_generated'] )
+							    (Job,
+							     ( 'job'
+							       -| ['compiler_generated'] ),
+							     ( 9
+							       -| ['compiler_generated'] ))
+							-| ['compiler_generated'] ) ->
+						    let <_cor15> =
+							( call 'erlang':'element'
+							      (5, Job)
+							  -| ['compiler_generated'] )
+						    in  let <_cor14> =
+							    ( call 'erlang':'element'
+								  (6, _cor3)
+							      -| ['compiler_generated'] )
+							in  ( call 'erlang':'=='
+								  (_cor15, _cor14)
+							      -| ['compiler_generated'] )
+						-| ['compiler_generated'] )
+					      ( <> when 'true' ->
+						    'false'
+						-| ['compiler_generated'] )
+					    end
+					    -| ['compiler_generated'] )
+				      -| ['compiler_generated'] )
+				    ( <> when 'true' ->
+					  ( case <> of
+					      ( <>
+						    when ( call ( 'erlang'
+							       -| ['compiler_generated'] ):( 'is_record'
+											     -| ['compiler_generated'] )
+							    (Job,
+							     ( 'job'
+							       -| ['compiler_generated'] ),
+							     ( 9
+							       -| ['compiler_generated'] ))
+							-| ['compiler_generated'] ) ->
+						    'false'
+						-| ['compiler_generated'] )
+					      ( <> when 'true' ->
+						    'false'
+						-| ['compiler_generated'] )
+					    end
+					    -| ['compiler_generated'] )
+				      -| ['compiler_generated'] )
+				  end
+				  -| ['compiler_generated'] )
+			    of <Try> ->
+				Try
+			    catch <T,R> ->
+				'false'
+			    -| ['compiler_generated'] ) ->
+			%% Line 154
+			apply 'draw'/3
+			    (_cor3, Node, Job)
+		    %% Line 155
+		    <> when 'true' ->
+			'ok'
+		  end
+		  let <_cor17> =
+		      %% Line 157
+		      call 'lists':'delete'
+			  (Node, _cor2)
+		  in  %% Line 157
+		      apply 'main'/4
+			  (_cor3, _cor17, [Node|_cor1], _cor0)
+	  %% Line 158
+	  <{'gs',_X_Img,'buttonpress',_X_Data,[_X_Butt|[X|[Y|_cor64]]]}> when 'true' ->
+	      %% Line 159
+	      case _cor3 of
+		<{'state',_cor65,W,H,Xmax,Ymax,R,_cor66,_cor67,ZS}> when 'true' ->
+		    let <_cor21> =
+			%% Line 161
+			call 'erlang':'-'
+			    (Xmax, R)
+		    in  let <_cor19> =
+			    %% Line 161
+			    call 'erlang':'/'
+				(X, W)
+			in  let <_cor20> =
+				%% Line 161
+				call 'erlang':'*'
+				    (_cor19, R)
+			    in  let <RX> =
+				    %% Line 161
+				    call 'erlang':'+'
+					(_cor21, _cor20)
+				in  let <_cor26> =
+					%% Line 162
+					call 'erlang':'-'
+					    (Ymax, R)
+				    in  let <_cor23> =
+					    %% Line 162
+					    call 'erlang':'/'
+						(Y, H)
+					in  let <_cor24> =
+						%% Line 162
+						call 'erlang':'-'
+						    (1, _cor23)
+					    in  let <_cor25> =
+						    %% Line 162
+						    call 'erlang':'*'
+							(_cor24, R)
+						in  let <RY> =
+							%% Line 162
+							call 'erlang':'+'
+							    (_cor26, _cor25)
+						    in  let <R2> =
+							    %% Line 163
+							    call 'erlang':'/'
+								(R, ZS)
+							in  let <_cor29> =
+								%% Line 164
+								call 'erlang':'/'
+								    (R2, 2)
+							    in  let <Xmax2> =
+								    %% Line 164
+								    call 'erlang':'+'
+									(RX, _cor29)
+								in  let <_cor31> =
+									%% Line 165
+									call 'erlang':'/'
+									    (R2, 2)
+								    in  let <Ymax2> =
+									    %% Line 165
+									    call 'erlang':'+'
+										(RY, _cor31)
+									in  let <_cor34> =
+										%% Line 166
+										call 'erlang':'setelement'
+										    (7, _cor3, R2)
+									    in  let <_cor35> =
+										    %% Line 166
+										    call 'erlang':'setelement'
+											(6, _cor34, Ymax2)
+										in  let <_cor37> =
+											%% Line 166
+											call 'erlang':'setelement'
+											    (5, _cor35, Xmax2)
+										    in  do  %% Line 167
+											    call 'io':'format'
+												([123|[120|[109|[97|[120|[44|[126|[119|[125|[44|[123|[121|[109|[97|[120|[44|[126|[119|[125|[44|[123|[114|[97|[110|[103|[101|[44|[126|[119|[125|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Xmax2|[Ymax2|[R2|[]]]])
+											    let <ToDo2> =
+												%% Line 168
+												apply 'make_jobs'/1
+												    (_cor37)
+											    in  %% Line 169
+												apply 'main'/4
+												    (_cor37, _cor2, _cor1, ToDo2)
+		( <_cor18> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor18})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 170
+	  <{'gs',_X_Win,'destroy',_cor78,_cor79}> when 'true' ->
+	      let <_cor40> =
+		  %% Line 171
+		  call 'lists':'append'
+		      (_cor2, _cor1)
+	      in  %% Line 171
+		  apply 'kill_nodes'/1
+		      (_cor40)
+	  %% Line 172
+	  <{'gs',_X_Win,'configure',_X_Data,[W|[H|_cor80]]}>
+	      when %% Line 173
+		( try
+		      ( case <> of
+			  ( <>
+				when ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'is_record'
+									 -| ['compiler_generated'] )
+					(_cor3,
+					 ( 'state'
+					   -| ['compiler_generated'] ),
+					 ( 10
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] ) ->
+				let <_cor46> =
+				    ( call 'erlang':'element'
+					  (3, _cor3)
+				      -| ['compiler_generated'] )
+				in  let <_cor45> =
+					( call 'erlang':'+'
+					      (W, 1)
+					  -| ['compiler_generated'] )
+				    in  let <_cor47> =
+					    ( call 'erlang':'=='
+						  (_cor46, _cor45)
+					      -| ['compiler_generated'] )
+					in  let <_cor50> =
+						( call 'erlang':'element'
+						      (4, _cor3)
+						  -| ['compiler_generated'] )
+					    in  let <_cor49> =
+						    ( call 'erlang':'+'
+							  (H, 1)
+						      -| ['compiler_generated'] )
+						in  let <_cor51> =
+							( call 'erlang':'=='
+							      (_cor50, _cor49)
+							  -| ['compiler_generated'] )
+						    in  ( call ( 'erlang'
+								 -| ['compiler_generated'] ):( 'and'
+											       -| ['compiler_generated'] )
+							      (_cor47, _cor51)
+							  -| ['compiler_generated'] )
+			    -| ['compiler_generated'] )
+			  ( <> when 'true' ->
+				'false'
+			    -| ['compiler_generated'] )
+			end
+			-| ['compiler_generated'] )
+		  of <Try> ->
+		      Try
+		  catch <T,R> ->
+		      'false'
+		  -| ['compiler_generated'] ) ->
+	      %% Line 174
+	      apply 'main'/4
+		  (_cor3, _cor2, _cor1, _cor0)
+	  %% Line 175
+	  <{'gs',_X_Win,'configure',_X_Data,[W|_cor81]}> when 'true' ->
+	      do  %% Line 176
+		  call 'gs':'config'
+		      ('can1', [{'width',W}|[{'height',W}|[]]])
+		  do  %% Line 177
+		      call 'gs':'config'
+			  ('win1', {'configure','false'})
+		      let <_cor52> =
+			  %% Line 178
+			  call 'erlang':'-'
+			      (W, 1)
+		      in  let <_cor53> =
+			      %% Line 178
+			      call 'erlang':'-'
+				  (W, 1)
+			  in  do  %% Line 178
+				  call 'gs':'config'
+				      ('win1', [{'width',_cor52}|[{'height',_cor53}|[]]])
+				  do  %% Line 179
+				      call 'gs':'config'
+					  ('win1', {'configure','true'})
+				      %% Line 180
+				      case _cor3 of
+					<{'state',_cor82,_cor83,_cor84,_cor85,_cor86,_cor87,_cor88,_cor89,_cor90}> when 'true' ->
+					    let <_cor55> =
+						call 'erlang':'setelement'
+						    (4, _cor3, W)
+					    in  let <_cor57> =
+						    call 'erlang':'setelement'
+							(3, _cor55, W)
+						in  let <ToDo2> =
+							%% Line 181
+							apply 'make_jobs'/1
+							    (_cor57)
+						    in  %% Line 182
+							apply 'main'/4
+							    (_cor57, _cor2, _cor1, ToDo2)
+					( <_cor91> when 'true' ->
+					      ( call ( 'erlang'
+						       -| ['compiler_generated'] ):( 'error'
+										     -| ['compiler_generated'] )
+						    (( {'badrecord','state'}
+						       -| ['compiler_generated'] ))
+						-| ['compiler_generated'] )
+					  -| ['compiler_generated'] )
+				      end
+	after 'infinity' ->
+	  'true'
+'kill_nodes'/1 =
+    %% Line 185
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 186
+	      'done'
+	  %% Line 187
+	  <[Node|Nodes]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 188
+		  call 'rpc':'call'
+		      (Node, 'erlang', 'whereis', ['mandel_server'])
+	      in  do  %% Line 188
+		      call 'erlang':'exit'
+			  (_cor1, 'kill')
+		      %% Line 189
+		      apply 'kill_nodes'/1
+			  (Nodes)
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'kill_nodes',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'distribute_job'/2 =
+    %% Line 192
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 193
+	    call 'erlang':'self'
+		()
+	in  %% Line 193
+	    call 'erlang':'!'
+		({'mandel_server',_cor1}, {'mandel_job',{_cor2,_cor0}})
+'draw'/3 =
+    %% Line 195
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'state',Image,Wt,Ht,Xmax,_cor17,%% Line 196
+					    R,%% Line 196
+					      MI,%% Line 196
+						 ColorTable,_cor18},%% Line 196
+								    Node,%% Line 196
+									 Job> when 'true' ->
+	      %% Line 197
+	      case Job of
+		<{'job',Left,_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,Data}> when 'true' ->
+		    do  %% Line 198
+			call 'io':'format'
+			    ([71|[111|[116|[32|[100|[97|[116|[97|[32|[102|[114|[111|[109|[32|[110|[111|[100|[101|[32|[126|[51|[48|[119|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]], [Node|[]])
+			let <_cor5> =
+			    %% Line 202
+			    call 'erlang':'-'
+				(1, Wt)
+			in  let <_cor4> =
+				%% Line 202
+				call 'erlang':'-'
+				    (R)
+			    in  let <K> =
+				    %% Line 202
+				    call 'erlang':'/'
+					(_cor5, _cor4)
+				in  let <_cor8> =
+					%% Line 203
+					call 'erlang':'-'
+					    (Wt, 1)
+				    in  let <_cor7> =
+					    %% Line 203
+					    call 'erlang':'*'
+						(K, Xmax)
+					in  let <M> =
+						%% Line 203
+						call 'erlang':'-'
+						    (_cor8, _cor7)
+					    in  let <_cor10> =
+						    %% Line 204
+						    call 'erlang':'*'
+							(Left, K)
+						in  let <_cor11> =
+							%% Line 204
+							call 'erlang':'+'
+							    (_cor10, M)
+						    in  let <Xbegin> =
+							    %% Line 204
+							    call 'erlang':'round'
+								(_cor11)
+							in  let <_cor13> =
+								%% Line 205
+								call 'lists':'reverse'
+								    (Data)
+							    in  %% Line 205
+								apply 'draw_cols'/6
+								    (Image, Xbegin, Ht, _cor13, MI, ColorTable)
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor16,_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15,_cor14})
+		  -| [{'function_name',{'draw',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'draw_cols'/6 =
+    %% Line 207
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Image,X,Ht,[H|T],MaxIter,ColorTable> when 'true' ->
+	      do  %% Line 208
+		  apply 'draw_col'/6
+		      (Image, X, 0, H, MaxIter, ColorTable)
+		  let <_cor6> =
+		      %% Line 209
+		      call 'erlang':'+'
+			  (X, 1)
+		  in  %% Line 209
+		      apply 'draw_cols'/6
+			  (Image, _cor6, Ht, T, MaxIter, ColorTable)
+	  %% Line 210
+	  <_X_Image,_X_X,_cor13,[],_X_MaxIter,_X_ColorTable> when 'true' ->
+	      %% Line 211
+	      'done'
+	  ( <_cor12,_cor11,_cor10,_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10,_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'draw_cols',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'draw_col'/6 =
+    %% Line 213
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <_X_Image,_X_X,_X_Y,[{'no_first_color',0}],_X_MaxIter,_X_ColorTable> when 'true' ->
+	      %% Line 214
+	      'done'
+	  %% Line 215
+	  <Image,X,Y,[{Color,1}|T],MaxIter,ColorTable> when 'true' ->
+	      let <_cor6> =
+		  %% Line 217
+		  call 'erlang':'+'
+		      (Color, 1)
+	      in  let <_cor7> =
+		      %% Line 217
+		      call 'erlang':'element'
+			  (_cor6, ColorTable)
+		  in  do  %% Line 216
+			  call 'gs':'config'
+			      (Image, [{'pix_val',{{X,Y},_cor7}}|%% Line 217
+								 []])
+			  let <_cor8> =
+			      %% Line 218
+			      call 'erlang':'+'
+				  (Y, 1)
+			  in  %% Line 218
+			      apply 'draw_col'/6
+				  (Image, X, _cor8, T, MaxIter, ColorTable)
+	  %% Line 219
+	  <Image,X,Y,[{Color,Height}|T],MaxIter,ColorTable> when 'true' ->
+	      let <_cor12> =
+		  %% Line 220
+		  call 'erlang':'+'
+		      (X, 1)
+	      in  let <_cor11> =
+		      %% Line 220
+		      call 'erlang':'+'
+			  (Y, Height)
+		  in  let <_cor9> =
+			  %% Line 221
+			  call 'erlang':'+'
+			      (Color, 1)
+		      in  let <_cor10> =
+			      %% Line 221
+			      call 'erlang':'element'
+				  (_cor9, ColorTable)
+			  in  do  %% Line 220
+				  call 'gs':'config'
+				      (Image, [{'pix_val',{{{X,Y},{_cor12,_cor11}},_cor10}}|%% Line 221
+											    []])
+				  let <_cor13> =
+				      %% Line 222
+				      call 'erlang':'+'
+					  (Y, Height)
+				  in  %% Line 222
+				      apply 'draw_col'/6
+					  (Image, X, _cor13, T, MaxIter, ColorTable)
+	  ( <_cor19,_cor18,_cor17,_cor16,_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor19,_cor18,_cor17,_cor16,_cor15,_cor14})
+		  -| [{'function_name',{'draw_col',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'make_jobs'/1 =
+    %% Line 224
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'state',_cor4,W,H,%% Line 225
+			      Xmax,%% Line 225
+				   Ymax,R,%% Line 225
+					  MI,_cor5,_cor6}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 226
+		  call 'erlang':'-'
+		      (Xmax, R)
+	      in  let <_cor1> =
+		      %% Line 226
+		      call 'erlang':'-'
+			  (Ymax, R)
+		  in  %% Line 226
+		      apply 'make_jobs'/7
+			  (_cor2, Xmax, _cor1, Ymax, H, W, MI)
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'make_jobs',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'make_jobs'/7 =
+    %% Line 228
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <NoJobs> =
+	    %% Line 229
+	    call 'erlang':'/'
+		(_cor1, 10)
+	in  let <_cor8> =
+		%% Line 230
+		call 'erlang':'-'
+		    (_cor5, _cor6)
+	    in  let <DX> =
+		    %% Line 230
+		    call 'erlang':'/'
+			(_cor8, NoJobs)
+		in  let <_cor10> =
+			%% Line 231
+			call 'erlang':'/'
+			    (_cor1, NoJobs)
+		    in  %% Line 231
+			apply 'make_jobs'/5
+			    (DX, _cor6, _cor5, {'job','undefined','undefined',_cor4,_cor3,_cor2,_cor10,_cor0,[]}, %% Line 232
+														  [])
+'make_jobs'/5 =
+    %% Line 234
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <DX,Left,Xmax,JobSkel,Res>
+	      when call 'erlang':'=<'
+		    (Left,
+		     Xmax) ->
+	      let <Right> =
+		  %% Line 235
+		  call 'erlang':'+'
+		      (Left, DX)
+	      in  %% Line 236
+		  case JobSkel of
+		    <{'job',_cor16,_cor17,_cor18,_cor19,_cor20,_cor21,_cor22,_cor23}> when 'true' ->
+			let <_cor7> =
+			    call 'erlang':'setelement'
+				(3, JobSkel, Right)
+			in  let <_cor9> =
+				call 'erlang':'setelement'
+				    (2, _cor7, Left)
+			    in  %% Line 237
+				apply 'make_jobs'/5
+				    (DX, Right, Xmax, JobSkel, [_cor9|Res])
+		    ( <_cor24> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','job'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 238
+	  <_X_DX,_X_Left,_X_Xmax,_X_JobSkel,Res> when 'true' ->
+	      Res
+	end
+'refresher'/1 =
+    %% Line 243
+    fun (_cor0) ->
+	do  %% Line 244
+	    call 'gs':'config'
+		(_cor0, 'flush')
+	    %% Line 245
+	    call 'timer':'apply_after'
+		(8000, 'mandel', 'refresher', [_cor0|[]])
+'start_server'/1 =
+    %% Line 250
+    fun (_cor0) ->
+	case _cor0 of
+	  <[ClientNode|[]]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 251
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 251
+		      call 'erlang':'register'
+			  ('mandel_server', _cor1)
+		      do  %% Line 252
+			  call 'erlang':'monitor_node'
+			      (ClientNode, 'true')
+			  %% Line 253
+			  apply 'server_loop'/0
+			      ()
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'start_server',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'server_loop'/0 =
+    %% Line 255
+    fun () ->
+	%% Line 256
+	receive
+	  %% Line 257
+	  <{'mandel_job',{Pid,Job}}> when 'true' ->
+	      do  %% Line 258
+		  call 'erlang':'spawn_link'
+		      ('mandel', 'respond', [Pid|[Job|[]]])
+		  %% Line 259
+		  apply 'server_loop'/0
+		      ()
+	after 'infinity' ->
+	  'true'
+'respond'/2 =
+    %% Line 262
+    fun (_cor1,_cor0) ->
+	let <Data> =
+	    %% Line 263
+	    apply 'do_job'/1
+		(_cor0)
+	in  let <_cor3> =
+		%% Line 264
+		call 'erlang':'node'
+		    ()
+	    in  %% Line 264
+		call 'erlang':'!'
+		    (_cor1, {'calculation_done',{_cor3,Data}})
+'do_job'/1 =
+    %% Line 266
+    fun (_cor0) ->
+	%% Line 267
+	apply 'calculate_area'/1
+	    (_cor0)
+'calculate_area'/1 =
+    %% Line 269
+    fun (_cor0) ->
+	%% Line 270
+	case _cor0 of
+	  <{'job',Xmin,Xmax,Ymin,Ymax,Ht,Wt,_cor10,_cor11}> when 'true' ->
+	      let <_cor4> =
+		  %% Line 271
+		  call 'erlang':'-'
+		      (Xmax, Xmin)
+	      in  let <_cor5> =
+		      %% Line 271
+		      call 'erlang':'/'
+			  (_cor4, Wt)
+		  in  let <_cor2> =
+			  %% Line 271
+			  call 'erlang':'-'
+			      (Ymax, Ymin)
+		      in  let <_cor3> =
+			      %% Line 271
+			      call 'erlang':'/'
+				  (_cor2, Ht)
+			  in  let <_rec3> =
+				  %% Line 271
+				  apply 'x_loop'/7
+				      (0, [], Wt, _cor5, _cor3, Xmin, _cor0)
+			      in  %% Line 271
+				  call 'erlang':'setelement'
+				      (9, _cor0, _rec3)
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'x_loop'/7 =
+    %% Line 273
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <IX,Res,Wt,Dx,Dy,X,Job>
+	      when call 'erlang':'<'
+		    (IX,
+		     Wt) ->
+	      %% Line 274
+	      case Job of
+		<{'job',_cor18,_cor19,Ymin,_cor20,Ht,_cor21,MaxIter,_cor22}> when 'true' ->
+		    let <Cols> =
+			%% Line 275
+			apply 'y_loop'/9
+			    (0, Ht, [], MaxIter, Dy, X, Ymin, 'no_first_color', 0)
+		    in  let <_cor10> =
+			    %% Line 276
+			    call 'erlang':'+'
+				(IX, 1)
+			in  let <_cor9> =
+				%% Line 276
+				call 'erlang':'+'
+				    (X, Dx)
+			    in  %% Line 276
+				apply 'x_loop'/7
+				    (_cor10, [Cols|Res], Wt, Dx, Dy, _cor9, Job)
+		( <_cor7> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor7})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 277
+	  <_cor23,Res,_cor24,_cor25,_cor26,_cor27,_cor28> when 'true' ->
+	      %% Line 278
+	      Res
+	end
+'y_loop'/9 =
+    %% Line 280
+    fun (_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <IY,Ht,Res,MaxIter,Dy,X,Y,PrevColor,NprevColor>
+	      when call 'erlang':'<'
+		    (IY,
+		     Ht) ->
+	      let <Color> =
+		  %% Line 281
+		  apply 'color_loop'/8
+		      (1, MaxIter, 0, 0, 0, 0, X, Y)
+	      in  %% Line 282
+		  case <> of
+		    %% Line 283
+		    <>
+			when call 'erlang':'=='
+			      (Color,
+			       PrevColor) ->
+			let <_cor12> =
+			    %% Line 284
+			    call 'erlang':'+'
+				(IY, 1)
+			in  let <_cor11> =
+				%% Line 284
+				call 'erlang':'+'
+				    (Y, Dy)
+			    in  let <_cor10> =
+				    %% Line 284
+				    call 'erlang':'+'
+					(NprevColor, 1)
+				in  %% Line 284
+				    apply 'y_loop'/9
+					(_cor12, Ht, Res, MaxIter, Dy, X, _cor11, PrevColor, _cor10)
+		    %% Line 285
+		    <> when 'true' ->
+			let <_cor14> =
+			    %% Line 286
+			    call 'erlang':'+'
+				(IY, 1)
+			in  let <_cor13> =
+				%% Line 287
+				call 'erlang':'+'
+				    (Y, Dy)
+			    in  %% Line 286
+				apply 'y_loop'/9
+				    (_cor14, Ht, [{PrevColor,NprevColor}|Res], MaxIter, %% Line 287
+											Dy, %% Line 287
+											    X, _cor13, %% Line 287
+												       Color, %% Line 287
+													      1)
+		  end
+	  %% Line 290
+	  <_cor24,_cor25,Res,_cor26,_cor27,_cor28,_cor29,PC,N> when 'true' ->
+	      %% Line 291
+	      [{PC,N}|Res]
+	end
+'color_loop'/8 =
+    %% Line 293
+    fun (_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Color,MaxIter,Za,Zb,Za2,Zb2,X,Y>
+	      when %% Line 294
+		try
+		    let <_cor8> =
+			call 'erlang':'+'
+			    (Za2, Zb2)
+		    in  let <_cor9> =
+			    call 'erlang':'<'
+				(_cor8, 4)
+			in  let <_cor10> =
+				call 'erlang':'<'
+				    (Color, MaxIter)
+			    in  call 'erlang':'and'
+				    (_cor9, _cor10)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor11> =
+		  %% Line 295
+		  call 'erlang':'-'
+		      (Za2, Zb2)
+	      in  let <Ztmp> =
+		      %% Line 295
+		      call 'erlang':'+'
+			  (_cor11, X)
+		  in  let <_cor13> =
+			  %% Line 296
+			  call 'erlang':'*'
+			      (2, Za)
+		      in  let <_cor14> =
+			      %% Line 296
+			      call 'erlang':'*'
+				  (_cor13, Zb)
+			  in  let <ZbN> =
+				  %% Line 296
+				  call 'erlang':'+'
+				      (_cor14, Y)
+			      in  let <_cor18> =
+				      %% Line 297
+				      call 'erlang':'+'
+					  (Color, 1)
+				  in  let <_cor17> =
+					  %% Line 297
+					  call 'erlang':'*'
+					      (Ztmp, Ztmp)
+				      in  let <_cor16> =
+					      %% Line 297
+					      call 'erlang':'*'
+						  (ZbN, ZbN)
+					  in  %% Line 297
+					      apply 'color_loop'/8
+						  (_cor18, MaxIter, Ztmp, ZbN, _cor17, _cor16, X, Y)
+	  %% Line 298
+	  <MaxIter,_cor27,_X_Za,_X_Zb,_X_Za2,_X_Zb2,_X_X,_X_Y>
+	      when call 'erlang':'=:='
+		    (_cor27,
+		     MaxIter) ->
+	      %% Line 299
+	      0
+	  %% Line 300
+	  <Color,_cor28,_cor29,_cor30,_cor31,_cor32,_cor33,_cor34> when 'true' ->
+	      %% Line 301
+	      Color
+	end
+'make_color_table'/1 =
+    %% Line 306
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 307
+	    apply 'colors'/1
+		(_cor0)
+	in  %% Line 307
+	    call 'erlang':'list_to_tuple'
+		([{0,0,0}|_cor1])
+'colors'/1 =
+    %% Line 309
+    fun (_cor0) ->
+	%% Line 310
+	case call 'erlang':'now'
+		 () of
+	  <{A,B,C}> when 'true' ->
+	      do  %% Line 311
+		  call 'random':'seed'
+		      (A, B, C)
+		  let <Colors> =
+		      %% Line 312
+		      apply 'random_colors'/1
+			  (_cor0)
+		  in  let <_cor4> =
+			  %% Line 313
+			  call 'erlang':'hd'
+			      (Colors)
+		      in  let <_cor3> =
+			      %% Line 313
+			      call 'erlang':'tl'
+				  (Colors)
+			  in  %% Line 313
+			      apply 'best_insert'/2
+				  ([_cor4|[]], _cor3)
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'random_colors'/1 =
+    %% Line 316
+    fun (_cor0) ->
+	case _cor0 of
+	  <0> when 'true' ->
+	      []
+	  %% Line 317
+	  <N> when 'true' ->
+	      let <_cor1> =
+		  %% Line 318
+		  call 'random':'uniform'
+		      (256)
+	      in  let <R> =
+		      %% Line 318
+		      call 'erlang':'-'
+			  (_cor1, 1)
+		  in  let <_cor3> =
+			  %% Line 319
+			  call 'random':'uniform'
+			      (256)
+		      in  let <G> =
+			      %% Line 319
+			      call 'erlang':'-'
+				  (_cor3, 1)
+			  in  let <_cor5> =
+				  %% Line 320
+				  call 'random':'uniform'
+				      (256)
+			      in  let <B> =
+				      %% Line 320
+				      call 'erlang':'-'
+					  (_cor5, 1)
+				  in  let <_cor7> =
+					  %% Line 321
+					  call 'erlang':'-'
+					      (N, 1)
+				      in  let <_cor8> =
+					      %% Line 321
+					      apply 'random_colors'/1
+						  (_cor7)
+					  in  %% Line 321
+					      [{R,G,B}|_cor8]
+	end
+'best_insert'/2 =
+    %% Line 323
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Sorted,[RGB|Unsorted]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 324
+		  apply 'best_pos'/2
+		      (RGB, Sorted)
+	      in  let <_cor3> =
+		      %% Line 324
+		      apply 'insert_at'/3
+			  (_cor2, RGB, Sorted)
+		  in  %% Line 324
+		      apply 'best_insert'/2
+			  (_cor3, Unsorted)
+	  %% Line 325
+	  <Sorted,[]> when 'true' ->
+	      Sorted
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'best_insert',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'insert_at'/3 =
+    %% Line 327
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <1,Elem,L> when 'true' ->
+	      [Elem|L]
+	  %% Line 328
+	  <N,Elem,[H|T]> when 'true' ->
+	      let <_cor3> =
+		  call 'erlang':'-'
+		      (N, 1)
+	      in  let <_cor4> =
+		      apply 'insert_at'/3
+			  (_cor3, Elem, T)
+		  in  [H|_cor4]
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'insert_at',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'best_pos'/2 =
+    %% Line 330
+    fun (_cor1,_cor0) ->
+	let <D> =
+	    %% Line 331
+	    apply 'distances'/2
+		(_cor1, _cor0)
+	in  %% Line 332
+	    apply 'pos_for_smallest_distance'/4
+		(D, 1, 1000, -1)
+'pos_for_smallest_distance'/4 =
+    %% Line 334
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[],_X_CurPos,_X_SmallestDist,Pos> when 'true' ->
+	      Pos
+	  %% Line 335
+	  <[Dist|T],CurPos,SmallDist,_X_Pos>
+	      when %% Line 336
+		call 'erlang':'<'
+		    (Dist,
+		     SmallDist) ->
+	      let <_cor4> =
+		  %% Line 337
+		  call 'erlang':'+'
+		      (CurPos, 1)
+	      in  %% Line 337
+		  apply 'pos_for_smallest_distance'/4
+		      (T, _cor4, Dist, CurPos)
+	  %% Line 338
+	  <[_cor10|T],CurPos,Smallest,Pos> when 'true' ->
+	      let <_cor5> =
+		  %% Line 339
+		  call 'erlang':'+'
+		      (CurPos, 1)
+	      in  %% Line 339
+		  apply 'pos_for_smallest_distance'/4
+		      (T, _cor5, Smallest, Pos)
+	  ( <_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'pos_for_smallest_distance',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'distances'/2 =
+    %% Line 341
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_RGB,[]> when 'true' ->
+	      %% Line 342
+	      []
+	  %% Line 343
+	  <{R,G,B},[{R2,G2,B2}|T]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 344
+		  call 'erlang':'-'
+		      (R, R2)
+	      in  let <_cor3> =
+		      %% Line 344
+		      call 'erlang':'abs'
+			  (_cor2)
+		  in  let <_cor4> =
+			  %% Line 344
+			  call 'erlang':'-'
+			      (G, G2)
+		      in  let <_cor5> =
+			      %% Line 344
+			      call 'erlang':'abs'
+				  (_cor4)
+			  in  let <_cor6> =
+				  %% Line 344
+				  call 'erlang':'-'
+				      (B, B2)
+			      in  let <_cor7> =
+				      %% Line 344
+				      call 'erlang':'abs'
+					  (_cor6)
+				  in  let <_cor8> =
+					  %% Line 344
+					  call 'lists':'max'
+					      ([_cor3|[_cor5|[_cor7|[]]]])
+				      in  let <_cor9> =
+					      %% Line 344
+					      apply 'distances'/2
+						  ({R,G,B}, T)
+					  in  %% Line 344
+					      [_cor8|_cor9]
+	  ( <_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10})
+		  -| [{'function_name',{'distances',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_option'/3 =
+    %% Line 346
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 347
+	case call 'gs':'assq'
+		 (_cor2, _cor1) of
+	  %% Line 348
+	  <{'value',Val}> when 'true' ->
+	      Val
+	  %% Line 349
+	  <'false'> when 'true' ->
+	      _cor0
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('mandel')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('mandel', _cor0)
+end

@@ -1,0 +1,2234 @@
+module 'dbg_iserver' ['call'/1,
+		      'call'/2,
+		      'cast'/1,
+		      'cast'/2,
+		      'code_change'/3,
+		      'find'/0,
+		      'handle_call'/3,
+		      'handle_cast'/2,
+		      'handle_info'/2,
+		      'init'/1,
+		      'module_info'/0,
+		      'module_info'/1,
+		      'safe_call'/1,
+		      'safe_cast'/1,
+		      'start'/0,
+		      'stop'/0,
+		      'terminate'/2]
+    attributes [%% Line 20
+		'behaviour' =
+		    %% Line 20
+		    ['gen_server']]
+'start'/0 =
+    %% Line 52
+    fun () ->
+	%% Line 53
+	call 'gen_server':'start'
+	    ({'local','dbg_iserver'}, 'dbg_iserver', [], [])
+'stop'/0 =
+    %% Line 55
+    fun () ->
+	%% Line 56
+	call 'gen_server':'cast'
+	    ('dbg_iserver', 'stop')
+'find'/0 =
+    %% Line 58
+    fun () ->
+	%% Line 59
+	call 'global':'whereis_name'
+	    ('dbg_iserver')
+'call'/1 =
+    %% Line 61
+    fun (_cor0) ->
+	%% Line 62
+	call 'gen_server':'call'
+	    ('dbg_iserver', _cor0, 'infinity')
+'call'/2 =
+    %% Line 64
+    fun (_cor1,_cor0) ->
+	%% Line 65
+	call 'gen_server':'call'
+	    (_cor1, _cor0, 'infinity')
+'cast'/1 =
+    %% Line 67
+    fun (_cor0) ->
+	%% Line 68
+	call 'gen_server':'cast'
+	    ('dbg_iserver', _cor0)
+'cast'/2 =
+    %% Line 70
+    fun (_cor1,_cor0) ->
+	%% Line 71
+	call 'gen_server':'cast'
+	    (_cor1, _cor0)
+'safe_call'/1 =
+    %% Line 73
+    fun (_cor0) ->
+	do  %% Line 74
+	    apply 'ensure_started'/0
+		()
+	    %% Line 75
+	    apply 'call'/1
+		(_cor0)
+'safe_cast'/1 =
+    %% Line 77
+    fun (_cor0) ->
+	do  %% Line 78
+	    apply 'ensure_started'/0
+		()
+	    %% Line 79
+	    apply 'cast'/1
+		(_cor0)
+'ensure_started'/0 =
+    %% Line 81
+    fun () ->
+	%% Line 82
+	case call 'erlang':'whereis'
+		 ('dbg_iserver') of
+	  %% Line 83
+	  <'undefined'> when 'true' ->
+	      apply 'start'/0
+		  ()
+	  %% Line 84
+	  <_X_Pid> when 'true' ->
+	      'ignore'
+	end
+'init'/1 =
+    %% Line 113
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      do  %% Line 114
+		  call 'erlang':'process_flag'
+		      ('trap_exit', 'true')
+		  let <_cor1> =
+		      %% Line 115
+		      call 'erlang':'self'
+			  ()
+		  in  do  %% Line 115
+			  call 'global':'register_name'
+			      ('dbg_iserver', _cor1)
+			  let <Db> =
+			      %% Line 116
+			      call 'ets':'new'
+				  ('dbg_iserver', ['ordered_set'|['protected']])
+			  in  %% Line 117
+			      {'ok',{'state',Db,[],[],'false','no_tail',[]}}
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_call'/3 =
+    %% Line 120
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'attached',AttPid,Pid},_X_From,State> when 'true' ->
+	      %% Line 121
+	      ( case State of
+		  ( <( {'state',_cor184,_rec0,_cor185,_cor186,_cor187,_cor188}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case apply 'get_proc'/2
+				 ({'pid',Pid}, _rec0) of
+			  <{'true',Proc}> when 'true' ->
+			      %% Line 122
+			      ( case Proc of
+				  ( <( {'proc',_cor190,_cor191,_rec1,_cor192,_cor193,_cor194,_cor195}
+				       -| ['compiler_generated'] )> when 'true' ->
+					case _rec1 of
+					  %% Line 123
+					  <'undefined'> when 'true' ->
+					      do  %% Line 124
+						  call 'erlang':'link'
+						      (AttPid)
+						  %% Line 125
+						  case _cor192 of
+						    %% Line 126
+						    <'exit'> when 'true' ->
+							let <_cor10> =
+							    %% Line 127
+							    call 'erlang':'self'
+								()
+							in  let <Args> =
+								%% Line 127
+								[_cor10|%% Line 128
+									[AttPid|[Pid|[_cor193|%% Line 129
+											      [_cor194|[]]]]]]
+							    in  let <Meta> =
+								    %% Line 130
+								    call 'erlang':'spawn_link'
+									('dbg_ieval', 'exit_info', Args)
+								in  let <_cor18> =
+									%% Line 131
+									call 'erlang':'setelement'
+									    (4, Proc, AttPid)
+								    in  let <_cor20> =
+									    %% Line 131
+									    call 'erlang':'setelement'
+										(3, _cor18, Meta)
+									in  let <Procs> =
+										%% Line 132
+										call 'lists':'keyreplace'
+										    (Pid, 2, _rec0, _cor20)
+									    in  let <_cor27> =
+										    %% Line 134
+										    call 'erlang':'setelement'
+											(3, State, Procs)
+										in  %% Line 134
+										    {'reply',{'ok',Meta},_cor27}
+						    %% Line 135
+						    <_X_Status> when 'true' ->
+							do  %% Line 137
+							    apply 'send'/2
+								(_cor191, {'attached',AttPid})
+							    let <_cor33> =
+								%% Line 140
+								call 'erlang':'setelement'
+								    (4, Proc, AttPid)
+							    in  let <Procs> =
+								    %% Line 138
+								    call 'lists':'keyreplace'
+									(Pid, 2, _rec0, _cor33)
+								in  let <_cor39> =
+									%% Line 141
+									call 'erlang':'setelement'
+									    (3, State, Procs)
+								    in  %% Line 141
+									{'reply',{'ok',_cor191},_cor39}
+						  end
+					  %% Line 143
+					  <_X_AttPid> when 'true' ->
+					      %% Line 144
+					      {'reply','error',State}
+					end
+				    -| ['compiler_generated'] )
+				  ( <_cor196> when 'true' ->
+					( call ( 'erlang'
+						 -| ['compiler_generated'] ):( 'error'
+									       -| ['compiler_generated'] )
+					      (( {'badrecord','proc'}
+						 -| ['compiler_generated'] ))
+					  -| ['compiler_generated'] )
+				    -| ['compiler_generated'] )
+				end
+				-| ['compiler_generated'] )
+			  ( <_cor5> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor5})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor189> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 148
+	  <'get_auto_attach',_X_From,State> when 'true' ->
+	      %% Line 149
+	      ( case State of
+		  ( <( {'state',_cor267,_cor268,_cor269,_rec12,_cor270,_cor271}
+		       -| ['compiler_generated'] )> when 'true' ->
+			{'reply',_rec12,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor272> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 150
+	  <'get_stack_trace',_X_From,State> when 'true' ->
+	      %% Line 151
+	      ( case State of
+		  ( <( {'state',_cor273,_cor274,_cor275,_cor276,_rec13,_cor277}
+		       -| ['compiler_generated'] )> when 'true' ->
+			{'reply',_rec13,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor278> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 154
+	  <'snapshot',_X_From,State> when 'true' ->
+	      let <_cor60> =
+		  %% Line 155
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor50) ->
+				case _cor50 of
+				  <[%% Line 156
+				    Proc|_cor47]> when 'true' ->
+				      ( case Proc of
+					  ( <( {'proc',_rec15,_cor279,_cor280,_cor281,_cor282,_cor283,_cor284}
+					       -| ['compiler_generated'] )> when 'true' ->
+						let <_cor59> =
+						    %% Line 156
+						    apply 'lc$^0'/1
+							(_cor47)
+						in  ( [{_rec15,_cor284,_cor281,_cor282}|_cor59]
+						      -| ['compiler_generated'] )
+					    -| ['compiler_generated'] )
+					  ( <_cor285> when 'true' ->
+						( call ( 'erlang'
+							 -| ['compiler_generated'] ):( 'error'
+										       -| ['compiler_generated'] )
+						      (( {'badrecord','proc'}
+							 -| ['compiler_generated'] ))
+						  -| ['compiler_generated'] )
+					    -| ['compiler_generated'] )
+					end
+					-| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor50> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor50})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  %% Line 156
+			( case State of
+			    ( <( {'state',_cor307,_rec14,_cor308,_cor309,_cor310,_cor311}
+				 -| ['compiler_generated'] )> when 'true' ->
+				  apply 'lc$^0'/1
+				      (_rec14)
+			      -| ['compiler_generated'] )
+			    ( <_cor312> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','state'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		    -| ['list_comprehension'] )
+	      in  %% Line 157
+		  {'reply',_cor60,State}
+	  %% Line 158
+	  <{'get_meta',Pid},_X_From,State> when 'true' ->
+	      %% Line 159
+	      ( case State of
+		  ( <( {'state',_cor313,_rec19,_cor314,_cor315,_cor316,_cor317}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor67> =
+			    case apply 'get_proc'/2
+				     ({'pid',Pid}, _rec19) of
+			      %% Line 160
+			      <{'true',Proc}> when 'true' ->
+				  %% Line 161
+				  ( case Proc of
+				      ( <( {'proc',_cor319,_rec20,_cor320,_cor321,_cor322,_cor323,_cor324}
+					   -| ['compiler_generated'] )> when 'true' ->
+					    {'ok',_rec20}
+					-| ['compiler_generated'] )
+				      ( <_cor325> when 'true' ->
+					    ( call ( 'erlang'
+						     -| ['compiler_generated'] ):( 'error'
+										   -| ['compiler_generated'] )
+						  (( {'badrecord','proc'}
+						     -| ['compiler_generated'] ))
+					      -| ['compiler_generated'] )
+					-| ['compiler_generated'] )
+				    end
+				    -| ['compiler_generated'] )
+			      %% Line 162
+			      <'false'> when 'true' ->
+				  %% Line 163
+				  {'error','not_interpreted'}
+			      ( <_cor66> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor66})
+				-| ['compiler_generated'] )
+			    end
+			in  %% Line 165
+			    {'reply',_cor67,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor318> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 166
+	  <{'get_attpid',Pid},_X_From,State> when 'true' ->
+	      %% Line 167
+	      ( case State of
+		  ( <( {'state',_cor326,_rec21,_cor327,_cor328,_cor329,_cor330}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor74> =
+			    case apply 'get_proc'/2
+				     ({'pid',Pid}, _rec21) of
+			      %% Line 168
+			      <{'true',Proc}> when 'true' ->
+				  %% Line 169
+				  ( case Proc of
+				      ( <( {'proc',_cor332,_cor333,_rec22,_cor334,_cor335,_cor336,_cor337}
+					   -| ['compiler_generated'] )> when 'true' ->
+					    {'ok',_rec22}
+					-| ['compiler_generated'] )
+				      ( <_cor338> when 'true' ->
+					    ( call ( 'erlang'
+						     -| ['compiler_generated'] ):( 'error'
+										   -| ['compiler_generated'] )
+						  (( {'badrecord','proc'}
+						     -| ['compiler_generated'] ))
+					      -| ['compiler_generated'] )
+					-| ['compiler_generated'] )
+				    end
+				    -| ['compiler_generated'] )
+			      %% Line 170
+			      <'false'> when 'true' ->
+				  %% Line 171
+				  {'error','not_interpreted'}
+			      ( <_cor73> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor73})
+				-| ['compiler_generated'] )
+			    end
+			in  %% Line 173
+			    {'reply',_cor74,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor331> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 177
+	  <{'new_break',Point,Options},_X_From,State> when 'true' ->
+	      %% Line 178
+	      ( case State of
+		  ( <( {'state',_cor339,_cor340,_rec23,_cor341,_cor342,_cor343}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case call 'lists':'keymember'
+				 (Point, 1, _rec23) of
+			  %% Line 179
+			  <'false'> when 'true' ->
+			      let <Break> = {%% Line 180
+				   Point,%% Line 180
+					 Options}
+			      in  do  %% Line 181
+				      apply 'send_all'/3
+					  (['subscriber'|['meta'|['attached']]], %% Line 182
+										 {'new_break',Break}, %% Line 182
+												      State)
+				      let <Breaks> =
+					  %% Line 183
+					  apply 'keyinsert'/3
+					      (Break, 1, _rec23)
+				      in  let <_cor84> =
+					      %% Line 184
+					      call 'erlang':'setelement'
+						  (4, State, Breaks)
+					  in  %% Line 184
+					      {'reply','ok',_cor84}
+			  %% Line 185
+			  <'true'> when 'true' ->
+			      %% Line 186
+			      {'reply',{'error','break_exists'},State}
+			  ( <_cor85> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor85})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor344> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 188
+	  <'all_breaks',_X_From,State> when 'true' ->
+	      %% Line 189
+	      ( case State of
+		  ( <( {'state',_cor358,_cor359,_rec26,_cor360,_cor361,_cor362}
+		       -| ['compiler_generated'] )> when 'true' ->
+			{'reply',_rec26,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor363> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 190
+	  <{'all_breaks',Mod},_X_From,State> when 'true' ->
+	      let <_cor94> =
+		  %% Line 191
+		  ( letrec
+			'lc$^1'/1 =
+			    fun (_cor92) ->
+				case _cor92 of
+				  <[Break = {{M,_cor364},_cor365}|_cor89]>
+				      when call 'erlang':'=:='
+					    (M,
+					     Mod) ->
+				      let <_cor93> =
+					  apply 'lc$^1'/1
+					      (_cor89)
+				      in  ( [Break|_cor93]
+					    -| ['compiler_generated'] )
+				  ( <[_cor88|_cor89]> when 'true' ->
+					apply 'lc$^1'/1
+					    (_cor89)
+				    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor92> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor92})
+					  -| [{'function_name',{'lc$^1',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  ( case State of
+			    ( <( {'state',_cor366,_cor367,_rec27,_cor368,_cor369,_cor370}
+				 -| ['compiler_generated'] )> when 'true' ->
+				  apply 'lc$^1'/1
+				      (_rec27)
+			      -| ['compiler_generated'] )
+			    ( <_cor371> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','state'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		    -| ['list_comprehension'] )
+	      in  %% Line 192
+		  {'reply',_cor94,State}
+	  %% Line 195
+	  <{'new_process',Pid,Meta,Function},_X_From,State> when 'true' ->
+	      do  %% Line 196
+		  call 'erlang':'link'
+		      (Meta)
+		  %% Line 202
+		  ( case State of
+		      ( <( {'state',_cor372,_cor373,_cor374,_rec28,_cor375,_cor376}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    let <_cor99> =
+				case apply 'auto_attach'/3
+					 ('init', _rec28, Pid) of
+				  %% Line 203
+				  <AttPid>
+				      when call 'erlang':'is_pid'
+					    (AttPid) ->
+				      'break'
+				  %% Line 204
+				  <'ignore'> when 'true' ->
+				      'running'
+				  ( <_cor98> when 'true' ->
+					primop 'match_fail'
+					    ({'case_clause',_cor98})
+				    -| ['compiler_generated'] )
+				end
+			    in  let <Proc> =
+				    %% Line 208
+				    {'proc',Pid,Meta,'undefined','running',{},{},Function}
+				in  do  %% Line 209
+					apply 'send_all'/3
+					    ('subscriber', %% Line 210
+							   {'new_process',{Pid,Function,'running',{}}}, %% Line 210
+													State)
+					let <_rec29> =
+					    %% Line 212
+					    call 'erlang':'++'
+						(_cor373, [Proc|[]])
+					in  let <_cor107> =
+						%% Line 212
+						call 'erlang':'setelement'
+						    (3, State, _rec29)
+					    in  %% Line 212
+						{'reply',_cor99,_cor107}
+			-| ['compiler_generated'] )
+		      ( <_cor377> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	  %% Line 215
+	  <{'load',Mod,Src,Bin},_X_From,State> when 'true' ->
+	      %% Line 218
+	      ( case State of
+		  ( <( {'state',_rec32,_cor391,_cor392,_cor393,_cor394,_cor395}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <ModDb> =
+			    %% Line 219
+			    call 'ets':'new'
+				(Mod, ['ordered_set'|['public']])
+			in  let <_cor113> =
+				%% Line 220
+				case call 'ets':'lookup'
+					 (_rec32, {Mod,'refs'}) of
+				  %% Line 221
+				  <[]> when 'true' ->
+				      []
+				  %% Line 222
+				  <[{{_cor397,'refs'},ModDbs1}|[]]>
+				      when call 'erlang':'=:='
+					    (_cor397,
+					     Mod) ->
+				      ModDbs1
+				  ( <_cor112> when 'true' ->
+					primop 'match_fail'
+					    ({'case_clause',_cor112})
+				    -| ['compiler_generated'] )
+				end
+			    in  do  %% Line 224
+				    call 'ets':'insert'
+					(_rec32, {{Mod,'refs'},[ModDb|_cor113]})
+				    do  %% Line 225
+					call 'ets':'insert'
+					    (_rec32, {ModDb,[]})
+					%% Line 228
+					case call 'dbg_iload':'load_mod'
+						 (Mod, Src, Bin, ModDb) of
+					  <{'ok',_cor398}>
+					      when call 'erlang':'=:='
+						    (_cor398,
+						     Mod) ->
+					      do  %% Line 231
+						  apply 'send_all'/3
+						      (['subscriber'|['attached']], {'interpret',Mod}, State)
+						  %% Line 233
+						  {'reply',{'module',Mod},State}
+					  ( <_cor115> when 'true' ->
+						primop 'match_fail'
+						    ({'badmatch',_cor115})
+					    -| ['compiler_generated'] )
+					end
+		    -| ['compiler_generated'] )
+		  ( <_cor396> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 236
+	  <{'get_module_db',Mod,Pid},_X_From,State> when 'true' ->
+	      %% Line 237
+	      ( case State of
+		  ( <( {'state',_rec33,_cor399,_cor400,_cor401,_cor402,_cor403}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor121> =
+			    %% Line 238
+			    case call 'ets':'lookup'
+				     (_rec33, {Mod,'refs'}) of
+			      %% Line 239
+			      <[]> when 'true' ->
+				  'not_found'
+			      %% Line 240
+			      <[{{_cor405,'refs'},[ModDb|_X_ModDbs]}|[]]>
+				  when call 'erlang':'=:='
+					(_cor405,
+					 Mod) ->
+				  %% Line 241
+				  case call 'ets':'lookup'
+					   (_rec33, ModDb) of
+				    <[{_cor406,Pids}|[]]>
+					when call 'erlang':'=:='
+					      (_cor406,
+					       ModDb) ->
+					do  %% Line 242
+					    call 'ets':'insert'
+						(_rec33, {ModDb,[Pid|Pids]})
+					    %% Line 243
+					    ModDb
+				    ( <_cor119> when 'true' ->
+					  primop 'match_fail'
+					      ({'badmatch',_cor119})
+				      -| ['compiler_generated'] )
+				  end
+			      ( <_cor120> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor120})
+				-| ['compiler_generated'] )
+			    end
+			in  %% Line 245
+			    {'reply',_cor121,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor404> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 246
+	  <{'lookup',Mod,Key},_X_From,State> when 'true' ->
+	      %% Line 247
+	      ( case State of
+		  ( <( {'state',_rec34,_cor407,_cor408,_cor409,_cor410,_cor411}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor128> =
+			    %% Line 248
+			    case call 'ets':'lookup'
+				     (_rec34, {Mod,'refs'}) of
+			      %% Line 249
+			      <[]> when 'true' ->
+				  'not_found'
+			      %% Line 250
+			      <[{{_cor413,'refs'},[ModDb|_X_ModDbs]}|[]]>
+				  when call 'erlang':'=:='
+					(_cor413,
+					 Mod) ->
+				  %% Line 251
+				  case call 'ets':'lookup'
+					   (ModDb, Key) of
+				    %% Line 252
+				    <[]> when 'true' ->
+					'not_found'
+				    %% Line 253
+				    <[{_cor414,Value}|[]]>
+					when call 'erlang':'=:='
+					      (_cor414,
+					       Key) ->
+					{'ok',Value}
+				    ( <_cor126> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor126})
+				      -| ['compiler_generated'] )
+				  end
+			      ( <_cor127> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor127})
+				-| ['compiler_generated'] )
+			    end
+			in  %% Line 256
+			    {'reply',_cor128,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor412> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 257
+	  <{'functions',Mod},_X_From,State> when 'true' ->
+	      %% Line 258
+	      ( case State of
+		  ( <( {'state',_rec35,_cor415,_cor416,_cor417,_cor418,_cor419}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor135> =
+			    %% Line 259
+			    case call 'ets':'lookup'
+				     (_rec35, {Mod,'refs'}) of
+			      %% Line 260
+			      <[]> when 'true' ->
+				  []
+			      %% Line 261
+			      <[{{_cor421,'refs'},[ModDb|_X_ModDbs]}|[]]>
+				  when call 'erlang':'=:='
+					(_cor421,
+					 Mod) ->
+				  let <Pattern> =
+				      %% Line 262
+				      {{Mod,'$1','$2','_'},'_'}
+				  in  %% Line 263
+				      call 'ets':'match'
+					  (ModDb, Pattern)
+			      ( <_cor134> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor134})
+				-| ['compiler_generated'] )
+			    end
+			in  %% Line 265
+			    {'reply',_cor135,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor420> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 266
+	  <{'contents',Mod,Pid},_X_From,State> when 'true' ->
+	      %% Line 267
+	      ( case State of
+		  ( <( {'state',_rec36,_cor422,_cor423,_cor424,_cor425,_cor426}
+		       -| ['compiler_generated'] )> when 'true' ->
+			%% Line 268
+			case call 'ets':'lookup'
+				 (_rec36, {Mod,'refs'}) of
+			  <[{{_cor428,'refs'},ModDbs}|[]]>
+			      when call 'erlang':'=:='
+				    (_cor428,
+				     Mod) ->
+			      let <_cor148> =
+				  %% Line 269
+				  case <> of
+				    %% Line 270
+				    <>
+					when call 'erlang':'=:='
+					      (Pid,
+					       'any') ->
+					call 'erlang':'hd'
+					    (ModDbs)
+				    %% Line 271
+				    <> when 'true' ->
+					let <_cor147> =
+					    %% Line 272
+					    ( fun (_cor144,_cor143) ->
+						  case <_cor144,_cor143> of
+						    <T,'not_found'> when 'true' ->
+							%% Line 273
+							case call 'ets':'lookup'
+								 (_rec36, T) of
+							  <[{_cor429,Pids}|[]]>
+							      when call 'erlang':'=:='
+								    (_cor429,
+								     T) ->
+							      %% Line 274
+							      case call 'lists':'member'
+								       (Pid, Pids) of
+								%% Line 275
+								<'true'> when 'true' ->
+								    T
+								%% Line 276
+								<'false'> when 'true' ->
+								    'not_found'
+								( <_cor142> when 'true' ->
+								      primop 'match_fail'
+									  ({'case_clause',_cor142})
+								  -| ['compiler_generated'] )
+							      end
+							  ( <_cor141> when 'true' ->
+								primop 'match_fail'
+								    ({'badmatch',_cor141})
+							    -| ['compiler_generated'] )
+							end
+						    %% Line 278
+						    <_X_T,T> when 'true' ->
+							T
+						  end
+					      -| [{'id',{0,0,'-handle_call/3-fun-0-'}}] )
+					in  %% Line 272
+					    call 'lists':'foldl'
+						(_cor147, %% Line 280
+							  'not_found', %% Line 281
+								       ModDbs)
+				  end
+			      in  %% Line 283
+				  case call 'ets':'lookup'
+					   (_cor148, 'mod_bin') of
+				    <[{'mod_bin',Bin}|[]]> when 'true' ->
+					%% Line 284
+					{'reply',{'ok',Bin},State}
+				    ( <_cor150> when 'true' ->
+					  primop 'match_fail'
+					      ({'badmatch',_cor150})
+				      -| ['compiler_generated'] )
+				  end
+			  ( <_cor140> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor140})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor427> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 285
+	  <{'raw_contents',Mod,Pid},_X_From,State> when 'true' ->
+	      %% Line 286
+	      ( case State of
+		  ( <( {'state',_rec37,_cor430,_cor431,_cor432,_cor433,_cor434}
+		       -| ['compiler_generated'] )> when 'true' ->
+			%% Line 287
+			case call 'ets':'lookup'
+				 (_rec37, {Mod,'refs'}) of
+			  <[{{_cor436,'refs'},ModDbs}|[]]>
+			      when call 'erlang':'=:='
+				    (_cor436,
+				     Mod) ->
+			      let <_cor162> =
+				  %% Line 288
+				  case <> of
+				    %% Line 289
+				    <>
+					when call 'erlang':'=:='
+					      (Pid,
+					       'any') ->
+					call 'erlang':'hd'
+					    (ModDbs)
+				    %% Line 290
+				    <> when 'true' ->
+					let <_cor161> =
+					    %% Line 291
+					    ( fun (_cor158,_cor157) ->
+						  case <_cor158,_cor157> of
+						    <T,'not_found'> when 'true' ->
+							%% Line 292
+							case call 'ets':'lookup'
+								 (_rec37, T) of
+							  <[{_cor437,Pids}|[]]>
+							      when call 'erlang':'=:='
+								    (_cor437,
+								     T) ->
+							      %% Line 293
+							      case call 'lists':'member'
+								       (Pid, Pids) of
+								%% Line 294
+								<'true'> when 'true' ->
+								    T
+								%% Line 295
+								<'false'> when 'true' ->
+								    'not_found'
+								( <_cor156> when 'true' ->
+								      primop 'match_fail'
+									  ({'case_clause',_cor156})
+								  -| ['compiler_generated'] )
+							      end
+							  ( <_cor155> when 'true' ->
+								primop 'match_fail'
+								    ({'badmatch',_cor155})
+							    -| ['compiler_generated'] )
+							end
+						    %% Line 297
+						    <_X_T,T> when 'true' ->
+							T
+						  end
+					      -| [{'id',{0,0,'-handle_call/3-fun-1-'}}] )
+					in  %% Line 291
+					    call 'lists':'foldl'
+						(_cor161, %% Line 299
+							  'not_found', %% Line 300
+								       ModDbs)
+				  end
+			      in  %% Line 302
+				  case call 'ets':'lookup'
+					   (_cor162, 'mod_raw') of
+				    <[{'mod_raw',Bin}|[]]> when 'true' ->
+					%% Line 303
+					{'reply',{'ok',Bin},State}
+				    ( <_cor164> when 'true' ->
+					  primop 'match_fail'
+					      ({'badmatch',_cor164})
+				      -| ['compiler_generated'] )
+				  end
+			  ( <_cor154> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor154})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor435> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 304
+	  <{'is_interpreted',Mod,Name,Arity},_X_From,State> when 'true' ->
+	      %% Line 305
+	      ( case State of
+		  ( <( {'state',_rec38,_cor438,_cor439,_cor440,_cor441,_cor442}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor171> =
+			    %% Line 306
+			    case call 'ets':'lookup'
+				     (_rec38, {Mod,'refs'}) of
+			      %% Line 307
+			      <[]> when 'true' ->
+				  'false'
+			      %% Line 308
+			      <[{{_cor444,'refs'},[ModDb|_X_ModDbs]}|[]]>
+				  when call 'erlang':'=:='
+					(_cor444,
+					 Mod) ->
+				  let <Pattern> =
+				      %% Line 309
+				      {{Mod,Name,Arity,'_'},'_'}
+				  in  %% Line 310
+				      case call 'ets':'match_object'
+					       (ModDb, Pattern) of
+					%% Line 311
+					<[{_X_Key,Clauses}|[]]> when 'true' ->
+					    {'true',Clauses}
+					%% Line 312
+					<[]> when 'true' ->
+					    'false'
+					( <_cor169> when 'true' ->
+					      primop 'match_fail'
+						  ({'case_clause',_cor169})
+					  -| ['compiler_generated'] )
+				      end
+			      ( <_cor170> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor170})
+				-| ['compiler_generated'] )
+			    end
+			in  %% Line 315
+			    {'reply',_cor171,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor443> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 316
+	  <'all_interpreted',_X_From,State> when 'true' ->
+	      %% Line 317
+	      ( case State of
+		  ( <( {'state',_rec39,_cor445,_cor446,_cor447,_cor448,_cor449}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <Mods> =
+			    %% Line 318
+			    call 'ets':'select'
+				(_rec39, [{{{'$1','refs'},'_'},[],['$1']}])
+			in  %% Line 319
+			    {'reply',Mods,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor450> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 320
+	  <{'file',Mod},From,State> when 'true' ->
+	      %% Line 321
+	      case apply 'handle_call'/3
+		       ({'lookup',Mod,'mod_file'}, From, State) of
+		<{'reply',Res,_cor451}> when 'true' ->
+		    let <_cor179> =
+			%% Line 322
+			case Res of
+			  %% Line 323
+			  <{'ok',File}> when 'true' ->
+			      File
+			  %% Line 324
+			  <'not_found'> when 'true' ->
+			      {'error','not_loaded'}
+			  ( <_cor178> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor178})
+			    -| ['compiler_generated'] )
+			end
+		    in  %% Line 326
+			{'reply',_cor179,State}
+		( <_cor177> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor177})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor183,_cor182,_cor181> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor183,_cor182,_cor181})
+		  -| [{'function_name',{'handle_call',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_cast'/2 =
+    %% Line 329
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'stop',State> when 'true' ->
+	      %% Line 330
+	      {'stop','shutdown',State}
+	  %% Line 331
+	  <{'subscribe',Sub},State> when 'true' ->
+	      %% Line 332
+	      ( case State of
+		  ( <( {'state',_cor112,_cor113,_cor114,_cor115,_cor116,_rec42}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_rec40> =
+			    [Sub|_rec42]
+			in  let <_cor7> =
+				call 'erlang':'setelement'
+				    (7, State, _rec40)
+			    in  {'noreply',_cor7}
+		    -| ['compiler_generated'] )
+		  ( <_cor117> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 335
+	  <{'attach',Pid,{Mod,Func,Args}},State> when 'true' ->
+	      do  %% Line 337
+		  call 'erlang':'spawn'
+		      (Mod, Func, [Pid|Args])
+		  %% Line 338
+		  {'noreply',State}
+	  %% Line 341
+	  <{'set_auto_attach','false'},State> when 'true' ->
+	      do  %% Line 342
+		  apply 'send_all'/3
+		      ('subscriber', {'auto_attach','false'}, State)
+		  %% Line 343
+		  case State of
+		    <{'state',_cor125,_cor126,_cor127,_cor128,_cor129,_cor130}> when 'true' ->
+			let <_cor10> =
+			    call 'erlang':'setelement'
+				(5, State, 'false')
+			in  {'noreply',_cor10}
+		    ( <_cor131> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','state'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 344
+	  <{'set_auto_attach',Flags,Function},State> when 'true' ->
+	      do  %% Line 345
+		  apply 'send_all'/3
+		      ('subscriber', {'auto_attach',{Flags,Function}}, State)
+		  let <_rec44> = {%% Line 346
+		       Flags,%% Line 346
+			     Function}
+		  in  %% Line 346
+		      case State of
+			<{'state',_cor132,_cor133,_cor134,_cor135,_cor136,_cor137}> when 'true' ->
+			    let <_cor14> =
+				call 'erlang':'setelement'
+				    (5, State, _rec44)
+			    in  {'noreply',_cor14}
+			( <_cor138> when 'true' ->
+			      ( call ( 'erlang'
+				       -| ['compiler_generated'] ):( 'error'
+								     -| ['compiler_generated'] )
+				    (( {'badrecord','state'}
+				       -| ['compiler_generated'] ))
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 347
+	  <{'set_stack_trace',Flag},State> when 'true' ->
+	      do  %% Line 348
+		  apply 'send_all'/3
+		      ('subscriber', {'stack_trace',Flag}, State)
+		  %% Line 349
+		  case State of
+		    <{'state',_cor139,_cor140,_cor141,_cor142,_cor143,_cor144}> when 'true' ->
+			let <_cor17> =
+			    call 'erlang':'setelement'
+				(6, State, Flag)
+			in  {'noreply',_cor17}
+		    ( <_cor145> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','state'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 352
+	  <'clear',State> when 'true' ->
+	      let <_cor22> =
+		  %% Line 353
+		  ( fun (_cor20) ->
+			case _cor20 of
+			  <{'proc',_cor146,_cor147,_cor148,Status,_cor149,_cor150,_cor151}> when 'true' ->
+			      %% Line 354
+			      call 'erlang':'=/='
+				  (Status, 'exit')
+			  ( <_cor21> when 'true' ->
+				( primop 'match_fail'
+				      ({'function_clause',_cor21})
+				  -| [{'function_name',{'-handle_cast/2-fun-0-',1}}] )
+			    -| ['compiler_generated'] )
+			end
+		    -| [{'id',{0,0,'-handle_cast/2-fun-0-'}}] )
+	      in  %% Line 356
+		  ( case State of
+		      ( <( {'state',_cor152,_rec47,_cor153,_cor154,_cor155,_cor156}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    let <Procs> =
+				call 'lists':'filter'
+				    (_cor22, _rec47)
+			    in  let <_cor26> =
+				    %% Line 357
+				    call 'erlang':'setelement'
+					(3, State, Procs)
+				in  %% Line 357
+				    {'noreply',_cor26}
+			-| ['compiler_generated'] )
+		      ( <_cor157> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	  %% Line 360
+	  <{'delete_break',Point},State> when 'true' ->
+	      %% Line 361
+	      ( case State of
+		  ( <( {'state',_cor165,_cor166,_rec49,_cor167,_cor168,_cor169}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case call 'lists':'keymember'
+				 (Point, 1, _rec49) of
+			  %% Line 362
+			  <'true'> when 'true' ->
+			      do  %% Line 363
+				  apply 'send_all'/3
+				      (['subscriber'|['meta'|['attached']]], %% Line 364
+									     {'delete_break',Point}, %% Line 364
+												     State)
+				  let <Breaks> =
+				      %% Line 365
+				      call 'lists':'keydelete'
+					  (Point, 1, _rec49)
+				  in  let <_cor34> =
+					  %% Line 366
+					  call 'erlang':'setelement'
+					      (4, State, Breaks)
+				      in  %% Line 366
+					  {'noreply',_cor34}
+			  %% Line 367
+			  <'false'> when 'true' ->
+			      %% Line 368
+			      {'noreply',State}
+			  ( <_cor35> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor35})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor170> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 370
+	  <{'break_option',Point,Option,Value},State> when 'true' ->
+	      %% Line 371
+	      ( case State of
+		  ( <( {'state',_cor184,_cor185,_rec52,_cor186,_cor187,_cor188}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case call 'lists':'keyfind'
+				 (Point, 1, _rec52) of
+			  %% Line 372
+			  <{_cor190,Options}>
+			      when call 'erlang':'=:='
+				    (_cor190,
+				     Point) ->
+			      let <_cor39> =
+				  %% Line 373
+				  case Option of
+				    %% Line 374
+				    <'status'> when 'true' ->
+					1
+				    %% Line 375
+				    <'action'> when 'true' ->
+					2
+				    %% Line 376
+				    <'condition'> when 'true' ->
+					4
+				    ( <_cor38> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor38})
+				      -| ['compiler_generated'] )
+				  end
+			      in  let <Options2> =
+				      %% Line 378
+				      apply 'list_setelement'/3
+					  (_cor39, Options, Value)
+				  in  do  %% Line 379
+					  apply 'send_all'/3
+					      (['subscriber'|['meta'|['attached']]], %% Line 380
+										     {'break_options',{Point,Options2}}, %% Line 380
+															 State)
+					  let <Breaks> =
+					      %% Line 381
+					      call 'lists':'keyreplace'
+						  (Point, 1, _rec52, %% Line 382
+								     {Point,Options2})
+					  in  let <_cor47> =
+						  %% Line 383
+						  call 'erlang':'setelement'
+						      (4, State, Breaks)
+					      in  %% Line 383
+						  {'noreply',_cor47}
+			  %% Line 384
+			  <'false'> when 'true' ->
+			      %% Line 385
+			      {'noreply',State}
+			  ( <_cor48> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor48})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor189> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 387
+	  <'no_break',State> when 'true' ->
+	      do  %% Line 388
+		  apply 'send_all'/3
+		      (['subscriber'|['meta'|['attached']]], 'no_break', State)
+		  %% Line 389
+		  case State of
+		    <{'state',_cor204,_cor205,_cor206,_cor207,_cor208,_cor209}> when 'true' ->
+			let <_cor51> =
+			    call 'erlang':'setelement'
+				(4, State, [])
+			in  {'noreply',_cor51}
+		    ( <_cor210> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','state'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 390
+	  <{'no_break',Mod},State> when 'true' ->
+	      do  %% Line 391
+		  apply 'send_all'/3
+		      (['subscriber'|['meta'|['attached']]], {'no_break',Mod}, State)
+		  let <_cor56> =
+		      %% Line 392
+		      ( fun (_cor54) ->
+			    case _cor54 of
+			      <{{M,_X_L},_X_O}> when 'true' ->
+				  %% Line 393
+				  call 'erlang':'=/='
+				      (M, Mod)
+			      ( <_cor55> when 'true' ->
+				    ( primop 'match_fail'
+					  ({'function_clause',_cor55})
+				      -| [{'function_name',{'-handle_cast/2-fun-1-',1}}] )
+				-| ['compiler_generated'] )
+			    end
+			-| [{'id',{0,0,'-handle_cast/2-fun-1-'}}] )
+		  in  %% Line 395
+		      ( case State of
+			  ( <( {'state',_cor211,_cor212,_rec56,_cor213,_cor214,_cor215}
+			       -| ['compiler_generated'] )> when 'true' ->
+				let <Breaks> =
+				    call 'lists':'filter'
+					(_cor56, _rec56)
+				in  let <_cor60> =
+					%% Line 396
+					call 'erlang':'setelement'
+					    (4, State, Breaks)
+				    in  %% Line 396
+					{'noreply',_cor60}
+			    -| ['compiler_generated'] )
+			  ( <_cor216> when 'true' ->
+				( call ( 'erlang'
+					 -| ['compiler_generated'] ):( 'error'
+								       -| ['compiler_generated'] )
+				      (( {'badrecord','state'}
+					 -| ['compiler_generated'] ))
+				  -| ['compiler_generated'] )
+			    -| ['compiler_generated'] )
+			end
+			-| ['compiler_generated'] )
+	  %% Line 399
+	  <{'set_status',Meta,Status,Info},State> when 'true' ->
+	      %% Line 400
+	      ( case State of
+		  ( <( {'state',_cor224,_rec58,_cor225,_cor226,_cor227,_cor228}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case apply 'get_proc'/2
+				 ({'meta',Meta}, _rec58) of
+			  <{'true',Proc}> when 'true' ->
+			      %% Line 401
+			      ( case Proc of
+				  ( <( {'proc',_rec59,_cor230,_cor231,_cor232,_cor233,_cor234,_cor235}
+				       -| ['compiler_generated'] )> when 'true' ->
+					do  apply 'send_all'/3
+						('subscriber', {'new_status',_rec59,Status,Info}, State)
+					    do  %% Line 402
+						case <> of
+						  %% Line 403
+						  <>
+						      when call 'erlang':'=:='
+							    (Status,
+							     'break') ->
+						      %% Line 404
+						      apply 'auto_attach'/3
+							  ('break', _cor226, Proc)
+						  %% Line 405
+						  <> when 'true' ->
+						      'ok'
+						end
+						let <_cor69> =
+						    %% Line 407
+						    call 'erlang':'setelement'
+							(6, Proc, Info)
+						in  let <_cor71> =
+							%% Line 407
+							call 'erlang':'setelement'
+							    (5, _cor69, Status)
+						    in  let <_rec62> =
+							    %% Line 408
+							    call 'lists':'keyreplace'
+								(Meta, 3, _rec58, _cor71)
+							in  let <_cor78> =
+								%% Line 408
+								call 'erlang':'setelement'
+								    (3, State, _rec62)
+							    in  %% Line 408
+								{'noreply',_cor78}
+				    -| ['compiler_generated'] )
+				  ( <_cor236> when 'true' ->
+					( call ( 'erlang'
+						 -| ['compiler_generated'] ):( 'error'
+									       -| ['compiler_generated'] )
+					      (( {'badrecord','proc'}
+						 -| ['compiler_generated'] ))
+					  -| ['compiler_generated'] )
+				    -| ['compiler_generated'] )
+				end
+				-| ['compiler_generated'] )
+			  ( <_cor63> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor63})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor229> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 410
+	  <{'set_exit_info',Meta,ExitInfo},State> when 'true' ->
+	      %% Line 411
+	      ( case State of
+		  ( <( {'state',_cor264,_rec65,_cor265,_cor266,_cor267,_cor268}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case apply 'get_proc'/2
+				 ({'meta',Meta}, _rec65) of
+			  <{'true',Proc}> when 'true' ->
+			      %% Line 413
+			      case Proc of
+				<{'proc',_cor276,_cor277,_cor278,_cor279,_cor280,_cor281,_cor282}> when 'true' ->
+				    let <_cor84> =
+					call 'erlang':'setelement'
+					    (7, Proc, ExitInfo)
+				    in  let <Procs> =
+					    call 'lists':'keyreplace'
+						(Meta, 3, _rec65, _cor84)
+					in  let <_cor90> =
+						%% Line 414
+						call 'erlang':'setelement'
+						    (3, State, Procs)
+					    in  %% Line 414
+						{'noreply',_cor90}
+				( <_cor283> when 'true' ->
+				      ( call ( 'erlang'
+					       -| ['compiler_generated'] ):( 'error'
+									     -| ['compiler_generated'] )
+					    (( {'badrecord','proc'}
+					       -| ['compiler_generated'] ))
+					-| ['compiler_generated'] )
+				  -| ['compiler_generated'] )
+			      end
+			  ( <_cor81> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor81})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor269> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 417
+	  <{'delete',Mod},State> when 'true' ->
+	      %% Line 420
+	      ( case State of
+		  ( <( {'state',_rec69,_cor291,_cor292,_cor293,_cor294,_cor295}
+		       -| ['compiler_generated'] )> when 'true' ->
+			%% Line 421
+			case call 'ets':'lookup'
+				 (_rec69, {Mod,'refs'}) of
+			  %% Line 422
+			  <[]> when 'true' ->
+			      %% Line 423
+			      {'noreply',State}
+			  %% Line 424
+			  <[{{_cor297,'refs'},ModDbs}|[]]>
+			      when call 'erlang':'=:='
+				    (_cor297,
+				     Mod) ->
+			      do  %% Line 425
+				  call 'ets':'delete'
+				      (_rec69, {Mod,'refs'})
+				  let <_cor99> =
+				      %% Line 427
+				      ( fun (_cor96,_cor95) ->
+					    %% Line 428
+					    case call 'ets':'lookup'
+						     (_rec69, _cor96) of
+					      <[{_cor298,Pids}|[]]>
+						  when call 'erlang':'=:='
+							(_cor298,
+							 _cor96) ->
+						  do  %% Line 429
+						      call 'ets':'delete'
+							  (_rec69, _cor96)
+						      do  %% Line 430
+							  call 'ets':'delete'
+							      (_cor96)
+							  %% Line 431
+							  call 'erlang':'++'
+							      (_cor95, Pids)
+					      ( <_cor94> when 'true' ->
+						    primop 'match_fail'
+							({'badmatch',_cor94})
+						-| ['compiler_generated'] )
+					    end
+					-| [{'id',{0,0,'-handle_cast/2-fun-2-'}}] )
+				  in  let <AllPids> =
+					  %% Line 426
+					  call 'lists':'foldl'
+					      (_cor99, %% Line 433
+						       [], %% Line 434
+							   ModDbs)
+				      in  let <_cor108> =
+					      %% Line 435
+					      ( fun (_cor106) ->
+						    %% Line 436
+						    case apply 'get_proc'/2
+							     ({'pid',_cor106}, _cor291) of
+						      %% Line 438
+						      <{'true',Proc}> when 'true' ->
+							  %% Line 439
+							  ( case Proc of
+							      ( <( {'proc',_cor305,_rec71,_cor306,_cor307,_cor308,_cor309,_cor310}
+								   -| ['compiler_generated'] )> when 'true' ->
+								    apply 'send'/2
+									(_rec71, %% Line 440
+										 {'old_code',Mod})
+								-| ['compiler_generated'] )
+							      ( <_cor311> when 'true' ->
+								    ( call ( 'erlang'
+									     -| ['compiler_generated'] ):( 'error'
+													   -| ['compiler_generated'] )
+									  (( {'badrecord','proc'}
+									     -| ['compiler_generated'] ))
+								      -| ['compiler_generated'] )
+								-| ['compiler_generated'] )
+							    end
+							    -| ['compiler_generated'] )
+						      %% Line 441
+						      <'false'> when 'true' ->
+							  'ignore'
+						      ( <_cor105> when 'true' ->
+							    primop 'match_fail'
+								({'case_clause',_cor105})
+							-| ['compiler_generated'] )
+						    end
+						-| [{'id',{0,0,'-handle_cast/2-fun-3-'}}] )
+					  in  do  %% Line 435
+						  call 'lists':'foreach'
+						      (_cor108, %% Line 444
+								AllPids)
+						  do  %% Line 446
+						      apply 'send_all'/3
+							  (['subscriber'|['attached']], {'no_interpret',Mod}, State)
+						      %% Line 449
+						      apply 'handle_cast'/2
+							  ({'no_break',Mod}, State)
+			  ( <_cor109> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor109})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor296> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  ( <_cor111,_cor110> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor111,_cor110})
+		  -| [{'function_name',{'handle_cast',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_info'/2 =
+    %% Line 453
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'EXIT',Who,Why},State> when 'true' ->
+	      %% Line 454
+	      ( case State of
+		  ( <( {'state',_cor59,_rec72,_cor60,_cor61,_cor62,_cor63}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case apply 'get_proc'/2
+				 ({'meta',Who}, _rec72) of
+			  %% Line 457
+			  <{'true',{'proc',_cor65,_cor66,_cor67,'exit',_cor68,_cor69,_cor70}}> when 'true' ->
+			      %% Line 458
+			      {'noreply',State}
+			  %% Line 461
+			  <{'true',Proc}> when 'true' ->
+			      %% Line 462
+			      ( case Proc of
+				  ( <( {'proc',_rec73,_cor71,_cor72,_cor73,_cor74,_cor75,_cor76}
+				       -| ['compiler_generated'] )> when 'true' ->
+					let <_cor16> =
+					    %% Line 466
+					    case _cor72 of
+					      %% Line 467
+					      <AttPid>
+						  when call 'erlang':'is_pid'
+							(_cor72) ->
+						  let <_cor12> =
+						      %% Line 469
+						      call 'erlang':'self'
+							  ()
+						  in  %% Line 468
+						      call 'erlang':'spawn_link'
+							  ('dbg_ieval', 'exit_info', %% Line 469
+										     [_cor12|[AttPid|[_rec73|[Why|[_cor75|[]]]]]])
+					      %% Line 470
+					      <'undefined'> when 'true' ->
+						  do  %% Line 472
+						      apply 'auto_attach'/3
+							  ('exit', _cor61, _rec73)
+						      %% Line 473
+						      Who
+					      ( <_cor15> when 'true' ->
+						    primop 'match_fail'
+							({'case_clause',_cor15})
+						-| ['compiler_generated'] )
+					    end
+					in  do  %% Line 475
+						apply 'send_all'/3
+						    ('subscriber', {'new_status',_rec73,'exit',Why}, State)
+						let <_cor19> =
+						    %% Line 479
+						    call 'erlang':'setelement'
+							(6, Proc, Why)
+						in  let <_cor20> =
+							%% Line 478
+							call 'erlang':'setelement'
+							    (5, _cor19, 'exit')
+						    in  let <_cor22> =
+							    %% Line 477
+							    call 'erlang':'setelement'
+								(3, _cor20, _cor16)
+							in  let <Procs> =
+								%% Line 476
+								call 'lists':'keyreplace'
+								    (Who, 3, _rec72, _cor22)
+							    in  let <_cor28> =
+								    %% Line 480
+								    call 'erlang':'setelement'
+									(3, State, Procs)
+								in  %% Line 480
+								    {'noreply',_cor28}
+				    -| ['compiler_generated'] )
+				  ( <_cor77> when 'true' ->
+					( call ( 'erlang'
+						 -| ['compiler_generated'] ):( 'error'
+									       -| ['compiler_generated'] )
+					      (( {'badrecord','proc'}
+						 -| ['compiler_generated'] ))
+					  -| ['compiler_generated'] )
+				    -| ['compiler_generated'] )
+				end
+				-| ['compiler_generated'] )
+			  %% Line 482
+			  <'false'> when 'true' ->
+			      %% Line 483
+			      case apply 'get_proc'/2
+				       ({'attpid',Who}, _rec72) of
+				%% Line 486
+				<{'true',Proc}> when 'true' ->
+				    %% Line 491
+				    ( case Proc of
+					( <( {'proc',_cor125,_cor126,_cor127,_rec81,_cor128,_cor129,_cor130}
+					     -| ['compiler_generated'] )> when 'true' ->
+					      do  case _rec81 of
+						    %% Line 492
+						    <'exit'> when 'true' ->
+							apply 'send'/2
+							    (_cor126, 'stop')
+						    %% Line 493
+						    <_X_Status> when 'true' ->
+							apply 'send'/2
+							    (_cor126, 'detached')
+						  end
+						  let <_cor40> =
+						      %% Line 497
+						      call 'erlang':'setelement'
+							  (4, Proc, 'undefined')
+						  in  let <Procs> =
+							  %% Line 495
+							  call 'lists':'keyreplace'
+							      (_cor125, 2, _rec72, _cor40)
+						      in  let <_cor48> =
+							      %% Line 498
+							      call 'erlang':'setelement'
+								  (3, State, Procs)
+							  in  %% Line 498
+							      {'noreply',_cor48}
+					  -| ['compiler_generated'] )
+					( <_cor131> when 'true' ->
+					      ( call ( 'erlang'
+						       -| ['compiler_generated'] ):( 'error'
+										     -| ['compiler_generated'] )
+						    (( {'badrecord','proc'}
+						       -| ['compiler_generated'] ))
+						-| ['compiler_generated'] )
+					  -| ['compiler_generated'] )
+				      end
+				      -| ['compiler_generated'] )
+				%% Line 501
+				<'false'> when 'true' ->
+				    let <Subs> =
+					%% Line 502
+					call 'lists':'delete'
+					    (Who, _cor63)
+				    in  let <_cor54> =
+					    %% Line 503
+					    call 'erlang':'setelement'
+						(7, State, Subs)
+					in  %% Line 503
+					    {'noreply',_cor54}
+				( <_cor55> when 'true' ->
+				      primop 'match_fail'
+					  ({'case_clause',_cor55})
+				  -| ['compiler_generated'] )
+			      end
+			  ( <_cor56> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor56})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor64> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  ( <_cor58,_cor57> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor58,_cor57})
+		  -| [{'function_name',{'handle_info',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'terminate'/2 =
+    %% Line 507
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 508
+	    call 'code':'lib_dir'
+		('debugger')
+	in  let <EbinDir> =
+		%% Line 508
+		call 'filename':'join'
+		    (_cor2, [101|[98|[105|[110]]]])
+	    in  do  %% Line 509
+		    call 'code':'unstick_dir'
+			(EbinDir)
+		    %% Line 510
+		    'ok'
+'code_change'/3 =
+    %% Line 512
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 513
+	{'ok',_cor1}
+'auto_attach'/3 =
+    %% Line 520
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Why,Auto,{'proc',Pid,_cor9,Attpid,_cor10,_cor11,_cor12,_cor13}> when 'true' ->
+	      %% Line 521
+	      case Attpid of
+		%% Line 522
+		<'undefined'> when 'true' ->
+		    apply 'auto_attach'/3
+			(Why, Auto, Pid)
+		%% Line 523
+		<_cor14>
+		    when call 'erlang':'is_pid'
+			  (Attpid) ->
+		    'ignore'
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 525
+	  <Why,Auto,Pid>
+	      when call 'erlang':'is_pid'
+		    (Pid) ->
+	      %% Line 526
+	      case Auto of
+		%% Line 527
+		<'false'> when 'true' ->
+		    'ignore'
+		%% Line 528
+		<{Flags,{Mod,Func,Args}}> when 'true' ->
+		    %% Line 529
+		    case call 'lists':'member'
+			     (Why, Flags) of
+		      %% Line 530
+		      <'true'> when 'true' ->
+			  %% Line 531
+			  call 'erlang':'spawn'
+			      (Mod, Func, [Pid|Args])
+		      %% Line 532
+		      <'false'> when 'true' ->
+			  'ignore'
+		      ( <_cor4> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor4})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'auto_attach',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'keyinsert'/3 =
+    %% Line 536
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Tuple1,N,[Tuple2|Tuples]> when 'true' ->
+	      %% Line 537
+	      case <> of
+		%% Line 538
+		<>
+		    when try
+			  let <_cor4> =
+			      call 'erlang':'element'
+				  (N, Tuple1)
+			  in  let <_cor3> =
+				  call 'erlang':'element'
+				      (N, Tuple2)
+			      in  call 'erlang':'<'
+				      (_cor4, _cor3)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 539
+		    [Tuple1|[Tuple2|Tuples]]
+		%% Line 540
+		<> when 'true' ->
+		    let <_cor5> =
+			%% Line 541
+			apply 'keyinsert'/3
+			    (Tuple1, N, Tuples)
+		    in  %% Line 541
+			[Tuple2|_cor5]
+	      end
+	  %% Line 543
+	  <Tuple,_X_N,[]> when 'true' ->
+	      %% Line 544
+	      [Tuple|[]]
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'keyinsert',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'list_setelement'/3 =
+    %% Line 546
+    fun (_cor2,_cor1,_cor0) ->
+	apply 'list_setelement'/4
+	    (1, _cor2, _cor1, _cor0)
+'list_setelement'/4 =
+    %% Line 548
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <I,_cor10,[_cor11|T],E>
+	      when call 'erlang':'=:='
+		    (_cor10,
+		     I) ->
+	      %% Line 549
+	      [E|T]
+	  %% Line 550
+	  <I,N,[H|T],E> when 'true' ->
+	      let <_cor4> =
+		  %% Line 551
+		  call 'erlang':'+'
+		      (I, 1)
+	      in  let <_cor5> =
+		      %% Line 551
+		      apply 'list_setelement'/4
+			  (_cor4, N, T, E)
+		  in  %% Line 551
+		      [H|_cor5]
+	  ( <_cor9,_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'list_setelement',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'mapfilter'/2 =
+    %% Line 553
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Fun,[H|T]> when 'true' ->
+	      %% Line 554
+	      case apply Fun
+		       (H) of
+		%% Line 555
+		<'ignore'> when 'true' ->
+		    apply 'mapfilter'/2
+			(Fun, T)
+		%% Line 556
+		<H2> when 'true' ->
+		    let <_cor2> =
+			apply 'mapfilter'/2
+			    (Fun, T)
+		    in  [H2|_cor2]
+	      end
+	  %% Line 558
+	  <_X_Fun,[]> when 'true' ->
+	      %% Line 559
+	      []
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'mapfilter',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'send_all'/3 =
+    %% Line 561
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Type|Types],Msg,State> when 'true' ->
+	      do  %% Line 562
+		  apply 'send_all'/3
+		      (Type, Msg, State)
+		  %% Line 563
+		  apply 'send_all'/3
+		      (Types, Msg, State)
+	  %% Line 564
+	  <[],_X_Msg,_X_State> when 'true' ->
+	      'ok'
+	  %% Line 566
+	  <'subscriber',Msg,State> when 'true' ->
+	      %% Line 567
+	      ( case State of
+		  ( <( {'state',_cor27,_cor28,_cor29,_cor30,_cor31,_rec90}
+		       -| ['compiler_generated'] )> when 'true' ->
+			apply 'send_all'/2
+			    (_rec90, Msg)
+		    -| ['compiler_generated'] )
+		  ( <_cor32> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 568
+	  <'meta',Msg,State> when 'true' ->
+	      let <_cor13> =
+		  %% Line 569
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor9) ->
+				case _cor9 of
+				  <[Proc|_cor6]> when 'true' ->
+				      ( case Proc of
+					  ( <( {'proc',_cor33,_rec92,_cor34,_cor35,_cor36,_cor37,_cor38}
+					       -| ['compiler_generated'] )> when 'true' ->
+						let <_cor12> =
+						    apply 'lc$^0'/1
+							(_cor6)
+						in  ( [_rec92|_cor12]
+						      -| ['compiler_generated'] )
+					    -| ['compiler_generated'] )
+					  ( <_cor39> when 'true' ->
+						( call ( 'erlang'
+							 -| ['compiler_generated'] ):( 'error'
+										       -| ['compiler_generated'] )
+						      (( {'badrecord','proc'}
+							 -| ['compiler_generated'] ))
+						  -| ['compiler_generated'] )
+					    -| ['compiler_generated'] )
+					end
+					-| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor9> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor9})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  ( case State of
+			    ( <( {'state',_cor40,_rec91,_cor41,_cor42,_cor43,_cor44}
+				 -| ['compiler_generated'] )> when 'true' ->
+				  apply 'lc$^0'/1
+				      (_rec91)
+			      -| ['compiler_generated'] )
+			    ( <_cor45> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','state'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		    -| ['list_comprehension'] )
+	      in  %% Line 570
+		  apply 'send_all'/2
+		      (_cor13, Msg)
+	  %% Line 571
+	  <'attached',Msg,State> when 'true' ->
+	      let <_cor22> =
+		  %% Line 572
+		  ( fun (_cor20) ->
+			%% Line 573
+			( case _cor20 of
+			    ( <( {'proc',_cor46,_cor47,_rec93,_cor48,_cor49,_cor50,_cor51}
+				 -| ['compiler_generated'] )> when 'true' ->
+				  case _rec93 of
+				    %% Line 574
+				    <Pid>
+					when call 'erlang':'is_pid'
+					      (_rec93) ->
+					Pid
+				    %% Line 575
+				    <'undefined'> when 'true' ->
+					'ignore'
+				    ( <_cor19> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor19})
+				      -| ['compiler_generated'] )
+				  end
+			      -| ['compiler_generated'] )
+			    ( <_cor52> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','proc'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+			  -| ['compiler_generated'] )
+		    -| [{'id',{0,0,'-send_all/3-fun-0-'}}] )
+	      in  %% Line 578
+		  ( case State of
+		      ( <( {'state',_cor53,_rec94,_cor54,_cor55,_cor56,_cor57}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    let <AttPids> =
+				apply 'mapfilter'/2
+				    (_cor22, _rec94)
+			    in  %% Line 579
+				apply 'send_all'/2
+				    (AttPids, Msg)
+			-| ['compiler_generated'] )
+		      ( <_cor58> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	  ( <_cor26,_cor25,_cor24> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor26,_cor25,_cor24})
+		  -| [{'function_name',{'send_all',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'send_all'/2 =
+    %% Line 581
+    fun (_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 582
+	    ( fun (_cor2) ->
+		  apply 'send'/2
+		      (_cor2, _cor0)
+	      -| [{'id',{0,0,'-send_all/2-fun-0-'}}] )
+	in  %% Line 582
+	    call 'lists':'foreach'
+		(_cor4, _cor1)
+'send'/2 =
+    %% Line 584
+    fun (_cor1,_cor0) ->
+	%% Line 585
+	call 'erlang':'!'
+	    (_cor1, {'int',_cor0})
+'get_proc'/2 =
+    %% Line 587
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Type,Pid},Procs> when 'true' ->
+	      let <_cor3> =
+		  %% Line 588
+		  case Type of
+		    %% Line 589
+		    <'pid'> when 'true' ->
+			2
+		    %% Line 590
+		    <'meta'> when 'true' ->
+			3
+		    %% Line 591
+		    <'attpid'> when 'true' ->
+			4
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor2})
+		      -| ['compiler_generated'] )
+		  end
+	      in  %% Line 593
+		  case call 'lists':'keyfind'
+			   (Pid, _cor3, Procs) of
+		    %% Line 594
+		    <'false'> when 'true' ->
+			'false'
+		    %% Line 595
+		    <Proc> when 'true' ->
+			{'true',Proc}
+		  end
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'get_proc',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('dbg_iserver')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('dbg_iserver', _cor0)
+end

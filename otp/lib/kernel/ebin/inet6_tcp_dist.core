@@ -1,0 +1,880 @@
+module 'inet6_tcp_dist' ['accept'/1,
+			 'accept_connection'/5,
+			 'accept_loop'/2,
+			 'close'/1,
+			 'do_accept'/6,
+			 'do_setup'/6,
+			 'getstat'/1,
+			 'is_node_name'/1,
+			 'listen'/1,
+			 'module_info'/0,
+			 'module_info'/1,
+			 'select'/1,
+			 'setup'/5,
+			 'tick'/1]
+    attributes []
+'select'/1 =
+    %% Line 54
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 55
+	    call 'erlang':'atom_to_list'
+		(_cor0)
+	in  %% Line 55
+	    case apply 'split_node'/3
+		     (_cor1, 64, []) of
+	      %% Line 56
+	      <[_cor5|[Host|[]]]> when 'true' ->
+		  %% Line 57
+		  case call 'inet':'getaddr'
+			   (Host, 'inet6') of
+		    %% Line 58
+		    <{'ok',_cor6}> when 'true' ->
+			'true'
+		    %% Line 59
+		    <_cor7> when 'true' ->
+			'false'
+		  end
+	      %% Line 61
+	      <_cor8> when 'true' ->
+		  'false'
+	    end
+'listen'/1 =
+    %% Line 69
+    fun (_cor0) ->
+	%% Line 70
+	case call 'inet6_tcp':'listen'
+		 (0, [{'active','false'}|[{'packet',2}]]) of
+	  %% Line 71
+	  <{'ok',Socket}> when 'true' ->
+	      let <TcpAddress> =
+		  %% Line 72
+		  apply 'get_tcp_address'/1
+		      (Socket)
+	      in  %% Line 73
+		  ( case TcpAddress of
+		      ( <( {'net_address',_rec0,_cor8,_cor9,_cor10}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    case _rec0 of
+			      <{_cor12,Port}> when 'true' ->
+				  %% Line 74
+				  case call 'erl_epmd':'register_node'
+					   (_cor0, Port) of
+				    %% Line 75
+				    <{'ok',Creation}> when 'true' ->
+					%% Line 76
+					{'ok',{Socket,TcpAddress,Creation}}
+				    %% Line 77
+				    <Error> when 'true' ->
+					%% Line 78
+					Error
+				  end
+			      ( <_cor4> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor4})
+				-| ['compiler_generated'] )
+			    end
+			-| ['compiler_generated'] )
+		      ( <_cor11> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','net_address'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	  %% Line 80
+	  <Error> when 'true' ->
+	      %% Line 81
+	      Error
+	end
+'accept'/1 =
+    %% Line 88
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 89
+	    call 'erlang':'self'
+		()
+	in  %% Line 89
+	    call 'erlang':'spawn_opt'
+		('inet6_tcp_dist', 'accept_loop', [_cor1|[_cor0|[]]], ['link'|[{'priority','max'}]])
+'accept_loop'/2 =
+    %% Line 91
+    fun (_cor1,_cor0) ->
+	%% Line 92
+	case call 'inet6_tcp':'accept'
+		 (_cor0) of
+	  %% Line 93
+	  <{'ok',Socket}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 94
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 94
+		      call 'erlang':'!'
+			  (_cor1, {'accept',_cor2,Socket,'inet6','tcp'})
+		      let <_X_> =
+			  %% Line 95
+			  apply 'controller'/2
+			      (_cor1, Socket)
+		      in  %% Line 96
+			  apply 'accept_loop'/2
+			      (_cor1, _cor0)
+	  %% Line 97
+	  <Error> when 'true' ->
+	      %% Line 98
+	      call 'erlang':'exit'
+		  (Error)
+	end
+'controller'/2 =
+    %% Line 101
+    fun (_cor1,_cor0) ->
+	%% Line 102
+	receive
+	  %% Line 103
+	  <{_cor5,'controller',Pid}>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     _cor1) ->
+	      do  %% Line 104
+		  apply 'flush_controller'/2
+		      (Pid, _cor0)
+		  do  %% Line 105
+		      call 'inet6_tcp':'controlling_process'
+			  (_cor0, Pid)
+		      do  %% Line 106
+			  apply 'flush_controller'/2
+			      (Pid, _cor0)
+			  let <_cor2> =
+			      %% Line 107
+			      call 'erlang':'self'
+				  ()
+			  in  %% Line 107
+			      call 'erlang':'!'
+				  (Pid, {_cor2,'controller'})
+	  %% Line 108
+	  <{_cor6,'unsupported_protocol'}>
+	      when call 'erlang':'=:='
+		    (_cor6,
+		     _cor1) ->
+	      %% Line 109
+	      call 'erlang':'exit'
+		  ('unsupported_protocol')
+	after 'infinity' ->
+	  'true'
+'flush_controller'/2 =
+    %% Line 112
+    fun (_cor1,_cor0) ->
+	%% Line 113
+	receive
+	  %% Line 114
+	  <{'tcp',_cor4,Data}>
+	      when call 'erlang':'=:='
+		    (_cor4,
+		     _cor0) ->
+	      do  %% Line 115
+		  call 'erlang':'!'
+		      (_cor1, {'tcp',_cor0,Data})
+		  %% Line 116
+		  apply 'flush_controller'/2
+		      (_cor1, _cor0)
+	  %% Line 117
+	  <{'tcp_closed',_cor5}>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     _cor0) ->
+	      do  %% Line 118
+		  call 'erlang':'!'
+		      (_cor1, {'tcp_closed',_cor0})
+		  %% Line 119
+		  apply 'flush_controller'/2
+		      (_cor1, _cor0)
+	after %% Line 120
+	      0 ->
+	  %% Line 121
+	  'ok'
+'accept_connection'/5 =
+    %% Line 129
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 131
+	    call 'erlang':'self'
+		()
+	in  %% Line 130
+	    call 'erlang':'spawn_opt'
+		('inet6_tcp_dist', 'do_accept', %% Line 131
+						[_cor5|[_cor4|[_cor3|[_cor2|[_cor1|[_cor0|[]]]]]]], %% Line 132
+												    ['link'|[{'priority','max'}]])
+'do_accept'/6 =
+    %% Line 134
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 135
+	receive
+	  %% Line 136
+	  <{_cor40,'controller'}>
+	      when call 'erlang':'=:='
+		    (_cor40,
+		     _cor4) ->
+	      let <Timer> =
+		  %% Line 137
+		  call 'dist_util':'start_timer'
+		      (_cor0)
+	      in  %% Line 138
+		  case apply 'check_ip'/1
+			   (_cor3) of
+		    %% Line 139
+		    <'true'> when 'true' ->
+			let <_cor31> =
+			    %% Line 147
+			    ( fun (_cor28,_cor27) ->
+				  call 'inet6_tcp':'send'
+				      (_cor28, _cor27)
+			      -| [{'id',{0,0,'-do_accept/6-fun-0-'}}] )
+			in  let <_cor26> =
+				%% Line 148
+				( fun (_cor22,_cor21,_cor20) ->
+				      call 'inet6_tcp':'recv'
+					  (_cor22, _cor21, _cor20)
+				  -| [{'id',{0,0,'-do_accept/6-fun-1-'}}] )
+			    in  let <_cor19> =
+				    %% Line 151
+				    ( fun (_cor17) ->
+					  let <_cor16> =
+					      %% Line 155
+					      apply 'nodelay'/0
+						  ()
+					  in  %% Line 152
+					      call 'inet':'setopts'
+						  (_cor17, %% Line 153
+							   [{'active','false'}|%% Line 154
+									       [{'packet',4}|%% Line 155
+											     [_cor16|[]]]])
+				      -| [{'id',{0,0,'-do_accept/6-fun-2-'}}] )
+				in  let <_cor15> =
+					%% Line 158
+					( fun (_cor13) ->
+					      let <_cor12> =
+						  %% Line 163
+						  apply 'nodelay'/0
+						      ()
+					      in  %% Line 159
+						  call 'inet':'setopts'
+						      (_cor13, %% Line 160
+							       [{'active','true'}|%% Line 161
+										  [{'deliver','port'}|%% Line 162
+												      [{'packet',4}|%% Line 163
+														    [_cor12|[]]]]])
+					  -| [{'id',{0,0,'-do_accept/6-fun-3-'}}] )
+				    in  let <_cor11> =
+					    %% Line 165
+					    ( fun (_cor9) ->
+						  %% Line 166
+						  call 'inet':'getll'
+						      (_cor9)
+					      -| [{'id',{0,0,'-do_accept/6-fun-4-'}}] )
+					in  let <_cor8> =
+						%% Line 169
+						call 'erlang':'make_fun'
+						    ('inet6_tcp_dist', 'tick', 1)
+					    in  let <_cor7> =
+						    %% Line 170
+						    call 'erlang':'make_fun'
+							('inet6_tcp_dist', 'getstat', 1)
+						in  let <HSData> =
+							%% Line 140
+							{'hs_data',_cor5,'undefined',_cor2,_cor3,%% Line 144
+												 Timer,%% Line 145
+												       0,_cor1,'undefined','undefined','undefined',_cor31,_cor26,_cor19,_cor15,_cor11,%% Line 168
+																						      ( 'get_remote_id'/2
+																							-| [{'id',{0,0,'-do_accept/6-fun-5-'}}] ),_cor8,_cor7,'normal'}
+						    in  %% Line 172
+							call 'dist_util':'handshake_other_started'
+							    (HSData)
+		    %% Line 173
+		    <{'false',IP}> when 'true' ->
+			do  %% Line 174
+			    call 'error_logger':'error_msg'
+				([42|[42|[32|[67|[111|[110|[110|[101|[99|[116|[105|[111|[110|[32|[97|[116|[116|[101|[109|[112|[116|[32|[102|[114|[111|[109|[32|[100|[105|[115|[97|[108|[108|[111|[119|[101|[100|[32|[73|[80|[32|[126|[119|[32|[42|[42|[32|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 175
+																																						      [IP|[]])
+			    %% Line 176
+			    call 'dist_util':'shutdown'
+				('inet6_tcp_dist', 176, 'no_node')
+		    ( <_cor33> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor33})
+		      -| ['compiler_generated'] )
+		  end
+	after 'infinity' ->
+	  'true'
+'nodelay'/0 =
+    %% Line 184
+    fun () ->
+	%% Line 185
+	case call 'application':'get_env'
+		 ('kernel', 'dist_nodelay') of
+	  %% Line 186
+	  <'undefined'> when 'true' ->
+	      %% Line 187
+	      {'nodelay','true'}
+	  %% Line 188
+	  <{'ok','true'}> when 'true' ->
+	      %% Line 189
+	      {'nodelay','true'}
+	  %% Line 190
+	  <{'ok','false'}> when 'true' ->
+	      %% Line 191
+	      {'nodelay','false'}
+	  %% Line 192
+	  <_cor1> when 'true' ->
+	      %% Line 193
+	      {'nodelay','true'}
+	end
+'get_remote_id'/2 =
+    %% Line 201
+    fun (_cor1,_cor0) ->
+	%% Line 202
+	case call 'inet':'peername'
+		 (_cor1) of
+	  <{'ok',Address}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 203
+		  call 'erlang':'atom_to_list'
+		      (_cor0)
+	      in  %% Line 203
+		  case apply 'split_node'/3
+			   (_cor3, 64, []) of
+		    <[_cor7|[Host|[]]]> when 'true' ->
+			%% Line 204
+			{'net_address',%% Line 205
+				       Address,%% Line 206
+					       Host,%% Line 207
+						    'tcp',%% Line 208
+							  'inet6'}
+		    ( <_cor4> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor4})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'setup'/5 =
+    %% Line 215
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 217
+	    call 'erlang':'self'
+		()
+	in  %% Line 216
+	    call 'erlang':'spawn_opt'
+		('inet6_tcp_dist', 'do_setup', %% Line 217
+					       [_cor5|[_cor4|[_cor3|[_cor2|[_cor1|[_cor0|[]]]]]]], %% Line 218
+												   ['link'|[{'priority','max'}]])
+'do_setup'/6 =
+    %% Line 220
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 222
+	case apply 'splitnode'/2
+		 (_cor4, _cor1) of
+	  <[Name|[Address|[]]]> when 'true' ->
+	      %% Line 223
+	      case call 'inet':'getaddr'
+		       (Address, 'inet6') of
+		%% Line 224
+		<{'ok',Ip}> when 'true' ->
+		    let <Timer> =
+			%% Line 225
+			call 'dist_util':'start_timer'
+			    (_cor0)
+		    in  %% Line 226
+			case call 'erl_epmd':'port_please'
+				 (Name, Ip) of
+			  %% Line 227
+			  <{'port',TcpPort,Version}> when 'true' ->
+			      do  %% Line 230
+				  call 'dist_util':'reset_timer'
+				      (Timer)
+				  %% Line 231
+				  case call 'inet6_tcp':'connect'
+					   (Ip, TcpPort, %% Line 232
+							 [{'active','false'}|[{'packet',2}]]) of
+				    %% Line 234
+				    <{'ok',Socket}> when 'true' ->
+					let <_cor25> =
+					    %% Line 243
+					    call 'erlang':'make_fun'
+						('inet6_tcp', 'send', 2)
+					in  let <_cor24> =
+						%% Line 244
+						call 'erlang':'make_fun'
+						    ('inet6_tcp', 'recv', 3)
+					    in  let <_cor23> =
+						    %% Line 246
+						    ( fun (_cor21) ->
+							  let <_cor20> =
+							      %% Line 251
+							      apply 'nodelay'/0
+								  ()
+							  in  %% Line 247
+							      call 'inet':'setopts'
+								  (_cor21, %% Line 249
+									   [{'active','false'}|%% Line 250
+											       [{'packet',4}|%% Line 251
+													     [_cor20|[]]]])
+						      -| [{'id',{0,0,'-do_setup/6-fun-0-'}}] )
+						in  let <_cor19> =
+							%% Line 254
+							( fun (_cor17) ->
+							      let <_cor16> =
+								  %% Line 260
+								  apply 'nodelay'/0
+								      ()
+							      in  %% Line 255
+								  call 'inet':'setopts'
+								      (_cor17, %% Line 257
+									       [{'active','true'}|%% Line 258
+												  [{'deliver','port'}|%% Line 259
+														      [{'packet',4}|%% Line 260
+																    [_cor16|[]]]]])
+							  -| [{'id',{0,0,'-do_setup/6-fun-1-'}}] )
+						    in  let <_cor15> =
+							    %% Line 262
+							    call 'erlang':'make_fun'
+								('inet', 'getll', 1)
+							in  let <_cor14> =
+								%% Line 264
+								( fun (_cor11,_cor10) ->
+								      %% Line 265
+								      {'net_address',%% Line 266
+										     {Ip,TcpPort},%% Line 267
+												  Address,%% Line 268
+													  'tcp',%% Line 269
+														'inet6'}
+								  -| [{'id',{0,0,'-do_setup/6-fun-2-'}}] )
+							    in  let <_cor9> =
+								    %% Line 271
+								    call 'erlang':'make_fun'
+									('inet6_tcp_dist', 'tick', 1)
+								in  let <_cor8> =
+									%% Line 272
+									call 'erlang':'make_fun'
+									    ('inet6_tcp_dist', 'getstat', 1)
+								    in  let <HSData> =
+									    %% Line 235
+									    {'hs_data',_cor5,_cor4,_cor2,%% Line 239
+													 Socket,%% Line 240
+														Timer,%% Line 241
+														      0,'undefined',%% Line 242
+																    Version,'undefined','undefined',_cor25,_cor24,_cor23,_cor19,_cor15,_cor14,_cor9,_cor8,_cor3}
+									in  %% Line 275
+									    call 'dist_util':'handshake_we_started'
+										(HSData)
+				    %% Line 276
+				    <_cor38> when 'true' ->
+					%% Line 282
+					call 'dist_util':'shutdown'
+					    ('inet6_tcp_dist', 282, _cor4)
+				  end
+			  %% Line 284
+			  <_cor39> when 'true' ->
+			      %% Line 287
+			      call 'dist_util':'shutdown'
+				  ('inet6_tcp_dist', 287, _cor4)
+			end
+		%% Line 289
+		<_X__Other> when 'true' ->
+		    %% Line 292
+		    call 'dist_util':'shutdown'
+			('inet6_tcp_dist', 292, _cor4)
+	      end
+	  ( <_cor6> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor6})
+	    -| ['compiler_generated'] )
+	end
+'close'/1 =
+    %% Line 298
+    fun (_cor0) ->
+	%% Line 299
+	call 'inet6_tcp':'close'
+	    (_cor0)
+'splitnode'/2 =
+    %% Line 303
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 304
+	    call 'erlang':'atom_to_list'
+		(_cor1)
+	in  %% Line 304
+	    case apply 'split_node'/3
+		     (_cor2, 64, []) of
+	      %% Line 305
+	      <[Name|Tail]>
+		  when call 'erlang':'=/='
+			(Tail,
+			 []) ->
+		  let <Host> =
+		      %% Line 306
+		      call 'lists':'append'
+			  (Tail)
+		  in  %% Line 307
+		      case apply 'split_node'/3
+			       (Host, 46, []) of
+			%% Line 308
+			<[_cor12|[]]>
+			    when call 'erlang':'=:='
+				  (_cor0,
+				   'longnames') ->
+			    %% Line 309
+			    case call 'inet_parse':'ipv6strict_address'
+				     (Host) of
+			      %% Line 310
+			      <{'ok',_cor13}> when 'true' ->
+				  %% Line 311
+				  [Name|[Host|[]]]
+			      %% Line 312
+			      <_cor14> when 'true' ->
+				  do  %% Line 313
+				      call 'error_logger':'error_msg'
+					  ([42|[42|[32|[83|[121|[115|[116|[101|[109|[32|[114|[117|[110|[110|[105|[110|[103|[32|[116|[111|[32|[117|[115|[101|[32|[102|[117|[108|[108|[121|[32|[113|[117|[97|[108|[105|[102|[105|[101|[100|[32|[104|[111|[115|[116|[110|[97|[109|[101|[115|[32|[42|[42|[126|[110|[42|[42|[32|[72|[111|[115|[116|[110|[97|[109|[101|[32|[126|[115|[32|[105|[115|[32|[105|[108|[108|[101|[103|[97|[108|[32|[42|[42|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 317
+																																																																	       [Host|[]])
+				      %% Line 318
+				      call 'dist_util':'shutdown'
+					  ('inet6_tcp_dist', 318, _cor1)
+			    end
+			%% Line 320
+			<L>
+			    when try
+				  let <_cor5> =
+				      call 'erlang':'length'
+					  (L)
+				  in  let <_cor6> =
+					  call 'erlang':'>'
+					      (_cor5, 1)
+				      in  let <_cor7> =
+					      call 'erlang':'=:='
+						  (_cor0, 'shortnames')
+					  in  call 'erlang':'and'
+						  (_cor6, _cor7)
+			      of <Try> ->
+				  Try
+			      catch <T,R> ->
+				  'false' ->
+			    do  %% Line 321
+				call 'error_logger':'error_msg'
+				    ([42|[42|[32|[83|[121|[115|[116|[101|[109|[32|[78|[79|[84|[32|[114|[117|[110|[110|[105|[110|[103|[32|[116|[111|[32|[117|[115|[101|[32|[102|[117|[108|[108|[121|[32|[113|[117|[97|[108|[105|[102|[105|[101|[100|[32|[104|[111|[115|[116|[110|[97|[109|[101|[115|[32|[42|[42|[126|[110|[42|[42|[32|[72|[111|[115|[116|[110|[97|[109|[101|[32|[126|[115|[32|[105|[115|[32|[105|[108|[108|[101|[103|[97|[108|[32|[42|[42|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 324
+																																																																			     [Host|[]])
+				%% Line 325
+				call 'dist_util':'shutdown'
+				    ('inet6_tcp_dist', 325, _cor1)
+			%% Line 326
+			<_cor15> when 'true' ->
+			    %% Line 327
+			    [Name|[Host|[]]]
+		      end
+	      %% Line 329
+	      <[_cor16|[]]> when 'true' ->
+		  do  %% Line 330
+		      call 'error_logger':'error_msg'
+			  ([42|[42|[32|[78|[111|[100|[101|[110|[97|[109|[101|[32|[126|[112|[32|[105|[108|[108|[101|[103|[97|[108|[44|[32|[110|[111|[32|[39|[64|[39|[32|[99|[104|[97|[114|[97|[99|[116|[101|[114|[32|[42|[42|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 331
+																																		    [_cor1|[]])
+		      %% Line 332
+		      call 'dist_util':'shutdown'
+			  ('inet6_tcp_dist', 332, _cor1)
+	      %% Line 333
+	      <_cor17> when 'true' ->
+		  do  %% Line 334
+		      call 'error_logger':'error_msg'
+			  ([42|[42|[32|[78|[111|[100|[101|[110|[97|[109|[101|[32|[126|[112|[32|[105|[108|[108|[101|[103|[97|[108|[32|[42|[42|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]], [_cor1|[]])
+		      %% Line 335
+		      call 'dist_util':'shutdown'
+			  ('inet6_tcp_dist', 335, _cor1)
+	    end
+'split_node'/3 =
+    %% Line 338
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Chr|T],_cor9,Ack>
+	      when call 'erlang':'=:='
+		    (_cor9,
+		     Chr) ->
+	      let <_cor3> =
+		  call 'lists':'reverse'
+		      (Ack)
+	      in  let <_cor4> =
+		      apply 'split_node'/3
+			  (T, Chr, [])
+		  in  [_cor3|_cor4]
+	  %% Line 339
+	  <[H|T],Chr,Ack> when 'true' ->
+	      apply 'split_node'/3
+		  (T, Chr, [H|Ack])
+	  %% Line 340
+	  <[],_cor10,Ack> when 'true' ->
+	      let <_cor5> =
+		  call 'lists':'reverse'
+		      (Ack)
+	      in  [_cor5|[]]
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'split_node',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_tcp_address'/1 =
+    %% Line 345
+    fun (_cor0) ->
+	%% Line 346
+	case call 'inet':'sockname'
+		 (_cor0) of
+	  <{'ok',Address}> when 'true' ->
+	      %% Line 347
+	      case call 'inet':'gethostname'
+		       () of
+		<{'ok',Host}> when 'true' ->
+		    %% Line 348
+		    {'net_address',%% Line 349
+				   Address,%% Line 350
+					   Host,%% Line 351
+						'tcp',%% Line 352
+						      'inet6'}
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'check_ip'/1 =
+    %% Line 359
+    fun (_cor0) ->
+	%% Line 360
+	case call 'application':'get_env'
+		 ('check_ip') of
+	  %% Line 361
+	  <{'ok','true'}> when 'true' ->
+	      %% Line 362
+	      case apply 'get_ifs'/1
+		       (_cor0) of
+		%% Line 363
+		<{'ok',IFs,IP}> when 'true' ->
+		    %% Line 364
+		    apply 'check_ip'/2
+			(IFs, IP)
+		%% Line 365
+		<_cor4> when 'true' ->
+		    %% Line 366
+		    call 'dist_util':'shutdown'
+			('inet6_tcp_dist', 366, 'no_node')
+	      end
+	  %% Line 368
+	  <_cor5> when 'true' ->
+	      %% Line 369
+	      'true'
+	end
+'get_ifs'/1 =
+    %% Line 372
+    fun (_cor0) ->
+	%% Line 373
+	case call 'inet':'peername'
+		 (_cor0) of
+	  %% Line 374
+	  <{'ok',{IP,_cor4}}> when 'true' ->
+	      %% Line 375
+	      case call 'inet':'getif'
+		       (_cor0) of
+		%% Line 376
+		<{'ok',IFs}> when 'true' ->
+		    {'ok',IFs,IP}
+		%% Line 377
+		<Error> when 'true' ->
+		    Error
+	      end
+	  %% Line 379
+	  <Error> when 'true' ->
+	      %% Line 380
+	      Error
+	end
+'check_ip'/2 =
+    %% Line 383
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{OwnIP,_cor7,Netmask}|IFs],PeerIP> when 'true' ->
+	      let <_cor3> =
+		  %% Line 384
+		  apply 'mask'/2
+		      (Netmask, PeerIP)
+	      in  let <_cor2> =
+		      %% Line 384
+		      apply 'mask'/2
+			  (Netmask, OwnIP)
+		  in  %% Line 384
+		      case <_cor3,_cor2> of
+			%% Line 385
+			<M,_cor8>
+			    when call 'erlang':'=:='
+				  (_cor8,
+				   M) ->
+			    'true'
+			%% Line 386
+			<_fol51,_fol52> when 'true' ->
+			    apply 'check_ip'/2
+				(IFs, PeerIP)
+		      end
+	  %% Line 388
+	  <[],PeerIP> when 'true' ->
+	      %% Line 389
+	      {'false',PeerIP}
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'check_ip',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'mask'/2 =
+    %% Line 391
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{M1,M2,M3,M4,M5,M6,M7,M8},{IP1,IP2,IP3,IP4,IP5,IP6,IP7,IP8}> when 'true' ->
+	      let <_cor9> =
+		  %% Line 392
+		  call 'erlang':'band'
+		      (M1, IP1)
+	      in  let <_cor8> =
+		      %% Line 393
+		      call 'erlang':'band'
+			  (M2, IP2)
+		  in  let <_cor7> =
+			  %% Line 394
+			  call 'erlang':'band'
+			      (M3, IP3)
+		      in  let <_cor6> =
+			      %% Line 395
+			      call 'erlang':'band'
+				  (M4, IP4)
+			  in  let <_cor5> =
+				  %% Line 396
+				  call 'erlang':'band'
+				      (M5, IP5)
+			      in  let <_cor4> =
+				      %% Line 397
+				      call 'erlang':'band'
+					  (M6, IP6)
+				  in  let <_cor3> =
+					  %% Line 398
+					  call 'erlang':'band'
+					      (M7, IP7)
+				      in  let <_cor2> =
+					      %% Line 399
+					      call 'erlang':'band'
+						  (M8, IP8)
+					  in  %% Line 392
+					      {_cor9,_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2}
+	  ( <_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10})
+		  -| [{'function_name',{'mask',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'is_node_name'/1 =
+    %% Line 401
+    fun (_cor0) ->
+	case _cor0 of
+	  <Node>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      let <_cor1> =
+		  %% Line 402
+		  call 'erlang':'atom_to_list'
+		      (Node)
+	      in  %% Line 402
+		  case apply 'split_node'/3
+			   (_cor1, 64, []) of
+		    %% Line 403
+		    <[_cor4|[_X_Host|[]]]> when 'true' ->
+			'true'
+		    %% Line 404
+		    <_cor5> when 'true' ->
+			'false'
+		  end
+	  %% Line 406
+	  <_X_Node> when 'true' ->
+	      %% Line 407
+	      'false'
+	end
+'tick'/1 =
+    %% Line 408
+    fun (_cor0) ->
+	%% Line 409
+	case call 'inet6_tcp':'send'
+		 (_cor0, [], ['force']) of
+	  <{'error','closed'}> when 'true' ->
+	      let <_cor1> =
+		  call 'erlang':'self'
+		      ()
+	      in  do  call 'erlang':'!'
+			  (_cor1, {'tcp_closed',_cor0})
+		      {'error','closed'}
+	  <R> when 'true' ->
+	      R
+	end
+'getstat'/1 =
+    %% Line 410
+    fun (_cor0) ->
+	%% Line 411
+	case call 'inet':'getstat'
+		 (_cor0, ['recv_cnt'|['send_cnt'|['send_pend']]]) of
+	  %% Line 412
+	  <{'ok',Stat}> when 'true' ->
+	      %% Line 413
+	      apply 'split_stat'/4
+		  (Stat, 0, 0, 0)
+	  %% Line 414
+	  <Error> when 'true' ->
+	      %% Line 415
+	      Error
+	end
+'split_stat'/4 =
+    %% Line 418
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <[{'recv_cnt',R}|Stat],_cor8,W,P> when 'true' ->
+	      %% Line 419
+	      apply 'split_stat'/4
+		  (Stat, R, W, P)
+	  %% Line 420
+	  <[{'send_cnt',W}|Stat],R,_cor9,P> when 'true' ->
+	      %% Line 421
+	      apply 'split_stat'/4
+		  (Stat, R, W, P)
+	  %% Line 422
+	  <[{'send_pend',P}|Stat],R,W,_cor10> when 'true' ->
+	      %% Line 423
+	      apply 'split_stat'/4
+		  (Stat, R, W, P)
+	  %% Line 424
+	  <[],R,W,P> when 'true' ->
+	      %% Line 425
+	      {'ok',R,W,P}
+	  ( <_cor7,_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'split_stat',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('inet6_tcp_dist')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('inet6_tcp_dist', _cor0)
+end

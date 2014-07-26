@@ -1,0 +1,545 @@
+module 'os_mon_mib' ['disk_table'/1,
+		     'disk_table'/3,
+		     'disk_threshold'/1,
+		     'get_disks'/1,
+		     'get_load'/1,
+		     'init'/1,
+		     'load'/1,
+		     'load_table'/1,
+		     'load_table'/3,
+		     'mem_proc_mark'/1,
+		     'mem_sys_mark'/1,
+		     'module_info'/0,
+		     'module_info'/1,
+		     'stop'/1,
+		     'unload'/1,
+		     'update_disk_table'/0,
+		     'update_load_table'/0]
+    attributes [%% Line 34
+		'deprecated' =
+		    %% Line 34
+		    [{'init',1,'eventually'}|[{'stop',1,'eventually'}]]]
+'load'/1 =
+    %% Line 87
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 88
+	    call 'code':'priv_dir'
+		('os_mon')
+	in  let <MibDir> =
+		%% Line 88
+		call 'filename':'join'
+		    (_cor1, [109|[105|[98|[115]]]])
+	    in  let <_cor3> =
+		    %% Line 89
+		    call 'filename':'join'
+			(MibDir, [79|[84|[80|[45|[79|[83|[45|[77|[79|[78|[45|[77|[73|[66]]]]]]]]]]]]]])
+		in  %% Line 89
+		    call 'snmpa':'load_mibs'
+			(_cor0, [_cor3|[]])
+'unload'/1 =
+    %% Line 97
+    fun (_cor0) ->
+	%% Line 98
+	call 'snmpa':'unload_mibs'
+	    (_cor0, [[79|[84|[80|[45|[79|[83|[45|[77|[79|[78|[45|[77|[73|[66]]]]]]]]]]]]]]])
+'init'/1 =
+    %% Line 101
+    fun (_cor0) ->
+	%% Line 102
+	apply 'load'/1
+	    (_cor0)
+'stop'/1 =
+    %% Line 103
+    fun (_cor0) ->
+	%% Line 104
+	apply 'unload'/1
+	    (_cor0)
+'load_table'/1 =
+    %% Line 109
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 110
+	    call 'erlang':'make_fun'
+		('os_mon_mib', 'update_load_table', 0)
+	in  %% Line 110
+	    call 'snmp_shadow_table':'table_func'
+		(_cor0, {'loadTable','string',['loadErlNodeName'|['loadSystemTotalMemory'|['loadSystemUsedMemory'|['loadLargestErlProcess'|['loadLargestErlProcessUsedMemory'|['loadCpuLoad'|['loadCpuLoad5'|['loadCpuLoad15'|['loadOsWordsize'|['loadSystemTotalMemory64'|['loadSystemUsedMemory64'|['loadLargestErlProcessUsedMemory64']]]]]]]]]]]],5000,_cor1})
+'load_table'/3 =
+    %% Line 111
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 112
+	    call 'erlang':'make_fun'
+		('os_mon_mib', 'update_load_table', 0)
+	in  %% Line 112
+	    call 'snmp_shadow_table':'table_func'
+		(_cor2, _cor1, _cor0, {'loadTable','string',['loadErlNodeName'|['loadSystemTotalMemory'|['loadSystemUsedMemory'|['loadLargestErlProcess'|['loadLargestErlProcessUsedMemory'|['loadCpuLoad'|['loadCpuLoad5'|['loadCpuLoad15'|['loadOsWordsize'|['loadSystemTotalMemory64'|['loadSystemUsedMemory64'|['loadLargestErlProcessUsedMemory64']]]]]]]]]]]],5000,_cor3})
+'disk_table'/1 =
+    %% Line 114
+    fun (_cor0) ->
+	case _cor0 of
+	  <'new'> when 'true' ->
+	      let <_cor3> =
+		  %% Line 117
+		  call 'mnesia':'system_info'
+		      ('tables')
+	      in  do  %% Line 117
+		      case call 'lists':'member'
+			       ('diskAlloc', _cor3) of
+			%% Line 118
+			<'true'> when 'true' ->
+			    %% Line 119
+			    case call 'mnesia':'table_info'
+				     ('diskAlloc', 'storage_type') of
+			      %% Line 120
+			      <'unknown'> when 'true' ->
+				  let <_cor4> =
+				      %% Line 121
+				      call 'erlang':'node'
+					  ()
+				  in  %% Line 121
+				      case call 'mnesia':'add_table_copy'
+					       ('diskAlloc', _cor4, 'ram_copies') of
+					<{'atomic','ok'}> when 'true' ->
+					    'ok'
+					( <_cor5> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor5})
+					  -| ['compiler_generated'] )
+				      end
+			      %% Line 122
+			      <_cor17>
+				  when call 'erlang':'=:='
+					(_cor17,
+					 'ram_copies') ->
+				  catch
+				      %% Line 123
+				      apply 'delete_all'/1
+					  ('diskAlloc')
+			      ( <_cor6> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor6})
+				-| ['compiler_generated'] )
+			    end
+			%% Line 125
+			<'false'> when 'true' ->
+			    let <_cor7> =
+				%% Line 126
+				call 'erlang':'node'
+				    ()
+			    in  let <Nodes> =
+				    %% Line 126
+				    [_cor7|[]]
+				in  let <Props> =
+					%% Line 127
+					[{'type','set'}|%% Line 128
+							[{'attributes',['diskDescr'|['diskId']]}|%% Line 129
+												 [{'local_content','true'}|%% Line 130
+															   [{'ram_copies',Nodes}|[]]]]]
+				    in  %% Line 131
+					case call 'mnesia':'create_table'
+						 ('diskAlloc', Props) of
+					  <{'atomic','ok'}> when 'true' ->
+					      'ok'
+					  ( <_cor10> when 'true' ->
+						primop 'match_fail'
+						    ({'badmatch',_cor10})
+					    -| ['compiler_generated'] )
+					end
+			( <_cor11> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor11})
+			  -| ['compiler_generated'] )
+		      end
+		      %% Line 135
+		      case call 'mnesia':'dirty_write'
+			       ({'diskAlloc','next_index',1}) of
+			<'ok'> when 'true' ->
+			    let <_cor14> =
+				%% Line 136
+				call 'erlang':'make_fun'
+				    ('os_mon_mib', 'update_disk_table', 0)
+			    in  %% Line 136
+				call 'snmp_shadow_table':'table_func'
+				    ('new', {'diskTable',{'integer','integer'},['key'|['diskDescr'|['diskKBytes'|['diskCapacity']]]],5000,_cor14})
+			( <_cor13> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor13})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15})
+		  -| [{'function_name',{'disk_table',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'disk_table'/3 =
+    %% Line 138
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 139
+	    call 'erlang':'make_fun'
+		('os_mon_mib', 'update_disk_table', 0)
+	in  %% Line 139
+	    call 'snmp_shadow_table':'table_func'
+		(_cor2, _cor1, _cor0, {'diskTable',{'integer','integer'},['key'|['diskDescr'|['diskKBytes'|['diskCapacity']]]],5000,_cor3})
+'mem_sys_mark'/1 =
+    %% Line 141
+    fun (_cor0) ->
+	case _cor0 of
+	  <'get'> when 'true' ->
+	      let <_cor1> =
+		  %% Line 142
+		  call 'memsup':'get_sysmem_high_watermark'
+		      ()
+	      in  %% Line 142
+		  {'value',_cor1}
+	  %% Line 143
+	  <_cor3> when 'true' ->
+	      %% Line 144
+	      'ok'
+	end
+'mem_proc_mark'/1 =
+    %% Line 146
+    fun (_cor0) ->
+	case _cor0 of
+	  <'get'> when 'true' ->
+	      let <_cor1> =
+		  %% Line 147
+		  call 'memsup':'get_procmem_high_watermark'
+		      ()
+	      in  %% Line 147
+		  {'value',_cor1}
+	  %% Line 148
+	  <_cor3> when 'true' ->
+	      %% Line 149
+	      'ok'
+	end
+'disk_threshold'/1 =
+    %% Line 151
+    fun (_cor0) ->
+	case _cor0 of
+	  <'get'> when 'true' ->
+	      let <_cor1> =
+		  %% Line 152
+		  call 'disksup':'get_almost_full_threshold'
+		      ()
+	      in  %% Line 152
+		  {'value',_cor1}
+	  %% Line 153
+	  <_cor3> when 'true' ->
+	      %% Line 154
+	      'ok'
+	end
+'update_load_table'/0 =
+    %% Line 159
+    fun () ->
+	do  %% Line 160
+	    apply 'delete_all'/1
+		('loadTable')
+	    let <_cor6> =
+		%% Line 162
+		( fun (_cor4) ->
+		      %% Line 163
+		      case call 'rpc':'call'
+			       (_cor4, 'os_mon_mib', 'get_load', [_cor4|[]]) of
+			%% Line 164
+			<Load = {'loadTable',_cor7,_cor8,_cor9,_cor10,_cor11,_cor12,_cor13,_cor14,_cor15,_cor16,_cor17,_cor18}> when ( 'true'
+																       -| ['compiler_generated'] ) ->
+			    let <_cor19> =
+				%% Line 165
+				call 'mnesia':'dirty_write'
+				    (Load)
+			    in  %% Line 165
+				case _cor19 of
+				  <'ok'> when 'true' ->
+				      ( _cor19
+					-| ['compiler_generated'] )
+				  ( <_cor2> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor2})
+				    -| ['compiler_generated'] )
+				end
+			%% Line 166
+			<_X_Else> when 'true' ->
+			    %% Line 167
+			    'ok'
+		      end
+		  -| [{'id',{0,0,'-update_load_table/0-fun-0-'}}] )
+	    in  let <_cor0> =
+		    %% Line 169
+		    call 'erlang':'node'
+			()
+		in  let <_cor1> =
+			%% Line 169
+			call 'erlang':'nodes'
+			    ()
+		    in  %% Line 161
+			call 'lists':'foreach'
+			    (_cor6, %% Line 169
+				    [_cor0|_cor1])
+'update_disk_table'/0 =
+    %% Line 172
+    fun () ->
+	do  %% Line 173
+	    apply 'delete_all'/1
+		('diskTable')
+	    let <_cor0> =
+		%% Line 175
+		call 'otp_mib':'erl_node_table'
+		    ('get_next', [], [2|[11]])
+	    in  %% Line 174
+		apply 'node_update_disk_table'/1
+		    (_cor0)
+'get_load'/1 =
+    %% Line 180
+    fun (_cor0) ->
+	let <Total,Allocated,PidString,PidAllocated> =
+	    %% Line 181
+	    case call 'memsup':'get_memory_data'
+		     () of
+	      %% Line 182
+	      <{MemTot,MemAlloc,'undefined'}> when 'true' ->
+		  <MemTot,MemAlloc,[117|[110|[100|[101|[102|[105|[110|[101|[100]]]]]]]]],0>
+	      %% Line 183
+	      <{MemTot,MemAlloc,{Pid,PidMem}}> when 'true' ->
+		  let <_cor1> =
+		      apply 'pid_to_str'/1
+			  (Pid)
+		  in  <MemTot,MemAlloc,_cor1,PidMem>
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor2})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor6> =
+		%% Line 185
+		case call 'memsup':'get_os_wordsize'
+			 () of
+		  %% Line 186
+		  <WS>
+		      when call 'erlang':'is_integer'
+			    (WS) ->
+		      WS
+		  %% Line 187
+		  <_cor16> when 'true' ->
+		      0
+		end
+	    in  let <_cor14> =
+		    %% Line 190
+		    call 'erlang':'atom_to_list'
+			(_cor0)
+		in  let <_cor13> =
+			%% Line 191
+			apply 'mask_int32'/1
+			    (Total)
+		    in  let <_cor12> =
+			    %% Line 192
+			    apply 'mask_int32'/1
+				(Allocated)
+			in  let <_cor11> =
+				%% Line 194
+				apply 'mask_int32'/1
+				    (PidAllocated)
+			    in  let <_cor10> =
+				    %% Line 195
+				    apply 'get_cpu_load'/1
+					('avg1')
+				in  let <_cor9> =
+					%% Line 196
+					apply 'get_cpu_load'/1
+					    ('avg5')
+				    in  let <_cor8> =
+					    %% Line 197
+					    apply 'get_cpu_load'/1
+						('avg15')
+					in  %% Line 189
+					    {'loadTable',_cor14,_cor13,_cor12,%% Line 193
+									      PidString,_cor11,_cor10,_cor9,_cor8,_cor6,%% Line 199
+															Total,%% Line 200
+															      Allocated,%% Line 201
+																	PidAllocated}
+'mask_int32'/1 =
+    %% Line 204
+    fun (_cor0) ->
+	call 'erlang':'band'
+	    (_cor0, 4294967295)
+'get_disks'/1 =
+    %% Line 206
+    fun (_cor0) ->
+	let <_cor7> =
+	    %% Line 209
+	    ( fun (_cor4,_cor3) ->
+		  case <_cor4,_cor3> of
+		    <{Descr,KByte,Capacity},DiskId> when 'true' ->
+			let <_cor2> =
+			    %% Line 214
+			    call 'erlang':'+'
+				(DiskId, 1)
+			in  %% Line 210
+			    {{'diskTable',{_cor0,DiskId},%% Line 211
+							 Descr,%% Line 212
+							       KByte,%% Line 213
+								     Capacity},_cor2}
+		    ( <_cor6,_cor5> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor6,_cor5})
+			    -| [{'function_name',{'-get_disks/1-fun-0-',2}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-get_disks/1-fun-0-'}}] )
+	in  let <_cor1> =
+		%% Line 215
+		call 'disksup':'get_disk_data'
+		    ()
+	    in  let <_cor8> =
+		    %% Line 208
+		    call 'lists':'mapfoldl'
+			(_cor7, %% Line 215
+				1, _cor1)
+		in  %% Line 207
+		    call 'erlang':'element'
+			(1, _cor8)
+'node_update_disk_table'/1 =
+    %% Line 221
+    fun (_cor0) ->
+	case _cor0 of
+	  <[_cor8|['endOfTable']]> when 'true' ->
+	      %% Line 222
+	      'ok'
+	  %% Line 224
+	  <[{[2|IndexList],NodeStr}|[_cor9|[]]]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 225
+		  call 'erlang':'list_to_atom'
+		      (NodeStr)
+	      in  let <Disks> =
+		      %% Line 225
+		      call 'rpc':'call'
+			  (_cor1, 'os_mon_mib', 'get_disks', %% Line 226
+							     IndexList)
+		  in  let <_cor5> =
+			  %% Line 227
+			  ( fun (_cor3) ->
+				%% Line 228
+				call 'mnesia':'dirty_write'
+				    (_cor3)
+			    -| [{'id',{0,0,'-node_update_disk_table/1-fun-0-'}}] )
+		      in  do  %% Line 227
+			      call 'lists':'foreach'
+				  (_cor5, %% Line 229
+					  Disks)
+			      let <_cor6> =
+				  %% Line 230
+				  call 'otp_mib':'erl_node_table'
+				      ('get_next', %% Line 231
+						   IndexList, %% Line 232
+							      [2|[11]])
+			      in  %% Line 230
+				  apply 'node_update_disk_table'/1
+				      (_cor6)
+	  ( <_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7})
+		  -| [{'function_name',{'node_update_disk_table',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_cpu_load'/1 =
+    %% Line 235
+    fun (_cor0) ->
+	case _cor0 of
+	  <X>
+	      when let <_cor1> =
+		    call 'erlang':'=:='
+			(_cor0, 'avg1')
+		in  let <_cor2> =
+			call 'erlang':'=:='
+			    (_cor0, 'avg5')
+		    in  let <_cor3> =
+			    call 'erlang':'=:='
+				(_cor0, 'avg15')
+			in  let <_cor4> =
+				call 'erlang':'or'
+				    (_cor2, _cor3)
+			    in  call 'erlang':'or'
+				    (_cor1, _cor4) ->
+	      let <_cor5> =
+		  %% Line 236
+		  call 'cpu_sup':X
+		      ()
+	      in  let <_cor6> =
+		      %% Line 236
+		      call 'erlang':'/'
+			  (_cor5, 2.56000000000000005329e+00)
+		  in  %% Line 236
+		      case call 'erlang':'round'
+			       (_cor6) of
+			%% Line 237
+			<Large>
+			    when call 'erlang':'>'
+				  (Large,
+				   100) ->
+			    %% Line 238
+			    100
+			%% Line 239
+			<Load> when 'true' ->
+			    %% Line 240
+			    Load
+		      end
+	  ( <_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8})
+		  -| [{'function_name',{'get_cpu_load',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'delete_all'/1 =
+    %% Line 243
+    fun (_cor0) ->
+	let <_cor1> =
+	    call 'mnesia':'dirty_first'
+		(_cor0)
+	in  apply 'delete_all'/2
+		(_cor1, _cor0)
+'delete_all'/2 =
+    %% Line 244
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'$end_of_table',_X_Name> when 'true' ->
+	      'done'
+	  %% Line 245
+	  <Key,Name> when 'true' ->
+	      let <Next> =
+		  %% Line 246
+		  call 'mnesia':'dirty_next'
+		      (Name, Key)
+	      in  %% Line 247
+		  case call 'mnesia':'dirty_delete'
+			   ({Name,Key}) of
+		    <'ok'> when 'true' ->
+			%% Line 248
+			apply 'delete_all'/2
+			    (Next, Name)
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	end
+'pid_to_str'/1 =
+    %% Line 250
+    fun (_cor0) ->
+	let <_cor1> =
+	    call 'io_lib':'format'
+		([126|[119]], [_cor0|[]])
+	in  call 'lists':'flatten'
+		(_cor1)
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('os_mon_mib')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('os_mon_mib', _cor0)
+end

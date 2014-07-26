@@ -1,0 +1,183 @@
+module 'application_starter' ['module_info'/0,
+			      'module_info'/1,
+			      'start'/3]
+    attributes []
+'start'/3 =
+    %% Line 41
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_X_Type,_X_Apps> when 'true' ->
+	      %% Line 42
+	      'ok'
+	  %% Line 43
+	  <[{Phase,_X_PhaseArgs}|Phases],Type,Apps> when 'true' ->
+	      %% Line 44
+	      case apply 'start_apps'/3
+		       (Phase, Type, Apps) of
+		%% Line 45
+		<Error = {'error',_cor7}> when 'true' ->
+		    %% Line 46
+		    Error
+		%% Line 47
+		<_cor8> when 'true' ->
+		    %% Line 48
+		    apply 'start'/3
+			(Phases, Type, Apps)
+	      end
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'start',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'start_apps'/3 =
+    %% Line 55
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_X_Phase,_X_Type,[]> when 'true' ->
+	      %% Line 56
+	      'ok'
+	  %% Line 57
+	  <Phase,Type,[App|Apps]> when 'true' ->
+	      let <_cor3> =
+		  catch
+		      %% Line 58
+		      apply 'run_start_phase'/3
+			  (Phase, Type, App)
+	      in  %% Line 58
+		  case _cor3 of
+		    %% Line 59
+		    <Error = {'error',_cor8}> when 'true' ->
+			%% Line 60
+			Error
+		    %% Line 61
+		    <_cor9> when 'true' ->
+			%% Line 62
+			apply 'start_apps'/3
+			    (Phase, Type, Apps)
+		  end
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'start_apps',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'run_start_phase'/3 =
+    %% Line 70
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 71
+	case call 'application':'get_key'
+		 (_cor0, 'mod') of
+	  <{'ok',{Mod,Arg}}> when 'true' ->
+	      %% Line 72
+	      case Mod of
+		%% Line 73
+		<'application_starter'> when 'true' ->
+		    %% Line 74
+		    case Arg of
+		      <[StartMod|[_X_StartArgs|[]]]> when 'true' ->
+			  do  %% Line 75
+			      apply 'run_the_phase'/4
+				  (_cor2, _cor1, _cor0, StartMod)
+			      %% Line 76
+			      case call 'application':'get_key'
+				       (_cor0, 'included_applications') of
+				<{'ok',IncApps}> when 'true' ->
+				    %% Line 77
+				    apply 'start_apps'/3
+					(_cor2, _cor1, IncApps)
+				( <_cor5> when 'true' ->
+				      primop 'match_fail'
+					  ({'badmatch',_cor5})
+				  -| ['compiler_generated'] )
+			      end
+		      ( <_cor4> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor4})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 78
+		<_cor10> when 'true' ->
+		    %% Line 79
+		    apply 'run_the_phase'/4
+			(_cor2, _cor1, _cor0, Mod)
+	      end
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'run_the_phase'/4 =
+    %% Line 87
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 88
+	    case call 'application_controller':'get_key'
+		     (_cor1, 'start_phases') of
+	      %% Line 89
+	      <{'ok','undefined'}> when 'true' ->
+		  %% Line 90
+		  call 'erlang':'throw'
+		      ({'error',{'start_phases_undefined',_cor1}})
+	      %% Line 91
+	      <{'ok',Sp}> when 'true' ->
+		  %% Line 92
+		  Sp
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor4})
+		-| ['compiler_generated'] )
+	    end
+	in  %% Line 94
+	    case call 'lists':'keyfind'
+		     (_cor3, 1, _cor5) of
+	      %% Line 95
+	      <'false'> when 'true' ->
+		  %% Line 96
+		  'ok'
+	      %% Line 97
+	      <{_cor14,PhaseArgs}>
+		  when call 'erlang':'=:='
+			(_cor14,
+			 _cor3) ->
+		  let <_cor7> =
+		      catch
+			  %% Line 98
+			  call _cor0:'start_phase'
+			      (_cor3, _cor2, PhaseArgs)
+		  in  %% Line 98
+		      case _cor7 of
+			%% Line 99
+			<'ok'> when 'true' ->
+			    %% Line 100
+			    'ok'
+			%% Line 101
+			<{'error',Reason}> when 'true' ->
+			    %% Line 102
+			    call 'erlang':'throw'
+				({'error',{Reason,%% Line 103
+						  {_cor0,'start_phase',%% Line 104
+								       [_cor3|[_cor2|[PhaseArgs|[]]]]}}})
+			%% Line 105
+			<Other> when 'true' ->
+			    %% Line 106
+			    call 'erlang':'throw'
+				({'error',{'bad_return_value',%% Line 107
+							      {{_cor0,'start_phase',%% Line 108
+										    [_cor3|[_cor2|[PhaseArgs|[]]]]},%% Line 109
+														    Other}}})
+		      end
+	      ( <_cor9> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor9})
+		-| ['compiler_generated'] )
+	    end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('application_starter')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('application_starter', _cor0)
+end

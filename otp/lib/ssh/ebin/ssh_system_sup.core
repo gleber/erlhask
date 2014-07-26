@@ -1,0 +1,412 @@
+module 'ssh_system_sup' ['acceptor_supervisor'/1,
+			 'channel_supervisor'/1,
+			 'connection_supervisor'/1,
+			 'init'/1,
+			 'module_info'/0,
+			 'module_info'/1,
+			 'restart_acceptor'/2,
+			 'restart_subsystem'/2,
+			 'start_link'/1,
+			 'start_subsystem'/2,
+			 'stop_listener'/1,
+			 'stop_listener'/2,
+			 'stop_subsystem'/2,
+			 'stop_system'/1,
+			 'stop_system'/2,
+			 'subsystem_supervisor'/1,
+			 'system_supervisor'/2]
+    attributes [%% Line 29
+		'behaviour' =
+		    %% Line 29
+		    ['supervisor']]
+'start_link'/1 =
+    %% Line 45
+    fun (_cor0) ->
+	let <Address> =
+	    %% Line 46
+	    call 'proplists':'get_value'
+		('address', _cor0)
+	in  let <Port> =
+		%% Line 47
+		call 'proplists':'get_value'
+		    ('port', _cor0)
+	    in  let <Name> =
+		    %% Line 48
+		    apply 'make_name'/2
+			(Address, Port)
+		in  %% Line 49
+		    call 'supervisor':'start_link'
+			({'local',Name}, 'ssh_system_sup', [_cor0|[]])
+'stop_listener'/1 =
+    %% Line 51
+    fun (_cor0) ->
+	%% Line 52
+	apply 'stop_acceptor'/1
+	    (_cor0)
+'stop_listener'/2 =
+    %% Line 54
+    fun (_cor1,_cor0) ->
+	let <Name> =
+	    %% Line 55
+	    apply 'make_name'/2
+		(_cor1, _cor0)
+	in  let <_cor3> =
+		%% Line 56
+		call 'erlang':'whereis'
+		    (Name)
+	    in  %% Line 56
+		apply 'stop_acceptor'/1
+		    (_cor3)
+'stop_system'/1 =
+    %% Line 58
+    fun (_cor0) ->
+	let <Name> =
+	    %% Line 59
+	    call 'sshd_sup':'system_name'
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 60
+		( fun () ->
+		      call 'sshd_sup':'stop_child'
+			  (Name)
+		  -| [{'id',{0,0,'-stop_system/1-fun-0-'}}] )
+	    in  do  %% Line 60
+		    call 'erlang':'spawn'
+			(_cor2)
+		    %% Line 61
+		    'ok'
+'stop_system'/2 =
+    %% Line 63
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 64
+	    ( fun () ->
+		  call 'sshd_sup':'stop_child'
+		      (_cor1, _cor0)
+	      -| [{'id',{0,0,'-stop_system/2-fun-0-'}}] )
+	in  do  %% Line 64
+		call 'erlang':'spawn'
+		    (_cor2)
+		%% Line 65
+		'ok'
+'system_supervisor'/2 =
+    %% Line 67
+    fun (_cor1,_cor0) ->
+	let <Name> =
+	    %% Line 68
+	    apply 'make_name'/2
+		(_cor1, _cor0)
+	in  %% Line 69
+	    call 'erlang':'whereis'
+		(Name)
+'subsystem_supervisor'/1 =
+    %% Line 71
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 72
+	    call 'supervisor':'which_children'
+		(_cor0)
+	in  %% Line 72
+	    apply 'ssh_subsystem_sup'/1
+		(_cor1)
+'channel_supervisor'/1 =
+    %% Line 74
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 75
+	    call 'supervisor':'which_children'
+		(_cor0)
+	in  let <SubSysSup> =
+		%% Line 75
+		apply 'ssh_subsystem_sup'/1
+		    (_cor1)
+	    in  %% Line 76
+		call 'ssh_subsystem_sup':'channel_supervisor'
+		    (SubSysSup)
+'connection_supervisor'/1 =
+    %% Line 78
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 79
+	    call 'supervisor':'which_children'
+		(_cor0)
+	in  let <SubSysSup> =
+		%% Line 79
+		apply 'ssh_subsystem_sup'/1
+		    (_cor1)
+	    in  %% Line 80
+		call 'ssh_subsystem_sup':'connection_supervisor'
+		    (SubSysSup)
+'acceptor_supervisor'/1 =
+    %% Line 82
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 83
+	    call 'supervisor':'which_children'
+		(_cor0)
+	in  %% Line 83
+	    apply 'ssh_acceptor_sup'/1
+		(_cor1)
+'start_subsystem'/2 =
+    %% Line 85
+    fun (_cor1,_cor0) ->
+	let <Spec> =
+	    %% Line 86
+	    apply 'ssh_subsystem_child_spec'/1
+		(_cor0)
+	in  %% Line 87
+	    call 'supervisor':'start_child'
+		(_cor1, Spec)
+'stop_subsystem'/2 =
+    %% Line 89
+    fun (_cor1,_cor0) ->
+	let <_cor3> =
+	    catch
+		let <_cor2> =
+		    %% Line 90
+		    call 'supervisor':'which_children'
+			(_cor1)
+		in  %% Line 90
+		    call 'lists':'keyfind'
+			(_cor0, 2, _cor2)
+	in  %% Line 90
+	    case _cor3 of
+	      %% Line 91
+	      <'false'> when 'true' ->
+		  %% Line 92
+		  {'error','not_found'}
+	      %% Line 93
+	      <{Id,_cor8,_cor9,_cor10}> when 'true' ->
+		  let <_cor4> =
+		      %% Line 94
+		      ( fun () ->
+			    do  call 'supervisor':'terminate_child'
+				    (_cor1, Id)
+				%% Line 95
+				call 'supervisor':'delete_child'
+				    (_cor1, Id)
+			-| [{'id',{0,0,'-stop_subsystem/2-fun-0-'}}] )
+		  in  do  %% Line 94
+			  call 'erlang':'spawn'
+			      (_cor4)
+			  %% Line 96
+			  'ok'
+	      %% Line 97
+	      <{'EXIT',{'noproc',_cor11}}> when 'true' ->
+		  %% Line 99
+		  'ok'
+	      %% Line 100
+	      <{'EXIT',{'shutdown',_cor12}}> when 'true' ->
+		  %% Line 102
+		  'ok'
+	      ( <_cor5> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor5})
+		-| ['compiler_generated'] )
+	    end
+'restart_subsystem'/2 =
+    %% Line 106
+    fun (_cor1,_cor0) ->
+	let <SysSupName> =
+	    %% Line 107
+	    apply 'make_name'/2
+		(_cor1, _cor0)
+	in  let <SubSysName> =
+		%% Line 108
+		apply 'id'/3
+		    ('ssh_subsystem_sup', _cor1, _cor0)
+	    in  %% Line 109
+		case call 'supervisor':'terminate_child'
+			 (SysSupName, SubSysName) of
+		  %% Line 110
+		  <'ok'> when 'true' ->
+		      %% Line 111
+		      call 'supervisor':'restart_child'
+			  (SysSupName, SubSysName)
+		  %% Line 112
+		  <Error> when 'true' ->
+		      %% Line 113
+		      Error
+		end
+'restart_acceptor'/2 =
+    %% Line 116
+    fun (_cor1,_cor0) ->
+	let <SysSupName> =
+	    %% Line 117
+	    apply 'make_name'/2
+		(_cor1, _cor0)
+	in  let <AcceptorName> =
+		%% Line 118
+		apply 'id'/3
+		    ('ssh_acceptor_sup', _cor1, _cor0)
+	    in  %% Line 119
+		call 'supervisor':'restart_child'
+		    (SysSupName, AcceptorName)
+'init'/1 =
+    %% Line 124
+    fun (_cor0) ->
+	case _cor0 of
+	  <[ServerOpts|[]]> when 'true' ->
+	      let <Children> =
+		  %% Line 128
+		  apply 'child_specs'/1
+		      (ServerOpts)
+	      in  %% Line 129
+		  {'ok',{{'one_for_one',0,3600},Children}}
+	  ( <_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'child_specs'/1 =
+    %% Line 134
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 135
+	    apply 'ssh_acceptor_child_spec'/1
+		(_cor0)
+	in  %% Line 135
+	    [_cor1|[]]
+'ssh_acceptor_child_spec'/1 =
+    %% Line 137
+    fun (_cor0) ->
+	let <Address> =
+	    %% Line 138
+	    call 'proplists':'get_value'
+		('address', _cor0)
+	in  let <Port> =
+		%% Line 139
+		call 'proplists':'get_value'
+		    ('port', _cor0)
+	    in  let <Name> =
+		    %% Line 140
+		    apply 'id'/3
+			('ssh_acceptor_sup', Address, Port)
+		in  let <StartFunc> =
+			%% Line 141
+			{'ssh_acceptor_sup','start_link',[_cor0|[]]}
+		    in  %% Line 146
+			{Name,StartFunc,'transient','infinity','supervisor',['ssh_acceptor_sup']}
+'ssh_subsystem_child_spec'/1 =
+    %% Line 148
+    fun (_cor0) ->
+	let <Name> =
+	    %% Line 149
+	    call 'erlang':'make_ref'
+		()
+	in  let <StartFunc> =
+		%% Line 150
+		{'ssh_subsystem_sup','start_link',[_cor0|[]]}
+	    in  %% Line 155
+		{Name,StartFunc,'temporary','infinity','supervisor',['ssh_subsystem_sup']}
+'id'/3 =
+    %% Line 158
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 159
+	{_cor2,_cor1,_cor0}
+'make_name'/2 =
+    %% Line 161
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 162
+	    call 'io_lib':'format'
+		([115|[115|[104|[95|[115|[121|[115|[116|[101|[109|[95|[126|[112|[95|[126|[112|[95|[115|[117|[112]]]]]]]]]]]]]]]]]]]], %% Line 163
+																      [_cor1|[_cor0|[]]])
+	in  let <_cor3> =
+		%% Line 162
+		call 'lists':'flatten'
+		    (_cor2)
+	    in  %% Line 162
+		call 'erlang':'list_to_atom'
+		    (_cor3)
+'ssh_subsystem_sup'/1 =
+    %% Line 165
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{_cor2,Child,_cor3,['ssh_subsystem_sup']}|_cor4]> when 'true' ->
+	      %% Line 166
+	      Child
+	  %% Line 167
+	  <[_cor5|Rest]> when 'true' ->
+	      %% Line 168
+	      apply 'ssh_subsystem_sup'/1
+		  (Rest)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'ssh_subsystem_sup',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'ssh_acceptor_sup'/1 =
+    %% Line 170
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{_cor2,Child,_cor3,['ssh_acceptor_sup']}|_cor4]> when 'true' ->
+	      %% Line 171
+	      Child
+	  %% Line 172
+	  <[_cor5|Rest]> when 'true' ->
+	      %% Line 173
+	      apply 'ssh_acceptor_sup'/1
+		  (Rest)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'ssh_acceptor_sup',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'stop_acceptor'/1 =
+    %% Line 175
+    fun (_cor0) ->
+	let <_cor6> =
+	    %% Line 177
+	    ( letrec
+		  'lc$^0'/1 =
+		      fun (_cor4) ->
+			  case _cor4 of
+			    <[{SupName,_cor9,_cor10,['ssh_acceptor_sup']}|_cor2]> when 'true' ->
+				let <_cor5> =
+				    apply 'lc$^0'/1
+					(_cor2)
+				in  ( [SupName|_cor5]
+				      -| ['compiler_generated'] )
+			    ( <[_cor1|_cor2]> when 'true' ->
+				  apply 'lc$^0'/1
+				      (_cor2)
+			      -| ['compiler_generated'] )
+			    <[]> when 'true' ->
+				[]
+			    ( <_cor4> when 'true' ->
+				  ( primop 'match_fail'
+					({'function_clause',_cor4})
+				    -| [{'function_name',{'lc$^0',1}}] )
+			      -| ['compiler_generated'] )
+			  end
+	      in  let <_cor3> =
+		      %% Line 178
+		      call 'supervisor':'which_children'
+			  (_cor0)
+		  in  apply 'lc$^0'/1
+			  (_cor3)
+	      -| ['list_comprehension'] )
+	in  %% Line 176
+	    case _cor6 of
+	      <[Name|[]]> when 'true' ->
+		  %% Line 179
+		  call 'supervisor':'terminate_child'
+		      (_cor0, Name)
+	      ( <_cor7> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor7})
+		-| ['compiler_generated'] )
+	    end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ssh_system_sup')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ssh_system_sup', _cor0)
+end

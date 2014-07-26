@@ -1,0 +1,3051 @@
+module 'io_lib_format' ['fwrite'/2,
+			'fwrite_g'/1,
+			'indentation'/2,
+			'module_info'/0,
+			'module_info'/1]
+    attributes []
+'fwrite'/2 =
+    %% Line 40
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Format,Args>
+	      when call 'erlang':'is_atom'
+		    (Format) ->
+	      let <_cor2> =
+		  %% Line 41
+		  call 'erlang':'atom_to_list'
+		      (Format)
+	      in  %% Line 41
+		  apply 'fwrite'/2
+		      (_cor2, Args)
+	  %% Line 42
+	  <Format,Args>
+	      when call 'erlang':'is_binary'
+		    (Format) ->
+	      let <_cor3> =
+		  %% Line 43
+		  call 'erlang':'binary_to_list'
+		      (Format)
+	      in  %% Line 43
+		  apply 'fwrite'/2
+		      (_cor3, Args)
+	  %% Line 44
+	  <Format,Args> when 'true' ->
+	      let <Cs> =
+		  %% Line 45
+		  apply 'collect'/2
+		      (Format, Args)
+	      in  let <Pc> =
+		      %% Line 46
+		      apply 'pcount'/1
+			  (Cs)
+		  in  %% Line 47
+		      apply 'build'/3
+			  (Cs, Pc, 0)
+	end
+'collect'/2 =
+    %% Line 49
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[126|Fmt0],Args0> when 'true' ->
+	      %% Line 50
+	      case apply 'collect_cseq'/2
+		       (Fmt0, Args0) of
+		<{C,Fmt1,Args1}> when 'true' ->
+		    let <_cor3> =
+			%% Line 51
+			apply 'collect'/2
+			    (Fmt1, Args1)
+		    in  %% Line 51
+			[C|_cor3]
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 52
+	  <[C|Fmt],Args> when 'true' ->
+	      let <_cor4> =
+		  %% Line 53
+		  apply 'collect'/2
+		      (Fmt, Args)
+	      in  %% Line 53
+		  [C|_cor4]
+	  %% Line 54
+	  <[],[]> when 'true' ->
+	      []
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'collect',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'collect_cseq'/2 =
+    %% Line 56
+    fun (_cor1,_cor0) ->
+	%% Line 57
+	case apply 'field_width'/2
+		 (_cor1, _cor0) of
+	  <{F,Ad,Fmt1,Args1}> when 'true' ->
+	      %% Line 58
+	      case apply 'precision'/2
+		       (Fmt1, Args1) of
+		<{P,Fmt2,Args2}> when 'true' ->
+		    %% Line 59
+		    case apply 'pad_char'/2
+			     (Fmt2, Args2) of
+		      <{Pad,Fmt3,Args3}> when 'true' ->
+			  %% Line 60
+			  case apply 'encoding'/2
+				   (Fmt3, Args3) of
+			    <{Encoding,Fmt4,Args4}> when 'true' ->
+				%% Line 61
+				case apply 'strings'/2
+					 (Fmt4, Args4) of
+				  <{Strings,Fmt5,Args5}> when 'true' ->
+				      %% Line 62
+				      case apply 'collect_cc'/2
+					       (Fmt5, Args5) of
+					<{C,As,Fmt6,Args6}> when 'true' ->
+					    %% Line 63
+					    {{C,As,F,Ad,P,Pad,Encoding,Strings},Fmt6,Args6}
+					( <_cor7> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor7})
+					  -| ['compiler_generated'] )
+				      end
+				  ( <_cor6> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor6})
+				    -| ['compiler_generated'] )
+				end
+			    ( <_cor5> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor5})
+			      -| ['compiler_generated'] )
+			  end
+		      ( <_cor4> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor4})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'encoding'/2 =
+    %% Line 65
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[116|Fmt],Args> when 'true' ->
+	      let <_cor2> =
+		  %% Line 66
+		  call 'erlang':'hd'
+		      (Fmt)
+	      in  %% Line 66
+		  case call 'erlang':'=/='
+			   (_cor2, 108) of
+		    <'true'> when 'true' ->
+			%% Line 67
+			{'unicode',Fmt,Args}
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 68
+	  <Fmt,Args> when 'true' ->
+	      %% Line 69
+	      {'latin1',Fmt,Args}
+	end
+'strings'/2 =
+    %% Line 71
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[108|Fmt],Args> when 'true' ->
+	      let <_cor2> =
+		  %% Line 72
+		  call 'erlang':'hd'
+		      (Fmt)
+	      in  %% Line 72
+		  case call 'erlang':'=/='
+			   (_cor2, 116) of
+		    <'true'> when 'true' ->
+			%% Line 73
+			{'false',Fmt,Args}
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 74
+	  <Fmt,Args> when 'true' ->
+	      %% Line 75
+	      {'true',Fmt,Args}
+	end
+'field_width'/2 =
+    %% Line 77
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[45|Fmt0],Args0> when 'true' ->
+	      %% Line 78
+	      case apply 'field_value'/2
+		       (Fmt0, Args0) of
+		<{F,Fmt,Args}> when 'true' ->
+		    let <_cor3> =
+			%% Line 79
+			call 'erlang':'-'
+			    (F)
+		    in  %% Line 79
+			apply 'field_width'/3
+			    (_cor3, Fmt, Args)
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 80
+	  <Fmt0,Args0> when 'true' ->
+	      %% Line 81
+	      case apply 'field_value'/2
+		       (Fmt0, Args0) of
+		<{F,Fmt,Args}> when 'true' ->
+		    %% Line 82
+		    apply 'field_width'/3
+			(F, Fmt, Args)
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'field_width'/3 =
+    %% Line 84
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <F,Fmt,Args>
+	      when call 'erlang':'<'
+		    (F,
+		     0) ->
+	      let <_cor3> =
+		  %% Line 85
+		  call 'erlang':'-'
+		      (F)
+	      in  %% Line 85
+		  {_cor3,'left',Fmt,Args}
+	  %% Line 86
+	  <F,Fmt,Args>
+	      when call 'erlang':'>='
+		    (F,
+		     0) ->
+	      %% Line 87
+	      {F,'right',Fmt,Args}
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'field_width',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'precision'/2 =
+    %% Line 89
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[46|Fmt],Args> when 'true' ->
+	      %% Line 90
+	      apply 'field_value'/2
+		  (Fmt, Args)
+	  %% Line 91
+	  <Fmt,Args> when 'true' ->
+	      %% Line 92
+	      {'none',Fmt,Args}
+	end
+'field_value'/2 =
+    %% Line 94
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[42|Fmt],[A|Args]>
+	      when call 'erlang':'is_integer'
+		    (A) ->
+	      %% Line 95
+	      {A,Fmt,Args}
+	  %% Line 96
+	  <[C|Fmt],Args>
+	      when try
+		    let <_cor2> =
+			call 'erlang':'is_integer'
+			    (C)
+		    in  let <_cor3> =
+			    call 'erlang':'>='
+				(C, 48)
+			in  let <_cor4> =
+				call 'erlang':'=<'
+				    (C, 57)
+			    in  let <_cor5> =
+				    call 'erlang':'and'
+					(_cor3, _cor4)
+				in  call 'erlang':'and'
+					(_cor2, _cor5)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 97
+	      apply 'field_value'/3
+		  ([C|Fmt], Args, 0)
+	  %% Line 98
+	  <Fmt,Args> when 'true' ->
+	      %% Line 99
+	      {'none',Fmt,Args}
+	end
+'field_value'/3 =
+    %% Line 101
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[C|Fmt],Args,F>
+	      when try
+		    let <_cor3> =
+			call 'erlang':'is_integer'
+			    (C)
+		    in  let <_cor4> =
+			    call 'erlang':'>='
+				(C, 48)
+			in  let <_cor5> =
+				call 'erlang':'=<'
+				    (C, 57)
+			    in  let <_cor6> =
+				    call 'erlang':'and'
+					(_cor4, _cor5)
+				in  call 'erlang':'and'
+					(_cor3, _cor6)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor8> =
+		  %% Line 102
+		  call 'erlang':'*'
+		      (10, F)
+	      in  let <_cor7> =
+		      %% Line 102
+		      call 'erlang':'-'
+			  (C, 48)
+		  in  let <_cor9> =
+			  %% Line 102
+			  call 'erlang':'+'
+			      (_cor8, _cor7)
+		      in  %% Line 102
+			  apply 'field_value'/3
+			      (Fmt, Args, _cor9)
+	  %% Line 103
+	  <Fmt,Args,F> when 'true' ->
+	      %% Line 104
+	      {F,Fmt,Args}
+	end
+'pad_char'/2 =
+    %% Line 106
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[46|[42|Fmt]],[Pad|Args]> when 'true' ->
+	      {Pad,Fmt,Args}
+	  %% Line 107
+	  <[46|[Pad|Fmt]],Args> when 'true' ->
+	      {Pad,Fmt,Args}
+	  %% Line 108
+	  <Fmt,Args> when 'true' ->
+	      {32,Fmt,Args}
+	end
+'collect_cc'/2 =
+    %% Line 115
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[119|Fmt],[A|Args]> when 'true' ->
+	      {119,[A|[]],Fmt,Args}
+	  %% Line 116
+	  <[112|Fmt],[A|Args]> when 'true' ->
+	      {112,[A|[]],Fmt,Args}
+	  %% Line 117
+	  <[87|Fmt],[A|[Depth|Args]]> when 'true' ->
+	      {87,[A|[Depth|[]]],Fmt,Args}
+	  %% Line 118
+	  <[80|Fmt],[A|[Depth|Args]]> when 'true' ->
+	      {80,[A|[Depth|[]]],Fmt,Args}
+	  %% Line 119
+	  <[115|Fmt],[A|Args]> when 'true' ->
+	      {115,[A|[]],Fmt,Args}
+	  %% Line 120
+	  <[101|Fmt],[A|Args]> when 'true' ->
+	      {101,[A|[]],Fmt,Args}
+	  %% Line 121
+	  <[102|Fmt],[A|Args]> when 'true' ->
+	      {102,[A|[]],Fmt,Args}
+	  %% Line 122
+	  <[103|Fmt],[A|Args]> when 'true' ->
+	      {103,[A|[]],Fmt,Args}
+	  %% Line 123
+	  <[98|Fmt],[A|Args]> when 'true' ->
+	      {98,[A|[]],Fmt,Args}
+	  %% Line 124
+	  <[66|Fmt],[A|Args]> when 'true' ->
+	      {66,[A|[]],Fmt,Args}
+	  %% Line 125
+	  <[120|Fmt],[A|[Prefix|Args]]> when 'true' ->
+	      {120,[A|[Prefix|[]]],Fmt,Args}
+	  %% Line 126
+	  <[88|Fmt],[A|[Prefix|Args]]> when 'true' ->
+	      {88,[A|[Prefix|[]]],Fmt,Args}
+	  %% Line 127
+	  <[43|Fmt],[A|Args]> when 'true' ->
+	      {43,[A|[]],Fmt,Args}
+	  %% Line 128
+	  <[35|Fmt],[A|Args]> when 'true' ->
+	      {35,[A|[]],Fmt,Args}
+	  %% Line 129
+	  <[99|Fmt],[A|Args]> when 'true' ->
+	      {99,[A|[]],Fmt,Args}
+	  %% Line 130
+	  <[126|Fmt],Args>
+	      when call 'erlang':'is_list'
+		    (Args) ->
+	      {126,[],Fmt,Args}
+	  %% Line 131
+	  <[110|Fmt],Args>
+	      when call 'erlang':'is_list'
+		    (Args) ->
+	      {110,[],Fmt,Args}
+	  %% Line 132
+	  <[105|Fmt],[A|Args]> when 'true' ->
+	      {105,[A|[]],Fmt,Args}
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'collect_cc',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'pcount'/1 =
+    %% Line 137
+    fun (_cor0) ->
+	apply 'pcount'/2
+	    (_cor0, 0)
+'pcount'/2 =
+    %% Line 139
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{112,_X_As,_X_F,_X_Ad,_X_P,_X_Pad,_X_Enc,_X_Str}|Cs],Acc> when 'true' ->
+	      let <_cor2> =
+		  call 'erlang':'+'
+		      (Acc, 1)
+	      in  apply 'pcount'/2
+		      (Cs, _cor2)
+	  %% Line 140
+	  <[{80,_X_As,_X_F,_X_Ad,_X_P,_X_Pad,_X_Enc,_X_Str}|Cs],Acc> when 'true' ->
+	      let <_cor3> =
+		  call 'erlang':'+'
+		      (Acc, 1)
+	      in  apply 'pcount'/2
+		      (Cs, _cor3)
+	  %% Line 141
+	  <[_cor6|Cs],Acc> when 'true' ->
+	      apply 'pcount'/2
+		  (Cs, Acc)
+	  %% Line 142
+	  <[],Acc> when 'true' ->
+	      Acc
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'pcount',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'build'/3 =
+    %% Line 149
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[{C,As,F,Ad,P,Pad,Enc,Str}|Cs],Pc0,I> when 'true' ->
+	      let <S> =
+		  %% Line 150
+		  apply 'control'/9
+		      (C, As, F, Ad, P, Pad, Enc, Str, I)
+	      in  let <Pc1> =
+		      %% Line 151
+		      apply 'decr_pc'/2
+			  (C, Pc0)
+		  in  %% Line 152
+		      case <> of
+			%% Line 153
+			<>
+			    when call 'erlang':'>'
+				  (Pc1,
+				   0) ->
+			    let <_cor5> =
+				apply 'indentation'/2
+				    (S, I)
+			    in  let <_cor6> =
+				    apply 'build'/3
+					(Cs, Pc1, _cor5)
+				in  [S|_cor6]
+			%% Line 154
+			<> when 'true' ->
+			    let <_cor7> =
+				apply 'build'/3
+				    (Cs, Pc1, I)
+			    in  [S|_cor7]
+		      end
+	  %% Line 156
+	  <[10|Cs],Pc,_X_I> when 'true' ->
+	      let <_cor8> =
+		  apply 'build'/3
+		      (Cs, Pc, 0)
+	      in  [10|_cor8]
+	  %% Line 157
+	  <[9|Cs],Pc,I> when 'true' ->
+	      let <_cor9> =
+		  call 'erlang':'+'
+		      (I, 8)
+	      in  let <_cor10> =
+		      call 'erlang':'div'
+			  (_cor9, 8)
+		  in  let <_cor11> =
+			  call 'erlang':'*'
+			      (_cor10, 8)
+		      in  let <_cor12> =
+			      apply 'build'/3
+				  (Cs, Pc, _cor11)
+			  in  [9|_cor12]
+	  %% Line 158
+	  <[C|Cs],Pc,I> when 'true' ->
+	      let <_cor13> =
+		  call 'erlang':'+'
+		      (I, 1)
+	      in  let <_cor14> =
+		      apply 'build'/3
+			  (Cs, Pc, _cor13)
+		  in  [C|_cor14]
+	  %% Line 159
+	  <[],_X_Pc,_X_I> when 'true' ->
+	      []
+	  ( <_cor17,_cor16,_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor17,_cor16,_cor15})
+		  -| [{'function_name',{'build',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'decr_pc'/2 =
+    %% Line 161
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <112,Pc> when 'true' ->
+	      call 'erlang':'-'
+		  (Pc, 1)
+	  %% Line 162
+	  <80,Pc> when 'true' ->
+	      call 'erlang':'-'
+		  (Pc, 1)
+	  %% Line 163
+	  <_cor4,Pc> when 'true' ->
+	      Pc
+	end
+'indentation'/2 =
+    %% Line 169
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[10|Cs],_X_I> when 'true' ->
+	      apply 'indentation'/2
+		  (Cs, 0)
+	  %% Line 170
+	  <[9|Cs],I> when 'true' ->
+	      let <_cor2> =
+		  call 'erlang':'+'
+		      (I, 8)
+	      in  let <_cor3> =
+		      call 'erlang':'div'
+			  (_cor2, 8)
+		  in  let <_cor4> =
+			  call 'erlang':'*'
+			      (_cor3, 8)
+		      in  apply 'indentation'/2
+			      (Cs, _cor4)
+	  %% Line 171
+	  <[C|Cs],I>
+	      when call 'erlang':'is_integer'
+		    (C) ->
+	      let <_cor5> =
+		  %% Line 172
+		  call 'erlang':'+'
+		      (I, 1)
+	      in  %% Line 172
+		  apply 'indentation'/2
+		      (Cs, _cor5)
+	  %% Line 173
+	  <[C|Cs],I> when 'true' ->
+	      let <_cor6> =
+		  %% Line 174
+		  apply 'indentation'/2
+		      (C, I)
+	      in  %% Line 174
+		  apply 'indentation'/2
+		      (Cs, _cor6)
+	  %% Line 175
+	  <[],I> when 'true' ->
+	      I
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7})
+		  -| [{'function_name',{'indentation',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'control'/9 =
+    %% Line 182
+    fun (_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <119,[A|[]],F,Adj,P,Pad,_X_Enc,_X_Str,_X_I> when 'true' ->
+	      let <_cor10> =
+		  %% Line 183
+		  call 'io_lib':'write'
+		      (A, -1)
+	      in  %% Line 183
+		  apply 'term'/5
+		      (_cor10, F, Adj, P, Pad)
+	  %% Line 184
+	  <112,[A|[]],F,Adj,P,Pad,Enc,Str,I> when 'true' ->
+	      %% Line 185
+	      apply 'print'/9
+		  (A, -1, F, Adj, P, Pad, Enc, Str, I)
+	  %% Line 186
+	  <87,[A|[Depth|[]]],F,Adj,P,Pad,_X_Enc,_X_Str,_X_I>
+	      when call 'erlang':'is_integer'
+		    (Depth) ->
+	      let <_cor12> =
+		  %% Line 187
+		  call 'io_lib':'write'
+		      (A, Depth)
+	      in  %% Line 187
+		  apply 'term'/5
+		      (_cor12, F, Adj, P, Pad)
+	  %% Line 188
+	  <80,[A|[Depth|[]]],F,Adj,P,Pad,Enc,Str,I>
+	      when call 'erlang':'is_integer'
+		    (Depth) ->
+	      %% Line 189
+	      apply 'print'/9
+		  (A, Depth, F, Adj, P, Pad, Enc, Str, I)
+	  %% Line 190
+	  <115,[A|[]],F,Adj,P,Pad,_X_Enc,_X_Str,_X_I>
+	      when call 'erlang':'is_atom'
+		    (A) ->
+	      let <_cor13> =
+		  %% Line 191
+		  call 'erlang':'atom_to_list'
+		      (A)
+	      in  %% Line 191
+		  apply 'string'/5
+		      (_cor13, F, Adj, P, Pad)
+	  %% Line 192
+	  <115,[L0|[]],F,Adj,P,Pad,'latin1',_X_Str,_X_I> when 'true' ->
+	      let <L> =
+		  %% Line 193
+		  apply 'iolist_to_chars'/1
+		      (L0)
+	      in  %% Line 194
+		  apply 'string'/5
+		      (L, F, Adj, P, Pad)
+	  %% Line 195
+	  <115,[L0|[]],F,Adj,P,Pad,'unicode',_X_Str,_X_I> when 'true' ->
+	      let <L> =
+		  %% Line 196
+		  apply 'cdata_to_chars'/1
+		      (L0)
+	      in  let <_cor16> =
+		      %% Line 197
+		      apply 'string'/5
+			  (L, F, Adj, P, Pad)
+		  in  %% Line 197
+		      apply 'uniconv'/1
+			  (_cor16)
+	  %% Line 198
+	  <101,[A|[]],F,Adj,P,Pad,_X_Enc,_X_Str,_X_I>
+	      when call 'erlang':'is_float'
+		    (A) ->
+	      %% Line 199
+	      apply 'fwrite_e'/5
+		  (A, F, Adj, P, Pad)
+	  %% Line 200
+	  <102,[A|[]],F,Adj,P,Pad,_X_Enc,_X_Str,_X_I>
+	      when call 'erlang':'is_float'
+		    (A) ->
+	      %% Line 201
+	      apply 'fwrite_f'/5
+		  (A, F, Adj, P, Pad)
+	  %% Line 202
+	  <103,[A|[]],F,Adj,P,Pad,_X_Enc,_X_Str,_X_I>
+	      when call 'erlang':'is_float'
+		    (A) ->
+	      %% Line 203
+	      apply 'fwrite_g'/5
+		  (A, F, Adj, P, Pad)
+	  %% Line 204
+	  <98,[A|[]],F,Adj,P,Pad,_X_Enc,_X_Str,_X_I>
+	      when call 'erlang':'is_integer'
+		    (A) ->
+	      let <_cor17> =
+		  %% Line 205
+		  apply 'base'/1
+		      (P)
+	      in  %% Line 205
+		  apply 'unprefixed_integer'/6
+		      (A, F, Adj, _cor17, Pad, 'true')
+	  %% Line 206
+	  <66,[A|[]],F,Adj,P,Pad,_X_Enc,_X_Str,_X_I>
+	      when call 'erlang':'is_integer'
+		    (A) ->
+	      let <_cor18> =
+		  %% Line 207
+		  apply 'base'/1
+		      (P)
+	      in  %% Line 207
+		  apply 'unprefixed_integer'/6
+		      (A, F, Adj, _cor18, Pad, 'false')
+	  %% Line 208
+	  <120,[A|[Prefix|[]]],F,Adj,P,Pad,_X_Enc,_X_Str,_X_I>
+	      when let <_cor19> =
+		    call 'erlang':'is_integer'
+			(A)
+		in  let <_cor20> =
+			%% Line 209
+			call 'erlang':'is_atom'
+			    (Prefix)
+		    in  call 'erlang':'and'
+			    (_cor19, _cor20) ->
+	      let <_cor22> =
+		  %% Line 210
+		  apply 'base'/1
+		      (P)
+	      in  let <_cor21> =
+		      %% Line 210
+		      call 'erlang':'atom_to_list'
+			  (Prefix)
+		  in  %% Line 210
+		      apply 'prefixed_integer'/7
+			  (A, F, Adj, _cor22, Pad, _cor21, 'true')
+	  %% Line 211
+	  <120,[A|[Prefix|[]]],F,Adj,P,Pad,_X_Enc,_X_Str,_X_I>
+	      when call 'erlang':'is_integer'
+		    (A) ->
+	      %% Line 212
+	      case call 'io_lib':'deep_char_list'
+		       (Prefix) of
+		<'true'> when 'true' ->
+		    let <_cor24> =
+			%% Line 213
+			apply 'base'/1
+			    (P)
+		    in  %% Line 213
+			apply 'prefixed_integer'/7
+			    (A, F, Adj, _cor24, Pad, Prefix, 'true')
+		( <_cor23> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor23})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 214
+	  <88,[A|[Prefix|[]]],F,Adj,P,Pad,_X_Enc,_X_Str,_X_I>
+	      when let <_cor25> =
+		    call 'erlang':'is_integer'
+			(A)
+		in  let <_cor26> =
+			%% Line 215
+			call 'erlang':'is_atom'
+			    (Prefix)
+		    in  call 'erlang':'and'
+			    (_cor25, _cor26) ->
+	      let <_cor28> =
+		  %% Line 216
+		  apply 'base'/1
+		      (P)
+	      in  let <_cor27> =
+		      %% Line 216
+		      call 'erlang':'atom_to_list'
+			  (Prefix)
+		  in  %% Line 216
+		      apply 'prefixed_integer'/7
+			  (A, F, Adj, _cor28, Pad, _cor27, 'false')
+	  %% Line 217
+	  <88,[A|[Prefix|[]]],F,Adj,P,Pad,_X_Enc,_X_Str,_X_I>
+	      when call 'erlang':'is_integer'
+		    (A) ->
+	      %% Line 218
+	      case call 'io_lib':'deep_char_list'
+		       (Prefix) of
+		<'true'> when 'true' ->
+		    let <_cor30> =
+			%% Line 219
+			apply 'base'/1
+			    (P)
+		    in  %% Line 219
+			apply 'prefixed_integer'/7
+			    (A, F, Adj, _cor30, Pad, Prefix, 'false')
+		( <_cor29> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor29})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 220
+	  <43,[A|[]],F,Adj,P,Pad,_X_Enc,_X_Str,_X_I>
+	      when call 'erlang':'is_integer'
+		    (A) ->
+	      let <Base> =
+		  %% Line 221
+		  apply 'base'/1
+		      (P)
+	      in  let <_cor32> =
+		      %% Line 222
+		      call 'erlang':'integer_to_list'
+			  (Base)
+		  in  let <Prefix> =
+			  %% Line 222
+			  [_cor32|[35]]
+		      in  %% Line 223
+			  apply 'prefixed_integer'/7
+			      (A, F, Adj, Base, Pad, Prefix, 'true')
+	  %% Line 224
+	  <35,[A|[]],F,Adj,P,Pad,_X_Enc,_X_Str,_X_I>
+	      when call 'erlang':'is_integer'
+		    (A) ->
+	      let <Base> =
+		  %% Line 225
+		  apply 'base'/1
+		      (P)
+	      in  let <_cor35> =
+		      %% Line 226
+		      call 'erlang':'integer_to_list'
+			  (Base)
+		  in  let <Prefix> =
+			  %% Line 226
+			  [_cor35|[35]]
+		      in  %% Line 227
+			  apply 'prefixed_integer'/7
+			      (A, F, Adj, Base, Pad, Prefix, 'false')
+	  %% Line 228
+	  <99,[A|[]],F,Adj,P,Pad,'unicode',_X_Str,_X_I>
+	      when call 'erlang':'is_integer'
+		    (A) ->
+	      %% Line 229
+	      apply 'char'/5
+		  (A, F, Adj, P, Pad)
+	  %% Line 230
+	  <99,[A|[]],F,Adj,P,Pad,_X_Enc,_X_Str,_X_I>
+	      when call 'erlang':'is_integer'
+		    (A) ->
+	      let <_cor37> =
+		  %% Line 231
+		  call 'erlang':'band'
+		      (A, 255)
+	      in  %% Line 231
+		  apply 'char'/5
+		      (_cor37, F, Adj, P, Pad)
+	  %% Line 232
+	  <126,[],F,Adj,P,Pad,_X_Enc,_X_Str,_X_I> when 'true' ->
+	      apply 'char'/5
+		  (126, F, Adj, P, Pad)
+	  %% Line 233
+	  <110,[],F,Adj,P,Pad,_X_Enc,_X_Str,_X_I> when 'true' ->
+	      apply 'newline'/4
+		  (F, Adj, P, Pad)
+	  %% Line 234
+	  <105,[_X_A|[]],_X_F,_X_Adj,_X_P,_X_Pad,_X_Enc,_X_Str,_X_I> when 'true' ->
+	      []
+	  ( <_cor46,_cor45,_cor44,_cor43,_cor42,_cor41,_cor40,_cor39,_cor38> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor46,_cor45,_cor44,_cor43,_cor42,_cor41,_cor40,_cor39,_cor38})
+		  -| [{'function_name',{'control',9}}] )
+	    -| ['compiler_generated'] )
+	end
+'uniconv'/1 =
+    %% Line 240
+    fun (_cor0) ->
+	_cor0
+'base'/1 =
+    %% Line 244
+    fun (_cor0) ->
+	case _cor0 of
+	  <'none'> when 'true' ->
+	      %% Line 245
+	      10
+	  %% Line 246
+	  <B>
+	      when call 'erlang':'is_integer'
+		    (_cor0) ->
+	      %% Line 247
+	      B
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'base',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'term'/5 =
+    %% Line 254
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <T,'none',_X_Adj,'none',_X_Pad> when 'true' ->
+	      T
+	  %% Line 255
+	  <T,'none',Adj,P,Pad> when 'true' ->
+	      apply 'term'/5
+		  (T, P, Adj, P, Pad)
+	  %% Line 256
+	  <T,F,Adj,P0,Pad> when 'true' ->
+	      let <L> =
+		  %% Line 257
+		  call 'lists':'flatlength'
+		      (T)
+	      in  let <_cor7> =
+		      %% Line 258
+		      case P0 of
+			<'none'> when 'true' ->
+			    F
+			<_cor19> when 'true' ->
+			    call 'erlang':'min'
+				(P0, F)
+		      end
+		  in  let <P> =
+			  %% Line 258
+			  call 'erlang':'min'
+			      (L, _cor7)
+		      in  %% Line 259
+			  case <> of
+			    %% Line 260
+			    <>
+				when call 'erlang':'>'
+				      (L,
+				       P) ->
+				let <_cor11> =
+				    %% Line 261
+				    apply 'chars'/2
+					(42, P)
+				in  let <_cor9> =
+					%% Line 261
+					call 'erlang':'-'
+					    (F, P)
+				    in  let <_cor10> =
+					    %% Line 261
+					    apply 'chars'/2
+						(Pad, _cor9)
+					in  %% Line 261
+					    apply 'adjust'/3
+						(_cor11, _cor10, Adj)
+			    %% Line 262
+			    <>
+				when call 'erlang':'>='
+				      (F,
+				       P) ->
+				let <_cor12> =
+				    %% Line 263
+				    call 'erlang':'-'
+					(F, L)
+				in  let <_cor13> =
+					%% Line 263
+					apply 'chars'/2
+					    (Pad, _cor12)
+				    in  %% Line 263
+					apply 'adjust'/3
+					    (T, _cor13, Adj)
+			    ( <> when 'true' ->
+				  primop 'match_fail'
+				      ('if_clause')
+			      -| ['compiler_generated'] )
+			  end
+	end
+'print'/9 =
+    %% Line 270
+    fun (_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <T,D,'none',Adj,P,Pad,E,Str,I> when 'true' ->
+	      %% Line 271
+	      apply 'print'/9
+		  (T, D, 80, Adj, P, Pad, E, Str, I)
+	  %% Line 272
+	  <T,D,F,Adj,'none',Pad,E,Str,I> when 'true' ->
+	      let <_cor9> =
+		  %% Line 273
+		  call 'erlang':'+'
+		      (I, 1)
+	      in  %% Line 273
+		  apply 'print'/9
+		      (T, D, F, Adj, _cor9, Pad, E, Str, I)
+	  %% Line 274
+	  <T,D,F,'right',P,_X_Pad,Enc,Str,_X_I> when 'true' ->
+	      let <Options> =
+		  %% Line 275
+		  [{'column',P}|%% Line 276
+				[{'line_length',F}|%% Line 277
+						   [{'depth',D}|%% Line 278
+								[{'encoding',Enc}|%% Line 279
+										  [{'strings',Str}|[]]]]]]
+	      in  %% Line 280
+		  call 'io_lib_pretty':'print'
+		      (T, Options)
+	  ( <_cor19,_cor18,_cor17,_cor16,_cor15,_cor14,_cor13,_cor12,_cor11> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor19,_cor18,_cor17,_cor16,_cor15,_cor14,_cor13,_cor12,_cor11})
+		  -| [{'function_name',{'print',9}}] )
+	    -| ['compiler_generated'] )
+	end
+'fwrite_e'/5 =
+    %% Line 284
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Fl,'none',Adj,'none',Pad> when 'true' ->
+	      %% Line 285
+	      apply 'fwrite_e'/5
+		  (Fl, 'none', Adj, 6, Pad)
+	  %% Line 286
+	  <Fl,'none',_X_Adj,P,_X_Pad>
+	      when call 'erlang':'>='
+		    (P,
+		     2) ->
+	      let <_cor5> =
+		  %% Line 287
+		  apply 'float_data'/1
+		      (Fl)
+	      in  %% Line 287
+		  apply 'float_e'/3
+		      (Fl, _cor5, P)
+	  %% Line 288
+	  <Fl,F,Adj,'none',Pad> when 'true' ->
+	      %% Line 289
+	      apply 'fwrite_e'/5
+		  (Fl, F, Adj, 6, Pad)
+	  %% Line 290
+	  <Fl,F,Adj,P,Pad>
+	      when call 'erlang':'>='
+		    (P,
+		     2) ->
+	      let <_cor6> =
+		  %% Line 291
+		  apply 'float_data'/1
+		      (Fl)
+	      in  let <_cor7> =
+		      %% Line 291
+		      apply 'float_e'/3
+			  (Fl, _cor6, P)
+		  in  %% Line 291
+		      apply 'term'/5
+			  (_cor7, F, Adj, F, Pad)
+	  ( <_cor12,_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'fwrite_e',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'float_e'/3 =
+    %% Line 293
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Fl,Fd,P>
+	      when call 'erlang':'<'
+		    (Fl,
+		     0.00000000000000000000e+00) ->
+	      let <_cor3> =
+		  %% Line 294
+		  call 'erlang':'-'
+		      (Fl)
+	      in  let <_cor4> =
+		      %% Line 294
+		      apply 'float_e'/3
+			  (_cor3, Fd, P)
+		  in  %% Line 294
+		      [45|_cor4]
+	  %% Line 295
+	  <_X_Fl,{Ds,E},P> when 'true' ->
+	      let <_cor5> =
+		  %% Line 296
+		  call 'erlang':'-'
+		      (P, 1)
+	      in  %% Line 296
+		  case apply 'float_man'/3
+			   (Ds, 1, _cor5) of
+		    %% Line 297
+		    <{[48|Fs],'true'}> when 'true' ->
+			let <_cor6> =
+			    apply 'float_exp'/1
+				(E)
+			in  [[49|Fs]|_cor6]
+		    %% Line 298
+		    <{Fs,'false'}> when 'true' ->
+			let <_cor7> =
+			    call 'erlang':'-'
+				(E, 1)
+			in  let <_cor8> =
+				apply 'float_exp'/1
+				    (_cor7)
+			    in  [Fs|_cor8]
+		    ( <_cor9> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor9})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'float_e',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'float_man'/3 =
+    %% Line 306
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Ds,0,Dc> when 'true' ->
+	      %% Line 307
+	      case apply 'float_man'/2
+		       (Ds, Dc) of
+		<{Cs,C}> when 'true' ->
+		    %% Line 308
+		    {[46|Cs],C}
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 309
+	  <[D|Ds],I,Dc> when 'true' ->
+	      let <_cor4> =
+		  %% Line 310
+		  call 'erlang':'-'
+		      (I, 1)
+	      in  %% Line 310
+		  case apply 'float_man'/3
+			   (Ds, _cor4, Dc) of
+		    %% Line 311
+		    <{Cs,'true'}>
+			when call 'erlang':'=:='
+			      (D,
+			       57) ->
+			{[48|Cs],'true'}
+		    %% Line 312
+		    <{Cs,'true'}> when 'true' ->
+			let <_cor5> =
+			    call 'erlang':'+'
+				(D, 1)
+			in  {[_cor5|Cs],'false'}
+		    %% Line 313
+		    <{Cs,'false'}> when 'true' ->
+			{[D|Cs],'false'}
+		    ( <_cor6> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor6})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 315
+	  <[],I,Dc> when 'true' ->
+	      let <_cor7> =
+		  %% Line 316
+		  call 'string':'chars'
+		      (48, Dc)
+	      in  let <_cor8> =
+		      %% Line 316
+		      call 'string':'chars'
+			  (48, I, [46|_cor7])
+		  in  %% Line 316
+		      {_cor8,'false'}
+	  ( <_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'float_man',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'float_man'/2 =
+    %% Line 318
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[D|_cor8],0>
+	      when call 'erlang':'>='
+		    (D,
+		     53) ->
+	      {[],'true'}
+	  %% Line 319
+	  <[_cor9|_cor10],0> when 'true' ->
+	      {[],'false'}
+	  %% Line 320
+	  <[D|Ds],Dc> when 'true' ->
+	      let <_cor2> =
+		  %% Line 321
+		  call 'erlang':'-'
+		      (Dc, 1)
+	      in  %% Line 321
+		  case apply 'float_man'/2
+			   (Ds, _cor2) of
+		    %% Line 322
+		    <{Cs,'true'}>
+			when call 'erlang':'=:='
+			      (D,
+			       57) ->
+			{[48|Cs],'true'}
+		    %% Line 323
+		    <{Cs,'true'}> when 'true' ->
+			let <_cor3> =
+			    call 'erlang':'+'
+				(D, 1)
+			in  {[_cor3|Cs],'false'}
+		    %% Line 324
+		    <{Cs,'false'}> when 'true' ->
+			{[D|Cs],'false'}
+		    ( <_cor4> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor4})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 326
+	  <[],Dc> when 'true' ->
+	      let <_cor5> =
+		  call 'string':'chars'
+		      (48, Dc)
+	      in  {_cor5,'false'}
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'float_man',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'float_exp'/1 =
+    %% Line 331
+    fun (_cor0) ->
+	case _cor0 of
+	  <E>
+	      when call 'erlang':'>='
+		    (_cor0,
+		     0) ->
+	      let <_cor1> =
+		  %% Line 332
+		  call 'erlang':'integer_to_list'
+		      (E)
+	      in  %% Line 332
+		  [101|[43|_cor1]]
+	  %% Line 333
+	  <E> when 'true' ->
+	      let <_cor2> =
+		  %% Line 334
+		  call 'erlang':'integer_to_list'
+		      (E)
+	      in  %% Line 334
+		  [101|_cor2]
+	end
+'fwrite_f'/5 =
+    %% Line 338
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Fl,'none',Adj,'none',Pad> when 'true' ->
+	      %% Line 339
+	      apply 'fwrite_f'/5
+		  (Fl, 'none', Adj, 6, Pad)
+	  %% Line 340
+	  <Fl,'none',_X_Adj,P,_X_Pad>
+	      when call 'erlang':'>='
+		    (P,
+		     1) ->
+	      let <_cor5> =
+		  %% Line 341
+		  apply 'float_data'/1
+		      (Fl)
+	      in  %% Line 341
+		  apply 'float_f'/3
+		      (Fl, _cor5, P)
+	  %% Line 342
+	  <Fl,F,Adj,'none',Pad> when 'true' ->
+	      %% Line 343
+	      apply 'fwrite_f'/5
+		  (Fl, F, Adj, 6, Pad)
+	  %% Line 344
+	  <Fl,F,Adj,P,Pad>
+	      when call 'erlang':'>='
+		    (P,
+		     1) ->
+	      let <_cor6> =
+		  %% Line 345
+		  apply 'float_data'/1
+		      (Fl)
+	      in  let <_cor7> =
+		      %% Line 345
+		      apply 'float_f'/3
+			  (Fl, _cor6, P)
+		  in  %% Line 345
+		      apply 'term'/5
+			  (_cor7, F, Adj, F, Pad)
+	  ( <_cor12,_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'fwrite_f',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'float_f'/3 =
+    %% Line 347
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Fl,Fd,P>
+	      when call 'erlang':'<'
+		    (Fl,
+		     0.00000000000000000000e+00) ->
+	      let <_cor3> =
+		  %% Line 348
+		  call 'erlang':'-'
+		      (Fl)
+	      in  let <_cor4> =
+		      %% Line 348
+		      apply 'float_f'/3
+			  (_cor3, Fd, P)
+		  in  %% Line 348
+		      [45|_cor4]
+	  %% Line 349
+	  <Fl,{Ds,E},P>
+	      when call 'erlang':'=<'
+		    (E,
+		     0) ->
+	      let <_cor5> =
+		  %% Line 350
+		  call 'erlang':'-'
+		      (E)
+	      in  let <_cor6> =
+		      %% Line 350
+		      call 'erlang':'+'
+			  (_cor5, 1)
+		  in  let <_cor7> =
+			  %% Line 350
+			  call 'string':'chars'
+			      (48, _cor6, Ds)
+		      in  %% Line 350
+			  apply 'float_f'/3
+			      (Fl, {_cor7,1}, P)
+	  %% Line 351
+	  <_X_Fl,{Ds,E},P> when 'true' ->
+	      %% Line 352
+	      case apply 'float_man'/3
+		       (Ds, E, P) of
+		%% Line 353
+		<{Fs,'true'}> when 'true' ->
+		    [49|Fs]
+		%% Line 354
+		<{Fs,'false'}> when 'true' ->
+		    Fs
+		( <_cor8> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor8})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'float_f',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'float_data'/1 =
+    %% Line 359
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 360
+	    call 'erlang':'float_to_list'
+		(_cor0)
+	in  %% Line 360
+	    apply 'float_data'/2
+		(_cor1, [])
+'float_data'/2 =
+    %% Line 362
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[101|E],Ds> when 'true' ->
+	      let <_cor4> =
+		  %% Line 363
+		  call 'lists':'reverse'
+		      (Ds)
+	      in  let <_cor2> =
+		      %% Line 363
+		      call 'erlang':'list_to_integer'
+			  (E)
+		  in  let <_cor3> =
+			  %% Line 363
+			  call 'erlang':'+'
+			      (_cor2, 1)
+		      in  %% Line 363
+			  {_cor4,_cor3}
+	  %% Line 364
+	  <[D|Cs],Ds>
+	      when let <_cor5> =
+		    call 'erlang':'>='
+			(D, 48)
+		in  let <_cor6> =
+			call 'erlang':'=<'
+			    (D, 57)
+		    in  call 'erlang':'and'
+			    (_cor5, _cor6) ->
+	      %% Line 365
+	      apply 'float_data'/2
+		  (Cs, [D|Ds])
+	  %% Line 366
+	  <[_cor9|Cs],Ds> when 'true' ->
+	      %% Line 367
+	      apply 'float_data'/2
+		  (Cs, Ds)
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7})
+		  -| [{'function_name',{'float_data',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'fwrite_g'/1 =
+    %% Line 377
+    fun (_cor0) ->
+	case _cor0 of
+	  <0.00000000000000000000e+00> when 'true' ->
+	      %% Line 378
+	      [48|[46|[48]]]
+	  %% Line 379
+	  <Float>
+	      when call 'erlang':'is_float'
+		    (_cor0) ->
+	      %% Line 380
+	      case apply 'mantissa_exponent'/1
+		       (Float) of
+		<{Frac,Exp}> when 'true' ->
+		    %% Line 381
+		    case apply 'fwrite_g_1'/3
+			     (Float, Exp, Frac) of
+		      <{Place,Digits}> when 'true' ->
+			  let <_cor8> =
+			      %% Line 382
+			      ( letrec
+				    'lc$^0'/1 =
+					fun (_cor5) ->
+					    case _cor5 of
+					      <[D|_cor4]> when 'true' ->
+						  let <_cor6> =
+						      call 'erlang':'+'
+							  (48, D)
+						  in  let <_cor7> =
+							  apply 'lc$^0'/1
+							      (_cor4)
+						      in  ( [_cor6|_cor7]
+							    -| ['compiler_generated'] )
+					      <[]> when 'true' ->
+						  []
+					      ( <_cor5> when 'true' ->
+						    ( primop 'match_fail'
+							  ({'function_clause',_cor5})
+						      -| [{'function_name',{'lc$^0',1}}] )
+						-| ['compiler_generated'] )
+					    end
+				in  apply 'lc$^0'/1
+					(Digits)
+				-| ['list_comprehension'] )
+			  in  let <R> =
+				  %% Line 382
+				  apply 'insert_decimal'/2
+				      (Place, _cor8)
+			      in  %% Line 383
+				  ( letrec
+					'lc$^1'/1 =
+					    fun (_cor13) ->
+						case _cor13 of
+						  <['true'|_cor11]> when 'true' ->
+						      let <_cor14> =
+							  apply 'lc$^1'/1
+							      (_cor11)
+						      in  ( [45|_cor14]
+							    -| ['compiler_generated'] )
+						  ( <[_cor10|_cor11]> when 'true' ->
+							apply 'lc$^1'/1
+							    (_cor11)
+						    -| ['compiler_generated'] )
+						  <[]> when 'true' ->
+						      R
+						  ( <_cor13> when 'true' ->
+							( primop 'match_fail'
+							      ({'function_clause',_cor13})
+							  -| [{'function_name',{'lc$^1',1}}] )
+						    -| ['compiler_generated'] )
+						end
+				    in  let <_cor12> =
+					    call 'erlang':'<'
+						(Float, 0.00000000000000000000e+00)
+					in  apply 'lc$^1'/1
+						([_cor12|[]])
+				    -| ['list_comprehension'] )
+		      ( <_cor2> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor2})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15})
+		  -| [{'function_name',{'fwrite_g',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'mantissa_exponent'/1 =
+    %% Line 388
+    fun (_cor0) ->
+	%% Line 389
+	case #{#<_cor0>(64,1,'float',['unsigned'|['big']])}# of
+	  %% Line 390
+	  <#{#<_X_S>(1,1,'integer',['unsigned'|['big']]),
+	     #<0>(11,1,'integer',['unsigned'|['big']]),
+	     #<M>(52,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+	      let <E> =
+		  %% Line 391
+		  apply 'log2floor'/1
+		      (M)
+	      in  let <_cor4> =
+		      %% Line 392
+		      call 'erlang':'-'
+			  (53, E)
+		  in  let <_cor5> =
+			  %% Line 392
+			  call 'erlang':'bsl'
+			      (M, _cor4)
+		      in  let <_cor2> =
+			      %% Line 392
+			      call 'erlang':'-'
+				  (E, 52)
+			  in  let <_cor3> =
+				  %% Line 392
+				  call 'erlang':'-'
+				      (_cor2, 1075)
+			      in  %% Line 392
+				  {_cor5,_cor3}
+	  %% Line 393
+	  <#{#<_X_S>(1,1,'integer',['unsigned'|['big']]),
+	     #<BE>(11,1,'integer',['unsigned'|['big']]),
+	     #<M>(52,1,'integer',['unsigned'|['big']])}#>
+	      when call 'erlang':'<'
+		    (BE,
+		     2047) ->
+	      let <_cor8> =
+		  %% Line 394
+		  call 'erlang':'+'
+		      (M, 4503599627370496)
+	      in  let <_cor6> =
+		      %% Line 394
+		      call 'erlang':'-'
+			  (BE, 1075)
+		  in  %% Line 394
+		      {_cor8,_cor6}
+	  ( <_cor9> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor9})
+	    -| ['compiler_generated'] )
+	end
+'fwrite_g_1'/3 =
+    %% Line 397
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 398
+	    call 'erlang':'band'
+		(_cor0, 1)
+	in  let <Round> =
+		%% Line 398
+		call 'erlang':'=:='
+		    (_cor3, 0)
+	    in  %% Line 399
+		case <> of
+		  %% Line 400
+		  <>
+		      when call 'erlang':'>='
+			    (_cor1,
+			     0) ->
+		      let <BExp> =
+			  %% Line 401
+			  call 'erlang':'bsl'
+			      (1, _cor1)
+		      in  %% Line 402
+			  case <> of
+			    %% Line 403
+			    <>
+				when call 'erlang':'=:='
+				      (_cor0,
+				       4503599627370496) ->
+				let <_cor8> =
+				    %% Line 404
+				    call 'erlang':'*'
+					(_cor0, BExp)
+				in  let <_cor9> =
+					%% Line 404
+					call 'erlang':'*'
+					    (_cor8, 4)
+				    in  let <_cor7> =
+					    %% Line 404
+					    call 'erlang':'*'
+						(BExp, 2)
+					in  %% Line 404
+					    apply 'scale'/7
+						(_cor9, 4, _cor7, BExp, %% Line 405
+									Round, %% Line 405
+									       Round, _cor2)
+			    %% Line 406
+			    <> when 'true' ->
+				let <_cor10> =
+				    %% Line 407
+				    call 'erlang':'*'
+					(_cor0, BExp)
+				in  let <_cor11> =
+					%% Line 407
+					call 'erlang':'*'
+					    (_cor10, 2)
+				    in  %% Line 407
+					apply 'scale'/7
+					    (_cor11, 2, BExp, BExp, %% Line 408
+								    Round, %% Line 408
+									   Round, _cor2)
+			  end
+		  %% Line 410
+		  <>
+		      when call 'erlang':'<'
+			    (_cor1,
+			     -1074) ->
+		      let <_cor14> =
+			  %% Line 411
+			  call 'erlang':'-'
+			      (-1074, _cor1)
+		      in  let <BExp> =
+			      %% Line 411
+			      call 'erlang':'bsl'
+				  (1, _cor14)
+			  in  let <_cor18> =
+				  %% Line 412
+				  call 'erlang':'*'
+				      (_cor0, 2)
+			      in  let <_cor16> =
+				      %% Line 412
+				      call 'erlang':'-'
+					  (1, _cor1)
+				  in  let <_cor17> =
+					  %% Line 412
+					  call 'erlang':'bsl'
+					      (1, _cor16)
+				      in  %% Line 412
+					  apply 'scale'/7
+					      (_cor18, _cor17, BExp, BExp, %% Line 413
+									   Round, %% Line 413
+										  Round, _cor2)
+		  %% Line 414
+		  <>
+		      when let <_cor20> =
+			    call 'erlang':'>'
+				(_cor1, -1074)
+			in  let <_cor22> =
+				call 'erlang':'=:='
+				    (_cor0, 4503599627370496)
+			    in  call 'erlang':'and'
+				    (_cor20, _cor22) ->
+		      let <_cor25> =
+			  %% Line 415
+			  call 'erlang':'*'
+			      (_cor0, 4)
+		      in  let <_cor23> =
+			      %% Line 415
+			      call 'erlang':'-'
+				  (2, _cor1)
+			  in  let <_cor24> =
+				  %% Line 415
+				  call 'erlang':'bsl'
+				      (1, _cor23)
+			      in  %% Line 415
+				  apply 'scale'/7
+				      (_cor25, _cor24, 2, 1, %% Line 416
+							     Round, %% Line 416
+								    Round, _cor2)
+		  %% Line 417
+		  <> when 'true' ->
+		      let <_cor28> =
+			  %% Line 418
+			  call 'erlang':'*'
+			      (_cor0, 2)
+		      in  let <_cor26> =
+			      %% Line 418
+			      call 'erlang':'-'
+				  (1, _cor1)
+			  in  let <_cor27> =
+				  %% Line 418
+				  call 'erlang':'bsl'
+				      (1, _cor26)
+			      in  %% Line 418
+				  apply 'scale'/7
+				      (_cor28, _cor27, 1, 1, %% Line 419
+							     Round, %% Line 419
+								    Round, _cor2)
+		end
+'scale'/7 =
+    %% Line 422
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor7> =
+	    %% Line 423
+	    call 'erlang':'abs'
+		(_cor0)
+	in  let <_cor8> =
+		%% Line 423
+		call 'math':'log10'
+		    (_cor7)
+	    in  let <_cor9> =
+		    %% Line 423
+		    call 'erlang':'-'
+			(_cor8, 1.00000000000000003643e-10)
+		in  let <Est> =
+			%% Line 423
+			apply 'int_ceil'/1
+			    (_cor9)
+		    in  %% Line 426
+			case <> of
+			  %% Line 427
+			  <>
+			      when call 'erlang':'>='
+				    (Est,
+				     0) ->
+			      let <_cor11> =
+				  %% Line 428
+				  apply 'int_pow'/2
+				      (10, Est)
+			      in  let <_cor12> =
+				      %% Line 428
+				      call 'erlang':'*'
+					  (_cor5, _cor11)
+				  in  %% Line 428
+				      apply 'fixup'/7
+					  (_cor6, _cor12, _cor4, _cor3, Est, _cor2, _cor1)
+			  %% Line 430
+			  <> when 'true' ->
+			      let <_cor13> =
+				  %% Line 431
+				  call 'erlang':'-'
+				      (Est)
+			      in  let <Scale> =
+				      %% Line 431
+				      apply 'int_pow'/2
+					  (10, _cor13)
+				  in  let <_cor17> =
+					  %% Line 432
+					  call 'erlang':'*'
+					      (_cor6, Scale)
+				      in  let <_cor16> =
+					      %% Line 432
+					      call 'erlang':'*'
+						  (_cor4, Scale)
+					  in  let <_cor15> =
+						  %% Line 432
+						  call 'erlang':'*'
+						      (_cor3, Scale)
+					      in  %% Line 432
+						  apply 'fixup'/7
+						      (_cor17, _cor5, _cor16, _cor15, Est, _cor2, _cor1)
+			end
+'fixup'/7 =
+    %% Line 436
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor9> =
+	    %% Line 437
+	    case <> of
+	      %% Line 438
+	      <>
+		  when call 'erlang':'=:='
+			(_cor0,
+			 'true') ->
+		  let <_cor7> =
+		      call 'erlang':'+'
+			  (_cor6, _cor4)
+		  in  call 'erlang':'>='
+			  (_cor7, _cor5)
+	      %% Line 439
+	      <> when 'true' ->
+		  let <_cor8> =
+		      call 'erlang':'+'
+			  (_cor6, _cor4)
+		  in  call 'erlang':'>'
+			  (_cor8, _cor5)
+	    end
+	in  %% Line 441
+	    case _cor9 of
+	      %% Line 442
+	      <'true'> when 'true' ->
+		  let <_cor12> =
+		      %% Line 443
+		      call 'erlang':'+'
+			  (_cor2, 1)
+		  in  let <_cor11> =
+			  %% Line 443
+			  apply 'generate'/6
+			      (_cor6, _cor5, _cor4, _cor3, _cor1, _cor0)
+		      in  %% Line 443
+			  {_cor12,_cor11}
+	      %% Line 444
+	      <'false'> when 'true' ->
+		  let <_cor15> =
+		      %% Line 445
+		      call 'erlang':'*'
+			  (_cor6, 10)
+		  in  let <_cor14> =
+			  %% Line 445
+			  call 'erlang':'*'
+			      (_cor4, 10)
+		      in  let <_cor13> =
+			      %% Line 445
+			      call 'erlang':'*'
+				  (_cor3, 10)
+			  in  let <_cor16> =
+				  %% Line 445
+				  apply 'generate'/6
+				      (_cor15, _cor5, _cor14, _cor13, _cor1, _cor0)
+			      in  %% Line 445
+				  {_cor2,_cor16}
+	      ( <_cor17> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor17})
+		-| ['compiler_generated'] )
+	    end
+'generate'/6 =
+    %% Line 448
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <D> =
+	    %% Line 449
+	    call 'erlang':'div'
+		(_cor5, _cor4)
+	in  let <R> =
+		%% Line 450
+		call 'erlang':'rem'
+		    (_cor5, _cor4)
+	    in  let <_cor8> =
+		    %% Line 451
+		    case <> of
+		      %% Line 452
+		      <>
+			  when call 'erlang':'=:='
+				(_cor1,
+				 'true') ->
+			  call 'erlang':'=<'
+			      (R, _cor2)
+		      %% Line 453
+		      <> when 'true' ->
+			  call 'erlang':'<'
+			      (R, _cor2)
+		    end
+		in  let <_cor12> =
+			%% Line 455
+			case <> of
+			  %% Line 456
+			  <>
+			      when call 'erlang':'=:='
+				    (_cor0,
+				     'true') ->
+			      let <_cor10> =
+				  call 'erlang':'+'
+				      (R, _cor3)
+			      in  call 'erlang':'>='
+				      (_cor10, _cor4)
+			  %% Line 457
+			  <> when 'true' ->
+			      let <_cor11> =
+				  call 'erlang':'+'
+				      (R, _cor3)
+			      in  call 'erlang':'>'
+				      (_cor11, _cor4)
+			end
+		    in  %% Line 459
+			case <_cor8,_cor12> of
+			  %% Line 460
+			  <'false','false'> when 'true' ->
+			      let <_cor16> =
+				  %% Line 461
+				  call 'erlang':'*'
+				      (R, 10)
+			      in  let <_cor15> =
+				      %% Line 461
+				      call 'erlang':'*'
+					  (_cor3, 10)
+				  in  let <_cor14> =
+					  %% Line 461
+					  call 'erlang':'*'
+					      (_cor2, 10)
+				      in  let <_cor17> =
+					      %% Line 461
+					      apply 'generate'/6
+						  (_cor16, _cor4, _cor15, _cor14, _cor1, _cor0)
+					  in  %% Line 461
+					      [D|_cor17]
+			  %% Line 462
+			  <'false','true'> when 'true' ->
+			      let <_cor18> =
+				  %% Line 463
+				  call 'erlang':'+'
+				      (D, 1)
+			      in  %% Line 463
+				  [_cor18|[]]
+			  %% Line 464
+			  <'true','false'> when 'true' ->
+			      %% Line 465
+			      [D|[]]
+			  %% Line 466
+			  <'true','true'>
+			      when try
+				    let <_cor19> =
+					call 'erlang':'*'
+					    (R, 2)
+				    in  call 'erlang':'<'
+					    (_cor19, _cor4)
+				of <Try> ->
+				    Try
+				catch <T,R> ->
+				    'false' ->
+			      %% Line 467
+			      [D|[]]
+			  %% Line 468
+			  <'true','true'> when 'true' ->
+			      let <_cor20> =
+				  %% Line 469
+				  call 'erlang':'+'
+				      (D, 1)
+			      in  %% Line 469
+				  [_cor20|[]]
+			  ( <_fol23,_fol24> when 'true' ->
+				let <_cor21> = {_fol23,_fol24}
+				in  primop 'match_fail'
+					({'case_clause',_cor21})
+			    -| ['compiler_generated'] )
+			end
+'insert_decimal'/2 =
+    %% Line 472
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <0,S> when 'true' ->
+	      %% Line 473
+	      [48|[46|S]]
+	  %% Line 474
+	  <Place,S> when 'true' ->
+	      let <L> =
+		  %% Line 475
+		  call 'erlang':'length'
+		      (S)
+	      in  %% Line 476
+		  case <> of
+		    %% Line 477
+		    <>
+			when let <_cor3> =
+			      call 'erlang':'<'
+				  (Place, 0)
+			  in  let <_cor4> =
+				  %% Line 478
+				  call 'erlang':'>='
+				      (Place, L)
+			      in  call 'erlang':'or'
+				      (_cor3, _cor4) ->
+			let <_cor5> =
+			    %% Line 479
+			    call 'erlang':'-'
+				(Place, 1)
+			in  let <ExpL> =
+				%% Line 479
+				call 'erlang':'integer_to_list'
+				    (_cor5)
+			    in  let <_cor7> =
+				    %% Line 480
+				    case <> of
+				      <>
+					  when call 'erlang':'=:='
+						(L,
+						 1) ->
+					  2
+				      <> when 'true' ->
+					  1
+				    end
+				in  let <_cor9> =
+					%% Line 481
+					call 'erlang':'length'
+					    (ExpL)
+				    in  let <_cor10> =
+					    %% Line 481
+					    call 'erlang':'+'
+						(_cor9, 1)
+					in  let <ExpCost> =
+						%% Line 481
+						call 'erlang':'+'
+						    (_cor10, _cor7)
+					    in  %% Line 482
+						case <> of
+						  %% Line 483
+						  <>
+						      when call 'erlang':'<'
+							    (Place,
+							     0) ->
+						      %% Line 484
+						      case <> of
+							%% Line 485
+							<>
+							    when try
+								  let <_cor12> =
+								      call 'erlang':'-'
+									  (2, Place)
+								  in  call 'erlang':'=<'
+									  (_cor12, ExpCost)
+							      of <Try> ->
+								  Try
+							      catch <T,R> ->
+								  'false' ->
+							    let <_cor13> =
+								%% Line 486
+								call 'erlang':'-'
+								    (Place)
+							    in  let <_cor14> =
+								    %% Line 486
+								    call 'lists':'duplicate'
+									(_cor13, 48)
+								in  let <_cor15> =
+									%% Line 486
+									call 'erlang':'++'
+									    (_cor14, S)
+								    in  %% Line 486
+									[48|[46|_cor15]]
+							%% Line 487
+							<> when 'true' ->
+							    %% Line 488
+							    apply 'insert_exp'/2
+								(ExpL, S)
+						      end
+						  %% Line 490
+						  <> when 'true' ->
+						      %% Line 491
+						      case <> of
+							%% Line 492
+							<>
+							    when try
+								  let <_cor16> =
+								      call 'erlang':'-'
+									  (Place, L)
+								  in  let <_cor17> =
+									  call 'erlang':'+'
+									      (_cor16, 2)
+								      in  call 'erlang':'=<'
+									      (_cor17, ExpCost)
+							      of <Try> ->
+								  Try
+							      catch <T,R> ->
+								  'false' ->
+							    let <_cor18> =
+								%% Line 493
+								call 'erlang':'-'
+								    (Place, L)
+							    in  let <_cor19> =
+								    %% Line 493
+								    call 'lists':'duplicate'
+									(_cor18, 48)
+								in  let <_cor20> =
+									%% Line 493
+									call 'erlang':'++'
+									    (_cor19, [46|[48]])
+								    in  %% Line 493
+									call 'erlang':'++'
+									    (S, _cor20)
+							%% Line 494
+							<> when 'true' ->
+							    %% Line 495
+							    apply 'insert_exp'/2
+								(ExpL, S)
+						      end
+						end
+		    %% Line 498
+		    <> when 'true' ->
+			%% Line 499
+			case call 'lists':'split'
+				 (Place, S) of
+			  <{S0,S1}> when 'true' ->
+			      let <_cor22> =
+				  %% Line 500
+				  [46|S1]
+			      in  %% Line 500
+				  call 'erlang':'++'
+				      (S0, _cor22)
+			  ( <_cor21> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor21})
+			    -| ['compiler_generated'] )
+			end
+		  end
+	end
+'insert_exp'/2 =
+    %% Line 503
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <ExpL,[C|[]]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 504
+		  [46|[48|[101|ExpL]]]
+	      in  %% Line 504
+		  [C|_cor2]
+	  %% Line 505
+	  <ExpL,[C|S]> when 'true' ->
+	      let <_cor3> =
+		  %% Line 506
+		  [101|ExpL]
+	      in  let <_cor4> =
+		      %% Line 506
+		      call 'erlang':'++'
+			  (S, _cor3)
+		  in  let <_cor5> =
+			  %% Line 506
+			  [46|_cor4]
+		      in  %% Line 506
+			  [C|_cor5]
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'insert_exp',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'int_ceil'/1 =
+    %% Line 508
+    fun (_cor0) ->
+	case _cor0 of
+	  <X>
+	      when call 'erlang':'is_float'
+		    (_cor0) ->
+	      let <T> =
+		  %% Line 509
+		  call 'erlang':'trunc'
+		      (X)
+	      in  %% Line 510
+		  case call 'erlang':'-'
+			   (X, T) of
+		    %% Line 511
+		    <Neg>
+			when call 'erlang':'<'
+			      (Neg,
+			       0) ->
+			T
+		    %% Line 512
+		    <Pos>
+			when call 'erlang':'>'
+			      (Pos,
+			       0) ->
+			call 'erlang':'+'
+			    (T, 1)
+		    %% Line 513
+		    <_cor4> when 'true' ->
+			T
+		  end
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'int_ceil',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'int_pow'/2 =
+    %% Line 516
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <X,0>
+	      when call 'erlang':'is_integer'
+		    (X) ->
+	      %% Line 517
+	      1
+	  %% Line 518
+	  <X,N>
+	      when try
+		    let <_cor2> =
+			call 'erlang':'is_integer'
+			    (X)
+		    in  let <_cor3> =
+			    call 'erlang':'is_integer'
+				(N)
+			in  let <_cor4> =
+				call 'erlang':'>'
+				    (N, 0)
+			    in  let <_cor5> =
+				    call 'erlang':'and'
+					(_cor3, _cor4)
+				in  call 'erlang':'and'
+					(_cor2, _cor5)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 519
+	      apply 'int_pow'/3
+		  (X, N, 1)
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'int_pow',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'int_pow'/3 =
+    %% Line 521
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <X,N,R>
+	      when call 'erlang':'<'
+		    (N,
+		     2) ->
+	      %% Line 522
+	      call 'erlang':'*'
+		  (R, X)
+	  %% Line 523
+	  <X,N,R> when 'true' ->
+	      let <_cor6> =
+		  %% Line 524
+		  call 'erlang':'*'
+		      (X, X)
+	      in  let <_cor5> =
+		      %% Line 524
+		      call 'erlang':'bsr'
+			  (N, 1)
+		  in  let <_cor4> =
+			  %% Line 524
+			  case call 'erlang':'band'
+				   (N, 1) of
+			    <1> when 'true' ->
+				call 'erlang':'*'
+				    (R, X)
+			    <0> when 'true' ->
+				R
+			    ( <_cor3> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor3})
+			      -| ['compiler_generated'] )
+			  end
+		      in  %% Line 524
+			  apply 'int_pow'/3
+			      (_cor6, _cor5, _cor4)
+	end
+'log2floor'/1 =
+    %% Line 526
+    fun (_cor0) ->
+	case _cor0 of
+	  <Int>
+	      when let <_cor1> =
+		    call 'erlang':'is_integer'
+			(_cor0)
+		in  let <_cor2> =
+			call 'erlang':'>'
+			    (_cor0, 0)
+		    in  call 'erlang':'and'
+			    (_cor1, _cor2) ->
+	      %% Line 527
+	      apply 'log2floor'/2
+		  (Int, 0)
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'log2floor',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'log2floor'/2 =
+    %% Line 529
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <0,N> when 'true' ->
+	      %% Line 530
+	      N
+	  %% Line 531
+	  <Int,N> when 'true' ->
+	      let <_cor3> =
+		  %% Line 532
+		  call 'erlang':'bsr'
+		      (Int, 1)
+	      in  let <_cor2> =
+		      %% Line 532
+		      call 'erlang':'+'
+			  (1, N)
+		  in  %% Line 532
+		      apply 'log2floor'/2
+			  (_cor3, _cor2)
+	end
+'fwrite_g'/5 =
+    %% Line 539
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Fl,F,Adj,'none',Pad> when 'true' ->
+	      %% Line 540
+	      apply 'fwrite_g'/5
+		  (Fl, F, Adj, 6, Pad)
+	  %% Line 541
+	  <Fl,F,Adj,P,Pad>
+	      when call 'erlang':'>='
+		    (P,
+		     1) ->
+	      let <A> =
+		  %% Line 542
+		  call 'erlang':'abs'
+		      (Fl)
+	      in  let <_cor6> =
+		      %% Line 543
+		      case <> of
+			<>
+			    when call 'erlang':'<'
+				  (A,
+				   1.00000000000000005551e-01) ->
+			    -2
+			%% Line 544
+			<>
+			    when call 'erlang':'<'
+				  (A,
+				   1.00000000000000000000e+00) ->
+			    -1
+			%% Line 545
+			<>
+			    when call 'erlang':'<'
+				  (A,
+				   1.00000000000000000000e+01) ->
+			    0
+			%% Line 546
+			<>
+			    when call 'erlang':'<'
+				  (A,
+				   1.00000000000000000000e+02) ->
+			    1
+			%% Line 547
+			<>
+			    when call 'erlang':'<'
+				  (A,
+				   1.00000000000000000000e+03) ->
+			    2
+			%% Line 548
+			<>
+			    when call 'erlang':'<'
+				  (A,
+				   1.00000000000000000000e+04) ->
+			    3
+			%% Line 549
+			<> when 'true' ->
+			    'fwrite_f'
+		      end
+		  in  %% Line 551
+		      case <> of
+			<>
+			    when let <_cor11> =
+				  let <_cor8> =
+				      call 'erlang':'=<'
+					  (P, 1)
+				  in  let <_cor10> =
+					  call 'erlang':'=:='
+					      (_cor6, -1)
+				      in  call 'erlang':'and'
+					      (_cor8, _cor10)
+			      in  let <_cor16> =
+				      %% Line 552
+				      try
+					  let <_cor12> =
+					      call 'erlang':'-'
+						  (P, 1)
+					  in  let <_cor13> =
+						  call 'erlang':'>'
+						      (_cor12, _cor6)
+					      in  let <_cor15> =
+						      call 'erlang':'>='
+							  (_cor6, -1)
+						  in  call 'erlang':'and'
+							  (_cor13, _cor15)
+				      of <Try> ->
+					  Try
+				      catch <T,R> ->
+					  'false'
+				  in  call 'erlang':'or'
+					  (_cor11, _cor16) ->
+			    let <_cor17> =
+				%% Line 553
+				call 'erlang':'-'
+				    (P, 1)
+			    in  let <_cor18> =
+				    %% Line 553
+				    call 'erlang':'-'
+					(_cor17, _cor6)
+				in  %% Line 553
+				    apply 'fwrite_f'/5
+					(Fl, F, Adj, _cor18, Pad)
+			%% Line 554
+			<>
+			    when call 'erlang':'=<'
+				  (P,
+				   1) ->
+			    %% Line 555
+			    apply 'fwrite_e'/5
+				(Fl, F, Adj, 2, Pad)
+			%% Line 556
+			<> when 'true' ->
+			    %% Line 557
+			    apply 'fwrite_e'/5
+				(Fl, F, Adj, P, Pad)
+		      end
+	  ( <_cor23,_cor22,_cor21,_cor20,_cor19> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor23,_cor22,_cor21,_cor20,_cor19})
+		  -| [{'function_name',{'fwrite_g',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'iolist_to_chars'/1 =
+    %% Line 563
+    fun (_cor0) ->
+	case _cor0 of
+	  <[C|Cs]>
+	      when try
+		    let <_cor1> =
+			call 'erlang':'is_integer'
+			    (C)
+		    in  let <_cor2> =
+			    call 'erlang':'>='
+				(C, 0)
+			in  let <_cor3> =
+				call 'erlang':'=<'
+				    (C, 255)
+			    in  let <_cor4> =
+				    call 'erlang':'and'
+					(_cor2, _cor3)
+				in  call 'erlang':'and'
+					(_cor1, _cor4)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor5> =
+		  %% Line 564
+		  apply 'iolist_to_chars'/1
+		      (Cs)
+	      in  %% Line 564
+		  [C|_cor5]
+	  %% Line 565
+	  <[I|Cs]> when 'true' ->
+	      let <_cor6> =
+		  %% Line 566
+		  apply 'iolist_to_chars'/1
+		      (I)
+	      in  let <_cor7> =
+		      %% Line 566
+		      apply 'iolist_to_chars'/1
+			  (Cs)
+		  in  %% Line 566
+		      [_cor6|_cor7]
+	  %% Line 567
+	  <[]> when 'true' ->
+	      %% Line 568
+	      []
+	  %% Line 569
+	  <B>
+	      when call 'erlang':'is_binary'
+		    (_cor0) ->
+	      %% Line 570
+	      call 'erlang':'binary_to_list'
+		  (B)
+	  ( <_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8})
+		  -| [{'function_name',{'iolist_to_chars',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'cdata_to_chars'/1 =
+    %% Line 579
+    fun (_cor0) ->
+	case _cor0 of
+	  <[C|Cs]>
+	      when let <_cor1> =
+		    call 'erlang':'is_integer'
+			(C)
+		in  let <_cor2> =
+			call 'erlang':'>='
+			    (C, 0)
+		    in  call 'erlang':'and'
+			    (_cor1, _cor2) ->
+	      let <_cor3> =
+		  %% Line 580
+		  apply 'cdata_to_chars'/1
+		      (Cs)
+	      in  %% Line 580
+		  [C|_cor3]
+	  %% Line 581
+	  <[I|Cs]> when 'true' ->
+	      let <_cor4> =
+		  %% Line 582
+		  apply 'cdata_to_chars'/1
+		      (I)
+	      in  let <_cor5> =
+		      %% Line 582
+		      apply 'cdata_to_chars'/1
+			  (Cs)
+		  in  %% Line 582
+		      [_cor4|_cor5]
+	  %% Line 583
+	  <[]> when 'true' ->
+	      %% Line 584
+	      []
+	  %% Line 585
+	  <B>
+	      when call 'erlang':'is_binary'
+		    (_cor0) ->
+	      let <_cor6> =
+		  catch
+		      %% Line 586
+		      call 'unicode':'characters_to_list'
+			  (B)
+	      in  %% Line 586
+		  case _cor6 of
+		    %% Line 587
+		    <L>
+			when call 'erlang':'is_list'
+			      (_cor6) ->
+			L
+		    %% Line 588
+		    <_cor9> when 'true' ->
+			call 'erlang':'binary_to_list'
+			    (B)
+		  end
+	  ( <_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8})
+		  -| [{'function_name',{'cdata_to_chars',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'string'/5 =
+    %% Line 593
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <S,'none',_X_Adj,'none',_X_Pad> when 'true' ->
+	      S
+	  %% Line 594
+	  <S,F,Adj,'none',Pad> when 'true' ->
+	      let <_cor5> =
+		  %% Line 595
+		  call 'lists':'flatlength'
+		      (S)
+	      in  %% Line 595
+		  apply 'string_field'/5
+		      (S, F, Adj, _cor5, Pad)
+	  %% Line 596
+	  <S,'none',_X_Adj,P,Pad> when 'true' ->
+	      let <_cor6> =
+		  %% Line 597
+		  call 'lists':'flatlength'
+		      (S)
+	      in  %% Line 597
+		  apply 'string_field'/5
+		      (S, P, 'left', _cor6, Pad)
+	  %% Line 598
+	  <S,F,Adj,P,Pad>
+	      when call 'erlang':'>='
+		    (F,
+		     P) ->
+	      let <N> =
+		  %% Line 599
+		  call 'lists':'flatlength'
+		      (S)
+	      in  %% Line 600
+		  case <> of
+		    <>
+			when call 'erlang':'>'
+			      (F,
+			       P) ->
+			%% Line 601
+			case <> of
+			  <>
+			      when call 'erlang':'>'
+				    (N,
+				     P) ->
+			      let <_cor10> =
+				  %% Line 602
+				  apply 'flat_trunc'/2
+				      (S, P)
+			      in  let <_cor8> =
+				      %% Line 602
+				      call 'erlang':'-'
+					  (F, P)
+				  in  let <_cor9> =
+					  %% Line 602
+					  apply 'chars'/2
+					      (Pad, _cor8)
+				      in  %% Line 602
+					  apply 'adjust'/3
+					      (_cor10, _cor9, Adj)
+			  %% Line 603
+			  <>
+			      when call 'erlang':'<'
+				    (N,
+				     P) ->
+			      let <_cor13> =
+				  %% Line 604
+				  call 'erlang':'-'
+				      (P, N)
+			      in  let <_cor14> =
+				      %% Line 604
+				      apply 'chars'/2
+					  (Pad, _cor13)
+				  in  let <_cor11> =
+					  %% Line 604
+					  call 'erlang':'-'
+					      (F, P)
+				      in  let <_cor12> =
+					      %% Line 604
+					      apply 'chars'/2
+						  (Pad, _cor11)
+					  in  %% Line 604
+					      apply 'adjust'/3
+						  ([S|_cor14], _cor12, Adj)
+			  %% Line 605
+			  <> when 'true' ->
+			      let <_cor15> =
+				  %% Line 606
+				  call 'erlang':'-'
+				      (F, P)
+			      in  let <_cor16> =
+				      %% Line 606
+				      apply 'chars'/2
+					  (Pad, _cor15)
+				  in  %% Line 606
+				      apply 'adjust'/3
+					  (S, _cor16, Adj)
+			end
+		    %% Line 608
+		    <> when 'true' ->
+			%% Line 609
+			apply 'string_field'/5
+			    (S, F, Adj, N, Pad)
+		  end
+	  ( <_cor21,_cor20,_cor19,_cor18,_cor17> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor21,_cor20,_cor19,_cor18,_cor17})
+		  -| [{'function_name',{'string',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'string_field'/5 =
+    %% Line 612
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <S,F,_X_Adj,N,_X_Pad>
+	      when call 'erlang':'>'
+		    (N,
+		     F) ->
+	      %% Line 613
+	      apply 'flat_trunc'/2
+		  (S, F)
+	  %% Line 614
+	  <S,F,Adj,N,Pad>
+	      when call 'erlang':'<'
+		    (N,
+		     F) ->
+	      let <_cor5> =
+		  %% Line 615
+		  call 'erlang':'-'
+		      (F, N)
+	      in  let <_cor6> =
+		      %% Line 615
+		      apply 'chars'/2
+			  (Pad, _cor5)
+		  in  %% Line 615
+		      apply 'adjust'/3
+			  (S, _cor6, Adj)
+	  %% Line 616
+	  <S,_cor12,_cor13,_cor14,_cor15> when 'true' ->
+	      %% Line 617
+	      S
+	end
+'unprefixed_integer'/6 =
+    %% Line 622
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Int,F,Adj,Base,Pad,Lowercase>
+	      when let <_cor6> =
+		    %% Line 623
+		    call 'erlang':'>='
+			(Base, 2)
+		in  let <_cor10> =
+			%% Line 623
+			call 'erlang':'=<'
+			    (Base, 36)
+		    in  %% Line 623
+			call 'erlang':'and'
+			    (_cor6, _cor10) ->
+	      %% Line 624
+	      case <> of
+		<>
+		    when call 'erlang':'<'
+			  (Int,
+			   0) ->
+		    let <_cor11> =
+			%% Line 625
+			call 'erlang':'-'
+			    (Int)
+		    in  let <_cor12> =
+			    %% Line 625
+			    call 'erlang':'integer_to_list'
+				(_cor11, Base)
+			in  let <S> =
+				%% Line 625
+				apply 'cond_lowercase'/2
+				    (_cor12, Lowercase)
+			    in  %% Line 626
+				apply 'term'/5
+				    ([45|S], F, Adj, 'none', Pad)
+		%% Line 627
+		<> when 'true' ->
+		    let <_cor14> =
+			%% Line 628
+			call 'erlang':'integer_to_list'
+			    (Int, Base)
+		    in  let <S> =
+			    %% Line 628
+			    apply 'cond_lowercase'/2
+				(_cor14, Lowercase)
+			in  %% Line 629
+			    apply 'term'/5
+				(S, F, Adj, 'none', Pad)
+	      end
+	  ( <_cor21,_cor20,_cor19,_cor18,_cor17,_cor16> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor21,_cor20,_cor19,_cor18,_cor17,_cor16})
+		  -| [{'function_name',{'unprefixed_integer',6}}] )
+	    -| ['compiler_generated'] )
+	end
+'prefixed_integer'/7 =
+    %% Line 635
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Int,F,Adj,Base,Pad,Prefix,Lowercase>
+	      when let <_cor7> =
+		    %% Line 636
+		    call 'erlang':'>='
+			(Base, 2)
+		in  let <_cor11> =
+			%% Line 636
+			call 'erlang':'=<'
+			    (Base, 36)
+		    in  %% Line 636
+			call 'erlang':'and'
+			    (_cor7, _cor11) ->
+	      %% Line 637
+	      case <> of
+		<>
+		    when call 'erlang':'<'
+			  (Int,
+			   0) ->
+		    let <_cor12> =
+			%% Line 638
+			call 'erlang':'-'
+			    (Int)
+		    in  let <_cor13> =
+			    %% Line 638
+			    call 'erlang':'integer_to_list'
+				(_cor12, Base)
+			in  let <S> =
+				%% Line 638
+				apply 'cond_lowercase'/2
+				    (_cor13, Lowercase)
+			    in  %% Line 639
+				apply 'term'/5
+				    ([45|[Prefix|S]], F, Adj, 'none', Pad)
+		%% Line 640
+		<> when 'true' ->
+		    let <_cor15> =
+			%% Line 641
+			call 'erlang':'integer_to_list'
+			    (Int, Base)
+		    in  let <S> =
+			    %% Line 641
+			    apply 'cond_lowercase'/2
+				(_cor15, Lowercase)
+			in  %% Line 642
+			    apply 'term'/5
+				([Prefix|S], F, Adj, 'none', Pad)
+	      end
+	  ( <_cor23,_cor22,_cor21,_cor20,_cor19,_cor18,_cor17> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor23,_cor22,_cor21,_cor20,_cor19,_cor18,_cor17})
+		  -| [{'function_name',{'prefixed_integer',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'char'/5 =
+    %% Line 647
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <C,'none',_X_Adj,'none',_X_Pad> when 'true' ->
+	      [C|[]]
+	  %% Line 648
+	  <C,F,_X_Adj,'none',_X_Pad> when 'true' ->
+	      apply 'chars'/2
+		  (C, F)
+	  %% Line 649
+	  <C,'none',_X_Adj,P,_X_Pad> when 'true' ->
+	      apply 'chars'/2
+		  (C, P)
+	  %% Line 650
+	  <C,F,Adj,P,Pad>
+	      when call 'erlang':'>='
+		    (F,
+		     P) ->
+	      let <_cor7> =
+		  %% Line 651
+		  apply 'chars'/2
+		      (C, P)
+	      in  let <_cor5> =
+		      %% Line 651
+		      call 'erlang':'-'
+			  (F, P)
+		  in  let <_cor6> =
+			  %% Line 651
+			  apply 'chars'/2
+			      (Pad, _cor5)
+		      in  %% Line 651
+			  apply 'adjust'/3
+			      (_cor7, _cor6, Adj)
+	  ( <_cor12,_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'char',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'newline'/4 =
+    %% Line 655
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <'none',_X_Adj,_X_P,_X_Pad> when 'true' ->
+	      [10]
+	  %% Line 656
+	  <F,'right',_X_P,_X_Pad> when 'true' ->
+	      apply 'chars'/2
+		  (10, F)
+	  ( <_cor7,_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'newline',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'adjust'/3 =
+    %% Line 662
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Data,[],_cor6> when 'true' ->
+	      Data
+	  %% Line 663
+	  <Data,Pad,'left'> when 'true' ->
+	      [Data|Pad]
+	  %% Line 664
+	  <Data,Pad,'right'> when 'true' ->
+	      [Pad|Data]
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'adjust',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'flat_trunc'/2 =
+    %% Line 668
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <List,N>
+	      when let <_cor2> =
+		    call 'erlang':'is_integer'
+			(N)
+		in  let <_cor3> =
+			call 'erlang':'>='
+			    (N, 0)
+		    in  call 'erlang':'and'
+			    (_cor2, _cor3) ->
+	      %% Line 669
+	      apply 'flat_trunc'/4
+		  (List, N, [], [])
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'flat_trunc',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'flat_trunc'/4 =
+    %% Line 671
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <L,0,_cor9,R>
+	      when call 'erlang':'is_list'
+		    (L) ->
+	      %% Line 672
+	      call 'lists':'reverse'
+		  (R)
+	  %% Line 673
+	  <[H|T],N,S,R>
+	      when call 'erlang':'is_list'
+		    (H) ->
+	      %% Line 674
+	      apply 'flat_trunc'/4
+		  (H, N, [T|S], R)
+	  %% Line 675
+	  <[H|T],N,S,R> when 'true' ->
+	      let <_cor4> =
+		  %% Line 676
+		  call 'erlang':'-'
+		      (N, 1)
+	      in  %% Line 676
+		  apply 'flat_trunc'/4
+		      (T, _cor4, S, [H|R])
+	  %% Line 677
+	  <[],N,[H|S],R> when 'true' ->
+	      %% Line 678
+	      apply 'flat_trunc'/4
+		  (H, N, S, R)
+	  %% Line 679
+	  <[],_cor10,[],R> when 'true' ->
+	      %% Line 680
+	      call 'lists':'reverse'
+		  (R)
+	  ( <_cor8,_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'flat_trunc',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'chars'/2 =
+    %% Line 684
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_C,0> when 'true' ->
+	      %% Line 685
+	      []
+	  %% Line 686
+	  <C,1> when 'true' ->
+	      %% Line 687
+	      [C|[]]
+	  %% Line 688
+	  <C,2> when 'true' ->
+	      %% Line 689
+	      [C|[C|[]]]
+	  %% Line 690
+	  <C,3> when 'true' ->
+	      %% Line 691
+	      [C|[C|[C|[]]]]
+	  %% Line 692
+	  <C,N>
+	      when try
+		    let <_cor2> =
+			call 'erlang':'is_integer'
+			    (N)
+		    in  let <_cor3> =
+			    call 'erlang':'band'
+				(N, 1)
+			in  let <_cor4> =
+				call 'erlang':'=:='
+				    (_cor3, 0)
+			    in  call 'erlang':'and'
+				    (_cor2, _cor4)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor5> =
+		  %% Line 693
+		  call 'erlang':'bsr'
+		      (N, 1)
+	      in  let <S> =
+		      %% Line 693
+		      apply 'chars'/2
+			  (C, _cor5)
+		  in  %% Line 694
+		      [S|S]
+	  %% Line 695
+	  <C,N>
+	      when call 'erlang':'is_integer'
+		    (N) ->
+	      let <_cor7> =
+		  %% Line 696
+		  call 'erlang':'bsr'
+		      (N, 1)
+	      in  let <S> =
+		      %% Line 696
+		      apply 'chars'/2
+			  (C, _cor7)
+		  in  %% Line 697
+		      [C|[S|S]]
+	  ( <_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9})
+		  -| [{'function_name',{'chars',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'cond_lowercase'/2 =
+    %% Line 704
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <String,'true'> when 'true' ->
+	      %% Line 705
+	      apply 'lowercase'/1
+		  (String)
+	  %% Line 706
+	  <String,'false'> when 'true' ->
+	      %% Line 707
+	      String
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'cond_lowercase',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'lowercase'/1 =
+    %% Line 709
+    fun (_cor0) ->
+	case _cor0 of
+	  <[H|T]>
+	      when try
+		    let <_cor1> =
+			call 'erlang':'is_integer'
+			    (H)
+		    in  let <_cor2> =
+			    call 'erlang':'>='
+				(H, 65)
+			in  let <_cor3> =
+				call 'erlang':'=<'
+				    (H, 90)
+			    in  let <_cor4> =
+				    call 'erlang':'and'
+					(_cor2, _cor3)
+				in  call 'erlang':'and'
+					(_cor1, _cor4)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor5> =
+		  %% Line 710
+		  call 'erlang':'-'
+		      (H, 65)
+	      in  let <_cor6> =
+		      %% Line 710
+		      call 'erlang':'+'
+			  (_cor5, 97)
+		  in  let <_cor7> =
+			  %% Line 710
+			  apply 'lowercase'/1
+			      (T)
+		      in  %% Line 710
+			  [_cor6|_cor7]
+	  %% Line 711
+	  <[H|T]> when 'true' ->
+	      let <_cor8> =
+		  %% Line 712
+		  apply 'lowercase'/1
+		      (T)
+	      in  %% Line 712
+		  [H|_cor8]
+	  %% Line 713
+	  <[]> when 'true' ->
+	      %% Line 714
+	      []
+	  ( <_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9})
+		  -| [{'function_name',{'lowercase',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('io_lib_format')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('io_lib_format', _cor0)
+end

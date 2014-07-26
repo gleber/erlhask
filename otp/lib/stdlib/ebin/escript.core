@@ -1,0 +1,3292 @@
+module 'escript' ['create'/2,
+		  'extract'/2,
+		  'module_info'/0,
+		  'module_info'/1,
+		  'parse_file'/1,
+		  'script_name'/0,
+		  'start'/0,
+		  'start'/1]
+    attributes [%% Line 34
+		'type' =
+		    %% Line 34
+		    [{'mode',{'type',34,'union',[{'atom',34,'native'}|[{'atom',34,'compile'}|[{'atom',34,'debug'}|[{'atom',34,'interpret'}|[{'atom',34,'run'}]]]]]},[]}],
+		%% Line 35
+		'type' =
+		    %% Line 35
+		    [{'source',{'type',35,'union',[{'atom',35,'archive'}|[{'atom',35,'beam'}|[{'atom',35,'text'}]]]},[]}],
+		%% Line 37
+		'type' =
+		    %% Line 37
+		    [{{'record','state'},[{'typed_record_field',{'record_field',37,{'atom',37,'file'}},{'type',37,'union',[{'atom',37,'undefined'}|[{'remote_type',37,[{'atom',37,'file'}|[{'atom',37,'filename'}|[[]]]]}]]}}|[{'typed_record_field',{'record_field',38,{'atom',38,'module'}},{'type',38,'union',[{'atom',38,'undefined'}|[{'type',38,'module',[]}]]}}|[{'record_field',39,{'atom',39,'forms_or_bin'}}|[{'typed_record_field',{'record_field',40,{'atom',40,'source'}},{'type',40,'union',[{'atom',40,'undefined'}|[{'type',40,'source',[]}]]}}|[{'typed_record_field',{'record_field',41,{'atom',41,'n_errors'}},{'type',41,'union',[{'atom',41,'undefined'}|[{'type',41,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',42,{'atom',42,'mode'}},{'type',42,'union',[{'atom',42,'undefined'}|[{'type',42,'mode',[]}]]}}|[{'typed_record_field',{'record_field',43,{'atom',43,'exports_main'}},{'type',43,'union',[{'atom',43,'undefined'}|[{'type',43,'boolean',[]}]]}}|[{'typed_record_field',{'record_field',44,{'atom',44,'has_records'}},{'type',44,'union',[{'atom',44,'undefined'}|[{'type',44,'boolean',[]}]]}}]]]]]]]],[]}],
+		%% Line 46
+		'type' =
+		    %% Line 46
+		    [{'shebang',{'type',46,'string',[]},[]}],
+		%% Line 47
+		'type' =
+		    %% Line 47
+		    [{'comment',{'type',47,'string',[]},[]}],
+		%% Line 48
+		'type' =
+		    %% Line 48
+		    [{'emu_args',{'type',48,'string',[]},[]}],
+		%% Line 50
+		'type' =
+		    %% Line 50
+		    [{{'record','sections'},[{'record_field',50,{'atom',50,'type'}}|[{'typed_record_field',{'record_field',51,{'atom',51,'shebang'}},{'type',51,'union',[{'atom',51,'undefined'}|[{'type',51,'shebang',[]}]]}}|[{'typed_record_field',{'record_field',52,{'atom',52,'comment'}},{'type',52,'union',[{'atom',52,'undefined'}|[{'type',52,'comment',[]}]]}}|[{'typed_record_field',{'record_field',53,{'atom',53,'emu_args'}},{'type',53,'union',[{'atom',53,'undefined'}|[{'type',53,'emu_args',[]}]]}}|[{'record_field',54,{'atom',54,'body'}}]]]]],[]}],
+		%% Line 56
+		'type' =
+		    %% Line 56
+		    [{{'record','extract_options'},[{'record_field',56,{'atom',56,'compile_source'}}],[]}],
+		%% Line 58
+		'type' =
+		    %% Line 58
+		    [{'zip_file',{'type',59,'union',[{'remote_type',59,[{'atom',59,'file'}|[{'atom',59,'filename'}|[[]]]]}|[{'type',60,'tuple',[{'remote_type',60,[{'atom',60,'file'}|[{'atom',60,'filename'}|[[]]]]}|[{'type',60,'binary',[]}]]}|[{'type',61,'tuple',[{'remote_type',61,[{'atom',61,'file'}|[{'atom',61,'filename'}|[[]]]]}|[{'type',61,'binary',[]}|[{'remote_type',61,[{'atom',61,'file'}|[{'atom',61,'file_info'}|[[]]]]}]]]}]]]},[]}],
+		%% Line 62
+		'type' =
+		    %% Line 62
+		    [{'section',{'type',63,'union',[{'atom',63,'shebang'}|[{'type',64,'tuple',[{'atom',64,'shebang'}|[{'type',64,'union',[{'type',64,'shebang',[]}|[{'atom',64,'default'}|[{'atom',64,'undefined'}]]]}]]}|[{'atom',65,'comment'}|[{'type',66,'tuple',[{'atom',66,'comment'}|[{'type',66,'union',[{'type',66,'comment',[]}|[{'atom',66,'default'}|[{'atom',66,'undefined'}]]]}]]}|[{'type',67,'tuple',[{'atom',67,'emu_args'}|[{'type',67,'union',[{'type',67,'emu_args',[]}|[{'atom',67,'undefined'}]]}]]}|[{'type',68,'tuple',[{'atom',68,'source'}|[{'type',68,'union',[{'remote_type',68,[{'atom',68,'file'}|[{'atom',68,'filename'}|[[]]]]}|[{'type',68,'binary',[]}]]}]]}|[{'type',69,'tuple',[{'atom',69,'beam'}|[{'type',69,'union',[{'remote_type',69,[{'atom',69,'file'}|[{'atom',69,'filename'}|[[]]]]}|[{'type',69,'binary',[]}]]}]]}|[{'type',70,'tuple',[{'atom',70,'archive'}|[{'type',70,'union',[{'remote_type',70,[{'atom',70,'zip'}|[{'atom',70,'filename'}|[[]]]]}|[{'type',70,'binary',[]}]]}]]}|[{'type',71,'tuple',[{'atom',71,'archive'}|[{'type',71,'list',[{'type',71,'zip_file',[]}]}|[{'type',71,'list',[{'remote_type',71,[{'atom',71,'zip'}|[{'atom',71,'create_option'}|[[]]]]}]}]]]}]]]]]]]]]},[]}],
+		%% Line 76
+		'spec' =
+		    %% Line 76
+		    [{{'create',2},[{'type',76,'fun',[{'type',76,'product',[{'type',76,'union',[{'remote_type',76,[{'atom',76,'file'}|[{'atom',76,'filename'}|[[]]]]}|[{'atom',76,'binary'}]]}|[{'type',76,'list',[{'type',76,'section',[]}]}]]}|[{'type',77,'union',[{'atom',77,'ok'}|[{'type',77,'tuple',[{'atom',77,'ok'}|[{'type',77,'binary',[]}]]}|[{'type',77,'tuple',[{'atom',77,'error'}|[{'type',77,'term',[]}]]}]]]}]]}]}],
+		%% Line 157
+		'type' =
+		    %% Line 157
+		    [{'section_name',{'type',157,'union',[{'atom',157,'shebang'}|[{'atom',157,'comment'}|[{'atom',157,'emu_args'}|[{'atom',157,'body'}]]]]},[]}],
+		%% Line 158
+		'type' =
+		    %% Line 158
+		    [{'extract_option',{'type',158,'union',[{'atom',158,'compile_source'}|[{'type',158,'tuple',[{'atom',158,'section'}|[{'type',158,'list',[{'type',158,'section_name',[]}]}]]}]]},[]}],
+		%% Line 159
+		'spec' =
+		    %% Line 159
+		    [{{'extract',2},[{'type',159,'fun',[{'type',159,'product',[{'remote_type',159,[{'atom',159,'file'}|[{'atom',159,'filename'}|[[]]]]}|[{'type',159,'list',[{'type',159,'extract_option',[]}]}]]}|[{'type',160,'union',[{'type',160,'tuple',[{'atom',160,'ok'}|[{'type',160,'list',[{'type',160,'section',[]}]}]]}|[{'type',160,'tuple',[{'atom',160,'error'}|[{'type',160,'term',[]}]]}]]}]]}]}],
+		%% Line 250
+		'spec' =
+		    %% Line 250
+		    [{{'script_name',0},[{'type',250,'fun',[{'type',250,'product',[]}|[{'type',250,'string',[]}]]}]}],
+		%% Line 260
+		'spec' =
+		    %% Line 260
+		    [{{'start',0},[{'type',260,'fun',[{'type',260,'product',[]}|[{'type',260,'no_return',[]}]]}]}],
+		%% Line 265
+		'spec' =
+		    %% Line 265
+		    [{{'start',1},[{'type',265,'fun',[{'type',265,'product',[{'type',265,'list',[{'type',265,'string',[]}]}]}|[{'type',265,'no_return',[]}]]}]}],
+		%% Line 291
+		'spec' =
+		    %% Line 291
+		    [{{'parse_and_run',3},[{'type',291,'fun',[{'type',291,'product',[{'var',291,'_'}|[{'var',291,'_'}|[{'var',291,'_'}]]]}|[{'type',291,'no_return',[]}]]}]}],
+		%% Line 731
+		'spec' =
+		    %% Line 731
+		    [{{'debug',3},[{'type',731,'fun',[{'type',731,'product',[{'var',731,'_'}|[{'var',731,'_'}|[{'var',731,'_'}]]]}|[{'type',731,'no_return',[]}]]}]}],
+		%% Line 748
+		'spec' =
+		    %% Line 748
+		    [{{'run',2},[{'type',748,'fun',[{'type',748,'product',[{'var',748,'_'}|[{'var',748,'_'}]]}|[{'type',748,'no_return',[]}]]}]}],
+		%% Line 759
+		'spec' =
+		    %% Line 759
+		    [{{'interpret',4},[{'type',759,'fun',[{'type',759,'product',[{'var',759,'_'}|[{'var',759,'_'}|[{'var',759,'_'}|[{'var',759,'_'}]]]]}|[{'type',759,'no_return',[]}]]}]}]]
+'create'/2 =
+    %% Line 79
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <File,Options>
+	      when call 'erlang':'is_list'
+		    (Options) ->
+	      %% Line 80
+	      try
+		  let <S> =
+		      %% Line 81
+		      apply 'prepare'/2
+			  (Options, {'sections','undefined','undefined','undefined','undefined','undefined'})
+		  in  let <_cor15> =
+			  %% Line 83
+			  ( letrec
+				'lc$^0'/1 =
+				    fun (_cor13) ->
+					case _cor13 of
+					  <[Section|_cor4]>
+					      when %% Line 87
+						call 'erlang':'=/='
+						    (Section,
+						     'undefined') ->
+					      let <_cor14> =
+						  apply 'lc$^0'/1
+						      (_cor4)
+					      in  ( [Section|_cor14]
+						    -| ['compiler_generated'] )
+					  ( <[Section|_cor4]> when 'true' ->
+						apply 'lc$^0'/1
+						    (_cor4)
+					    -| ['compiler_generated'] )
+					  <[]> when 'true' ->
+					      []
+					  ( <_cor13> when 'true' ->
+						( primop 'match_fail'
+						      ({'function_clause',_cor13})
+						  -| [{'function_name',{'lc$^0',1}}] )
+					    -| ['compiler_generated'] )
+					end
+			    in  ( case S of
+				    ( <( {'sections',_cor26,_rec0,_cor27,_cor28,_cor29}
+					 -| ['compiler_generated'] )> when 'true' ->
+					  apply 'lc$^0'/1
+					      ([_rec0|%% Line 84
+						      [_cor27|%% Line 85
+							      [_cor28|%% Line 86
+								      [_cor29|[]]]]])
+				      -| ['compiler_generated'] )
+				    ( <_cor30> when 'true' ->
+					  ( call ( 'erlang'
+						   -| ['compiler_generated'] ):( 'error'
+										 -| ['compiler_generated'] )
+						(( {'badrecord','sections'}
+						   -| ['compiler_generated'] ))
+					    -| ['compiler_generated'] )
+				      -| ['compiler_generated'] )
+				  end
+				  -| ['compiler_generated'] )
+			    -| ['list_comprehension'] )
+		      in  %% Line 88
+			  case File of
+			    %% Line 89
+			    <'binary'> when 'true' ->
+				let <_cor17> =
+				    %% Line 90
+				    call 'erlang':'list_to_binary'
+					(_cor15)
+				in  %% Line 90
+				    {'ok',_cor17}
+			    %% Line 91
+			    <_cor46> when 'true' ->
+				%% Line 92
+				case call 'file':'write_file'
+					 (File, _cor15) of
+				  %% Line 93
+				  <'ok'> when 'true' ->
+				      %% Line 94
+				      'ok'
+				  %% Line 95
+				  <{'error',Reason}> when 'true' ->
+				      %% Line 96
+				      {'error',{Reason,File}}
+				  ( <_cor18> when 'true' ->
+					primop 'match_fail'
+					    ({'case_clause',_cor18})
+				    -| ['compiler_generated'] )
+				end
+			  end
+	      of <_cor20> ->
+		  _cor20
+	      catch <_cor23,_cor22,_cor21> ->
+		  case <_cor23,_cor22,_cor21> of
+		    %% Line 100
+		    <'throw',PrepareReason,_cor47> when 'true' ->
+			%% Line 101
+			{'error',PrepareReason}
+		    ( <_cor23,_cor22,_cor21> when 'true' ->
+			  primop 'raise'
+			      (_cor21, _cor22)
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor25,_cor24> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor25,_cor24})
+		  -| [{'function_name',{'create',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'prepare'/2 =
+    %% Line 104
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[H|T],S> when 'true' ->
+	      %% Line 105
+	      case H of
+		%% Line 106
+		<{'shebang','undefined'}> when 'true' ->
+		    %% Line 107
+		    apply 'prepare'/2
+			(T, S)
+		%% Line 108
+		<'shebang'> when 'true' ->
+		    %% Line 109
+		    case S of
+		      <{'sections',_cor62,_cor63,_cor64,_cor65,_cor66}> when 'true' ->
+			  let <_cor6> =
+			      call 'erlang':'setelement'
+				  (3, S, [35|[33|[47|[117|[115|[114|[47|[98|[105|[110|[47|[101|[110|[118|[32|[101|[115|[99|[114|[105|[112|[116|[10]]]]]]]]]]]]]]]]]]]]]]])
+			  in  apply 'prepare'/2
+				  (T, _cor6)
+		      ( <_cor67> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','sections'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		%% Line 110
+		<{'shebang','default'}> when 'true' ->
+		    %% Line 111
+		    case S of
+		      <{'sections',_cor68,_cor69,_cor70,_cor71,_cor72}> when 'true' ->
+			  let <_cor11> =
+			      call 'erlang':'setelement'
+				  (3, S, [35|[33|[47|[117|[115|[114|[47|[98|[105|[110|[47|[101|[110|[118|[32|[101|[115|[99|[114|[105|[112|[116|[10]]]]]]]]]]]]]]]]]]]]]]])
+			  in  apply 'prepare'/2
+				  (T, _cor11)
+		      ( <_cor73> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','sections'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		%% Line 112
+		<{'shebang',Shebang}>
+		    when call 'erlang':'is_list'
+			  (Shebang) ->
+		    let <_cor12> =
+			%% Line 113
+			call 'erlang':'++'
+			    (Shebang, [10])
+		    in  let <_rec8> =
+			    %% Line 113
+			    [35|[33|_cor12]]
+			in  %% Line 113
+			    case S of
+			      <{'sections',_cor74,_cor75,_cor76,_cor77,_cor78}> when 'true' ->
+				  let <_cor16> =
+				      call 'erlang':'setelement'
+					  (3, S, _rec8)
+				  in  apply 'prepare'/2
+					  (T, _cor16)
+			      ( <_cor79> when 'true' ->
+				    ( call ( 'erlang'
+					     -| ['compiler_generated'] ):( 'error'
+									   -| ['compiler_generated'] )
+					  (( {'badrecord','sections'}
+					     -| ['compiler_generated'] ))
+				      -| ['compiler_generated'] )
+				-| ['compiler_generated'] )
+			    end
+		%% Line 114
+		<{'comment','undefined'}> when 'true' ->
+		    %% Line 115
+		    apply 'prepare'/2
+			(T, S)
+		%% Line 116
+		<'comment'> when 'true' ->
+		    %% Line 117
+		    case S of
+		      <{'sections',_cor80,_cor81,_cor82,_cor83,_cor84}> when 'true' ->
+			  let <_cor21> =
+			      call 'erlang':'setelement'
+				  (4, S, [37|[37|[32|[84|[104|[105|[115|[32|[105|[115|[32|[97|[110|[32|[45|[42|[45|[32|[101|[114|[108|[97|[110|[103|[32|[45|[42|[45|[32|[102|[105|[108|[101|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+			  in  apply 'prepare'/2
+				  (T, _cor21)
+		      ( <_cor85> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','sections'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		%% Line 118
+		<{'comment','default'}> when 'true' ->
+		    %% Line 119
+		    case S of
+		      <{'sections',_cor86,_cor87,_cor88,_cor89,_cor90}> when 'true' ->
+			  let <_cor26> =
+			      call 'erlang':'setelement'
+				  (4, S, [37|[37|[32|[84|[104|[105|[115|[32|[105|[115|[32|[97|[110|[32|[45|[42|[45|[32|[101|[114|[108|[97|[110|[103|[32|[45|[42|[45|[32|[102|[105|[108|[101|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+			  in  apply 'prepare'/2
+				  (T, _cor26)
+		      ( <_cor91> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','sections'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		%% Line 120
+		<{'comment',Comment}>
+		    when call 'erlang':'is_list'
+			  (Comment) ->
+		    let <_cor27> =
+			%% Line 121
+			call 'erlang':'++'
+			    (Comment, [10])
+		    in  let <_rec14> =
+			    %% Line 121
+			    [37|[37|[32|_cor27]]]
+			in  %% Line 121
+			    case S of
+			      <{'sections',_cor92,_cor93,_cor94,_cor95,_cor96}> when 'true' ->
+				  let <_cor31> =
+				      call 'erlang':'setelement'
+					  (4, S, _rec14)
+				  in  apply 'prepare'/2
+					  (T, _cor31)
+			      ( <_cor97> when 'true' ->
+				    ( call ( 'erlang'
+					     -| ['compiler_generated'] ):( 'error'
+									   -| ['compiler_generated'] )
+					  (( {'badrecord','sections'}
+					     -| ['compiler_generated'] ))
+				      -| ['compiler_generated'] )
+				-| ['compiler_generated'] )
+			    end
+		%% Line 122
+		<{'emu_args','undefined'}> when 'true' ->
+		    %% Line 123
+		    apply 'prepare'/2
+			(T, S)
+		%% Line 124
+		<{'emu_args',Args}>
+		    when call 'erlang':'is_list'
+			  (Args) ->
+		    let <_cor32> =
+			%% Line 125
+			call 'erlang':'++'
+			    (Args, [10])
+		    in  let <_rec16> =
+			    %% Line 125
+			    [37|[37|[33|_cor32]]]
+			in  %% Line 125
+			    case S of
+			      <{'sections',_cor98,_cor99,_cor100,_cor101,_cor102}> when 'true' ->
+				  let <_cor36> =
+				      call 'erlang':'setelement'
+					  (5, S, _rec16)
+				  in  apply 'prepare'/2
+					  (T, _cor36)
+			      ( <_cor103> when 'true' ->
+				    ( call ( 'erlang'
+					     -| ['compiler_generated'] ):( 'error'
+									   -| ['compiler_generated'] )
+					  (( {'badrecord','sections'}
+					     -| ['compiler_generated'] ))
+				      -| ['compiler_generated'] )
+				-| ['compiler_generated'] )
+			    end
+		%% Line 126
+		<{Type,File}>
+		    when call 'erlang':'is_list'
+			  (File) ->
+		    %% Line 127
+		    case call 'file':'read_file'
+			     (File) of
+		      %% Line 128
+		      <{'ok',Bin}> when 'true' ->
+			  %% Line 129
+			  case S of
+			    <{'sections',_cor104,_cor105,_cor106,_cor107,_cor108}> when 'true' ->
+				let <_cor38> =
+				    call 'erlang':'setelement'
+					(6, S, Bin)
+				in  let <_cor40> =
+					call 'erlang':'setelement'
+					    (2, _cor38, Type)
+				    in  apply 'prepare'/2
+					    (T, _cor40)
+			    ( <_cor109> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','sections'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+		      %% Line 130
+		      <{'error',Reason}> when 'true' ->
+			  %% Line 131
+			  call 'erlang':'throw'
+			      ({Reason,H})
+		      ( <_cor41> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor41})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 133
+		<{Type,Bin}>
+		    when call 'erlang':'is_binary'
+			  (Bin) ->
+		    %% Line 134
+		    case S of
+		      <{'sections',_cor110,_cor111,_cor112,_cor113,_cor114}> when 'true' ->
+			  let <_cor43> =
+			      call 'erlang':'setelement'
+				  (6, S, Bin)
+			  in  let <_cor45> =
+				  call 'erlang':'setelement'
+				      (2, _cor43, Type)
+			      in  apply 'prepare'/2
+				      (T, _cor45)
+		      ( <_cor115> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','sections'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		%% Line 135
+		<{Type = 'archive',ZipFiles,ZipOptions}>
+		    when let <_cor46> =
+			  %% Line 136
+			  call 'erlang':'is_list'
+			      (ZipFiles)
+		      in  let <_cor47> =
+			      %% Line 136
+			      call 'erlang':'is_list'
+				  (ZipOptions)
+			  in  %% Line 136
+			      call 'erlang':'and'
+				  (_cor46, _cor47) ->
+		    let <_cor49> =
+			%% Line 138
+			call 'erlang':'++'
+			    (ZipOptions, ['memory'])
+		    in  %% Line 138
+			case call 'zip':'create'
+				 ([100|[117|[109|[109|[121|[46|[122|[105|[112]]]]]]]]], ZipFiles, _cor49) of
+			  %% Line 139
+			  <{'ok',{_cor116,ZipBin}}>
+			      when call 'erlang':'=:='
+				    (_cor116,
+				     [100|[117|[109|[109|[121|[46|[122|[105|[112]]]]]]]]]) ->
+			      %% Line 140
+			      case S of
+				<{'sections',_cor117,_cor118,_cor119,_cor120,_cor121}> when 'true' ->
+				    let <_cor51> =
+					call 'erlang':'setelement'
+					    (6, S, ZipBin)
+				    in  let <_cor53> =
+					    call 'erlang':'setelement'
+						(2, _cor51, Type)
+					in  apply 'prepare'/2
+						(T, _cor53)
+				( <_cor122> when 'true' ->
+				      ( call ( 'erlang'
+					       -| ['compiler_generated'] ):( 'error'
+									     -| ['compiler_generated'] )
+					    (( {'badrecord','sections'}
+					       -| ['compiler_generated'] ))
+					-| ['compiler_generated'] )
+				  -| ['compiler_generated'] )
+			      end
+			  %% Line 141
+			  <{'error',Reason}> when 'true' ->
+			      %% Line 142
+			      call 'erlang':'throw'
+				  ({Reason,H})
+			  ( <_cor54> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor54})
+			    -| ['compiler_generated'] )
+			end
+		%% Line 144
+		<_cor123> when 'true' ->
+		    %% Line 145
+		    call 'erlang':'throw'
+			({'badarg',H})
+	      end
+	  %% Line 147
+	  <[],{'sections',_cor124,_cor125,_cor126,_cor127,'undefined'}> when 'true' ->
+	      %% Line 148
+	      call 'erlang':'throw'
+		  ('missing_body')
+	  %% Line 149
+	  <[],S = {'sections',Type,_cor128,_cor129,_cor130,_cor131}>
+	      when let <_cor56> =
+		    %% Line 150
+		    call 'erlang':'=:='
+			(Type, 'source')
+		in  let <_cor57> =
+			%% Line 150
+			call 'erlang':'=:='
+			    (Type, 'beam')
+		    in  let <_cor58> =
+			    %% Line 150
+			    call 'erlang':'=:='
+				(Type, 'archive')
+			in  let <_cor59> =
+				%% Line 150
+				call 'erlang':'or'
+				    (_cor57, _cor58)
+			    in  %% Line 150
+				call 'erlang':'or'
+				    (_cor56, _cor59) ->
+	      %% Line 151
+	      S
+	  %% Line 152
+	  <[],{'sections',Type,_cor132,_cor133,_cor134,_cor135}> when 'true' ->
+	      %% Line 153
+	      call 'erlang':'throw'
+		  ({'illegal_type',Type})
+	  %% Line 154
+	  <BadOptions,_cor136> when 'true' ->
+	      %% Line 155
+	      call 'erlang':'throw'
+		  ({'badarg',BadOptions})
+	end
+'extract'/2 =
+    %% Line 162
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <File,Options>
+	      when let <_cor2> =
+		    call 'erlang':'is_list'
+			(File)
+		in  let <_cor3> =
+			call 'erlang':'is_list'
+			    (Options)
+		    in  call 'erlang':'and'
+			    (_cor2, _cor3) ->
+	      %% Line 163
+	      try
+		  %% Line 167
+		  ( case apply 'parse_extract_options'/2
+			     (Options, {'extract_options','false'}) of
+		      ( <( {'extract_options',_rec21}
+			   -| ['compiler_generated'] )> when 'true' ->
+			    let <_cor7> =
+				call 'erlang':'not'
+				    (_rec21)
+			    in  case apply 'parse_header'/2
+					 (File, _cor7) of
+				  <{HeaderSz,NextLineNo,Fd,Sections}> when 'true' ->
+				      %% Line 168
+				      ( case Sections of
+					  ( <( {'sections',_rec22,_cor26,_cor27,_cor28,_cor29}
+					       -| ['compiler_generated'] )> when 'true' ->
+						let <_cor37,Bin> =
+						    %% Line 169
+						    case <_rec22,_rec21> of
+						      %% Line 170
+						      <'source','true'> when 'true' ->
+							  let <Bin> =
+							      %% Line 171
+							      apply 'compile_source'/5
+								  (_rec22, File, Fd, NextLineNo, HeaderSz)
+							  in  <Bin,Bin>
+						      %% Line 172
+						      <_cor32,_cor33> when 'true' ->
+							  %% Line 173
+							  case call 'file':'close'
+								   (Fd) of
+							    <'ok'> when 'true' ->
+								%% Line 174
+								let <_cor35,Bin> =
+								    case call 'file':'read_file'
+									     (File) of
+								      %% Line 175
+								      <{'ok',#{#<_X_Header>(HeaderSz,8,'binary',['unsigned'|['big']]),
+									       #<Bin>('all',8,'binary',['unsigned'|['big']])}#}> when 'true' ->
+									  %% Line 176
+									  <'ok',Bin>
+								      %% Line 177
+								      <{'error',ReadReason}> when 'true' ->
+									  %% Line 179
+									  <call 'erlang':'throw'
+									       (ReadReason),'get_rid_of_compiler_warning'>
+								      ( <_cor17> when 'true' ->
+									    primop 'match_fail'
+										({'case_clause',_cor17})
+									-| ['compiler_generated'] )
+								    end
+								in  <_cor35,Bin>
+							    ( <_cor15> when 'true' ->
+								  primop 'match_fail'
+								      ({'badmatch',_cor15})
+							      -| ['compiler_generated'] )
+							  end
+						    end
+						in  %% Line 182
+						    apply 'return_sections'/2
+							(Sections, Bin)
+					    -| ['compiler_generated'] )
+					  ( <_cor30> when 'true' ->
+						( call ( 'erlang'
+							 -| ['compiler_generated'] ):( 'error'
+										       -| ['compiler_generated'] )
+						      (( {'badrecord','sections'}
+							 -| ['compiler_generated'] ))
+						  -| ['compiler_generated'] )
+					    -| ['compiler_generated'] )
+					end
+					-| ['compiler_generated'] )
+				  ( <_cor8> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor8})
+				    -| ['compiler_generated'] )
+				end
+			-| ['compiler_generated'] )
+		      ( <_cor25> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','extract_options'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		    -| ['compiler_generated'] )
+	      of <_cor19> ->
+		  _cor19
+	      catch <_cor22,_cor21,_cor20> ->
+		  case <_cor22,_cor21,_cor20> of
+		    %% Line 184
+		    <'throw',Reason,_cor34> when 'true' ->
+			%% Line 185
+			{'error',Reason}
+		    ( <_cor22,_cor21,_cor20> when 'true' ->
+			  primop 'raise'
+			      (_cor20, _cor21)
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor24,_cor23> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor24,_cor23})
+		  -| [{'function_name',{'extract',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'parse_extract_options'/2 =
+    %% Line 188
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[H|T],EO> when 'true' ->
+	      %% Line 189
+	      case H of
+		%% Line 190
+		<'compile_source'> when 'true' ->
+		    %% Line 191
+		    case EO of
+		      <{'extract_options',_rec25}> when 'true' ->
+			  %% Line 192
+			  apply 'parse_extract_options'/2
+			      (T, {'extract_options','true'})
+		      ( <_cor9> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','extract_options'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		%% Line 193
+		<_cor10> when 'true' ->
+		    %% Line 194
+		    call 'erlang':'throw'
+			({'badarg',H})
+	      end
+	  %% Line 196
+	  <[],EO> when 'true' ->
+	      %% Line 197
+	      EO
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7})
+		  -| [{'function_name',{'parse_extract_options',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'compile_source'/5 =
+    %% Line 199
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 200
+	case %% Line 201
+	     apply 'do_parse_file'/6
+		 (_cor4, _cor3, _cor2, _cor1, _cor0, 'false') of
+	  <{'text',_X_Module,Forms,_X_HasRecs,_X_Mode}> when 'true' ->
+	      %% Line 202
+	      case call 'file':'close'
+		       (_cor2) of
+		<'ok'> when 'true' ->
+		    %% Line 203
+		    case call 'compile':'forms'
+			     (Forms, ['return_errors'|['debug_info']]) of
+		      %% Line 204
+		      <{'ok',_cor15,BeamBin}> when 'true' ->
+			  %% Line 205
+			  BeamBin
+		      %% Line 206
+		      <{'error',Errors,Warnings}> when 'true' ->
+			  let <_cor7> =
+			      %% Line 207
+			      apply 'format_errors'/1
+				  (Errors)
+			  in  let <_cor8> =
+				  %% Line 208
+				  apply 'format_errors'/1
+				      (Warnings)
+			      in  %% Line 207
+				  call 'erlang':'throw'
+				      ({'compile',[{'errors',_cor7}|%% Line 208
+								    [{'warnings',_cor8}|[]]]})
+		      ( <_cor9> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor9})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor6> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor6})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'format_errors'/1 =
+    %% Line 211
+    fun (_cor0) ->
+	%% Line 212
+	( letrec
+	      'lc$^0'/1 =
+		  fun (_cor5) ->
+		      case _cor5 of
+			<[%% Line 214
+			  {File,FileErrors}|_cor2]> when 'true' ->
+			    ( letrec
+				  'lc$^1'/1 =
+				      fun (_cor6) ->
+					  case _cor6 of
+					    <[%% Line 215
+					      {LineNo,Mod,Error}|_cor4]> when 'true' ->
+						let <_cor7> =
+						    call 'erlang':'integer_to_list'
+							(LineNo)
+						in  let <_cor8> =
+							%% Line 213
+							call Mod:'format_error'
+							    (Error)
+						    in  let <_cor9> =
+							    call 'lists':'flatten'
+								([File|[[58]|[_cor7|[[58|[32]]|%% Line 213
+											       [_cor8|[]]]]]])
+							in  let <_cor10> =
+								%% Line 215
+								apply 'lc$^1'/1
+								    (_cor4)
+							    in  ( [_cor9|_cor10]
+								  -| ['compiler_generated'] )
+					    ( <[_cor3|_cor4]> when 'true' ->
+						  %% Line 215
+						  apply 'lc$^1'/1
+						      (_cor4)
+					      -| ['compiler_generated'] )
+					    <[]> when 'true' ->
+						%% Line 214
+						apply 'lc$^0'/1
+						    (_cor2)
+					    ( <_cor6> when 'true' ->
+						  ( primop 'match_fail'
+							({'function_clause',_cor6})
+						    -| [{'function_name',{'lc$^1',1}}] )
+					      -| ['compiler_generated'] )
+					  end
+			      in  apply 'lc$^1'/1
+				      (%% Line 215
+				       FileErrors)
+			      -| ['list_comprehension'] )
+			( <[_cor1|_cor2]> when 'true' ->
+			      %% Line 214
+			      apply 'lc$^0'/1
+				  (_cor2)
+			  -| ['compiler_generated'] )
+			<[]> when 'true' ->
+			    []
+			( <_cor5> when 'true' ->
+			      ( primop 'match_fail'
+				    ({'function_clause',_cor5})
+				-| [{'function_name',{'lc$^0',1}}] )
+			  -| ['compiler_generated'] )
+		      end
+	  in  apply 'lc$^0'/1
+		  (_cor0)
+	  -| ['list_comprehension'] )
+'return_sections'/2 =
+    %% Line 217
+    fun (_cor1,_cor0) ->
+	%% Line 218
+	( case _cor1 of
+	    ( <( {'sections',_cor16,_rec26,_cor17,_cor18,_cor19}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <_cor4> =
+		      apply 'normalize_section'/2
+			  ('shebang', _rec26)
+		  in  let <_cor7> =
+			  %% Line 219
+			  apply 'normalize_section'/2
+			      ('comment', _cor17)
+		      in  let <_cor10> =
+			      %% Line 220
+			      apply 'normalize_section'/2
+				  ('emu_args', _cor18)
+			  in  let <_cor13> =
+				  %% Line 221
+				  apply 'normalize_section'/2
+				      (_cor16, _cor0)
+			      in  {'ok',[_cor4|%% Line 219
+					       [_cor7|%% Line 220
+						      [_cor10|%% Line 221
+							      [_cor13|[]]]]]}
+	      -| ['compiler_generated'] )
+	    ( <_cor20> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','sections'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'normalize_section'/2 =
+    %% Line 223
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Name,'undefined'> when 'true' ->
+	      %% Line 224
+	      {Name,'undefined'}
+	  %% Line 225
+	  <'shebang',[35|[33|Chars]]> when 'true' ->
+	      let <Chopped> =
+		  %% Line 226
+		  call 'string':'strip'
+		      (Chars, 'right', 10)
+	      in  let <Stripped> =
+		      %% Line 227
+		      call 'string':'strip'
+			  (Chopped, 'both')
+		  in  %% Line 228
+		      case <> of
+			%% Line 229
+			<>
+			    when call 'erlang':'=:='
+				  (Stripped,
+				   [47|[117|[115|[114|[47|[98|[105|[110|[47|[101|[110|[118|[32|[101|[115|[99|[114|[105|[112|[116]]]]]]]]]]]]]]]]]]]]) ->
+			    %% Line 230
+			    {'shebang','default'}
+			%% Line 231
+			<> when 'true' ->
+			    %% Line 232
+			    {'shebang',Stripped}
+		      end
+	  %% Line 234
+	  <'comment',Chars> when 'true' ->
+	      let <Chopped> =
+		  %% Line 235
+		  call 'string':'strip'
+		      (Chars, 'right', 10)
+	      in  let <_cor5> =
+		      %% Line 236
+		      call 'string':'strip'
+			  (Chopped, 'left', 37)
+		  in  let <Stripped> =
+			  %% Line 236
+			  call 'string':'strip'
+			      (_cor5, 'both')
+		      in  %% Line 237
+			  case <> of
+			    %% Line 238
+			    <>
+				when call 'erlang':'=:='
+				      (Stripped,
+				       [84|[104|[105|[115|[32|[105|[115|[32|[97|[110|[32|[45|[42|[45|[32|[101|[114|[108|[97|[110|[103|[32|[45|[42|[45|[32|[102|[105|[108|[101]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]) ->
+				%% Line 239
+				{'comment','default'}
+			    %% Line 240
+			    <> when 'true' ->
+				%% Line 241
+				{'comment',Stripped}
+			  end
+	  %% Line 243
+	  <'emu_args',[37|[37|[33|Chars]]]> when 'true' ->
+	      let <Chopped> =
+		  %% Line 244
+		  call 'string':'strip'
+		      (Chars, 'right', 10)
+	      in  let <Stripped> =
+		      %% Line 245
+		      call 'string':'strip'
+			  (Chopped, 'both')
+		  in  %% Line 246
+		      {'emu_args',Stripped}
+	  %% Line 247
+	  <Name,Chars> when 'true' ->
+	      %% Line 248
+	      {Name,Chars}
+	end
+'script_name'/0 =
+    %% Line 252
+    fun () ->
+	%% Line 253
+	case call 'init':'get_plain_arguments'
+		 () of
+	  <[ScriptName|_cor1]> when 'true' ->
+	      %% Line 254
+	      ScriptName
+	  ( <_cor0> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor0})
+	    -| ['compiler_generated'] )
+	end
+'start'/0 =
+    %% Line 262
+    fun () ->
+	%% Line 263
+	apply 'start'/1
+	    ([])
+'start'/1 =
+    %% Line 267
+    fun (_cor0) ->
+	%% Line 268
+	try
+	    do  %% Line 273
+		call 'erlang':'process_flag'
+		    ('trap_exit', 'false')
+		%% Line 274
+		case call 'init':'get_plain_arguments'
+			 () of
+		  %% Line 275
+		  <[File|Args]> when 'true' ->
+		      %% Line 276
+		      apply 'parse_and_run'/3
+			  (File, Args, _cor0)
+		  %% Line 277
+		  <[]> when 'true' ->
+		      do  %% Line 278
+			  call 'io':'format'
+			      ([101|[115|[99|[114|[105|[112|[116|[58|[32|[77|[105|[115|[115|[105|[110|[103|[32|[102|[105|[108|[101|[110|[97|[109|[101|[10]]]]]]]]]]]]]]]]]]]]]]]]]], [])
+			  %% Line 279
+			  apply 'my_halt'/1
+			      (127)
+		  ( <_cor1> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor1})
+		    -| ['compiler_generated'] )
+		end
+	of <_cor2> ->
+	    _cor2
+	catch <_cor5,_cor4,_cor3> ->
+	    case <_cor5,_cor4,_cor3> of
+	      %% Line 282
+	      <'throw',Str,_cor8> when 'true' ->
+		  do  %% Line 283
+		      call 'io':'format'
+			  ([101|[115|[99|[114|[105|[112|[116|[58|[32|[126|[115|[10]]]]]]]]]]]], [Str|[]])
+		      %% Line 284
+		      apply 'my_halt'/1
+			  (127)
+	      %% Line 285
+	      <_cor9,Reason,_cor10> when 'true' ->
+		  do  %% Line 286
+		      call 'io':'format'
+			  ([101|[115|[99|[114|[105|[112|[116|[58|[32|[73|[110|[116|[101|[114|[110|[97|[108|[32|[101|[114|[114|[111|[114|[58|[32|[126|[112|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Reason|[]])
+		      let <_cor6> =
+			  %% Line 287
+			  call 'erlang':'get_stacktrace'
+			      ()
+		      in  do  %% Line 287
+			      call 'io':'format'
+				  ([126|[112|[10]]], [_cor6|[]])
+			      %% Line 288
+			      apply 'my_halt'/1
+				  (127)
+	    end
+'parse_and_run'/3 =
+    %% Line 293
+    fun (_cor2,_cor1,_cor0) ->
+	let <CheckOnly> =
+	    %% Line 294
+	    call 'lists':'member'
+		([115], _cor0)
+	in  %% Line 295
+	    case %% Line 296
+		 apply 'parse_file'/2
+		     (_cor2, CheckOnly) of
+	      <{Source,Module,FormsOrBin,HasRecs,Mode}> when 'true' ->
+		  let <_cor9> =
+		      %% Line 298
+		      case call 'lists':'member'
+			       ([100], _cor0) of
+			%% Line 299
+			<'true'> when 'true' ->
+			    %% Line 300
+			    'debug'
+			%% Line 301
+			<'false'> when 'true' ->
+			    %% Line 302
+			    case call 'lists':'member'
+				     ([99], _cor0) of
+			      %% Line 303
+			      <'true'> when 'true' ->
+				  %% Line 304
+				  'compile'
+			      %% Line 305
+			      <'false'> when 'true' ->
+				  %% Line 306
+				  case call 'lists':'member'
+					   ([105], _cor0) of
+				    %% Line 307
+				    <'true'> when 'true' ->
+					'interpret'
+				    %% Line 308
+				    <'false'> when 'true' ->
+					%% Line 309
+					case call 'lists':'member'
+						 ([110], _cor0) of
+					  %% Line 310
+					  <'true'> when 'true' ->
+					      'native'
+					  %% Line 311
+					  <'false'> when 'true' ->
+					      Mode
+					  ( <_cor5> when 'true' ->
+						primop 'match_fail'
+						    ({'case_clause',_cor5})
+					    -| ['compiler_generated'] )
+					end
+				    ( <_cor6> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor6})
+				      -| ['compiler_generated'] )
+				  end
+			      ( <_cor7> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor7})
+				-| ['compiler_generated'] )
+			    end
+			( <_cor8> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor8})
+			  -| ['compiler_generated'] )
+		      end
+		  in  %% Line 316
+		      case <> of
+			%% Line 317
+			<>
+			    when call 'erlang':'is_list'
+				  (FormsOrBin) ->
+			    %% Line 318
+			    case _cor9 of
+			      %% Line 319
+			      <'interpret'> when 'true' ->
+				  %% Line 320
+				  apply 'interpret'/4
+				      (FormsOrBin, HasRecs, _cor2, _cor1)
+			      %% Line 321
+			      <'compile'> when 'true' ->
+				  %% Line 322
+				  case call 'compile':'forms'
+					   (FormsOrBin, ['report']) of
+				    %% Line 323
+				    <{'ok',_cor42,BeamBin}>
+					when call 'erlang':'=:='
+					      (_cor42,
+					       Module) ->
+					%% Line 324
+					case call 'code':'load_binary'
+						 (Module, _cor2, BeamBin) of
+					  <{'module',_cor43}>
+					      when call 'erlang':'=:='
+						    (_cor43,
+						     Module) ->
+					      %% Line 325
+					      apply 'run'/2
+						  (Module, _cor1)
+					  ( <_cor11> when 'true' ->
+						primop 'match_fail'
+						    ({'badmatch',_cor11})
+					    -| ['compiler_generated'] )
+					end
+				    %% Line 326
+				    <_X_Other> when 'true' ->
+					%% Line 327
+					apply 'fatal'/1
+					    ([84|[104|[101|[114|[101|[32|[119|[101|[114|[101|[32|[99|[111|[109|[112|[105|[108|[97|[116|[105|[111|[110|[32|[101|[114|[114|[111|[114|[115|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+				  end
+			      %% Line 329
+			      <'native'> when 'true' ->
+				  %% Line 330
+				  case call 'compile':'forms'
+					   (FormsOrBin, ['report'|['native']]) of
+				    %% Line 331
+				    <{'ok',_cor44,BeamBin}>
+					when call 'erlang':'=:='
+					      (_cor44,
+					       Module) ->
+					%% Line 332
+					case call 'code':'load_binary'
+						 (Module, _cor2, BeamBin) of
+					  <{'module',_cor45}>
+					      when call 'erlang':'=:='
+						    (_cor45,
+						     Module) ->
+					      %% Line 333
+					      apply 'run'/2
+						  (Module, _cor1)
+					  ( <_cor13> when 'true' ->
+						primop 'match_fail'
+						    ({'badmatch',_cor13})
+					    -| ['compiler_generated'] )
+					end
+				    %% Line 334
+				    <_X_Other> when 'true' ->
+					%% Line 335
+					apply 'fatal'/1
+					    ([84|[104|[101|[114|[101|[32|[119|[101|[114|[101|[32|[99|[111|[109|[112|[105|[108|[97|[116|[105|[111|[110|[32|[101|[114|[114|[111|[114|[115|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+				  end
+			      %% Line 337
+			      <'debug'> when 'true' ->
+				  %% Line 338
+				  case call 'compile':'forms'
+					   (FormsOrBin, ['report'|['debug_info']]) of
+				    %% Line 339
+				    <{'ok',_cor46,BeamBin}>
+					when call 'erlang':'=:='
+					      (_cor46,
+					       Module) ->
+					%% Line 340
+					case call 'code':'load_binary'
+						 (Module, _cor2, BeamBin) of
+					  <{'module',_cor47}>
+					      when call 'erlang':'=:='
+						    (_cor47,
+						     Module) ->
+					      %% Line 341
+					      apply 'debug'/3
+						  (Module, {Module,_cor2,_cor2,BeamBin}, _cor1)
+					  ( <_cor15> when 'true' ->
+						primop 'match_fail'
+						    ({'badmatch',_cor15})
+					    -| ['compiler_generated'] )
+					end
+				    %% Line 342
+				    <_X_Other> when 'true' ->
+					%% Line 343
+					apply 'fatal'/1
+					    ([84|[104|[101|[114|[101|[32|[119|[101|[114|[101|[32|[99|[111|[109|[112|[105|[108|[97|[116|[105|[111|[110|[32|[101|[114|[114|[111|[114|[115|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+				  end
+			      ( <_cor17> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor17})
+				-| ['compiler_generated'] )
+			    end
+			%% Line 346
+			<>
+			    when call 'erlang':'is_binary'
+				  (FormsOrBin) ->
+			    %% Line 347
+			    case Source of
+			      %% Line 348
+			      <'archive'> when 'true' ->
+				  %% Line 349
+				  case call 'file':'read_file_info'
+					   (_cor2) of
+				    <{'ok',FileInfo}> when 'true' ->
+					let <_cor19> =
+					    %% Line 351
+					    call 'erlang':'make_fun'
+						('escript', 'parse_file', 1)
+					in  %% Line 350
+					    case call 'code':'set_primary_archive'
+						     (_cor2, FormsOrBin, FileInfo, _cor19) of
+					      %% Line 352
+					      <'ok'>
+						  when call 'erlang':'=:='
+							(CheckOnly,
+							 'true') ->
+						  %% Line 353
+						  case call 'code':'load_file'
+							   (Module) of
+						    %% Line 354
+						    <{'module',_cor48}> when 'true' ->
+							%% Line 355
+							case call 'erlang':'function_exported'
+								 (Module, 'main', 1) of
+							  %% Line 356
+							  <'true'> when 'true' ->
+							      %% Line 357
+							      apply 'my_halt'/1
+								  (0)
+							  %% Line 358
+							  <'false'> when 'true' ->
+							      let <Text> =
+								  %% Line 359
+								  call 'lists':'concat'
+								      ([[70|[117|[110|[99|[116|[105|[111|[110|[32]]]]]]]]]|[Module|%% Line 360
+																   [[58|[109|[97|[105|[110|[47|[49|[32|[105|[115|[32|[110|[111|[116|[32|[101|[120|[112|[111|[114|[116|[101|[100]]]]]]]]]]]]]]]]]]]]]]]]]])
+							      in  %% Line 361
+								  apply 'fatal'/1
+								      (Text)
+							  ( <_cor21> when 'true' ->
+								primop 'match_fail'
+								    ({'case_clause',_cor21})
+							    -| ['compiler_generated'] )
+							end
+						    %% Line 363
+						    <_cor49> when 'true' ->
+							let <Text> =
+							    %% Line 364
+							    call 'lists':'concat'
+								([[67|[97|[110|[110|[111|[116|[32|[108|[111|[97|[100|[32|[109|[111|[100|[117|[108|[101|[32]]]]]]]]]]]]]]]]]]]|[Module|%% Line 365
+																						      [[32|[102|[114|[111|[109|[32|[97|[114|[99|[104|[105|[118|[101]]]]]]]]]]]]]]]])
+							in  %% Line 366
+							    apply 'fatal'/1
+								(Text)
+						  end
+					      %% Line 368
+					      <'ok'> when 'true' ->
+						  %% Line 369
+						  case _cor9 of
+						    %% Line 370
+						    <'run'> when 'true' ->
+							apply 'run'/2
+							    (Module, _cor1)
+						    %% Line 371
+						    <'debug'> when 'true' ->
+							apply 'debug'/3
+							    (Module, Module, _cor1)
+						    ( <_cor24> when 'true' ->
+							  primop 'match_fail'
+							      ({'case_clause',_cor24})
+						      -| ['compiler_generated'] )
+						  end
+					      %% Line 373
+					      <{'error','bad_eocd'}> when 'true' ->
+						  %% Line 374
+						  apply 'fatal'/1
+						      ([78|[111|[116|[32|[97|[110|[32|[97|[114|[99|[104|[105|[118|[101|[32|[102|[105|[108|[101]]]]]]]]]]]]]]]]]]])
+					      %% Line 375
+					      <{'error',Reason}> when 'true' ->
+						  %% Line 376
+						  apply 'fatal'/1
+						      (Reason)
+					      ( <_cor25> when 'true' ->
+						    primop 'match_fail'
+							({'case_clause',_cor25})
+						-| ['compiler_generated'] )
+					    end
+				    ( <_cor18> when 'true' ->
+					  primop 'match_fail'
+					      ({'badmatch',_cor18})
+				      -| ['compiler_generated'] )
+				  end
+			      %% Line 378
+			      <'beam'> when 'true' ->
+				  %% Line 379
+				  case _cor9 of
+				    %% Line 380
+				    <'run'> when 'true' ->
+					%% Line 381
+					case call 'code':'load_binary'
+						 (Module, _cor2, FormsOrBin) of
+					  <{'module',_cor50}>
+					      when call 'erlang':'=:='
+						    (_cor50,
+						     Module) ->
+					      %% Line 382
+					      apply 'run'/2
+						  (Module, _cor1)
+					  ( <_cor26> when 'true' ->
+						primop 'match_fail'
+						    ({'badmatch',_cor26})
+					    -| ['compiler_generated'] )
+					end
+				    %% Line 383
+				    <'debug'> when 'true' ->
+					let <_cor27> =
+					    %% Line 384
+					    call 'filename':'split'
+						(_cor2)
+					in  %% Line 384
+					    case call 'lists':'reverse'
+						     (_cor27) of
+					      <[Base|Rest]> when 'true' ->
+						  let <_cor29> =
+						      %% Line 385
+						      call 'code':'objfile_extension'
+							  ()
+						  in  let <Base2> =
+							  %% Line 385
+							  call 'filename':'basename'
+							      (Base, _cor29)
+						      in  let <_cor32> =
+							      %% Line 387
+							      case Rest of
+								%% Line 388
+								<[[101|[98|[105|[110]]]]|Top]> when 'true' ->
+								    [[115|[114|[99]]]|Top]
+								%% Line 389
+								<_cor51> when 'true' ->
+								    Rest
+							      end
+							  in  let <_cor34> =
+								  %% Line 391
+								  call 'erlang':'++'
+								      (Base2, [46|[101|[114|[108]]]])
+							      in  let <_cor35> =
+								      %% Line 391
+								      call 'lists':'reverse'
+									  ([_cor34|_cor32])
+								  in  let <SrcFile> =
+									  %% Line 391
+									  call 'filename':'join'
+									      (_cor35)
+								      in  %% Line 392
+									  apply 'debug'/3
+									      (Module, {Module,SrcFile,_cor2,FormsOrBin}, _cor1)
+					      ( <_cor28> when 'true' ->
+						    primop 'match_fail'
+							({'badmatch',_cor28})
+						-| ['compiler_generated'] )
+					    end
+				    ( <_cor37> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor37})
+				      -| ['compiler_generated'] )
+				  end
+			      ( <_cor38> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor38})
+				-| ['compiler_generated'] )
+			    end
+			( <> when 'true' ->
+			      primop 'match_fail'
+				  ('if_clause')
+			  -| ['compiler_generated'] )
+		      end
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'parse_file'/1 =
+    %% Line 402
+    fun (_cor0) ->
+	%% Line 403
+	try
+	    apply 'parse_file'/2
+		(_cor0, 'false')
+	of <_cor1> ->
+	    case _cor1 of
+	      %% Line 404
+	      <{_X_Source,_X_Module,FormsOrBin,_X_HasRecs,_X_Mode}>
+		  when %% Line 405
+		    call 'erlang':'is_binary'
+			(FormsOrBin) ->
+		  %% Line 406
+		  {'ok',FormsOrBin}
+	      %% Line 407
+	      <_cor7> when 'true' ->
+		  %% Line 408
+		  {'error','no_archive_bin'}
+	    end
+	catch <_cor5,_cor4,_cor3> ->
+	    case <_cor5,_cor4,_cor3> of
+	      %% Line 410
+	      <'throw',Reason,_cor8> when 'true' ->
+		  %% Line 411
+		  {'error',Reason}
+	      ( <_cor5,_cor4,_cor3> when 'true' ->
+		    primop 'raise'
+			(_cor3, _cor4)
+		-| ['compiler_generated'] )
+	    end
+'parse_file'/2 =
+    %% Line 414
+    fun (_cor1,_cor0) ->
+	%% Line 415
+	case %% Line 416
+	     apply 'parse_header'/2
+		 (_cor1, 'false') of
+	  <{HeaderSz,NextLineNo,Fd,Sections}> when 'true' ->
+	      %% Line 417
+	      ( case Sections of
+		  ( <( {'sections',_rec30,_cor7,_cor8,_cor9,_cor10}
+		       -| ['compiler_generated'] )> when 'true' ->
+			apply 'do_parse_file'/6
+			    (_rec30, _cor1, %% Line 418
+					    Fd, %% Line 418
+						NextLineNo, %% Line 418
+							    HeaderSz, _cor0)
+		    -| ['compiler_generated'] )
+		  ( <_cor11> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','sections'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'do_parse_file'/6 =
+    %% Line 420
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <S> =
+	    %% Line 421
+	    apply 'initial_state'/1
+		(_cor4)
+	in  let <_cor10> =
+		%% Line 427
+		case _cor5 of
+		  %% Line 428
+		  <'archive'> when 'true' ->
+		      %% Line 430
+		      case call 'file':'close'
+			       (_cor3) of
+			<'ok'> when 'true' ->
+			    %% Line 431
+			    apply 'parse_archive'/3
+				(S, _cor4, _cor1)
+			( <_cor7> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor7})
+			  -| ['compiler_generated'] )
+		      end
+		  %% Line 432
+		  <'beam'> when 'true' ->
+		      %% Line 434
+		      case call 'file':'close'
+			       (_cor3) of
+			<'ok'> when 'true' ->
+			    %% Line 435
+			    apply 'parse_beam'/4
+				(S, _cor4, _cor1, _cor0)
+			( <_cor8> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor8})
+			  -| ['compiler_generated'] )
+		      end
+		  %% Line 436
+		  <'source'> when 'true' ->
+		      %% Line 438
+		      apply 'parse_source'/6
+			  (S, _cor4, _cor3, _cor2, _cor1, _cor0)
+		  ( <_cor9> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor9})
+		    -| ['compiler_generated'] )
+		end
+	    in  %% Line 426
+		case _cor10 of
+		  <{'state',_cor18,Module,FormsOrBin,Source,_cor19,Mode,_cor20,HasRecs}> when 'true' ->
+		      %% Line 440
+		      {Source,Module,FormsOrBin,HasRecs,Mode}
+		  ( <_cor11> when 'true' ->
+			primop 'match_fail'
+			    ({'badmatch',_cor11})
+		    -| ['compiler_generated'] )
+		end
+'initial_state'/1 =
+    %% Line 442
+    fun (_cor0) ->
+	%% Line 443
+	{'state',_cor0,'undefined','undefined','undefined',%% Line 444
+							   0,%% Line 445
+							     'interpret',%% Line 446
+									 'false',%% Line 447
+										 'false'}
+'parse_header'/2 =
+    %% Line 450
+    fun (_cor1,_cor0) ->
+	let <_cor6> =
+	    %% Line 453
+	    case call 'file':'open'
+		     (_cor1, ['read']) of
+	      %% Line 454
+	      <{'ok',Fd0}> when 'true' ->
+		  %% Line 455
+		  {'ok',Fd0}
+	      %% Line 456
+	      <{'error',R}> when 'true' ->
+		  let <_cor3> =
+		      %% Line 457
+		      call 'file':'format_error'
+			  (R)
+		  in  let <_cor4> =
+			  %% Line 457
+			  call 'lists':'concat'
+			      ([_cor3|[[58|[32|[39]]]|[_cor1|[[39]]]]])
+		      in  %% Line 457
+			  apply 'fatal'/1
+			      (_cor4)
+	      ( <_cor5> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor5})
+		-| ['compiler_generated'] )
+	    end
+	in  %% Line 452
+	    case _cor6 of
+	      <{'ok',Fd}> when 'true' ->
+		  %% Line 461
+		  case call 'file':'position'
+			   (Fd, 'cur') of
+		    <{'ok',HeaderSz0}> when 'true' ->
+			let <Line1> =
+			    %% Line 462
+			    apply 'get_line'/1
+				(Fd)
+			in  %% Line 463
+			    case apply 'classify_line'/1
+				     (Line1) of
+			      %% Line 464
+			      <'shebang'> when 'true' ->
+				  %% Line 465
+				  apply 'find_first_body_line'/5
+				      (Fd, HeaderSz0, 1, _cor0, %% Line 466
+								{'sections','undefined',Line1,'undefined','undefined','undefined'})
+			      %% Line 467
+			      <'archive'> when 'true' ->
+				  %% Line 468
+				  {HeaderSz0,1,Fd,%% Line 469
+						  {'sections','archive','undefined','undefined','undefined','undefined'}}
+			      %% Line 470
+			      <'beam'> when 'true' ->
+				  %% Line 471
+				  {HeaderSz0,1,Fd,%% Line 472
+						  {'sections','beam','undefined','undefined','undefined','undefined'}}
+			      %% Line 473
+			      <_cor13> when 'true' ->
+				  %% Line 474
+				  apply 'find_first_body_line'/5
+				      (Fd, HeaderSz0, 1, _cor0, %% Line 475
+								{'sections','undefined','undefined','undefined','undefined','undefined'})
+			    end
+		    ( <_cor8> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor8})
+		      -| ['compiler_generated'] )
+		  end
+	      ( <_cor7> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor7})
+		-| ['compiler_generated'] )
+	    end
+'find_first_body_line'/5 =
+    %% Line 478
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 479
+	case call 'file':'position'
+		 (_cor4, 'cur') of
+	  <{'ok',HeaderSz1}> when 'true' ->
+	      let <Line2> =
+		  %% Line 481
+		  apply 'get_line'/1
+		      (_cor4)
+	      in  %% Line 482
+		  case call 'file':'position'
+			   (_cor4, 'cur') of
+		    <{'ok',HeaderSz2}> when 'true' ->
+			%% Line 483
+			case apply 'classify_line'/1
+				 (Line2) of
+			  %% Line 484
+			  <'emu_args'> when 'true' ->
+			      let <Line3> =
+				  %% Line 486
+				  apply 'get_line'/1
+				      (_cor4)
+			      in  let <_cor13> =
+				      %% Line 487
+				      call 'erlang':'+'
+					  (_cor2, 2)
+				  in  let <_rec31> =
+					  %% Line 488
+					  apply 'guess_type'/1
+					      (Line3)
+				      in  %% Line 490
+					  case _cor0 of
+					    <{'sections',_rec33,_rec34,_rec35,_rec36,_rec37}> when 'true' ->
+						let <_cor12> =
+						    {'sections',_rec31,_rec34,'undefined',Line2,_rec37}
+						in  {HeaderSz2,_cor13,_cor4,_cor12}
+					    ( <_cor62> when 'true' ->
+						  ( call ( 'erlang'
+							   -| ['compiler_generated'] ):( 'error'
+											 -| ['compiler_generated'] )
+							(( {'badrecord','sections'}
+							   -| ['compiler_generated'] ))
+						    -| ['compiler_generated'] )
+					      -| ['compiler_generated'] )
+					  end
+			  %% Line 491
+			  <Line2Type> when 'true' ->
+			      let <Line3> =
+				  %% Line 493
+				  apply 'get_line'/1
+				      (_cor4)
+			      in  %% Line 494
+				  case call 'file':'position'
+					   (_cor4, 'cur') of
+				    <{'ok',HeaderSz3}> when 'true' ->
+					let <Line3Type> =
+					    %% Line 495
+					    apply 'classify_line'/1
+						(Line3)
+					in  %% Line 496
+					    case <> of
+					      %% Line 497
+					      <>
+						  when call 'erlang':'=:='
+							(Line3Type,
+							 'emu_args') ->
+						  let <Line4> =
+						      %% Line 499
+						      apply 'get_line'/1
+							  (_cor4)
+						  in  let <_cor22> =
+							  %% Line 500
+							  call 'erlang':'+'
+							      (_cor2, 3)
+						      in  let <_rec38> =
+							      %% Line 501
+							      apply 'guess_type'/1
+								  (Line4)
+							  in  %% Line 503
+							      case _cor0 of
+								<{'sections',_rec40,_rec41,_rec42,_rec43,_rec44}> when 'true' ->
+								    let <_cor21> =
+									{'sections',_rec38,_rec41,Line2,Line3,_rec44}
+								    in  {HeaderSz3,_cor22,_cor4,_cor21}
+								( <_cor63> when 'true' ->
+								      ( call ( 'erlang'
+									       -| ['compiler_generated'] ):( 'error'
+													     -| ['compiler_generated'] )
+									    (( {'badrecord','sections'}
+									       -| ['compiler_generated'] ))
+									-| ['compiler_generated'] )
+								  -| ['compiler_generated'] )
+							      end
+					      %% Line 504
+					      <>
+						  when ( try
+							  ( case <> of
+							      ( <>
+								    when ( call ( 'erlang'
+									       -| ['compiler_generated'] ):( 'is_record'
+													     -| ['compiler_generated'] )
+									    (_cor0,
+									     ( 'sections'
+									       -| ['compiler_generated'] ),
+									     ( 6
+									       -| ['compiler_generated'] ))
+									-| ['compiler_generated'] ) ->
+								    let <_cor27> =
+									( call 'erlang':'element'
+									      (3, _cor0)
+									  -| ['compiler_generated'] )
+								    in  let <_cor28> =
+									    ( call 'erlang':'=:='
+										  (_cor27, 'undefined')
+									      -| ['compiler_generated'] )
+									in  let <_cor30> =
+										%% Line 505
+										( call 'erlang':'=:='
+										      (_cor1, 'true')
+										  -| ['compiler_generated'] )
+									    in  ( call ( 'erlang'
+											 -| ['compiler_generated'] ):( 'and'
+														       -| ['compiler_generated'] )
+										      (_cor28, _cor30)
+										  -| ['compiler_generated'] )
+								-| ['compiler_generated'] )
+							      ( <> when 'true' ->
+								    'false'
+								-| ['compiler_generated'] )
+							    end
+							    -| ['compiler_generated'] )
+						      of <Try> ->
+							  Try
+						      catch <T,R> ->
+							  'false'
+						      -| ['compiler_generated'] ) ->
+						  let <_rec45> =
+						      %% Line 508
+						      apply 'guess_type'/1
+							  (Line2)
+						  in  %% Line 508
+						      case _cor0 of
+							<{'sections',_cor64,_cor65,_cor66,_cor67,_cor68}> when 'true' ->
+							    let <_cor34> =
+								call 'erlang':'setelement'
+								    (2, _cor0, _rec45)
+							    in  {_cor3,_cor2,_cor4,_cor34}
+							( <_cor69> when 'true' ->
+							      ( call ( 'erlang'
+								       -| ['compiler_generated'] ):( 'error'
+												     -| ['compiler_generated'] )
+								    (( {'badrecord','sections'}
+								       -| ['compiler_generated'] ))
+								-| ['compiler_generated'] )
+							  -| ['compiler_generated'] )
+						      end
+					      %% Line 509
+					      <>
+						  when ( try
+							  ( case <> of
+							      ( <>
+								    when ( call ( 'erlang'
+									       -| ['compiler_generated'] ):( 'is_record'
+													     -| ['compiler_generated'] )
+									    (_cor0,
+									     ( 'sections'
+									       -| ['compiler_generated'] ),
+									     ( 6
+									       -| ['compiler_generated'] ))
+									-| ['compiler_generated'] ) ->
+								    let <_cor39> =
+									( call 'erlang':'element'
+									      (3, _cor0)
+									  -| ['compiler_generated'] )
+								    in  ( call 'erlang':'=:='
+									      (_cor39, 'undefined')
+									  -| ['compiler_generated'] )
+								-| ['compiler_generated'] )
+							      ( <> when 'true' ->
+								    'false'
+								-| ['compiler_generated'] )
+							    end
+							    -| ['compiler_generated'] )
+						      of <Try> ->
+							  Try
+						      catch <T,R> ->
+							  'false'
+						      -| ['compiler_generated'] ) ->
+						  let <_rec47> =
+						      %% Line 512
+						      apply 'guess_type'/1
+							  (Line2)
+						  in  %% Line 512
+						      case _cor0 of
+							<{'sections',_cor70,_cor71,_cor72,_cor73,_cor74}> when 'true' ->
+							    let <_cor44> =
+								call 'erlang':'setelement'
+								    (2, _cor0, _rec47)
+							    in  {HeaderSz1,_cor2,_cor4,_cor44}
+							( <_cor75> when 'true' ->
+							      ( call ( 'erlang'
+								       -| ['compiler_generated'] ):( 'error'
+												     -| ['compiler_generated'] )
+								    (( {'badrecord','sections'}
+								       -| ['compiler_generated'] ))
+								-| ['compiler_generated'] )
+							  -| ['compiler_generated'] )
+						      end
+					      %% Line 513
+					      <>
+						  when call 'erlang':'=:='
+							(Line2Type,
+							 'comment') ->
+						  let <_cor50> =
+						      %% Line 515
+						      call 'erlang':'+'
+							  (_cor2, 2)
+						  in  let <_rec49> =
+							  %% Line 516
+							  apply 'guess_type'/1
+							      (Line3)
+						      in  %% Line 516
+							  case _cor0 of
+							    <{'sections',_cor76,_cor77,_cor78,_cor79,_cor80}> when 'true' ->
+								let <_cor47> =
+								    %% Line 517
+								    call 'erlang':'setelement'
+									(4, _cor0, Line2)
+								in  let <_cor49> =
+									call 'erlang':'setelement'
+									    (2, _cor47, _rec49)
+								    in  {HeaderSz2,_cor50,_cor4,_cor49}
+							    ( <_cor81> when 'true' ->
+								  ( call ( 'erlang'
+									   -| ['compiler_generated'] ):( 'error'
+													 -| ['compiler_generated'] )
+									(( {'badrecord','sections'}
+									   -| ['compiler_generated'] ))
+								    -| ['compiler_generated'] )
+							      -| ['compiler_generated'] )
+							  end
+					      %% Line 518
+					      <> when 'true' ->
+						  let <_cor55> =
+						      %% Line 520
+						      call 'erlang':'+'
+							  (_cor2, 1)
+						  in  let <_rec51> =
+							  %% Line 521
+							  apply 'guess_type'/1
+							      (Line2)
+						      in  %% Line 521
+							  case _cor0 of
+							    <{'sections',_cor82,_cor83,_cor84,_cor85,_cor86}> when 'true' ->
+								let <_cor54> =
+								    call 'erlang':'setelement'
+									(2, _cor0, _rec51)
+								in  {HeaderSz1,_cor55,_cor4,_cor54}
+							    ( <_cor87> when 'true' ->
+								  ( call ( 'erlang'
+									   -| ['compiler_generated'] ):( 'error'
+													 -| ['compiler_generated'] )
+									(( {'badrecord','sections'}
+									   -| ['compiler_generated'] ))
+								    -| ['compiler_generated'] )
+							      -| ['compiler_generated'] )
+							  end
+					    end
+				    ( <_cor15> when 'true' ->
+					  primop 'match_fail'
+					      ({'badmatch',_cor15})
+				      -| ['compiler_generated'] )
+				  end
+			end
+		    ( <_cor7> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor7})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'classify_line'/1 =
+    %% Line 525
+    fun (_cor0) ->
+	%% Line 526
+	case _cor0 of
+	  %% Line 527
+	  <[35|[33|_cor3]]> when 'true' ->
+	      'shebang'
+	  %% Line 528
+	  <[80|[75|_cor4]]> when 'true' ->
+	      'archive'
+	  %% Line 529
+	  <[70|[79|[82|[49|_cor5]]]]> when 'true' ->
+	      'beam'
+	  %% Line 530
+	  <[37|[37|[33|_cor6]]]> when 'true' ->
+	      'emu_args'
+	  %% Line 531
+	  <[37|_cor7]> when 'true' ->
+	      'comment'
+	  %% Line 532
+	  <_cor8> when 'true' ->
+	      'undefined'
+	end
+'guess_type'/1 =
+    %% Line 535
+    fun (_cor0) ->
+	%% Line 536
+	case apply 'classify_line'/1
+		 (_cor0) of
+	  %% Line 537
+	  <'archive'> when 'true' ->
+	      'archive'
+	  %% Line 538
+	  <'beam'> when 'true' ->
+	      'beam'
+	  %% Line 539
+	  <_cor3> when 'true' ->
+	      'source'
+	end
+'get_line'/1 =
+    %% Line 542
+    fun (_cor0) ->
+	%% Line 543
+	case call 'io':'get_line'
+		 (_cor0, '') of
+	  %% Line 544
+	  <'eof'> when 'true' ->
+	      %% Line 545
+	      apply 'fatal'/1
+		  ([80|[114|[101|[109|[97|[116|[117|[114|[101|[32|[101|[110|[100|[32|[111|[102|[32|[102|[105|[108|[101|[32|[114|[101|[97|[99|[104|[101|[100]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+	  %% Line 546
+	  <Line> when 'true' ->
+	      %% Line 547
+	      Line
+	end
+'parse_archive'/3 =
+    %% Line 550
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 551
+	case call 'file':'read_file'
+		 (_cor1) of
+	  %% Line 552
+	  <{'ok',#{#<_X_Header>(_cor0,8,'binary',['unsigned'|['big']]),
+		   #<Bin>('all',8,'binary',['unsigned'|['big']])}#}> when 'true' ->
+	      let <_cor13> =
+		  %% Line 554
+		  case call 'init':'get_argument'
+			   ('escript') of
+		    %% Line 555
+		    <{'ok',[[[109|[97|[105|[110]]]]|[M|[]]]|[]]}> when 'true' ->
+			%% Line 557
+			call 'erlang':'list_to_atom'
+			    (M)
+		    %% Line 558
+		    <_cor25> when 'true' ->
+			let <_cor3> =
+			    %% Line 560
+			    call 'filename':'basename'
+				(_cor1)
+			in  let <RevBase> =
+				%% Line 560
+				call 'lists':'reverse'
+				    (_cor3)
+			    in  let <_cor7> =
+				    %% Line 562
+				    ( fun (_cor5) ->
+					  call 'erlang':'=/='
+					      (_cor5, 46)
+				      -| [{'id',{0,0,'-parse_archive/3-fun-0-'}}] )
+				in  let <_cor9> =
+					%% Line 562
+					case call 'lists':'dropwhile'
+						 (_cor7, RevBase) of
+					  %% Line 563
+					  <[46|Rest]> when 'true' ->
+					      Rest
+					  %% Line 564
+					  <[]> when 'true' ->
+					      RevBase
+					  ( <_cor8> when 'true' ->
+						primop 'match_fail'
+						    ({'case_clause',_cor8})
+					    -| ['compiler_generated'] )
+					end
+				    in  let <_cor11> =
+					    %% Line 566
+					    call 'lists':'reverse'
+						(_cor9)
+					in  %% Line 566
+					    call 'erlang':'list_to_atom'
+						(_cor11)
+		  end
+	      in  %% Line 570
+		  case _cor2 of
+		    <{'state',_cor26,_cor27,_cor28,_cor29,_cor30,_cor31,_cor32,_cor33}> when 'true' ->
+			let <_cor16> =
+			    call 'erlang':'setelement'
+				(7, _cor2, 'run')
+			in  let <_cor17> =
+				call 'erlang':'setelement'
+				    (5, _cor16, 'archive')
+			    in  let <_cor18> =
+				    %% Line 571
+				    call 'erlang':'setelement'
+					(4, _cor17, Bin)
+				in  call 'erlang':'setelement'
+					(3, _cor18, _cor13)
+		    ( <_cor34> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','state'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 572
+	  <{'ok',_cor35}> when 'true' ->
+	      %% Line 573
+	      apply 'fatal'/1
+		  ([73|[108|[108|[101|[103|[97|[108|[32|[97|[114|[99|[104|[105|[118|[101|[32|[102|[111|[114|[109|[97|[116]]]]]]]]]]]]]]]]]]]]]])
+	  %% Line 574
+	  <{'error',Reason}> when 'true' ->
+	      let <_cor20> =
+		  %% Line 575
+		  call 'file':'format_error'
+		      (Reason)
+	      in  %% Line 575
+		  apply 'fatal'/1
+		      (_cor20)
+	  ( <_cor21> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor21})
+	    -| ['compiler_generated'] )
+	end
+'parse_beam'/4 =
+    %% Line 579
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 580
+	case %% Line 581
+	     call 'file':'read_file'
+		 (_cor2) of
+	  <{'ok',#{#<_X_Header>(_cor1,8,'binary',['unsigned'|['big']]),
+		   #<Bin>('all',8,'binary',['unsigned'|['big']])}#}> when 'true' ->
+	      %% Line 582
+	      case call 'beam_lib':'chunks'
+		       (Bin, ['exports']) of
+		%% Line 583
+		<{'ok',{Module,[{'exports',Exports}|[]]}}> when 'true' ->
+		    %% Line 584
+		    case _cor0 of
+		      %% Line 585
+		      <'true'> when 'true' ->
+			  %% Line 586
+			  case call 'lists':'member'
+				   ({'main',1}, Exports) of
+			    %% Line 587
+			    <'true'> when 'true' ->
+				%% Line 588
+				apply 'my_halt'/1
+				    (0)
+			    %% Line 589
+			    <'false'> when 'true' ->
+				let <Text> =
+				    %% Line 590
+				    call 'lists':'concat'
+					([[70|[117|[110|[99|[116|[105|[111|[110|[32]]]]]]]]]|[Module|[[58|[109|[97|[105|[110|[47|[49|[32|[105|[115|[32|[110|[111|[116|[32|[101|[120|[112|[111|[114|[116|[101|[100]]]]]]]]]]]]]]]]]]]]]]]]]])
+				in  %% Line 591
+				    apply 'fatal'/1
+					(Text)
+			    ( <_cor6> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor6})
+			      -| ['compiler_generated'] )
+			  end
+		      %% Line 593
+		      <'false'> when 'true' ->
+			  %% Line 596
+			  case _cor3 of
+			    <{'state',_cor19,_cor20,_cor21,_cor22,_cor23,_cor24,_cor25,_cor26}> when 'true' ->
+				let <_cor8> =
+				    call 'erlang':'setelement'
+					(7, _cor3, 'run')
+				in  let <_cor9> =
+					call 'erlang':'setelement'
+					    (5, _cor8, 'beam')
+				    in  let <_cor10> =
+					    %% Line 597
+					    call 'erlang':'setelement'
+						(4, _cor9, Bin)
+					in  call 'erlang':'setelement'
+						(3, _cor10, Module)
+			    ( <_cor27> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','state'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+		      ( <_cor12> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor12})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 599
+		<{'error','beam_lib',Reason}>
+		    when call 'erlang':'is_tuple'
+			  (Reason) ->
+		    let <_cor13> =
+			%% Line 600
+			call 'erlang':'element'
+			    (1, Reason)
+		    in  %% Line 600
+			apply 'fatal'/1
+			    (_cor13)
+		( <_cor14> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor14})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'parse_source'/6 =
+    %% Line 603
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 604
+	case apply 'pre_def_macros'/1
+		 (_cor4) of
+	  <{PreDefMacros,Module}> when 'true' ->
+	      %% Line 607
+	      case call 'file':'position'
+		       (_cor3, 0) of
+		<{'ok',_cor41}> when 'true' ->
+		    let <_X_> =
+			%% Line 608
+			( call 'io':'get_line'
+			      (_cor3, '')
+			  -| ['result_not_wanted'] )
+		    in  let <Encoding> =
+			    %% Line 609
+			    call 'epp':'set_encoding'
+				(_cor3)
+			in  %% Line 610
+			    case call 'file':'position'
+				     (_cor3, _cor1) of
+			      <{'ok',_cor42}> when 'true' ->
+				  %% Line 611
+				  case call 'epp':'open'
+					   (_cor4, _cor3, _cor2, [], PreDefMacros) of
+				    %% Line 612
+				    <{'ok',Epp}> when 'true' ->
+					let <_cor13> =
+					    %% Line 614
+					    ( case <> of
+						<>
+						    when call 'erlang':'=/='
+							  (Encoding,
+							   'none') ->
+						    let <_cor12> =
+							( call 'io':'setopts'
+							      (_cor3, [{'encoding',Encoding}|[]])
+							  -| ['result_not_wanted'] )
+						    in  ( [_cor12|[]]
+							  -| ['compiler_generated'] )
+						( <> when 'true' ->
+						      []
+						  -| ['compiler_generated'] )
+					      end
+					      -| ['list_comprehension'] )
+					in  %% Line 615
+					    case call 'epp':'parse_erl_form'
+						     (Epp) of
+					      <{'ok',FileForm}> when 'true' ->
+						  let <OptModRes> =
+						      %% Line 616
+						      call 'epp':'parse_erl_form'
+							  (Epp)
+						  in  %% Line 617
+						      case _cor5 of
+							<{'state',_cor43,_cor44,_cor45,_cor46,_cor47,_cor48,_cor49,_cor50}> when 'true' ->
+							    let <_cor18> =
+								call 'erlang':'setelement'
+								    (5, _cor5, 'text')
+							    in  let <_cor20> =
+								    call 'erlang':'setelement'
+									(3, _cor18, Module)
+								in  let <_cor30> =
+									%% Line 619
+									case OptModRes of
+									  %% Line 620
+									  <{'ok',Form = {'attribute',_cor52,'module',M}}> when 'true' ->
+									      %% Line 621
+									      case _cor20 of
+										<{'state',_cor53,_cor54,_cor55,_cor56,_cor57,_cor58,_cor59,_cor60}> when 'true' ->
+										    let <_cor24> =
+											call 'erlang':'setelement'
+											    (3, _cor20, M)
+										    in  apply 'epp_parse_file'/3
+											    (Epp, _cor24, [Form|[FileForm|[]]])
+										( <_cor61> when 'true' ->
+										      ( call ( 'erlang'
+											       -| ['compiler_generated'] ):( 'error'
+															     -| ['compiler_generated'] )
+											    (( {'badrecord','state'}
+											       -| ['compiler_generated'] ))
+											-| ['compiler_generated'] )
+										  -| ['compiler_generated'] )
+									      end
+									  %% Line 622
+									  <{'ok',_cor62}> when 'true' ->
+									      let <ModForm> =
+										  %% Line 623
+										  {'attribute',1,'module',Module}
+									      in  %% Line 624
+										  apply 'epp_parse_file2'/4
+										      (Epp, _cor20, [ModForm|[FileForm|[]]], OptModRes)
+									  %% Line 625
+									  <{'error',_cor63}> when 'true' ->
+									      %% Line 626
+									      apply 'epp_parse_file2'/4
+										  (Epp, _cor20, [FileForm|[]], OptModRes)
+									  %% Line 627
+									  <Eof = {'eof',_X_LastLine}> when 'true' ->
+									      let <_rec57> =
+										  %% Line 628
+										  [FileForm|[Eof|[]]]
+									      in  %% Line 628
+										  call 'erlang':'setelement'
+										      (4, _cor5, _rec57)
+									  ( <_cor29> when 'true' ->
+										primop 'match_fail'
+										    ({'case_clause',_cor29})
+									    -| ['compiler_generated'] )
+									end
+								    in  %% Line 630
+									case call 'epp':'close'
+										 (Epp) of
+									  <'ok'> when 'true' ->
+									      %% Line 631
+									      case call 'file':'close'
+										       (_cor3) of
+										<'ok'> when 'true' ->
+										    %% Line 632
+										    apply 'check_source'/2
+											(_cor30, _cor0)
+										( <_cor33> when 'true' ->
+										      primop 'match_fail'
+											  ({'badmatch',_cor33})
+										  -| ['compiler_generated'] )
+									      end
+									  ( <_cor32> when 'true' ->
+										primop 'match_fail'
+										    ({'badmatch',_cor32})
+									    -| ['compiler_generated'] )
+									end
+							( <_cor51> when 'true' ->
+							      ( call ( 'erlang'
+								       -| ['compiler_generated'] ):( 'error'
+												     -| ['compiler_generated'] )
+								    (( {'badrecord','state'}
+								       -| ['compiler_generated'] ))
+								-| ['compiler_generated'] )
+							  -| ['compiler_generated'] )
+						      end
+					      ( <_cor15> when 'true' ->
+						    primop 'match_fail'
+							({'badmatch',_cor15})
+						-| ['compiler_generated'] )
+					    end
+				    %% Line 633
+				    <{'error',Reason}> when 'true' ->
+					do  %% Line 634
+					    call 'io':'format'
+						([101|[115|[99|[114|[105|[112|[116|[58|[32|[126|[116|[112|[10]]]]]]]]]]]]], [Reason|[]])
+					    %% Line 635
+					    apply 'fatal'/1
+						([80|[114|[101|[112|[114|[111|[99|[101|[115|[115|[111|[114|[32|[101|[114|[114|[111|[114]]]]]]]]]]]]]]]]]])
+				    ( <_cor34> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor34})
+				      -| ['compiler_generated'] )
+				  end
+			      ( <_cor11> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor11})
+				-| ['compiler_generated'] )
+			    end
+		( <_cor8> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor8})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor6> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor6})
+	    -| ['compiler_generated'] )
+	end
+'check_source'/2 =
+    %% Line 638
+    fun (_cor1,_cor0) ->
+	%% Line 639
+	case _cor1 of
+	  %% Line 640
+	  <{'state',_cor13,_cor14,_cor15,_cor16,Nerrs,_cor17,_cor18,_cor19}>
+	      when call 'erlang':'=/='
+		    (Nerrs,
+		     0) ->
+	      %% Line 641
+	      apply 'fatal'/1
+		  ([84|[104|[101|[114|[101|[32|[119|[101|[114|[101|[32|[99|[111|[109|[112|[105|[108|[97|[116|[105|[111|[110|[32|[101|[114|[114|[111|[114|[115|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+	  %% Line 642
+	  <{'state',_cor20,_cor21,%% Line 643
+				  [FileForm2|[ModForm2|Forms]],_cor22,_cor23,_cor24,ExpMain,_cor25}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 646
+		  case ExpMain of
+		    %% Line 647
+		    <'false'> when 'true' ->
+			[{'attribute',0,'export',[{'main',1}]}|Forms]
+		    %% Line 648
+		    <'true'> when 'true' ->
+			Forms
+		    ( <_cor2> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor2})
+		      -| ['compiler_generated'] )
+		  end
+	      in  let <Forms3> =
+		      %% Line 650
+		      [FileForm2|[ModForm2|_cor3]]
+		  in  %% Line 651
+		      case _cor0 of
+			%% Line 652
+			<'true'> when 'true' ->
+			    %% Line 654
+			    case call 'compile':'forms'
+				     (Forms3, ['report'|['strong_validation']]) of
+			      %% Line 655
+			      <{'ok',_cor26}> when 'true' ->
+				  %% Line 656
+				  apply 'my_halt'/1
+				      (0)
+			      %% Line 657
+			      <_X_Other> when 'true' ->
+				  %% Line 658
+				  apply 'fatal'/1
+				      ([84|[104|[101|[114|[101|[32|[119|[101|[114|[101|[32|[99|[111|[109|[112|[105|[108|[97|[116|[105|[111|[110|[32|[101|[114|[114|[111|[114|[115|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+			    end
+			%% Line 660
+			<'false'> when 'true' ->
+			    %% Line 661
+			    call 'erlang':'setelement'
+				(4, _cor1, Forms3)
+			( <_cor9> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor9})
+			  -| ['compiler_generated'] )
+		      end
+	  ( <_cor10> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor10})
+	    -| ['compiler_generated'] )
+	end
+'pre_def_macros'/1 =
+    %% Line 665
+    fun (_cor0) ->
+	%% Line 666
+	case call 'erlang':'now'
+		 () of
+	  <{MegaSecs,Secs,MicroSecs}> when 'true' ->
+	      let <Replace> =
+		  %% Line 667
+		  ( fun (_cor3) ->
+			%% Line 668
+			case _cor3 of
+			  %% Line 669
+			  <46> when 'true' ->
+			      95
+			  %% Line 670
+			  <_cor21> when 'true' ->
+			      _cor3
+			end
+		    -| [{'id',{0,0,'-pre_def_macros/1-fun-0-'}}] )
+	      in  let <_cor6> =
+		      %% Line 673
+		      call 'filename':'basename'
+			  (_cor0)
+		  in  let <CleanBase> =
+			  %% Line 673
+			  call 'lists':'map'
+			      (Replace, _cor6)
+		      in  let <_cor13> =
+			      %% Line 677
+			      call 'erlang':'integer_to_list'
+				  (MegaSecs)
+			  in  let <_cor10> =
+				  %% Line 678
+				  call 'erlang':'integer_to_list'
+				      (Secs)
+			      in  let <_cor8> =
+				      %% Line 679
+				      call 'erlang':'integer_to_list'
+					  (MicroSecs)
+				  in  let <_cor9> =
+					  %% Line 678
+					  [95|[95|_cor8]]
+				      in  let <_cor11> =
+					      %% Line 678
+					      call 'erlang':'++'
+						  (_cor10, _cor9)
+					  in  let <_cor12> =
+						  %% Line 677
+						  [95|[95|_cor11]]
+					      in  let <_cor14> =
+						      %% Line 677
+						      call 'erlang':'++'
+							  (_cor13, _cor12)
+						  in  let <_cor15> =
+							  %% Line 676
+							  call 'erlang':'++'
+							      ([101|[115|[99|[114|[105|[112|[116|[95|[95]]]]]]]]], _cor14)
+						      in  let <_cor16> =
+							      %% Line 675
+							      [95|[95|_cor15]]
+							  in  let <ModuleStr> =
+								  %% Line 675
+								  call 'erlang':'++'
+								      (CleanBase, _cor16)
+							      in  let <Module> =
+								      %% Line 680
+								      call 'erlang':'list_to_atom'
+									  (ModuleStr)
+								  in  let <PreDefMacros> =
+									  %% Line 681
+									  [{'MODULE',Module,'redefine'}|%% Line 682
+													[{'MODULE_STRING',ModuleStr,'redefine'}|[]]]
+								      in  %% Line 683
+									  {PreDefMacros,Module}
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'epp_parse_file'/3 =
+    %% Line 685
+    fun (_cor2,_cor1,_cor0) ->
+	let <Parsed> =
+	    %% Line 686
+	    call 'epp':'parse_erl_form'
+		(_cor2)
+	in  %% Line 687
+	    apply 'epp_parse_file2'/4
+		(_cor2, _cor1, _cor0, Parsed)
+'epp_parse_file2'/4 =
+    %% Line 689
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 691
+	case _cor0 of
+	  %% Line 692
+	  <{'ok',Form}> when 'true' ->
+	      %% Line 693
+	      case Form of
+		%% Line 694
+		<{'attribute',_cor51,'record',_cor52}> when 'true' ->
+		    %% Line 695
+		    case _cor2 of
+		      <{'state',_cor53,_cor54,_cor55,_cor56,_cor57,_cor58,_cor59,_cor60}> when 'true' ->
+			  let <_cor6> =
+			      call 'erlang':'setelement'
+				  (9, _cor2, 'true')
+			  in  %% Line 696
+			      apply 'epp_parse_file'/3
+				  (_cor3, _cor6, [Form|_cor1])
+		      ( <_cor61> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		%% Line 697
+		<{'attribute',Ln,'mode',NewMode}> when 'true' ->
+		    %% Line 698
+		    case _cor2 of
+		      <{'state',_cor62,_cor63,_cor64,_cor65,_cor66,_cor67,_cor68,_cor69}> when 'true' ->
+			  let <_cor10> =
+			      call 'erlang':'setelement'
+				  (7, _cor2, NewMode)
+			  in  %% Line 699
+			      case <> of
+				%% Line 700
+				<>
+				    when let <_cor12> =
+					  call 'erlang':'=:='
+					      (NewMode, 'compile')
+				      in  let <_cor13> =
+					      call 'erlang':'=:='
+						  (NewMode, 'interpret')
+					  in  let <_cor14> =
+						  call 'erlang':'=:='
+						      (NewMode, 'debug')
+					      in  let <_cor15> =
+						      call 'erlang':'=:='
+							  (NewMode, 'native')
+						  in  let <_cor16> =
+							  call 'erlang':'or'
+							      (_cor14, _cor15)
+						      in  let <_cor17> =
+							      call 'erlang':'or'
+								  (_cor13, _cor16)
+							  in  call 'erlang':'or'
+								  (_cor12, _cor17) ->
+				    %% Line 701
+				    apply 'epp_parse_file'/3
+					(_cor3, _cor10, [Form|_cor1])
+				%% Line 702
+				<> when 'true' ->
+				    let <_cor18> =
+					%% Line 703
+					call 'io_lib':'format'
+					    ([105|[108|[108|[101|[103|[97|[108|[32|[109|[111|[100|[101|[32|[97|[116|[116|[114|[105|[98|[117|[116|[101|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]], [NewMode|[]])
+				    in  let <Args> =
+					    %% Line 703
+					    call 'lists':'flatten'
+						(_cor18)
+					in  do  %% Line 704
+						call 'io':'format'
+						    ([126|[116|[115|[58|[126|[119|[32|[126|[115|[10]]]]]]]]]], [_cor62|[Ln|[Args|[]]]])
+						let <Error> = {%% Line 705
+						     'error',%% Line 705
+							     {Ln,'erl_parse',Args}}
+						in  let <Nerrs> =
+							%% Line 706
+							call 'erlang':'+'
+							    (_cor66, 1)
+						    in  %% Line 707
+							case _cor10 of
+							  <{'state',_cor87,_cor88,_cor89,_cor90,_cor91,_cor92,_cor93,_cor94}> when 'true' ->
+							      let <_cor28> =
+								  call 'erlang':'setelement'
+								      (6, _cor10, Nerrs)
+							      in  apply 'epp_parse_file'/3
+								      (_cor3, _cor28, [Error|_cor1])
+							  ( <_cor95> when 'true' ->
+								( call ( 'erlang'
+									 -| ['compiler_generated'] ):( 'error'
+												       -| ['compiler_generated'] )
+								      (( {'badrecord','state'}
+									 -| ['compiler_generated'] ))
+								  -| ['compiler_generated'] )
+							    -| ['compiler_generated'] )
+							end
+			      end
+		      ( <_cor70> when 'true' ->
+			    ( call ( 'erlang'
+				     -| ['compiler_generated'] ):( 'error'
+								   -| ['compiler_generated'] )
+				  (( {'badrecord','state'}
+				     -| ['compiler_generated'] ))
+			      -| ['compiler_generated'] )
+			-| ['compiler_generated'] )
+		    end
+		%% Line 709
+		<{'attribute',_cor96,'export',Fs}> when 'true' ->
+		    %% Line 710
+		    case call 'lists':'member'
+			     ({'main',1}, Fs) of
+		      %% Line 711
+		      <'false'> when 'true' ->
+			  %% Line 712
+			  apply 'epp_parse_file'/3
+			      (_cor3, _cor2, [Form|_cor1])
+		      %% Line 713
+		      <'true'> when 'true' ->
+			  %% Line 714
+			  case _cor2 of
+			    <{'state',_cor97,_cor98,_cor99,_cor100,_cor101,_cor102,_cor103,_cor104}> when 'true' ->
+				let <_cor31> =
+				    call 'erlang':'setelement'
+					(8, _cor2, 'true')
+				in  apply 'epp_parse_file'/3
+					(_cor3, _cor31, [Form|_cor1])
+			    ( <_cor105> when 'true' ->
+				  ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'error'
+									 -| ['compiler_generated'] )
+					(( {'badrecord','state'}
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] )
+			      -| ['compiler_generated'] )
+			  end
+		      ( <_cor32> when 'true' ->
+			    primop 'match_fail'
+				({'case_clause',_cor32})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 716
+		<_cor106> when 'true' ->
+		    %% Line 717
+		    apply 'epp_parse_file'/3
+			(_cor3, _cor2, [Form|_cor1])
+	      end
+	  %% Line 719
+	  <Form = {'error',{Ln,Mod,Args}}> when 'true' ->
+	      %% Line 721
+	      ( case _cor2 of
+		  ( <( {'state',_rec66,_cor107,_cor108,_cor109,_cor110,_cor111,_cor112,_cor113}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor36> =
+			    call Mod:'format_error'
+				(Args)
+			in  do  call 'io':'format'
+				    ([126|[116|[115|[58|[126|[119|[58|[32|[126|[116|[115|[10]]]]]]]]]]]], [_rec66|[Ln|[_cor36|[]]]])
+				let <_rec67> =
+				    %% Line 722
+				    call 'erlang':'+'
+					(_cor110, 1)
+				in  let <_cor42> =
+					%% Line 722
+					call 'erlang':'setelement'
+					    (6, _cor2, _rec67)
+				    in  %% Line 722
+					apply 'epp_parse_file'/3
+					    (_cor3, _cor42, [Form|_cor1])
+		    -| ['compiler_generated'] )
+		  ( <_cor114> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 723
+	  <Eof = {'eof',_X_LastLine}> when 'true' ->
+	      let <_rec70> =
+		  %% Line 724
+		  call 'lists':'reverse'
+		      ([Eof|_cor1])
+	      in  %% Line 724
+		  case _cor2 of
+		    <{'state',_cor132,_cor133,_cor134,_cor135,_cor136,_cor137,_cor138,_cor139}> when 'true' ->
+			call 'erlang':'setelement'
+			    (4, _cor2, _rec70)
+		    ( <_cor140> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','state'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor46> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor46})
+	    -| ['compiler_generated'] )
+	end
+'debug'/3 =
+    %% Line 733
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 734
+	case apply 'hidden_apply'/4
+		 ('debugger', 'debugger', 'start', []) of
+	  %% Line 735
+	  <{'ok',_cor9}> when 'true' ->
+	      %% Line 736
+	      case apply 'hidden_apply'/4
+		       ('debugger', 'int', 'i', [_cor1|[]]) of
+		%% Line 737
+		<{'module',_cor10}> when 'true' ->
+		    do  %% Line 738
+			apply 'hidden_apply'/4
+			    ('debugger', 'debugger', 'auto_attach', [['init']])
+			%% Line 739
+			apply 'run'/2
+			    (_cor2, _cor0)
+		%% Line 740
+		<'error'> when 'true' ->
+		    let <Text> =
+			%% Line 741
+			call 'lists':'concat'
+			    ([[67|[97|[110|[110|[111|[116|[32|[108|[111|[97|[100|[32|[116|[104|[101|[32|[99|[111|[100|[101|[32|[102|[111|[114|[32]]]]]]]]]]]]]]]]]]]]]]]]]|[_cor2|[[32|[105|[110|[116|[111|[32|[116|[104|[101|[32|[100|[101|[98|[117|[103|[103|[101|[114]]]]]]]]]]]]]]]]]]]]])
+		    in  %% Line 742
+			apply 'fatal'/1
+			    (Text)
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 744
+	  <_cor11> when 'true' ->
+	      %% Line 745
+	      apply 'fatal'/1
+		  ([67|[97|[110|[110|[111|[116|[32|[115|[116|[97|[114|[116|[32|[116|[104|[101|[32|[100|[101|[98|[117|[103|[103|[101|[114]]]]]]]]]]]]]]]]]]]]]]]]])
+	end
+'run'/2 =
+    %% Line 750
+    fun (_cor1,_cor0) ->
+	%% Line 751
+	try
+	    do  %% Line 752
+		call _cor1:'main'
+		    (_cor0)
+		%% Line 753
+		apply 'my_halt'/1
+		    (0)
+	of <_cor2> ->
+	    _cor2
+	catch <_cor5,_cor4,_cor3> ->
+	    let <_cor6> =
+		%% Line 756
+		apply 'format_exception'/2
+		    (_cor5, _cor4)
+	    in  %% Line 756
+		apply 'fatal'/1
+		    (_cor6)
+'interpret'/4 =
+    %% Line 761
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 763
+	    case call 'erl_lint':'module'
+		     (_cor3) of
+	      %% Line 764
+	      <{'ok',Ws}> when 'true' ->
+		  %% Line 765
+		  apply 'report_warnings'/1
+		      (Ws)
+	      %% Line 766
+	      <{'error',Es,Ws}> when 'true' ->
+		  do  %% Line 767
+		      apply 'report_errors'/1
+			  (Es)
+		      do  %% Line 768
+			  apply 'report_warnings'/1
+			      (Ws)
+			  %% Line 769
+			  apply 'fatal'/1
+			      ([84|[104|[101|[114|[101|[32|[119|[101|[114|[101|[32|[99|[111|[109|[112|[105|[108|[97|[116|[105|[111|[110|[32|[101|[114|[114|[111|[114|[115|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor4})
+		-| ['compiler_generated'] )
+	    end
+	    let <_cor6> =
+		%% Line 773
+		case _cor2 of
+		  %% Line 774
+		  <'false'> when 'true' ->
+		      _cor3
+		  %% Line 775
+		  <'true'> when 'true' ->
+		      call 'erl_expand_records':'module'
+			  (_cor3, [])
+		  ( <_cor5> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor5})
+		    -| ['compiler_generated'] )
+		end
+	    in  let <Dict> =
+		    %% Line 777
+		    apply 'parse_to_dict'/1
+			(_cor6)
+		in  let <ArgsA> =
+			%% Line 778
+			call 'erl_parse':'abstract'
+			    (_cor0, 0)
+		    in  let <Call> =
+			    %% Line 779
+			    {'call',0,{'atom',0,'main'},[ArgsA|[]]}
+			in  %% Line 780
+			    try
+				let <_cor16> =
+				    %% Line 782
+				    ( call 'erl_eval':'new_bindings'
+					  ()
+				      -| ['result_not_wanted'] )
+				in  let <_cor15> =
+					%% Line 783
+					( fun (_cor12,_cor11) ->
+					      %% Line 784
+					      apply 'code_handler'/4
+						  (_cor12, _cor11, Dict, _cor1)
+					  -| [{'id',{0,0,'-interpret/4-fun-0-'}}] )
+				    in  let <_X_> =
+					    %% Line 781
+					    ( call 'erl_eval':'expr'
+						  (Call, _cor16, %% Line 783
+								 {'value',_cor15})
+					      -| ['result_not_wanted'] )
+					in  %% Line 786
+					    apply 'my_halt'/1
+						(0)
+			    of <_cor18> ->
+				_cor18
+			    catch <_cor21,_cor20,_cor19> ->
+				let <_cor22> =
+				    %% Line 789
+				    apply 'format_exception'/2
+					(_cor21, _cor20)
+				in  %% Line 789
+				    apply 'fatal'/1
+					(_cor22)
+'report_errors'/1 =
+    %% Line 792
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 793
+	    ( fun (_cor1) ->
+		  case _cor1 of
+		    <{{F,_X_L},Eds}> when 'true' ->
+			apply 'list_errors'/2
+			    (F, Eds)
+		    %% Line 794
+		    <{F,Eds}> when 'true' ->
+			apply 'list_errors'/2
+			    (F, Eds)
+		    ( <_cor2> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor2})
+			    -| [{'function_name',{'-report_errors/1-fun-0-',1}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-report_errors/1-fun-0-'}}] )
+	in  %% Line 793
+	    call 'lists':'foreach'
+		(_cor3, _cor0)
+'list_errors'/2 =
+    %% Line 797
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <F,[{Line,Mod,E}|Es]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 798
+		  call Mod:'format_error'
+		      (E)
+	      in  do  %% Line 798
+		      call 'io':'fwrite'
+			  ([126|[116|[115|[58|[126|[119|[58|[32|[126|[116|[115|[10]]]]]]]]]]]], [F|[Line|[_cor2|[]]]])
+		      %% Line 799
+		      apply 'list_errors'/2
+			  (F, Es)
+	  %% Line 800
+	  <F,[{Mod,E}|Es]> when 'true' ->
+	      let <_cor3> =
+		  %% Line 801
+		  call Mod:'format_error'
+		      (E)
+	      in  do  %% Line 801
+		      call 'io':'fwrite'
+			  ([126|[116|[115|[58|[32|[126|[116|[115|[10]]]]]]]]], [F|[_cor3|[]]])
+		      %% Line 802
+		      apply 'list_errors'/2
+			  (F, Es)
+	  %% Line 803
+	  <_X_F,[]> when 'true' ->
+	      'ok'
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'list_errors',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'report_warnings'/1 =
+    %% Line 805
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 806
+	    ( fun (_cor1) ->
+		  case _cor1 of
+		    <{{F,_X_L},Eds}> when 'true' ->
+			apply 'format_message'/2
+			    (F, Eds)
+		    %% Line 807
+		    <{F,Eds}> when 'true' ->
+			apply 'format_message'/2
+			    (F, Eds)
+		    ( <_cor2> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor2})
+			    -| [{'function_name',{'-report_warnings/1-fun-0-',1}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-report_warnings/1-fun-0-'}}] )
+	in  let <Ws1> =
+		%% Line 806
+		call 'lists':'flatmap'
+		    (_cor3, _cor0)
+	    in  let <Ws> =
+		    %% Line 809
+		    call 'ordsets':'from_list'
+			(Ws1)
+		in  let <_cor8> =
+			%% Line 810
+			( fun (_cor6) ->
+			      case _cor6 of
+				<{_cor10,Str}> when 'true' ->
+				    call 'io':'put_chars'
+					(Str)
+				( <_cor7> when 'true' ->
+				      ( primop 'match_fail'
+					    ({'function_clause',_cor7})
+					-| [{'function_name',{'-report_warnings/1-fun-1-',1}}] )
+				  -| ['compiler_generated'] )
+			      end
+			  -| [{'id',{0,0,'-report_warnings/1-fun-1-'}}] )
+		    in  %% Line 810
+			call 'lists':'foreach'
+			    (_cor8, Ws)
+'format_message'/2 =
+    %% Line 812
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <F,[{Line,Mod,E}|Es]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 813
+		  call Mod:'format_error'
+		      (E)
+	      in  let <_cor3> =
+		      %% Line 813
+		      call 'io_lib':'format'
+			  ([126|[116|[115|[58|[126|[119|[58|[32|[87|[97|[114|[110|[105|[110|[103|[58|[32|[126|[116|[115|[10]]]]]]]]]]]]]]]]]]]]], [F|[Line|[_cor2|[]]]])
+		  in  let <M> = {%% Line 813
+			   {F,Line},_cor3}
+		      in  let <_cor5> =
+			      %% Line 814
+			      apply 'format_message'/2
+				  (F, Es)
+			  in  %% Line 814
+			      [M|_cor5]
+	  %% Line 815
+	  <F,[{Mod,E}|Es]> when 'true' ->
+	      let <_cor6> =
+		  %% Line 816
+		  call Mod:'format_error'
+		      (E)
+	      in  let <_cor7> =
+		      %% Line 816
+		      call 'io_lib':'format'
+			  ([126|[116|[115|[58|[32|[87|[97|[114|[110|[105|[110|[103|[58|[32|[126|[116|[115|[10]]]]]]]]]]]]]]]]]], [F|[_cor6|[]]])
+		  in  let <M> = {%% Line 816
+			   'none',_cor7}
+		      in  let <_cor9> =
+			      %% Line 817
+			      apply 'format_message'/2
+				  (F, Es)
+			  in  %% Line 817
+			      [M|_cor9]
+	  %% Line 818
+	  <_cor12,[]> when 'true' ->
+	      []
+	  ( <_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10})
+		  -| [{'function_name',{'format_message',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'parse_to_dict'/1 =
+    %% Line 820
+    fun (_cor0) ->
+	let <_cor1> =
+	    call 'dict':'new'
+		()
+	in  apply 'parse_to_dict'/2
+		(_cor0, _cor1)
+'parse_to_dict'/2 =
+    %% Line 822
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{'function',_cor11,Name,Arity,Clauses}|T],Dict0> when 'true' ->
+	      let <Dict> =
+		  %% Line 823
+		  call 'dict':'store'
+		      ({'local',Name,Arity}, Clauses, Dict0)
+	      in  %% Line 824
+		  apply 'parse_to_dict'/2
+		      (T, Dict)
+	  %% Line 825
+	  <[{'attribute',_cor12,'import',{Mod,Funcs}}|T],Dict0> when 'true' ->
+	      let <_cor7> =
+		  %% Line 826
+		  ( fun (_cor4,_cor3) ->
+			%% Line 827
+			call 'dict':'store'
+			    ({'remote',_cor4}, Mod, _cor3)
+		    -| [{'id',{0,0,'-parse_to_dict/2-fun-0-'}}] )
+	      in  let <Dict> =
+		      %% Line 826
+		      call 'lists':'foldl'
+			  (_cor7, %% Line 828
+				  Dict0, %% Line 828
+					 Funcs)
+		  in  %% Line 829
+		      apply 'parse_to_dict'/2
+			  (T, Dict)
+	  %% Line 830
+	  <[_cor13|T],Dict> when 'true' ->
+	      %% Line 831
+	      apply 'parse_to_dict'/2
+		  (T, Dict)
+	  %% Line 832
+	  <[],Dict> when 'true' ->
+	      %% Line 833
+	      Dict
+	  ( <_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9})
+		  -| [{'function_name',{'parse_to_dict',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'code_handler'/4 =
+    %% Line 835
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <'local',['file'],_cor19,File> when 'true' ->
+	      %% Line 836
+	      File
+	  %% Line 837
+	  <Name,Args,Dict,File> when 'true' ->
+	      let <Arity> =
+		  %% Line 839
+		  call 'erlang':'length'
+		      (Args)
+	      in  %% Line 840
+		  case call 'dict':'find'
+			   ({'local',Name,Arity}, Dict) of
+		    %% Line 841
+		    <{'ok',Cs}> when 'true' ->
+			let <_cor9> =
+			    %% Line 842
+			    ( fun (_cor6,_cor5) ->
+				  apply 'code_handler'/4
+				      (_cor6, _cor5, Dict, File)
+			      -| [{'id',{0,0,'-code_handler/4-fun-0-'}}] )
+			in  let <LF> = {%% Line 842
+				 'value',_cor9}
+			    in  let <_cor11> =
+				    %% Line 843
+				    call 'erl_eval':'new_bindings'
+					()
+				in  %% Line 843
+				    case call 'erl_eval':'match_clause'
+					     (Cs, Args, _cor11, LF) of
+				      %% Line 844
+				      <{Body,Bs}> when 'true' ->
+					  %% Line 845
+					  apply 'eval_exprs'/5
+					      (Body, Bs, LF, 'none', 'none')
+				      %% Line 846
+				      <'nomatch'> when 'true' ->
+					  %% Line 847
+					  call 'erlang':'error'
+					      ({'function_clause',[{'local',Name,Args}|[]]})
+				      ( <_cor12> when 'true' ->
+					    primop 'match_fail'
+						({'case_clause',_cor12})
+					-| ['compiler_generated'] )
+				    end
+		    %% Line 849
+		    <'error'> when 'true' ->
+			%% Line 850
+			case call 'dict':'find'
+				 ({'remote',{Name,Arity}}, Dict) of
+			  %% Line 851
+			  <{'ok',Mod}> when 'true' ->
+			      %% Line 853
+			      call 'erlang':'apply'
+				  (Mod, Name, Args)
+			  %% Line 854
+			  <'error'> when 'true' ->
+			      do  %% Line 855
+				  call 'io':'format'
+				      ([83|[99|[114|[105|[112|[116|[32|[100|[111|[101|[115|[32|[110|[111|[116|[32|[101|[120|[112|[111|[114|[116|[32|[126|[119|[47|[126|[119|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [Name|[Arity|[]]])
+				  %% Line 856
+				  apply 'my_halt'/1
+				      (127)
+			  ( <_cor13> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor13})
+			    -| ['compiler_generated'] )
+			end
+		    ( <_cor14> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor14})
+		      -| ['compiler_generated'] )
+		  end
+	end
+'eval_exprs'/5 =
+    %% Line 860
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[E|[]],Bs0,Lf,Ef,_X_RBs> when 'true' ->
+	      %% Line 862
+	      call 'erl_eval':'expr'
+		  (E, Bs0, Lf, Ef, 'value')
+	  %% Line 863
+	  <[E|Es],Bs0,Lf,Ef,RBs> when 'true' ->
+	      %% Line 865
+	      case call 'erl_eval':'expr'
+		       (E, Bs0, Lf, Ef, 'none') of
+		<{'value',_X_V,Bs}> when 'true' ->
+		    %% Line 866
+		    apply 'eval_exprs'/5
+			(Es, Bs, Lf, Ef, RBs)
+		( <_cor7> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor7})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor12,_cor11,_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'eval_exprs',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'format_exception'/2 =
+    %% Line 868
+    fun (_cor1,_cor0) ->
+	let <Enc> =
+	    %% Line 869
+	    apply 'encoding'/0
+		()
+	in  let <_cor4> =
+		%% Line 870
+		case Enc of
+		  %% Line 871
+		  <'latin1'> when 'true' ->
+		      [80]
+		  %% Line 872
+		  <_cor26> when 'true' ->
+		      [116|[80]]
+		end
+	    in  let <PF> =
+		    %% Line 874
+		    ( fun (_cor10,_cor9) ->
+			  let <_cor6> =
+			      %% Line 875
+			      call 'erlang':'integer_to_list'
+				  (_cor9)
+			  in  let <_cor7> =
+				  %% Line 875
+				  call 'erlang':'++'
+				      (_cor6, _cor4)
+			      in  let <_cor8> =
+				      %% Line 875
+				      [126|[46|_cor7]]
+				  in  %% Line 875
+				      call 'io_lib':'format'
+					  (_cor8, [_cor10|[50]])
+		      -| [{'id',{0,0,'-format_exception/2-fun-0-'}}] )
+		in  let <StackTrace> =
+			%% Line 877
+			call 'erlang':'get_stacktrace'
+			    ()
+		    in  let <StackFun> =
+			    %% Line 878
+			    ( fun (_cor19,_cor18,_cor17) ->
+				  let <_cor16> =
+				      call 'erlang':'=:='
+					  (_cor19, 'erl_eval')
+				  in  let <_cor15> =
+					  call 'erlang':'=:='
+					      (_cor19, 'escript')
+				      in  call 'erlang':'or'
+					      (_cor16, _cor15)
+			      -| [{'id',{0,0,'-format_exception/2-fun-1-'}}] )
+			in  %% Line 879
+			    call 'lib':'format_exception'
+				(1, _cor1, _cor0, StackTrace, StackFun, PF, Enc)
+'encoding'/0 =
+    %% Line 881
+    fun () ->
+	%% Line 882
+	case apply 'enc'/0
+		 () of
+	  <[{'encoding',Encoding}|[]]> when 'true' ->
+	      %% Line 883
+	      Encoding
+	  ( <_cor0> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor0})
+	    -| ['compiler_generated'] )
+	end
+'enc'/0 =
+    %% Line 885
+    fun () ->
+	let <_cor0> =
+	    %% Line 886
+	    call 'io':'getopts'
+		()
+	in  %% Line 886
+	    case call 'lists':'keyfind'
+		     ('encoding', 1, _cor0) of
+	      %% Line 887
+	      <'false'> when 'true' ->
+		  [{'encoding','latin1'}]
+	      %% Line 888
+	      <Enc> when 'true' ->
+		  [Enc|[]]
+	    end
+'fatal'/1 =
+    %% Line 891
+    fun (_cor0) ->
+	%% Line 892
+	call 'erlang':'throw'
+	    (_cor0)
+'my_halt'/1 =
+    %% Line 894
+    fun (_cor0) ->
+	%% Line 895
+	call 'erlang':'halt'
+	    (_cor0)
+'hidden_apply'/4 =
+    %% Line 897
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 898
+	try
+	    let <_cor4> =
+		%% Line 899
+		( fun () ->
+		      _cor2
+		  -| [{'id',{0,0,'-hidden_apply/4-fun-0-'}}] )
+	    in  let <_cor5> =
+		    %% Line 899
+		    apply _cor4
+			()
+		in  %% Line 899
+		    call 'erlang':'apply'
+			(_cor5, _cor1, _cor0)
+	of <_cor6> ->
+	    _cor6
+	catch <_cor9,_cor8,_cor7> ->
+	    case <_cor9,_cor8,_cor7> of
+	      %% Line 901
+	      <'error','undef',_cor17> when 'true' ->
+		  %% Line 902
+		  case call 'erlang':'get_stacktrace'
+			   () of
+		    %% Line 903
+		    <[{_cor18,_cor19,_cor20,_cor21}|_cor22]>
+			when let <_cor25> =
+			      call 'erlang':'=:='
+				  (_cor18, _cor2)
+			  in  let <_cor23> =
+				  call 'erlang':'=:='
+				      (_cor19, _cor1)
+			      in  let <_cor24> =
+				      call 'erlang':'=:='
+					  (_cor20, _cor0)
+				  in  let <_cor26> =
+					  call 'erlang':'and'
+					      (_cor23, _cor24)
+				      in  call 'erlang':'and'
+					      (_cor25, _cor26) ->
+			let <Arity> =
+			    %% Line 904
+			    call 'erlang':'length'
+				(_cor0)
+			in  let <Text> =
+				%% Line 905
+				call 'io_lib':'format'
+				    ([67|[97|[108|[108|[32|[116|[111|[32|[126|[119|[58|[126|[119|[47|[126|[119|[32|[105|[110|[32|[97|[112|[112|[108|[105|[99|[97|[116|[105|[111|[110|[32|[126|[119|[32|[102|[97|[105|[108|[101|[100|[46|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 906
+																																			[_cor2|[_cor1|[Arity|[_cor3|[]]]]])
+			    in  %% Line 907
+				apply 'fatal'/1
+				    (Text)
+		    %% Line 908
+		    <Stk> when 'true' ->
+			%% Line 909
+			call 'erlang':'raise'
+			    ('error', 'undef', Stk)
+		  end
+	      ( <_cor9,_cor8,_cor7> when 'true' ->
+		    primop 'raise'
+			(_cor7, _cor8)
+		-| ['compiler_generated'] )
+	    end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('escript')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('escript', _cor0)
+end

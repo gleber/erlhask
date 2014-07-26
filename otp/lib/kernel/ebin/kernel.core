@@ -1,0 +1,457 @@
+module 'kernel' ['config_change'/3,
+		 'init'/1,
+		 'module_info'/0,
+		 'module_info'/1,
+		 'start'/2,
+		 'stop'/1]
+    attributes [%% Line 21
+		'behaviour' =
+		    %% Line 21
+		    ['supervisor']]
+'start'/2 =
+    %% Line 31
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_cor7,[]> when 'true' ->
+	      %% Line 32
+	      case call 'supervisor':'start_link'
+		       ({'local','kernel_sup'}, 'kernel', []) of
+		%% Line 33
+		<{'ok',Pid}> when 'true' ->
+		    let <Type> =
+			%% Line 34
+			apply 'get_error_logger_type'/0
+			    ()
+		    in  %% Line 35
+			case call 'error_logger':'swap_handler'
+				 (Type) of
+			  %% Line 36
+			  <'ok'> when 'true' ->
+			      {'ok',Pid,[]}
+			  %% Line 37
+			  <Error> when 'true' ->
+			      do  %% Line 39
+				  call 'erlang':'exit'
+				      (Pid, 'shutdown')
+				  %% Line 40
+				  Error
+			end
+		%% Line 42
+		<Error> when 'true' ->
+		    Error
+	      end
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'start',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'stop'/1 =
+    %% Line 45
+    fun (_cor0) ->
+	%% Line 46
+	'ok'
+'config_change'/3 =
+    %% Line 51
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 52
+	    apply 'do_distribution_change'/3
+		(_cor2, _cor1, _cor0)
+	    do  %% Line 53
+		apply 'do_global_groups_change'/3
+		    (_cor2, _cor1, _cor0)
+		%% Line 54
+		'ok'
+'get_error_logger_type'/0 =
+    %% Line 56
+    fun () ->
+	%% Line 57
+	case call 'application':'get_env'
+		 ('kernel', 'error_logger') of
+	  %% Line 58
+	  <{'ok','tty'}> when 'true' ->
+	      'tty'
+	  %% Line 59
+	  <{'ok',{'file',File}}>
+	      when call 'erlang':'is_list'
+		    (File) ->
+	      {'logfile',File}
+	  %% Line 60
+	  <{'ok','false'}> when 'true' ->
+	      'false'
+	  %% Line 61
+	  <{'ok','silent'}> when 'true' ->
+	      'silent'
+	  %% Line 62
+	  <'undefined'> when 'true' ->
+	      'tty'
+	  %% Line 63
+	  <{'ok',Bad}> when 'true' ->
+	      call 'erlang':'exit'
+		  ({'bad_config',{'kernel',{'error_logger',Bad}}})
+	  ( <_cor0> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor0})
+	    -| ['compiler_generated'] )
+	end
+'init'/1 =
+    %% Line 93
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      let <_cor3> =
+		  %% Line 100
+		  apply 'get_code_args'/0
+		      ()
+	      in  let <Code> =
+		      %% Line 99
+		      {'code_server',%% Line 100
+				     {'code','start_link',_cor3},%% Line 101
+								 'permanent',%% Line 101
+									     2000,%% Line 101
+										  'worker',%% Line 101
+											   ['code']}
+		  in  %% Line 113
+		      case call 'init':'get_argument'
+			       ('mode') of
+			%% Line 114
+			<{'ok',[[[109|[105|[110|[105|[109|[97|[108]]]]]]]]]}> when 'true' ->
+			    %% Line 119
+			    {'ok',{{'one_for_all',0,1},%% Line 120
+						       [{'file_server_2',{'file_server','start_link',[]},'permanent',2000,'worker',['file'|['file_server'|['file_io_server'|['prim_file']]]]}|[Code|[{'standard_error',{'standard_error','start_link',[]},'temporary',2000,'supervisor',['user_sup']}|[{'user',{'user_sup','start',[]},'temporary',2000,'supervisor',['user_sup']}|[{'kernel_config',{'kernel_config','start_link',[]},'permanent',2000,'worker',['kernel_config']}|[{'kernel_safe_sup',{'supervisor','start_link',[{'local','kernel_safe_sup'}|['kernel'|['safe']]]},'permanent','infinity','supervisor',['kernel']}]]]]]]}}
+			%% Line 122
+			<_cor27> when 'true' ->
+			    let <DistAC> =
+				%% Line 133
+				apply 'start_dist_ac'/0
+				    ()
+			    in  let <Timer> =
+				    %% Line 135
+				    apply 'start_timer'/0
+					()
+				in  let <_cor17> =
+					%% Line 143
+					[{'net_sup',{'erl_distribution','start_link',[]},'permanent','infinity','supervisor',['erl_distribution']}|[{'global_group',{'global_group','start_link',[]},'permanent',2000,'worker',['global_group']}|[{'file_server_2',{'file_server','start_link',[]},'permanent',2000,'worker',['file'|['file_server'|['file_io_server'|['prim_file']]]]}|[Code|%% Line 144
+																																															      [{'standard_error',{'standard_error','start_link',[]},'temporary',2000,'supervisor',['user_sup']}|[{'user',{'user_sup','start',[]},'temporary',2000,'supervisor',['user_sup']}|[{'kernel_config',{'kernel_config','start_link',[]},'permanent',2000,'worker',['kernel_config']}|[{'kernel_safe_sup',{'supervisor','start_link',[{'local','kernel_safe_sup'}|['kernel'|['safe']]]},'permanent','infinity','supervisor',['kernel']}|Timer]]]]]]]]
+				    in  let <_cor18> =
+					    %% Line 142
+					    [{'rex',{'rpc','start_link',[]},'permanent',2000,'worker',['rpc']}|[{'global_name_server',{'global','start_link',[]},'permanent',2000,'worker',['global']}|[{'inet_db',{'inet_db','start_link',[]},'permanent',2000,'worker',['inet_db']}|call 'erlang':'++'
+																																			  (DistAC, _cor17)]]]
+					in  %% Line 141
+					    {'ok',{{'one_for_all',0,1},_cor18}}
+		      end
+	  %% Line 146
+	  <'safe'> when 'true' ->
+	      let <Boot> =
+		  %% Line 148
+		  apply 'start_boot_server'/0
+		      ()
+	      in  let <DiskLog> =
+		      %% Line 149
+		      apply 'start_disk_log'/0
+			  ()
+		  in  let <Pg2> =
+			  %% Line 150
+			  apply 'start_pg2'/0
+			      ()
+		      in  do  %% Line 156
+			      call 'init':'run_on_load_handlers'
+				  ()
+			      let <_cor24> =
+				  %% Line 158
+				  call 'erlang':'++'
+				      (DiskLog, Pg2)
+			      in  let <_cor25> =
+				      %% Line 158
+				      call 'erlang':'++'
+					  (Boot, _cor24)
+				  in  %% Line 158
+				      {'ok',{{'one_for_one',4,3600},_cor25}}
+	  ( <_cor26> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor26})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_code_args'/0 =
+    %% Line 160
+    fun () ->
+	%% Line 161
+	case call 'init':'get_argument'
+		 ('nostick') of
+	  %% Line 162
+	  <{'ok',[[]]}> when 'true' ->
+	      [['nostick']]
+	  %% Line 163
+	  <_cor1> when 'true' ->
+	      []
+	end
+'start_dist_ac'/0 =
+    %% Line 166
+    fun () ->
+	%% Line 168
+	case call 'application':'get_env'
+		 ('kernel', 'start_dist_ac') of
+	  %% Line 169
+	  <{'ok','true'}> when 'true' ->
+	      [{'dist_ac',{'dist_ac','start_link',[]},'permanent',2000,'worker',['dist_ac']}]
+	  %% Line 170
+	  <{'ok','false'}> when 'true' ->
+	      []
+	  %% Line 171
+	  <'undefined'> when 'true' ->
+	      %% Line 172
+	      case call 'application':'get_env'
+		       ('kernel', 'distributed') of
+		%% Line 173
+		<{'ok',_cor3}> when 'true' ->
+		    [{'dist_ac',{'dist_ac','start_link',[]},'permanent',2000,'worker',['dist_ac']}]
+		%% Line 174
+		<_cor4> when 'true' ->
+		    []
+	      end
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'start_boot_server'/0 =
+    %% Line 178
+    fun () ->
+	%% Line 179
+	case call 'application':'get_env'
+		 ('kernel', 'start_boot_server') of
+	  %% Line 180
+	  <{'ok','true'}> when 'true' ->
+	      let <Args> =
+		  %% Line 181
+		  apply 'get_boot_args'/0
+		      ()
+	      in  %% Line 182
+		  [{'boot_server',{'erl_boot_server','start_link',[Args|[]]},'permanent',%% Line 183
+											 1000,%% Line 183
+											      'worker',%% Line 183
+												       ['erl_boot_server']}|%% Line 183
+															    []]
+	  %% Line 184
+	  <_cor2> when 'true' ->
+	      %% Line 185
+	      []
+	end
+'get_boot_args'/0 =
+    %% Line 188
+    fun () ->
+	%% Line 189
+	case call 'application':'get_env'
+		 ('kernel', 'boot_server_slaves') of
+	  %% Line 190
+	  <{'ok',Slaves}> when 'true' ->
+	      Slaves
+	  %% Line 191
+	  <_cor1> when 'true' ->
+	      []
+	end
+'start_disk_log'/0 =
+    %% Line 194
+    fun () ->
+	%% Line 195
+	case call 'application':'get_env'
+		 ('kernel', 'start_disk_log') of
+	  %% Line 196
+	  <{'ok','true'}> when 'true' ->
+	      %% Line 197
+	      [{'disk_log_server',{'disk_log_server','start_link',[]},'permanent',2000,'worker',['disk_log_server']}|[{'disk_log_sup',{'disk_log_sup','start_link',[]},'permanent',1000,'supervisor',['disk_log_sup']}]]
+	  %% Line 202
+	  <_cor1> when 'true' ->
+	      %% Line 203
+	      []
+	end
+'start_pg2'/0 =
+    %% Line 206
+    fun () ->
+	%% Line 207
+	case call 'application':'get_env'
+		 ('kernel', 'start_pg2') of
+	  %% Line 208
+	  <{'ok','true'}> when 'true' ->
+	      %% Line 209
+	      [{'pg2',{'pg2','start_link',[]},'permanent',1000,'worker',['pg2']}]
+	  %% Line 210
+	  <_cor1> when 'true' ->
+	      %% Line 211
+	      []
+	end
+'start_timer'/0 =
+    %% Line 214
+    fun () ->
+	%% Line 215
+	case call 'application':'get_env'
+		 ('kernel', 'start_timer') of
+	  %% Line 216
+	  <{'ok','true'}> when 'true' ->
+	      %% Line 217
+	      [{'timer_server',{'timer','start_link',[]},'permanent',1000,'worker',['timer']}]
+	  %% Line 219
+	  <_cor1> when 'true' ->
+	      %% Line 220
+	      []
+	end
+'do_distribution_change'/3 =
+    %% Line 226
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 229
+	case apply 'is_dist_changed'/3
+		 (_cor2, _cor1, _cor0) of
+	  %% Line 231
+	  <{'false','false','false'}> when 'true' ->
+	      %% Line 232
+	      'ok'
+	  %% Line 233
+	  <{C,'false','false'}> when 'true' ->
+	      %% Line 235
+	      call 'gen_server':'call'
+		  ('dist_ac', {'distribution_changed',C}, 'infinity')
+	  %% Line 236
+	  <{'false',_cor7,'false'}> when 'true' ->
+	      do  %% Line 237
+		  call 'error_logger':'error_report'
+		      ([68|[105|[115|[116|[114|[105|[98|[117|[116|[105|[111|[110|[32|[110|[111|[116|[32|[99|[104|[97|[110|[103|[101|[100|[58|[32|[78|[111|[116|[32|[97|[108|[108|[111|[119|[101|[100|[32|[116|[111|[32|[97|[100|[100|[32|[116|[104|[101|[32|[39|[100|[105|[115|[116|[114|[105|[98|[117|[116|[101|[100|[39|[32|[112|[97|[114|[97|[109|[101|[116|[101|[114|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+		  %% Line 240
+		  {'error',{'distribution_not_changed',[78|[111|[116|[32|[97|[108|[108|[111|[119|[101|[100|[32|[116|[111|[32|[97|[100|[100|[32|[116|[104|[101|[32|[39|[100|[105|[115|[116|[114|[105|[98|[117|[116|[101|[100|[39|[32|[112|[97|[114|[97|[109|[101|[116|[101|[114]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}}
+	  %% Line 242
+	  <{'false','false',_cor8}> when 'true' ->
+	      do  %% Line 243
+		  call 'error_logger':'error_report'
+		      ([68|[105|[115|[116|[114|[105|[98|[117|[116|[105|[111|[110|[32|[110|[111|[116|[32|[99|[104|[97|[110|[103|[101|[100|[58|[32|[78|[111|[116|[32|[97|[108|[108|[111|[119|[101|[100|[32|[116|[111|[32|[114|[101|[109|[111|[118|[101|[32|[116|[104|[101|[32|[100|[105|[115|[116|[114|[105|[98|[117|[116|[105|[111|[110|[32|[112|[97|[114|[97|[109|[101|[116|[101|[114|[46]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+		  %% Line 246
+		  {'error',{'distribution_not_changed',[78|[111|[116|[32|[97|[108|[108|[111|[119|[101|[100|[32|[116|[111|[32|[114|[101|[109|[111|[118|[101|[32|[116|[104|[101|[32|[39|[100|[105|[115|[116|[114|[105|[98|[117|[116|[101|[100|[39|[32|[112|[97|[114|[97|[109|[101|[116|[101|[114]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]}}
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'is_dist_changed'/3 =
+    %% Line 253
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 254
+	    case call 'lists':'keyfind'
+		     ('distributed', 1, _cor2) of
+	      %% Line 255
+	      <'false'> when 'true' ->
+		  %% Line 256
+		  'false'
+	      %% Line 257
+	      <{'distributed',NewDistC}> when 'true' ->
+		  %% Line 258
+		  NewDistC
+	      ( <_cor3> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor3})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor7> =
+		%% Line 260
+		case call 'lists':'keyfind'
+			 ('distributed', 1, _cor1) of
+		  %% Line 261
+		  <'false'> when 'true' ->
+		      %% Line 262
+		      'false'
+		  %% Line 263
+		  <{'distributed',NewDistN}> when 'true' ->
+		      %% Line 264
+		      NewDistN
+		  ( <_cor6> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor6})
+		    -| ['compiler_generated'] )
+		end
+	    in  let <R> =
+		    %% Line 266
+		    call 'lists':'member'
+			('distributed', _cor0)
+		in  %% Line 267
+		    {_cor4,_cor7,R}
+'do_global_groups_change'/3 =
+    %% Line 272
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 274
+	case apply 'is_gg_changed'/3
+		 (_cor2, _cor1, _cor0) of
+	  %% Line 276
+	  <{'false','false','false'}> when 'true' ->
+	      %% Line 277
+	      'ok'
+	  %% Line 278
+	  <{C,'false','false'}> when 'true' ->
+	      %% Line 280
+	      call 'global_group':'global_groups_changed'
+		  (C)
+	  %% Line 281
+	  <{'false',N,'false'}> when 'true' ->
+	      %% Line 282
+	      call 'global_group':'global_groups_added'
+		  (N)
+	  %% Line 283
+	  <{'false','false',R}> when 'true' ->
+	      %% Line 284
+	      call 'global_group':'global_groups_removed'
+		  (R)
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'is_gg_changed'/3 =
+    %% Line 290
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 291
+	    case call 'lists':'keyfind'
+		     ('global_groups', 1, _cor2) of
+	      %% Line 292
+	      <'false'> when 'true' ->
+		  %% Line 293
+		  'false'
+	      %% Line 294
+	      <{'global_groups',NewDistC}> when 'true' ->
+		  %% Line 295
+		  NewDistC
+	      ( <_cor3> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor3})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor7> =
+		%% Line 297
+		case call 'lists':'keyfind'
+			 ('global_groups', 1, _cor1) of
+		  %% Line 298
+		  <'false'> when 'true' ->
+		      %% Line 299
+		      'false'
+		  %% Line 300
+		  <{'global_groups',NewDistN}> when 'true' ->
+		      %% Line 301
+		      NewDistN
+		  ( <_cor6> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor6})
+		    -| ['compiler_generated'] )
+		end
+	    in  let <R> =
+		    %% Line 303
+		    call 'lists':'member'
+			('global_groups', _cor0)
+		in  %% Line 304
+		    {_cor4,_cor7,R}
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('kernel')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('kernel', _cor0)
+end

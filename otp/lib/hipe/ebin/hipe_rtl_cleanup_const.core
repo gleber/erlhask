@@ -1,0 +1,195 @@
+module 'hipe_rtl_cleanup_const' ['cleanup'/1,
+				 'module_info'/0,
+				 'module_info'/1]
+    attributes []
+'cleanup'/1 =
+    %% Line 51
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 52
+	    call 'hipe_rtl':'rtl_code'
+		(_cor0)
+	in  let <Code> =
+		%% Line 52
+		apply 'cleanup'/2
+		    (_cor1, [])
+	    in  %% Line 53
+		call 'hipe_rtl':'rtl_code_update'
+		    (_cor0, Code)
+'cleanup'/2 =
+    %% Line 55
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[I|Left],Acc> when 'true' ->
+	      let <Args> =
+		  %% Line 56
+		  call 'hipe_rtl':'args'
+		      (I)
+	      in  let <_cor8> =
+		      %% Line 57
+		      ( letrec
+			    'lc$^0'/1 =
+				fun (_cor5) ->
+				    case _cor5 of
+				      <[X|_cor4]> when 'true' ->
+					  let <_807> =
+					      call 'hipe_rtl':'is_const_label'
+						  (X)
+					  in  ( case _807 of
+						  <'true'> when 'true' ->
+						      let <_cor6> =
+							  apply 'lc$^0'/1
+							      (_cor4)
+						      in  ( [X|_cor6]
+							    -| ['compiler_generated'] )
+						  ( <'false'> when 'true' ->
+							apply 'lc$^0'/1
+							    (_cor4)
+						    -| ['compiler_generated'] )
+						  ( <_cor7> when 'true' ->
+							primop 'match_fail'
+							    ({'case_clause',_807})
+						    -| ['compiler_generated'] )
+						end
+						-| ['list_comprehension'] )
+				      <[]> when 'true' ->
+					  []
+				      ( <_390> when 'true' ->
+					    ( primop 'match_fail'
+						  ({'function_clause',_cor5})
+					      -| [{'function_name',{'lc$^0',1}}] )
+					-| ['compiler_generated'] )
+				    end
+			in  apply 'lc$^0'/1
+				(Args)
+			-| ['list_comprehension'] )
+		  in  %% Line 57
+		      case _cor8 of
+			%% Line 58
+			<[]> when 'true' ->
+			    %% Line 59
+			    apply 'cleanup'/2
+				(Left, [I|_cor0])
+			%% Line 60
+			<ConstArgs> when 'true' ->
+			    let <_cor2> =
+				%% Line 68
+				call 'ordsets':'from_list'
+				    (_cor8)
+			    in  let <NewIns> =
+				    %% Line 68
+				    apply 'cleanup_instr'/3
+					(_cor2, I, [])
+				in  let <_cor10> =
+					%% Line 62
+					call 'erlang':'++'
+					    (NewIns, _cor0)
+				    in  %% Line 62
+					apply 'cleanup'/2
+					    (Left, _cor10)
+		      end
+	  %% Line 64
+	  <[],Acc> when 'true' ->
+	      %% Line 65
+	      call 'lists':'reverse'
+		  (_cor0)
+	  ( <_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1,_cor0})
+		  -| [{'function_name',{'cleanup',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'cleanup_instr'/3 =
+    %% Line 70
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[Const|Left],I,Acc> when 'true' ->
+	      let <Dst> =
+		  %% Line 71
+		  call 'hipe_rtl':'mk_new_var'
+		      ()
+	      in  let <ConstLabel> =
+		      %% Line 72
+		      call 'hipe_rtl':'const_label_label'
+			  (Const)
+		  in  let <Load> =
+			  %% Line 73
+			  call 'hipe_rtl':'mk_load_address'
+			      (Dst, ConstLabel, 'constant')
+		      in  %% Line 74
+			  case _cor1 of
+			    %% Line 75
+			    <X>
+				when try
+				      ( case <> of
+					  ( <>
+						when ( call ( 'erlang'
+							   -| ['compiler_generated'] ):( 'is_record'
+											 -| ['compiler_generated'] )
+							(_cor1,
+							 'fp_unop',
+							 4)
+						    -| ['compiler_generated'] ) ->
+						'true'
+					    -| ['compiler_generated'] )
+					  ( <> when 'true' ->
+						( call ( 'erlang'
+							 -| ['compiler_generated'] ):( 'is_record'
+										       -| ['compiler_generated'] )
+						      (_cor1, 'fp', 5)
+						  -| ['compiler_generated'] )
+					    -| ['compiler_generated'] )
+					end
+					-| ['compiler_generated'] )
+				  of <Try> ->
+				      Try
+				  catch <T,R> ->
+				      'false' ->
+				let <Fdst> =
+				    %% Line 76
+				    call 'hipe_rtl':'mk_new_fpreg'
+					()
+				in  let <Fconv> =
+					%% Line 77
+					call 'hipe_tagscheme':'unsafe_untag_float'
+					    (Fdst, Dst)
+				    in  let <NewI> =
+					    %% Line 78
+					    call 'hipe_rtl':'subst_uses'
+						([{Const,Fdst}|[]], _cor1)
+					in  let <_cor12> =
+						%% Line 79
+						call 'erlang':'++'
+						    (Fconv, [Load|_cor0])
+					    in  %% Line 79
+						apply 'cleanup_instr'/3
+						    (Left, NewI, _cor12)
+			    %% Line 80
+			    <_cor18> when 'true' ->
+				let <NewI> =
+				    %% Line 81
+				    call 'hipe_rtl':'subst_uses'
+					([{Const,Dst}|[]], _cor1)
+				in  %% Line 82
+				    apply 'cleanup_instr'/3
+					(Left, NewI, [Load|_cor0])
+			  end
+	  %% Line 84
+	  <[],I,Acc> when 'true' ->
+	      %% Line 85
+	      [_cor1|_cor0]
+	  ( <_cor17,_cor16,_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2,_cor1,_cor0})
+		  -| [{'function_name',{'cleanup_instr',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_rtl_cleanup_const')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_rtl_cleanup_const', _cor0)
+end

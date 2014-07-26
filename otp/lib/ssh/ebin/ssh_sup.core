@@ -1,0 +1,189 @@
+module 'ssh_sup' ['init'/1,
+		  'module_info'/0,
+		  'module_info'/1]
+    attributes [%% Line 26
+		'behaviour' =
+		    %% Line 26
+		    ['supervisor']]
+'init'/1 =
+    %% Line 33
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      let <Children> =
+		  %% Line 35
+		  apply 'children'/0
+		      ()
+	      in  %% Line 36
+		  {'ok',{{'one_for_one',10,3600},Children}}
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_services'/0 =
+    %% Line 41
+    fun () ->
+	let <_cor0> =
+	    catch
+		%% Line 42
+		call 'application':'get_env'
+		    ('ssh', 'services')
+	in  %% Line 42
+	    case _cor0 of
+	      %% Line 43
+	      <{'ok',Services}> when 'true' ->
+		  %% Line 44
+		  Services
+	      %% Line 45
+	      <_cor2> when 'true' ->
+		  %% Line 46
+		  []
+	    end
+'children'/0 =
+    %% Line 49
+    fun () ->
+	let <Services> =
+	    %% Line 50
+	    apply 'get_services'/0
+		()
+	in  let <_cor6> =
+		%% Line 51
+		( letrec
+		      'lc$^0'/1 =
+			  fun (_cor3) ->
+			      case _cor3 of
+				<[Service|_cor2]> when 'true' ->
+				    ( case apply 'is_client'/1
+					       (Service) of
+					<'true'> when 'true' ->
+					    let <_cor4> =
+						apply 'lc$^0'/1
+						    (_cor2)
+					    in  ( [Service|_cor4]
+						  -| ['compiler_generated'] )
+					( <'false'> when 'true' ->
+					      apply 'lc$^0'/1
+						  (_cor2)
+					  -| ['compiler_generated'] )
+					( <_cor5> when 'true' ->
+					      primop 'match_fail'
+						  ({'case_clause',_cor5})
+					  -| ['compiler_generated'] )
+				      end
+				      -| ['list_comprehension'] )
+				<[]> when 'true' ->
+				    []
+				( <_cor3> when 'true' ->
+				      ( primop 'match_fail'
+					    ({'function_clause',_cor3})
+					-| [{'function_name',{'lc$^0',1}}] )
+				  -| ['compiler_generated'] )
+			      end
+		  in  apply 'lc$^0'/1
+			  (Services)
+		  -| ['list_comprehension'] )
+	    in  let <_cor13> =
+		    %% Line 52
+		    ( letrec
+			  'lc$^1'/1 =
+			      fun (_cor10) ->
+				  case _cor10 of
+				    <[Service|_cor9]> when 'true' ->
+					( case apply 'is_server'/1
+						   (Service) of
+					    <'true'> when 'true' ->
+						let <_cor11> =
+						    apply 'lc$^1'/1
+							(_cor9)
+						in  ( [Service|_cor11]
+						      -| ['compiler_generated'] )
+					    ( <'false'> when 'true' ->
+						  apply 'lc$^1'/1
+						      (_cor9)
+					      -| ['compiler_generated'] )
+					    ( <_cor12> when 'true' ->
+						  primop 'match_fail'
+						      ({'case_clause',_cor12})
+					      -| ['compiler_generated'] )
+					  end
+					  -| ['list_comprehension'] )
+				    <[]> when 'true' ->
+					[]
+				    ( <_cor10> when 'true' ->
+					  ( primop 'match_fail'
+						({'function_clause',_cor10})
+					    -| [{'function_name',{'lc$^1',1}}] )
+				      -| ['compiler_generated'] )
+				  end
+		      in  apply 'lc$^1'/1
+			      (Services)
+		      -| ['list_comprehension'] )
+		in  let <_cor15> =
+			%% Line 54
+			apply 'server_child_spec'/1
+			    (_cor13)
+		    in  let <_cor16> =
+			    %% Line 54
+			    apply 'client_child_spec'/1
+				(_cor6)
+			in  %% Line 54
+			    [_cor15|[_cor16|[]]]
+'server_child_spec'/1 =
+    %% Line 56
+    fun (_cor0) ->
+	let <StartFunc> =
+	    %% Line 58
+	    {'sshd_sup','start_link',[_cor0|[]]}
+	in  %% Line 63
+	    {'sshd_sup',StartFunc,'permanent','infinity','supervisor',['sshd_sup']}
+'client_child_spec'/1 =
+    %% Line 65
+    fun (_cor0) ->
+	let <StartFunc> =
+	    %% Line 67
+	    {'sshc_sup','start_link',[_cor0|[]]}
+	in  %% Line 72
+	    {'sshc_sup',StartFunc,'permanent','infinity','supervisor',['sshc_sup']}
+'is_server'/1 =
+    %% Line 74
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'sftpd',_cor2}> when 'true' ->
+	      %% Line 75
+	      'true'
+	  %% Line 76
+	  <{'shelld',_cor3}> when 'true' ->
+	      %% Line 77
+	      'true'
+	  %% Line 78
+	  <_cor4> when 'true' ->
+	      %% Line 79
+	      'false'
+	end
+'is_client'/1 =
+    %% Line 81
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'sftpc',_cor2}> when 'true' ->
+	      %% Line 82
+	      'true'
+	  %% Line 83
+	  <{'shellc',_cor3}> when 'true' ->
+	      %% Line 84
+	      'true'
+	  %% Line 85
+	  <_cor4> when 'true' ->
+	      %% Line 86
+	      'false'
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ssh_sup')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ssh_sup', _cor0)
+end

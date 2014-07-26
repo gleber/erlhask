@@ -1,0 +1,443 @@
+module 'cth_conn_log' ['init'/2,
+		       'module_info'/0,
+		       'module_info'/1,
+		       'post_end_per_testcase'/4,
+		       'pre_init_per_testcase'/3]
+    attributes [%% Line 62
+		'export_type' =
+		    %% Line 62
+		    [{'hook_options',0}|[{'log_type',0}|[{'conn_mod',0}]]],
+		%% Line 69
+		'type' =
+		    %% Line 69
+		    [{'hook_options',{'type',69,'list',[{'type',69,'hook_option',[]}]},[]}],
+		%% Line 71
+		'type' =
+		    %% Line 71
+		    [{'hook_option',{'type',71,'union',[{'type',71,'tuple',[{'atom',71,'log_type'}|[{'type',71,'log_type',[]}]]}|[{'type',72,'tuple',[{'atom',72,'hosts'}|[{'type',72,'list',[{'remote_type',72,[{'atom',72,'ct_gen_conn'}|[{'atom',72,'key_or_name'}|[[]]]]}]}]]}]]},[]}],
+		%% Line 73
+		'type' =
+		    %% Line 73
+		    [{'log_type',{'type',73,'union',[{'atom',73,'raw'}|[{'atom',73,'pretty'}|[{'atom',73,'html'}|[{'atom',73,'silent'}]]]]},[]}],
+		%% Line 74
+		'type' =
+		    %% Line 74
+		    [{'conn_mod',{'type',74,'union',[{'atom',74,'ct_netconfc'}|[{'atom',74,'ct_telnet'}]]},[]}],
+		%% Line 77
+		'spec' =
+		    %% Line 77
+		    [{{'init',2},[{'type',77,'bounded_fun',[{'type',77,'fun',[{'type',77,'product',[{'var',77,'Id'}|[{'var',77,'HookOpts'}]]}|[{'var',77,'Result'}]]}|[[{'type',78,'constraint',[{'atom',78,'is_subtype'}|[[{'var',78,'Id'}|[{'type',78,'term',[]}]]]]}|[{'type',79,'constraint',[{'atom',79,'is_subtype'}|[[{'var',79,'HookOpts'}|[{'type',79,'hook_options',[]}]]]]}|[{'type',80,'constraint',[{'atom',80,'is_subtype'}|[[{'var',80,'Result'}|[{'type',80,'tuple',[{'atom',80,'ok'}|[{'type',80,'list',[{'type',80,'tuple',[{'type',80,'conn_mod',[]}|[{'type',81,'tuple',[{'type',81,'log_type',[]}|[{'type',81,'list',[{'remote_type',81,[{'atom',81,'ct_gen_conn'}|[{'atom',81,'key_or_name'}|[[]]]]}]}]]}]]}]}]]}]]]]}]]]]]}]}]]
+'init'/2 =
+    %% Line 82
+    fun (_cor1,_cor0) ->
+	let <ConfOpts> =
+	    %% Line 83
+	    call 'ct':'get_config'
+		('ct_conn_log', [])
+	in  let <_cor3> =
+		%% Line 84
+		apply 'merge_log_info'/2
+		    (ConfOpts, _cor0)
+	    in  %% Line 84
+		{'ok',_cor3}
+'merge_log_info'/2 =
+    %% Line 86
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{Mod,ConfOpts}|ConfList],HookList> when 'true' ->
+	      let <Opts,HookList1> =
+		  %% Line 88
+		  case call 'lists':'keytake'
+			   (Mod, 1, HookList) of
+		    %% Line 89
+		    <'false'> when 'true' ->
+			%% Line 90
+			<ConfOpts,HookList>
+		    %% Line 91
+		    <{'value',{_cor15,HookOpts},HL1}> when 'true' ->
+			let <_cor2> =
+			    %% Line 92
+			    call 'erlang':'++'
+				(ConfOpts, HookOpts)
+			in  <_cor2,%% Line 92
+				   HL1>
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	      in  let <_cor6> =
+		      %% Line 94
+		      apply 'get_log_opts'/2
+			  (Mod, Opts)
+		  in  let <_cor7> =
+			  %% Line 94
+			  apply 'merge_log_info'/2
+			      (ConfList, HookList1)
+		      in  %% Line 94
+			  [{Mod,_cor6}|_cor7]
+	  %% Line 95
+	  <[],HookList> when 'true' ->
+	      %% Line 96
+	      ( letrec
+		    'lc$^0'/1 =
+			fun (_cor10) ->
+			    case _cor10 of
+			      <[{Mod,Opts}|_cor9]> when 'true' ->
+				  let <_cor11> =
+				      apply 'get_log_opts'/2
+					  (Mod, Opts)
+				  in  let <_cor12> =
+					  apply 'lc$^0'/1
+					      (_cor9)
+				      in  ( [{Mod,_cor11}|_cor12]
+					    -| ['compiler_generated'] )
+			      ( <[_cor8|_cor9]> when 'true' ->
+				    apply 'lc$^0'/1
+					(_cor9)
+				-| ['compiler_generated'] )
+			      <[]> when 'true' ->
+				  []
+			      ( <_cor10> when 'true' ->
+				    ( primop 'match_fail'
+					  ({'function_clause',_cor10})
+				      -| [{'function_name',{'lc$^0',1}}] )
+				-| ['compiler_generated'] )
+			    end
+		in  apply 'lc$^0'/1
+			(HookList)
+		-| ['list_comprehension'] )
+	  ( <_cor14,_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor14,_cor13})
+		  -| [{'function_name',{'merge_log_info',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_log_opts'/2 =
+    %% Line 98
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 99
+	    case <> of
+	      <>
+		  when call 'erlang':'=:='
+			(_cor1,
+			 'ct_telnet') ->
+		  'raw'
+	      %% Line 100
+	      <> when 'true' ->
+		  'html'
+	    end
+	in  let <LogType> =
+		%% Line 102
+		call 'proplists':'get_value'
+		    ('log_type', _cor0, _cor2)
+	    in  let <Hosts> =
+		    %% Line 103
+		    call 'proplists':'get_value'
+			('hosts', _cor0, [])
+		in  %% Line 104
+		    {LogType,Hosts}
+'pre_init_per_testcase'/3 =
+    %% Line 106
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor39> =
+	    %% Line 109
+	    ( fun (_cor37) ->
+		  case _cor37 of
+		    <{ConnMod,{LogType,Hosts}}> when 'true' ->
+			do  %% Line 110
+			    call 'ct_util':'set_testdata'
+				({{'cth_conn_log',ConnMod},LogType})
+			    %% Line 111
+			    case LogType of
+			      %% Line 112
+			      <_cor50>
+				  when let <_cor3> =
+					call 'erlang':'=:='
+					    (LogType, 'raw')
+				    in  let <_cor4> =
+					    call 'erlang':'=:='
+						(LogType, 'pretty')
+					in  call 'erlang':'or'
+						(_cor3, _cor4) ->
+				  let <Dir> =
+				      %% Line 113
+				      call 'test_server':'lookup_config'
+					  ('priv_dir', _cor1)
+				  in  let <TCStr> =
+					  %% Line 114
+					  call 'erlang':'atom_to_list'
+					      (_cor2)
+				      in  let <ConnModStr> =
+					      %% Line 115
+					      call 'erlang':'atom_to_list'
+						  (ConnMod)
+					  in  let <_cor8> =
+						  %% Line 116
+						  call 'erlang':'++'
+						      (ConnModStr, [46|[116|[120|[116]]]])
+					      in  let <_cor9> =
+						      %% Line 116
+						      [45|_cor8]
+						  in  let <DefLogName> =
+							  %% Line 116
+							  call 'erlang':'++'
+							      (TCStr, _cor9)
+						      in  let <DefLog> =
+							      %% Line 117
+							      call 'filename':'join'
+								  (Dir, DefLogName)
+							  in  let <_cor23> =
+								  %% Line 118
+								  ( letrec
+									'lc$^0'/1 =
+									    fun (_cor14) ->
+										case _cor14 of
+										  <[%% Line 123
+										    Host|_cor13]> when 'true' ->
+										      let <_cor17> =
+											  %% Line 120
+											  call 'erlang':'atom_to_list'
+											      (Host)
+										      in  let <_cor15> =
+											      %% Line 121
+											      call 'erlang':'++'
+												  (ConnModStr, %% Line 122
+													       [46|[116|[120|[116]]]])
+											  in  let <_cor16> =
+												  %% Line 120
+												  [45|_cor15]
+											      in  let <_cor18> =
+												      %% Line 120
+												      call 'erlang':'++'
+													  (_cor17, _cor16)
+												  in  let <_cor19> =
+													  %% Line 119
+													  [45|_cor18]
+												      in  let <_cor20> =
+													      %% Line 119
+													      call 'erlang':'++'
+														  (TCStr, _cor19)
+													  in  let <_cor21> =
+														  %% Line 119
+														  call 'filename':'join'
+														      (Dir, _cor20)
+													      in  let <_cor22> =
+														      %% Line 123
+														      apply 'lc$^0'/1
+															  (_cor13)
+														  in  ( [{Host,_cor21}|_cor22]
+															-| ['compiler_generated'] )
+										  <[]> when 'true' ->
+										      %% Line 124
+										      [{'default',DefLog}|[]]
+										  ( <_cor14> when 'true' ->
+											( primop 'match_fail'
+											      ({'function_clause',_cor14})
+											  -| [{'function_name',{'lc$^0',1}}] )
+										    -| ['compiler_generated'] )
+										end
+								    in  apply 'lc$^0'/1
+									    (%% Line 123
+									     Hosts)
+								    -| ['list_comprehension'] )
+							      in  let <_cor32> =
+								      %% Line 128
+								      ( letrec
+									    'lc$^1'/1 =
+										fun (_cor27) ->
+										    case _cor27 of
+										      <[%% Line 132
+											{S,L}|_cor26]> when 'true' ->
+											  let <_cor28> =
+											      %% Line 131
+											      call 'ct_logs':'uri'
+												  (L)
+											  in  let <_cor29> =
+												  %% Line 131
+												  call 'filename':'basename'
+												      (L)
+											      in  let <_cor30> =
+												      call 'io_lib':'format'
+													  (%% Line 129
+													   [60|[116|[114|[62|[60|[116|[100|[62|[126|[112|[60|[47|[116|[100|[62|[60|[116|[100|[62|[60|[97|[32|[104|[114|[101|[102|[61|[34|[126|[116|[115|[34|[62|[126|[116|[115|[60|[47|[97|[62|[60|[47|[116|[100|[62|[60|[47|[116|[114|[62]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 131
+																																															      [S|[_cor28|[_cor29|[]]]])
+												  in  let <_cor31> =
+													  %% Line 132
+													  apply 'lc$^1'/1
+													      (_cor26)
+												      in  ( [_cor30|_cor31]
+													    -| ['compiler_generated'] )
+										      ( <[_cor25|_cor26]> when 'true' ->
+											    %% Line 132
+											    apply 'lc$^1'/1
+												(_cor26)
+											-| ['compiler_generated'] )
+										      <[]> when 'true' ->
+											  %% Line 133
+											  [60|[47|[116|[97|[98|[108|[101|[62]]]]]]]]
+										      ( <_cor27> when 'true' ->
+											    ( primop 'match_fail'
+												  ({'function_clause',_cor27})
+											      -| [{'function_name',{'lc$^1',1}}] )
+											-| ['compiler_generated'] )
+										    end
+									in  apply 'lc$^1'/1
+										(_cor23)
+									-| ['list_comprehension'] )
+								  in  let <_cor33> =
+									  %% Line 127
+									  call 'erlang':'++'
+									      ([32|[108|[111|[103|[115|[58|[60|[47|[98|[62|[10]]]]]]]]]]], _cor32)
+								      in  let <_cor34> =
+									      %% Line 127
+									      call 'erlang':'++'
+										  (ConnModStr, _cor33)
+									  in  let <Str> =
+										  %% Line 127
+										  call 'erlang':'++'
+										      ([60|[116|[97|[98|[108|[101|[32|[98|[111|[114|[100|[101|[114|[115|[61|[49|[62|[60|[98|[62]]]]]]]]]]]]]]]]]]]], _cor34)
+									      in  do  %% Line 134
+										      call 'io':'format'
+											  (Str, [])
+										      %% Line 135
+										      {ConnMod,{LogType,_cor23}}
+			      %% Line 136
+			      <_cor53> when 'true' ->
+				  %% Line 137
+				  {ConnMod,{LogType,[]}}
+			    end
+		    ( <_cor38> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor38})
+			    -| [{'function_name',{'-pre_init_per_testcase/3-fun-0-',1}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-pre_init_per_testcase/3-fun-0-'}}] )
+	in  let <Logs> =
+		%% Line 108
+		call 'lists':'map'
+		    (_cor39, _cor0)
+	    in  let <GL> =
+		    %% Line 142
+		    call 'erlang':'group_leader'
+			()
+		in  let <Update> =
+			%% Line 144
+			( fun (_cor44) ->
+			      case _cor44 of
+				<Init>
+				    when let <_cor42> =
+					  call 'erlang':'=:='
+					      (_cor44, 'undefined')
+				      in  let <_cor43> =
+					      call 'erlang':'=:='
+						  (_cor44, [])
+					  in  call 'erlang':'or'
+						  (_cor42, _cor43) ->
+				    do  %% Line 145
+					call 'error_logger':'add_report_handler'
+					    ('ct_conn_log_h', {GL,Logs})
+					%% Line 146
+					[_cor2|[]]
+				%% Line 147
+				<PrevUsers> when 'true' ->
+				    do  %% Line 148
+					call 'error_logger':'info_report'
+					    ('update', {GL,Logs})
+					%% Line 149
+					receive
+					  %% Line 150
+					  <{'updated',_cor54}>
+					      when call 'erlang':'=:='
+						    (_cor54,
+						     GL) ->
+					      %% Line 151
+					      [_cor2|PrevUsers]
+					after %% Line 153
+					      5000 ->
+					  %% Line 154
+					  {'error','no_response'}
+			      end
+			  -| [{'id',{0,0,'-pre_init_per_testcase/3-fun-1-'}}] )
+		    in  do  %% Line 157
+			    call 'ct_util':'update_testdata'
+				('cth_conn_log', Update, ['create'])
+			    %% Line 158
+			    {_cor1,_cor0}
+'post_end_per_testcase'/4 =
+    %% Line 160
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <Update> =
+	    %% Line 162
+	    ( fun (_cor5) ->
+		  %% Line 163
+		  case call 'lists':'delete'
+			   (_cor3, _cor5) of
+		    %% Line 164
+		    <[]> when 'true' ->
+			%% Line 165
+			'$delete'
+		    %% Line 166
+		    <PrevUsers1> when 'true' ->
+			%% Line 167
+			PrevUsers1
+		  end
+	      -| [{'id',{0,0,'-post_end_per_testcase/4-fun-0-'}}] )
+	in  do  %% Line 170
+		case call 'ct_util':'update_testdata'
+			 ('cth_conn_log', Update) of
+		  %% Line 171
+		  <'deleted'> when 'true' ->
+		      do  %% Line 172
+			  ( letrec
+				'lc$^0'/1 =
+				    fun (_cor10) ->
+					case _cor10 of
+					  <[%% Line 173
+					    {ConnMod,_cor18}|_cor9]> when 'true' ->
+					      do  call 'ct_util':'delete_testdata'
+						      ({'cth_conn_log',ConnMod})
+						  %% Line 173
+						  apply 'lc$^0'/1
+						      (_cor9)
+					  ( <[_cor8|_cor9]> when 'true' ->
+						%% Line 173
+						apply 'lc$^0'/1
+						    (_cor9)
+					    -| ['compiler_generated'] )
+					  <[]> when 'true' ->
+					      []
+					  ( <_cor10> when 'true' ->
+						( primop 'match_fail'
+						      ({'function_clause',_cor10})
+						  -| [{'function_name',{'lc$^0',1}}] )
+					    -| ['compiler_generated'] )
+					end
+			    in  apply 'lc$^0'/1
+				    (_cor0)
+			    -| ['list_comprehension'] )
+			  %% Line 174
+			  call 'error_logger':'delete_report_handler'
+			      ('ct_conn_log_h')
+		  %% Line 175
+		  <{'error','no_response'}> when 'true' ->
+		      %% Line 176
+		      call 'erlang':'exit'
+			  ({'cth_conn_log','no_response_from_logger'})
+		  %% Line 177
+		  <_X_PrevUsers> when 'true' ->
+		      'ok'
+		end
+		%% Line 180
+		{_cor1,_cor0}
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('cth_conn_log')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('cth_conn_log', _cor0)
+end

@@ -1,0 +1,527 @@
+module 'asn1_db' ['dbget'/2,
+		  'dbload'/1,
+		  'dbload'/3,
+		  'dbnew'/2,
+		  'dbput'/3,
+		  'dbsave'/2,
+		  'dbstart'/1,
+		  'dbstop'/0,
+		  'module_info'/0,
+		  'module_info'/1]
+    attributes []
+'dbstart'/1 =
+    %% Line 28
+    fun (_cor0) ->
+	let <_cor2> =
+	    %% Line 29
+	    case _cor0 of
+	      %% Line 30
+	      <[]> when 'true' ->
+		  [[46]]
+	      %% Line 31
+	      <[_cor9|_cor10]> when 'true' ->
+		  _cor0
+	      ( <_cor1> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor1})
+		-| ['compiler_generated'] )
+	    end
+	in  let <Parent> =
+		%% Line 33
+		call 'erlang':'self'
+		    ()
+	    in  %% Line 34
+		case call 'erlang':'get'
+			 ('asn1_db') of
+		  <'undefined'> when 'true' ->
+		      let <_cor6> =
+			  %% Line 35
+			  ( fun () ->
+				apply 'init'/2
+				    (Parent, _cor2)
+			    -| [{'id',{0,0,'-dbstart/1-fun-0-'}}] )
+		      in  let <_cor7> =
+			      %% Line 35
+			      call 'erlang':'spawn_link'
+				  (_cor6)
+			  in  do  %% Line 35
+				  call 'erlang':'put'
+				      ('asn1_db', _cor7)
+				  %% Line 36
+				  'ok'
+		  ( <_cor5> when 'true' ->
+			primop 'match_fail'
+			    ({'badmatch',_cor5})
+		    -| ['compiler_generated'] )
+		end
+'dbload'/3 =
+    %% Line 38
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 39
+	apply 'req'/1
+	    ({'load',_cor2,_cor1,_cor0})
+'dbload'/1 =
+    %% Line 41
+    fun (_cor0) ->
+	%% Line 42
+	apply 'req'/1
+	    ({'load',_cor0,'any',{{0,0,0},{0,0,0}}})
+'dbnew'/2 =
+    %% Line 44
+    fun (_cor1,_cor0) ->
+	apply 'req'/1
+	    ({'new',_cor1,_cor0})
+'dbsave'/2 =
+    %% Line 45
+    fun (_cor1,_cor0) ->
+	apply 'cast'/1
+	    ({'save',_cor1,_cor0})
+'dbput'/3 =
+    %% Line 46
+    fun (_cor2,_cor1,_cor0) ->
+	apply 'cast'/1
+	    ({'set',_cor2,_cor1,_cor0})
+'dbget'/2 =
+    %% Line 47
+    fun (_cor1,_cor0) ->
+	apply 'req'/1
+	    ({'get',_cor1,_cor0})
+'dbstop'/0 =
+    %% Line 48
+    fun () ->
+	let <Resp> =
+	    apply 'req'/1
+		('stop')
+	in  do  call 'erlang':'erase'
+		    ('asn1_db')
+		Resp
+'req'/1 =
+    %% Line 53
+    fun (_cor0) ->
+	let <DbPid> =
+	    %% Line 54
+	    call 'erlang':'get'
+		('asn1_db')
+	in  let <Ref> =
+		%% Line 55
+		call 'erlang':'monitor'
+		    ('process', DbPid)
+	    in  let <_cor4> =
+		    %% Line 56
+		    call 'erlang':'get'
+			('asn1_db')
+		in  let <_cor3> =
+			%% Line 56
+			call 'erlang':'self'
+			    ()
+		    in  do  %% Line 56
+			    call 'erlang':'!'
+				(_cor4, {{Ref,_cor3},_cor0})
+			    %% Line 57
+			    receive
+			      %% Line 58
+			      <{{_cor6,'asn1_db'},Reply}>
+				  when call 'erlang':'=:='
+					(_cor6,
+					 Ref) ->
+				  do  %% Line 59
+				      call 'erlang':'demonitor'
+					  (Ref, ['flush'])
+				      %% Line 60
+				      Reply
+			      %% Line 61
+			      <{'DOWN',_cor7,_cor8,_cor9,Info}>
+				  when call 'erlang':'=:='
+					(_cor7,
+					 Ref) ->
+				  %% Line 62
+				  call 'erlang':'exit'
+				      ({'db_error',Info})
+			    after 'infinity' ->
+			      'true'
+'cast'/1 =
+    %% Line 65
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 66
+	    call 'erlang':'get'
+		('asn1_db')
+	in  do  %% Line 66
+		call 'erlang':'!'
+		    (_cor1, _cor0)
+		%% Line 67
+		'ok'
+'reply'/2 =
+    %% Line 69
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Ref,From},Response> when 'true' ->
+	      do  %% Line 70
+		  call 'erlang':'!'
+		      (From, {{Ref,'asn1_db'},Response})
+		  %% Line 71
+		  'ok'
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'reply',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'init'/2 =
+    %% Line 73
+    fun (_cor1,_cor0) ->
+	let <MRef> =
+	    %% Line 74
+	    call 'erlang':'monitor'
+		('process', _cor1)
+	in  let <_cor3> =
+		%% Line 76
+		call 'ets':'new'
+		    ('asn1_db', [])
+	    in  %% Line 75
+		apply 'loop'/1
+		    ({'state',_cor1,MRef,_cor0,_cor3})
+'loop'/1 =
+    %% Line 78
+    fun (_cor0) ->
+	case _cor0 of
+	  <State = {'state',Parent,MRef,%% Line 79
+					Includes,Table}> when 'true' ->
+	      %% Line 80
+	      receive
+		%% Line 81
+		<{'set',Mod,K2,V}> when 'true' ->
+		    %% Line 82
+		    case call 'ets':'lookup'
+			     (Table, Mod) of
+		      <[{_cor14,Modtab}|[]]> when 'true' ->
+			  do  %% Line 83
+			      call 'ets':'insert'
+				  (Modtab, {K2,V})
+			      %% Line 84
+			      apply 'loop'/1
+				  (State)
+		      ( <_cor1> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor1})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 85
+		<{From,{'get',Mod,K2}}> when 'true' ->
+		    do  %% Line 95
+			case apply 'get_table'/3
+				 (Table, Mod, Includes) of
+			  %% Line 96
+			  <{'ok',Tab}> when 'true' ->
+			      let <_cor2> =
+				  apply 'lookup'/2
+				      (Tab, K2)
+			      in  apply 'reply'/2
+				      (From, _cor2)
+			  %% Line 97
+			  <'error'> when 'true' ->
+			      apply 'reply'/2
+				  (From, 'undefined')
+			  ( <_cor3> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor3})
+			    -| ['compiler_generated'] )
+			end
+			%% Line 99
+			apply 'loop'/1
+			    (State)
+		%% Line 100
+		<{'save',OutFile,Mod}> when 'true' ->
+		    %% Line 101
+		    case call 'ets':'lookup'
+			     (Table, Mod) of
+		      <[{_cor15,Mtab}|[]]> when 'true' ->
+			  %% Line 102
+			  case call 'ets':'tab2file'
+				   (Mtab, OutFile) of
+			    <'ok'> when 'true' ->
+				%% Line 103
+				apply 'loop'/1
+				    (State)
+			    ( <_cor5> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor5})
+			      -| ['compiler_generated'] )
+			  end
+		      ( <_cor4> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor4})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 104
+		<{From,{'new',Mod,Erule}}> when 'true' ->
+		    %% Line 105
+		    case call 'ets':'lookup'
+			     (Table, Mod) of
+		      <[]> when 'true' ->
+			  let <_cor7> =
+			      %% Line 106
+			      call 'lists':'concat'
+				  ([[97|[115|[110|[49|[95]]]]]|[Mod|[]]])
+			  in  let <_cor8> =
+				  %% Line 106
+				  call 'erlang':'list_to_atom'
+				      (_cor7)
+			      in  let <ModTableId> =
+				      %% Line 106
+				      call 'ets':'new'
+					  (_cor8, [])
+				  in  do  %% Line 107
+					  call 'ets':'insert'
+					      (Table, {Mod,ModTableId})
+					  let <_cor10> =
+					      %% Line 108
+					      apply 'info'/1
+						  (Erule)
+					  in  do  %% Line 108
+						  call 'ets':'insert'
+						      (ModTableId, {'__version_and_erule__',_cor10})
+						  do  %% Line 109
+						      apply 'reply'/2
+							  (From, 'ok')
+						      %% Line 110
+						      apply 'loop'/1
+							  (State)
+		      ( <_cor6> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor6})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 111
+		<{From,{'load',Mod,Erule,Mtime}}> when 'true' ->
+		    do  %% Line 112
+			case call 'ets':'member'
+				 (Table, Mod) of
+			  %% Line 113
+			  <'true'> when 'true' ->
+			      %% Line 114
+			      apply 'reply'/2
+				  (From, 'ok')
+			  %% Line 115
+			  <'false'> when 'true' ->
+			      %% Line 116
+			      case apply 'load_table'/4
+				       (Mod, Erule, Mtime, Includes) of
+				%% Line 117
+				<{'ok',ModTableId}> when 'true' ->
+				    do  %% Line 118
+					call 'ets':'insert'
+					    (Table, {Mod,ModTableId})
+					%% Line 119
+					apply 'reply'/2
+					    (From, 'ok')
+				%% Line 120
+				<'error'> when 'true' ->
+				    %% Line 121
+				    apply 'reply'/2
+					(From, 'error')
+				( <_cor11> when 'true' ->
+				      primop 'match_fail'
+					  ({'case_clause',_cor11})
+				  -| ['compiler_generated'] )
+			      end
+			  ( <_cor12> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor12})
+			    -| ['compiler_generated'] )
+			end
+			%% Line 124
+			apply 'loop'/1
+			    (State)
+		%% Line 125
+		<{From,'stop'}> when 'true' ->
+		    %% Line 126
+		    apply 'reply'/2
+			(From, 'stopped')
+		%% Line 127
+		<{'DOWN',_cor16,'process',_cor17,Reason}>
+		    when let <_cor18> =
+			  call 'erlang':'=:='
+			      (_cor16, MRef)
+		      in  let <_cor19> =
+			      call 'erlang':'=:='
+				  (_cor17, Parent)
+			  in  call 'erlang':'and'
+				  (_cor18, _cor19) ->
+		    %% Line 128
+		    call 'erlang':'exit'
+			(Reason)
+	      after 'infinity' ->
+		'true'
+	  ( <_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13})
+		  -| [{'function_name',{'loop',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'get_table'/3 =
+    %% Line 131
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 132
+	case call 'ets':'lookup'
+		 (_cor2, _cor1) of
+	  %% Line 133
+	  <[{_cor7,Tab}|[]]>
+	      when call 'erlang':'=:='
+		    (_cor7,
+		     _cor1) ->
+	      %% Line 134
+	      {'ok',Tab}
+	  %% Line 135
+	  <[]> when 'true' ->
+	      %% Line 136
+	      apply 'load_table'/4
+		  (_cor1, 'any', {{0,0,0},{0,0,0}}, _cor0)
+	  ( <_cor3> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor3})
+	    -| ['compiler_generated'] )
+	end
+'lookup'/2 =
+    %% Line 139
+    fun (_cor1,_cor0) ->
+	%% Line 140
+	case call 'ets':'lookup'
+		 (_cor1, _cor0) of
+	  %% Line 141
+	  <[]> when 'true' ->
+	      'undefined'
+	  %% Line 142
+	  <[{_cor5,V}|[]]>
+	      when call 'erlang':'=:='
+		    (_cor5,
+		     _cor0) ->
+	      V
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'info'/1 =
+    %% Line 145
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 146
+	    call 'asn1ct':'vsn'
+		()
+	in  %% Line 146
+	    {_cor1,_cor0}
+'load_table'/4 =
+    %% Line 148
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <Base> =
+	    %% Line 149
+	    call 'lists':'concat'
+		([_cor3|[[46|[97|[115|[110|[49|[100|[98]]]]]]]]])
+	in  %% Line 150
+	    case apply 'path_find'/3
+		     (_cor0, _cor1, Base) of
+	      %% Line 151
+	      <'error'> when 'true' ->
+		  %% Line 152
+		  'error'
+	      %% Line 153
+	      <{'ok',ModTab}>
+		  when call 'erlang':'=:='
+			(_cor2,
+			 'any') ->
+		  %% Line 154
+		  {'ok',ModTab}
+	      %% Line 155
+	      <{'ok',ModTab}> when 'true' ->
+		  let <Vsn> =
+		      %% Line 156
+		      call 'asn1ct':'vsn'
+			  ()
+		  in  %% Line 157
+		      case call 'ets':'lookup'
+			       (ModTab, '__version_and_erule__') of
+			%% Line 158
+			<[{_cor12,{_cor13,_cor14}}|[]]>
+			    when let <_cor15> =
+				  call 'erlang':'=:='
+				      (_cor13, Vsn)
+			      in  let <_cor16> =
+				      call 'erlang':'=:='
+					  (_cor14, _cor2)
+				  in  call 'erlang':'and'
+					  (_cor15, _cor16) ->
+			    %% Line 160
+			    {'ok',ModTab}
+			%% Line 161
+			<_cor17> when 'true' ->
+			    do  %% Line 163
+				call 'ets':'delete'
+				    (ModTab)
+				%% Line 164
+				'error'
+		      end
+	      ( <_cor7> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor7})
+		-| ['compiler_generated'] )
+	    end
+'path_find'/3 =
+    %% Line 168
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[H|T],Mtime,Base> when 'true' ->
+	      let <File> =
+		  %% Line 169
+		  call 'filename':'join'
+		      (H, Base)
+	      in  %% Line 170
+		  case call 'filelib':'last_modified'
+			   (File) of
+		    %% Line 171
+		    <0> when 'true' ->
+			%% Line 172
+			apply 'path_find'/3
+			    (T, Mtime, Base)
+		    %% Line 173
+		    <DbMtime>
+			when call 'erlang':'>='
+			      (DbMtime,
+			       Mtime) ->
+			%% Line 174
+			case call 'ets':'file2tab'
+				 (File) of
+			  %% Line 175
+			  <Ret = {'ok',_cor9}> when 'true' ->
+			      %% Line 176
+			      Ret
+			  %% Line 177
+			  <_cor10> when 'true' ->
+			      %% Line 178
+			      apply 'path_find'/3
+				  (T, Mtime, Base)
+			end
+		    %% Line 180
+		    <_cor11> when 'true' ->
+			%% Line 181
+			apply 'path_find'/3
+			    (T, Mtime, Base)
+		  end
+	  %% Line 183
+	  <[],_cor12,_cor13> when 'true' ->
+	      'error'
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6})
+		  -| [{'function_name',{'path_find',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('asn1_db')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('asn1_db', _cor0)
+end

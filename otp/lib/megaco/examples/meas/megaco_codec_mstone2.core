@@ -1,0 +1,936 @@
+module 'megaco_codec_mstone2' ['module_info'/0,
+			       'module_info'/1,
+			       'start'/0,
+			       'start'/1,
+			       'start_flex'/0,
+			       'start_flex'/1,
+			       'start_no_drv'/0,
+			       'start_no_drv'/1,
+			       'start_only_drv'/0,
+			       'start_only_drv'/1]
+    attributes []
+'start'/0 =
+    %% Line 111
+    fun () ->
+	let <_cor0> =
+	    %% Line 112
+	    call 'megaco_codec_transform':'default_message_package'
+		()
+	in  %% Line 112
+	    apply 'start'/1
+		(_cor0)
+'start'/1 =
+    %% Line 114
+    fun (_cor0) ->
+	case _cor0 of
+	  <[MessagePackage|[]]> when 'true' ->
+	      %% Line 115
+	      apply 'do_start'/2
+		  (MessagePackage, 'ignore')
+	  %% Line 116
+	  <MessagePackage> when 'true' ->
+	      %% Line 117
+	      apply 'do_start'/2
+		  (MessagePackage, 'ignore')
+	end
+'start_flex'/0 =
+    %% Line 120
+    fun () ->
+	let <_cor0> =
+	    %% Line 121
+	    call 'megaco_codec_transform':'default_message_package'
+		()
+	in  %% Line 121
+	    apply 'start_flex'/1
+		(_cor0)
+'start_flex'/1 =
+    %% Line 123
+    fun (_cor0) ->
+	case _cor0 of
+	  <[MessagePackage|[]]> when 'true' ->
+	      %% Line 124
+	      apply 'do_start'/2
+		  (MessagePackage, 'flex')
+	  %% Line 125
+	  <MessagePackage> when 'true' ->
+	      %% Line 126
+	      apply 'do_start'/2
+		  (MessagePackage, 'flex')
+	end
+'start_no_drv'/0 =
+    %% Line 129
+    fun () ->
+	let <_cor0> =
+	    %% Line 130
+	    call 'megaco_codec_transform':'default_message_package'
+		()
+	in  %% Line 130
+	    apply 'start_no_drv'/1
+		(_cor0)
+'start_no_drv'/1 =
+    %% Line 132
+    fun (_cor0) ->
+	case _cor0 of
+	  <[MessagePackage|[]]> when 'true' ->
+	      %% Line 133
+	      apply 'do_start'/2
+		  (MessagePackage, 'no_drv')
+	  %% Line 134
+	  <MessagePackage> when 'true' ->
+	      %% Line 135
+	      apply 'do_start'/2
+		  (MessagePackage, 'no_drv')
+	end
+'start_only_drv'/0 =
+    %% Line 138
+    fun () ->
+	let <_cor0> =
+	    %% Line 139
+	    call 'megaco_codec_transform':'default_message_package'
+		()
+	in  %% Line 139
+	    apply 'start_only_drv'/1
+		(_cor0)
+'start_only_drv'/1 =
+    %% Line 141
+    fun (_cor0) ->
+	case _cor0 of
+	  <[MessagePackage|[]]> when 'true' ->
+	      %% Line 142
+	      apply 'do_start'/2
+		  (MessagePackage, 'only_drv')
+	  %% Line 143
+	  <MessagePackage> when 'true' ->
+	      %% Line 144
+	      apply 'do_start'/2
+		  (MessagePackage, 'only_drv')
+	end
+'do_start'/2 =
+    %% Line 147
+    fun (_cor1,_cor0) ->
+	let <MessagePackage> =
+	    %% Line 152
+	    apply 'parse_message_package'/1
+		(_cor1)
+	in  %% Line 153
+	    apply 'mstone_init'/2
+		(MessagePackage, _cor0)
+'parse_message_package'/1 =
+    %% Line 155
+    fun (_cor0) ->
+	case _cor0 of
+	  <MessagePackageRaw>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      %% Line 156
+	      call 'erlang':'list_to_atom'
+		  (MessagePackageRaw)
+	  %% Line 157
+	  <MessagePackage>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      %% Line 158
+	      MessagePackage
+	  %% Line 159
+	  <BadMessagePackage> when 'true' ->
+	      %% Line 160
+	      call 'erlang':'throw'
+		  ({'error',{'bad_message_package',BadMessagePackage}})
+	end
+'mstone_init'/2 =
+    %% Line 163
+    fun (_cor1,_cor0) ->
+	do  %% Line 164
+	    call 'io':'format'
+		([126|[110]], [])
+	    do  %% Line 165
+		call 'megaco_codec_mstone_lib':'display_os_info'
+		    ()
+		do  %% Line 166
+		    call 'megaco_codec_mstone_lib':'display_system_info'
+			()
+		    do  %% Line 167
+			call 'megaco_codec_mstone_lib':'display_app_info'
+			    ()
+			do  %% Line 168
+			    call 'io':'format'
+				([126|[110]], [])
+			    let <_cor2> =
+				%% Line 170
+				( fun () ->
+				      %% Line 171
+				      apply 'loader'/2
+					  (_cor1, _cor0)
+				  -| [{'id',{0,0,'-mstone_init/2-fun-0-'}}] )
+			    in  let <_cor3> =
+				    %% Line 170
+				    call 'erlang':'spawn'
+					(_cor2)
+				in  let <Ref> =
+					%% Line 169
+					call 'erlang':'monitor'
+					    ('process', _cor3)
+				    in  %% Line 173
+					receive
+					  %% Line 174
+					  <{'DOWN',_cor7,'process',_X_Pid,{'done',Result}}>
+					      when call 'erlang':'=:='
+						    (_cor7,
+						     Ref) ->
+					      %% Line 175
+					      apply 'display_result'/1
+						  (Result)
+					  %% Line 176
+					  <{'DOWN',_cor8,'process',_X_Pid,Result}>
+					      when call 'erlang':'=:='
+						    (_cor8,
+						     Ref) ->
+					      do  %% Line 177
+						  call 'io':'format'
+						      ([85|[110|[101|[120|[112|[101|[99|[116|[101|[100|[32|[114|[101|[115|[117|[108|[116|[58|[126|[110|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]], [Result|[]])
+						  %% Line 178
+						  'ok'
+					after 'infinity' ->
+					  'true'
+'display_result'/1 =
+    %% Line 186
+    fun (_cor0) ->
+	%% Line 187
+	case call 'lists':'keysearch'
+		 ('worker_cnt', 1, _cor0) of
+	  <{'value',{'worker_cnt',WC}}> when 'true' ->
+	      let <_cor6> =
+		  %% Line 189
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor4) ->
+				case _cor4 of
+				  <[{{'codec_cnt',Mod,Conf},Cnt}|_cor3]> when 'true' ->
+				      let <_cor5> =
+					  apply 'lc$^0'/1
+					      (_cor3)
+				      in  ( [{Mod,Conf,Cnt}|_cor5]
+					    -| ['compiler_generated'] )
+				  ( <[_cor2|_cor3]> when 'true' ->
+					apply 'lc$^0'/1
+					    (_cor3)
+				    -| ['compiler_generated'] )
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor4> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor4})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (_cor0)
+		    -| ['list_comprehension'] )
+	      in  let <_cor12> =
+		      %% Line 190
+		      ( letrec
+			    'lc$^1'/1 =
+				fun (_cor10) ->
+				    case _cor10 of
+				      <[{_cor16,_cor17,Cnt}|_cor9]> when 'true' ->
+					  let <_cor11> =
+					      apply 'lc$^1'/1
+						  (_cor9)
+					  in  ( [Cnt|_cor11]
+						-| ['compiler_generated'] )
+				      ( <[_cor8|_cor9]> when 'true' ->
+					    apply 'lc$^1'/1
+						(_cor9)
+					-| ['compiler_generated'] )
+				      <[]> when 'true' ->
+					  []
+				      ( <_cor10> when 'true' ->
+					    ( primop 'match_fail'
+						  ({'function_clause',_cor10})
+					      -| [{'function_name',{'lc$^1',1}}] )
+					-| ['compiler_generated'] )
+				    end
+			in  apply 'lc$^1'/1
+				(_cor6)
+			-| ['list_comprehension'] )
+		  in  let <MStone> =
+			  %% Line 190
+			  call 'lists':'sum'
+			      (_cor12)
+		      in  do  %% Line 191
+			      call 'io':'format'
+				  ([78|[117|[109|[98|[101|[114|[32|[111|[102|[32|[112|[114|[111|[99|[115|[32|[115|[112|[97|[119|[110|[101|[100|[58|[32|[126|[119|[126|[110|[77|[83|[116|[111|[110|[101|[58|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[32|[126|[119|[126|[110|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 193
+																																													      [WC|[MStone|[]]])
+			      let <_cor14> =
+				  %% Line 194
+				  call 'lists':'keysort'
+				      (3, _cor6)
+			      in  do  %% Line 194
+				      apply 'display_worker_result'/1
+					  (_cor14)
+				      %% Line 195
+				      'ok'
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'display_worker_result'/1 =
+    %% Line 197
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      %% Line 198
+	      call 'io':'format'
+		  ([126|[110]], [])
+	  %% Line 199
+	  <[{Mod,Conf,Cnt}|Res]> when 'true' ->
+	      let <_cor1> =
+		  %% Line 200
+		  apply 'image_of'/2
+		      (Mod, Conf)
+	      in  do  %% Line 200
+		      call 'io':'format'
+			  ([126|[115|[58|[32|[126|[119|[126|[110]]]]]]]], [_cor1|[Cnt|[]]])
+		      %% Line 201
+		      apply 'display_worker_result'/1
+			  (Res)
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'display_worker_result',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'image_of'/2 =
+    %% Line 203
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'megaco_per_bin_encoder',Conf> when 'true' ->
+	      %% Line 204
+	      apply 'bin_image'/2
+		  ([112|[101|[114|[95|[98|[105|[110]]]]]]], Conf)
+	  %% Line 205
+	  <'megaco_ber_bin_encoder',Conf> when 'true' ->
+	      %% Line 206
+	      apply 'bin_image'/2
+		  ([98|[101|[114|[95|[98|[105|[110]]]]]]], Conf)
+	  %% Line 207
+	  <'megaco_pretty_text_encoder',Conf> when 'true' ->
+	      %% Line 208
+	      apply 'text_image'/2
+		  ([112|[114|[101|[116|[116|[121]]]]]], Conf)
+	  %% Line 209
+	  <'megaco_compact_text_encoder',Conf> when 'true' ->
+	      %% Line 210
+	      apply 'text_image'/2
+		  ([99|[111|[109|[112|[97|[99|[116]]]]]]], Conf)
+	  %% Line 211
+	  <'megaco_erl_dist_encoder',Conf> when 'true' ->
+	      %% Line 212
+	      apply 'erl_image'/2
+		  ([101|[114|[108|[95|[100|[105|[115|[116]]]]]]]], Conf)
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'image_of',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'bin_image'/2 =
+    %% Line 214
+    fun (_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 216
+	    case call 'lists':'member'
+		     ('driver', _cor0) of
+	      %% Line 217
+	      <'true'> when 'true' ->
+		  %% Line 218
+		  ['driver']
+	      %% Line 219
+	      <'false'> when 'true' ->
+		  %% Line 220
+		  []
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor2})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor6> =
+		%% Line 223
+		case call 'lists':'member'
+			 ('native', _cor0) of
+		  %% Line 224
+		  <'true'> when 'true' ->
+		      %% Line 225
+		      ['native']
+		  %% Line 226
+		  <'false'> when 'true' ->
+		      %% Line 227
+		      []
+		  ( <_cor5> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor5})
+		    -| ['compiler_generated'] )
+		end
+	    in  let <_cor8> =
+		    %% Line 229
+		    call 'erlang':'++'
+			(_cor3, _cor6)
+		in  %% Line 229
+		    call 'io_lib':'format'
+			([126|[115|[32|[126|[119]]]]], [_cor1|[_cor8|[]]])
+'text_image'/2 =
+    %% Line 231
+    fun (_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 233
+	    case call 'lists':'keysearch'
+		     ('flex', 1, _cor0) of
+	      %% Line 234
+	      <'false'> when 'true' ->
+		  %% Line 235
+		  []
+	      %% Line 236
+	      <_cor7> when 'true' ->
+		  %% Line 237
+		  ['flex']
+	    end
+	in  %% Line 239
+	    call 'io_lib':'format'
+		([126|[115|[32|[126|[119]]]]], [_cor1|[_cor3|[]]])
+'erl_image'/2 =
+    %% Line 241
+    fun (_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 243
+	    case call 'lists':'member'
+		     ('megaco_compressed', _cor0) of
+	      %% Line 244
+	      <'true'> when 'true' ->
+		  %% Line 245
+		  ['megaco_compressed']
+	      %% Line 246
+	      <'false'> when 'true' ->
+		  %% Line 247
+		  []
+	      ( <_cor2> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor2})
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor6> =
+		%% Line 250
+		case call 'lists':'member'
+			 ('compressed', _cor0) of
+		  %% Line 251
+		  <'true'> when 'true' ->
+		      %% Line 252
+		      ['compressed']
+		  %% Line 253
+		  <'false'> when 'true' ->
+		      %% Line 254
+		      []
+		  ( <_cor5> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor5})
+		    -| ['compiler_generated'] )
+		end
+	    in  let <_cor8> =
+		    %% Line 256
+		    call 'erlang':'++'
+			(_cor3, _cor6)
+		in  %% Line 256
+		    call 'io_lib':'format'
+			([126|[115|[32|[126|[119]]]]], [_cor1|[_cor8|[]]])
+'loader'/2 =
+    %% Line 261
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 262
+	    call 'megaco_codec_transform':'codecs'
+		()
+	in  %% Line 262
+	    apply 'loader'/3
+		(_cor2, _cor1, _cor0)
+'loader'/3 =
+    %% Line 270
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 271
+	    call 'erlang':'process_flag'
+		('trap_exit', 'true')
+	    let <_cor3> =
+		catch
+		    %% Line 272
+		    apply 'init'/3
+			(_cor2, _cor1, _cor0)
+	    in  %% Line 272
+		case _cor3 of
+		  %% Line 273
+		  <{'ok',State}> when 'true' ->
+		      %% Line 274
+		      apply 'loader_loop'/2
+			  ('running', State)
+		  %% Line 275
+		  <Error> when 'true' ->
+		      %% Line 276
+		      call 'erlang':'exit'
+			  (Error)
+		end
+'init'/3 =
+    %% Line 279
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 280
+	    call 'ets':'new'
+		('mstone', ['set'|['private'|['named_table'|[{'keypos',1}]]]])
+	    do  %% Line 281
+		call 'ets':'insert'
+		    ('mstone', {'worker_cnt',0})
+		%% Line 282
+		case call 'megaco_codec_mstone_lib':'start_flex_scanner'
+			 () of
+		  <{Pid,FlexConf}> when 'true' ->
+		      do  %% Line 283
+			  call 'io':'format'
+			      ([112|[114|[101|[112|[97|[114|[101|[32|[109|[101|[115|[115|[97|[103|[101|[115]]]]]]]]]]]]]]]], [])
+			  let <EMessages> =
+			      %% Line 284
+			      call 'megaco_codec_mstone_lib':'expanded_messages'
+				  (_cor1, _cor2, _cor0)
+			  in  do  %% Line 285
+				  call 'io':'format'
+				      ([126|[110|[105|[110|[105|[116|[32|[99|[111|[100|[101|[99|[32|[100|[97|[116|[97]]]]]]]]]]]]]]]]], [])
+				  let <CodecData> =
+				      %% Line 286
+				      apply 'init_codec_data'/2
+					  (EMessages, FlexConf)
+				  in  let <_cor7> =
+					  %% Line 287
+					  call 'timer':'minutes'
+					      (10)
+				      in  let <_cor6> =
+					      %% Line 287
+					      call 'erlang':'self'
+						  ()
+					  in  let <Timer> =
+						  %% Line 287
+						  call 'erlang':'send_after'
+						      (_cor7, _cor6, 'mstone_finished')
+					      in  do  %% Line 288
+						      call 'io':'format'
+							  ([126|[110]], [])
+						      %% Line 289
+						      {'ok',{'state',Timer,[],%% Line 290
+									      CodecData,%% Line 291
+											Pid,%% Line 292
+											    FlexConf}}
+		  ( <_cor3> when 'true' ->
+			primop 'match_fail'
+			    ({'badmatch',_cor3})
+		    -| ['compiler_generated'] )
+		end
+'init_codec_data'/2 =
+    %% Line 294
+    fun (_cor1,_cor0) ->
+	%% Line 295
+	( letrec
+	      'lc$^0'/1 =
+		  fun (_cor4) ->
+		      case _cor4 of
+			<[%% Line 296
+			  {Codec,Mod,Conf,Msgs}|_cor3]> when 'true' ->
+			    let <_cor5> =
+				apply 'init_codec_data'/5
+				    (Codec, Mod, Conf, Msgs, _cor0)
+			    in  let <_cor6> =
+				    %% Line 296
+				    apply 'lc$^0'/1
+					(_cor3)
+				in  ( [_cor5|_cor6]
+				      -| ['compiler_generated'] )
+			( <[_cor2|_cor3]> when 'true' ->
+			      %% Line 296
+			      apply 'lc$^0'/1
+				  (_cor3)
+			  -| ['compiler_generated'] )
+			<[]> when 'true' ->
+			    []
+			( <_cor4> when 'true' ->
+			      ( primop 'match_fail'
+				    ({'function_clause',_cor4})
+				-| [{'function_name',{'lc$^0',1}}] )
+			  -| ['compiler_generated'] )
+		      end
+	  in  apply 'lc$^0'/1
+		  (_cor1)
+	  -| ['list_comprehension'] )
+'init_codec_data'/5 =
+    %% Line 298
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Codec,Mod,Conf0,Msgs0,FlexConf>
+	      when %% Line 299
+		try
+		    ( case <> of
+			( <>
+			      when call 'erlang':'is_atom'
+				    (Codec) ->
+			      %% Line 300
+			      ( case <> of
+				  ( <>
+					when call 'erlang':'is_atom'
+					      (Mod) ->
+					%% Line 301
+					( case <> of
+					    ( <>
+						  when call 'erlang':'is_list'
+							(Conf0) ->
+						  %% Line 302
+						  call 'erlang':'is_list'
+						      (Msgs0)
+					      -| ['compiler_generated'] )
+					    ( <> when 'true' ->
+						  'false'
+					      -| ['compiler_generated'] )
+					  end
+					  -| ['compiler_generated'] )
+				    -| ['compiler_generated'] )
+				  ( <> when 'true' ->
+					'false'
+				    -| ['compiler_generated'] )
+				end
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+			( <> when 'true' ->
+			      'false'
+			  -| ['compiler_generated'] )
+		      end
+		      -| ['compiler_generated'] )
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      do  %% Line 303
+		  call 'io':'format'
+		      ([46], [])
+		  let <_cor12> =
+		      %% Line 304
+		      apply 'init_codec_conf'/2
+			  (FlexConf, Conf0)
+		  in  let <Conf> =
+			  %% Line 304
+			  [{'version3','v3'}|_cor12]
+		      in  let <_cor19> =
+			      %% Line 305
+			      ( letrec
+				    'lc$^0'/1 =
+					fun (_cor16) ->
+					    case _cor16 of
+					      <[{_cor26,Bin}|_cor15]> when 'true' ->
+						  let <_cor17> =
+						      call 'megaco_codec_mstone_lib':'detect_version'
+							  (Mod, Conf, Bin)
+						  in  let <_cor18> =
+							  apply 'lc$^0'/1
+							      (_cor15)
+						      in  ( [_cor17|_cor18]
+							    -| ['compiler_generated'] )
+					      ( <[_cor14|_cor15]> when 'true' ->
+						    apply 'lc$^0'/1
+							(_cor15)
+						-| ['compiler_generated'] )
+					      <[]> when 'true' ->
+						  []
+					      ( <_cor16> when 'true' ->
+						    ( primop 'match_fail'
+							  ({'function_clause',_cor16})
+						      -| [{'function_name',{'lc$^0',1}}] )
+						-| ['compiler_generated'] )
+					    end
+				in  apply 'lc$^0'/1
+					(Msgs0)
+				-| ['list_comprehension'] )
+			  in  do  %% Line 306
+				  call 'ets':'insert'
+				      ('mstone', {{'codec_cnt',Mod,Conf},0})
+				  %% Line 307
+				  {'codec_data','undefined',Mod,Conf,_cor19}
+	  ( <_cor25,_cor24,_cor23,_cor22,_cor21> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor25,_cor24,_cor23,_cor22,_cor21})
+		  -| [{'function_name',{'init_codec_data',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'init_codec_conf'/2 =
+    %% Line 310
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <FlexConf,['flex_scanner']> when 'true' ->
+	      %% Line 311
+	      FlexConf
+	  %% Line 312
+	  <_cor4,Conf> when 'true' ->
+	      %% Line 313
+	      Conf
+	end
+'loader_loop'/2 =
+    %% Line 318
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'finishing',{'state',_cor10,[],_cor11,Pid,_cor12}> when 'true' ->
+	      do  %% Line 320
+		  call 'io':'format'
+		      ([126|[110]], [])
+		  do  %% Line 321
+		      call 'megaco_codec_mstone_lib':'stop_flex_scanner'
+			  (Pid)
+		      let <_cor2> =
+			  %% Line 322
+			  call 'ets':'tab2list'
+			      ('mstone')
+		      in  let <_cor3> =
+			      %% Line 322
+			      call 'lists':'sort'
+				  (_cor2)
+			  in  %% Line 322
+			      call 'erlang':'exit'
+				  ({'done',_cor3})
+	  %% Line 324
+	  <'finishing',State> when 'true' ->
+	      %% Line 325
+	      receive
+		%% Line 326
+		<{'DOWN',Ref,'process',_X_Pid,{'mstone_done',Codec,Conf,Cnt}}> when 'true' ->
+		    let <_cor4> =
+			%% Line 327
+			apply 'done_worker'/5
+			    (Ref, Codec, Conf, Cnt, State)
+		    in  %% Line 327
+			apply 'loader_loop'/2
+			    ('finishing', _cor4)
+	      after 'infinity' ->
+		'true'
+	  %% Line 330
+	  <'running',State = {'state',_cor13,_cor14,[],_cor15,_cor16}> when 'true' ->
+	      %% Line 331
+	      receive
+		%% Line 332
+		<'mstone_finished'> when 'true' ->
+		    %% Line 333
+		    apply 'loader_loop'/2
+			('finishing', State)
+		%% Line 335
+		<{'DOWN',Ref,'process',_X_Pid,{'mstone_done',Codec,Conf,Cnt}}> when 'true' ->
+		    let <_cor5> =
+			%% Line 336
+			apply 'done_worker'/5
+			    (Ref, Codec, Conf, Cnt, State)
+		    in  %% Line 336
+			apply 'loader_loop'/2
+			    ('running', _cor5)
+	      after 'infinity' ->
+		'true'
+	  %% Line 339
+	  <'running',State> when 'true' ->
+	      %% Line 340
+	      receive
+		%% Line 341
+		<'mstone_finished'> when 'true' ->
+		    %% Line 342
+		    apply 'loader_loop'/2
+			('finishing', State)
+		%% Line 344
+		<{'DOWN',Ref,'process',_X_Pid,{'mstone_done',Codec,Conf,Cnt}}> when 'true' ->
+		    let <State2> =
+			%% Line 345
+			apply 'done_worker'/5
+			    (Ref, Codec, Conf, Cnt, State)
+		    in  %% Line 346
+			apply 'loader_loop'/2
+			    ('running', State2)
+	      after %% Line 348
+		    0 ->
+		let <_cor6> =
+		    %% Line 349
+		    apply 'start_worker'/1
+			(State)
+		in  %% Line 349
+		    apply 'loader_loop'/2
+			('running', _cor6)
+	  ( <_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8})
+		  -| [{'function_name',{'loader_loop',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'done_worker'/5 =
+    %% Line 352
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Ref,Codec,Conf,Cnt,State = %% Line 353
+				      {'state',_cor16,Running,Idle,_cor17,_cor18}> when 'true' ->
+	      do  %% Line 355
+		  call 'ets':'update_counter'
+		      ('mstone', 'worker_cnt', 1)
+		  do  %% Line 356
+		      call 'ets':'update_counter'
+			  ('mstone', {'codec_cnt',Codec,Conf}, Cnt)
+		      let <Running2> =
+			  %% Line 357
+			  call 'lists':'keydelete'
+			      (Ref, 2, Running)
+		      in  let <CD> =
+			      %% Line 358
+			      call 'erlang':'--'
+				  (Running, Running2)
+			  in  let <_rec0> =
+				  %% Line 359
+				  call 'lists':'append'
+				      (Idle, CD)
+			      in  let <_cor9> =
+				      %% Line 359
+				      call 'erlang':'setelement'
+					  (4, State, _rec0)
+				  in  %% Line 359
+				      call 'erlang':'setelement'
+					  (3, _cor9, Running2)
+	  ( <_cor15,_cor14,_cor13,_cor12,_cor11> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor15,_cor14,_cor13,_cor12,_cor11})
+		  -| [{'function_name',{'done_worker',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'start_worker'/1 =
+    %% Line 361
+    fun (_cor0) ->
+	case _cor0 of
+	  <State = {'state',_cor14,Running,[H|T],_cor15,_cor16}> when 'true' ->
+	      %% Line 362
+	      case H of
+		<{'codec_data',_cor17,Codec,Conf,Msgs}> when 'true' ->
+		    let <Worker> =
+			%% Line 363
+			( fun () ->
+			      apply 'worker'/4
+				  (Codec, Conf, Msgs, 0)
+			  -| [{'id',{0,0,'-start_worker/1-fun-0-'}}] )
+		    in  let <_cor3> =
+			    %% Line 364
+			    call 'erlang':'spawn'
+				(Worker)
+			in  let <Ref> =
+				%% Line 364
+				call 'erlang':'monitor'
+				    ('process', _cor3)
+			    in  let <_cor7> =
+				    %% Line 365
+				    call 'erlang':'setelement'
+					(2, H, Ref)
+				in  let <_rec3> =
+					%% Line 366
+					[_cor7|Running]
+				    in  let <_cor11> =
+					    %% Line 366
+					    call 'erlang':'setelement'
+						(4, State, T)
+					in  %% Line 366
+					    call 'erlang':'setelement'
+						(3, _cor11, _rec3)
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13})
+		  -| [{'function_name',{'start_worker',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'worker'/4 =
+    %% Line 371
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Codec,Conf,[],Cnt> when 'true' ->
+	      %% Line 372
+	      call 'erlang':'exit'
+		  ({'mstone_done',Codec,Conf,Cnt})
+	  %% Line 373
+	  <Codec,Conf,[{V,Msg}|Msgs],Cnt> when 'true' ->
+	      do  %% Line 374
+		  apply 'work'/4
+		      (Codec, Conf, V, Msg)
+		  let <_cor4> =
+		      %% Line 375
+		      call 'erlang':'+'
+			  (Cnt, 1)
+		  in  %% Line 375
+		      apply 'worker'/4
+			  (Codec, Conf, Msgs, _cor4)
+	  ( <_cor8,_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'worker',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'work'/4 =
+    %% Line 377
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    catch
+		%% Line 378
+		call _cor3:'decode_message'
+		    (_cor2, _cor1, _cor0)
+	in  %% Line 378
+	    case _cor4 of
+	      %% Line 379
+	      <{'ok',Msg}> when 'true' ->
+		  let <_cor5> =
+		      catch
+			  %% Line 380
+			  call _cor3:'encode_message'
+			      (_cor2, _cor1, Msg)
+		  in  %% Line 380
+		      case _cor5 of
+			%% Line 381
+			<{'ok',Bin}>
+			    when call 'erlang':'is_binary'
+				  (Bin) ->
+			    %% Line 382
+			    'ok'
+			%% Line 383
+			<EncodeError> when 'true' ->
+			    do  %% Line 384
+				apply 'emsg'/2
+				    ([102|[97|[105|[108|[101|[100|[32|[101|[110|[99|[111|[100|[105|[110|[103|[32|[109|[101|[115|[115|[97|[103|[101|[58|[32|[126|[110|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [EncodeError|[]])
+				%% Line 385
+				call 'erlang':'exit'
+				    ({'mstone_worker_encode_failure',EncodeError})
+		      end
+	      %% Line 387
+	      <DecodeError> when 'true' ->
+		  do  %% Line 388
+		      apply 'emsg'/2
+			  ([102|[97|[105|[108|[101|[100|[32|[100|[101|[99|[111|[100|[105|[110|[103|[32|[109|[101|[115|[115|[97|[103|[101|[58|[32|[126|[110|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [DecodeError|[]])
+		      %% Line 389
+		      call 'erlang':'exit'
+			  ({'mstone_worker_decode_failure',DecodeError})
+	    end
+'emsg'/2 =
+    %% Line 396
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 397
+	    call 'erlang':'++'
+		(_cor1, [126|[110]])
+	in  %% Line 397
+	    call 'error_logger':'error_msg'
+		(_cor2, _cor0)
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('megaco_codec_mstone2')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('megaco_codec_mstone2', _cor0)
+end

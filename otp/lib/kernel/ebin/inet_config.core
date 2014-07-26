@@ -1,0 +1,1284 @@
+module 'inet_config' ['do_load_resolv'/2,
+		      'init'/0,
+		      'module_info'/0,
+		      'module_info'/1]
+    attributes [%% Line 22
+		'type' =
+		    %% Line 22
+		    [{{'record','hostent'},[{'typed_record_field',{'record_field',24,{'atom',24,'h_name'}},{'type',24,'union',[{'atom',24,'undefined'}|[{'remote_type',24,[{'atom',24,'inet'}|[{'atom',24,'hostname'}|[[]]]]}]]}}|[{'typed_record_field',{'record_field',25,{'atom',25,'h_aliases'},{'nil',25}},{'type',25,'list',[{'remote_type',25,[{'atom',25,'inet'}|[{'atom',25,'hostname'}|[[]]]]}]}}|[{'typed_record_field',{'record_field',26,{'atom',26,'h_addrtype'}},{'type',26,'union',[{'atom',26,'undefined'}|[{'atom',26,'inet'}|[{'atom',26,'inet6'}]]]}}|[{'typed_record_field',{'record_field',27,{'atom',27,'h_length'}},{'type',27,'union',[{'atom',27,'undefined'}|[{'type',27,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',28,{'atom',28,'h_addr_list'},{'nil',28}},{'type',28,'list',[{'remote_type',28,[{'atom',28,'inet'}|[{'atom',28,'ip_address'}|[[]]]]}]}}]]]]],[]}],
+		%% Line 45
+		'spec' =
+		    %% Line 45
+		    [{{'init',0},[{'type',45,'fun',[{'type',45,'product',[]}|[{'atom',45,'ok'}]]}]}]]
+'init'/0 =
+    %% Line 46
+    fun () ->
+	do  %% Line 47
+	    apply 'set_hostname'/0
+		()
+	    let <OsType> =
+		%% Line 54
+		call 'os':'type'
+		    ()
+	    in  let <_cor1> =
+		    %% Line 55
+		    apply 'erl_dist_mode'/0
+			()
+		in  do  %% Line 55
+			apply 'do_load_resolv'/2
+			    (OsType, _cor1)
+			do  %% Line 57
+			    case OsType of
+			      %% Line 58
+			      <{'unix',Type}> when 'true' ->
+				  do  %% Line 59
+				      case <> of
+					<>
+					    when call 'erlang':'=:='
+						  (Type,
+						   'linux') ->
+					    %% Line 67
+					    case call 'inet_db':'res_option'
+						     ('domain') of
+					      %% Line 68
+					      <[]> when 'true' ->
+						  let <_cor2> =
+						      %% Line 69
+						      call 'inet_db':'gethostname'
+							  ()
+						  in  %% Line 69
+						      case call 'inet':'gethostbyname'
+							       (_cor2) of
+							%% Line 70
+							<{'ok',{'hostent',[],_cor21,_cor22,_cor23,_cor24}}> when 'true' ->
+							    'ok'
+							%% Line 72
+							<{'ok',{'hostent',HostName,_cor25,_cor26,_cor27,_cor28}}> when 'true' ->
+							    %% Line 73
+							    apply 'set_hostname'/1
+								({'ok',HostName})
+							%% Line 74
+							<_cor29> when 'true' ->
+							    'ok'
+						      end
+					      %% Line 77
+					      <_cor30> when 'true' ->
+						  'ok'
+					    end
+					%% Line 80
+					<> when 'true' ->
+					    'ok'
+				      end
+				      let <_cor5> =
+					  %% Line 82
+					  call 'inet_db':'res_option'
+					      ('lookup')
+				      in  %% Line 82
+					  apply 'add_dns_lookup'/1
+					      (_cor5)
+			      %% Line 83
+			      <_cor31> when 'true' ->
+				  'ok'
+			    end
+			    %% Line 88
+			    case apply 'read_rc'/0
+				     () of
+			      <{RcFile,CfgFiles,CfgList}> when 'true' ->
+				  let <_cor11> =
+				      %% Line 91
+				      ( fun (_cor9) ->
+					    case _cor9 of
+					      <{'file','hosts',File}> when 'true' ->
+						  %% Line 92
+						  apply 'load_hosts'/2
+						      (File, 'unix')
+					      %% Line 93
+					      <{'file',Func,File}> when 'true' ->
+						  %% Line 94
+						  apply 'load_resolv'/2
+						      (File, Func)
+					      %% Line 95
+					      <{'registry','win32'}> when 'true' ->
+						  %% Line 96
+						  case OsType of
+						    %% Line 97
+						    <{'win32',WinType}> when 'true' ->
+							%% Line 98
+							apply 'win32_load_from_registry'/1
+							    (WinType)
+						    %% Line 99
+						    <_cor32> when 'true' ->
+							%% Line 100
+							apply 'error'/2
+							    ([99|[97|[110|[32|[110|[111|[116|[32|[114|[101|[97|[100|[32|[119|[105|[110|[51|[50|[32|[115|[121|[115|[116|[101|[109|[32|[114|[101|[103|[105|[115|[116|[114|[121|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [])
+						  end
+					      ( <_cor10> when 'true' ->
+						    ( primop 'match_fail'
+							  ({'function_clause',_cor10})
+						      -| [{'function_name',{'-init/0-fun-0-',1}}] )
+						-| ['compiler_generated'] )
+					    end
+					-| [{'id',{0,0,'-init/0-fun-0-'}}] )
+				  in  do  %% Line 91
+					  call 'lists':'foreach'
+					      (_cor11, %% Line 102
+						       CfgFiles)
+					  do  %% Line 105
+					      case call 'inet_db':'add_rc_list'
+						       (CfgList) of
+						%% Line 106
+						<'ok'> when 'true' ->
+						    'ok'
+						%% Line 107
+						<_cor33> when 'true' ->
+						    apply 'error'/2
+							([115|[121|[110|[116|[97|[120|[32|[101|[114|[114|[111|[114|[32|[105|[110|[32|[126|[116|[115|[126|[110]]]]]]]]]]]]]]]]]]]]], [RcFile|[]])
+					      end
+					      %% Line 112
+					      case OsType of
+						%% Line 113
+						<{'unix',_cor34}> when 'true' ->
+						    let <_cor14> =
+							%% Line 117
+							case call 'os':'getenv'
+								 ([69|[82|[76|[95|[73|[78|[69|[84|[95|[69|[84|[67|[95|[68|[73|[82]]]]]]]]]]]]]]]]) of
+							  %% Line 118
+							  <'false'> when 'true' ->
+							      %% Line 119
+							      [47|[101|[116|[99]]]]
+							  %% Line 120
+							  <_X_EtcDir> when 'true' ->
+							      %% Line 121
+							      _X_EtcDir
+							end
+						    in  do  %% Line 123
+							    case call 'inet_db':'res_option'
+								     ('resolv_conf') of
+							      %% Line 124
+							      <'undefined'> when 'true' ->
+								  let <_cor16> =
+								      %% Line 127
+								      call 'filename':'join'
+									  (_cor14, [114|[101|[115|[111|[108|[118|[46|[99|[111|[110|[102]]]]]]]]]]])
+								  in  %% Line 125
+								      call 'inet_db':'res_option'
+									  (%% Line 126
+									   'resolv_conf_name', _cor16)
+							      %% Line 128
+							      <_cor35> when 'true' ->
+								  'ok'
+							    end
+							    %% Line 130
+							    case call 'inet_db':'res_option'
+								     ('hosts_file') of
+							      %% Line 131
+							      <'undefined'> when 'true' ->
+								  let <_cor18> =
+								      %% Line 134
+								      call 'filename':'join'
+									  (_cor14, [104|[111|[115|[116|[115]]]]])
+								  in  %% Line 132
+								      call 'inet_db':'res_option'
+									  (%% Line 133
+									   'hosts_file_name', _cor18)
+							      %% Line 135
+							      <_cor36> when 'true' ->
+								  'ok'
+							    end
+						%% Line 137
+						<_cor37> when 'true' ->
+						    'ok'
+					      end
+			      ( <_cor7> when 'true' ->
+				    primop 'match_fail'
+					({'badmatch',_cor7})
+				-| ['compiler_generated'] )
+			    end
+'erl_dist_mode'/0 =
+    %% Line 142
+    fun () ->
+	%% Line 143
+	case call 'init':'get_argument'
+		 ('sname') of
+	  %% Line 144
+	  <{'ok',[[_X_SName|[]]|[]]}> when 'true' ->
+	      'shortnames'
+	  %% Line 145
+	  <_cor2> when 'true' ->
+	      %% Line 146
+	      case call 'init':'get_argument'
+		       ('name') of
+		%% Line 147
+		<{'ok',[[_X_Name|[]]|[]]}> when 'true' ->
+		    'longnames'
+		%% Line 148
+		<_cor3> when 'true' ->
+		    'nonames'
+	      end
+	end
+'do_load_resolv'/2 =
+    %% Line 152
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'unix',Type},'longnames'> when 'true' ->
+	      let <_cor3> =
+		  %% Line 155
+		  case call 'os':'getenv'
+			   ([69|[82|[76|[95|[73|[78|[69|[84|[95|[69|[84|[67|[95|[68|[73|[82]]]]]]]]]]]]]]]]) of
+		    %% Line 156
+		    <'false'> when 'true' ->
+			[47|[101|[116|[99]]]]
+		    %% Line 157
+		    <_X_EtcDir> when 'true' ->
+			%% Line 158
+			_X_EtcDir
+		  end
+	      in  let <_cor5> =
+		      %% Line 160
+		      call 'filename':'join'
+			  (_cor3, [114|[101|[115|[111|[108|[118|[46|[99|[111|[110|[102]]]]]]]]]]])
+		  in  do  %% Line 160
+			  apply 'load_resolv'/2
+			      (_cor5, 'resolv')
+			  do  %% Line 161
+			      case Type of
+				%% Line 162
+				<'freebsd'> when 'true' ->
+				    let <_cor6> =
+					%% Line 163
+					call 'filename':'join'
+					    (_cor3, [104|[111|[115|[116|[46|[99|[111|[110|[102]]]]]]]]])
+				    in  %% Line 163
+					apply 'load_resolv'/2
+					    (_cor6, 'host_conf_freebsd')
+				%% Line 164
+				<'bsd/os'> when 'true' ->
+				    let <_cor7> =
+					%% Line 165
+					call 'filename':'join'
+					    (_cor3, [105|[114|[115|[46|[99|[111|[110|[102]]]]]]]])
+				    in  %% Line 165
+					apply 'load_resolv'/2
+					    (_cor7, 'host_conf_bsdos')
+				%% Line 166
+				<'sunos'> when 'true' ->
+				    %% Line 167
+				    case call 'os':'version'
+					     () of
+				      %% Line 168
+				      <{Major,_cor20,_cor21}>
+					  when call 'erlang':'>='
+						(Major,
+						 5) ->
+					  let <_cor8> =
+					      %% Line 169
+					      call 'filename':'join'
+						  (_cor3, [110|[115|[115|[119|[105|[116|[99|[104|[46|[99|[111|[110|[102]]]]]]]]]]]]])
+					  in  %% Line 169
+					      apply 'load_resolv'/2
+						  (_cor8, %% Line 170
+							  'nsswitch_conf')
+				      %% Line 171
+				      <_cor22> when 'true' ->
+					  'ok'
+				    end
+				%% Line 174
+				<'netbsd'> when 'true' ->
+				    %% Line 175
+				    case call 'os':'version'
+					     () of
+				      %% Line 176
+				      <{Major,Minor,_cor23}>
+					  when let <_cor10> =
+						call 'erlang':'>='
+						    (Major, 1)
+					    in  let <_cor11> =
+						    call 'erlang':'>='
+							(Minor, 4)
+						in  call 'erlang':'and'
+							(_cor10, _cor11) ->
+					  let <_cor12> =
+					      %% Line 177
+					      call 'filename':'join'
+						  (_cor3, [110|[115|[115|[119|[105|[116|[99|[104|[46|[99|[111|[110|[102]]]]]]]]]]]]])
+					  in  %% Line 177
+					      apply 'load_resolv'/2
+						  (_cor12, %% Line 178
+							   'nsswitch_conf')
+				      %% Line 179
+				      <_cor24> when 'true' ->
+					  'ok'
+				    end
+				%% Line 182
+				<'linux'> when 'true' ->
+				    let <_cor14> =
+					%% Line 183
+					call 'filename':'join'
+					    (_cor3, [104|[111|[115|[116|[46|[99|[111|[110|[102]]]]]]]]])
+				    in  %% Line 183
+					case apply 'load_resolv'/2
+						 (_cor14, %% Line 184
+							  'host_conf_linux') of
+					  %% Line 185
+					  <'ok'> when 'true' ->
+					      'ok'
+					  %% Line 187
+					  <_cor25> when 'true' ->
+					      let <_cor15> =
+						  %% Line 188
+						  call 'filename':'join'
+						      (_cor3, [110|[115|[115|[119|[105|[116|[99|[104|[46|[99|[111|[110|[102]]]]]]]]]]]]])
+					      in  %% Line 188
+						  apply 'load_resolv'/2
+						      (_cor15, %% Line 189
+							       'nsswitch_conf')
+					end
+				%% Line 191
+				<_cor26> when 'true' ->
+				    'ok'
+			      end
+			      %% Line 194
+			      call 'inet_db':'set_lookup'
+				  (['native'])
+	  %% Line 196
+	  <{'win32',Type},'longnames'> when 'true' ->
+	      do  %% Line 197
+		  apply 'win32_load_from_registry'/1
+		      (Type)
+		  %% Line 198
+		  call 'inet_db':'set_lookup'
+		      (['native'])
+	  %% Line 200
+	  <{'ose',_cor27},_cor28> when 'true' ->
+	      %% Line 201
+	      call 'inet_db':'set_lookup'
+		  (['file'])
+	  %% Line 203
+	  <_cor29,_cor30> when 'true' ->
+	      %% Line 204
+	      call 'inet_db':'set_lookup'
+		  (['native'])
+	end
+'add_dns_lookup'/1 =
+    %% Line 206
+    fun (_cor0) ->
+	%% Line 207
+	case call 'lists':'member'
+		 ('dns', _cor0) of
+	  %% Line 208
+	  <'true'> when 'true' ->
+	      'ok'
+	  %% Line 209
+	  <_cor4> when 'true' ->
+	      %% Line 210
+	      case call 'application':'get_env'
+		       ('kernel', 'inet_dns_when_nis') of
+		%% Line 211
+		<{'ok','true'}> when 'true' ->
+		    %% Line 212
+		    apply 'add_dns_lookup'/2
+			(_cor0, [])
+		%% Line 213
+		<_cor5> when 'true' ->
+		    %% Line 214
+		    'ok'
+	      end
+	end
+'add_dns_lookup'/2 =
+    %% Line 218
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <['yp'|T],Acc> when 'true' ->
+	      %% Line 219
+	      apply 'add_dns_lookup'/2
+		  (T, ['yp'|['dns'|Acc]])
+	  %% Line 220
+	  <[H|T],Acc> when 'true' ->
+	      %% Line 221
+	      apply 'add_dns_lookup'/2
+		  (T, [H|Acc])
+	  %% Line 222
+	  <[],Acc> when 'true' ->
+	      let <_cor2> =
+		  %% Line 223
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  %% Line 223
+		  call 'inet_db':'set_lookup'
+		      (_cor2)
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'add_dns_lookup',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'set_hostname'/0 =
+    %% Line 230
+    fun () ->
+	%% Line 231
+	case call 'inet_udp':'open'
+		 (0, []) of
+	  %% Line 232
+	  <{'ok',U}> when 'true' ->
+	      let <Res> =
+		  %% Line 233
+		  call 'inet':'gethostname'
+		      (U)
+	      in  do  %% Line 234
+		      call 'inet_udp':'close'
+			  (U)
+		      %% Line 235
+		      apply 'set_hostname'/1
+			  (Res)
+	  %% Line 236
+	  <_cor2> when 'true' ->
+	      %% Line 237
+	      apply 'set_hostname'/1
+		  ({'ok',[]})
+	end
+'set_hostname'/1 =
+    %% Line 240
+    fun (_cor0) ->
+	case _cor0 of
+	  <{'ok',Name}>
+	      when try
+		    let <_cor1> =
+			call 'erlang':'length'
+			    (Name)
+		    in  call 'erlang':'>'
+			    (_cor1, 0)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor4> =
+		  %% Line 241
+		  ( fun (_cor2) ->
+			case _cor2 of
+			  <46> when 'true' ->
+			      'false'
+			  %% Line 242
+			  <_cor7> when 'true' ->
+			      'true'
+			end
+		    -| [{'id',{0,0,'-set_hostname/1-fun-0-'}}] )
+	      in  %% Line 241
+		  case call 'lists':'splitwith'
+			   (_cor4, %% Line 243
+				   Name) of
+		    <{Host,Domain}> when 'true' ->
+			do  %% Line 244
+			    call 'inet_db':'set_hostname'
+				(Host)
+			    %% Line 245
+			    apply 'set_search_dom'/1
+				(Domain)
+		    ( <_cor5> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor5})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 246
+	  <{'ok',[]}> when 'true' ->
+	      do  %% Line 247
+		  call 'inet_db':'set_hostname'
+		      ([110|[111|[104|[111|[115|[116]]]]]])
+		  %% Line 248
+		  apply 'set_search_dom'/1
+		      ([110|[111|[100|[111|[109|[97|[105|[110]]]]]]]])
+	  ( <_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6})
+		  -| [{'function_name',{'set_hostname',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'set_search_dom'/1 =
+    %% Line 250
+    fun (_cor0) ->
+	case _cor0 of
+	  <[46|Domain]> when 'true' ->
+	      do  %% Line 252
+		  call 'inet_db':'set_domain'
+		      (Domain)
+		  do  %% Line 253
+		      call 'inet_db':'ins_search'
+			  (Domain)
+		      %% Line 254
+		      'ok'
+	  %% Line 255
+	  <[]> when 'true' ->
+	      %% Line 256
+	      'ok'
+	  %% Line 257
+	  <Domain> when 'true' ->
+	      do  %% Line 258
+		  call 'inet_db':'set_domain'
+		      (Domain)
+		  do  %% Line 259
+		      call 'inet_db':'ins_search'
+			  (Domain)
+		      %% Line 260
+		      'ok'
+	end
+'load_resolv'/2 =
+    %% Line 265
+    fun (_cor1,_cor0) ->
+	%% Line 266
+	case apply 'get_file'/1
+		 (_cor1) of
+	  %% Line 267
+	  <{'ok',Bin}> when 'true' ->
+	      %% Line 268
+	      case call 'inet_parse':_cor0
+		       (_cor1, {'chars',Bin}) of
+		%% Line 269
+		<{'ok',Ls}> when 'true' ->
+		    %% Line 270
+		    call 'inet_db':'add_rc_list'
+			(Ls)
+		%% Line 271
+		<{'error',Reason}> when 'true' ->
+		    %% Line 272
+		    apply 'error'/2
+			([112|[97|[114|[115|[101|[32|[101|[114|[114|[111|[114|[32|[105|[110|[32|[102|[105|[108|[101|[32|[126|[116|[115|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]], [_cor1|[Reason|[]]])
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 274
+	  <Error> when 'true' ->
+	      %% Line 275
+	      apply 'warning'/2
+		  ([102|[105|[108|[101|[32|[110|[111|[116|[32|[102|[111|[117|[110|[100|[32|[126|[116|[115|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]], [_cor1|[Error|[]]])
+	end
+'load_hosts'/2 =
+    %% Line 281
+    fun (_cor1,_cor0) ->
+	%% Line 282
+	case apply 'get_file'/1
+		 (_cor1) of
+	  %% Line 283
+	  <{'ok',Bin}> when 'true' ->
+	      %% Line 284
+	      case call 'inet_parse':'hosts'
+		       (_cor1, {'chars',Bin}) of
+		%% Line 285
+		<{'ok',Ls}> when 'true' ->
+		    let <_cor4> =
+			%% Line 287
+			( fun (_cor2) ->
+			      case _cor2 of
+				<{IP,Name,Aliases}> when 'true' ->
+				    %% Line 288
+				    call 'inet_db':'add_host'
+					(IP, [Name|Aliases])
+				( <_cor3> when 'true' ->
+				      ( primop 'match_fail'
+					    ({'function_clause',_cor3})
+					-| [{'function_name',{'-load_hosts/2-fun-0-',1}}] )
+				  -| ['compiler_generated'] )
+			      end
+			  -| [{'id',{0,0,'-load_hosts/2-fun-0-'}}] )
+		    in  %% Line 286
+			call 'lists':'foreach'
+			    (_cor4, %% Line 289
+				    Ls)
+		%% Line 290
+		<{'error',Reason}> when 'true' ->
+		    %% Line 291
+		    apply 'error'/2
+			([112|[97|[114|[115|[101|[32|[101|[114|[114|[111|[114|[32|[105|[110|[32|[102|[105|[108|[101|[32|[126|[116|[115|[58|[32|[126|[112]]]]]]]]]]]]]]]]]]]]]]]]]]], [_cor1|[Reason|[]]])
+		( <_cor5> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor5})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 293
+	  <Error> when 'true' ->
+	      %% Line 294
+	      case _cor0 of
+		%% Line 295
+		<'unix'> when 'true' ->
+		    %% Line 296
+		    apply 'error'/2
+			([102|[105|[108|[101|[32|[110|[111|[116|[32|[102|[111|[117|[110|[100|[32|[126|[116|[115|[58|[32|[126|[112|[126|[110]]]]]]]]]]]]]]]]]]]]]]]], [_cor1|[Error|[]]])
+		%% Line 297
+		<_cor10> when 'true' ->
+		    %% Line 300
+		    'ok'
+	      end
+	end
+'win32_load_from_registry'/1 =
+    %% Line 307
+    fun (_cor0) ->
+	let <_cor2> =
+	    %% Line 310
+	    case call 'os':'getenv'
+		     ([69|[82|[76|[95|[73|[78|[69|[84|[95|[69|[84|[67|[95|[68|[73|[82]]]]]]]]]]]]]]]]) of
+	      %% Line 311
+	      <'false'> when 'true' ->
+		  []
+	      %% Line 312
+	      <_X_TReg> when 'true' ->
+		  _X_TReg
+	    end
+	in  %% Line 314
+	    case call 'win32reg':'open'
+		     (['read']) of
+	      <{'ok',Reg}> when 'true' ->
+		  let <TcpIp,HFileKey> =
+		      %% Line 316
+		      case _cor0 of
+			%% Line 317
+			<'nt'> when 'true' ->
+			    %% Line 318
+			    case _cor2 of
+			      %% Line 319
+			      <[]> when 'true' ->
+				  %% Line 320
+				  <[92|[104|[107|[108|[109|[92|[115|[121|[115|[116|[101|[109|[92|[67|[117|[114|[114|[101|[110|[116|[67|[111|[110|[116|[114|[111|[108|[83|[101|[116|[92|[83|[101|[114|[118|[105|[99|[101|[115|[92|[84|[99|[112|[73|[112|[92|[80|[97|[114|[97|[109|[101|[116|[101|[114|[115]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],[68|[97|[116|[97|[66|[97|[115|[101|[80|[97|[116|[104]]]]]]]]]]]]>
+			      %% Line 322
+			      <Other> when 'true' ->
+				  %% Line 323
+				  <Other,[68|[97|[116|[97|[66|[97|[115|[101|[80|[97|[116|[104]]]]]]]]]]]]>
+			    end
+			%% Line 325
+			<'windows'> when 'true' ->
+			    %% Line 326
+			    case _cor2 of
+			      %% Line 327
+			      <[]> when 'true' ->
+				  %% Line 328
+				  <[92|[104|[107|[108|[109|[92|[115|[121|[115|[116|[101|[109|[92|[67|[117|[114|[114|[101|[110|[116|[67|[111|[110|[116|[114|[111|[108|[83|[101|[116|[92|[83|[101|[114|[118|[105|[99|[101|[115|[92|[86|[120|[68|[92|[77|[83|[84|[67|[80]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]],[76|[77|[72|[111|[115|[116|[70|[105|[108|[101]]]]]]]]]]>
+			      %% Line 330
+			      <Other> when 'true' ->
+				  %% Line 331
+				  <Other,[76|[77|[72|[111|[115|[116|[70|[105|[108|[101]]]]]]]]]]>
+			    end
+			( <_cor7> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor7})
+			  -| ['compiler_generated'] )
+		      end
+		  in  let <_cor11> =
+			  %% Line 335
+			  case call 'win32reg':'change_key'
+				   (Reg, TcpIp) of
+			    %% Line 336
+			    <'ok'> when 'true' ->
+				%% Line 337
+				apply 'win32_load1'/3
+				    (Reg, _cor0, HFileKey)
+			    %% Line 338
+			    <{'error',_X_Reason}> when 'true' ->
+				%% Line 339
+				apply 'error'/2
+				    ([70|[97|[105|[108|[101|[100|[32|[116|[111|[32|[108|[111|[99|[97|[116|[101|[32|[84|[67|[80|[47|[73|[80|[32|[112|[97|[114|[97|[109|[101|[116|[101|[114|[115|[32|[40|[105|[115|[32|[84|[67|[80|[47|[73|[80|[32|[105|[110|[115|[116|[97|[108|[108|[101|[100|[41|[63]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 340
+																																											       [])
+			    ( <_cor10> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor10})
+			      -| ['compiler_generated'] )
+			  end
+		      in  do  %% Line 342
+			      call 'win32reg':'close'
+				  (Reg)
+			      _cor11
+	      ( <_cor4> when 'true' ->
+		    primop 'match_fail'
+			({'badmatch',_cor4})
+		-| ['compiler_generated'] )
+	    end
+'win32_load1'/3 =
+    %% Line 345
+    fun (_cor2,_cor1,_cor0) ->
+	let <Names> =
+	    %% Line 346
+	    [_cor0|[[68|[111|[109|[97|[105|[110]]]]]]|[[68|[104|[99|[112|[68|[111|[109|[97|[105|[110]]]]]]]]]]|[[69|[110|[97|[98|[108|[101|[68|[78|[83]]]]]]]]]|[[78|[97|[109|[101|[83|[101|[114|[118|[101|[114]]]]]]]]]]|[[83|[101|[97|[114|[99|[104|[76|[105|[115|[116]]]]]]]]]]]]]]]]
+	in  %% Line 348
+	    case apply 'win32_get_strings'/2
+		     (_cor2, Names) of
+	      %% Line 349
+	      <[DBPath0|[Domain|[DhcpDomain|%% Line 350
+					    [_X_EnableDNS|[NameServers0|[Search|[]]]]]]]> when 'true' ->
+		  let <_cor5> =
+		      %% Line 352
+		      case Domain of
+			<[]> when 'true' ->
+			    DhcpDomain
+			<_cor25> when 'true' ->
+			    Domain
+		      end
+		  in  do  %% Line 351
+			  call 'inet_db':'set_domain'
+			      (_cor5)
+			  let <NameServers> =
+			      %% Line 353
+			      apply 'win32_split_line'/2
+				  (NameServers0, _cor1)
+			  in  let <AddNs> =
+				  %% Line 354
+				  ( fun (_cor8) ->
+					%% Line 355
+					case call 'inet_parse':'address'
+						 (_cor8) of
+					  %% Line 356
+					  <{'ok',Address}> when 'true' ->
+					      %% Line 357
+					      call 'inet_db':'add_ns'
+						  (Address)
+					  %% Line 358
+					  <{'error',_cor26}> when 'true' ->
+					      %% Line 359
+					      apply 'error'/2
+						  ([66|[97|[100|[32|[84|[67|[80|[47|[73|[80|[32|[97|[100|[100|[114|[101|[115|[115|[32|[105|[110|[32|[114|[101|[103|[105|[115|[116|[114|[121]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [])
+					  ( <_cor7> when 'true' ->
+						primop 'match_fail'
+						    ({'case_clause',_cor7})
+					    -| ['compiler_generated'] )
+					end
+				    -| [{'id',{0,0,'-win32_load1/3-fun-0-'}}] )
+			      in  do  %% Line 362
+				      call 'lists':'foreach'
+					  (AddNs, NameServers)
+				      let <Searches0> =
+					  %% Line 363
+					  apply 'win32_split_line'/2
+					      (Search, _cor1)
+				      in  let <_cor13> =
+					      %% Line 364
+					      case call 'lists':'member'
+						       (Domain, Searches0) of
+						%% Line 365
+						<'true'> when 'true' ->
+						    Searches0
+						%% Line 366
+						<'false'> when 'true' ->
+						    [Domain|Searches0]
+						( <_cor12> when 'true' ->
+						      primop 'match_fail'
+							  ({'case_clause',_cor12})
+						  -| ['compiler_generated'] )
+					      end
+					  in  let <_cor17> =
+						  %% Line 368
+						  ( fun (_cor15) ->
+							call 'inet_db':'add_search'
+							    (_cor15)
+						    -| [{'id',{0,0,'-win32_load1/3-fun-1-'}}] )
+					      in  do  %% Line 368
+						      call 'lists':'foreach'
+							  (_cor17, _cor13)
+						      do  %% Line 369
+							  case <> of
+							    <>
+								when call 'erlang':'=:='
+								      (_cor1,
+								       'nt') ->
+								let <DBPath> =
+								    %% Line 370
+								    call 'win32reg':'expand'
+									(DBPath0)
+								in  let <_cor19> =
+									%% Line 371
+									call 'filename':'join'
+									    (DBPath, [104|[111|[115|[116|[115]]]]])
+								    in  %% Line 371
+									apply 'load_hosts'/2
+									    (_cor19, 'nt')
+							    %% Line 372
+							    <>
+								when call 'erlang':'=:='
+								      (_cor1,
+								       'windows') ->
+								let <_cor20> =
+								    %% Line 373
+								    call 'filename':'join'
+									(DBPath0, [])
+								in  %% Line 373
+								    apply 'load_hosts'/2
+									(_cor20, 'windows')
+							    ( <> when 'true' ->
+								  primop 'match_fail'
+								      ('if_clause')
+							      -| ['compiler_generated'] )
+							  end
+							  %% Line 381
+							  'true'
+	      %% Line 382
+	      <{'error',_X_Reason}> when 'true' ->
+		  %% Line 383
+		  apply 'error'/2
+		      ([70|[97|[105|[108|[101|[100|[32|[116|[111|[32|[114|[101|[97|[100|[32|[84|[67|[80|[47|[73|[80|[32|[112|[97|[114|[97|[109|[101|[116|[101|[114|[115|[32|[102|[114|[111|[109|[32|[114|[101|[103|[105|[115|[116|[114|[121]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [])
+	      ( <_cor21> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor21})
+		-| ['compiler_generated'] )
+	    end
+'win32_split_line'/2 =
+    %% Line 386
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Line,'nt'> when 'true' ->
+	      call 'inet_parse':'split_line'
+		  (Line)
+	  %% Line 387
+	  <Line,'windows'> when 'true' ->
+	      call 'string':'tokens'
+		  (Line, [44])
+	  ( <_cor3,_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3,_cor2})
+		  -| [{'function_name',{'win32_split_line',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'win32_get_strings'/2 =
+    %% Line 389
+    fun (_cor1,_cor0) ->
+	%% Line 390
+	apply 'win32_get_strings'/3
+	    (_cor1, _cor0, [])
+'win32_get_strings'/3 =
+    %% Line 392
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Reg,[Name|Rest],Result> when 'true' ->
+	      %% Line 393
+	      case call 'win32reg':'value'
+		       (Reg, Name) of
+		%% Line 394
+		<{'ok',Value}>
+		    when call 'erlang':'is_list'
+			  (Value) ->
+		    %% Line 395
+		    apply 'win32_get_strings'/3
+			(Reg, Rest, [Value|Result])
+		%% Line 396
+		<{'ok',_X_NotString}> when 'true' ->
+		    %% Line 397
+		    {'error','not_string'}
+		%% Line 398
+		<{'error',_X_Reason}> when 'true' ->
+		    %% Line 399
+		    apply 'win32_get_strings'/3
+			(Reg, Rest, [[]|Result])
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 401
+	  <_cor7,[],Result> when 'true' ->
+	      %% Line 402
+	      call 'lists':'reverse'
+		  (Result)
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'win32_get_strings',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'read_rc'/0 =
+    %% Line 404
+    fun () ->
+	%% Line 405
+	case apply 'read_inetrc'/0
+		 () of
+	  <{RcFile,CfgList}> when 'true' ->
+	      %% Line 406
+	      case apply 'extract_cfg_files'/3
+		       (CfgList, [], []) of
+		%% Line 407
+		<{CfgFiles,CfgList1}> when 'true' ->
+		    %% Line 408
+		    {RcFile,CfgFiles,CfgList1}
+		%% Line 409
+		<'error'> when 'true' ->
+		    %% Line 410
+		    {'error',[],[]}
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor0> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor0})
+	    -| ['compiler_generated'] )
+	end
+'extract_cfg_files'/3 =
+    %% Line 415
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[E = {'file',Type,_X_File}|Es],CfgFiles,CfgList> when 'true' ->
+	      %% Line 416
+	      apply 'extract_cfg_files1'/5
+		  (Type, E, Es, CfgFiles, CfgList)
+	  %% Line 417
+	  <[E = {'registry',Type}|Es],CfgFiles,CfgList> when 'true' ->
+	      %% Line 418
+	      apply 'extract_cfg_files1'/5
+		  (Type, E, Es, CfgFiles, CfgList)
+	  %% Line 419
+	  <[E|Es],CfgFiles,CfgList> when 'true' ->
+	      %% Line 420
+	      apply 'extract_cfg_files'/3
+		  (Es, CfgFiles, [E|CfgList])
+	  %% Line 421
+	  <[],CfgFiles,CfgList> when 'true' ->
+	      let <_cor4> =
+		  %% Line 422
+		  call 'lists':'reverse'
+		      (CfgFiles)
+	      in  let <_cor3> =
+		      %% Line 422
+		      call 'lists':'reverse'
+			  (CfgList)
+		  in  %% Line 422
+		      {_cor4,_cor3}
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'extract_cfg_files',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'extract_cfg_files1'/5 =
+    %% Line 424
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 425
+	case apply 'valid_type'/1
+		 (_cor4) of
+	  %% Line 426
+	  <'true'> when 'true' ->
+	      %% Line 427
+	      apply 'extract_cfg_files'/3
+		  (_cor2, [_cor3|_cor1], _cor0)
+	  %% Line 428
+	  <'false'> when 'true' ->
+	      do  %% Line 429
+		  apply 'error'/2
+		      ([105|[110|[118|[97|[108|[105|[100|[32|[99|[111|[110|[102|[105|[103|[32|[118|[97|[108|[117|[101|[32|[126|[119|[32|[105|[110|[32|[105|[110|[101|[116|[114|[99|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], [_cor4|[]])
+		  %% Line 430
+		  'error'
+	  ( <_cor5> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor5})
+	    -| ['compiler_generated'] )
+	end
+'valid_type'/1 =
+    %% Line 433
+    fun (_cor0) ->
+	case _cor0 of
+	  <'resolv'> when 'true' ->
+	      'true'
+	  %% Line 434
+	  <'host_conf_freebsd'> when 'true' ->
+	      'true'
+	  %% Line 435
+	  <'host_conf_bsdos'> when 'true' ->
+	      'true'
+	  %% Line 436
+	  <'host_conf_linux'> when 'true' ->
+	      'true'
+	  %% Line 437
+	  <'nsswitch_conf'> when 'true' ->
+	      'true'
+	  %% Line 438
+	  <'hosts'> when 'true' ->
+	      'true'
+	  %% Line 439
+	  <'win32'> when 'true' ->
+	      'true'
+	  %% Line 440
+	  <_cor2> when 'true' ->
+	      'false'
+	end
+'read_inetrc'/0 =
+    %% Line 442
+    fun () ->
+	%% Line 443
+	case call 'application':'get_env'
+		 ('inetrc') of
+	  %% Line 444
+	  <{'ok',File}> when 'true' ->
+	      %% Line 445
+	      apply 'try_get_rc'/1
+		  (File)
+	  %% Line 446
+	  <_cor2> when 'true' ->
+	      %% Line 447
+	      case call 'os':'getenv'
+		       ([69|[82|[76|[95|[73|[78|[69|[84|[82|[67]]]]]]]]]]) of
+		%% Line 448
+		<'false'> when 'true' ->
+		    %% Line 449
+		    {'nofile',[]}
+		%% Line 450
+		<File> when 'true' ->
+		    %% Line 451
+		    apply 'try_get_rc'/1
+			(File)
+	      end
+	end
+'try_get_rc'/1 =
+    %% Line 455
+    fun (_cor0) ->
+	%% Line 456
+	case apply 'get_rc'/1
+		 (_cor0) of
+	  %% Line 457
+	  <'error'> when 'true' ->
+	      {'nofile',[]}
+	  %% Line 458
+	  <Ls> when 'true' ->
+	      {_cor0,Ls}
+	end
+'get_rc'/1 =
+    %% Line 461
+    fun (_cor0) ->
+	%% Line 462
+	case apply 'get_file'/1
+		 (_cor0) of
+	  %% Line 463
+	  <{'ok',Bin}> when 'true' ->
+	      %% Line 464
+	      case apply 'parse_inetrc'/1
+		       (Bin) of
+		%% Line 465
+		<{'ok',Ls}> when 'true' ->
+		    %% Line 466
+		    Ls
+		%% Line 467
+		<_X_Error> when 'true' ->
+		    do  %% Line 468
+			apply 'error'/2
+			    ([112|[97|[114|[115|[101|[32|[101|[114|[114|[111|[114|[32|[105|[110|[32|[126|[116|[115|[126|[110]]]]]]]]]]]]]]]]]]]], [_cor0|[]])
+			%% Line 469
+			'error'
+	      end
+	  %% Line 471
+	  <_X_Error> when 'true' ->
+	      do  %% Line 472
+		  apply 'error'/2
+		      ([102|[105|[108|[101|[32|[126|[116|[115|[32|[110|[111|[116|[32|[102|[111|[117|[110|[100|[126|[110]]]]]]]]]]]]]]]]]]]], [_cor0|[]])
+		  %% Line 473
+		  'error'
+	end
+'get_file'/1 =
+    %% Line 477
+    fun (_cor0) ->
+	%% Line 478
+	case call 'erl_prim_loader':'get_file'
+		 (_cor0) of
+	  %% Line 479
+	  <{'ok',Bin,_cor3}> when 'true' ->
+	      {'ok',Bin}
+	  %% Line 480
+	  <Error> when 'true' ->
+	      Error
+	end
+'error'/2 =
+    %% Line 483
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 484
+	    call 'erlang':'++'
+		([105|[110|[101|[116|[95|[99|[111|[110|[102|[105|[103|[58|[32]]]]]]]]]]]]], _cor1)
+	in  %% Line 484
+	    call 'error_logger':'error_msg'
+		(_cor2, _cor0)
+'warning'/2 =
+    %% Line 486
+    fun (_cor1,_cor0) ->
+	%% Line 487
+	case call 'application':'get_env'
+		 ('kernel', 'inet_warnings') of
+	  %% Line 489
+	  <{'ok','on'}> when 'true' ->
+	      let <_cor2> =
+		  %% Line 490
+		  call 'erlang':'++'
+		      ([105|[110|[101|[116|[95|[99|[111|[110|[102|[105|[103|[58]]]]]]]]]]]], _cor1)
+	      in  %% Line 490
+		  call 'error_logger':'info_msg'
+		      (_cor2, _cor0)
+	  %% Line 491
+	  <_cor6> when 'true' ->
+	      %% Line 492
+	      'ok'
+	end
+'parse_inetrc'/1 =
+    %% Line 500
+    fun (_cor0) ->
+	%% Line 501
+	case apply 'file_binary_to_list'/1
+		 (_cor0) of
+	  %% Line 502
+	  <{'ok',String}> when 'true' ->
+	      let <_cor1> =
+		  %% Line 503
+		  call 'erlang':'++'
+		      (String, [10])
+	      in  %% Line 503
+		  apply 'parse_inetrc'/3
+		      (_cor1, 1, [])
+	  %% Line 504
+	  <'error'> when 'true' ->
+	      %% Line 505
+	      {'error','bad_encoding'}
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'parse_inetrc_skip_line'/3 =
+    %% Line 508
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_X_Line,Ack> when 'true' ->
+	      let <_cor3> =
+		  %% Line 509
+		  call 'lists':'reverse'
+		      (Ack)
+	      in  %% Line 509
+		  {'ok',_cor3}
+	  %% Line 510
+	  <[10|Str],Line,Ack> when 'true' ->
+	      let <_cor4> =
+		  %% Line 511
+		  call 'erlang':'+'
+		      (Line, 1)
+	      in  %% Line 511
+		  apply 'parse_inetrc'/3
+		      (Str, _cor4, Ack)
+	  %% Line 512
+	  <[_cor8|Str],Line,Ack> when 'true' ->
+	      %% Line 513
+	      apply 'parse_inetrc_skip_line'/3
+		  (Str, Line, Ack)
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'parse_inetrc_skip_line',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'parse_inetrc'/3 =
+    %% Line 515
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[37|Str],Line,Ack> when 'true' ->
+	      %% Line 516
+	      apply 'parse_inetrc_skip_line'/3
+		  (Str, Line, Ack)
+	  %% Line 517
+	  <[32|Str],Line,Ack> when 'true' ->
+	      %% Line 518
+	      apply 'parse_inetrc'/3
+		  (Str, Line, Ack)
+	  %% Line 519
+	  <[10|Str],Line,Ack> when 'true' ->
+	      let <_cor3> =
+		  %% Line 520
+		  call 'erlang':'+'
+		      (Line, 1)
+	      in  %% Line 520
+		  apply 'parse_inetrc'/3
+		      (Str, _cor3, Ack)
+	  %% Line 521
+	  <[9|Str],Line,Ack> when 'true' ->
+	      %% Line 522
+	      apply 'parse_inetrc'/3
+		  (Str, Line, Ack)
+	  %% Line 523
+	  <[],_cor11,Ack> when 'true' ->
+	      let <_cor4> =
+		  %% Line 524
+		  call 'lists':'reverse'
+		      (Ack)
+	      in  %% Line 524
+		  {'ok',_cor4}
+	  %% Line 529
+	  <Str,Line,Ack> when 'true' ->
+	      %% Line 530
+	      case call 'erl_scan':'tokens'
+		       ([], Str, Line) of
+		%% Line 531
+		<{'done',{'ok',Tokens,EndLine},MoreChars}> when 'true' ->
+		    %% Line 532
+		    case call 'erl_parse':'parse_term'
+			     (Tokens) of
+		      %% Line 533
+		      <{'ok',Term}> when 'true' ->
+			  %% Line 534
+			  apply 'parse_inetrc'/3
+			      (MoreChars, EndLine, [Term|Ack])
+		      %% Line 535
+		      <Error> when 'true' ->
+			  %% Line 536
+			  {'error',{'parse_inetrc',Error}}
+		    end
+		%% Line 538
+		<{'done',{'eof',_cor12},_cor13}> when 'true' ->
+		    let <_cor6> =
+			%% Line 539
+			call 'lists':'reverse'
+			    (Ack)
+		    in  %% Line 539
+			{'ok',_cor6}
+		%% Line 540
+		<{'done',Error,_cor14}> when 'true' ->
+		    %% Line 541
+		    {'error',{'scan_inetrc',Error}}
+		%% Line 542
+		<{'more',_cor15}> when 'true' ->
+		    %% Line 543
+		    {'error',{'scan_inetrc',{'eof',Line}}}
+		( <_cor7> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor7})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'file_binary_to_list'/1 =
+    %% Line 546
+    fun (_cor0) ->
+	let <_cor2> =
+	    %% Line 547
+	    case call 'epp':'read_encoding_from_binary'
+		     (_cor0) of
+	      %% Line 548
+	      <'none'> when 'true' ->
+		  call 'epp':'default_encoding'
+		      ()
+	      %% Line 549
+	      <Encoding> when 'true' ->
+		  Encoding
+	    end
+	in  let <_cor4> =
+		catch
+		    %% Line 551
+		    call 'unicode':'characters_to_list'
+			(_cor0, _cor2)
+	    in  %% Line 551
+		case _cor4 of
+		  %% Line 552
+		  <String>
+		      when call 'erlang':'is_list'
+			    (_cor4) ->
+		      %% Line 553
+		      {'ok',String}
+		  %% Line 554
+		  <_cor7> when 'true' ->
+		      %% Line 555
+		      'error'
+		end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('inet_config')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('inet_config', _cor0)
+end

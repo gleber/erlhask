@@ -1,0 +1,471 @@
+module 'overload' ['format_status'/2,
+		   'get_overload_info'/0,
+		   'handle_call'/3,
+		   'handle_info'/2,
+		   'init'/1,
+		   'module_info'/0,
+		   'module_info'/1,
+		   'request'/0,
+		   'set_config_data'/2,
+		   'start_link'/0,
+		   'terminate'/2]
+    attributes []
+'start_link'/0 =
+    %% Line 59
+    fun () ->
+	%% Line 60
+	call 'gen_server':'start_link'
+	    ({'local','overload'}, 'overload', [], [])
+'init'/1 =
+    %% Line 62
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      do  %% Line 63
+		  call 'erlang':'process_flag'
+		      ('priority', 'high')
+		  let <MaxIntensity> =
+		      %% Line 64
+		      apply 'fetch_config_data'/1
+			  ('overload_max_intensity')
+		  in  let <Kappa> =
+			  %% Line 65
+			  apply 'fetch_config_data'/1
+			      ('overload_weight')
+		      in  let <_cor3> =
+			      apply 'get_now'/0
+				  ()
+			  in  %% Line 66
+			      {'ok',{'state',0,0,MaxIntensity,_cor3,Kappa,{0,0},'clear'}}
+	  ( <_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'request'/0 =
+    %% Line 74
+    fun () ->
+	apply 'call'/1
+	    ('request')
+'set_config_data'/2 =
+    %% Line 84
+    fun (_cor1,_cor0) ->
+	%% Line 85
+	apply 'call'/1
+	    ({'set_config_data',_cor1,_cor0})
+'get_overload_info'/0 =
+    %% Line 91
+    fun () ->
+	apply 'call'/1
+	    ('get_overload_info')
+'call'/1 =
+    %% Line 96
+    fun (_cor0) ->
+	%% Line 97
+	call 'gen_server':'call'
+	    ('overload', _cor0, 'infinity')
+'handle_call'/3 =
+    %% Line 102
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <'request',_X_From,State> when 'true' ->
+	      %% Line 104
+	      case State of
+		<{'state',TI,AI,_cor52,PrevT,Kappa,_cor53,Alarm}> when 'true' ->
+		    %% Line 105
+		    case _cor53 of
+		      <{TR,AR}> when 'true' ->
+			  let <T> =
+			      %% Line 106
+			      apply 'get_now'/0
+				  ()
+			  in  let <CurI> =
+				  %% Line 107
+				  apply 'new_intensity'/4
+				      (AI, T, PrevT, Kappa)
+			      in  let <_cor9> =
+				      %% Line 108
+				      apply 'new_intensity'/4
+					  (TI, T, PrevT, Kappa)
+				  in  let <NewTI> =
+					  %% Line 108
+					  call 'erlang':'+'
+					      (_cor9, Kappa)
+				      in  %% Line 109
+					  case <> of
+					    %% Line 110
+					    <>
+						when call 'erlang':'=<'
+						      (CurI,
+						       _cor52) ->
+						let <_cor24> =
+						    %% Line 113
+						    case <> of
+						      %% Line 114
+						      <>
+							  when ( try
+								  let <_cor22> =
+								      call 'erlang':'*'
+									  (7.50000000000000000000e-01, _cor52)
+								  in  call 'erlang':'=<'
+									  (CurI, _cor22)
+							      of <Try> ->
+								  Try
+							      catch <T,R> ->
+								  'false'
+							      -| ['compiler_generated'] ) ->
+							  %% Line 115
+							  apply 'clear_alarm'/1
+							      (Alarm)
+						      %% Line 116
+						      <> when 'true' ->
+							  %% Line 117
+							  Alarm
+						    end
+						in  let <_cor27> =
+							%% Line 119
+							call 'erlang':'+'
+							    (TR, 1)
+						    in  let <_cor26> =
+							    %% Line 119
+							    call 'erlang':'+'
+								(AR, 1)
+							in  let <_rec1> = {_cor27,_cor26}
+							    in  let <_rec2> =
+								    %% Line 121
+								    call 'erlang':'+'
+									(CurI, Kappa)
+								in  let <_cor32> =
+									%% Line 122
+									{'state',NewTI,_rec2,_cor52,T,Kappa,_rec1,_cor24}
+								    in  %% Line 119
+									{'reply','accept',_cor32,%% Line 123
+												 30000}
+					    %% Line 124
+					    <> when 'true' ->
+						let <NewAlarm> =
+						    %% Line 126
+						    apply 'set_alarm'/1
+							(Alarm)
+						in  let <_cor34> =
+							%% Line 128
+							call 'erlang':'+'
+							    (TR, 1)
+						    in  let <_rec11> = {_cor34,%% Line 128
+								    AR}
+							in  let <_cor38> =
+								%% Line 130
+								{'state',NewTI,CurI,_cor52,T,Kappa,_rec11,NewAlarm}
+							    in  %% Line 127
+								{'reply','reject',_cor38,%% Line 131
+											 30000}
+					  end
+		      ( <_cor6> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor6})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 133
+	  <{'set_config_data',MaxIntensity,Weight},_X_From,_X_State> when 'true' ->
+	      let <_cor39> =
+		  apply 'get_now'/0
+		      ()
+	      in  %% Line 134
+		  {'reply','ok',{'state',0,0,MaxIntensity,_cor39,Weight,{0,0},'clear'},%% Line 135
+										       30000}
+	  %% Line 136
+	  <'get_overload_info',_X_From,State> when 'true' ->
+	      %% Line 138
+	      case State of
+		<{'state',TI,AI,MI,PrevT,Kappa,{TR,AR},_cor63}> when 'true' ->
+		    let <T> =
+			%% Line 139
+			apply 'get_now'/0
+			    ()
+		    in  let <CurI> =
+			    %% Line 140
+			    apply 'new_intensity'/4
+				(AI, T, PrevT, Kappa)
+			in  let <NewTI> =
+				%% Line 141
+				apply 'new_intensity'/4
+				    (TI, T, PrevT, Kappa)
+			    in  let <Reply> =
+				    %% Line 142
+				    [{'total_intensity',NewTI}|[{'accept_intensity',CurI}|%% Line 143
+											  [{'max_intensity',MI}|[{'weight',Kappa}|%% Line 144
+																  [{'total_requests',TR}|[{'accepted_requests',AR}|[]]]]]]]
+				in  let <_cor46> =
+					%% Line 145
+					call 'erlang':'setelement'
+					    (3, State, CurI)
+				    in  let <_cor48> =
+					    %% Line 145
+					    call 'erlang':'setelement'
+						(2, _cor46, NewTI)
+					in  %% Line 145
+					    {'reply',Reply,_cor48,%% Line 146
+								  30000}
+		( <_cor40> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor40})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor51,_cor50,_cor49> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor51,_cor50,_cor49})
+		  -| [{'function_name',{'handle_call',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_info'/2 =
+    %% Line 148
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <'timeout',State> when 'true' ->
+	      %% Line 150
+	      case State of
+		<{'state',TI,AI,_cor25,PrevT,Kappa,_cor26,Alarm}> when 'true' ->
+		    let <T> =
+			%% Line 151
+			apply 'get_now'/0
+			    ()
+		    in  let <CurI> =
+			    %% Line 152
+			    apply 'new_intensity'/4
+				(AI, T, PrevT, Kappa)
+			in  let <NewTI> =
+				%% Line 153
+				apply 'new_intensity'/4
+				    (TI, T, PrevT, Kappa)
+			    in  %% Line 154
+				case <> of
+				  %% Line 155
+				  <>
+				      when ( try
+					      let <_cor11> =
+						  call 'erlang':'*'
+						      (7.50000000000000000000e-01, _cor25)
+					      in  call 'erlang':'<'
+						      (CurI, _cor11)
+					  of <Try> ->
+					      Try
+					  catch <T,R> ->
+					      'false'
+					  -| ['compiler_generated'] ) ->
+				      let <NewAlarm> =
+					  %% Line 156
+					  apply 'clear_alarm'/1
+					      (Alarm)
+				      in  let <_cor15> =
+					      %% Line 158
+					      call 'erlang':'setelement'
+						  (8, State, NewAlarm)
+					  in  let <_cor16> =
+						  %% Line 157
+						  call 'erlang':'setelement'
+						      (3, _cor15, CurI)
+					      in  let <_cor18> =
+						      %% Line 157
+						      call 'erlang':'setelement'
+							  (2, _cor16, NewTI)
+						  in  %% Line 157
+						      {'noreply',_cor18}
+				  %% Line 160
+				  <> when 'true' ->
+				      let <_cor20> =
+					  %% Line 161
+					  call 'erlang':'setelement'
+					      (3, State, CurI)
+				      in  let <_cor22> =
+					      %% Line 161
+					      call 'erlang':'setelement'
+						  (2, _cor20, NewTI)
+					  in  %% Line 161
+					      {'noreply',_cor22,%% Line 162
+								30000}
+				end
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 165
+	  <_cor43,State> when 'true' ->
+	      %% Line 166
+	      {'noreply',State,30000}
+	end
+'terminate'/2 =
+    %% Line 168
+    fun (_cor1,_cor0) ->
+	%% Line 169
+	'ok'
+'fetch_config_data'/1 =
+    %% Line 174
+    fun (_cor0) ->
+	%% Line 175
+	case call 'application':'get_env'
+		 ('sasl', _cor0) of
+	  %% Line 176
+	  <{'ok',Value}> when 'true' ->
+	      Value
+	  %% Line 177
+	  <_cor3> when 'true' ->
+	      apply 'fetch_default_data'/1
+		  (_cor0)
+	end
+'fetch_default_data'/1 =
+    %% Line 180
+    fun (_cor0) ->
+	case _cor0 of
+	  <'overload_max_intensity'> when 'true' ->
+	      8.00000000000000044409e-01
+	  %% Line 181
+	  <'overload_weight'> when 'true' ->
+	      1.00000000000000005551e-01
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'fetch_default_data',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'set_alarm'/1 =
+    %% Line 183
+    fun (_cor0) ->
+	case _cor0 of
+	  <'clear'> when 'true' ->
+	      do  %% Line 184
+		  call 'alarm_handler':'set_alarm'
+		      ({'overload',[]})
+		  %% Line 185
+		  'set'
+	  %% Line 186
+	  <Alarm> when 'true' ->
+	      %% Line 187
+	      Alarm
+	end
+'clear_alarm'/1 =
+    %% Line 189
+    fun (_cor0) ->
+	case _cor0 of
+	  <'set'> when 'true' ->
+	      do  %% Line 190
+		  call 'alarm_handler':'clear_alarm'
+		      ('overload')
+		  %% Line 191
+		  'clear'
+	  %% Line 192
+	  <Alarm> when 'true' ->
+	      %% Line 193
+	      Alarm
+	end
+'new_intensity'/4 =
+    %% Line 198
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 199
+	    apply 'sub'/2
+		(_cor2, _cor1)
+	in  let <Diff> =
+		%% Line 199
+		call 'erlang':'/'
+		    (_cor4, 1000)
+	    in  let <_cor9> =
+		    catch
+			let <_cor6> =
+			    %% Line 200
+			    call 'erlang':'-'
+				(_cor0)
+			in  let <_cor7> =
+				%% Line 200
+				call 'erlang':'*'
+				    (_cor6, Diff)
+			    in  let <_cor8> =
+				    %% Line 200
+				    call 'math':'exp'
+					(_cor7)
+				in  %% Line 200
+				    call 'erlang':'*'
+					(_cor3, _cor8)
+		in  %% Line 200
+		    case _cor9 of
+		      %% Line 201
+		      <{'EXIT',_cor15}> when 'true' ->
+			  %% Line 202
+			  0.00000000000000000000e+00
+		      %% Line 203
+		      <Res> when 'true' ->
+			  %% Line 204
+			  Res
+		    end
+'get_now'/0 =
+    %% Line 214
+    fun () ->
+	let <_cor0> =
+	    %% Line 215
+	    call 'erlang':'statistics'
+		('wall_clock')
+	in  let <_cor1> =
+		%% Line 215
+		call 'erlang':'element'
+		    (1, _cor0)
+	    in  %% Line 215
+		call 'erlang':'band'
+		    (_cor1, 134217727)
+'sub'/2 =
+    %% Line 218
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 219
+	    call 'erlang':'bnot'
+		(_cor0)
+	in  let <_cor3> =
+		%% Line 219
+		call 'erlang':'+'
+		    (_cor1, _cor2)
+	    in  let <_cor4> =
+		    %% Line 219
+		    call 'erlang':'+'
+			(_cor3, 1)
+		in  %% Line 219
+		    call 'erlang':'band'
+			(_cor4, 134217727)
+'format_status'/2 =
+    %% Line 221
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Opt,[PDict|[{'state',TI,AI,MI,_cor5,%% Line 222
+					       K,%% Line 223
+						 {TR,AR},_cor6}|%% Line 223
+								[]]]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 230
+		  call 'misc_supp':'format_pdict'
+		      (Opt, PDict, [])
+	      in  %% Line 224
+		  [{'data',[{[84|[111|[116|[97|[108|[32|[73|[110|[116|[101|[110|[115|[105|[116|[121]]]]]]]]]]]]]]],TI}|%% Line 225
+														       [{[65|[99|[99|[101|[112|[116|[32|[73|[110|[116|[101|[110|[115|[105|[116|[121]]]]]]]]]]]]]]]],AI}|%% Line 226
+																											[{[77|[97|[120|[32|[73|[110|[116|[101|[110|[115|[105|[116|[121]]]]]]]]]]]]],MI}|%% Line 227
+																																					[{[87|[101|[105|[103|[104|[116]]]]]],K}|%% Line 228
+																																										[{[84|[111|[116|[97|[108|[32|[114|[101|[113|[117|[101|[115|[116|[115]]]]]]]]]]]]]],TR}|%% Line 229
+																																																				       [{[65|[99|[99|[101|[112|[116|[101|[100|[32|[114|[101|[113|[117|[101|[115|[116|[115]]]]]]]]]]]]]]]]],AR}|[]]]]]]]}|_cor2]
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'format_status',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('overload')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('overload', _cor0)
+end

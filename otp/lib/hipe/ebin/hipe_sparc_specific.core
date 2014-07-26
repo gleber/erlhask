@@ -1,0 +1,476 @@
+module 'hipe_sparc_specific' ['all_precoloured'/0,
+			      'allocatable'/0,
+			      'analyze'/1,
+			      'args'/1,
+			      'bb'/2,
+			      'breadthorder'/1,
+			      'check_and_rewrite'/2,
+			      'def_use'/1,
+			      'defines'/1,
+			      'defun_to_cfg'/1,
+			      'is_arg'/1,
+			      'is_fixed'/1,
+			      'is_global'/1,
+			      'is_move'/1,
+			      'is_precoloured'/1,
+			      'labels'/1,
+			      'livein'/2,
+			      'liveout'/2,
+			      'module_info'/0,
+			      'module_info'/1,
+			      'new_spill_index'/1,
+			      'non_alloc'/1,
+			      'number_of_temporaries'/1,
+			      'physical_name'/1,
+			      'postorder'/1,
+			      'reg_nr'/1,
+			      'reverse_postorder'/1,
+			      'uses'/1,
+			      'var_range'/1]
+    attributes []
+'defun_to_cfg'/1 =
+    %% Line 55
+    fun (_cor0) ->
+	%% Line 56
+	call 'hipe_sparc_cfg':'init'
+	    (_cor0)
+'check_and_rewrite'/2 =
+    %% Line 58
+    fun (_cor1,_cor0) ->
+	%% Line 59
+	call 'hipe_sparc_ra_postconditions':'check_and_rewrite'
+	    (_cor1, _cor0, 'normal')
+'reverse_postorder'/1 =
+    %% Line 61
+    fun (_cor0) ->
+	%% Line 62
+	call 'hipe_sparc_cfg':'reverse_postorder'
+	    (_cor0)
+'non_alloc'/1 =
+    %% Line 64
+    fun (_cor0) ->
+	let <_cor2> =
+	    %% Line 65
+	    call 'hipe_sparc_registers':'nr_args'
+		()
+	in  let <_cor1> =
+		%% Line 65
+		call 'hipe_sparc_cfg':'params'
+		    (_cor0)
+	    in  %% Line 65
+		apply 'non_alloc'/2
+		    (_cor2, _cor1)
+'non_alloc'/2 =
+    %% Line 68
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <0,Rest> when 'true' ->
+	      Rest
+	  %% Line 69
+	  <N,[_cor5|Rest]> when 'true' ->
+	      let <_cor2> =
+		  call 'erlang':'-'
+		      (N, 1)
+	      in  apply 'non_alloc'/2
+		      (_cor2, Rest)
+	  %% Line 70
+	  <_cor6,[]> when 'true' ->
+	      []
+	  ( <_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor4,_cor3})
+		  -| [{'function_name',{'non_alloc',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'analyze'/1 =
+    %% Line 74
+    fun (_cor0) ->
+	%% Line 75
+	call 'hipe_sparc_liveness_gpr':'analyse'
+	    (_cor0)
+'livein'/2 =
+    %% Line 77
+    fun (_cor1,_cor0) ->
+	%% Line 78
+	( letrec
+	      'lc$^0'/1 =
+		  fun (_cor5) ->
+		      case _cor5 of
+			<[X|_cor3]> when 'true' ->
+			    %% Line 79
+			    ( case call 'hipe_sparc':'temp_is_allocatable'
+				       (X) of
+				<'true'> when 'true' ->
+				    let <_cor6> =
+					apply 'lc$^0'/1
+					    (_cor3)
+				    in  ( [X|_cor6]
+					  -| ['compiler_generated'] )
+				( <'false'> when 'true' ->
+				      apply 'lc$^0'/1
+					  (_cor3)
+				  -| ['compiler_generated'] )
+				( <_cor7> when 'true' ->
+				      primop 'match_fail'
+					  ({'case_clause',_cor7})
+				  -| ['compiler_generated'] )
+			      end
+			      -| ['list_comprehension'] )
+			<[]> when 'true' ->
+			    []
+			( <_cor5> when 'true' ->
+			      ( primop 'match_fail'
+				    ({'function_clause',_cor5})
+				-| [{'function_name',{'lc$^0',1}}] )
+			  -| ['compiler_generated'] )
+		      end
+	  in  let <_cor4> =
+		  call 'hipe_sparc_liveness_gpr':'livein'
+		      (_cor1, _cor0)
+	      in  apply 'lc$^0'/1
+		      (_cor4)
+	  -| ['list_comprehension'] )
+'liveout'/2 =
+    %% Line 81
+    fun (_cor1,_cor0) ->
+	%% Line 82
+	( letrec
+	      'lc$^0'/1 =
+		  fun (_cor5) ->
+		      case _cor5 of
+			<[X|_cor3]> when 'true' ->
+			    %% Line 83
+			    ( case call 'hipe_sparc':'temp_is_allocatable'
+				       (X) of
+				<'true'> when 'true' ->
+				    let <_cor6> =
+					apply 'lc$^0'/1
+					    (_cor3)
+				    in  ( [X|_cor6]
+					  -| ['compiler_generated'] )
+				( <'false'> when 'true' ->
+				      apply 'lc$^0'/1
+					  (_cor3)
+				  -| ['compiler_generated'] )
+				( <_cor7> when 'true' ->
+				      primop 'match_fail'
+					  ({'case_clause',_cor7})
+				  -| ['compiler_generated'] )
+			      end
+			      -| ['list_comprehension'] )
+			<[]> when 'true' ->
+			    []
+			( <_cor5> when 'true' ->
+			      ( primop 'match_fail'
+				    ({'function_clause',_cor5})
+				-| [{'function_name',{'lc$^0',1}}] )
+			  -| ['compiler_generated'] )
+		      end
+	  in  let <_cor4> =
+		  call 'hipe_sparc_liveness_gpr':'liveout'
+		      (_cor1, _cor0)
+	      in  apply 'lc$^0'/1
+		      (_cor4)
+	  -| ['list_comprehension'] )
+'allocatable'/0 =
+    %% Line 87
+    fun () ->
+	%% Line 88
+	call 'hipe_sparc_registers':'allocatable_gpr'
+	    ()
+'all_precoloured'/0 =
+    %% Line 90
+    fun () ->
+	%% Line 91
+	call 'hipe_sparc_registers':'all_precoloured'
+	    ()
+'is_precoloured'/1 =
+    %% Line 93
+    fun (_cor0) ->
+	%% Line 94
+	call 'hipe_sparc_registers':'is_precoloured_gpr'
+	    (_cor0)
+'is_fixed'/1 =
+    %% Line 96
+    fun (_cor0) ->
+	%% Line 97
+	call 'hipe_sparc_registers':'is_fixed'
+	    (_cor0)
+'physical_name'/1 =
+    %% Line 99
+    fun (_cor0) ->
+	_cor0
+'labels'/1 =
+    %% Line 104
+    fun (_cor0) ->
+	%% Line 105
+	call 'hipe_sparc_cfg':'labels'
+	    (_cor0)
+'var_range'/1 =
+    %% Line 107
+    fun (_cor0) ->
+	%% Line 108
+	call 'hipe_gensym':'var_range'
+	    ('sparc')
+'number_of_temporaries'/1 =
+    %% Line 110
+    fun (_cor0) ->
+	let <Highest_temporary> =
+	    %% Line 111
+	    call 'hipe_gensym':'get_var'
+		('sparc')
+	in  %% Line 113
+	    call 'erlang':'+'
+		(Highest_temporary, 1)
+'bb'/2 =
+    %% Line 115
+    fun (_cor1,_cor0) ->
+	%% Line 116
+	call 'hipe_sparc_cfg':'bb'
+	    (_cor1, _cor0)
+'def_use'/1 =
+    %% Line 120
+    fun (_cor0) ->
+	let <_cor2> =
+	    %% Line 121
+	    apply 'defines'/1
+		(_cor0)
+	in  let <_cor1> =
+		%% Line 121
+		apply 'uses'/1
+		    (_cor0)
+	    in  %% Line 121
+		{_cor2,_cor1}
+'uses'/1 =
+    %% Line 123
+    fun (_cor0) ->
+	%% Line 124
+	( letrec
+	      'lc$^0'/1 =
+		  fun (_cor4) ->
+		      case _cor4 of
+			<[X|_cor2]> when 'true' ->
+			    %% Line 125
+			    ( case call 'hipe_sparc':'temp_is_allocatable'
+				       (X) of
+				<'true'> when 'true' ->
+				    let <_cor5> =
+					apply 'lc$^0'/1
+					    (_cor2)
+				    in  ( [X|_cor5]
+					  -| ['compiler_generated'] )
+				( <'false'> when 'true' ->
+				      apply 'lc$^0'/1
+					  (_cor2)
+				  -| ['compiler_generated'] )
+				( <_cor6> when 'true' ->
+				      primop 'match_fail'
+					  ({'case_clause',_cor6})
+				  -| ['compiler_generated'] )
+			      end
+			      -| ['list_comprehension'] )
+			<[]> when 'true' ->
+			    []
+			( <_cor4> when 'true' ->
+			      ( primop 'match_fail'
+				    ({'function_clause',_cor4})
+				-| [{'function_name',{'lc$^0',1}}] )
+			  -| ['compiler_generated'] )
+		      end
+	  in  let <_cor3> =
+		  call 'hipe_sparc_defuse':'insn_use_gpr'
+		      (_cor0)
+	      in  apply 'lc$^0'/1
+		      (_cor3)
+	  -| ['list_comprehension'] )
+'defines'/1 =
+    %% Line 127
+    fun (_cor0) ->
+	%% Line 128
+	( letrec
+	      'lc$^0'/1 =
+		  fun (_cor4) ->
+		      case _cor4 of
+			<[X|_cor2]> when 'true' ->
+			    %% Line 129
+			    ( case call 'hipe_sparc':'temp_is_allocatable'
+				       (X) of
+				<'true'> when 'true' ->
+				    let <_cor5> =
+					apply 'lc$^0'/1
+					    (_cor2)
+				    in  ( [X|_cor5]
+					  -| ['compiler_generated'] )
+				( <'false'> when 'true' ->
+				      apply 'lc$^0'/1
+					  (_cor2)
+				  -| ['compiler_generated'] )
+				( <_cor6> when 'true' ->
+				      primop 'match_fail'
+					  ({'case_clause',_cor6})
+				  -| ['compiler_generated'] )
+			      end
+			      -| ['list_comprehension'] )
+			<[]> when 'true' ->
+			    []
+			( <_cor4> when 'true' ->
+			      ( primop 'match_fail'
+				    ({'function_clause',_cor4})
+				-| [{'function_name',{'lc$^0',1}}] )
+			  -| ['compiler_generated'] )
+		      end
+	  in  let <_cor3> =
+		  call 'hipe_sparc_defuse':'insn_def_gpr'
+		      (_cor0)
+	      in  apply 'lc$^0'/1
+		      (_cor3)
+	  -| ['list_comprehension'] )
+'is_move'/1 =
+    %% Line 131
+    fun (_cor0) ->
+	%% Line 132
+	case call 'hipe_sparc':'is_pseudo_move'
+		 (_cor0) of
+	  %% Line 133
+	  <'true'> when 'true' ->
+	      let <Dst> =
+		  %% Line 134
+		  call 'hipe_sparc':'pseudo_move_dst'
+		      (_cor0)
+	      in  %% Line 135
+		  case call 'hipe_sparc':'temp_is_allocatable'
+			   (Dst) of
+		    %% Line 136
+		    <'false'> when 'true' ->
+			'false'
+		    %% Line 137
+		    <_cor6> when 'true' ->
+			let <Src> =
+			    %% Line 138
+			    call 'hipe_sparc':'pseudo_move_src'
+				(_cor0)
+			in  %% Line 139
+			    call 'hipe_sparc':'temp_is_allocatable'
+				(Src)
+		  end
+	  %% Line 141
+	  <'false'> when 'true' ->
+	      'false'
+	  ( <_cor4> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor4})
+	    -| ['compiler_generated'] )
+	end
+'reg_nr'/1 =
+    %% Line 144
+    fun (_cor0) ->
+	%% Line 145
+	call 'hipe_sparc':'temp_reg'
+	    (_cor0)
+'new_spill_index'/1 =
+    %% Line 149
+    fun (_cor0) ->
+	case _cor0 of
+	  <SpillIndex>
+	      when call 'erlang':'is_integer'
+		    (_cor0) ->
+	      %% Line 150
+	      call 'erlang':'+'
+		  (SpillIndex, 1)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'new_spill_index',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'breadthorder'/1 =
+    %% Line 152
+    fun (_cor0) ->
+	%% Line 153
+	call 'hipe_sparc_cfg':'breadthorder'
+	    (_cor0)
+'postorder'/1 =
+    %% Line 155
+    fun (_cor0) ->
+	%% Line 156
+	call 'hipe_sparc_cfg':'postorder'
+	    (_cor0)
+'is_global'/1 =
+    %% Line 158
+    fun (_cor0) ->
+	let <_cor2> =
+	    %% Line 159
+	    call 'hipe_sparc_registers':'temp1'
+		()
+	in  %% Line 159
+	    ( case <> of
+		( <>
+		      when call 'erlang':'=:='
+			    (_cor0,
+			     _cor2) ->
+		      'true'
+		  -| ['compiler_generated'] )
+		( <> when 'true' ->
+		      let <_cor4> =
+			  %% Line 160
+			  call 'hipe_sparc_registers':'temp2'
+			      ()
+		      in  %% Line 160
+			  ( case <> of
+			      ( <>
+				    when call 'erlang':'=:='
+					  (_cor0,
+					   _cor4) ->
+				    'true'
+				-| ['compiler_generated'] )
+			      ( <> when 'true' ->
+				    let <_cor6> =
+					%% Line 161
+					call 'hipe_sparc_registers':'temp3'
+					    ()
+				    in  %% Line 161
+					( case <> of
+					    ( <>
+						  when call 'erlang':'=:='
+							(_cor0,
+							 _cor6) ->
+						  'true'
+					      -| ['compiler_generated'] )
+					    ( <> when 'true' ->
+						  %% Line 162
+						  call 'hipe_sparc_registers':'is_fixed'
+						      (_cor0)
+					      -| ['compiler_generated'] )
+					  end
+					  -| ['compiler_generated'] )
+				-| ['compiler_generated'] )
+			    end
+			    -| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	      -| ['compiler_generated'] )
+'is_arg'/1 =
+    %% Line 164
+    fun (_cor0) ->
+	%% Line 165
+	call 'hipe_sparc_registers':'is_arg'
+	    (_cor0)
+'args'/1 =
+    %% Line 167
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 168
+	    call 'hipe_sparc_cfg':'arity'
+		(_cor0)
+	in  %% Line 168
+	    call 'hipe_sparc_registers':'args'
+		(_cor1)
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('hipe_sparc_specific')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('hipe_sparc_specific', _cor0)
+end

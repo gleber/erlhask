@@ -1,0 +1,455 @@
+module 'inet_hosts' ['gethostbyaddr'/1,
+		     'gethostbyname'/1,
+		     'gethostbyname'/2,
+		     'module_info'/0,
+		     'module_info'/1]
+    attributes [%% Line 22
+		'type' =
+		    %% Line 22
+		    [{{'record','hostent'},[{'typed_record_field',{'record_field',24,{'atom',24,'h_name'}},{'type',24,'union',[{'atom',24,'undefined'}|[{'remote_type',24,[{'atom',24,'inet'}|[{'atom',24,'hostname'}|[[]]]]}]]}}|[{'typed_record_field',{'record_field',25,{'atom',25,'h_aliases'},{'nil',25}},{'type',25,'list',[{'remote_type',25,[{'atom',25,'inet'}|[{'atom',25,'hostname'}|[[]]]]}]}}|[{'typed_record_field',{'record_field',26,{'atom',26,'h_addrtype'}},{'type',26,'union',[{'atom',26,'undefined'}|[{'atom',26,'inet'}|[{'atom',26,'inet6'}]]]}}|[{'typed_record_field',{'record_field',27,{'atom',27,'h_length'}},{'type',27,'union',[{'atom',27,'undefined'}|[{'type',27,'non_neg_integer',[]}]]}}|[{'typed_record_field',{'record_field',28,{'atom',28,'h_addr_list'},{'nil',28}},{'type',28,'list',[{'remote_type',28,[{'atom',28,'inet'}|[{'atom',28,'ip_address'}|[[]]]]}]}}]]]]],[]}],
+		%% Line 374
+		'type' =
+		    %% Line 374
+		    [{{'record','connect_opts'},[{'record_field',376,{'atom',376,'ifaddr'},{'atom',376,'any'}}|[{'record_field',377,{'atom',377,'port'},{'integer',377,0}}|[{'record_field',378,{'atom',378,'fd'},{'op',378,'-',{'integer',378,1}}}|[{'record_field',379,{'atom',379,'opts'},{'nil',379}}]]]],[]}],
+		%% Line 382
+		'type' =
+		    %% Line 382
+		    [{{'record','listen_opts'},[{'record_field',384,{'atom',384,'ifaddr'},{'atom',384,'any'}}|[{'record_field',385,{'atom',385,'port'},{'integer',385,0}}|[{'record_field',386,{'atom',386,'backlog'},{'integer',386,5}}|[{'record_field',387,{'atom',387,'fd'},{'op',387,'-',{'integer',387,1}}}|[{'record_field',388,{'atom',388,'opts'},{'nil',388}}]]]]],[]}],
+		%% Line 392
+		'type' =
+		    %% Line 392
+		    [{{'record','udp_opts'},[{'record_field',394,{'atom',394,'ifaddr'},{'atom',394,'any'}}|[{'record_field',395,{'atom',395,'port'},{'integer',395,0}}|[{'record_field',396,{'atom',396,'fd'},{'op',396,'-',{'integer',396,1}}}|[{'record_field',397,{'atom',397,'opts'},{'cons',397,{'tuple',397,[{'atom',397,'active'}|[{'atom',397,'true'}]]},{'nil',397}}}]]]],[]}],
+		%% Line 402
+		'type' =
+		    %% Line 402
+		    [{{'record','sctp_opts'},[{'record_field',404,{'atom',404,'ifaddr'}}|[{'record_field',405,{'atom',405,'port'},{'integer',405,0}}|[{'record_field',406,{'atom',406,'fd'},{'op',406,'-',{'integer',406,1}}}|[{'record_field',407,{'atom',407,'type'},{'atom',407,'seqpacket'}}|[{'record_field',408,{'atom',408,'opts'},{'cons',408,{'tuple',408,[{'atom',408,'mode'}|[{'atom',408,'binary'}]]},{'cons',409,{'tuple',409,[{'atom',409,'buffer'}|[{'integer',409,65536}]]},{'cons',410,{'tuple',410,[{'atom',410,'sndbuf'}|[{'integer',410,65536}]]},{'cons',411,{'tuple',411,[{'atom',411,'recbuf'}|[{'integer',411,1024}]]},{'cons',412,{'tuple',412,[{'atom',412,'sctp_events'}|[{'atom',412,'undefined'}]]},{'nil',414}}}}}}}]]]]],[]}]]
+'gethostbyname'/1 =
+    %% Line 28
+    fun (_cor0) ->
+	case _cor0 of
+	  <Name>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      let <_cor2> =
+		  %% Line 30
+		  case call 'inet_db':'res_option'
+			   ('inet6') of
+		    %% Line 31
+		    <'true'> when 'true' ->
+			'inet6'
+		    %% Line 32
+		    <'false'> when 'true' ->
+			'inet'
+		    ( <_cor1> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor1})
+		      -| ['compiler_generated'] )
+		  end
+	      in  %% Line 29
+		  apply 'gethostbyname'/2
+		      (Name, _cor2)
+	  %% Line 34
+	  <Name>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      let <_cor3> =
+		  %% Line 35
+		  call 'erlang':'atom_to_list'
+		      (Name)
+	      in  %% Line 35
+		  apply 'gethostbyname'/1
+		      (_cor3)
+	  %% Line 36
+	  <_cor5> when 'true' ->
+	      {'error','formerr'}
+	end
+'gethostbyname'/2 =
+    %% Line 40
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Name,Type>
+	      when let <_cor2> =
+		    call 'erlang':'is_list'
+			(Name)
+		in  let <_cor3> =
+			call 'erlang':'is_atom'
+			    (Type)
+		    in  call 'erlang':'and'
+			    (_cor2, _cor3) ->
+	      let <N> =
+		  %% Line 43
+		  call 'inet_db':'tolower'
+		      (Name)
+	      in  %% Line 44
+		  case apply 'gethostbyname'/4
+			   (N, Type, 'inet_hosts_byname', 'inet_hosts_byaddr') of
+		    %% Line 45
+		    <'false'> when 'true' ->
+			%% Line 46
+			case apply 'gethostbyname'/4
+				 (N, Type, %% Line 47
+					   'inet_hosts_file_byname', %% Line 48
+								     'inet_hosts_file_byaddr') of
+			  %% Line 49
+			  <'false'> when 'true' ->
+			      {'error','nxdomain'}
+			  %% Line 50
+			  <Hostent> when 'true' ->
+			      {'ok',Hostent}
+			end
+		    %% Line 52
+		    <Hostent> when 'true' ->
+			{'ok',Hostent}
+		  end
+	  %% Line 54
+	  <Name,Type>
+	      when let <_cor7> =
+		    call 'erlang':'is_atom'
+			(Name)
+		in  let <_cor8> =
+			call 'erlang':'is_atom'
+			    (Type)
+		    in  call 'erlang':'and'
+			    (_cor7, _cor8) ->
+	      let <_cor9> =
+		  %% Line 55
+		  call 'erlang':'atom_to_list'
+		      (Name)
+	      in  %% Line 55
+		  apply 'gethostbyname'/2
+		      (_cor9, Type)
+	  %% Line 56
+	  <_cor12,_cor13> when 'true' ->
+	      {'error','formerr'}
+	end
+'gethostbyname'/4 =
+    %% Line 58
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 59
+	    call 'inet_db':'res_update_hosts'
+		()
+	    let <_cor9> =
+		%% Line 60
+		( letrec
+		      'lc$^0'/1 =
+			  fun (_cor7) ->
+			      case _cor7 of
+				<[[I|[]]|_cor5]> when 'true' ->
+				    let <_cor8> =
+					apply 'lc$^0'/1
+					    (_cor5)
+				    in  ( [I|_cor8]
+					  -| ['compiler_generated'] )
+				( <[_cor4|_cor5]> when 'true' ->
+				      apply 'lc$^0'/1
+					  (_cor5)
+				  -| ['compiler_generated'] )
+				<[]> when 'true' ->
+				    []
+				( <_cor7> when 'true' ->
+				      ( primop 'match_fail'
+					    ({'function_clause',_cor7})
+					-| [{'function_name',{'lc$^0',1}}] )
+				  -| ['compiler_generated'] )
+			      end
+		  in  let <_cor6> =
+			  call 'ets':'match'
+			      (_cor1, {_cor3,_cor2,'$1'})
+		      in  apply 'lc$^0'/1
+			      (_cor6)
+		  -| ['list_comprehension'] )
+	    in  %% Line 60
+		case _cor9 of
+		  %% Line 61
+		  <[]> when 'true' ->
+		      'false'
+		  %% Line 62
+		  <IPs = [IP|_cor22]> when 'true' ->
+		      let <_cor15> =
+			  %% Line 64
+			  ( letrec
+				'lc$^1'/1 =
+				    fun (_cor13) ->
+					case _cor13 of
+					  <[[N|[]]|_cor11]> when 'true' ->
+					      let <_cor14> =
+						  apply 'lc$^1'/1
+						      (_cor11)
+					      in  ( [N|_cor14]
+						    -| ['compiler_generated'] )
+					  ( <[_cor10|_cor11]> when 'true' ->
+						apply 'lc$^1'/1
+						    (_cor11)
+					    -| ['compiler_generated'] )
+					  <[]> when 'true' ->
+					      []
+					  ( <_cor13> when 'true' ->
+						( primop 'match_fail'
+						      ({'function_clause',_cor13})
+						  -| [{'function_name',{'lc$^1',1}}] )
+					    -| ['compiler_generated'] )
+					end
+			    in  let <_cor12> =
+				    call 'ets':'match'
+					(_cor0, %% Line 65
+						{'$1',_cor2,IP})
+				in  apply 'lc$^1'/1
+					(_cor12)
+			    -| ['list_comprehension'] )
+		      in  %% Line 64
+			  case _cor15 of
+			    <[Nm|As]> when 'true' ->
+				%% Line 66
+				apply 'make_hostent'/4
+				    (Nm, IPs, As, _cor2)
+			    ( <_cor16> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor16})
+			      -| ['compiler_generated'] )
+			  end
+		  ( <_cor17> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor17})
+		    -| ['compiler_generated'] )
+		end
+'gethostbyaddr'/1 =
+    %% Line 72
+    fun (_cor0) ->
+	case _cor0 of
+	  <IP = {A,B,C,D}>
+	      when try
+		    let <_cor2> =
+			call 'erlang':'bor'
+			    (A, B)
+		    in  let <_cor3> =
+			    call 'erlang':'bor'
+				(_cor2, C)
+			in  let <_cor4> =
+				call 'erlang':'bor'
+				    (_cor3, D)
+			    in  let <_cor5> =
+				    call 'erlang':'band'
+					(_cor4, -256)
+				in  call 'erlang':'=:='
+					(_cor5, 0)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 73
+	      apply 'gethostbyaddr'/2
+		  (IP, 'inet')
+	  %% Line 75
+	  <{0,0,0,0,0,F = 65535,G,H}>
+	      when try
+		    let <_cor11> =
+			call 'erlang':'bor'
+			    (0, F)
+		    in  let <_cor12> =
+			    call 'erlang':'bor'
+				(_cor11, G)
+			in  let <_cor13> =
+				call 'erlang':'bor'
+				    (_cor12, H)
+			    in  let <_cor14> =
+				    call 'erlang':'band'
+					(_cor13, -65536)
+				in  call 'erlang':'=:='
+					(_cor14, 0)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      let <_cor18> =
+		  %% Line 76
+		  call 'erlang':'bsr'
+		      (G, 8)
+	      in  let <_cor17> =
+		      %% Line 76
+		      call 'erlang':'band'
+			  (G, 255)
+		  in  let <_cor16> =
+			  %% Line 76
+			  call 'erlang':'bsr'
+			      (H, 8)
+		      in  let <_cor15> =
+			      %% Line 76
+			      call 'erlang':'band'
+				  (H, 255)
+			  in  %% Line 76
+			      apply 'gethostbyaddr'/1
+				  ({_cor18,_cor17,_cor16,_cor15})
+	  %% Line 77
+	  <IP = {A,B,C,D,E,F,G,H}>
+	      when try
+		    let <_cor20> =
+			call 'erlang':'bor'
+			    (A, B)
+		    in  let <_cor21> =
+			    call 'erlang':'bor'
+				(_cor20, C)
+			in  let <_cor22> =
+				call 'erlang':'bor'
+				    (_cor21, D)
+			    in  let <_cor23> =
+				    call 'erlang':'bor'
+					(_cor22, E)
+				in  let <_cor24> =
+					call 'erlang':'bor'
+					    (_cor23, F)
+				    in  let <_cor25> =
+					    call 'erlang':'bor'
+						(_cor24, G)
+					in  let <_cor26> =
+						call 'erlang':'bor'
+						    (_cor25, H)
+					    in  let <_cor27> =
+						    call 'erlang':'band'
+							(_cor26, -65536)
+						in  call 'erlang':'=:='
+							(_cor27, 0)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 78
+	      apply 'gethostbyaddr'/2
+		  (IP, 'inet6')
+	  %% Line 79
+	  <Addr>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      %% Line 80
+	      case call 'inet_parse':'address'
+		       (Addr) of
+		%% Line 81
+		<{'ok',IP}> when 'true' ->
+		    apply 'gethostbyaddr'/1
+			(IP)
+		%% Line 82
+		<_X_Error> when 'true' ->
+		    {'error','formerr'}
+	      end
+	  %% Line 84
+	  <Addr>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      let <_cor29> =
+		  %% Line 85
+		  call 'erlang':'atom_to_list'
+		      (Addr)
+	      in  %% Line 85
+		  apply 'gethostbyaddr'/1
+		      (_cor29)
+	  %% Line 86
+	  <_cor31> when 'true' ->
+	      {'error','formerr'}
+	end
+'gethostbyaddr'/2 =
+    %% Line 90
+    fun (_cor1,_cor0) ->
+	%% Line 91
+	case apply 'gethostbyaddr'/3
+		 (_cor1, _cor0, 'inet_hosts_byaddr') of
+	  %% Line 92
+	  <'false'> when 'true' ->
+	      %% Line 93
+	      case apply 'gethostbyaddr'/3
+		       (_cor1, _cor0, 'inet_hosts_file_byaddr') of
+		%% Line 94
+		<'false'> when 'true' ->
+		    {'error','nxdomain'}
+		%% Line 95
+		<Hostent> when 'true' ->
+		    {'ok',Hostent}
+	      end
+	  %% Line 97
+	  <Hostent> when 'true' ->
+	      {'ok',Hostent}
+	end
+'gethostbyaddr'/3 =
+    %% Line 100
+    fun (_cor2,_cor1,_cor0) ->
+	do  %% Line 101
+	    call 'inet_db':'res_update_hosts'
+		()
+	    let <_cor8> =
+		%% Line 102
+		( letrec
+		      'lc$^0'/1 =
+			  fun (_cor6) ->
+			      case _cor6 of
+				<[[N|[]]|_cor4]> when 'true' ->
+				    let <_cor7> =
+					apply 'lc$^0'/1
+					    (_cor4)
+				    in  ( [N|_cor7]
+					  -| ['compiler_generated'] )
+				( <[_cor3|_cor4]> when 'true' ->
+				      apply 'lc$^0'/1
+					  (_cor4)
+				  -| ['compiler_generated'] )
+				<[]> when 'true' ->
+				    []
+				( <_cor6> when 'true' ->
+				      ( primop 'match_fail'
+					    ({'function_clause',_cor6})
+					-| [{'function_name',{'lc$^0',1}}] )
+				  -| ['compiler_generated'] )
+			      end
+		  in  let <_cor5> =
+			  call 'ets':'match'
+			      (_cor0, {'$1',_cor1,_cor2})
+		      in  apply 'lc$^0'/1
+			      (_cor5)
+		  -| ['list_comprehension'] )
+	    in  %% Line 102
+		case _cor8 of
+		  %% Line 103
+		  <[]> when 'true' ->
+		      'false'
+		  %% Line 104
+		  <[Nm|As]> when 'true' ->
+		      apply 'make_hostent'/4
+			  (Nm, [_cor2|[]], As, _cor1)
+		  ( <_cor9> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor9})
+		    -| ['compiler_generated'] )
+		end
+'make_hostent'/4 =
+    %% Line 109
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Name,Addrs,Aliases,'inet'> when 'true' ->
+	      %% Line 110
+	      {'hostent',%% Line 111
+			 Name,%% Line 115
+			      Aliases,%% Line 112
+				      'inet',%% Line 113
+					     4,%% Line 114
+					       Addrs}
+	  %% Line 117
+	  <Name,Addrs,Aliases,'inet6'> when 'true' ->
+	      %% Line 118
+	      {'hostent',%% Line 119
+			 Name,%% Line 123
+			      Aliases,%% Line 120
+				      'inet6',%% Line 121
+					      16,%% Line 122
+						 Addrs}
+	  ( <_cor7,_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'make_hostent',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('inet_hosts')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('inet_hosts', _cor0)
+end

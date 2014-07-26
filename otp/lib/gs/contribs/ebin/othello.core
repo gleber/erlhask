@@ -1,0 +1,697 @@
+module 'othello' ['module_info'/0,
+		  'module_info'/1,
+		  'new_game'/4,
+		  'start'/0,
+		  'start1'/5]
+    attributes []
+'start'/0 =
+    %% Line 33
+    fun () ->
+	call 'othello_board':'start'
+	    ()
+'new_game'/4 =
+    %% Line 35
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 36
+	    call 'erlang':'self'
+		()
+	in  %% Line 36
+	    call 'erlang':'spawn_link'
+		('othello', 'start1', [_cor4|[_cor3|[_cor2|[_cor1|[_cor0|[]]]]]])
+'start1'/5 =
+    %% Line 38
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <Board> =
+	    %% Line 39
+	    call 'othello_adt':'new'
+		('t')
+	in  do  %% Line 40
+		call 'random':'seed'
+		    ()
+		do  %% Line 41
+		    apply 'init_display'/3
+			(Board, _cor4, _cor0)
+		    %% Line 42
+		    apply 'play'/6
+			(_cor3, _cor2, Board, _cor1, _cor4, 1)
+'play'/6 =
+    %% Line 44
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 45
+	    apply 'tell_win'/3
+		(_cor1, _cor5, _cor4)
+	    let <_cor6> =
+		catch
+		    %% Line 46
+		    apply 'continue'/2
+			(_cor4, _cor3)
+	    in  %% Line 46
+		case _cor6 of
+		  %% Line 47
+		  <{'game_over',Result}> when 'true' ->
+		      %% Line 48
+		      apply 'game_over'/4
+			  (_cor3, _cor4, Result, _cor1)
+		  %% Line 49
+		  <{'omit_draw',_cor20}>
+		      when call 'erlang':'=:='
+			    (_cor20,
+			     _cor4) ->
+		      do  %% Line 50
+			  apply 'omit'/2
+			      (_cor4, _cor1)
+			  let <_cor7> =
+			      %% Line 51
+			      apply 'swap'/1
+				  (_cor4)
+			  in  %% Line 51
+			      apply 'play'/6
+				  (_cor5, _cor7, _cor3, _cor2, _cor1, _cor0)
+		  %% Line 52
+		  <'ok'> when 'true' ->
+		      let <Draw> =
+			  %% Line 53
+			  apply 'choose_draw'/6
+			      (_cor5, _cor4, _cor3, _cor2, _cor1, _cor0)
+		      in  let <_cor9> =
+			      %% Line 54
+			      call 'erlang':'self'
+				  ()
+			  in  do  %% Line 54
+				  call 'erlang':'!'
+				      (_cor1, {_cor9,'draw',Draw})
+				  let <Board1> =
+				      %% Line 55
+				      call 'othello_adt':'set'
+					  (Draw, _cor4, _cor3)
+				  in  do  %% Line 56
+					  apply 'display'/3
+					      (Board1, _cor3, _cor1)
+					  let <_cor12> =
+					      %% Line 57
+					      apply 'swap'/1
+						  (_cor4)
+					  in  let <_cor11> =
+						  %% Line 57
+						  call 'erlang':'+'
+						      (_cor0, 1)
+					      in  %% Line 57
+						  apply 'play'/6
+						      (_cor5, _cor12, Board1, _cor2, _cor1, _cor11)
+		  ( <_cor13> when 'true' ->
+			primop 'match_fail'
+			    ({'case_clause',_cor13})
+		    -| ['compiler_generated'] )
+		end
+'continue'/2 =
+    %% Line 60
+    fun (_cor1,_cor0) ->
+	let <Draws> =
+	    %% Line 61
+	    apply 'game_over'/2
+		(_cor1, _cor0)
+	in  do  %% Line 62
+		apply 'not_allowed'/2
+		    (Draws, _cor1)
+		%% Line 63
+		'ok'
+'choose_draw'/6 =
+    %% Line 65
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Computer,_cor16,Board,Depth,_X_Win,NoDs>
+	      when call 'erlang':'=:='
+		    (_cor16,
+		     Computer) ->
+	      %% Line 66
+	      case apply 'alpha_beta'/6
+		       (Depth, Board, -11000, 11000, Computer, NoDs) of
+		<{Draw,_X_Value}> when 'true' ->
+		    %% Line 70
+		    Draw
+		( <_cor7> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor7})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 71
+	  <Computer,Player,Board,Depth,Win,NoDs> when 'true' ->
+	      %% Line 72
+	      receive
+		%% Line 73
+		<{_cor17,'position',Draw}>
+		    when call 'erlang':'=:='
+			  (_cor17,
+			   Win) ->
+		    do  %% Line 74
+			apply 'flush'/1
+			    (Win)
+			%% Line 75
+			case call 'othello_adt':'is_draw'
+				 (Draw, Player, Board) of
+			  %% Line 76
+			  <'false'> when 'true' ->
+			      let <_cor8> =
+				  %% Line 77
+				  call 'erlang':'self'
+				      ()
+			      in  do  %% Line 77
+				      call 'erlang':'!'
+					  (Win, {_cor8,'illegal_draw',Draw})
+				      %% Line 78
+				      apply 'choose_draw'/6
+					  (Computer, Player, Board, Depth, Win, NoDs)
+			  %% Line 79
+			  <'true'> when 'true' ->
+			      %% Line 80
+			      Draw
+			  ( <_cor9> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor9})
+			    -| ['compiler_generated'] )
+			end
+	      after 'infinity' ->
+		'true'
+	end
+'flush'/1 =
+    %% Line 84
+    fun (_cor0) ->
+	%% Line 85
+	receive
+	  %% Line 86
+	  <{_cor2,'position',_cor3}>
+	      when call 'erlang':'=:='
+		    (_cor2,
+		     _cor0) ->
+	      %% Line 87
+	      apply 'flush'/1
+		  (_cor0)
+	after %% Line 88
+	      1 ->
+	  %% Line 89
+	  'true'
+'tell_win'/3 =
+    %% Line 92
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 93
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 93
+		call 'erlang':'!'
+		    (_cor2, {_cor3,'player',_cor1,_cor0})
+		%% Line 94
+		receive
+		  %% Line 95
+		  <{_cor7,'go_on_play'}>
+		      when call 'erlang':'=:='
+			    (_cor7,
+			     _cor2) ->
+		      'true'
+		after 'infinity' ->
+		  'true'
+'alpha_beta'/6 =
+    %% Line 98
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <0,Board,_cor25,_cor26,Player,_cor27> when 'true' ->
+	      let <_cor6> =
+		  %% Line 99
+		  call 'othello_adt':'evaluate_board'
+		      (Player, Board)
+	      in  %% Line 99
+		  {-1,_cor6}
+	  %% Line 100
+	  <Depth,Board,Alpha,Beta,Player,NoDs> when 'true' ->
+	      %% Line 101
+	      case apply 'compute'/3
+		       (Player, Board, NoDs) of
+		%% Line 102
+		<[]> when 'true' ->
+		    let <Player1> =
+			%% Line 103
+			apply 'swap'/1
+			    (Player)
+		    in  %% Line 104
+			case apply 'compute'/3
+				 (Player1, Board, NoDs) of
+			  %% Line 105
+			  <[]> when 'true' ->
+			      %% Line 106
+			      apply 'dead_lock'/2
+				  (Board, Player)
+			  %% Line 107
+			  <PosDraws1> when 'true' ->
+			      let <_cor12> =
+				  %% Line 108
+				  call 'erlang':'-'
+				      (Depth, 1)
+			      in  let <_cor11> =
+				      %% Line 108
+				      call 'erlang':'-'
+					  (Beta)
+				  in  let <_cor10> =
+					  %% Line 108
+					  call 'erlang':'-'
+					      (Alpha)
+				      in  %% Line 108
+					  apply 'choose'/8
+					      (PosDraws1, Board, _cor12, _cor11, _cor10, -1, %% Line 109
+											     Player1, %% Line 109
+												      NoDs)
+			end
+		%% Line 111
+		<PosDraws> when 'true' ->
+		    let <_cor17> =
+			%% Line 112
+			call 'erlang':'-'
+			    (Depth, 1)
+		    in  let <_cor16> =
+			    %% Line 112
+			    call 'erlang':'-'
+				(Beta)
+			in  let <_cor15> =
+				%% Line 112
+				call 'erlang':'-'
+				    (Alpha)
+			    in  %% Line 112
+				apply 'choose'/8
+				    (PosDraws, Board, _cor17, _cor16, _cor15, -1, Player, NoDs)
+	      end
+	end
+'choose'/8 =
+    %% Line 118
+    fun (_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <[Draw|Draws],Board,Depth,Alpha,Beta,Record,Player,NoDs> when 'true' ->
+	      let <Player1> =
+		  %% Line 119
+		  apply 'swap'/1
+		      (Player)
+	      in  let <Board1> =
+		      %% Line 120
+		      call 'othello_adt':'set'
+			  (Draw, Player, Board)
+		  in  let <_cor10> =
+			  %% Line 122
+			  call 'erlang':'+'
+			      (NoDs, 1)
+		      in  %% Line 122
+			  case apply 'alpha_beta'/6
+				   (Depth, Board1, Alpha, Beta, Player1, _cor10) of
+			    <{_cor21,Value}> when 'true' ->
+				let <Value1> =
+				    %% Line 123
+				    call 'erlang':'-'
+					(Value)
+				in  %% Line 124
+				    apply 'cutoff'/10
+					(Draw, Value1, Depth, Alpha, Beta, Draws, Board, Record, Player, NoDs)
+			    ( <_cor11> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor11})
+			      -| ['compiler_generated'] )
+			  end
+	  %% Line 125
+	  <[],_cor22,_cor23,Alpha,_cor24,Draw,_cor25,_cor26> when 'true' ->
+	      %% Line 126
+	      {Draw,Alpha}
+	  ( <_cor20,_cor19,_cor18,_cor17,_cor16,_cor15,_cor14,_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor20,_cor19,_cor18,_cor17,_cor16,_cor15,_cor14,_cor13})
+		  -| [{'function_name',{'choose',8}}] )
+	    -| ['compiler_generated'] )
+	end
+'cutoff'/10 =
+    %% Line 128
+    fun (_cor9,_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor9,_cor8,_cor7,_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Draw,Value,_cor25,_cor26,Beta,_cor27,_cor28,_cor29,_cor30,_cor31>
+	      when call 'erlang':'>='
+		    (Value,
+		     Beta) ->
+	      %% Line 129
+	      {Draw,Value}
+	  %% Line 130
+	  <Draw,Value,Depth,Alpha,Beta,Draws,Board,_cor32,Player,NoDs>
+	      when let <_cor10> =
+		    %% Line 131
+		    call 'erlang':'<'
+			(Alpha, Value)
+		in  let <_cor11> =
+			%% Line 131
+			call 'erlang':'<'
+			    (Value, Beta)
+		    in  %% Line 131
+			call 'erlang':'and'
+			    (_cor10, _cor11) ->
+	      %% Line 132
+	      apply 'choose'/8
+		  (Draws, Board, Depth, Value, Beta, Draw, Player, NoDs)
+	  %% Line 133
+	  <Draw,Value,Depth,Alpha,Beta,Draws,Board,Record,Player,NoDs>
+	      when let <_cor12> =
+		    %% Line 134
+		    call 'erlang':'=='
+			(Value, Alpha)
+		in  let <_cor13> =
+			%% Line 134
+			call 'erlang':'<'
+			    (NoDs, 13)
+		    in  %% Line 134
+			call 'erlang':'and'
+			    (_cor12, _cor13) ->
+	      let <_cor14> =
+		  %% Line 135
+		  apply 'random_choice'/2
+		      (Draw, Record)
+	      in  %% Line 135
+		  apply 'choose'/8
+		      (Draws, Board, Depth, Alpha, Beta, _cor14, %% Line 136
+								 Player, %% Line 136
+									 NoDs)
+	  %% Line 137
+	  <_X_Draw,Value,Depth,Alpha,Beta,Draws,Board,Record,Player,NoDs>
+	      when %% Line 138
+		call 'erlang':'=<'
+		    (Value,
+		     Alpha) ->
+	      %% Line 139
+	      apply 'choose'/8
+		  (Draws, Board, Depth, Alpha, Beta, Record, Player, NoDs)
+	  ( <_cor24,_cor23,_cor22,_cor21,_cor20,_cor19,_cor18,_cor17,_cor16,_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor24,_cor23,_cor22,_cor21,_cor20,_cor19,_cor18,_cor17,_cor16,_cor15})
+		  -| [{'function_name',{'cutoff',10}}] )
+	    -| ['compiler_generated'] )
+	end
+'compute'/3 =
+    %% Line 141
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Player,Board,NoOfDraws>
+	      when call 'erlang':'<'
+		    (NoOfDraws,
+		     13) ->
+	      %% Line 142
+	      case call 'othello_adt':'possible_draws'
+		       (Player, Board, 'begin_play') of
+		%% Line 143
+		<[]> when 'true' ->
+		    %% Line 144
+		    call 'othello_adt':'possible_draws'
+			(Player, Board, 'playing')
+		%% Line 145
+		<Draws> when 'true' ->
+		    %% Line 146
+		    Draws
+	      end
+	  %% Line 148
+	  <Player,Board,_cor7> when 'true' ->
+	      %% Line 149
+	      call 'othello_adt':'possible_draws'
+		  (Player, Board, 'playing')
+	end
+'random_choice'/2 =
+    %% Line 155
+    fun (_cor1,_cor0) ->
+	%% Line 156
+	case call 'random':'uniform'
+		 (2) of
+	  %% Line 157
+	  <1> when 'true' ->
+	      _cor1
+	  %% Line 159
+	  <2> when 'true' ->
+	      _cor0
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'dead_lock'/2 =
+    %% Line 163
+    fun (_cor1,_cor0) ->
+	%% Line 164
+	case apply 'win_or_loose'/2
+		 (_cor1, _cor0) of
+	  %% Line 165
+	  <0> when 'true' ->
+	      {-1,0}
+	  %% Line 166
+	  <Value>
+	      when call 'erlang':'>'
+		    (Value,
+		     0) ->
+	      {-1,10000}
+	  %% Line 167
+	  <_cor9> when 'true' ->
+	      {-1,-10000}
+	end
+'win_or_loose'/2 =
+    %% Line 170
+    fun (_cor1,_cor0) ->
+	let <Player1> =
+	    %% Line 171
+	    apply 'swap'/1
+		(_cor0)
+	in  let <_cor4> =
+		%% Line 172
+		call 'othello_adt':'pieces'
+		    (_cor0, _cor1)
+	    in  let <_cor3> =
+		    %% Line 172
+		    call 'othello_adt':'pieces'
+			(Player1, _cor1)
+		in  %% Line 172
+		    call 'erlang':'-'
+			(_cor4, _cor3)
+'game_over'/2 =
+    %% Line 174
+    fun (_cor1,_cor0) ->
+	%% Line 175
+	case call 'othello_adt':'possible_draws'
+		 (_cor1, _cor0, 'playing') of
+	  %% Line 176
+	  <[]> when 'true' ->
+	      let <Player1> =
+		  %% Line 177
+		  apply 'swap'/1
+		      (_cor1)
+	      in  %% Line 178
+		  case call 'othello_adt':'possible_draws'
+			   (Player1, _cor0, 'playing') of
+		    %% Line 179
+		    <[]> when 'true' ->
+			let <_cor4> =
+			    %% Line 180
+			    call 'othello_adt':'pieces'
+				(_cor1, _cor0)
+			in  let <_cor3> =
+				%% Line 181
+				call 'othello_adt':'pieces'
+				    (Player1, _cor0)
+			    in  %% Line 180
+				call 'erlang':'throw'
+				    ({'game_over',{{_cor1,_cor4},%% Line 181
+								 {Player1,_cor3}}})
+		    %% Line 182
+		    <_cor9> when 'true' ->
+			%% Line 183
+			[]
+		  end
+	  %% Line 185
+	  <Draws> when 'true' ->
+	      %% Line 186
+	      Draws
+	end
+'game_over'/4 =
+    %% Line 189
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor6> =
+	    %% Line 190
+	    call 'erlang':'self'
+		()
+	in  let <_cor5> =
+		%% Line 190
+		apply 'white_res'/1
+		    (_cor1)
+	    in  let <_cor4> =
+		    %% Line 190
+		    apply 'black_res'/1
+			(_cor1)
+		in  %% Line 190
+		    call 'erlang':'!'
+			(_cor0, {_cor6,'game_over',_cor5,_cor4})
+'white_res'/1 =
+    %% Line 192
+    fun (_cor0) ->
+	case _cor0 of
+	  <{{'white',Res},_cor2}> when 'true' ->
+	      Res
+	  %% Line 193
+	  <{_cor3,{'white',Res}}> when 'true' ->
+	      Res
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'white_res',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'black_res'/1 =
+    %% Line 195
+    fun (_cor0) ->
+	case _cor0 of
+	  <{{'black',Res},_cor2}> when 'true' ->
+	      Res
+	  %% Line 196
+	  <{_cor3,{'black',Res}}> when 'true' ->
+	      Res
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'black_res',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'not_allowed'/2 =
+    %% Line 198
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Player> when 'true' ->
+	      %% Line 199
+	      call 'erlang':'throw'
+		  ({'omit_draw',Player})
+	  %% Line 200
+	  <_cor4,_X_Player> when 'true' ->
+	      %% Line 201
+	      'ok'
+	end
+'omit'/2 =
+    %% Line 203
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 204
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 204
+		call 'erlang':'!'
+		    (_cor0, {_cor2,'omit_draw',_cor1})
+		%% Line 205
+		receive
+		  %% Line 206
+		  <{_cor5,'continue'}>
+		      when call 'erlang':'=:='
+			    (_cor5,
+			     _cor0) ->
+		      %% Line 207
+		      'ok'
+		after 'infinity' ->
+		  'true'
+'init_display'/3 =
+    %% Line 210
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_X_Board,_X_Win,'first_time'> when 'true' ->
+	      %% Line 211
+	      'true'
+	  %% Line 212
+	  <Board,Win,_cor6> when 'true' ->
+	      %% Line 213
+	      apply 'display'/2
+		  (Board, Win)
+	end
+'display'/2 =
+    %% Line 215
+    fun (_cor1,_cor0) ->
+	let <All> =
+	    %% Line 216
+	    call 'othello_adt':'all_pos'
+		(_cor1)
+	in  do  %% Line 217
+		apply 'display1'/2
+		    (All, _cor0)
+		let <_cor5> =
+		    %% Line 218
+		    call 'erlang':'self'
+			()
+		in  let <_cor4> =
+			%% Line 218
+			call 'othello_adt':'pieces'
+			    ('white', _cor1)
+		    in  let <_cor3> =
+			    %% Line 219
+			    call 'othello_adt':'pieces'
+				('black', _cor1)
+			in  %% Line 218
+			    call 'erlang':'!'
+				(_cor0, {_cor5,'score',_cor4,_cor3})
+'display'/3 =
+    %% Line 221
+    fun (_cor2,_cor1,_cor0) ->
+	let <Diff> =
+	    %% Line 222
+	    call 'othello_adt':'diff'
+		(_cor2, _cor1)
+	in  do  %% Line 223
+		apply 'display1'/2
+		    (Diff, _cor0)
+		let <_cor6> =
+		    %% Line 224
+		    call 'erlang':'self'
+			()
+		in  let <_cor5> =
+			%% Line 224
+			call 'othello_adt':'pieces'
+			    ('white', _cor2)
+		    in  let <_cor4> =
+			    %% Line 225
+			    call 'othello_adt':'pieces'
+				('black', _cor2)
+			in  %% Line 224
+			    call 'erlang':'!'
+				(_cor0, {_cor6,'score',_cor5,_cor4})
+'display1'/2 =
+    %% Line 227
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[{Pos,Colour}|Diff],Win> when 'true' ->
+	      let <_cor2> =
+		  %% Line 228
+		  call 'erlang':'self'
+		      ()
+	      in  do  %% Line 228
+		      call 'erlang':'!'
+			  (Win, {_cor2,'new_mark',Pos,Colour})
+		      %% Line 229
+		      apply 'display1'/2
+			  (Diff, Win)
+	  %% Line 230
+	  <_cor5,_cor6> when 'true' ->
+	      %% Line 231
+	      'true'
+	end
+'swap'/1 =
+    %% Line 233
+    fun (_cor0) ->
+	case _cor0 of
+	  <'white'> when 'true' ->
+	      'black'
+	  %% Line 234
+	  <'black'> when 'true' ->
+	      'white'
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'swap',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('othello')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('othello', _cor0)
+end

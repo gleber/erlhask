@@ -1,0 +1,439 @@
+module 'egd_font' ['glyph'/2,
+		   'load'/1,
+		   'module_info'/0,
+		   'module_info'/1,
+		   'size'/1]
+    attributes [%% Line 19
+		'type' =
+		    %% Line 19
+		    [{'rgba_float',{'type',19,'tuple',[{'type',19,'float',[]}|[{'type',19,'float',[]}|[{'type',19,'float',[]}|[{'type',19,'float',[]}]]]]},[]}],
+		%% Line 20
+		'type' =
+		    %% Line 20
+		    [{'rgba_byte',{'type',20,'tuple',[{'type',20,'byte',[]}|[{'type',20,'byte',[]}|[{'type',20,'byte',[]}|[{'type',20,'byte',[]}]]]]},[]}],
+		%% Line 21
+		'type' =
+		    %% Line 21
+		    [{'rgb',{'type',21,'tuple',[{'type',21,'byte',[]}|[{'type',21,'byte',[]}|[{'type',21,'byte',[]}]]]},[]}],
+		%% Line 23
+		'type' =
+		    %% Line 23
+		    [{{'record','image_object'},[{'record_field',24,{'atom',24,'type'}}|[{'record_field',25,{'atom',25,'points'},{'nil',25}}|[{'record_field',26,{'atom',26,'span'}}|[{'record_field',27,{'atom',27,'internals'}}|[{'record_field',28,{'atom',28,'intervals'}}|[{'record_field',29,{'atom',29,'color'}}]]]]]],[]}],
+		%% Line 31
+		'type' =
+		    %% Line 31
+		    [{{'record','image'},[{'record_field',32,{'atom',32,'width'}}|[{'record_field',33,{'atom',33,'height'}}|[{'record_field',34,{'atom',34,'objects'},{'nil',34}}|[{'record_field',35,{'atom',35,'background'},{'tuple',35,[{'float',35,1.00000000000000000000e+00}|[{'float',35,1.00000000000000000000e+00}|[{'float',35,1.00000000000000000000e+00}|[{'float',35,1.00000000000000000000e+00}]]]]}}|[{'record_field',36,{'atom',36,'image'}}]]]]],[]}]]
+'size'/1 =
+    %% Line 58
+    fun (_cor0) ->
+	%% Line 59
+	case call 'ets':'lookup'
+		 ('egd_font_table', {_cor0,'information'}) of
+	  <[{_X_Key,_X_Description,Size}|[]]> when 'true' ->
+	      %% Line 60
+	      Size
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'glyph'/2 =
+    %% Line 62
+    fun (_cor1,_cor0) ->
+	%% Line 63
+	case call 'ets':'lookup'
+		 ('egd_font_table', {_cor1,_cor0}) of
+	  <[{_X_Key,Translation,LSs}|[]]> when 'true' ->
+	      %% Line 64
+	      {Translation,LSs}
+	  ( <_cor2> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'load'/1 =
+    %% Line 66
+    fun (_cor0) ->
+	%% Line 67
+	case call 'file':'read_file'
+		 (_cor0) of
+	  <{'ok',Bin}> when 'true' ->
+	      let <Font> =
+		  %% Line 68
+		  call 'erlang':'binary_to_term'
+		      (Bin)
+	      in  %% Line 69
+		  apply 'load_font_header'/1
+		      (Font)
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'initialize_table'/0 =
+    %% Line 79
+    fun () ->
+	%% Line 80
+	call 'ets':'new'
+	    ('egd_font_table', ['named_table'|['ordered_set'|['public']]])
+'glyph_insert'/4 =
+    %% Line 82
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <Element> = {%% Line 83
+	     {_cor3,_cor2},_cor1,_cor0}
+	in  %% Line 84
+	    call 'ets':'insert'
+		('egd_font_table', Element)
+'font_insert'/3 =
+    %% Line 86
+    fun (_cor2,_cor1,_cor0) ->
+	let <Element> = {%% Line 87
+	     {_cor2,'information'},_cor1,_cor0}
+	in  %% Line 88
+	    call 'ets':'insert'
+		('egd_font_table', Element)
+'is_font_loaded'/1 =
+    %% Line 92
+    fun (_cor0) ->
+	%% Line 93
+	try
+	    %% Line 94
+	    case call 'ets':'lookup'
+		     ('egd_font_table', {_cor0,'information'}) of
+	      %% Line 95
+	      <[]> when 'true' ->
+		  'false'
+	      %% Line 96
+	      <_cor7> when 'true' ->
+		  'true'
+	    end
+	of <_cor2> ->
+	    _cor2
+	catch <_cor5,_cor4,_cor3> ->
+	    case <_cor5,_cor4,_cor3> of
+	      %% Line 99
+	      <'error',_cor8,_cor9> when 'true' ->
+		  do  %% Line 100
+		      apply 'initialize_table'/0
+			  ()
+		      %% Line 101
+		      'false'
+	      ( <_cor5,_cor4,_cor3> when 'true' ->
+		    primop 'raise'
+			(_cor3, _cor4)
+		-| ['compiler_generated'] )
+	    end
+'load_font_header'/1 =
+    %% Line 105
+    fun (_cor0) ->
+	case _cor0 of
+	  <{_X_Type,_X_Version,Font}> when 'true' ->
+	      %% Line 106
+	      apply 'load_font_body'/1
+		  (Font)
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'load_font_header',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'load_font_body'/1 =
+    %% Line 108
+    fun (_cor0) ->
+	case _cor0 of
+	  <{Key,Desc,W,H,Glyphs,Bitmaps}> when 'true' ->
+	      %% Line 109
+	      case apply 'is_font_loaded'/1
+		       (Key) of
+		%% Line 110
+		<'true'> when 'true' ->
+		    Key
+		%% Line 111
+		<'false'> when 'true' ->
+		    do  %% Line 113
+			apply 'font_insert'/3
+			    (Key, Desc, {W,H})
+			do  %% Line 114
+			    apply 'parse_glyphs'/3
+				(Glyphs, Bitmaps, Key)
+			    %% Line 115
+			    Key
+		( <_cor1> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor1})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor2> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor2})
+		  -| [{'function_name',{'load_font_body',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'parse_glyphs'/3 =
+    %% Line 118
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],_cor7,_X_Key> when 'true' ->
+	      'ok'
+	  %% Line 119
+	  <[Glyph|Glyphs],Bs,Key> when 'true' ->
+	      %% Line 120
+	      case apply 'parse_glyph'/2
+		       (Glyph, Bs) of
+		<{Code,Translation,LSs}> when 'true' ->
+		    do  %% Line 121
+			apply 'glyph_insert'/4
+			    (Key, Code, Translation, LSs)
+			%% Line 122
+			apply 'parse_glyphs'/3
+			    (Glyphs, Bs, Key)
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'parse_glyphs',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'parse_glyph'/2 =
+    %% Line 124
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{Code,W,H,X0,Y0,Xm,Offset},Bitmasks> when 'true' ->
+	      let <_cor2> =
+		  %% Line 125
+		  call 'erlang':'+'
+		      (W, 7)
+	      in  let <BytesPerLine> =
+		      %% Line 125
+		      call 'erlang':'div'
+			  (_cor2, 8)
+		  in  let <NumBytes> =
+			  %% Line 126
+			  call 'erlang':'*'
+			      (BytesPerLine, H)
+		      in  %% Line 127
+			  case ( Bitmasks
+				 -| ['reuse_for_context'] ) of
+			    <#{#<_cor9>(Offset,8,'binary',['unsigned'|['big']]),
+			       #<Bitmask>(NumBytes,8,'binary',['unsigned'|['big']]),
+			       #<_cor10>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+				let <LSs> =
+				    %% Line 128
+				    apply 'render_glyph'/6
+					(W, H, X0, Y0, Xm, Bitmask)
+				in  %% Line 129
+				    {Code,{W,H,X0,Y0,Xm},LSs}
+			    ( <_cor5> when 'true' ->
+				  do  primop 'bs_context_to_binary'
+					  (_cor5)
+				      primop 'match_fail'
+					  ({'badmatch',_cor5})
+			      -| ['compiler_generated'] )
+			  end
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7})
+		  -| [{'function_name',{'parse_glyph',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'render_glyph'/6 =
+    %% Line 131
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 132
+	apply 'render_glyph'/7
+	    (_cor5, {0,_cor4}, _cor3, _cor2, _cor1, _cor0, [])
+'render_glyph'/7 =
+    %% Line 133
+    fun (_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor6,_cor5,_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <_X_W,{H,_cor22},_X_X0,_X_Y0,_X_Xm,_X_Bitmask,Out>
+	      when call 'erlang':'=:='
+		    (_cor22,
+		     H) ->
+	      Out
+	  %% Line 134
+	  <W,{Hi,H},X0,Y0,Xm,Bitmask,LSs> when 'true' ->
+	      let <_cor7> =
+		  %% Line 135
+		  call 'erlang':'+'
+		      (W, 7)
+	      in  let <N> =
+		      %% Line 135
+		      call 'erlang':'div'
+			  (_cor7, 8)
+		  in  let <O> =
+			  %% Line 136
+			  call 'erlang':'*'
+			      (N, Hi)
+		      in  %% Line 137
+			  case Bitmask of
+			    <#{#<_cor23>(O,8,'binary',['unsigned'|['big']]),
+			       #<Submask>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+				let <_cor12> =
+				    %% Line 140
+				    call 'erlang':'-'
+					(W, 1)
+				in  let <_cor11> =
+					%% Line 141
+					call 'erlang':'-'
+					    (W, 1)
+				    in  let <LS> =
+					    %% Line 138
+					    apply 'render_glyph_horizontal'/4
+						(%% Line 139
+						 Submask, %% Line 140
+							  {'down',_cor12}, _cor11, %% Line 142
+										   [])
+					in  let <_cor14> =
+						%% Line 143
+						call 'erlang':'+'
+						    (Hi, 1)
+					    in  %% Line 143
+						apply 'render_glyph'/7
+						    (W, {_cor14,H}, X0, Y0, Xm, Bitmask, [LS|LSs])
+			    ( <_cor10> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor10})
+			      -| ['compiler_generated'] )
+			  end
+	  ( <_cor21,_cor20,_cor19,_cor18,_cor17,_cor16,_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor21,_cor20,_cor19,_cor18,_cor17,_cor16,_cor15})
+		  -| [{'function_name',{'render_glyph',7}}] )
+	    -| ['compiler_generated'] )
+	end
+'render_glyph_horizontal'/4 =
+    %% Line 145
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Value,{Pr,Px},0,Spans> when 'true' ->
+	      let <Cr> =
+		  %% Line 146
+		  apply 'bit_spin'/2
+		      (Value, 0)
+	      in  %% Line 147
+		  case <Pr,Cr> of
+		    %% Line 148
+		    <'up','up'> when 'true' ->
+			%% Line 149
+			[{0,Px}|Spans]
+		    %% Line 150
+		    <'up','down'> when 'true' ->
+			%% Line 151
+			[{1,Px}|Spans]
+		    %% Line 152
+		    <'down','up'> when 'true' ->
+			%% Line 153
+			[{0,0}|Spans]
+		    %% Line 154
+		    <'down','down'> when 'true' ->
+			%% Line 155
+			Spans
+		    ( <_fol18,_fol19> when 'true' ->
+			  let <_cor5> = {_fol18,_fol19}
+			  in  primop 'match_fail'
+				  ({'case_clause',_cor5})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 157
+	  <Value,{Pr,Px},Cx,Spans> when 'true' ->
+	      let <Cr> =
+		  %% Line 158
+		  apply 'bit_spin'/2
+		      (Value, Cx)
+	      in  %% Line 159
+		  case <Pr,Cr> of
+		    %% Line 160
+		    <'up','up'> when 'true' ->
+			let <_cor7> =
+			    %% Line 161
+			    call 'erlang':'-'
+				(Cx, 1)
+			in  %% Line 161
+			    apply 'render_glyph_horizontal'/4
+				(Value, {Cr,Px}, _cor7, Spans)
+		    %% Line 162
+		    <'up','down'> when 'true' ->
+			let <_cor9> =
+			    %% Line 163
+			    call 'erlang':'-'
+				(Cx, 1)
+			in  let <_cor8> =
+				%% Line 163
+				call 'erlang':'+'
+				    (Cx, 1)
+			    in  %% Line 163
+				apply 'render_glyph_horizontal'/4
+				    (Value, {Cr,Cx}, _cor9, [{_cor8,Px}|Spans])
+		    %% Line 164
+		    <'down','up'> when 'true' ->
+			let <_cor10> =
+			    %% Line 165
+			    call 'erlang':'-'
+				(Cx, 1)
+			in  %% Line 165
+			    apply 'render_glyph_horizontal'/4
+				(Value, {Cr,Cx}, _cor10, Spans)
+		    %% Line 166
+		    <'down','down'> when 'true' ->
+			let <_cor11> =
+			    %% Line 167
+			    call 'erlang':'-'
+				(Cx, 1)
+			in  %% Line 167
+			    apply 'render_glyph_horizontal'/4
+				(Value, {Cr,Px}, _cor11, Spans)
+		    ( <_fol20,_fol21> when 'true' ->
+			  let <_cor12> = {_fol20,_fol21}
+			  in  primop 'match_fail'
+				  ({'case_clause',_cor12})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor16,_cor15,_cor14,_cor13> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15,_cor14,_cor13})
+		  -| [{'function_name',{'render_glyph_horizontal',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'bit_spin'/2 =
+    %% Line 170
+    fun (_cor1,_cor0) ->
+	%% Line 171
+	case ( _cor1
+	       -| ['reuse_for_context'] ) of
+	  <#{#<_cor6>(_cor0,1,'integer',['unsigned'|['big']]),
+	     #<Bit>(1,1,'integer',['unsigned'|['big']]),
+	     #<_cor7>('all',1,'binary',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 172
+	      case Bit of
+		%% Line 173
+		<1> when 'true' ->
+		    'up'
+		%% Line 174
+		<0> when 'true' ->
+		    'down'
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor2> when 'true' ->
+		do  primop 'bs_context_to_binary'
+			(_cor2)
+		    primop 'match_fail'
+			({'badmatch',_cor2})
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('egd_font')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('egd_font', _cor0)
+end

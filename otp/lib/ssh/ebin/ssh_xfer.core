@@ -1,0 +1,3499 @@
+module 'ssh_xfer' ['attach'/2,
+		   'close'/3,
+		   'connect'/3,
+		   'decode_ATTR'/2,
+		   'decode_ace_mask'/1,
+		   'decode_ext'/1,
+		   'decode_open_flags'/2,
+		   'encode_ATTR'/2,
+		   'encode_erlang_status'/1,
+		   'encode_open_flags'/1,
+		   'extended'/4,
+		   'fsetstat'/4,
+		   'fstat'/4,
+		   'lstat'/4,
+		   'mkdir'/4,
+		   'module_info'/0,
+		   'module_info'/1,
+		   'open'/6,
+		   'opendir'/3,
+		   'protocol_version_request'/1,
+		   'read'/5,
+		   'readdir'/3,
+		   'readlink'/3,
+		   'realpath'/3,
+		   'remove'/3,
+		   'rename'/5,
+		   'rmdir'/3,
+		   'setstat'/4,
+		   'stat'/4,
+		   'symlink'/4,
+		   'write'/5,
+		   'xf_reply'/2,
+		   'xf_send_attr'/3,
+		   'xf_send_data'/3,
+		   'xf_send_handle'/3,
+		   'xf_send_name'/4,
+		   'xf_send_names'/3,
+		   'xf_send_reply'/3,
+		   'xf_send_status'/3,
+		   'xf_send_status'/4,
+		   'xf_send_status'/5]
+    attributes []
+'attach'/2 =
+    %% Line 52
+    fun (_cor1,_cor0) ->
+	%% Line 53
+	apply 'open_xfer'/2
+	    (_cor1, _cor0)
+'connect'/3 =
+    %% Line 55
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 56
+	case call 'ssh':'connect'
+		 (_cor2, _cor1, _cor0) of
+	  %% Line 57
+	  <{'ok',CM}> when 'true' ->
+	      apply 'open_xfer'/2
+		  (CM, _cor0)
+	  %% Line 58
+	  <Error> when 'true' ->
+	      Error
+	end
+'open_xfer'/2 =
+    %% Line 61
+    fun (_cor1,_cor0) ->
+	let <TMO> =
+	    %% Line 62
+	    call 'proplists':'get_value'
+		('timeout', _cor0, 'infinity')
+	in  %% Line 63
+	    case call 'ssh_connection':'session_channel'
+		     (_cor1, 131072, 32768, TMO) of
+	      %% Line 64
+	      <{'ok',ChannelId}> when 'true' ->
+		  %% Line 65
+		  {'ok',ChannelId,_cor1}
+	      %% Line 66
+	      <Error> when 'true' ->
+		  %% Line 67
+		  Error
+	    end
+'protocol_version_request'/1 =
+    %% Line 70
+    fun (_cor0) ->
+	%% Line 71
+	apply 'xf_request'/3
+	    (_cor0, 1, #{#<0>(8,1,'integer',['unsigned'|['big']]),
+			 #<0>(8,1,'integer',['unsigned'|['big']]),
+			 #<0>(8,1,'integer',['unsigned'|['big']]),
+			 #<6>(8,1,'integer',['unsigned'|['big']])}#)
+'open'/6 =
+    %% Line 73
+    fun (_cor5,_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 74
+	( case _cor5 of
+	    ( <( {'ssh_xfer',_rec0,_cor26,_cor27,_cor28}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <_cor10> =
+		      %% Line 75
+		      case <> of
+			<>
+			    when call 'erlang':'>='
+				  (_rec0,
+				   5) ->
+			    let <M> =
+				%% Line 76
+				apply 'encode_ace_mask'/1
+				    (_cor2)
+			    in  %% Line 77
+				#{#<M>(32,1,'integer',['unsigned'|['big']])}#
+			%% Line 78
+			<> when 'true' ->
+			    %% Line 79
+			    #{}#
+		      end
+		  in  let <F> =
+			  %% Line 81
+			  apply 'encode_open_flags'/1
+			      (_cor1)
+		      in  let <_cor13> =
+			      %% Line 83
+			      #{#<_cor4>(32,1,'integer',['unsigned'|['big']])}#
+			  in  let <_cor15> =
+				  %% Line 84
+				  call 'unicode':'characters_to_binary'
+				      (_cor3)
+			      in  let <_cor16> =
+				      %% Line 84
+				      call 'erlang':'size'
+					  (_cor15)
+				  in  let <_cor14> =
+					  %% Line 84
+					  call 'unicode':'characters_to_binary'
+					      (_cor3)
+				      in  let <_cor17> =
+					      %% Line 84
+					      #{#<_cor16>(32,1,'integer',['unsigned'|['big']]),
+						#<_cor14>('all',8,'binary',['unsigned'|['big']])}#
+					  in  let <_cor18> =
+						  %% Line 86
+						  #{#<F>(32,1,'integer',['unsigned'|['big']])}#
+					      in  let <_cor19> =
+						      %% Line 87
+						      apply 'encode_ATTR'/2
+							  (_rec0, _cor0)
+						  in  %% Line 82
+						      apply 'xf_request'/3
+							  (_cor5, 3, %% Line 83
+								     [_cor13|%% Line 84
+									     [_cor17|%% Line 85
+										     [_cor10|%% Line 86
+											     [_cor18|%% Line 87
+												     [_cor19|[]]]]]])
+	      -| ['compiler_generated'] )
+	    ( <_cor29> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','ssh_xfer'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'opendir'/3 =
+    %% Line 89
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 91
+	    #{#<_cor1>(32,1,'integer',['unsigned'|['big']])}#
+	in  let <_cor5> =
+		%% Line 92
+		call 'unicode':'characters_to_binary'
+		    (_cor0)
+	    in  let <_cor6> =
+		    %% Line 92
+		    call 'erlang':'size'
+			(_cor5)
+		in  let <_cor4> =
+			%% Line 92
+			call 'unicode':'characters_to_binary'
+			    (_cor0)
+		    in  let <_cor7> =
+			    %% Line 92
+			    #{#<_cor6>(32,1,'integer',['unsigned'|['big']]),
+			      #<_cor4>('all',8,'binary',['unsigned'|['big']])}#
+			in  %% Line 90
+			    apply 'xf_request'/3
+				(_cor2, 11, %% Line 91
+					    [_cor3|%% Line 92
+						   [_cor7|[]]])
+'close'/3 =
+    %% Line 95
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 97
+	    #{#<_cor1>(32,1,'integer',['unsigned'|['big']])}#
+	in  let <_cor4> =
+		%% Line 98
+		call 'erlang':'size'
+		    (_cor0)
+	    in  let <_cor5> =
+		    %% Line 98
+		    #{#<_cor4>(32,1,'integer',['unsigned'|['big']]),
+		      #<_cor0>('all',8,'binary',['unsigned'|['big']])}#
+		in  %% Line 96
+		    apply 'xf_request'/3
+			(_cor2, 4, %% Line 97
+				   [_cor3|%% Line 98
+					  [_cor5|[]]])
+'read'/5 =
+    %% Line 100
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 102
+	    #{#<_cor3>(32,1,'integer',['unsigned'|['big']])}#
+	in  let <_cor6> =
+		%% Line 103
+		call 'erlang':'size'
+		    (_cor2)
+	    in  let <_cor7> =
+		    %% Line 103
+		    #{#<_cor6>(32,1,'integer',['unsigned'|['big']]),
+		      #<_cor2>('all',8,'binary',['unsigned'|['big']])}#
+		in  let <_cor8> =
+			%% Line 104
+			#{#<_cor1>(64,1,'integer',['unsigned'|['big']])}#
+		    in  let <_cor9> =
+			    %% Line 105
+			    #{#<_cor0>(32,1,'integer',['unsigned'|['big']])}#
+			in  %% Line 101
+			    apply 'xf_request'/3
+				(_cor4, 5, %% Line 102
+					   [_cor5|%% Line 103
+						  [_cor7|%% Line 104
+							 [_cor8|%% Line 105
+								[_cor9|[]]]]])
+'readdir'/3 =
+    %% Line 107
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 109
+	    #{#<_cor1>(32,1,'integer',['unsigned'|['big']])}#
+	in  let <_cor4> =
+		%% Line 110
+		call 'erlang':'size'
+		    (_cor0)
+	    in  let <_cor5> =
+		    %% Line 110
+		    #{#<_cor4>(32,1,'integer',['unsigned'|['big']]),
+		      #<_cor0>('all',8,'binary',['unsigned'|['big']])}#
+		in  %% Line 108
+		    apply 'xf_request'/3
+			(_cor2, 12, %% Line 109
+				    [_cor3|%% Line 110
+					   [_cor5|[]]])
+'write'/5 =
+    %% Line 112
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor5> =
+	    %% Line 113
+	    case <> of
+	      %% Line 114
+	      <>
+		  when call 'erlang':'is_binary'
+			(_cor0) ->
+		  _cor0
+	      %% Line 116
+	      <>
+		  when call 'erlang':'is_list'
+			(_cor0) ->
+		  %% Line 117
+		  call 'unicode':'characters_to_binary'
+		      (_cor0)
+	      ( <> when 'true' ->
+		    primop 'match_fail'
+			('if_clause')
+		-| ['compiler_generated'] )
+	    end
+	in  let <_cor7> =
+		%% Line 120
+		#{#<_cor3>(32,1,'integer',['unsigned'|['big']])}#
+	    in  let <_cor8> =
+		    %% Line 121
+		    call 'erlang':'size'
+			(_cor2)
+		in  let <_cor9> =
+			%% Line 121
+			#{#<_cor8>(32,1,'integer',['unsigned'|['big']]),
+			  #<_cor2>('all',8,'binary',['unsigned'|['big']])}#
+		    in  let <_cor10> =
+			    %% Line 122
+			    #{#<_cor1>(64,1,'integer',['unsigned'|['big']])}#
+			in  let <_cor11> =
+				%% Line 123
+				call 'erlang':'size'
+				    (_cor5)
+			    in  let <_cor12> =
+				    %% Line 123
+				    #{#<_cor11>(32,1,'integer',['unsigned'|['big']]),
+				      #<_cor5>('all',8,'binary',['unsigned'|['big']])}#
+				in  %% Line 119
+				    apply 'xf_request'/3
+					(_cor4, 6, %% Line 120
+						   [_cor7|%% Line 121
+							  [_cor9|%% Line 122
+								 [_cor10|%% Line 123
+									 [_cor12|[]]]]])
+'remove'/3 =
+    %% Line 126
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 128
+	    #{#<_cor1>(32,1,'integer',['unsigned'|['big']])}#
+	in  let <_cor5> =
+		%% Line 129
+		call 'unicode':'characters_to_binary'
+		    (_cor0)
+	    in  let <_cor6> =
+		    %% Line 129
+		    call 'erlang':'size'
+			(_cor5)
+		in  let <_cor4> =
+			%% Line 129
+			call 'unicode':'characters_to_binary'
+			    (_cor0)
+		    in  let <_cor7> =
+			    %% Line 129
+			    #{#<_cor6>(32,1,'integer',['unsigned'|['big']]),
+			      #<_cor4>('all',8,'binary',['unsigned'|['big']])}#
+			in  %% Line 127
+			    apply 'xf_request'/3
+				(_cor2, 13, %% Line 128
+					    [_cor3|%% Line 129
+						   [_cor7|[]]])
+'rename'/5 =
+    %% Line 132
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 133
+	( case _cor4 of
+	    ( <( {'ssh_xfer',_rec1,_cor25,_cor26,_cor27}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <_cor9> =
+		      %% Line 135
+		      case <> of
+			<>
+			    when call 'erlang':'>='
+				  (_rec1,
+				   5) ->
+			    let <F0> =
+				%% Line 136
+				apply 'encode_rename_flags'/1
+				    (_cor0)
+			    in  %% Line 137
+				#{#<F0>(32,1,'integer',['unsigned'|['big']])}#
+			%% Line 138
+			<> when 'true' ->
+			    %% Line 139
+			    #{}#
+		      end
+		  in  let <_cor11> =
+			  %% Line 142
+			  #{#<_cor3>(32,1,'integer',['unsigned'|['big']])}#
+		      in  let <_cor13> =
+			      %% Line 143
+			      call 'unicode':'characters_to_binary'
+				  (_cor2)
+			  in  let <_cor14> =
+				  %% Line 143
+				  call 'erlang':'size'
+				      (_cor13)
+			      in  let <_cor12> =
+				      %% Line 143
+				      call 'unicode':'characters_to_binary'
+					  (_cor2)
+				  in  let <_cor15> =
+					  %% Line 143
+					  #{#<_cor14>(32,1,'integer',['unsigned'|['big']]),
+					    #<_cor12>('all',8,'binary',['unsigned'|['big']])}#
+				      in  let <_cor17> =
+					      %% Line 144
+					      call 'unicode':'characters_to_binary'
+						  (_cor1)
+					  in  let <_cor18> =
+						  %% Line 144
+						  call 'erlang':'size'
+						      (_cor17)
+					      in  let <_cor16> =
+						      %% Line 144
+						      call 'unicode':'characters_to_binary'
+							  (_cor1)
+						  in  let <_cor19> =
+							  %% Line 144
+							  #{#<_cor18>(32,1,'integer',['unsigned'|['big']]),
+							    #<_cor16>('all',8,'binary',['unsigned'|['big']])}#
+						      in  %% Line 141
+							  apply 'xf_request'/3
+							      (_cor4, 18, %% Line 142
+									  [_cor11|%% Line 143
+										  [_cor15|%% Line 144
+											  [_cor19|%% Line 145
+												  [_cor9|[]]]]])
+	      -| ['compiler_generated'] )
+	    ( <_cor28> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','ssh_xfer'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'mkdir'/4 =
+    %% Line 150
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 152
+	    #{#<_cor2>(32,1,'integer',['unsigned'|['big']])}#
+	in  let <_cor6> =
+		%% Line 153
+		call 'unicode':'characters_to_binary'
+		    (_cor1)
+	    in  let <_cor7> =
+		    %% Line 153
+		    call 'erlang':'size'
+			(_cor6)
+		in  let <_cor5> =
+			%% Line 153
+			call 'unicode':'characters_to_binary'
+			    (_cor1)
+		    in  let <_cor8> =
+			    %% Line 153
+			    #{#<_cor7>(32,1,'integer',['unsigned'|['big']]),
+			      #<_cor5>('all',8,'binary',['unsigned'|['big']])}#
+			in  %% Line 154
+			    ( case _cor3 of
+				( <( {'ssh_xfer',_rec2,_cor16,_cor17,_cor18}
+				     -| ['compiler_generated'] )> when 'true' ->
+				      let <_cor11> =
+					  apply 'encode_ATTR'/2
+					      (_rec2, _cor0)
+				      in  apply 'xf_request'/3
+					      (_cor3, 14, [_cor4|[_cor8|[_cor11|[]]]])
+				  -| ['compiler_generated'] )
+				( <_cor19> when 'true' ->
+				      ( call ( 'erlang'
+					       -| ['compiler_generated'] ):( 'error'
+									     -| ['compiler_generated'] )
+					    (( {'badrecord','ssh_xfer'}
+					       -| ['compiler_generated'] ))
+					-| ['compiler_generated'] )
+				  -| ['compiler_generated'] )
+			      end
+			      -| ['compiler_generated'] )
+'rmdir'/3 =
+    %% Line 157
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 159
+	    #{#<_cor1>(32,1,'integer',['unsigned'|['big']])}#
+	in  let <_cor5> =
+		%% Line 160
+		call 'unicode':'characters_to_binary'
+		    (_cor0)
+	    in  let <_cor6> =
+		    %% Line 160
+		    call 'erlang':'size'
+			(_cor5)
+		in  let <_cor4> =
+			%% Line 160
+			call 'unicode':'characters_to_binary'
+			    (_cor0)
+		    in  let <_cor7> =
+			    %% Line 160
+			    #{#<_cor6>(32,1,'integer',['unsigned'|['big']]),
+			      #<_cor4>('all',8,'binary',['unsigned'|['big']])}#
+			in  %% Line 158
+			    apply 'xf_request'/3
+				(_cor2, 15, %% Line 159
+					    [_cor3|%% Line 160
+						   [_cor7|[]]])
+'stat'/4 =
+    %% Line 163
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 164
+	( case _cor3 of
+	    ( <( {'ssh_xfer',_rec3,_cor19,_cor20,_cor21}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <_cor8> =
+		      %% Line 165
+		      case <> of
+			<>
+			    when call 'erlang':'>='
+				  (_rec3,
+				   5) ->
+			    let <F> =
+				%% Line 166
+				apply 'encode_attr_flags'/2
+				    (_rec3, _cor0)
+			    in  %% Line 167
+				#{#<F>(32,1,'integer',['unsigned'|['big']])}#
+			%% Line 168
+			<> when 'true' ->
+			    %% Line 169
+			    []
+		      end
+		  in  let <_cor10> =
+			  %% Line 172
+			  #{#<_cor2>(32,1,'integer',['unsigned'|['big']])}#
+		      in  let <_cor12> =
+			      %% Line 173
+			      call 'unicode':'characters_to_binary'
+				  (_cor1)
+			  in  let <_cor13> =
+				  %% Line 173
+				  call 'erlang':'size'
+				      (_cor12)
+			      in  let <_cor11> =
+				      %% Line 173
+				      call 'unicode':'characters_to_binary'
+					  (_cor1)
+				  in  let <_cor14> =
+					  %% Line 173
+					  #{#<_cor13>(32,1,'integer',['unsigned'|['big']]),
+					    #<_cor11>('all',8,'binary',['unsigned'|['big']])}#
+				      in  %% Line 171
+					  apply 'xf_request'/3
+					      (_cor3, 17, %% Line 172
+							  [_cor10|%% Line 173
+								  [_cor14|%% Line 174
+									  [_cor8|[]]]])
+	      -| ['compiler_generated'] )
+	    ( <_cor22> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','ssh_xfer'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'lstat'/4 =
+    %% Line 178
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 179
+	( case _cor3 of
+	    ( <( {'ssh_xfer',_rec4,_cor19,_cor20,_cor21}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <_cor8> =
+		      %% Line 180
+		      case <> of
+			<>
+			    when call 'erlang':'>='
+				  (_rec4,
+				   5) ->
+			    let <F> =
+				%% Line 181
+				apply 'encode_attr_flags'/2
+				    (_rec4, _cor0)
+			    in  %% Line 182
+				#{#<F>(32,1,'integer',['unsigned'|['big']])}#
+			%% Line 183
+			<> when 'true' ->
+			    %% Line 184
+			    []
+		      end
+		  in  let <_cor10> =
+			  %% Line 187
+			  #{#<_cor2>(32,1,'integer',['unsigned'|['big']])}#
+		      in  let <_cor12> =
+			      %% Line 188
+			      call 'unicode':'characters_to_binary'
+				  (_cor1)
+			  in  let <_cor13> =
+				  %% Line 188
+				  call 'erlang':'size'
+				      (_cor12)
+			      in  let <_cor11> =
+				      %% Line 188
+				      call 'unicode':'characters_to_binary'
+					  (_cor1)
+				  in  let <_cor14> =
+					  %% Line 188
+					  #{#<_cor13>(32,1,'integer',['unsigned'|['big']]),
+					    #<_cor11>('all',8,'binary',['unsigned'|['big']])}#
+				      in  %% Line 186
+					  apply 'xf_request'/3
+					      (_cor3, 7, %% Line 187
+							 [_cor10|%% Line 188
+								 [_cor14|%% Line 189
+									 [_cor8|[]]]])
+	      -| ['compiler_generated'] )
+	    ( <_cor22> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','ssh_xfer'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'fstat'/4 =
+    %% Line 192
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 193
+	( case _cor3 of
+	    ( <( {'ssh_xfer',_rec5,_cor17,_cor18,_cor19}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <_cor8> =
+		      %% Line 194
+		      case <> of
+			<>
+			    when call 'erlang':'>='
+				  (_rec5,
+				   5) ->
+			    let <F> =
+				%% Line 195
+				apply 'encode_attr_flags'/2
+				    (_rec5, _cor0)
+			    in  %% Line 196
+				#{#<F>(32,1,'integer',['unsigned'|['big']])}#
+			%% Line 197
+			<> when 'true' ->
+			    %% Line 198
+			    []
+		      end
+		  in  let <_cor10> =
+			  %% Line 201
+			  #{#<_cor2>(32,1,'integer',['unsigned'|['big']])}#
+		      in  let <_cor11> =
+			      %% Line 202
+			      call 'erlang':'size'
+				  (_cor1)
+			  in  let <_cor12> =
+				  %% Line 202
+				  #{#<_cor11>(32,1,'integer',['unsigned'|['big']]),
+				    #<_cor1>('all',8,'binary',['unsigned'|['big']])}#
+			      in  %% Line 200
+				  apply 'xf_request'/3
+				      (_cor3, 8, %% Line 201
+						 [_cor10|%% Line 202
+							 [_cor12|%% Line 203
+								 [_cor8|[]]]])
+	      -| ['compiler_generated'] )
+	    ( <_cor20> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','ssh_xfer'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'setstat'/4 =
+    %% Line 206
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 208
+	    #{#<_cor2>(32,1,'integer',['unsigned'|['big']])}#
+	in  let <_cor6> =
+		%% Line 209
+		call 'unicode':'characters_to_binary'
+		    (_cor1)
+	    in  let <_cor7> =
+		    %% Line 209
+		    call 'erlang':'size'
+			(_cor6)
+		in  let <_cor5> =
+			%% Line 209
+			call 'unicode':'characters_to_binary'
+			    (_cor1)
+		    in  let <_cor8> =
+			    %% Line 209
+			    #{#<_cor7>(32,1,'integer',['unsigned'|['big']]),
+			      #<_cor5>('all',8,'binary',['unsigned'|['big']])}#
+			in  %% Line 210
+			    ( case _cor3 of
+				( <( {'ssh_xfer',_rec6,_cor16,_cor17,_cor18}
+				     -| ['compiler_generated'] )> when 'true' ->
+				      let <_cor11> =
+					  apply 'encode_ATTR'/2
+					      (_rec6, _cor0)
+				      in  apply 'xf_request'/3
+					      (_cor3, 9, [_cor4|[_cor8|[_cor11|[]]]])
+				  -| ['compiler_generated'] )
+				( <_cor19> when 'true' ->
+				      ( call ( 'erlang'
+					       -| ['compiler_generated'] ):( 'error'
+									     -| ['compiler_generated'] )
+					    (( {'badrecord','ssh_xfer'}
+					       -| ['compiler_generated'] ))
+					-| ['compiler_generated'] )
+				  -| ['compiler_generated'] )
+			      end
+			      -| ['compiler_generated'] )
+'fsetstat'/4 =
+    %% Line 214
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 216
+	    #{#<_cor2>(32,1,'integer',['unsigned'|['big']])}#
+	in  let <_cor5> =
+		%% Line 217
+		call 'erlang':'size'
+		    (_cor1)
+	    in  let <_cor6> =
+		    %% Line 217
+		    #{#<_cor5>(32,1,'integer',['unsigned'|['big']]),
+		      #<_cor1>('all',8,'binary',['unsigned'|['big']])}#
+		in  %% Line 218
+		    ( case _cor3 of
+			( <( {'ssh_xfer',_rec7,_cor14,_cor15,_cor16}
+			     -| ['compiler_generated'] )> when 'true' ->
+			      let <_cor9> =
+				  apply 'encode_ATTR'/2
+				      (_rec7, _cor0)
+			      in  apply 'xf_request'/3
+				      (_cor3, 10, [_cor4|[_cor6|[_cor9|[]]]])
+			  -| ['compiler_generated'] )
+			( <_cor17> when 'true' ->
+			      ( call ( 'erlang'
+				       -| ['compiler_generated'] ):( 'error'
+								     -| ['compiler_generated'] )
+				    (( {'badrecord','ssh_xfer'}
+				       -| ['compiler_generated'] ))
+				-| ['compiler_generated'] )
+			  -| ['compiler_generated'] )
+		      end
+		      -| ['compiler_generated'] )
+'readlink'/3 =
+    %% Line 221
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 223
+	    #{#<_cor1>(32,1,'integer',['unsigned'|['big']])}#
+	in  let <_cor5> =
+		%% Line 224
+		call 'unicode':'characters_to_binary'
+		    (_cor0)
+	    in  let <_cor6> =
+		    %% Line 224
+		    call 'erlang':'size'
+			(_cor5)
+		in  let <_cor4> =
+			%% Line 224
+			call 'unicode':'characters_to_binary'
+			    (_cor0)
+		    in  let <_cor7> =
+			    %% Line 224
+			    #{#<_cor6>(32,1,'integer',['unsigned'|['big']]),
+			      #<_cor4>('all',8,'binary',['unsigned'|['big']])}#
+			in  %% Line 222
+			    apply 'xf_request'/3
+				(_cor2, 19, %% Line 223
+					    [_cor3|%% Line 224
+						   [_cor7|[]]])
+'symlink'/4 =
+    %% Line 228
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <LinkPath1> =
+	    %% Line 229
+	    call 'unicode':'characters_to_binary'
+		(_cor1)
+	in  let <TargetPath1> =
+		%% Line 230
+		call 'unicode':'characters_to_binary'
+		    (_cor0)
+	    in  let <_cor6> =
+		    %% Line 232
+		    #{#<_cor2>(32,1,'integer',['unsigned'|['big']])}#
+		in  let <_cor7> =
+			%% Line 233
+			call 'erlang':'size'
+			    (LinkPath1)
+		    in  let <_cor8> =
+			    %% Line 233
+			    #{#<_cor7>(32,1,'integer',['unsigned'|['big']]),
+			      #<LinkPath1>('all',8,'binary',['unsigned'|['big']])}#
+			in  let <_cor9> =
+				%% Line 234
+				call 'erlang':'size'
+				    (TargetPath1)
+			    in  let <_cor10> =
+				    %% Line 234
+				    #{#<_cor9>(32,1,'integer',['unsigned'|['big']]),
+				      #<TargetPath1>('all',8,'binary',['unsigned'|['big']])}#
+				in  %% Line 231
+				    apply 'xf_request'/3
+					(_cor3, 20, %% Line 232
+						    [_cor6|%% Line 233
+							   [_cor8|%% Line 234
+								  [_cor10|[]]]])
+'realpath'/3 =
+    %% Line 237
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 239
+	    #{#<_cor1>(32,1,'integer',['unsigned'|['big']])}#
+	in  let <_cor5> =
+		%% Line 240
+		call 'unicode':'characters_to_binary'
+		    (_cor0)
+	    in  let <_cor6> =
+		    %% Line 240
+		    call 'erlang':'size'
+			(_cor5)
+		in  let <_cor4> =
+			%% Line 240
+			call 'unicode':'characters_to_binary'
+			    (_cor0)
+		    in  let <_cor7> =
+			    %% Line 240
+			    #{#<_cor6>(32,1,'integer',['unsigned'|['big']]),
+			      #<_cor4>('all',8,'binary',['unsigned'|['big']])}#
+			in  %% Line 238
+			    apply 'xf_request'/3
+				(_cor2, 16, %% Line 239
+					    [_cor3|%% Line 240
+						   [_cor7|[]]])
+'extended'/4 =
+    %% Line 242
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 244
+	    #{#<_cor2>(32,1,'integer',['unsigned'|['big']])}#
+	in  let <_cor6> =
+		%% Line 245
+		call 'erlang':'list_to_binary'
+		    (_cor1)
+	    in  let <_cor7> =
+		    %% Line 245
+		    call 'erlang':'size'
+			(_cor6)
+		in  let <_cor5> =
+			%% Line 245
+			call 'erlang':'list_to_binary'
+			    (_cor1)
+		    in  let <_cor8> =
+			    %% Line 245
+			    #{#<_cor7>(32,1,'integer',['unsigned'|['big']]),
+			      #<_cor5>('all',8,'binary',['unsigned'|['big']])}#
+			in  let <_cor9> =
+				%% Line 246
+				call 'erlang':'size'
+				    (_cor0)
+			    in  let <_cor10> =
+				    %% Line 246
+				    #{#<_cor9>(32,1,'integer',['unsigned'|['big']]),
+				      #<_cor0>('all',8,'binary',['unsigned'|['big']])}#
+				in  %% Line 243
+				    apply 'xf_request'/3
+					(_cor3, 200, %% Line 244
+						     [_cor4|%% Line 245
+							    [_cor8|%% Line 246
+								   [_cor10|[]]]])
+'xf_request'/3 =
+    %% Line 250
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 251
+	( case _cor2 of
+	    ( <( {'ssh_xfer',_cor17,_cor18,_rec8,_cor19}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <_cor9> =
+		      %% Line 253
+		      case <> of
+			%% Line 254
+			<>
+			    when call 'erlang':'is_binary'
+				  (_cor0) ->
+			    _cor0
+			%% Line 256
+			<>
+			    when call 'erlang':'is_list'
+				  (_cor0) ->
+			    %% Line 257
+			    call 'erlang':'list_to_binary'
+				(_cor0)
+			( <> when 'true' ->
+			      primop 'match_fail'
+				  ('if_clause')
+			  -| ['compiler_generated'] )
+		      end
+		  in  let <_cor11> =
+			  %% Line 259
+			  call 'erlang':'size'
+			      (_cor9)
+		      in  let <Size> =
+			      %% Line 259
+			      call 'erlang':'+'
+				  (1, _cor11)
+			  in  let <_cor13> =
+				  %% Line 260
+				  #{#<Size>(32,1,'integer',['unsigned'|['big']]),
+				    #<_cor1>(8,1,'integer',['unsigned'|['big']]),
+				    #<_cor9>('all',8,'binary',['unsigned'|['big']])}#
+			      in  %% Line 260
+				  call 'ssh_connection':'send'
+				      (_rec8, _cor19, [_cor13|[]])
+	      -| ['compiler_generated'] )
+	    ( <_cor20> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','ssh_xfer'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'xf_send_reply'/3 =
+    %% Line 262
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'ssh_xfer',_cor11,_cor12,CM,Channel},Op,Arg> when 'true' ->
+	      let <_cor3> =
+		  %% Line 263
+		  case <> of
+		    %% Line 264
+		    <>
+			when call 'erlang':'is_binary'
+			      (Arg) ->
+			%% Line 265
+			Arg
+		    %% Line 266
+		    <>
+			when call 'erlang':'is_list'
+			      (Arg) ->
+			%% Line 267
+			call 'erlang':'list_to_binary'
+			    (Arg)
+		    ( <> when 'true' ->
+			  primop 'match_fail'
+			      ('if_clause')
+		      -| ['compiler_generated'] )
+		  end
+	      in  let <_cor5> =
+		      %% Line 269
+		      call 'erlang':'size'
+			  (_cor3)
+		  in  let <Size> =
+			  %% Line 269
+			  call 'erlang':'+'
+			      (1, _cor5)
+		      in  let <_cor7> =
+			      %% Line 270
+			      #{#<Size>(32,1,'integer',['unsigned'|['big']]),
+				#<Op>(8,1,'integer',['unsigned'|['big']]),
+				#<_cor3>('all',8,'binary',['unsigned'|['big']])}#
+			  in  %% Line 270
+			      call 'ssh_connection':'send'
+				  (CM, Channel, [_cor7|[]])
+	  ( <_cor10,_cor9,_cor8> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9,_cor8})
+		  -| [{'function_name',{'xf_send_reply',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'xf_send_name'/4 =
+    %% Line 272
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 273
+	apply 'xf_send_names'/3
+	    (_cor3, _cor2, [{_cor1,_cor0}|[]])
+'xf_send_handle'/3 =
+    %% Line 276
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'ssh_xfer',_cor12,_cor13,CM,Channel},%% Line 277
+						 ReqId,%% Line 277
+						       Handle> when 'true' ->
+	      let <HLen> =
+		  %% Line 278
+		  call 'erlang':'length'
+		      (Handle)
+	      in  let <Size> =
+		      %% Line 279
+		      call 'erlang':'+'
+			  (9, HLen)
+		  in  let <_cor7> =
+			  %% Line 280
+			  #{#<Size>(32,1,'integer',['unsigned'|['big']]),
+			    #<102>(8,1,'integer',['unsigned'|['big']]),
+			    #<ReqId>(32,1,'integer',['unsigned'|['big']]),
+			    #<HLen>(32,1,'integer',['unsigned'|['big']])}#
+		      in  let <ToSend> =
+			      %% Line 280
+			      [_cor7|%% Line 281
+				     [Handle|[]]]
+			  in  %% Line 282
+			      call 'ssh_connection':'send'
+				  (CM, Channel, ToSend)
+	  ( <_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'xf_send_handle',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'xf_send_names'/3 =
+    %% Line 284
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'ssh_xfer',Vsn,_cor13,CM,Channel},%% Line 285
+					      ReqId,%% Line 285
+						    NamesAndAttrs> when 'true' ->
+	      let <Count> =
+		  %% Line 286
+		  call 'erlang':'length'
+		      (NamesAndAttrs)
+	      in  %% Line 287
+		  case apply 'encode_names'/2
+			   (Vsn, NamesAndAttrs) of
+		    <{Data,Len}> when 'true' ->
+			let <Size> =
+			    %% Line 288
+			    call 'erlang':'+'
+				(9, Len)
+			in  let <_cor8> =
+				%% Line 289
+				#{#<Size>(32,1,'integer',['unsigned'|['big']]),
+				  #<%% Line 290
+				    104>(%% Line 290
+					 8,1,'integer',['unsigned'|['big']]),
+				  #<%% Line 291
+				    ReqId>(%% Line 291
+					   32,1,'integer',['unsigned'|['big']]),
+				  #<%% Line 292
+				    Count>(%% Line 292
+					   32,1,'integer',['unsigned'|['big']])}#
+			    in  let <ToSend> =
+				    %% Line 289
+				    [_cor8|%% Line 293
+					   [Data|[]]]
+				in  %% Line 294
+				    call 'ssh_connection':'send'
+					(CM, Channel, ToSend)
+		    ( <_cor4> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor4})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor12,_cor11,_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor12,_cor11,_cor10})
+		  -| [{'function_name',{'xf_send_names',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'xf_send_status'/3 =
+    %% Line 296
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 297
+	apply 'xf_send_status'/4
+	    (_cor2, _cor1, _cor0, [])
+'xf_send_status'/4 =
+    %% Line 299
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	%% Line 300
+	apply 'xf_send_status'/5
+	    (_cor3, _cor2, _cor1, _cor0, #{}#)
+'xf_send_status'/5 =
+    %% Line 302
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <{'ssh_xfer',_cor25,_cor26,CM,Channel},%% Line 303
+						 ReqId,%% Line 303
+						       ErrorCode,%% Line 303
+								 ErrorMsg,%% Line 303
+									  Data> when 'true' ->
+	      let <ELen> =
+		  %% Line 305
+		  call 'erlang':'length'
+		      (ErrorMsg)
+	      in  let <_cor12> =
+		      %% Line 307
+		      call 'erlang':'+'
+			  (13, ELen)
+		  in  let <_cor13> =
+			  %% Line 307
+			  call 'erlang':'+'
+			      (_cor12, 4)
+		      in  let <_cor14> =
+			      %% Line 307
+			      call 'erlang':'+'
+				  (_cor13, 2)
+			  in  let <_cor8> =
+				  %% Line 307
+				  call 'erlang':'size'
+				      (Data)
+			      in  let <Size> =
+				      %% Line 307
+				      call 'erlang':'+'
+					  (_cor14, _cor8)
+				  in  let <_cor16> =
+					  %% Line 308
+					  #{#<Size>(32,1,'integer',['unsigned'|['big']]),
+					    #<101>(8,1,'integer',['unsigned'|['big']]),
+					    #<ReqId>(32,1,'integer',['unsigned'|['big']]),
+					    #<%% Line 309
+					      ErrorCode>(%% Line 309
+							 32,1,'integer',['unsigned'|['big']])}#
+				      in  let <_cor17> =
+					      %% Line 310
+					      #{#<ELen>(32,1,'integer',['unsigned'|['big']])}#
+					  in  let <ToSend> =
+						  %% Line 308
+						  [_cor16|%% Line 310
+							  [_cor17|[ErrorMsg|%% Line 311
+									    [#{#<0>(8,1,'integer',['unsigned'|['big']]),
+									       #<0>(8,1,'integer',['unsigned'|['big']]),
+									       #<0>(8,1,'integer',['unsigned'|['big']]),
+									       #<2>(8,1,'integer',['unsigned'|['big']])}#|[[101|[110]]|%% Line 312
+																       [Data|[]]]]]]]
+					      in  %% Line 313
+						  call 'ssh_connection':'send'
+						      (CM, Channel, ToSend)
+	  ( <_cor24,_cor23,_cor22,_cor21,_cor20> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor24,_cor23,_cor22,_cor21,_cor20})
+		  -| [{'function_name',{'xf_send_status',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'xf_send_attr'/3 =
+    %% Line 315
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'ssh_xfer',Vsn,_cor12,CM,Channel},ReqId,Attr> when 'true' ->
+	      let <EncAttr> =
+		  %% Line 316
+		  apply 'encode_ATTR'/2
+		      (Vsn, Attr)
+	      in  let <ALen> =
+		      %% Line 317
+		      call 'erlang':'size'
+			  (EncAttr)
+		  in  let <Size> =
+			  %% Line 318
+			  call 'erlang':'+'
+			      (5, ALen)
+		      in  let <_cor7> =
+			      %% Line 319
+			      #{#<Size>(32,1,'integer',['unsigned'|['big']]),
+				#<105>(8,1,'integer',['unsigned'|['big']]),
+				#<ReqId>(32,1,'integer',['unsigned'|['big']])}#
+			  in  let <ToSend> =
+				  %% Line 319
+				  [_cor7|[EncAttr|[]]]
+			      in  %% Line 320
+				  call 'ssh_connection':'send'
+				      (CM, Channel, ToSend)
+	  ( <_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'xf_send_attr',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'xf_send_data'/3 =
+    %% Line 322
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <{'ssh_xfer',_cor12,_cor13,CM,Channel},ReqId,Data> when 'true' ->
+	      let <DLen> =
+		  %% Line 323
+		  call 'erlang':'size'
+		      (Data)
+	      in  let <Size> =
+		      %% Line 324
+		      call 'erlang':'+'
+			  (9, DLen)
+		  in  let <_cor7> =
+			  %% Line 325
+			  #{#<Size>(32,1,'integer',['unsigned'|['big']]),
+			    #<103>(8,1,'integer',['unsigned'|['big']]),
+			    #<ReqId>(32,1,'integer',['unsigned'|['big']]),
+			    #<DLen>(32,1,'integer',['unsigned'|['big']])}#
+		      in  let <ToSend> =
+			      %% Line 325
+			      [_cor7|%% Line 326
+				     [Data|[]]]
+			  in  %% Line 327
+			      call 'ssh_connection':'send'
+				  (CM, Channel, ToSend)
+	  ( <_cor11,_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor11,_cor10,_cor9})
+		  -| [{'function_name',{'xf_send_data',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'xf_reply'/2 =
+    %% Line 329
+    fun (_cor1,_cor0) ->
+	case <_cor1,( _cor0
+		      -| ['reuse_for_context'] )> of
+	  <_X_XF,#{#<101>(8,1,'integer',['unsigned'|['big']]),
+		   #<ReqID>(32,1,'integer',['unsigned'|['big']]),
+		   #<Status>(32,1,'integer',['unsigned'|['big']]),
+		   #<%% Line 330
+		     ELen>(%% Line 330
+			   32,1,'integer',['unsigned'|['big']]),
+		   #<%% Line 330
+		     Err>(%% Line 330
+			  ELen,8,'binary',['unsigned'|['big']]),
+		   #<%% Line 331
+		     LLen>(%% Line 331
+			   32,1,'integer',['unsigned'|['big']]),
+		   #<%% Line 331
+		     Lang>(%% Line 331
+			   LLen,8,'binary',['unsigned'|['big']]),
+		   #<%% Line 332
+		     Reply>(%% Line 332
+			    'all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+	      let <Stat> =
+		  %% Line 333
+		  apply 'decode_status'/1
+		      (Status)
+	      in  let <_cor4> =
+		      %% Line 334
+		      call 'erlang':'binary_to_list'
+			  (Err)
+		  in  let <_cor3> =
+			  %% Line 334
+			  call 'erlang':'binary_to_list'
+			      (Lang)
+		      in  %% Line 334
+			  {'status',ReqID,{Stat,_cor4,_cor3,%% Line 335
+							    Reply}}
+	  %% Line 336
+	  <_X_XF,#{#<101>(8,1,'integer',['unsigned'|['big']]),
+		   #<ReqID>(32,1,'integer',['unsigned'|['big']]),
+		   #<Status>(32,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+	      let <Stat> =
+		  %% Line 337
+		  apply 'decode_status'/1
+		      (Status)
+	      in  %% Line 338
+		  {'status',ReqID,{Stat,[],[],#{}#}}
+	  %% Line 339
+	  <_X_XF,#{#<102>(8,1,'integer',['unsigned'|['big']]),
+		   #<ReqID>(32,1,'integer',['unsigned'|['big']]),
+		   #<%% Line 340
+		     HLen>(%% Line 340
+			   32,1,'integer',['unsigned'|['big']]),
+		   #<%% Line 340
+		     Handle>(%% Line 340
+			     HLen,8,'binary',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 341
+	      {'handle',ReqID,Handle}
+	  %% Line 342
+	  <_X_XF,#{#<103>(8,1,'integer',['unsigned'|['big']]),
+		   #<ReqID>(32,1,'integer',['unsigned'|['big']]),
+		   #<%% Line 343
+		     DLen>(%% Line 343
+			   32,1,'integer',['unsigned'|['big']]),
+		   #<%% Line 343
+		     Data>(%% Line 343
+			   DLen,8,'binary',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 344
+	      {'data',ReqID,Data}
+	  %% Line 345
+	  <XF,#{#<104>(8,1,'integer',['unsigned'|['big']]),
+		#<ReqID>(32,1,'integer',['unsigned'|['big']]),
+		#<%% Line 346
+		  Count>(%% Line 346
+			 32,1,'integer',['unsigned'|['big']]),
+		#<%% Line 346
+		  AData>(%% Line 346
+			 'all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 347
+	      ( case XF of
+		  ( <( {'ssh_xfer',_rec10,_cor14,_cor15,_cor16}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor8> =
+			    apply 'decode_names'/3
+				(_rec10, Count, AData)
+			in  {'name',ReqID,_cor8}
+		    -| ['compiler_generated'] )
+		  ( <_cor17> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','ssh_xfer'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 348
+	  <XF,#{#<105>(8,1,'integer',['unsigned'|['big']]),
+		#<ReqID>(32,1,'integer',['unsigned'|['big']]),
+		#<%% Line 349
+		  AData>(%% Line 349
+			 'all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 350
+	      ( case XF of
+		  ( <( {'ssh_xfer',_rec11,_cor18,_cor19,_cor20}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case apply 'decode_ATTR'/2
+				 (_rec11, AData) of
+			  <{A,_cor22}> when 'true' ->
+			      %% Line 351
+			      {'attrs',ReqID,A}
+			  ( <_cor11> when 'true' ->
+				primop 'match_fail'
+				    ({'badmatch',_cor11})
+			    -| ['compiler_generated'] )
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor21> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','ssh_xfer'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 352
+	  <_X_XF,#{#<201>(8,1,'integer',['unsigned'|['big']]),
+		   #<ReqID>(32,1,'integer',['unsigned'|['big']]),
+		   #<%% Line 353
+		     RData>(%% Line 353
+			    8,1,'integer',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 354
+	      {'extended_reply',ReqID,RData}
+	  ( <_cor13,_cor12> when 'true' ->
+		do  primop 'bs_context_to_binary'
+			(_cor12)
+		    ( primop 'match_fail'
+			  ({'function_clause',_cor13,_cor12})
+		      -| [{'function_name',{'xf_reply',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'decode_status'/1 =
+    %% Line 358
+    fun (_cor0) ->
+	%% Line 359
+	case _cor0 of
+	  %% Line 360
+	  <0> when 'true' ->
+	      'ok'
+	  %% Line 361
+	  <1> when 'true' ->
+	      'eof'
+	  %% Line 362
+	  <2> when 'true' ->
+	      'no_such_file'
+	  %% Line 363
+	  <3> when 'true' ->
+	      'permission_denied'
+	  %% Line 364
+	  <4> when 'true' ->
+	      'failure'
+	  %% Line 365
+	  <5> when 'true' ->
+	      'bad_message'
+	  %% Line 366
+	  <6> when 'true' ->
+	      'no_connection'
+	  %% Line 367
+	  <7> when 'true' ->
+	      'connection_lost'
+	  %% Line 368
+	  <8> when 'true' ->
+	      'op_unsupported'
+	  %% Line 369
+	  <9> when 'true' ->
+	      'invalid_handle'
+	  %% Line 370
+	  <10> when 'true' ->
+	      'no_such_path'
+	  %% Line 371
+	  <11> when 'true' ->
+	      'file_already_exists'
+	  %% Line 372
+	  <12> when 'true' ->
+	      'write_protect'
+	  %% Line 373
+	  <13> when 'true' ->
+	      'no_media'
+	  %% Line 374
+	  <14> when 'true' ->
+	      'no_space_on_filesystem'
+	  %% Line 375
+	  <15> when 'true' ->
+	      'quota_exceeded'
+	  %% Line 376
+	  <16> when 'true' ->
+	      'unknown_principle'
+	  %% Line 377
+	  <17> when 'true' ->
+	      'lock_conflict'
+	  %% Line 378
+	  <19> when 'true' ->
+	      'not_a_directory'
+	  %% Line 379
+	  <24> when 'true' ->
+	      'file_is_a_directory'
+	  %% Line 380
+	  <22> when 'true' ->
+	      'cannot_delete'
+	  %% Line 381
+	  <_cor3> when 'true' ->
+	      {'error',_cor0}
+	end
+'encode_erlang_status'/1 =
+    %% Line 384
+    fun (_cor0) ->
+	%% Line 385
+	case _cor0 of
+	  %% Line 386
+	  <'ok'> when 'true' ->
+	      0
+	  %% Line 387
+	  <'eof'> when 'true' ->
+	      1
+	  %% Line 388
+	  <'enoent'> when 'true' ->
+	      2
+	  %% Line 389
+	  <'eacces'> when 'true' ->
+	      3
+	  %% Line 390
+	  <'eisdir'> when 'true' ->
+	      24
+	  %% Line 391
+	  <'eperm'> when 'true' ->
+	      22
+	  %% Line 392
+	  <'eexist'> when 'true' ->
+	      11
+	  %% Line 393
+	  <_cor3> when 'true' ->
+	      4
+	end
+'decode_ext'/1 =
+    %% Line 396
+    fun (_cor0) ->
+	case ( _cor0
+	       -| ['reuse_for_context'] ) of
+	  <#{#<NameLen>(32,1,'integer',['unsigned'|['big']]),
+	     #<Name>(NameLen,8,'binary',['unsigned'|['big']]),
+	     #<%% Line 397
+	       DataLen>(%% Line 397
+			32,1,'integer',['unsigned'|['big']]),
+	     #<%% Line 397
+	       Data>(%% Line 397
+		     DataLen,8,'binary',['unsigned'|['big']]),
+	     #<%% Line 398
+	       Tail>(%% Line 398
+		     'all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+	      let <_cor2> =
+		  %% Line 399
+		  call 'erlang':'binary_to_list'
+		      (Name)
+	      in  let <_cor1> =
+		      %% Line 399
+		      call 'erlang':'binary_to_list'
+			  (Data)
+		  in  let <_cor3> =
+			  %% Line 400
+			  apply 'decode_ext'/1
+			      (Tail)
+		      in  %% Line 399
+			  [{_cor2,_cor1}|_cor3]
+	  %% Line 401
+	  <#{}#> when 'true' ->
+	      %% Line 402
+	      []
+	  ( <_cor4> when 'true' ->
+		do  primop 'bs_context_to_binary'
+			(_cor4)
+		    ( primop 'match_fail'
+			  ({'function_clause',_cor4})
+		      -| [{'function_name',{'decode_ext',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'encode_rename_flags'/1 =
+    %% Line 407
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 409
+	    ( fun (_cor1) ->
+		  case _cor1 of
+		    <'overwrite'> when 'true' ->
+			1
+		    %% Line 410
+		    <'atomic'> when 'true' ->
+			2
+		    %% Line 411
+		    <'native'> when 'true' ->
+			4
+		    ( <_cor2> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor2})
+			    -| [{'function_name',{'-encode_rename_flags/1-fun-0-',1}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-encode_rename_flags/1-fun-0-'}}] )
+	in  %% Line 408
+	    apply 'encode_bits'/2
+		(_cor3, _cor0)
+'encode_open_flags'/1 =
+    %% Line 421
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 423
+	    ( fun (_cor1) ->
+		  case _cor1 of
+		    <'read'> when 'true' ->
+			1
+		    %% Line 424
+		    <'write'> when 'true' ->
+			2
+		    %% Line 425
+		    <'append'> when 'true' ->
+			4
+		    %% Line 426
+		    <'creat'> when 'true' ->
+			8
+		    %% Line 427
+		    <'trunc'> when 'true' ->
+			16
+		    %% Line 428
+		    <'excl'> when 'true' ->
+			32
+		    %% Line 429
+		    <'create_new'> when 'true' ->
+			0
+		    %% Line 430
+		    <'create_truncate'> when 'true' ->
+			1
+		    %% Line 431
+		    <'open_existing'> when 'true' ->
+			2
+		    %% Line 432
+		    <'open_or_create'> when 'true' ->
+			3
+		    %% Line 433
+		    <'truncate_existing'> when 'true' ->
+			4
+		    %% Line 434
+		    <'append_data'> when 'true' ->
+			8
+		    %% Line 435
+		    <'append_data_atomic'> when 'true' ->
+			16
+		    %% Line 436
+		    <'text_mode'> when 'true' ->
+			32
+		    %% Line 437
+		    <'read_lock'> when 'true' ->
+			64
+		    %% Line 438
+		    <'write_lock'> when 'true' ->
+			128
+		    %% Line 439
+		    <'delete_lock'> when 'true' ->
+			256
+		    ( <_cor2> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor2})
+			    -| [{'function_name',{'-encode_open_flags/1-fun-0-',1}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-encode_open_flags/1-fun-0-'}}] )
+	in  %% Line 422
+	    apply 'encode_bits'/2
+		(_cor3, _cor0)
+'encode_ace_mask'/1 =
+    %% Line 442
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 444
+	    ( fun (_cor1) ->
+		  case _cor1 of
+		    <'read_data'> when 'true' ->
+			1
+		    %% Line 445
+		    <'list_directory'> when 'true' ->
+			1
+		    %% Line 446
+		    <'write_data'> when 'true' ->
+			2
+		    %% Line 447
+		    <'add_file'> when 'true' ->
+			2
+		    %% Line 448
+		    <'append_data'> when 'true' ->
+			4
+		    %% Line 449
+		    <'add_subdirectory'> when 'true' ->
+			4
+		    %% Line 450
+		    <'read_named_attrs'> when 'true' ->
+			8
+		    %% Line 451
+		    <'write_named_attrs'> when 'true' ->
+			16
+		    %% Line 452
+		    <'execute'> when 'true' ->
+			32
+		    %% Line 453
+		    <'delete_child'> when 'true' ->
+			64
+		    %% Line 454
+		    <'read_attributes'> when 'true' ->
+			128
+		    %% Line 455
+		    <'write_attributes'> when 'true' ->
+			256
+		    %% Line 456
+		    <'delete'> when 'true' ->
+			65536
+		    %% Line 457
+		    <'read_acl'> when 'true' ->
+			131072
+		    %% Line 458
+		    <'write_acl'> when 'true' ->
+			262144
+		    %% Line 459
+		    <'write_owner'> when 'true' ->
+			524288
+		    %% Line 460
+		    <'synchronize'> when 'true' ->
+			1048576
+		    ( <_cor2> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor2})
+			    -| [{'function_name',{'-encode_ace_mask/1-fun-0-',1}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-encode_ace_mask/1-fun-0-'}}] )
+	in  %% Line 443
+	    apply 'encode_bits'/2
+		(_cor3, _cor0)
+'decode_ace_mask'/1 =
+    %% Line 463
+    fun (_cor0) ->
+	%% Line 464
+	apply 'decode_bits'/2
+	    (_cor0, %% Line 465
+		    [{1,'read_data'}|[{1,'list_directory'}|[{2,'write_data'}|[{2,'add_file'}|[{4,'append_data'}|[{4,'add_subdirectory'}|[{8,'read_named_attrs'}|[{16,'write_named_attrs'}|[{32,'execute'}|[{64,'delete_child'}|[{128,'read_attributes'}|[{256,'write_attributes'}|[{65536,'delete'}|[{131072,'read_acl'}|[{262144,'write_acl'}|[{524288,'write_owner'}|[{1048576,'synchronize'}]]]]]]]]]]]]]]]]])
+'decode_open_flags'/2 =
+    %% Line 485
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Vsn,F>
+	      when call 'erlang':'=<'
+		    (Vsn,
+		     3) ->
+	      %% Line 486
+	      apply 'decode_bits'/2
+		  (F, %% Line 487
+		      [{1,'read'}|[{2,'write'}|[{4,'append'}|[{8,'creat'}|[{16,'trunc'}|[{32,'excl'}]]]]]])
+	  %% Line 495
+	  <Vsn,F>
+	      when call 'erlang':'>='
+		    (Vsn,
+		     4) ->
+	      let <R> =
+		  %% Line 496
+		  apply 'decode_bits'/2
+		      (F, %% Line 497
+			  [{8,'append_data'}|[{16,'append_data_atomic'}|[{32,'text_mode'}|[{64,'read_lock'}|[{128,'write_lock'}|[{256,'delete_lock'}]]]]]])
+	      in  let <_cor4> =
+		      %% Line 505
+		      case call 'erlang':'band'
+			       (F, 7) of
+			%% Line 506
+			<0> when 'true' ->
+			    'create_new'
+			%% Line 507
+			<1> when 'true' ->
+			    'create_truncate'
+			%% Line 508
+			<2> when 'true' ->
+			    'open_existing'
+			%% Line 509
+			<3> when 'true' ->
+			    'open_or_create'
+			%% Line 510
+			<4> when 'true' ->
+			    'truncate_existing'
+			( <_cor3> when 'true' ->
+			      primop 'match_fail'
+				  ({'case_clause',_cor3})
+			  -| ['compiler_generated'] )
+		      end
+		  in  %% Line 512
+		      [_cor4|R]
+	  ( <_cor7,_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6})
+		  -| [{'function_name',{'decode_open_flags',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'encode_ace_type'/1 =
+    %% Line 514
+    fun (_cor0) ->
+	%% Line 515
+	case _cor0 of
+	  %% Line 516
+	  <'access_allowed'> when 'true' ->
+	      0
+	  %% Line 517
+	  <'access_denied'> when 'true' ->
+	      1
+	  %% Line 518
+	  <'system_audit'> when 'true' ->
+	      2
+	  %% Line 519
+	  <'system_alarm'> when 'true' ->
+	      3
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'decode_ace_type'/1 =
+    %% Line 522
+    fun (_cor0) ->
+	%% Line 523
+	case _cor0 of
+	  %% Line 524
+	  <0> when 'true' ->
+	      'access_allowed'
+	  %% Line 525
+	  <1> when 'true' ->
+	      'access_denied'
+	  %% Line 526
+	  <2> when 'true' ->
+	      'system_audit'
+	  %% Line 527
+	  <3> when 'true' ->
+	      'system_alarm'
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'encode_ace_flag'/1 =
+    %% Line 530
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 532
+	    ( fun (_cor1) ->
+		  case _cor1 of
+		    <'file_inherit'> when 'true' ->
+			1
+		    %% Line 533
+		    <'directory_inherit'> when 'true' ->
+			2
+		    %% Line 534
+		    <'no_propagte_inherit'> when 'true' ->
+			4
+		    %% Line 535
+		    <'inherit_only'> when 'true' ->
+			8
+		    %% Line 536
+		    <'successful_access'> when 'true' ->
+			16
+		    %% Line 537
+		    <'failed_access'> when 'true' ->
+			32
+		    %% Line 538
+		    <'identifier_group'> when 'true' ->
+			64
+		    ( <_cor2> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor2})
+			    -| [{'function_name',{'-encode_ace_flag/1-fun-0-',1}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-encode_ace_flag/1-fun-0-'}}] )
+	in  %% Line 531
+	    apply 'encode_bits'/2
+		(_cor3, _cor0)
+'decode_ace_flag'/1 =
+    %% Line 541
+    fun (_cor0) ->
+	%% Line 542
+	apply 'decode_bits'/2
+	    (_cor0, %% Line 543
+		    [{1,'file_inherit'}|[{2,'directory_inherit'}|[{4,'no_propagte_inherit'}|[{8,'inherit_only'}|[{16,'successful_access'}|[{32,'failed_access'}|[{64,'identifier_group'}]]]]]]])
+'encode_attr_flags'/2 =
+    %% Line 553
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Vsn,'all'> when 'true' ->
+	      %% Line 554
+	      apply 'encode_attr_flags'/2
+		  (Vsn, %% Line 555
+			['size'|['uidgid'|['permissions'|['acmodtime'|['accesstime'|['createtime'|['modifytime'|['acl'|['ownergroup'|['subsecond_times'|['bits'|['extended']]]]]]]]]]]])
+	  %% Line 559
+	  <Vsn,Flags> when 'true' ->
+	      let <_cor4> =
+		  %% Line 561
+		  ( fun (_cor2) ->
+			case _cor2 of
+			  <'size'> when 'true' ->
+			      1
+			  %% Line 562
+			  <'uidgid'>
+			      when call 'erlang':'=<'
+				    (Vsn,
+				     3) ->
+			      2
+			  %% Line 563
+			  <'permissions'> when 'true' ->
+			      4
+			  %% Line 564
+			  <'acmodtime'>
+			      when call 'erlang':'=<'
+				    (Vsn,
+				     3) ->
+			      8
+			  %% Line 565
+			  <'accesstime'>
+			      when call 'erlang':'>='
+				    (Vsn,
+				     5) ->
+			      8
+			  %% Line 566
+			  <'createtime'>
+			      when call 'erlang':'>='
+				    (Vsn,
+				     5) ->
+			      16
+			  %% Line 567
+			  <'modifytime'>
+			      when call 'erlang':'>='
+				    (Vsn,
+				     5) ->
+			      32
+			  %% Line 568
+			  <'acl'>
+			      when call 'erlang':'>='
+				    (Vsn,
+				     5) ->
+			      64
+			  %% Line 569
+			  <'ownergroup'>
+			      when call 'erlang':'>='
+				    (Vsn,
+				     5) ->
+			      128
+			  %% Line 570
+			  <'subsecond_times'>
+			      when call 'erlang':'>='
+				    (Vsn,
+				     5) ->
+			      256
+			  %% Line 571
+			  <'bits'>
+			      when call 'erlang':'>='
+				    (Vsn,
+				     5) ->
+			      512
+			  %% Line 572
+			  <'extended'>
+			      when call 'erlang':'>='
+				    (Vsn,
+				     5) ->
+			      2147483648
+			  %% Line 573
+			  <_cor7> when 'true' ->
+			      0
+			end
+		    -| [{'id',{0,0,'-encode_attr_flags/2-fun-0-'}}] )
+	      in  %% Line 560
+		  apply 'encode_bits'/2
+		      (_cor4, %% Line 574
+			      Flags)
+	end
+'encode_file_type'/1 =
+    %% Line 576
+    fun (_cor0) ->
+	%% Line 577
+	case _cor0 of
+	  %% Line 578
+	  <'regular'> when 'true' ->
+	      1
+	  %% Line 579
+	  <'directory'> when 'true' ->
+	      2
+	  %% Line 580
+	  <'symlink'> when 'true' ->
+	      3
+	  %% Line 581
+	  <'special'> when 'true' ->
+	      4
+	  %% Line 582
+	  <'unknown'> when 'true' ->
+	      5
+	  %% Line 583
+	  <'other'> when 'true' ->
+	      5
+	  %% Line 584
+	  <'socket'> when 'true' ->
+	      6
+	  %% Line 585
+	  <'char_device'> when 'true' ->
+	      7
+	  %% Line 586
+	  <'block_device'> when 'true' ->
+	      8
+	  %% Line 587
+	  <'fifo'> when 'true' ->
+	      9
+	  %% Line 588
+	  <'undefined'> when 'true' ->
+	      5
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'decode_file_type'/1 =
+    %% Line 591
+    fun (_cor0) ->
+	%% Line 592
+	case _cor0 of
+	  %% Line 593
+	  <1> when 'true' ->
+	      'regular'
+	  %% Line 594
+	  <2> when 'true' ->
+	      'directory'
+	  %% Line 595
+	  <3> when 'true' ->
+	      'symlink'
+	  %% Line 596
+	  <4> when 'true' ->
+	      'special'
+	  %% Line 597
+	  <5> when 'true' ->
+	      'other'
+	  %% Line 598
+	  <6> when 'true' ->
+	      'socket'
+	  %% Line 599
+	  <7> when 'true' ->
+	      'char_device'
+	  %% Line 600
+	  <8> when 'true' ->
+	      'block_device'
+	  %% Line 601
+	  <9> when 'true' ->
+	      'fifo'
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'encode_attrib_bits'/1 =
+    %% Line 604
+    fun (_cor0) ->
+	let <_cor3> =
+	    %% Line 606
+	    ( fun (_cor1) ->
+		  case _cor1 of
+		    <'readonly'> when 'true' ->
+			1
+		    %% Line 607
+		    <'system'> when 'true' ->
+			2
+		    %% Line 608
+		    <'hidden'> when 'true' ->
+			4
+		    %% Line 609
+		    <'case_insensitive'> when 'true' ->
+			8
+		    %% Line 610
+		    <'arcive'> when 'true' ->
+			16
+		    %% Line 611
+		    <'encrypted'> when 'true' ->
+			32
+		    %% Line 612
+		    <'compressed'> when 'true' ->
+			64
+		    %% Line 613
+		    <'sparse'> when 'true' ->
+			128
+		    %% Line 614
+		    <'append_only'> when 'true' ->
+			256
+		    %% Line 615
+		    <'immutable'> when 'true' ->
+			512
+		    %% Line 616
+		    <'sync'> when 'true' ->
+			1024
+		    ( <_cor2> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor2})
+			    -| [{'function_name',{'-encode_attrib_bits/1-fun-0-',1}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-encode_attrib_bits/1-fun-0-'}}] )
+	in  %% Line 605
+	    apply 'encode_bits'/2
+		(_cor3, _cor0)
+'decode_attrib_bits'/1 =
+    %% Line 619
+    fun (_cor0) ->
+	%% Line 620
+	apply 'decode_bits'/2
+	    (_cor0, %% Line 621
+		    [{1,'readonly'}|[{2,'system'}|[{4,'hidden'}|[{8,'case_insensitive'}|[{16,'arcive'}|[{32,'encrypted'}|[{64,'compressed'}|[{128,'sparse'}|[{256,'append_only'}|[{512,'immutable'}|[{1024,'sync'}]]]]]]]]]]])
+'encode_ATTR'/2 =
+    %% Line 637
+    fun (_cor1,_cor0) ->
+	%% Line 640
+	( case _cor0 of
+	    ( <( {'ssh_xfer_attr',_cor41,_rec12,_cor42,_cor43,_cor44,_cor45,_cor46,_cor47,_cor48,_cor49,_cor50,_cor51,_cor52,_cor53}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  case apply 'encode_As'/4
+			   (_cor1, [{'size',_rec12}|%% Line 641
+						    [{'ownergroup',_cor42}|%% Line 642
+									   [{'ownergroup',_cor43}|%% Line 643
+												  [{'permissions',_cor44}|%% Line 644
+															  [{'acmodtime',_cor45}|%% Line 645
+																		[{'acmodtime',_cor49}|%% Line 646
+																				      [{'accesstime',_cor45}|%% Line 647
+																							     [{'subsecond_times',_cor46}|%% Line 648
+																											 [{'createtime',_cor47}|%% Line 649
+																														[{'subsecond_times',_cor48}|%% Line 650
+																																	    [{'modifytime',_cor49}|%% Line 651
+																																				   [{'subsecond_times',_cor50}|%% Line 652
+																																							       [{'acl',_cor51}|%% Line 653
+																																									       [{'bits',_cor52}|%% Line 654
+																																												[{'extended',_cor53}|[]]]]]]]]]]]]]]]], %% Line 655
+																																																	0, %% Line 655
+																																																	   []) of
+		    <{Flags,As}> when 'true' ->
+			let <Type> =
+			    %% Line 656
+			    apply 'encode_file_type'/1
+				(_cor41)
+			in  let <_cor36> =
+				%% Line 657
+				#{#<Flags>(32,1,'integer',['unsigned'|['big']])}#
+			    in  let <_cor37> =
+				    %% Line 658
+				    case <> of
+				      <>
+					  when call 'erlang':'>='
+						(_cor1,
+						 5) ->
+					  %% Line 659
+					  #{#<Type>(8,1,'integer',['unsigned'|['big']])}#
+				      %% Line 660
+				      <> when 'true' ->
+					  %% Line 661
+					  #{}#
+				    end
+				in  %% Line 657
+				    call 'erlang':'list_to_binary'
+					([_cor36|%% Line 658
+						 [_cor37|%% Line 662
+							 [As|[]]]])
+		    ( <_cor32> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor32})
+		      -| ['compiler_generated'] )
+		  end
+	      -| ['compiler_generated'] )
+	    ( <_cor54> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','ssh_xfer_attr'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'encode_As'/4 =
+    %% Line 666
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <Vsn,[{_X_AName,'undefined'}|As],Flags,Acc> when 'true' ->
+	      %% Line 667
+	      apply 'encode_As'/4
+		  (Vsn, As, Flags, Acc)
+	  %% Line 668
+	  <Vsn,[{AName,X}|As],Flags,Acc> when 'true' ->
+	      %% Line 669
+	      case AName of
+		%% Line 670
+		<'size'> when 'true' ->
+		    let <_cor5> =
+			%% Line 671
+			call 'erlang':'bor'
+			    (Flags, 1)
+		    in  let <_cor4> =
+			    %% Line 672
+			    #{#<X>(64,1,'integer',['unsigned'|['big']])}#
+			in  %% Line 671
+			    apply 'encode_As'/4
+				(Vsn, As, _cor5, %% Line 672
+						 [_cor4|Acc])
+		%% Line 673
+		<'ownergroup'>
+		    when call 'erlang':'=<'
+			  (Vsn,
+			   4) ->
+		    let <_cor7> =
+			%% Line 674
+			call 'erlang':'bor'
+			    (Flags, 2)
+		    in  let <_cor6> =
+			    %% Line 675
+			    #{#<X>(32,1,'integer',['unsigned'|['big']])}#
+			in  %% Line 674
+			    apply 'encode_As'/4
+				(Vsn, As, _cor7, %% Line 675
+						 [_cor6|Acc])
+		%% Line 676
+		<'ownergroup'>
+		    when call 'erlang':'>='
+			  (Vsn,
+			   5) ->
+		    let <_cor8> =
+			%% Line 677
+			call 'erlang':'integer_to_list'
+			    (X)
+		    in  let <X1> =
+			    %% Line 677
+			    call 'erlang':'list_to_binary'
+				(_cor8)
+			in  let <_cor12> =
+				%% Line 678
+				call 'erlang':'bor'
+				    (Flags, 128)
+			    in  let <_cor10> =
+				    %% Line 679
+				    call 'erlang':'size'
+					(X1)
+				in  let <_cor11> =
+					%% Line 679
+					#{#<_cor10>(32,1,'integer',['unsigned'|['big']]),
+					  #<X1>('all',8,'binary',['unsigned'|['big']])}#
+				    in  %% Line 678
+					apply 'encode_As'/4
+					    (Vsn, As, _cor12, %% Line 679
+							      [_cor11|Acc])
+		%% Line 680
+		<'permissions'> when 'true' ->
+		    let <_cor14> =
+			%% Line 681
+			call 'erlang':'bor'
+			    (Flags, 4)
+		    in  let <_cor13> =
+			    %% Line 682
+			    #{#<X>(32,1,'integer',['unsigned'|['big']])}#
+			in  %% Line 681
+			    apply 'encode_As'/4
+				(Vsn, As, _cor14, %% Line 682
+						  [_cor13|Acc])
+		%% Line 683
+		<'acmodtime'>
+		    when call 'erlang':'=<'
+			  (Vsn,
+			   3) ->
+		    let <_cor16> =
+			%% Line 684
+			call 'erlang':'bor'
+			    (Flags, 8)
+		    in  let <_cor15> =
+			    %% Line 685
+			    #{#<X>(32,1,'integer',['unsigned'|['big']])}#
+			in  %% Line 684
+			    apply 'encode_As'/4
+				(Vsn, As, _cor16, %% Line 685
+						  [_cor15|Acc])
+		%% Line 686
+		<'accesstime'>
+		    when call 'erlang':'>='
+			  (Vsn,
+			   5) ->
+		    let <_cor18> =
+			%% Line 687
+			call 'erlang':'bor'
+			    (Flags, 8)
+		    in  let <_cor17> =
+			    %% Line 688
+			    #{#<X>(64,1,'integer',['unsigned'|['big']])}#
+			in  %% Line 687
+			    apply 'encode_As'/4
+				(Vsn, As, _cor18, %% Line 688
+						  [_cor17|Acc])
+		%% Line 689
+		<'createtime'>
+		    when call 'erlang':'>='
+			  (Vsn,
+			   5) ->
+		    let <_cor20> =
+			%% Line 690
+			call 'erlang':'bor'
+			    (Flags, 16)
+		    in  let <_cor19> =
+			    %% Line 691
+			    #{#<X>(64,1,'integer',['unsigned'|['big']])}#
+			in  %% Line 690
+			    apply 'encode_As'/4
+				(Vsn, As, _cor20, %% Line 691
+						  [_cor19|Acc])
+		%% Line 692
+		<'modifytime'>
+		    when call 'erlang':'>='
+			  (Vsn,
+			   5) ->
+		    let <_cor22> =
+			%% Line 693
+			call 'erlang':'bor'
+			    (Flags, 32)
+		    in  let <_cor21> =
+			    %% Line 694
+			    #{#<X>(64,1,'integer',['unsigned'|['big']])}#
+			in  %% Line 693
+			    apply 'encode_As'/4
+				(Vsn, As, _cor22, %% Line 694
+						  [_cor21|Acc])
+		%% Line 695
+		<'subsecond_times'>
+		    when call 'erlang':'>='
+			  (Vsn,
+			   5) ->
+		    let <_cor24> =
+			%% Line 696
+			call 'erlang':'bor'
+			    (Flags, 256)
+		    in  let <_cor23> =
+			    %% Line 697
+			    #{#<X>(64,1,'integer',['unsigned'|['big']])}#
+			in  %% Line 696
+			    apply 'encode_As'/4
+				(Vsn, As, _cor24, %% Line 697
+						  [_cor23|Acc])
+		%% Line 698
+		<'acl'>
+		    when call 'erlang':'>='
+			  (Vsn,
+			   5) ->
+		    let <_cor26> =
+			%% Line 699
+			call 'erlang':'bor'
+			    (Flags, 64)
+		    in  let <_cor25> =
+			    %% Line 700
+			    apply 'encode_acl'/1
+				(X)
+			in  %% Line 699
+			    apply 'encode_As'/4
+				(Vsn, As, _cor26, %% Line 700
+						  [_cor25|Acc])
+		%% Line 701
+		<'bits'>
+		    when call 'erlang':'>='
+			  (Vsn,
+			   5) ->
+		    let <F> =
+			%% Line 702
+			apply 'encode_attrib_bits'/1
+			    (X)
+		    in  let <_cor29> =
+			    %% Line 703
+			    call 'erlang':'bor'
+				(Flags, 512)
+			in  let <_cor28> =
+				%% Line 704
+				#{#<F>(32,1,'integer',['unsigned'|['big']])}#
+			    in  %% Line 703
+				apply 'encode_As'/4
+				    (Vsn, As, _cor29, %% Line 704
+						      [_cor28|Acc])
+		%% Line 705
+		<'extended'> when 'true' ->
+		    let <_cor31> =
+			%% Line 706
+			call 'erlang':'bor'
+			    (Flags, 2147483648)
+		    in  let <_cor30> =
+			    %% Line 707
+			    apply 'encode_extensions'/1
+				(X)
+			in  %% Line 706
+			    apply 'encode_As'/4
+				(Vsn, As, _cor31, %% Line 707
+						  [_cor30|Acc])
+		%% Line 708
+		<_cor38> when 'true' ->
+		    %% Line 709
+		    apply 'encode_As'/4
+			(Vsn, As, Flags, Acc)
+	      end
+	  %% Line 711
+	  <_X_Vsn,[],Flags,Acc> when 'true' ->
+	      let <_cor33> =
+		  %% Line 712
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  %% Line 712
+		  {Flags,_cor33}
+	  ( <_cor37,_cor36,_cor35,_cor34> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor37,_cor36,_cor35,_cor34})
+		  -| [{'function_name',{'encode_As',4}}] )
+	    -| ['compiler_generated'] )
+	end
+'decode_ATTR'/2 =
+    %% Line 715
+    fun (_cor1,_cor0) ->
+	case <_cor1,( _cor0
+		      -| ['reuse_for_context'] )> of
+	  <Vsn,#{#<Flags>(32,1,'integer',['unsigned'|['big']]),
+		 #<Tail>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+	      let <Type,Tail2> =
+		  %% Line 717
+		  case <> of
+		    <>
+			when call 'erlang':'=<'
+			      (Vsn,
+			       3) ->
+			%% Line 718
+			<5,Tail>
+		    %% Line 719
+		    <>
+			when call 'erlang':'>='
+			      (Vsn,
+			       5) ->
+			%% Line 720
+			case ( Tail
+			       -| ['reuse_for_context'] ) of
+			  <#{#<T>(8,1,'integer',['unsigned'|['big']]),
+			     #<TL>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+			      %% Line 721
+			      <T,TL>
+			  ( <_cor2> when 'true' ->
+				do  primop 'bs_context_to_binary'
+					(_cor2)
+				    primop 'match_fail'
+					({'badmatch',_cor2})
+			    -| ['compiler_generated'] )
+			end
+		    ( <> when 'true' ->
+			  primop 'match_fail'
+			      ('if_clause')
+		      -| ['compiler_generated'] )
+		  end
+	      in  let <_cor5> =
+		      %% Line 739
+		      apply 'decode_file_type'/1
+			  (Type)
+		  in  %% Line 723
+		      apply 'decode_As'/5
+			  (Vsn, %% Line 724
+				[{'size',3}|[{'ownergroup',4}|[{'ownergroup',5}|[{'permissions',6}|[{'acmodtime',7}|[{'acmodtime',11}|[{'accesstime',7}|[{'subsecond_times',8}|[{'createtime',9}|[{'subsecond_times',10}|[{'modifytime',11}|[{'subsecond_times',12}|[{'acl',13}|[{'bits',14}|[{'extended',15}]]]]]]]]]]]]]]], %% Line 739
+																																							      {'ssh_xfer_attr',_cor5,'undefined','undefined','undefined','undefined','undefined','undefined','undefined','undefined','undefined','undefined','undefined','undefined','undefined'}, %% Line 740
+																																																														   Flags, %% Line 741
+																																																															  Tail2)
+	  ( <_cor7,_cor6> when 'true' ->
+		do  primop 'bs_context_to_binary'
+			(_cor6)
+		    ( primop 'match_fail'
+			  ({'function_clause',_cor7,_cor6})
+		      -| [{'function_name',{'decode_ATTR',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'decode_As'/5 =
+    %% Line 743
+    fun (_cor4,_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor4,_cor3,_cor2,_cor1,_cor0> of
+	  <Vsn,[{AName,AField}|As],R,Flags,Tail> when 'true' ->
+	      %% Line 744
+	      case AName of
+		%% Line 745
+		<'size'>
+		    when try
+			  let <_cor5> =
+			      call 'erlang':'band'
+				  (1, Flags)
+			  in  call 'erlang':'=='
+				  (_cor5, 1)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 746
+		    case ( Tail
+			   -| ['reuse_for_context'] ) of
+		      <#{#<X>(64,1,'integer',['unsigned'|['big']]),
+			 #<Tail2>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+			  let <_cor7> =
+			      %% Line 747
+			      call 'erlang':'setelement'
+				  (AField, R, X)
+			  in  %% Line 747
+			      apply 'decode_As'/5
+				  (Vsn, As, _cor7, Flags, Tail2)
+		      ( <_cor6> when 'true' ->
+			    do  primop 'bs_context_to_binary'
+				    (_cor6)
+				primop 'match_fail'
+				    ({'badmatch',_cor6})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 748
+		<'ownergroup'>
+		    when try
+			  let <_cor8> =
+			      call 'erlang':'band'
+				  (2, Flags)
+			  in  let <_cor9> =
+				  call 'erlang':'=='
+				      (_cor8, 2)
+			      in  let <_cor10> =
+				      call 'erlang':'=<'
+					  (Vsn, 3)
+				  in  call 'erlang':'and'
+					  (_cor9, _cor10)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 749
+		    case ( Tail
+			   -| ['reuse_for_context'] ) of
+		      <#{#<X>(32,1,'integer',['unsigned'|['big']]),
+			 #<Tail2>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+			  let <_cor12> =
+			      %% Line 750
+			      call 'erlang':'setelement'
+				  (AField, R, X)
+			  in  %% Line 750
+			      apply 'decode_As'/5
+				  (Vsn, As, _cor12, Flags, Tail2)
+		      ( <_cor11> when 'true' ->
+			    do  primop 'bs_context_to_binary'
+				    (_cor11)
+				primop 'match_fail'
+				    ({'badmatch',_cor11})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 751
+		<'ownergroup'>
+		    when try
+			  let <_cor13> =
+			      call 'erlang':'band'
+				  (128, Flags)
+			  in  let <_cor14> =
+				  call 'erlang':'=='
+				      (_cor13, 128)
+			      in  let <_cor15> =
+				      call 'erlang':'>='
+					  (Vsn, 5)
+				  in  call 'erlang':'and'
+					  (_cor14, _cor15)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 752
+		    case ( Tail
+			   -| ['reuse_for_context'] ) of
+		      <#{#<Len>(32,1,'integer',['unsigned'|['big']]),
+			 #<Bin>(Len,8,'binary',['unsigned'|['big']]),
+			 #<Tail2>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+			  let <X> =
+			      %% Line 753
+			      call 'erlang':'binary_to_list'
+				  (Bin)
+			  in  let <_cor18> =
+				  %% Line 754
+				  call 'erlang':'setelement'
+				      (AField, R, X)
+			      in  %% Line 754
+				  apply 'decode_As'/5
+				      (Vsn, As, _cor18, Flags, Tail2)
+		      ( <_cor16> when 'true' ->
+			    do  primop 'bs_context_to_binary'
+				    (_cor16)
+				primop 'match_fail'
+				    ({'badmatch',_cor16})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 756
+		<'permissions'>
+		    when try
+			  let <_cor19> =
+			      call 'erlang':'band'
+				  (4, Flags)
+			  in  let <_cor20> =
+				  call 'erlang':'=='
+				      (_cor19, 4)
+			      in  let <_cor21> =
+				      call 'erlang':'>='
+					  (Vsn, 5)
+				  in  call 'erlang':'and'
+					  (_cor20, _cor21)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 757
+		    case ( Tail
+			   -| ['reuse_for_context'] ) of
+		      <#{#<X>(32,1,'integer',['unsigned'|['big']]),
+			 #<Tail2>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+			  let <_cor23> =
+			      %% Line 758
+			      call 'erlang':'setelement'
+				  (AField, R, X)
+			  in  %% Line 758
+			      apply 'decode_As'/5
+				  (Vsn, As, _cor23, Flags, Tail2)
+		      ( <_cor22> when 'true' ->
+			    do  primop 'bs_context_to_binary'
+				    (_cor22)
+				primop 'match_fail'
+				    ({'badmatch',_cor22})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 760
+		<'permissions'>
+		    when try
+			  let <_cor24> =
+			      call 'erlang':'band'
+				  (4, Flags)
+			  in  let <_cor25> =
+				  call 'erlang':'=='
+				      (_cor24, 4)
+			      in  let <_cor26> =
+				      call 'erlang':'=<'
+					  (Vsn, 3)
+				  in  call 'erlang':'and'
+					  (_cor25, _cor26)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 761
+		    case ( Tail
+			   -| ['reuse_for_context'] ) of
+		      <#{#<X>(32,1,'integer',['unsigned'|['big']]),
+			 #<Tail2>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+			  let <R1> =
+			      %% Line 762
+			      call 'erlang':'setelement'
+				  (AField, R, X)
+			  in  let <_cor30> =
+				  %% Line 763
+				  case call 'erlang':'band'
+					   (X, 61440) of
+				    %% Line 764
+				    <16384> when 'true' ->
+					'directory'
+				    %% Line 765
+				    <8192> when 'true' ->
+					'char_device'
+				    %% Line 766
+				    <24576> when 'true' ->
+					'block_device'
+				    %% Line 767
+				    <4096> when 'true' ->
+					'fifi'
+				    %% Line 768
+				    <32768> when 'true' ->
+					'regular'
+				    %% Line 769
+				    <49152> when 'true' ->
+					'socket'
+				    %% Line 770
+				    <40960> when 'true' ->
+					'symlink'
+				    %% Line 771
+				    <_cor80> when 'true' ->
+					'unknown'
+				  end
+			      in  %% Line 773
+				  case R1 of
+				    <{'ssh_xfer_attr',_cor81,_cor82,_cor83,_cor84,_cor85,_cor86,_cor87,_cor88,_cor89,_cor90,_cor91,_cor92,_cor93,_cor94}> when 'true' ->
+					let <_cor34> =
+					    call 'erlang':'setelement'
+						(2, R1, _cor30)
+					in  apply 'decode_As'/5
+						(Vsn, As, _cor34, Flags, Tail2)
+				    ( <_cor95> when 'true' ->
+					  ( call ( 'erlang'
+						   -| ['compiler_generated'] ):( 'error'
+										 -| ['compiler_generated'] )
+						(( {'badrecord','ssh_xfer_attr'}
+						   -| ['compiler_generated'] ))
+					    -| ['compiler_generated'] )
+				      -| ['compiler_generated'] )
+				  end
+		      ( <_cor27> when 'true' ->
+			    do  primop 'bs_context_to_binary'
+				    (_cor27)
+				primop 'match_fail'
+				    ({'badmatch',_cor27})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 775
+		<'acmodtime'>
+		    when try
+			  let <_cor35> =
+			      call 'erlang':'band'
+				  (8, Flags)
+			  in  let <_cor36> =
+				  call 'erlang':'=='
+				      (_cor35, 8)
+			      in  let <_cor37> =
+				      call 'erlang':'=<'
+					  (Vsn, 3)
+				  in  call 'erlang':'and'
+					  (_cor36, _cor37)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 776
+		    case ( Tail
+			   -| ['reuse_for_context'] ) of
+		      <#{#<X>(32,1,'integer',['unsigned'|['big']]),
+			 #<Tail2>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+			  let <_cor39> =
+			      %% Line 777
+			      call 'erlang':'setelement'
+				  (AField, R, X)
+			  in  %% Line 777
+			      apply 'decode_As'/5
+				  (Vsn, As, _cor39, Flags, Tail2)
+		      ( <_cor38> when 'true' ->
+			    do  primop 'bs_context_to_binary'
+				    (_cor38)
+				primop 'match_fail'
+				    ({'badmatch',_cor38})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 778
+		<'accesstime'>
+		    when try
+			  let <_cor40> =
+			      call 'erlang':'band'
+				  (8, Flags)
+			  in  let <_cor41> =
+				  call 'erlang':'=='
+				      (_cor40, 8)
+			      in  let <_cor42> =
+				      call 'erlang':'>='
+					  (Vsn, 5)
+				  in  call 'erlang':'and'
+					  (_cor41, _cor42)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 779
+		    case ( Tail
+			   -| ['reuse_for_context'] ) of
+		      <#{#<X>(64,1,'integer',['unsigned'|['big']]),
+			 #<Tail2>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+			  let <_cor44> =
+			      %% Line 780
+			      call 'erlang':'setelement'
+				  (AField, R, X)
+			  in  %% Line 780
+			      apply 'decode_As'/5
+				  (Vsn, As, _cor44, Flags, Tail2)
+		      ( <_cor43> when 'true' ->
+			    do  primop 'bs_context_to_binary'
+				    (_cor43)
+				primop 'match_fail'
+				    ({'badmatch',_cor43})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 781
+		<'modifytime'>
+		    when try
+			  let <_cor45> =
+			      call 'erlang':'band'
+				  (32, Flags)
+			  in  let <_cor46> =
+				  call 'erlang':'=='
+				      (_cor45, 32)
+			      in  let <_cor47> =
+				      call 'erlang':'>='
+					  (Vsn, 5)
+				  in  call 'erlang':'and'
+					  (_cor46, _cor47)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 782
+		    case ( Tail
+			   -| ['reuse_for_context'] ) of
+		      <#{#<X>(64,1,'integer',['unsigned'|['big']]),
+			 #<Tail2>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+			  let <_cor49> =
+			      %% Line 783
+			      call 'erlang':'setelement'
+				  (AField, R, X)
+			  in  %% Line 783
+			      apply 'decode_As'/5
+				  (Vsn, As, _cor49, Flags, Tail2)
+		      ( <_cor48> when 'true' ->
+			    do  primop 'bs_context_to_binary'
+				    (_cor48)
+				primop 'match_fail'
+				    ({'badmatch',_cor48})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 784
+		<'createtime'>
+		    when try
+			  let <_cor50> =
+			      call 'erlang':'band'
+				  (16, Flags)
+			  in  let <_cor51> =
+				  call 'erlang':'=='
+				      (_cor50, 16)
+			      in  let <_cor52> =
+				      call 'erlang':'>='
+					  (Vsn, 5)
+				  in  call 'erlang':'and'
+					  (_cor51, _cor52)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 785
+		    case ( Tail
+			   -| ['reuse_for_context'] ) of
+		      <#{#<X>(64,1,'integer',['unsigned'|['big']]),
+			 #<Tail2>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+			  let <_cor54> =
+			      %% Line 786
+			      call 'erlang':'setelement'
+				  (AField, R, X)
+			  in  %% Line 786
+			      apply 'decode_As'/5
+				  (Vsn, As, _cor54, Flags, Tail2)
+		      ( <_cor53> when 'true' ->
+			    do  primop 'bs_context_to_binary'
+				    (_cor53)
+				primop 'match_fail'
+				    ({'badmatch',_cor53})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 787
+		<'subsecond_times'>
+		    when try
+			  let <_cor55> =
+			      call 'erlang':'band'
+				  (256, Flags)
+			  in  let <_cor56> =
+				  call 'erlang':'=='
+				      (_cor55, 256)
+			      in  let <_cor57> =
+				      call 'erlang':'>='
+					  (Vsn, 5)
+				  in  call 'erlang':'and'
+					  (_cor56, _cor57)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 788
+		    case ( Tail
+			   -| ['reuse_for_context'] ) of
+		      <#{#<X>(32,1,'integer',['unsigned'|['big']]),
+			 #<Tail2>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+			  let <_cor59> =
+			      %% Line 789
+			      call 'erlang':'setelement'
+				  (AField, R, X)
+			  in  %% Line 789
+			      apply 'decode_As'/5
+				  (Vsn, As, _cor59, Flags, Tail2)
+		      ( <_cor58> when 'true' ->
+			    do  primop 'bs_context_to_binary'
+				    (_cor58)
+				primop 'match_fail'
+				    ({'badmatch',_cor58})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 790
+		<'acl'>
+		    when try
+			  let <_cor60> =
+			      call 'erlang':'band'
+				  (64, Flags)
+			  in  let <_cor61> =
+				  call 'erlang':'=='
+				      (_cor60, 64)
+			      in  let <_cor62> =
+				      call 'erlang':'>='
+					  (Vsn, 5)
+				  in  call 'erlang':'and'
+					  (_cor61, _cor62)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 791
+		    case apply 'decode_acl'/1
+			     (Tail) of
+		      <{X,Tail2}> when 'true' ->
+			  let <_cor64> =
+			      %% Line 792
+			      call 'erlang':'setelement'
+				  (AField, R, X)
+			  in  %% Line 792
+			      apply 'decode_As'/5
+				  (Vsn, As, _cor64, Flags, Tail2)
+		      ( <_cor63> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor63})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 793
+		<'bits'>
+		    when try
+			  let <_cor65> =
+			      call 'erlang':'band'
+				  (512, Flags)
+			  in  let <_cor66> =
+				  call 'erlang':'=='
+				      (_cor65, 512)
+			      in  let <_cor67> =
+				      call 'erlang':'>='
+					  (Vsn, 5)
+				  in  call 'erlang':'and'
+					  (_cor66, _cor67)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 794
+		    case ( Tail
+			   -| ['reuse_for_context'] ) of
+		      <#{#<Y>(32,1,'integer',['unsigned'|['big']]),
+			 #<Tail2>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+			  let <X> =
+			      %% Line 795
+			      apply 'decode_attrib_bits'/1
+				  (Y)
+			  in  let <_cor70> =
+				  %% Line 796
+				  call 'erlang':'setelement'
+				      (AField, R, X)
+			      in  %% Line 796
+				  apply 'decode_As'/5
+				      (Vsn, As, _cor70, Flags, Tail2)
+		      ( <_cor68> when 'true' ->
+			    do  primop 'bs_context_to_binary'
+				    (_cor68)
+				primop 'match_fail'
+				    ({'badmatch',_cor68})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 797
+		<'extended'>
+		    when try
+			  let <_cor71> =
+			      call 'erlang':'band'
+				  (2147483648, Flags)
+			  in  call 'erlang':'=='
+				  (_cor71, 2147483648)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    %% Line 798
+		    case apply 'decode_extended'/1
+			     (Tail) of
+		      <{X,Tail2}> when 'true' ->
+			  let <_cor73> =
+			      %% Line 799
+			      call 'erlang':'setelement'
+				  (AField, R, X)
+			  in  %% Line 799
+			      apply 'decode_As'/5
+				  (Vsn, As, _cor73, Flags, Tail2)
+		      ( <_cor72> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor72})
+			-| ['compiler_generated'] )
+		    end
+		%% Line 800
+		<_cor96> when 'true' ->
+		    %% Line 801
+		    apply 'decode_As'/5
+			(Vsn, As, R, Flags, Tail)
+	      end
+	  %% Line 803
+	  <_X_Vsn,[],R,_cor97,Tail> when 'true' ->
+	      %% Line 804
+	      {R,Tail}
+	  ( <_cor79,_cor78,_cor77,_cor76,_cor75> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor79,_cor78,_cor77,_cor76,_cor75})
+		  -| [{'function_name',{'decode_As',5}}] )
+	    -| ['compiler_generated'] )
+	end
+'decode_names'/3 =
+    %% Line 809
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_X_Vsn,0,_X_Data> when 'true' ->
+	      %% Line 810
+	      []
+	  %% Line 811
+	  <Vsn,I,#{#<Len>(32,1,'integer',['unsigned'|['big']]),
+		   #<FileName>(Len,8,'binary',['unsigned'|['big']]),
+		   #<%% Line 812
+		     LLen>(%% Line 812
+			   32,1,'integer',['unsigned'|['big']]),
+		   #<%% Line 812
+		     _X_LongName>(%% Line 812
+				  LLen,8,'binary',['unsigned'|['big']]),
+		   #<%% Line 813
+		     Tail>(%% Line 813
+			   'all',8,'binary',['unsigned'|['big']])}#>
+	      when %% Line 813
+		call 'erlang':'=<'
+		    (Vsn,
+		     3) ->
+	      let <Name> =
+		  %% Line 814
+		  call 'unicode':'characters_to_list'
+		      (FileName)
+	      in  %% Line 815
+		  case apply 'decode_ATTR'/2
+			   (Vsn, Tail) of
+		    <{A,Tail2}> when 'true' ->
+			let <_cor5> =
+			    %% Line 816
+			    call 'erlang':'-'
+				(I, 1)
+			in  let <_cor6> =
+				%% Line 816
+				apply 'decode_names'/3
+				    (Vsn, _cor5, Tail2)
+			    in  %% Line 816
+				[{Name,A}|_cor6]
+		    ( <_cor4> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor4})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 817
+	  <Vsn,I,#{#<Len>(32,1,'integer',['unsigned'|['big']]),
+		   #<FileName>(Len,8,'binary',['unsigned'|['big']]),
+		   #<%% Line 818
+		     Tail>(%% Line 818
+			   'all',8,'binary',['unsigned'|['big']])}#>
+	      when %% Line 818
+		call 'erlang':'>='
+		    (Vsn,
+		     4) ->
+	      let <Name> =
+		  %% Line 819
+		  call 'unicode':'characters_to_list'
+		      (FileName)
+	      in  %% Line 820
+		  case apply 'decode_ATTR'/2
+			   (Vsn, Tail) of
+		    <{A,Tail2}> when 'true' ->
+			let <_cor9> =
+			    %% Line 821
+			    call 'erlang':'-'
+				(I, 1)
+			in  let <_cor10> =
+				%% Line 821
+				apply 'decode_names'/3
+				    (Vsn, _cor9, Tail2)
+			    in  %% Line 821
+				[{Name,A}|_cor10]
+		    ( <_cor8> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor8})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor13,_cor12,_cor11> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12,_cor11})
+		  -| [{'function_name',{'decode_names',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'encode_names'/2 =
+    %% Line 823
+    fun (_cor1,_cor0) ->
+	let <_cor6> =
+	    %% Line 824
+	    ( fun (_cor3,_cor2) ->
+		  apply 'encode_name'/3
+		      (_cor1, _cor3, _cor2)
+	      -| [{'id',{0,0,'-encode_names/2-fun-0-'}}] )
+	in  %% Line 824
+	    call 'lists':'mapfoldl'
+		(_cor6, 0, _cor0)
+'encode_name'/3 =
+    %% Line 826
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Vsn,{NameUC,Attr},Len>
+	      when call 'erlang':'=<'
+		    (Vsn,
+		     3) ->
+	      let <_cor3> =
+		  %% Line 827
+		  call 'unicode':'characters_to_binary'
+		      (NameUC)
+	      in  let <Name> =
+		      %% Line 827
+		      call 'erlang':'binary_to_list'
+			  (_cor3)
+		  in  let <NLen> =
+			  %% Line 828
+			  call 'erlang':'length'
+			      (Name)
+		      in  let <EncAttr> =
+			      %% Line 829
+			      apply 'encode_ATTR'/2
+				  (Vsn, Attr)
+			  in  let <ALen> =
+				  %% Line 830
+				  call 'erlang':'size'
+				      (EncAttr)
+			      in  let <_cor8> =
+				      %% Line 831
+				      call 'erlang':'*'
+					  (NLen, 2)
+				  in  let <_cor9> =
+					  %% Line 831
+					  call 'erlang':'+'
+					      (Len, _cor8)
+				      in  let <_cor10> =
+					      %% Line 831
+					      call 'erlang':'+'
+						  (_cor9, 4)
+					  in  let <_cor11> =
+						  %% Line 831
+						  call 'erlang':'+'
+						      (_cor10, 4)
+					      in  let <NewLen> =
+						      %% Line 831
+						      call 'erlang':'+'
+							  (_cor11, ALen)
+						  in  let <_cor13> =
+							  %% Line 832
+							  #{#<NLen>(32,1,'integer',['unsigned'|['big']])}#
+						      in  let <_cor14> =
+							      %% Line 832
+							      #{#<NLen>(32,1,'integer',['unsigned'|['big']])}#
+							  in  %% Line 832
+							      {[_cor13|[Name|[_cor14|[Name|[EncAttr|[]]]]]],NewLen}
+	  %% Line 833
+	  <Vsn,{NameUC,Attr},Len>
+	      when call 'erlang':'>='
+		    (Vsn,
+		     4) ->
+	      let <_cor15> =
+		  %% Line 834
+		  call 'unicode':'characters_to_binary'
+		      (NameUC)
+	      in  let <Name> =
+		      %% Line 834
+		      call 'erlang':'binary_to_list'
+			  (_cor15)
+		  in  let <NLen> =
+			  %% Line 835
+			  call 'erlang':'length'
+			      (Name)
+		      in  let <EncAttr> =
+			      %% Line 836
+			      apply 'encode_ATTR'/2
+				  (Vsn, Attr)
+			  in  let <ALen> =
+				  %% Line 837
+				  call 'erlang':'size'
+				      (EncAttr)
+			      in  let <_cor23> =
+				      %% Line 838
+				      #{#<NLen>(32,1,'integer',['unsigned'|['big']])}#
+				  in  let <_cor20> =
+					  %% Line 839
+					  call 'erlang':'+'
+					      (Len, 4)
+				      in  let <_cor21> =
+					      %% Line 839
+					      call 'erlang':'+'
+						  (_cor20, NLen)
+					  in  let <_cor22> =
+						  %% Line 839
+						  call 'erlang':'+'
+						      (_cor21, ALen)
+					      in  %% Line 838
+						  {[_cor23|[Name|[EncAttr|[]]]],_cor22}
+	  ( <_cor26,_cor25,_cor24> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor26,_cor25,_cor24})
+		  -| [{'function_name',{'encode_name',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'encode_acl'/1 =
+    %% Line 841
+    fun (_cor0) ->
+	let <Count> =
+	    %% Line 842
+	    call 'erlang':'length'
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 843
+		#{#<Count>(32,1,'integer',['unsigned'|['big']])}#
+	    in  let <_cor3> =
+		    %% Line 843
+		    apply 'encode_acl_items'/1
+			(_cor0)
+		in  %% Line 843
+		    [_cor2|_cor3]
+'encode_acl_items'/1 =
+    %% Line 845
+    fun (_cor0) ->
+	case _cor0 of
+	  <[ACE|As]> when 'true' ->
+	      %% Line 846
+	      ( case ACE of
+		  ( <( {'ssh_xfer_ace',_rec29,_cor22,_cor23,_cor24}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <Type> =
+			    apply 'encode_ace_type'/1
+				(_rec29)
+			in  let <Flag> =
+				%% Line 847
+				apply 'encode_ace_flag'/1
+				    (_cor22)
+			    in  let <Mask> =
+				    %% Line 848
+				    apply 'encode_ace_mask'/1
+					(_cor23)
+				in  let <_cor13> =
+					%% Line 850
+					#{#<Type>(32,1,'integer',['unsigned'|['big']])}#
+				    in  let <_cor14> =
+					    %% Line 850
+					    #{#<Flag>(32,1,'integer',['unsigned'|['big']])}#
+					in  let <_cor15> =
+						%% Line 850
+						#{#<Mask>(32,1,'integer',['unsigned'|['big']])}#
+					    in  let <_cor17> =
+						    %% Line 851
+						    call 'unicode':'characters_to_binary'
+							(_cor24)
+						in  let <_cor18> =
+							%% Line 851
+							call 'erlang':'size'
+							    (_cor17)
+						    in  let <_cor16> =
+							    %% Line 851
+							    call 'unicode':'characters_to_binary'
+								(_cor24)
+							in  let <_cor19> =
+								%% Line 851
+								#{#<_cor18>(32,1,'integer',['unsigned'|['big']]),
+								  #<_cor16>('all',8,'binary',['unsigned'|['big']])}#
+							    in  let <_cor20> =
+								    %% Line 851
+								    apply 'encode_acl_items'/1
+									(As)
+								in  %% Line 850
+								    [_cor13|[_cor14|[_cor15|%% Line 851
+											    [_cor19|_cor20]]]]
+		    -| ['compiler_generated'] )
+		  ( <_cor25> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','ssh_xfer_ace'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 852
+	  <[]> when 'true' ->
+	      %% Line 853
+	      []
+	  ( <_cor21> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor21})
+		  -| [{'function_name',{'encode_acl_items',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'decode_acl'/1 =
+    %% Line 856
+    fun (_cor0) ->
+	case ( _cor0
+	       -| ['reuse_for_context'] ) of
+	  <#{#<Count>(32,1,'integer',['unsigned'|['big']]),
+	     #<Tail>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 857
+	      apply 'decode_acl_items'/3
+		  (Count, Tail, [])
+	  ( <_cor1> when 'true' ->
+		do  primop 'bs_context_to_binary'
+			(_cor1)
+		    ( primop 'match_fail'
+			  ({'function_clause',_cor1})
+		      -| [{'function_name',{'decode_acl',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'decode_acl_items'/3 =
+    %% Line 859
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,( _cor1
+		      -| ['reuse_for_context'] ),_cor0> of
+	  <0,Tail,Acc> when 'true' ->
+	      do  primop 'bs_context_to_binary'
+		      (Tail)
+		  let <_cor3> =
+		      %% Line 860
+		      call 'lists':'reverse'
+			  (Acc)
+		  in  %% Line 860
+		      {_cor3,Tail}
+	  %% Line 861
+	  <I,#{#<Type>(32,1,'integer',['unsigned'|['big']]),
+	       #<%% Line 862
+		 Flag>(%% Line 862
+		       32,1,'integer',['unsigned'|['big']]),
+	       #<%% Line 863
+		 Mask>(%% Line 863
+		       32,1,'integer',['unsigned'|['big']]),
+	       #<%% Line 864
+		 WLen>(%% Line 864
+		       32,1,'integer',['unsigned'|['big']]),
+	       #<%% Line 864
+		 BWho>(%% Line 864
+		       WLen,8,'binary',['unsigned'|['big']]),
+	       #<%% Line 865
+		 Tail>(%% Line 865
+		       'all',8,'binary',['unsigned'|['big']])}#,%% Line 865
+								Acc> when 'true' ->
+	      let <_cor8> =
+		  %% Line 866
+		  call 'erlang':'-'
+		      (I, 1)
+	      in  let <_cor7> =
+		      %% Line 867
+		      apply 'decode_ace_type'/1
+			  (Type)
+		  in  let <_cor6> =
+			  %% Line 868
+			  apply 'decode_ace_flag'/1
+			      (Flag)
+		      in  let <_cor5> =
+			      %% Line 869
+			      apply 'decode_ace_mask'/1
+				  (Mask)
+			  in  let <_cor4> =
+				  %% Line 870
+				  call 'unicode':'characters_to_list'
+				      (BWho)
+			      in  %% Line 866
+				  apply 'decode_acl_items'/3
+				      (_cor8, Tail, %% Line 867
+						    [{'ssh_xfer_ace',_cor7,_cor6,_cor5,_cor4}|%% Line 870
+											      Acc])
+	  ( <_cor11,_cor10,_cor9> when 'true' ->
+		do  primop 'bs_context_to_binary'
+			(_cor10)
+		    ( primop 'match_fail'
+			  ({'function_clause',_cor11,_cor10,_cor9})
+		      -| [{'function_name',{'decode_acl_items',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'encode_extensions'/1 =
+    %% Line 872
+    fun (_cor0) ->
+	let <Count> =
+	    %% Line 873
+	    call 'erlang':'length'
+		(_cor0)
+	in  let <_cor2> =
+		%% Line 874
+		#{#<Count>(32,1,'integer',['unsigned'|['big']])}#
+	    in  let <_cor3> =
+		    %% Line 874
+		    apply 'encode_ext'/1
+			(_cor0)
+		in  %% Line 874
+		    [_cor2|_cor3]
+'encode_ext'/1 =
+    %% Line 876
+    fun (_cor0) ->
+	case _cor0 of
+	  <[{Type,Data}|Exts]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 877
+		  call 'erlang':'list_to_binary'
+		      (Type)
+	      in  let <_cor3> =
+		      %% Line 877
+		      call 'erlang':'size'
+			  (_cor2)
+		  in  let <_cor1> =
+			  %% Line 877
+			  call 'erlang':'list_to_binary'
+			      (Type)
+		      in  let <_cor4> =
+			      %% Line 877
+			      #{#<_cor3>(32,1,'integer',['unsigned'|['big']]),
+				#<_cor1>('all',8,'binary',['unsigned'|['big']])}#
+			  in  let <_cor6> =
+				  %% Line 877
+				  call 'erlang':'list_to_binary'
+				      (Data)
+			      in  let <_cor7> =
+				      %% Line 877
+				      call 'erlang':'size'
+					  (_cor6)
+				  in  let <_cor5> =
+					  %% Line 877
+					  call 'erlang':'list_to_binary'
+					      (Data)
+				      in  let <_cor8> =
+					      %% Line 877
+					      #{#<_cor7>(32,1,'integer',['unsigned'|['big']]),
+						#<_cor5>('all',8,'binary',['unsigned'|['big']])}#
+					  in  let <_cor9> =
+						  %% Line 877
+						  apply 'encode_ext'/1
+						      (Exts)
+					      in  %% Line 877
+						  [_cor4|[_cor8|_cor9]]
+	  %% Line 878
+	  <[]> when 'true' ->
+	      %% Line 879
+	      []
+	  ( <_cor10> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10})
+		  -| [{'function_name',{'encode_ext',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'decode_extended'/1 =
+    %% Line 882
+    fun (_cor0) ->
+	case ( _cor0
+	       -| ['reuse_for_context'] ) of
+	  <#{#<Count>(32,1,'integer',['unsigned'|['big']]),
+	     #<Tail>('all',8,'binary',['unsigned'|['big']])}#> when 'true' ->
+	      %% Line 883
+	      apply 'decode_ext'/3
+		  (Count, Tail, [])
+	  ( <_cor1> when 'true' ->
+		do  primop 'bs_context_to_binary'
+			(_cor1)
+		    ( primop 'match_fail'
+			  ({'function_clause',_cor1})
+		      -| [{'function_name',{'decode_extended',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'decode_ext'/3 =
+    %% Line 885
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,( _cor1
+		      -| ['reuse_for_context'] ),_cor0> of
+	  <0,Tail,Acc> when 'true' ->
+	      do  primop 'bs_context_to_binary'
+		      (Tail)
+		  let <_cor3> =
+		      %% Line 886
+		      call 'lists':'reverse'
+			  (Acc)
+		  in  %% Line 886
+		      {_cor3,Tail}
+	  %% Line 887
+	  <I,#{#<TLen>(32,1,'integer',['unsigned'|['big']]),
+	       #<Type>(TLen,8,'binary',['unsigned'|['big']]),
+	       #<%% Line 888
+		 DLen>(%% Line 888
+		       32,1,'integer',['unsigned'|['big']]),
+	       #<%% Line 888
+		 Data>(%% Line 888
+		       DLen,8,'binary',['unsigned'|['big']]),
+	       #<%% Line 889
+		 Tail>(%% Line 889
+		       'all',8,'binary',['unsigned'|['big']])}#,%% Line 889
+								Acc> when 'true' ->
+	      let <_cor5> =
+		  %% Line 890
+		  call 'erlang':'-'
+		      (I, 1)
+	      in  let <_cor4> =
+		      %% Line 890
+		      call 'erlang':'binary_to_list'
+			  (Type)
+		  in  %% Line 890
+		      apply 'decode_ext'/3
+			  (_cor5, Tail, [{_cor4,Data}|Acc])
+	  ( <_cor8,_cor7,_cor6> when 'true' ->
+		do  primop 'bs_context_to_binary'
+			(_cor7)
+		    ( primop 'match_fail'
+			  ({'function_clause',_cor8,_cor7,_cor6})
+		      -| [{'function_name',{'decode_ext',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'encode_bits'/2 =
+    %% Line 895
+    fun (_cor1,_cor0) ->
+	%% Line 896
+	apply 'encode_bits'/3
+	    (_cor1, 0, _cor0)
+'encode_bits'/3 =
+    %% Line 898
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Fun,F,[Bit|BitNames]> when 'true' ->
+	      let <_cor3> =
+		  %% Line 899
+		  apply Fun
+		      (Bit)
+	      in  let <_cor4> =
+		      %% Line 899
+		      call 'erlang':'bor'
+			  (_cor3, F)
+		  in  %% Line 899
+		      apply 'encode_bits'/3
+			  (Fun, _cor4, BitNames)
+	  %% Line 900
+	  <_X_Fun,F,[]> when 'true' ->
+	      %% Line 901
+	      F
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'encode_bits',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'decode_bits'/2 =
+    %% Line 904
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <F,[{Bit,BitName}|Bits]> when 'true' ->
+	      %% Line 905
+	      case <> of
+		<>
+		    when try
+			  let <_cor2> =
+			      call 'erlang':'band'
+				  (F, Bit)
+			  in  call 'erlang':'=='
+				  (_cor2, Bit)
+		      of <Try> ->
+			  Try
+		      catch <T,R> ->
+			  'false' ->
+		    let <_cor3> =
+			%% Line 906
+			apply 'decode_bits'/2
+			    (F, Bits)
+		    in  %% Line 906
+			[BitName|_cor3]
+		%% Line 907
+		<> when 'true' ->
+		    %% Line 908
+		    apply 'decode_bits'/2
+			(F, Bits)
+	      end
+	  %% Line 910
+	  <_X_F,[]> when 'true' ->
+	      %% Line 911
+	      []
+	  ( <_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4})
+		  -| [{'function_name',{'decode_bits',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ssh_xfer')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ssh_xfer', _cor0)
+end

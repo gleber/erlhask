@@ -1,0 +1,917 @@
+module 'xmerl_xpath_scan' ['module_info'/0,
+			   'module_info'/1,
+			   'scan_number'/1,
+			   'tokens'/1]
+    attributes []
+'tokens'/1 =
+    %% Line 60
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 61
+	    apply 'strip_ws'/1
+		(_cor0)
+	in  %% Line 61
+	    apply 'tokens'/2
+		(_cor1, [])
+'tokens'/2 =
+    %% Line 63
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Acc> when 'true' ->
+	      %% Line 64
+	      call 'lists':'reverse'
+		  ([{'$end',1,'$end'}|Acc])
+	  %% Line 65
+	  <Str,Acc> when 'true' ->
+	      %% Line 66
+	      case apply 'scan_token'/2
+		       (Str, Acc) of
+		%% Line 67
+		<{'rescan',NewStr}> when 'true' ->
+		    %% Line 68
+		    apply 'tokens'/2
+			(NewStr, Acc)
+		%% Line 69
+		<{Token,T}> when 'true' ->
+		    let <_cor2> =
+			%% Line 70
+			apply 'strip_ws'/1
+			    (T)
+		    in  %% Line 70
+			apply 'tokens'/2
+			    (_cor2, [Token|Acc])
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'scan_token'/2 =
+    %% Line 74
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[40|T],_X_A> when 'true' ->
+	      {{'(',1,'('},T}
+	  %% Line 75
+	  <[41|T],_X_A> when 'true' ->
+	      {{')',1,')'},T}
+	  %% Line 76
+	  <[91|T],_X_A> when 'true' ->
+	      {{'[',1,'['},T}
+	  %% Line 77
+	  <[93|T],_X_A> when 'true' ->
+	      {{']',1,']'},T}
+	  %% Line 78
+	  <[46|[46|T]],_X_A> when 'true' ->
+	      let <_cor2> =
+		  call 'erlang':'++'
+		      ([112|[97|[114|[101|[110|[116|[58|[58|[110|[111|[100|[101|[40|[41]]]]]]]]]]]]]], T)
+	      in  {'rescan',_cor2}
+	  %% Line 80
+	  <[64|T],_X_A> when 'true' ->
+	      let <_cor3> =
+		  call 'erlang':'++'
+		      ([97|[116|[116|[114|[105|[98|[117|[116|[101|[58|[58]]]]]]]]]]], T)
+	      in  {'rescan',_cor3}
+	  %% Line 82
+	  <[44|T],_X_A> when 'true' ->
+	      {{',',1,','},T}
+	  %% Line 83
+	  <[58|[58|T]],_X_A> when 'true' ->
+	      {{'::',1,'::'},T}
+	  %% Line 86
+	  <[47|[47|T]],_X_A> when 'true' ->
+	      let <_cor4> =
+		  call 'erlang':'++'
+		      ([47|[100|[101|[115|[99|[101|[110|[100|[97|[110|[116|[45|[111|[114|[45|[115|[101|[108|[102|[58|[58|[110|[111|[100|[101|[40|[41|[47]]]]]]]]]]]]]]]]]]]]]]]]]]]], T)
+	      in  {'rescan',_cor4}
+	  %% Line 88
+	  <[47|T],_X_A> when 'true' ->
+	      {{'/',1,'/'},T}
+	  %% Line 89
+	  <[124|T],_X_A> when 'true' ->
+	      {{'|',1,'|'},T}
+	  %% Line 90
+	  <[43|T],_X_A> when 'true' ->
+	      {{'+',1,'+'},T}
+	  %% Line 91
+	  <[45|T],_X_A> when 'true' ->
+	      {{'-',1,'-'},T}
+	  %% Line 92
+	  <[61|T],_X_A> when 'true' ->
+	      {{'=',1,'='},T}
+	  %% Line 93
+	  <[33|[61|T]],_X_A> when 'true' ->
+	      {{'!=',1,'!='},T}
+	  %% Line 94
+	  <[60|[61|T]],_X_A> when 'true' ->
+	      {{'<=',1,'<='},T}
+	  %% Line 95
+	  <[60|T],_X_A> when 'true' ->
+	      {{'<',1,'<'},T}
+	  %% Line 96
+	  <[62|[61|T]],_X_A> when 'true' ->
+	      {{'>=',1,'>='},T}
+	  %% Line 97
+	  <[62|T],_X_A> when 'true' ->
+	      {{'>',1,'>'},T}
+	  %% Line 99
+	  <[42|T],A> when 'true' ->
+	      let <_cor7> =
+		  %% Line 101
+		  case A of
+		    %% Line 102
+		    <[{X,_cor29,_cor30}|_cor31]> when 'true' ->
+			%% Line 103
+			case apply 'special_token'/1
+				 (X) of
+			  %% Line 104
+			  <'false'> when 'true' ->
+			      %% Line 105
+			      {'*',1,'*'}
+			  %% Line 106
+			  <'true'> when 'true' ->
+			      %% Line 107
+			      {'wildcard',1,'wildcard'}
+			  ( <_cor5> when 'true' ->
+				primop 'match_fail'
+				    ({'case_clause',_cor5})
+			    -| ['compiler_generated'] )
+			end
+		    %% Line 109
+		    <_cor32> when 'true' ->
+			%% Line 110
+			{'wildcard',1,'wildcard'}
+		  end
+	      in  %% Line 112
+		  {_cor7,T}
+	  %% Line 115
+	  <Str = [H|_cor33],_X_A>
+	      when let <_cor9> =
+		    call 'erlang':'>='
+			(H, 48)
+		in  let <_cor10> =
+			call 'erlang':'=<'
+			    (H, 57)
+		    in  call 'erlang':'and'
+			    (_cor9, _cor10) ->
+	      %% Line 116
+	      apply 'scan_number'/1
+		  (Str)
+	  %% Line 117
+	  <Str = [46|[H|_cor34]],A>
+	      when let <_cor11> =
+		    call 'erlang':'>='
+			(H, 48)
+		in  let <_cor12> =
+			call 'erlang':'=<'
+			    (H, 57)
+		    in  call 'erlang':'and'
+			    (_cor11, _cor12) ->
+	      %% Line 118
+	      apply 'scan_number'/2
+		  (Str, A)
+	  %% Line 119
+	  <[46|T],_X_A> when 'true' ->
+	      let <_cor13> =
+		  %% Line 121
+		  call 'erlang':'++'
+		      ([115|[101|[108|[102|[58|[58|[110|[111|[100|[101|[40|[41]]]]]]]]]]]], T)
+	      in  %% Line 121
+		  {'rescan',_cor13}
+	  %% Line 124
+	  <[36|T],_X_A> when 'true' ->
+	      %% Line 125
+	      case apply 'scan_name'/1
+		       (T) of
+		<{{Prefix,Local},T1}> when 'true' ->
+		    %% Line 126
+		    case Prefix of
+		      %% Line 127
+		      <[]> when 'true' ->
+			  let <_cor15> =
+			      %% Line 128
+			      call 'erlang':'list_to_atom'
+				  (Local)
+			  in  %% Line 128
+			      {{'var_reference',1,_cor15},T1}
+		      %% Line 129
+		      <_cor35> when 'true' ->
+			  let <_cor16> =
+			      %% Line 130
+			      [58|Local]
+			  in  let <_cor17> =
+				  %% Line 130
+				  call 'erlang':'++'
+				      (Prefix, _cor16)
+			      in  let <_cor18> =
+				      %% Line 130
+				      call 'erlang':'list_to_atom'
+					  (_cor17)
+				  in  %% Line 130
+				      {{'var_reference',1,_cor18},T1}
+		    end
+		( <_cor14> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor14})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 133
+	  <[H|T],_X_A>
+	      when let <_cor20> =
+		    call 'erlang':'=='
+			(H, 34)
+		in  let <_cor21> =
+			call 'erlang':'=='
+			    (H, 39)
+		    in  call 'erlang':'or'
+			    (_cor20, _cor21) ->
+	      %% Line 134
+	      case apply 'scan_literal'/3
+		       (T, H, []) of
+		<{Literal,T1}> when 'true' ->
+		    %% Line 135
+		    {{'literal',1,Literal},T1}
+		( <_cor22> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor22})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 137
+	  <T,A> when 'true' ->
+	      %% Line 138
+	      case apply 'scan_name'/1
+		       (T) of
+		<{{Prefix,Local},T1}> when 'true' ->
+		    %% Line 139
+		    case A of
+		      %% Line 140
+		      <[{X,_cor36,_cor37}|_cor38]> when 'true' ->
+			  %% Line 141
+			  case apply 'special_token'/1
+				   (X) of
+			    %% Line 142
+			    <'false'> when 'true' ->
+				%% Line 143
+				apply 'operator_name'/3
+				    (Prefix, Local, T1)
+			    %% Line 144
+			    <'true'> when 'true' ->
+				let <_cor24> =
+				    %% Line 145
+				    apply 'strip_ws'/1
+					(T1)
+				in  %% Line 145
+				    apply 'other_name'/3
+					(Prefix, Local, _cor24)
+			    ( <_cor25> when 'true' ->
+				  primop 'match_fail'
+				      ({'case_clause',_cor25})
+			      -| ['compiler_generated'] )
+			  end
+		      %% Line 147
+		      <_cor39> when 'true' ->
+			  %% Line 148
+			  apply 'other_name'/3
+			      (Prefix, Local, T1)
+		    end
+		( <_cor23> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor23})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'operator_name'/3 =
+    %% Line 151
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],[97|[110|[100]]],T> when 'true' ->
+	      {{'and',1,'and'},T}
+	  %% Line 152
+	  <[],[111|[114]],T> when 'true' ->
+	      {{'or',1,'or'},T}
+	  %% Line 153
+	  <[],[109|[111|[100]]],T> when 'true' ->
+	      {{'mod',1,'mod'},T}
+	  %% Line 154
+	  <[],[100|[105|[118]]],T> when 'true' ->
+	      {{'div',1,'div'},T}
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'operator_name',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'other_name'/3 =
+    %% Line 157
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Prefix,[],[42|T]> when 'true' ->
+	      %% Line 159
+	      {{'prefix_test',1,Prefix},T}
+	  %% Line 160
+	  <Prefix,Local,T = [40|_cor10]> when 'true' ->
+	      %% Line 161
+	      apply 'node_type_or_function_name'/3
+		  (Prefix, Local, T)
+	  %% Line 162
+	  <Prefix,Local,T = [58|[58|_cor11]]> when 'true' ->
+	      %% Line 163
+	      apply 'axis'/3
+		  (Prefix, Local, T)
+	  %% Line 164
+	  <[],Local,T> when 'true' ->
+	      let <_cor3> =
+		  %% Line 165
+		  call 'erlang':'list_to_atom'
+		      (Local)
+	      in  %% Line 165
+		  {{'name',1,{_cor3,[],Local}},T}
+	  %% Line 166
+	  <Prefix,Local,T> when 'true' ->
+	      let <_cor4> =
+		  %% Line 167
+		  [58|Local]
+	      in  let <_cor5> =
+		      %% Line 167
+		      call 'erlang':'++'
+			  (Prefix, _cor4)
+		  in  let <_cor6> =
+			  %% Line 167
+			  call 'erlang':'list_to_atom'
+			      (_cor5)
+		      in  %% Line 167
+			  {{'name',1,{_cor6,Prefix,Local}},T}
+	end
+'node_type_or_function_name'/3 =
+    %% Line 172
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],[99|[111|[109|[109|[101|[110|[116]]]]]]],T> when 'true' ->
+	      %% Line 173
+	      {{'node_type',1,'comment'},T}
+	  %% Line 174
+	  <[],[116|[101|[120|[116]]]],T> when 'true' ->
+	      %% Line 175
+	      {{'node_type',1,'text'},T}
+	  %% Line 176
+	  <[],[112|[114|[111|[99|[101|[115|[115|[105|[110|[103|[45|[105|[110|[115|[116|[114|[117|[99|[116|[105|[111|[110]]]]]]]]]]]]]]]]]]]]]],T> when 'true' ->
+	      %% Line 177
+	      {{'processing-instruction',1,'processing-instruction'},T}
+	  %% Line 178
+	  <[],[110|[111|[100|[101]]]],T> when 'true' ->
+	      %% Line 179
+	      {{'node_type',1,'node'},T}
+	  %% Line 180
+	  <Prefix,Local,T> when 'true' ->
+	      let <_cor3> =
+		  %% Line 181
+		  call 'erlang':'++'
+		      (Prefix, Local)
+	      in  let <_cor4> =
+		      %% Line 181
+		      call 'erlang':'list_to_atom'
+			  (_cor3)
+		  in  %% Line 181
+		      {{'function_name',1,_cor4},T}
+	end
+'axis'/3 =
+    %% Line 185
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],[97|[110|[99|[101|[115|[116|[111|[114|[45|[111|[114|[45|[115|[101|[108|[102]]]]]]]]]]]]]]]],T> when 'true' ->
+	      {{'axis',1,'ancestor_or_self'},T}
+	  %% Line 186
+	  <[],[97|[110|[99|[101|[115|[116|[111|[114]]]]]]]],T> when 'true' ->
+	      {{'axis',1,'ancestor'},T}
+	  %% Line 187
+	  <[],[97|[116|[116|[114|[105|[98|[117|[116|[101]]]]]]]]],T> when 'true' ->
+	      {{'axis',1,'attribute'},T}
+	  %% Line 188
+	  <[],[99|[104|[105|[108|[100]]]]],T> when 'true' ->
+	      {{'axis',1,'child'},T}
+	  %% Line 189
+	  <[],[100|[101|[115|[99|[101|[110|[100|[97|[110|[116|[45|[111|[114|[45|[115|[101|[108|[102]]]]]]]]]]]]]]]]]],T> when 'true' ->
+	      {{'axis',1,'descendant_or_self'},T}
+	  %% Line 190
+	  <[],[100|[101|[115|[99|[101|[110|[100|[97|[110|[116]]]]]]]]]],T> when 'true' ->
+	      {{'axis',1,'descendant'},T}
+	  %% Line 191
+	  <[],[102|[111|[108|[108|[111|[119|[105|[110|[103|[45|[115|[105|[98|[108|[105|[110|[103]]]]]]]]]]]]]]]]],T> when 'true' ->
+	      {{'axis',1,'following_sibling'},T}
+	  %% Line 192
+	  <[],[102|[111|[108|[108|[111|[119|[105|[110|[103]]]]]]]]],T> when 'true' ->
+	      {{'axis',1,'following'},T}
+	  %% Line 193
+	  <[],[110|[97|[109|[101|[115|[112|[97|[99|[101]]]]]]]]],T> when 'true' ->
+	      {{'axis',1,'namespace'},T}
+	  %% Line 194
+	  <[],[112|[97|[114|[101|[110|[116]]]]]],T> when 'true' ->
+	      {{'axis',1,'parent'},T}
+	  %% Line 195
+	  <[],[112|[114|[101|[99|[101|[100|[105|[110|[103|[45|[115|[105|[98|[108|[105|[110|[103]]]]]]]]]]]]]]]]],T> when 'true' ->
+	      {{'axis',1,'preceding_sibling'},T}
+	  %% Line 196
+	  <[],[112|[114|[101|[99|[101|[100|[105|[110|[103]]]]]]]]],T> when 'true' ->
+	      {{'axis',1,'preceding'},T}
+	  %% Line 197
+	  <[],[115|[101|[108|[102]]]],T> when 'true' ->
+	      {{'axis',1,'self'},T}
+	  ( <_cor5,_cor4,_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor5,_cor4,_cor3})
+		  -| [{'function_name',{'axis',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'scan_literal'/3 =
+    %% Line 202
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[H|T],_cor7,Acc>
+	      when call 'erlang':'=:='
+		    (_cor7,
+		     H) ->
+	      let <_cor3> =
+		  %% Line 203
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  %% Line 203
+		  {_cor3,T}
+	  %% Line 204
+	  <[H|T],Delim,Acc> when 'true' ->
+	      %% Line 205
+	      apply 'scan_literal'/3
+		  (T, Delim, [H|Acc])
+	  ( <_cor6,_cor5,_cor4> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5,_cor4})
+		  -| [{'function_name',{'scan_literal',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'scan_name'/1 =
+    %% Line 208
+    fun (_cor0) ->
+	case _cor0 of
+	  <[H1|[H2|T]]>
+	      when let <_cor1> =
+		    call 'erlang':'=='
+			(H1, 58)
+		in  let <_cor2> =
+			call 'erlang':'=='
+			    (H1, 95)
+		    in  call 'erlang':'or'
+			    (_cor1, _cor2) ->
+	      %% Line 209
+	      case <> of
+		<>
+		    when let <_cor3> =
+			  call 'erlang':'=='
+			      (H2, 32)
+		      in  let <_cor4> =
+			      call 'erlang':'=='
+				  (H2, 13)
+			  in  let <_cor5> =
+				  call 'erlang':'=='
+				      (H2, 10)
+			      in  let <_cor6> =
+				      call 'erlang':'=='
+					  (H2, 9)
+				  in  let <_cor7> =
+					  call 'erlang':'or'
+					      (_cor5, _cor6)
+				      in  let <_cor8> =
+					      call 'erlang':'or'
+						  (_cor4, _cor7)
+					  in  call 'erlang':'or'
+						  (_cor3, _cor8) ->
+		    %% Line 210
+		    call 'erlang':'exit'
+			({'invalid_name',[H1|[H2|['...']]]})
+		%% Line 211
+		<> when 'true' ->
+		    %% Line 212
+		    apply 'scan_prefix'/2
+			(T, [H2|[H1|[]]])
+	      end
+	  %% Line 214
+	  <[H|T]> when 'true' ->
+	      %% Line 215
+	      case call 'xmerl_lib':'is_letter'
+		       (H) of
+		%% Line 216
+		<'true'> when 'true' ->
+		    %% Line 217
+		    apply 'scan_prefix'/2
+			(T, [H|[]])
+		%% Line 218
+		<'false'> when 'true' ->
+		    let <_cor9> =
+			%% Line 219
+			call 'lists':'sublist'
+			    ([H|T], 1, 6)
+		    in  %% Line 219
+			call 'erlang':'exit'
+			    ({'invalid_name',_cor9})
+		( <_cor10> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor10})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 221
+	  <Str> when 'true' ->
+	      let <_cor11> =
+		  %% Line 222
+		  call 'lists':'sublist'
+		      (Str, 1, 6)
+	      in  %% Line 222
+		  call 'erlang':'exit'
+		      ({'invalid_name',_cor11})
+	end
+'scan_prefix'/2 =
+    %% Line 224
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Acc> when 'true' ->
+	      let <_cor2> =
+		  %% Line 225
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  %% Line 225
+		  {{[],_cor2},[]}
+	  %% Line 226
+	  <Str = [H|_cor17],Acc>
+	      when let <_cor3> =
+		    call 'erlang':'=='
+			(H, 32)
+		in  let <_cor4> =
+			call 'erlang':'=='
+			    (H, 13)
+		    in  let <_cor5> =
+			    call 'erlang':'=='
+				(H, 10)
+			in  let <_cor6> =
+				call 'erlang':'=='
+				    (H, 9)
+			    in  let <_cor7> =
+				    call 'erlang':'or'
+					(_cor5, _cor6)
+				in  let <_cor8> =
+					call 'erlang':'or'
+					    (_cor4, _cor7)
+				    in  call 'erlang':'or'
+					    (_cor3, _cor8) ->
+	      let <_cor9> =
+		  %% Line 227
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  %% Line 227
+		  {{[],_cor9},Str}
+	  %% Line 228
+	  <T = [58|[58|_cor18]],Acc> when 'true' ->
+	      let <_cor10> =
+		  %% Line 230
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  %% Line 230
+		  {{[],_cor10},T}
+	  %% Line 231
+	  <[58|T],Acc> when 'true' ->
+	      %% Line 232
+	      case apply 'scan_local_part'/2
+		       (T, []) of
+		<{LocalPart,T1}> when 'true' ->
+		    let <Prefix> =
+			%% Line 233
+			call 'lists':'reverse'
+			    (Acc)
+		    in  %% Line 234
+			{{Prefix,LocalPart},T1}
+		( <_cor11> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor11})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 235
+	  <Str = [H|T],Acc> when 'true' ->
+	      %% Line 236
+	      case call 'xmerl_lib':'is_namechar'
+		       (H) of
+		%% Line 237
+		<'true'> when 'true' ->
+		    %% Line 238
+		    apply 'scan_prefix'/2
+			(T, [H|Acc])
+		%% Line 239
+		<'false'> when 'true' ->
+		    let <_cor13> =
+			%% Line 240
+			call 'lists':'reverse'
+			    (Acc)
+		    in  %% Line 240
+			{{[],_cor13},Str}
+		( <_cor14> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor14})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor16,_cor15> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15})
+		  -| [{'function_name',{'scan_prefix',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'scan_local_part'/2 =
+    %% Line 243
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Acc> when 'true' ->
+	      let <_cor2> =
+		  %% Line 244
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  %% Line 244
+		  {_cor2,[]}
+	  %% Line 245
+	  <Str = [H|_cor14],Acc>
+	      when let <_cor3> =
+		    call 'erlang':'=='
+			(H, 32)
+		in  let <_cor4> =
+			call 'erlang':'=='
+			    (H, 13)
+		    in  let <_cor5> =
+			    call 'erlang':'=='
+				(H, 10)
+			in  let <_cor6> =
+				call 'erlang':'=='
+				    (H, 9)
+			    in  let <_cor7> =
+				    call 'erlang':'or'
+					(_cor5, _cor6)
+				in  let <_cor8> =
+					call 'erlang':'or'
+					    (_cor4, _cor7)
+				    in  call 'erlang':'or'
+					    (_cor3, _cor8) ->
+	      let <_cor9> =
+		  %% Line 246
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  %% Line 246
+		  {_cor9,Str}
+	  %% Line 247
+	  <Str = [H|T],Acc> when 'true' ->
+	      %% Line 248
+	      case call 'xmerl_lib':'is_namechar'
+		       (H) of
+		%% Line 249
+		<'true'> when 'true' ->
+		    %% Line 250
+		    apply 'scan_local_part'/2
+			(T, [H|Acc])
+		%% Line 251
+		<'false'> when 'true' ->
+		    let <_cor10> =
+			%% Line 252
+			call 'lists':'reverse'
+			    (Acc)
+		    in  %% Line 252
+			{_cor10,Str}
+		( <_cor11> when 'true' ->
+		      primop 'match_fail'
+			  ({'case_clause',_cor11})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor13,_cor12> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor13,_cor12})
+		  -| [{'function_name',{'scan_local_part',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'scan_number'/1 =
+    %% Line 256
+    fun (_cor0) ->
+	%% Line 257
+	apply 'scan_number'/2
+	    (_cor0, [])
+'scan_number'/2 =
+    %% Line 259
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Acc> when 'true' ->
+	      let <_cor2> =
+		  %% Line 260
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  let <_cor3> =
+		      %% Line 260
+		      call 'erlang':'list_to_integer'
+			  (_cor2)
+		  in  %% Line 260
+		      {{'number',1,_cor3},[]}
+	  %% Line 261
+	  <[46|T],[]> when 'true' ->
+	      %% Line 262
+	      case apply 'scan_digits'/2
+		       (T, [46|[48]]) of
+		<{Digits,T1}> when 'true' ->
+		    let <Number> =
+			%% Line 263
+			call 'erlang':'list_to_float'
+			    (Digits)
+		    in  %% Line 264
+			{{'number',1,Number},T1}
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 265
+	  <[46|T],Acc> when 'true' ->
+	      let <_cor6> =
+		  %% Line 266
+		  [46|Acc]
+	      in  %% Line 266
+		  case apply 'scan_digits'/2
+			   (T, _cor6) of
+		    <{Digits,T1}> when 'true' ->
+			let <Number> =
+			    %% Line 267
+			    call 'erlang':'list_to_float'
+				(Digits)
+			in  %% Line 268
+			    {{'number',1,Number},T1}
+		    ( <_cor7> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor7})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 269
+	  <[H|T],Acc>
+	      when let <_cor9> =
+		    call 'erlang':'>='
+			(H, 48)
+		in  let <_cor10> =
+			call 'erlang':'=<'
+			    (H, 57)
+		    in  call 'erlang':'and'
+			    (_cor9, _cor10) ->
+	      %% Line 270
+	      apply 'scan_number'/2
+		  (T, [H|Acc])
+	  %% Line 271
+	  <T,Acc> when 'true' ->
+	      let <_cor11> =
+		  %% Line 272
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  let <_cor12> =
+		      %% Line 272
+		      call 'erlang':'list_to_integer'
+			  (_cor11)
+		  in  %% Line 272
+		      {{'number',1,_cor12},T}
+	end
+'scan_digits'/2 =
+    %% Line 274
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Acc> when 'true' ->
+	      let <_cor2> =
+		  %% Line 275
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  %% Line 275
+		  {_cor2,[]}
+	  %% Line 276
+	  <[H|T],Acc>
+	      when let <_cor3> =
+		    call 'erlang':'>='
+			(H, 48)
+		in  let <_cor4> =
+			call 'erlang':'=<'
+			    (H, 57)
+		    in  call 'erlang':'and'
+			    (_cor3, _cor4) ->
+	      %% Line 277
+	      apply 'scan_digits'/2
+		  (T, [H|Acc])
+	  %% Line 278
+	  <T,Acc> when 'true' ->
+	      let <_cor5> =
+		  %% Line 279
+		  call 'lists':'reverse'
+		      (Acc)
+	      in  %% Line 279
+		  {_cor5,T}
+	end
+'strip_ws'/1 =
+    %% Line 282
+    fun (_cor0) ->
+	case _cor0 of
+	  <[H|T]>
+	      when let <_cor1> =
+		    call 'erlang':'=='
+			(H, 32)
+		in  let <_cor2> =
+			call 'erlang':'=='
+			    (H, 13)
+		    in  let <_cor3> =
+			    call 'erlang':'=='
+				(H, 10)
+			in  let <_cor4> =
+				call 'erlang':'=='
+				    (H, 9)
+			    in  let <_cor5> =
+				    call 'erlang':'or'
+					(_cor3, _cor4)
+				in  let <_cor6> =
+					call 'erlang':'or'
+					    (_cor2, _cor5)
+				    in  call 'erlang':'or'
+					    (_cor1, _cor6) ->
+	      %% Line 283
+	      apply 'strip_ws'/1
+		  (T)
+	  %% Line 284
+	  <T> when 'true' ->
+	      %% Line 285
+	      T
+	end
+'special_token'/1 =
+    %% Line 288
+    fun (_cor0) ->
+	case _cor0 of
+	  <'@'> when 'true' ->
+	      'true'
+	  %% Line 289
+	  <'::'> when 'true' ->
+	      'true'
+	  %% Line 290
+	  <','> when 'true' ->
+	      'true'
+	  %% Line 291
+	  <'('> when 'true' ->
+	      'true'
+	  %% Line 292
+	  <'['> when 'true' ->
+	      'true'
+	  %% Line 293
+	  <'/'> when 'true' ->
+	      'true'
+	  %% Line 294
+	  <'//'> when 'true' ->
+	      'true'
+	  %% Line 295
+	  <'|'> when 'true' ->
+	      'true'
+	  %% Line 296
+	  <'+'> when 'true' ->
+	      'true'
+	  %% Line 297
+	  <'-'> when 'true' ->
+	      'true'
+	  %% Line 298
+	  <'='> when 'true' ->
+	      'true'
+	  %% Line 299
+	  <'!='> when 'true' ->
+	      'true'
+	  %% Line 300
+	  <'<'> when 'true' ->
+	      'true'
+	  %% Line 301
+	  <'<='> when 'true' ->
+	      'true'
+	  %% Line 302
+	  <'>'> when 'true' ->
+	      'true'
+	  %% Line 303
+	  <'>='> when 'true' ->
+	      'true'
+	  %% Line 304
+	  <'and'> when 'true' ->
+	      'true'
+	  %% Line 305
+	  <'or'> when 'true' ->
+	      'true'
+	  %% Line 306
+	  <'mod'> when 'true' ->
+	      'true'
+	  %% Line 307
+	  <'div'> when 'true' ->
+	      'true'
+	  %% Line 308
+	  <_cor2> when 'true' ->
+	      %% Line 309
+	      'false'
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('xmerl_xpath_scan')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('xmerl_xpath_scan', _cor0)
+end

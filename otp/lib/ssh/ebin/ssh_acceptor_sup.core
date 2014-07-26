@@ -1,0 +1,138 @@
+module 'ssh_acceptor_sup' ['init'/1,
+			   'module_info'/0,
+			   'module_info'/1,
+			   'start_child'/2,
+			   'start_link'/1,
+			   'stop_child'/2]
+    attributes [%% Line 27
+		'behaviour' =
+		    %% Line 27
+		    ['supervisor']]
+'start_link'/1 =
+    %% Line 39
+    fun (_cor0) ->
+	%% Line 40
+	call 'supervisor':'start_link'
+	    ('ssh_acceptor_sup', [_cor0|[]])
+'start_child'/2 =
+    %% Line 42
+    fun (_cor1,_cor0) ->
+	let <Spec> =
+	    %% Line 43
+	    apply 'child_spec'/1
+		(_cor0)
+	in  %% Line 44
+	    case call 'supervisor':'start_child'
+		     (_cor1, Spec) of
+	      %% Line 45
+	      <{'error','already_present'}> when 'true' ->
+		  let <Address> =
+		      %% Line 46
+		      call 'proplists':'get_value'
+			  ('address', _cor0)
+		  in  let <Port> =
+			  %% Line 47
+			  call 'proplists':'get_value'
+			      ('port', _cor0)
+		      in  let <Name> =
+			      %% Line 48
+			      apply 'id'/2
+				  (Address, Port)
+			  in  do  %% Line 49
+				  call 'supervisor':'delete_child'
+				      ('ssh_acceptor_sup', Name)
+				  %% Line 50
+				  call 'supervisor':'start_child'
+				      (_cor1, Spec)
+	      %% Line 51
+	      <Reply> when 'true' ->
+		  %% Line 52
+		  Reply
+	    end
+'stop_child'/2 =
+    %% Line 55
+    fun (_cor1,_cor0) ->
+	let <Name> =
+	    %% Line 56
+	    apply 'id'/2
+		(_cor1, _cor0)
+	in  %% Line 57
+	    case call 'supervisor':'terminate_child'
+		     ('ssh_acceptor_sup', Name) of
+	      %% Line 58
+	      <'ok'> when 'true' ->
+		  %% Line 59
+		  call 'supervisor':'delete_child'
+		      ('ssh_acceptor_sup', Name)
+	      %% Line 60
+	      <Error> when 'true' ->
+		  %% Line 61
+		  Error
+	    end
+'init'/1 =
+    %% Line 67
+    fun (_cor0) ->
+	case _cor0 of
+	  <[ServerOpts|[]]> when 'true' ->
+	      let <_cor4> =
+		  %% Line 71
+		  apply 'child_spec'/1
+		      (ServerOpts)
+	      in  let <Children> =
+		      %% Line 71
+		      [_cor4|[]]
+		  in  %% Line 72
+		      {'ok',{{'one_for_one',10,3600},Children}}
+	  ( <_cor6> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'child_spec'/1 =
+    %% Line 77
+    fun (_cor0) ->
+	let <Address> =
+	    %% Line 78
+	    call 'proplists':'get_value'
+		('address', _cor0)
+	in  let <Port> =
+		%% Line 79
+		call 'proplists':'get_value'
+		    ('port', _cor0)
+	    in  let <Timeout> =
+		    %% Line 80
+		    call 'proplists':'get_value'
+			('timeout', _cor0, 50000)
+		in  let <Name> =
+			%% Line 81
+			apply 'id'/2
+			    (Address, Port)
+		    in  let <SocketOpts> =
+			    %% Line 82
+			    call 'proplists':'get_value'
+				('socket_opts', _cor0)
+			in  let <_cor6> =
+				%% Line 85
+				[{'active','false'}|[{'reuseaddr','true'}|SocketOpts]]
+			    in  let <StartFunc> =
+				    %% Line 83
+				    {'ssh_acceptor','start_link',[Port|[Address|%% Line 85
+										[_cor6|%% Line 86
+										       [_cor0|[Timeout|[]]]]]]}
+				in  %% Line 91
+				    {Name,StartFunc,'transient','brutal_kill','worker',['ssh_acceptor']}
+'id'/2 =
+    %% Line 93
+    fun (_cor1,_cor0) ->
+	%% Line 94
+	{'ssh_acceptor_sup',_cor1,_cor0}
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ssh_acceptor_sup')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ssh_acceptor_sup', _cor0)
+end

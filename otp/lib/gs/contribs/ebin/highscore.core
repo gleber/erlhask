@@ -1,0 +1,249 @@
+module 'highscore' ['module_info'/0,
+		    'module_info'/1,
+		    'run'/2]
+    attributes []
+'run'/2 =
+    %% Line 32
+    fun (_cor1,_cor0) ->
+	let <Scores> =
+	    %% Line 33
+	    apply 'read_scores'/1
+		(_cor0)
+	in  %% Line 34
+	    case apply 'find_pos'/3
+		     (_cor1, 1, Scores) of
+	      %% Line 35
+	      <'false'> when 'true' ->
+		  %% Line 36
+		  apply 'display'/1
+		      (Scores)
+	      %% Line 37
+	      <Pos> when 'true' ->
+		  let <NewScores> =
+		      %% Line 38
+		      apply 'new_highscore'/3
+			  (Scores, Pos, _cor1)
+		  in  do  %% Line 39
+			  apply 'write_scores'/2
+			      (NewScores, _cor0)
+			  %% Line 40
+			  apply 'display'/1
+			      (NewScores)
+	    end
+'new_highscore'/3 =
+    %% Line 44
+    fun (_cor2,_cor1,_cor0) ->
+	let <Txt> =
+	    %% Line 45
+	    call 'io_lib':'format'
+		([89|[111|[117|[32|[101|[110|[116|[101|[114|[101|[100|[32|[112|[111|[115|[105|[116|[105|[111|[110|[32|[126|[119]]]]]]]]]]]]]]]]]]]]]]], [_cor1|[]])
+	in  let <_cor4> =
+		%% Line 46
+		call 'gs':'start'
+		    ()
+	    in  let <W> =
+		    %% Line 46
+		    call 'gs':'create'
+			('window', _cor4, [{'width',200}|[{'height',110}|[{'map','true'}|[{'title',[78|[101|[119|[32|[72|[105|[103|[104|[115|[99|[111|[114|[101|[33|[33|[33]]]]]]]]]]]]]]]]}]]]])
+		in  do  %% Line 48
+			call 'gs':'create'
+			    ('label', W, [{'label',{'text',Txt}}|[{'x',0}|[{'y',0}|[{'align','center'}|[{'width',190}|[{'height',30}]]]]]])
+			let <Entry> =
+			    %% Line 50
+			    call 'gs':'create'
+				('entry', W, [{'x',0}|[{'y',40}|[{'height',30}|[{'width',200}]]]])
+			in  let <Ok> =
+				%% Line 51
+				call 'gs':'create'
+				    ('button', W, [{'label',{'text',[79|[107]]}}|[{'x',40}|[{'y',75}]]])
+			    in  %% Line 52
+				receive
+				  %% Line 53
+				  <{'gs',_cor14,'click',_cor15,_cor16}>
+				      when call 'erlang':'=:='
+					    (_cor14,
+					     Ok) ->
+				      let <T> =
+					  %% Line 54
+					  call 'gs':'read'
+					      (Entry, 'text')
+				      in  do  %% Line 55
+					      call 'gs':'destroy'
+						  (W)
+					      let <_cor9> =
+						  %% Line 57
+						  call 'lists':'keysort'
+						      (1, [{_cor0,T}|_cor2])
+					      in  let <_cor10> =
+						      %% Line 56
+						      call 'lists':'reverse'
+							  (_cor9)
+						  in  %% Line 56
+						      call 'lists':'sublist'
+							  (_cor10, %% Line 57
+								   1, %% Line 57
+								      10)
+				after 'infinity' ->
+				  'true'
+'read_scores'/1 =
+    %% Line 62
+    fun (_cor0) ->
+	%% Line 63
+	case call 'file':'read_file'
+		 (_cor0) of
+	  %% Line 64
+	  <{'ok',Bin}> when 'true' ->
+	      call 'erlang':'binary_to_term'
+		  (Bin)
+	  %% Line 65
+	  <{'error',_X_Reason}> when 'true' ->
+	      %% Line 66
+	      apply 'mk_empty_high'/1
+		  (10)
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'case_clause',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'mk_empty_high'/1 =
+    %% Line 69
+    fun (_cor0) ->
+	case _cor0 of
+	  <0> when 'true' ->
+	      []
+	  %% Line 70
+	  <N> when 'true' ->
+	      let <_cor1> =
+		  call 'erlang':'-'
+		      (N, 1)
+	      in  let <_cor2> =
+		      apply 'mk_empty_high'/1
+			  (_cor1)
+		  in  [{N,[69|[114|[108|[97|[110|[103]]]]]]}|_cor2]
+	end
+'find_pos'/3 =
+    %% Line 72
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_X_NScore,_X_N,[]> when 'true' ->
+	      'false'
+	  %% Line 73
+	  <NScore,N,[{Score,_X_Name}|Scores]>
+	      when call 'erlang':'>'
+		    (Score,
+		     NScore) ->
+	      let <_cor3> =
+		  %% Line 74
+		  call 'erlang':'+'
+		      (N, 1)
+	      in  %% Line 74
+		  apply 'find_pos'/3
+		      (NScore, _cor3, Scores)
+	  %% Line 75
+	  <_X_NScore,N,_cor7> when 'true' ->
+	      N
+	end
+'write_scores'/2 =
+    %% Line 77
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 78
+	    call 'erlang':'term_to_binary'
+		(_cor1)
+	in  %% Line 78
+	    call 'file':'write_file'
+		(_cor0, _cor2)
+'display'/1 =
+    %% Line 80
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 81
+	    call 'gs':'start'
+		()
+	in  let <Win> =
+		%% Line 81
+		call 'gs':'window'
+		    (_cor1, [{'width',300}|[{'height',250}|[{'map','true'}|[{'title',[72|[105|[103|[104|[115|[99|[111|[114|[101|[115]]]]]]]]]]}]]]])
+	    in  %% Line 83
+		case call 'gs':'read'
+			 (Win, {'font_wh',{{'screen',12},[97|[97|[97|[97|[97|[97|[97]]]]]]]}}) of
+		  <{W,H}> when 'true' ->
+		      let <_cor4> =
+			  %% Line 84
+			  call 'erlang':'*'
+			      (4, W)
+		      in  let <_cor5> =
+			      %% Line 86
+			      call 'erlang':'+'
+				  (H, 2)
+			  in  let <G> =
+				  %% Line 84
+				  call 'gs':'grid'
+				      (Win, [{'rows',{1,11}}|[{'columnwidths',[W|[_cor4|[]]]}|[{'hscroll','false'}|%% Line 85
+														   [{'width',300}|[{'height',220}|[{'vscroll','false'}|%% Line 86
+																				       [{'cellheight',_cor5}|[{'font',{'screen',12}}]]]]]]]])
+			      in  do  %% Line 87
+				      apply 'insert_scores'/3
+					  (G, 2, _cor0)
+				      let <Ok> =
+					  %% Line 88
+					  call 'gs':'button'
+					      (Win, [{'label',{'text',[79|[75]]}}|[{'x',100}|[{'y',220}]]])
+				      in  %% Line 89
+					  receive
+					    %% Line 90
+					    <{'gs',_cor9,'click',_cor10,_cor11}>
+						when call 'erlang':'=:='
+						      (_cor9,
+						       Ok) ->
+						do  call 'gs':'destroy'
+							(Win)
+						    %% Line 91
+						    'ok'
+					  after 'infinity' ->
+					    'true'
+		  ( <_cor3> when 'true' ->
+			primop 'match_fail'
+			    ({'badmatch',_cor3})
+		    -| ['compiler_generated'] )
+		end
+'insert_scores'/3 =
+    %% Line 94
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Grid,_X_N,[]> when 'true' ->
+	      %% Line 95
+	      call 'gs':'create'
+		  ('gridline', Grid, [{'row',1}|[{'font',{'screen','bold',12}}|[{'text',{1,[83|[67|[79|[82|[69]]]]]}}|[{'text',{2,[78|[65|[77|[69]]]]}}]]]])
+	  %% Line 98
+	  <Grid,Row,[{Score,Name}|Ss]> when 'true' ->
+	      let <_cor3> =
+		  %% Line 99
+		  call 'io_lib':'format'
+		      ([126|[119]], [Score|[]])
+	      in  do  %% Line 99
+		      call 'gs':'create'
+			  ('gridline', Grid, [{'row',Row}|[{'text',{1,_cor3}}|%% Line 100
+									      [{'text',{2,Name}}|[]]]])
+		      let <_cor4> =
+			  %% Line 101
+			  call 'erlang':'+'
+			      (Row, 1)
+		      in  %% Line 101
+			  apply 'insert_scores'/3
+			      (Grid, _cor4, Ss)
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'insert_scores',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('highscore')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('highscore', _cor0)
+end

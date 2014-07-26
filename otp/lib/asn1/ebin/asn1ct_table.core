@@ -1,0 +1,160 @@
+module 'asn1ct_table' ['delete'/1,
+		       'exists'/1,
+		       'insert'/2,
+		       'lookup'/2,
+		       'match'/2,
+		       'module_info'/0,
+		       'module_info'/1,
+		       'new'/1,
+		       'new_reuse'/1,
+		       'size'/1,
+		       'to_list'/1]
+    attributes []
+'new'/1 =
+    %% Line 36
+    fun (_cor0) ->
+	%% Line 37
+	case call 'erlang':'get'
+		 (_cor0) of
+	  <'undefined'> when 'true' ->
+	      let <TableId> =
+		  %% Line 38
+		  call 'ets':'new'
+		      (_cor0, [])
+	      in  %% Line 39
+		  call 'erlang':'put'
+		      (_cor0, TableId)
+	  ( <_cor1> when 'true' ->
+		primop 'match_fail'
+		    ({'badmatch',_cor1})
+	    -| ['compiler_generated'] )
+	end
+'new_reuse'/1 =
+    %% Line 42
+    fun (_cor0) ->
+	%% Line 43
+	( case apply 'exists'/1
+		   (_cor0) of
+	    ( <'false'> when 'true' ->
+		  apply 'new'/1
+		      (_cor0)
+	      -| ['compiler_generated'] )
+	    ( <'true'> when 'true' ->
+		  'false'
+	      -| ['compiler_generated'] )
+	    ( <_cor_variable> when 'true' ->
+		  call 'erlang':'error'
+		      ('badarg')
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'exists'/1 =
+    %% Line 45
+    fun (_cor0) ->
+	let <_cor1> =
+	    call 'erlang':'get'
+		(_cor0)
+	in  call 'erlang':'=/='
+		(_cor1, 'undefined')
+'size'/1 =
+    %% Line 47
+    fun (_cor0) ->
+	let <_cor1> =
+	    call 'erlang':'get'
+		(_cor0)
+	in  call 'ets':'info'
+		(_cor1, 'size')
+'insert'/2 =
+    %% Line 49
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    call 'erlang':'get'
+		(_cor1)
+	in  call 'ets':'insert'
+		(_cor2, _cor0)
+'lookup'/2 =
+    %% Line 51
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    call 'erlang':'get'
+		(_cor1)
+	in  call 'ets':'lookup'
+		(_cor2, _cor0)
+'match'/2 =
+    %% Line 53
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    call 'erlang':'get'
+		(_cor1)
+	in  call 'ets':'match'
+		(_cor2, _cor0)
+'to_list'/1 =
+    %% Line 55
+    fun (_cor0) ->
+	let <_cor1> =
+	    call 'erlang':'get'
+		(_cor0)
+	in  call 'ets':'tab2list'
+		(_cor1)
+'delete'/1 =
+    %% Line 61
+    fun (_cor0) ->
+	case _cor0 of
+	  <Tables>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      do  %% Line 62
+		  ( letrec
+			'lc$^0'/1 =
+			    fun (_cor3) ->
+				case _cor3 of
+				  <[T|_cor2]> when 'true' ->
+				      do  apply 'delete'/1
+					      (T)
+					  apply 'lc$^0'/1
+					      (_cor2)
+				  <[]> when 'true' ->
+				      []
+				  ( <_cor3> when 'true' ->
+					( primop 'match_fail'
+					      ({'function_clause',_cor3})
+					  -| [{'function_name',{'lc$^0',1}}] )
+				    -| ['compiler_generated'] )
+				end
+		    in  apply 'lc$^0'/1
+			    (Tables)
+		    -| ['list_comprehension'] )
+		  %% Line 63
+		  'true'
+	  %% Line 64
+	  <Table>
+	      when call 'erlang':'is_atom'
+		    (_cor0) ->
+	      %% Line 65
+	      case call 'erlang':'erase'
+		       (Table) of
+		%% Line 66
+		<'undefined'> when 'true' ->
+		    %% Line 67
+		    'true'
+		%% Line 68
+		<TableId> when 'true' ->
+		    %% Line 69
+		    call 'ets':'delete'
+			(TableId)
+	      end
+	  ( <_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7})
+		  -| [{'function_name',{'delete',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('asn1ct_table')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('asn1ct_table', _cor0)
+end

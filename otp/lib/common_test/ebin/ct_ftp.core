@@ -1,0 +1,661 @@
+module 'ct_ftp' ['cd'/2,
+		 'close'/1,
+		 'delete'/2,
+		 'get'/3,
+		 'handle_msg'/2,
+		 'init'/3,
+		 'ls'/2,
+		 'module_info'/0,
+		 'module_info'/1,
+		 'open'/1,
+		 'put'/3,
+		 'reconnect'/2,
+		 'recv'/2,
+		 'recv'/3,
+		 'send'/2,
+		 'send'/3,
+		 'terminate'/2,
+		 'type'/2]
+    attributes []
+'put'/3 =
+    %% Line 70
+    fun (_cor2,_cor1,_cor0) ->
+	let <Fun> =
+	    %% Line 71
+	    ( fun (_cor3) ->
+		  apply 'send'/3
+		      (_cor3, _cor1, _cor0)
+	      -| [{'id',{0,0,'-put/3-fun-0-'}}] )
+	in  %% Line 72
+	    apply 'open_and_do'/2
+		(_cor2, Fun)
+'get'/3 =
+    %% Line 90
+    fun (_cor2,_cor1,_cor0) ->
+	let <Fun> =
+	    %% Line 91
+	    ( fun (_cor3) ->
+		  apply 'recv'/3
+		      (_cor3, _cor1, _cor0)
+	      -| [{'id',{0,0,'-get/3-fun-0-'}}] )
+	in  %% Line 92
+	    apply 'open_and_do'/2
+		(_cor2, Fun)
+'open'/1 =
+    %% Line 114
+    fun (_cor0) ->
+	%% Line 115
+	case call 'ct_util':'get_key_from_name'
+		 (_cor0) of
+	  %% Line 116
+	  <{'ok','node'}> when 'true' ->
+	      %% Line 117
+	      apply 'open'/3
+		  (_cor0, [101|[114|[108|[97|[110|[103]]]]]], [120])
+	  %% Line 118
+	  <_cor9> when 'true' ->
+	      %% Line 119
+	      case call 'ct':'get_config'
+		       (_cor0) of
+		%% Line 120
+		<'undefined'> when 'true' ->
+		    let <_cor1> =
+			%% Line 121
+			apply 'heading'/2
+			    ('open', _cor0)
+		    in  do  %% Line 121
+			    apply 'log'/3
+				(_cor1, [70|[97|[105|[108|[101|[100|[58|[32|[126|[112|[10]]]]]]]]]]], %% Line 122
+												      [{'not_available',_cor0}|[]])
+			    %% Line 123
+			    {'error',{'not_available',_cor0}}
+		%% Line 124
+		<_cor10> when 'true' ->
+		    %% Line 125
+		    case call 'ct':'get_config'
+			     ({_cor0,'username'}) of
+		      %% Line 126
+		      <'undefined'> when 'true' ->
+			  let <_cor2> =
+			      %% Line 127
+			      apply 'heading'/2
+				  ('open', _cor0)
+			  in  do  %% Line 127
+				  apply 'log'/3
+				      (_cor2, [70|[97|[105|[108|[101|[100|[58|[32|[126|[112|[10]]]]]]]]]]], %% Line 128
+													    [{'not_available',{_cor0,'username'}}|[]])
+				  %% Line 129
+				  {'error',{'not_available',{_cor0,'username'}}}
+		      %% Line 130
+		      <Username> when 'true' ->
+			  %% Line 131
+			  case call 'ct':'get_config'
+				   ({_cor0,'password'}) of
+			    %% Line 132
+			    <'undefined'> when 'true' ->
+				let <_cor3> =
+				    %% Line 133
+				    apply 'heading'/2
+					('open', _cor0)
+				in  do  %% Line 133
+					apply 'log'/3
+					    (_cor3, [70|[97|[105|[108|[101|[100|[58|[32|[126|[112|[10]]]]]]]]]]], %% Line 134
+														  [{'not_available',{_cor0,'password'}}|[]])
+					%% Line 135
+					{'error',{'not_available',{_cor0,'password'}}}
+			    %% Line 136
+			    <Password> when 'true' ->
+				%% Line 137
+				apply 'open'/3
+				    (_cor0, Username, Password)
+			  end
+		    end
+	      end
+	end
+'open'/3 =
+    %% Line 143
+    fun (_cor2,_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 144
+	    apply 'heading'/2
+		('open', _cor2)
+	in  do  %% Line 144
+		apply 'log'/3
+		    (_cor3, [], [])
+		%% Line 145
+		case call 'ct':'get_config'
+			 ({_cor2,'ftp'}) of
+		  %% Line 146
+		  <'undefined'> when 'true' ->
+		      let <_cor4> =
+			  %% Line 147
+			  apply 'heading'/2
+			      ('open', _cor2)
+		      in  do  %% Line 147
+			      apply 'log'/3
+				  (_cor4, [70|[97|[105|[108|[101|[100|[58|[32|[126|[112|[10]]]]]]]]]]], %% Line 148
+													[{'not_available',{_cor2,'ftp'}}|[]])
+			      %% Line 149
+			      {'error',{'not_available',{_cor2,'ftp'}}}
+		  %% Line 150
+		  <Addr> when 'true' ->
+		      let <_cor5> =
+			  %% Line 151
+			  apply 'full_addr'/1
+			      (Addr)
+		      in  %% Line 151
+			  call 'ct_gen_conn':'start'
+			      (_cor2, _cor5, {_cor1,_cor0}, 'ct_ftp')
+		end
+'send'/2 =
+    %% Line 161
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 162
+	    call 'filename':'basename'
+		(_cor0)
+	in  %% Line 162
+	    apply 'send'/3
+		(_cor1, _cor0, _cor2)
+'send'/3 =
+    %% Line 173
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 174
+	case apply 'get_handle'/1
+		 (_cor2) of
+	  %% Line 175
+	  <{'ok',Pid}> when 'true' ->
+	      %% Line 176
+	      apply 'call'/2
+		  (Pid, {'send',_cor1,_cor0})
+	  %% Line 177
+	  <Error> when 'true' ->
+	      %% Line 178
+	      Error
+	end
+'recv'/2 =
+    %% Line 187
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 188
+	    call 'filename':'basename'
+		(_cor0)
+	in  %% Line 188
+	    apply 'recv'/3
+		(_cor1, _cor0, _cor2)
+'recv'/3 =
+    %% Line 199
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 200
+	case apply 'get_handle'/1
+		 (_cor2) of
+	  %% Line 201
+	  <{'ok',Pid}> when 'true' ->
+	      %% Line 202
+	      apply 'call'/2
+		  (Pid, {'recv',_cor1,_cor0})
+	  %% Line 203
+	  <Error> when 'true' ->
+	      %% Line 204
+	      Error
+	end
+'cd'/2 =
+    %% Line 213
+    fun (_cor1,_cor0) ->
+	%% Line 214
+	case apply 'get_handle'/1
+		 (_cor1) of
+	  %% Line 215
+	  <{'ok',Pid}> when 'true' ->
+	      %% Line 216
+	      apply 'call'/2
+		  (Pid, {'cd',_cor0})
+	  %% Line 217
+	  <Error> when 'true' ->
+	      %% Line 218
+	      Error
+	end
+'ls'/2 =
+    %% Line 228
+    fun (_cor1,_cor0) ->
+	%% Line 229
+	case apply 'get_handle'/1
+		 (_cor1) of
+	  %% Line 230
+	  <{'ok',Pid}> when 'true' ->
+	      %% Line 231
+	      apply 'call'/2
+		  (Pid, {'ls',_cor0})
+	  %% Line 232
+	  <Error> when 'true' ->
+	      %% Line 233
+	      Error
+	end
+'type'/2 =
+    %% Line 242
+    fun (_cor1,_cor0) ->
+	%% Line 243
+	case apply 'get_handle'/1
+		 (_cor1) of
+	  %% Line 244
+	  <{'ok',Pid}> when 'true' ->
+	      %% Line 245
+	      apply 'call'/2
+		  (Pid, {'type',_cor0})
+	  %% Line 246
+	  <Error> when 'true' ->
+	      %% Line 247
+	      Error
+	end
+'delete'/2 =
+    %% Line 256
+    fun (_cor1,_cor0) ->
+	%% Line 257
+	case apply 'get_handle'/1
+		 (_cor1) of
+	  %% Line 258
+	  <{'ok',Pid}> when 'true' ->
+	      %% Line 259
+	      apply 'call'/2
+		  (Pid, {'delete',_cor0})
+	  %% Line 260
+	  <Error> when 'true' ->
+	      %% Line 261
+	      Error
+	end
+'close'/1 =
+    %% Line 269
+    fun (_cor0) ->
+	%% Line 270
+	case apply 'get_handle'/1
+		 (_cor0) of
+	  %% Line 271
+	  <{'ok',Pid}> when 'true' ->
+	      %% Line 272
+	      call 'ct_gen_conn':'stop'
+		  (Pid)
+	  %% Line 273
+	  <Error> when 'true' ->
+	      %% Line 274
+	      Error
+	end
+'init'/3 =
+    %% Line 282
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <KeyOrName,{IP,Port},{Username,Password}> when 'true' ->
+	      %% Line 283
+	      case apply 'ftp_connect'/4
+		       (IP, Port, Username, Password) of
+		%% Line 284
+		<{'ok',FtpPid}> when 'true' ->
+		    let <_cor5> =
+			%% Line 285
+			apply 'heading'/2
+			    ('init', KeyOrName)
+		    in  let <_cor3> =
+			    %% Line 287
+			    call 'erlang':'length'
+				(Password)
+			in  let <_cor4> =
+				%% Line 287
+				call 'lists':'duplicate'
+				    (_cor3, 42)
+			    in  do  %% Line 285
+				    apply 'log'/3
+					(_cor5, %% Line 286
+						[79|[112|[101|[110|[101|[100|[32|[102|[116|[112|[32|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110|[58|[10|[73|[80|[58|[32|[126|[112|[10|[85|[115|[101|[114|[110|[97|[109|[101|[58|[32|[126|[112|[10|[80|[97|[115|[115|[119|[111|[114|[100|[58|[32|[126|[112|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 287
+																																													   [IP|[Username|[_cor4|[]]]])
+				    %% Line 288
+				    {'ok',FtpPid,{'state',FtpPid,KeyOrName}}
+		%% Line 289
+		<Error> when 'true' ->
+		    %% Line 290
+		    Error
+	      end
+	  ( <_cor9,_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor9,_cor8,_cor7})
+		  -| [{'function_name',{'init',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'ftp_connect'/4 =
+    %% Line 293
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	do  %% Line 294
+	    call 'inets':'start'
+		()
+	    %% Line 295
+	    case call 'inets':'start'
+		     ('ftpc', [{'host',_cor3}|[{'port',_cor2}|[]]]) of
+	      %% Line 296
+	      <{'ok',FtpPid}> when 'true' ->
+		  %% Line 297
+		  case call 'ftp':'user'
+			   (FtpPid, _cor1, _cor0) of
+		    %% Line 298
+		    <'ok'> when 'true' ->
+			%% Line 299
+			{'ok',FtpPid}
+		    %% Line 300
+		    <{'error',Reason}> when 'true' ->
+			%% Line 301
+			{'error',{'user',Reason}}
+		    ( <_cor4> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor4})
+		      -| ['compiler_generated'] )
+		  end
+	      %% Line 303
+	      <{'error',Reason}> when 'true' ->
+		  %% Line 304
+		  {'error',{'open',Reason}}
+	      ( <_cor5> when 'true' ->
+		    primop 'match_fail'
+			({'case_clause',_cor5})
+		-| ['compiler_generated'] )
+	    end
+'handle_msg'/2 =
+    %% Line 308
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'send',LocalFile,RemoteFile},State> when 'true' ->
+	      %% Line 309
+	      ( case State of
+		  ( <( {'state',_cor40,_rec0}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor4> =
+			    apply 'heading'/2
+				('send', _rec0)
+			in  do  apply 'log'/3
+				    (_cor4, %% Line 310
+					    [76|[111|[99|[97|[108|[70|[105|[108|[101|[58|[32|[126|[112|[10|[82|[101|[109|[111|[116|[101|[70|[105|[108|[101|[58|[32|[126|[112|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 310
+																									       [LocalFile|[RemoteFile|[]]])
+				let <Result> =
+				    %% Line 311
+				    call 'ftp':'send'
+					(_cor40, LocalFile, RemoteFile)
+				in  %% Line 312
+				    {Result,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor41> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 313
+	  <{'recv',RemoteFile,LocalFile},State> when 'true' ->
+	      %% Line 314
+	      ( case State of
+		  ( <( {'state',_cor44,_rec2}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor10> =
+			    apply 'heading'/2
+				('recv', _rec2)
+			in  do  apply 'log'/3
+				    (_cor10, %% Line 315
+					     [82|[101|[109|[111|[116|[101|[70|[105|[108|[101|[58|[32|[126|[112|[10|[76|[111|[99|[97|[108|[70|[105|[108|[101|[58|[32|[126|[112|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 315
+																										[RemoteFile|[LocalFile|[]]])
+				let <Result> =
+				    %% Line 316
+				    call 'ftp':'recv'
+					(_cor44, RemoteFile, LocalFile)
+				in  %% Line 317
+				    {Result,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor45> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 318
+	  <{'cd',Dir},State> when 'true' ->
+	      %% Line 319
+	      ( case State of
+		  ( <( {'state',_cor48,_rec4}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor16> =
+			    apply 'heading'/2
+				('cd', _rec4)
+			in  do  apply 'log'/3
+				    (_cor16, [68|[105|[114|[58|[32|[126|[112|[10]]]]]]]], [Dir|[]])
+				let <Result> =
+				    %% Line 320
+				    call 'ftp':'cd'
+					(_cor48, Dir)
+				in  %% Line 321
+				    {Result,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor49> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 322
+	  <{'ls',Dir},State> when 'true' ->
+	      %% Line 323
+	      ( case State of
+		  ( <( {'state',_cor52,_rec6}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor22> =
+			    apply 'heading'/2
+				('ls', _rec6)
+			in  do  apply 'log'/3
+				    (_cor22, [68|[105|[114|[58|[32|[126|[112|[10]]]]]]]], [Dir|[]])
+				let <Result> =
+				    %% Line 324
+				    call 'ftp':'ls'
+					(_cor52, Dir)
+				in  %% Line 325
+				    {Result,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor53> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 326
+	  <{'type',Type},State> when 'true' ->
+	      %% Line 327
+	      ( case State of
+		  ( <( {'state',_cor56,_rec8}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor28> =
+			    apply 'heading'/2
+				('type', _rec8)
+			in  do  apply 'log'/3
+				    (_cor28, [84|[121|[112|[101|[58|[32|[126|[112|[10]]]]]]]]], [Type|[]])
+				let <Result> =
+				    %% Line 328
+				    call 'ftp':'type'
+					(_cor56, Type)
+				in  %% Line 329
+				    {Result,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor57> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 330
+	  <{'delete',File},State> when 'true' ->
+	      %% Line 331
+	      ( case State of
+		  ( <( {'state',_cor60,_rec10}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor34> =
+			    apply 'heading'/2
+				('delete', _rec10)
+			in  do  apply 'log'/3
+				    (_cor34, [68|[101|[108|[101|[116|[101|[32|[102|[105|[108|[101|[58|[32|[126|[112|[10]]]]]]]]]]]]]]]], [File|[]])
+				let <Result> =
+				    %% Line 332
+				    call 'ftp':'delete'
+					(_cor60, File)
+				in  %% Line 333
+				    {Result,State}
+		    -| ['compiler_generated'] )
+		  ( <_cor61> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  ( <_cor39,_cor38> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor39,_cor38})
+		  -| [{'function_name',{'handle_msg',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'reconnect'/2 =
+    %% Line 336
+    fun (_cor1,_cor0) ->
+	%% Line 337
+	{'error','no_reconnection_of_ftp'}
+'terminate'/2 =
+    %% Line 340
+    fun (_cor1,_cor0) ->
+	%% Line 341
+	( case _cor0 of
+	    ( <( {'state',_cor7,_rec12}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  let <_cor4> =
+		      apply 'heading'/2
+			  ('terminate', _rec12)
+		  in  do  apply 'log'/3
+			      (_cor4, %% Line 342
+				      [67|[108|[111|[115|[105|[110|[103|[32|[70|[84|[80|[32|[99|[111|[110|[110|[101|[99|[116|[105|[111|[110|[46|[10|[72|[97|[110|[100|[108|[101|[58|[32|[126|[112|[10]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]], %% Line 342
+																													  [_cor1|[]])
+			  %% Line 343
+			  call 'inets':'stop'
+			      ('ftpc', _cor1)
+	      -| ['compiler_generated'] )
+	    ( <_cor8> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'get_handle'/1 =
+    %% Line 348
+    fun (_cor0) ->
+	case _cor0 of
+	  <Pid>
+	      when call 'erlang':'is_pid'
+		    (_cor0) ->
+	      %% Line 349
+	      {'ok',Pid}
+	  %% Line 350
+	  <Name> when 'true' ->
+	      %% Line 351
+	      case call 'ct_util':'get_connection'
+		       (Name, 'ct_ftp') of
+		%% Line 352
+		<{'ok',{Pid,_cor3}}> when 'true' ->
+		    %% Line 353
+		    {'ok',Pid}
+		%% Line 354
+		<{'error','no_registered_connection'}> when 'true' ->
+		    %% Line 355
+		    apply 'open'/1
+			(Name)
+		%% Line 356
+		<Error> when 'true' ->
+		    %% Line 357
+		    Error
+	      end
+	end
+'full_addr'/1 =
+    %% Line 360
+    fun (_cor0) ->
+	case _cor0 of
+	  <{Ip,Port}> when 'true' ->
+	      %% Line 361
+	      {Ip,Port}
+	  %% Line 362
+	  <Ip> when 'true' ->
+	      %% Line 363
+	      {Ip,21}
+	end
+'call'/2 =
+    %% Line 365
+    fun (_cor1,_cor0) ->
+	%% Line 366
+	call 'ct_gen_conn':'call'
+	    (_cor1, _cor0)
+'heading'/2 =
+    %% Line 369
+    fun (_cor1,_cor0) ->
+	%% Line 370
+	call 'io_lib':'format'
+	    ([99|[116|[95|[102|[116|[112|[58|[126|[119|[32|[126|[112]]]]]]]]]]]], [_cor1|[_cor0|[]]])
+'log'/3 =
+    %% Line 372
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 373
+	call 'ct_gen_conn':'log'
+	    (_cor2, _cor1, _cor0)
+'open_and_do'/2 =
+    %% Line 376
+    fun (_cor1,_cor0) ->
+	%% Line 377
+	case apply 'open'/1
+		 (_cor1) of
+	  %% Line 378
+	  <{'ok',Ftp}> when 'true' ->
+	      let <R> =
+		  %% Line 379
+		  apply _cor0
+		      (Ftp)
+	      in  do  %% Line 380
+		      apply 'close'/1
+			  (Ftp)
+		      %% Line 381
+		      R
+	  %% Line 382
+	  <Error> when 'true' ->
+	      %% Line 383
+	      Error
+	end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('ct_ftp')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('ct_ftp', _cor0)
+end

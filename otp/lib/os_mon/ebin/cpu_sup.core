@@ -1,0 +1,2632 @@
+module 'cpu_sup' ['avg1'/0,
+		  'avg15'/0,
+		  'avg5'/0,
+		  'code_change'/3,
+		  'dummy_reply'/1,
+		  'handle_call'/3,
+		  'handle_cast'/2,
+		  'handle_info'/2,
+		  'init'/1,
+		  'module_info'/0,
+		  'module_info'/1,
+		  'nprocs'/0,
+		  'ping'/0,
+		  'start'/0,
+		  'start_link'/0,
+		  'stop'/0,
+		  'terminate'/2,
+		  'util'/0,
+		  'util'/1]
+    attributes [%% Line 57
+		'type' =
+		    %% Line 57
+		    [{{'record','cpu_util'},[{'record_field',57,{'atom',57,'cpu'}}|[{'record_field',57,{'atom',57,'busy'},{'nil',57}}|[{'record_field',57,{'atom',57,'non_busy'},{'nil',57}}]]],[]}],
+		%% Line 59
+		'type' =
+		    %% Line 59
+		    [{{'record','state'},[{'record_field',59,{'atom',59,'server'}}|[{'record_field',59,{'atom',59,'os_type'}}]],[]}],
+		%% Line 62
+		'type' =
+		    %% Line 62
+		    [{{'record','internal'},[{'record_field',62,{'atom',62,'port'},{'atom',62,'not_used'}}|[{'record_field',62,{'atom',62,'util'},{'nil',62}}|[{'record_field',62,{'atom',62,'os_type'}}]]],[]}],
+		%% Line 68
+		'type' =
+		    %% Line 68
+		    [{'util_cpus',{'type',68,'union',[{'atom',68,'all'}|[{'type',68,'integer',[]}|[{'type',68,'list',[{'type',68,'integer',[]}]}]]]},[]}],
+		%% Line 69
+		'type' =
+		    %% Line 69
+		    [{'util_state',{'type',69,'union',[{'atom',69,'user'}|[{'atom',69,'nice_user'}|[{'atom',69,'kernel'}|[{'atom',69,'wait'}|[{'atom',69,'idle'}]]]]]},[]}],
+		%% Line 70
+		'type' =
+		    %% Line 70
+		    [{'util_value',{'type',70,'union',[{'type',70,'tuple',[{'type',70,'util_state',[]}|[{'type',70,'float',[]}]]}|[{'type',70,'float',[]}]]},[]}],
+		%% Line 71
+		'type' =
+		    %% Line 71
+		    [{'util_desc',{'type',71,'tuple',[{'type',71,'util_cpus',[]}|[{'type',71,'util_value',[]}|[{'type',71,'util_value',[]}|[{'type',71,'nil',[]}]]]]},[]}],
+		%% Line 86
+		'spec' =
+		    %% Line 86
+		    [{{'nprocs',0},[{'type',86,'fun',[{'type',86,'product',[]}|[{'type',86,'union',[{'type',86,'integer',[]}|[{'type',86,'tuple',[{'atom',86,'error'}|[{'type',86,'any',[]}]]}]]}]]}]}],
+		%% Line 91
+		'spec' =
+		    %% Line 91
+		    [{{'avg1',0},[{'type',91,'fun',[{'type',91,'product',[]}|[{'type',91,'union',[{'type',91,'integer',[]}|[{'type',91,'tuple',[{'atom',91,'error'}|[{'type',91,'any',[]}]]}]]}]]}]}],
+		%% Line 96
+		'spec' =
+		    %% Line 96
+		    [{{'avg5',0},[{'type',96,'fun',[{'type',96,'product',[]}|[{'type',96,'union',[{'type',96,'integer',[]}|[{'type',96,'tuple',[{'atom',96,'error'}|[{'type',96,'any',[]}]]}]]}]]}]}],
+		%% Line 101
+		'spec' =
+		    %% Line 101
+		    [{{'avg15',0},[{'type',101,'fun',[{'type',101,'product',[]}|[{'type',101,'union',[{'type',101,'integer',[]}|[{'type',101,'tuple',[{'atom',101,'error'}|[{'type',101,'any',[]}]]}]]}]]}]}],
+		%% Line 106
+		'spec' =
+		    %% Line 106
+		    [{{'util',1},[{'type',106,'fun',[{'type',106,'product',[{'type',106,'list',[{'type',106,'union',[{'atom',106,'detailed'}|[{'atom',106,'per_cpu'}]]}]}]}|[{'type',107,'union',[{'type',107,'util_desc',[]}|[{'type',107,'list',[{'type',107,'util_desc',[]}]}|[{'type',107,'tuple',[{'atom',107,'error'}|[{'type',107,'any',[]}]]}]]]}]]}]}],
+		%% Line 124
+		'spec' =
+		    %% Line 124
+		    [{{'util',0},[{'type',124,'fun',[{'type',124,'product',[]}|[{'type',124,'float',[]}]]}]}]]
+'start'/0 =
+    %% Line 77
+    fun () ->
+	%% Line 78
+	call 'gen_server':'start'
+	    ({'local','cpu_sup'}, 'cpu_sup', [], [])
+'start_link'/0 =
+    %% Line 80
+    fun () ->
+	%% Line 81
+	call 'gen_server':'start_link'
+	    ({'local','cpu_sup'}, 'cpu_sup', [], [])
+'stop'/0 =
+    %% Line 83
+    fun () ->
+	%% Line 84
+	call 'gen_server':'call'
+	    ('cpu_sup', [113], 'infinity')
+'nprocs'/0 =
+    %% Line 88
+    fun () ->
+	%% Line 89
+	call 'os_mon':'call'
+	    ('cpu_sup', [110], 'infinity')
+'avg1'/0 =
+    %% Line 93
+    fun () ->
+	%% Line 94
+	call 'os_mon':'call'
+	    ('cpu_sup', [49], 'infinity')
+'avg5'/0 =
+    %% Line 98
+    fun () ->
+	%% Line 99
+	call 'os_mon':'call'
+	    ('cpu_sup', [53], 'infinity')
+'avg15'/0 =
+    %% Line 103
+    fun () ->
+	%% Line 104
+	call 'os_mon':'call'
+	    ('cpu_sup', [102], 'infinity')
+'util'/1 =
+    %% Line 109
+    fun (_cor0) ->
+	case _cor0 of
+	  <Args>
+	      when call 'erlang':'is_list'
+		    (_cor0) ->
+	      let <_cor5> =
+		  %% Line 112
+		  ( fun (_cor2,_cor1) ->
+			case <_cor2,_cor1> of
+			  <'detailed',{_cor8,PC}> when 'true' ->
+			      {'true',PC}
+			  %% Line 113
+			  <'per_cpu',{D,_cor9}> when 'true' ->
+			      {D,'true'}
+			  %% Line 114
+			  <_cor10,_cor11> when 'true' ->
+			      'badarg'
+			end
+		    -| [{'id',{0,0,'-util/1-fun-0-'}}] )
+	      in  %% Line 111
+		  case call 'lists':'foldl'
+			   (_cor5, %% Line 115
+				   {'false','false'}, %% Line 115
+						      Args) of
+		    %% Line 116
+		    <'badarg'> when 'true' ->
+			%% Line 117
+			call 'erlang':'error'
+			    ('badarg')
+		    %% Line 118
+		    <{Detailed,PerCpu}> when 'true' ->
+			%% Line 119
+			call 'os_mon':'call'
+			    ('cpu_sup', {[117],Detailed,PerCpu}, 'infinity')
+		    ( <_cor6> when 'true' ->
+			  primop 'match_fail'
+			      ({'case_clause',_cor6})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 121
+	  <_cor12> when 'true' ->
+	      %% Line 122
+	      call 'erlang':'error'
+		  ('badarg')
+	end
+'util'/0 =
+    %% Line 126
+    fun () ->
+	%% Line 127
+	case apply 'util'/1
+		 ([]) of
+	  %% Line 128
+	  <{'all',Busy,_cor1,_cor2}> when 'true' ->
+	      Busy
+	  %% Line 129
+	  <Error> when 'true' ->
+	      Error
+	end
+'dummy_reply'/1 =
+    %% Line 132
+    fun (_cor0) ->
+	case _cor0 of
+	  <[110]> when 'true' ->
+	      0
+	  %% Line 133
+	  <[49]> when 'true' ->
+	      0
+	  %% Line 134
+	  <[53]> when 'true' ->
+	      0
+	  %% Line 135
+	  <[102]> when 'true' ->
+	      0
+	  %% Line 136
+	  <{[117],_cor2,_cor3}> when 'true' ->
+	      {'all',0,0,[]}
+	  ( <_cor1> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor1})
+		  -| [{'function_name',{'dummy_reply',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'ping'/0 =
+    %% Line 142
+    fun () ->
+	%% Line 143
+	call 'gen_server':'call'
+	    ('cpu_sup', [112])
+'init'/1 =
+    %% Line 150
+    fun (_cor0) ->
+	case _cor0 of
+	  <[]> when 'true' ->
+	      do  %% Line 151
+		  call 'erlang':'process_flag'
+		      ('trap_exit', 'true')
+		  do  %% Line 152
+		      call 'erlang':'process_flag'
+			  ('priority', 'low')
+		      let <_cor2> =
+			  %% Line 155
+			  apply 'measurement_server_start'/0
+			      ()
+		      in  let <_cor1> =
+			      %% Line 154
+			      call 'os':'type'
+				  ()
+			  in  %% Line 153
+			      {'ok',%% Line 154
+				    {'state',_cor2,_cor1}}
+	  ( <_cor3> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor3})
+		  -| [{'function_name',{'init',1}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_call'/3 =
+    %% Line 158
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[113],_X_From,State> when 'true' ->
+	      %% Line 159
+	      {'stop','normal','ok',State}
+	  %% Line 160
+	  <{[117],D,PC},{Client,_X_Tag},State = %% Line 161
+						{'state',_cor36,{'unix',Flavor}}>
+	      when let <_cor3> =
+		    %% Line 162
+		    call 'erlang':'=:='
+			(Flavor, 'sunos')
+		in  let <_cor4> =
+			%% Line 163
+			call 'erlang':'=:='
+			    (Flavor, 'linux')
+		    in  %% Line 162
+			call 'erlang':'or'
+			    (_cor3, _cor4) ->
+	      %% Line 164
+	      case apply 'measurement_server_call'/2
+		       (_cor36, {[117],D,PC,Client}) of
+		%% Line 165
+		<{'error',Reason}> when 'true' ->
+		    let <_rec1> =
+			%% Line 168
+			apply 'measurement_server_restart'/1
+			    (_cor36)
+		    in  let <_cor12> =
+			    %% Line 168
+			    call 'erlang':'setelement'
+				(2, State, _rec1)
+			in  %% Line 166
+			    {'reply',%% Line 167
+				     {'error',Reason},_cor12}
+		%% Line 170
+		<Result> when 'true' ->
+		    {'reply',Result,State}
+	      end
+	  %% Line 172
+	  <{[117],Detailed,PerCpu},_X_From,State> when 'true' ->
+	      do  %% Line 174
+		  call 'error_logger':'warning_msg'
+		      ([79|[83|[95|[77|[79|[78|[32|[40|[99|[112|[117|[95|[115|[117|[112|[41|[44|[32|[117|[116|[105|[108|[47|[49|[32|[117|[110|[97|[118|[97|[105|[108|[97|[98|[108|[101|[32|[102|[111|[114|[32|[116|[104|[105|[115|[32|[79|[83|[126|[110]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+		  let <_cor15> =
+		      %% Line 175
+		      apply 'dummy_reply'/1
+			  ({[117],Detailed,PerCpu})
+		  in  %% Line 175
+		      {'reply',_cor15,State}
+	  %% Line 176
+	  <Request,_X_From,State>
+	      when let <_cor16> =
+		    call 'erlang':'=='
+			(Request, [110])
+		in  let <_cor17> =
+			%% Line 177
+			call 'erlang':'=='
+			    (Request, [49])
+		    in  let <_cor18> =
+			    %% Line 178
+			    call 'erlang':'=='
+				(Request, [53])
+			in  let <_cor19> =
+				%% Line 179
+				call 'erlang':'=='
+				    (Request, [102])
+			    in  let <_cor20> =
+				    %% Line 180
+				    call 'erlang':'=='
+					(Request, [112])
+				in  let <_cor21> =
+					%% Line 179
+					call 'erlang':'or'
+					    (_cor19, _cor20)
+				    in  let <_cor22> =
+					    %% Line 178
+					    call 'erlang':'or'
+						(_cor18, _cor21)
+					in  let <_cor23> =
+						%% Line 177
+						call 'erlang':'or'
+						    (_cor17, _cor22)
+					    in  call 'erlang':'or'
+						    (_cor16, _cor23) ->
+	      %% Line 181
+	      ( case State of
+		  ( <( {'state',_rec4,_cor44}
+		       -| ['compiler_generated'] )> when 'true' ->
+			case apply 'measurement_server_call'/2
+				 (_rec4, Request) of
+			  %% Line 182
+			  <{'error',Reason}> when 'true' ->
+			      let <_rec5> =
+				  %% Line 185
+				  apply 'measurement_server_restart'/1
+				      (_rec4)
+			      in  let <_cor31> =
+				      %% Line 185
+				      call 'erlang':'setelement'
+					  (2, State, _rec5)
+				  in  %% Line 183
+				      {'reply',%% Line 184
+					       {'error',Reason},_cor31}
+			  %% Line 187
+			  <Result> when 'true' ->
+			      {'reply',Result,State}
+			end
+		    -| ['compiler_generated'] )
+		  ( <_cor45> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','state'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  ( <_cor35,_cor34,_cor33> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor35,_cor34,_cor33})
+		  -| [{'function_name',{'handle_call',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'handle_cast'/2 =
+    %% Line 189
+    fun (_cor1,_cor0) ->
+	%% Line 190
+	{'noreply',_cor0}
+'handle_info'/2 =
+    %% Line 191
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <{'EXIT',_X_Port,Reason},State> when 'true' ->
+	      %% Line 192
+	      case State of
+		<{'state',_cor7,_cor8}> when 'true' ->
+		    let <_cor4> =
+			call 'erlang':'setelement'
+			    (2, State, 'not_used')
+		    in  {'stop',{'server_died',Reason},_cor4}
+		( <_cor9> when 'true' ->
+		      ( call ( 'erlang'
+			       -| ['compiler_generated'] ):( 'error'
+							     -| ['compiler_generated'] )
+			    (( {'badrecord','state'}
+			       -| ['compiler_generated'] ))
+			-| ['compiler_generated'] )
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 193
+	  <_X_Info,State> when 'true' ->
+	      %% Line 194
+	      {'noreply',State}
+	end
+'terminate'/2 =
+    %% Line 196
+    fun (_cor1,_cor0) ->
+	%% Line 197
+	( case _cor0 of
+	    ( <( {'state',_rec9,_cor6}
+		 -| ['compiler_generated'] )> when 'true' ->
+		  call 'erlang':'exit'
+		      (_rec9, 'normal')
+	      -| ['compiler_generated'] )
+	    ( <_cor7> when 'true' ->
+		  ( call ( 'erlang'
+			   -| ['compiler_generated'] ):( 'error'
+							 -| ['compiler_generated'] )
+			(( {'badrecord','state'}
+			   -| ['compiler_generated'] ))
+		    -| ['compiler_generated'] )
+	      -| ['compiler_generated'] )
+	  end
+	  -| ['compiler_generated'] )
+'code_change'/3 =
+    %% Line 201
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <Vsn,PrevState,[49|[46|[56]]]> when 'true' ->
+	      do  %% Line 202
+		  case Vsn of
+		    %% Line 205
+		    <{'down',_X_Vsn}> when 'true' ->
+			%% Line 206
+			call 'erlang':'process_flag'
+			    ('trap_exit', 'false')
+		    %% Line 209
+		    <_X_Vsn> when 'true' ->
+			%% Line 210
+			call 'erlang':'process_flag'
+			    ('trap_exit', 'true')
+		  end
+		  %% Line 212
+		  {'ok',PrevState}
+	  %% Line 213
+	  <_X_OldVsn,State,_X_Extra> when 'true' ->
+	      %% Line 214
+	      {'ok',State}
+	end
+'get_uint32_measurement'/2 =
+    %% Line 220
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <Request,{'internal',P,_cor48,{'unix','sunos'}}> when 'true' ->
+	      %% Line 221
+	      apply 'port_server_call'/2
+		  (P, Request)
+	  %% Line 222
+	  <Request,{'internal',_cor49,_cor50,{'unix','linux'}}> when 'true' ->
+	      %% Line 223
+	      case call 'file':'open'
+		       ([47|[112|[114|[111|[99|[47|[108|[111|[97|[100|[97|[118|[103]]]]]]]]]]]]], ['read'|['raw']]) of
+		<{'ok',F}> when 'true' ->
+		    %% Line 224
+		    case call 'file':'read'
+			     (F, 24) of
+		      <{'ok',D}> when 'true' ->
+			  %% Line 225
+			  case call 'file':'close'
+				   (F) of
+			    <'ok'> when 'true' ->
+				%% Line 226
+				case call 'io_lib':'fread'
+					 ([126|[102|[32|[126|[102|[32|[126|[102|[32|[126|[100|[47|[126|[100]]]]]]]]]]]]]], D) of
+				  <{'ok',[Load1|[Load5|[Load15|[_X_PRun|[PTotal|[]]]]]],_cor51}> when 'true' ->
+				      %% Line 227
+				      case Request of
+					%% Line 228
+					<[49]> when 'true' ->
+					    apply 'sunify'/1
+						(Load1)
+					%% Line 229
+					<[53]> when 'true' ->
+					    apply 'sunify'/1
+						(Load5)
+					%% Line 230
+					<[102]> when 'true' ->
+					    apply 'sunify'/1
+						(Load15)
+					%% Line 231
+					<[112]> when 'true' ->
+					    4711
+					%% Line 232
+					<[110]> when 'true' ->
+					    PTotal
+					( <_cor6> when 'true' ->
+					      primop 'match_fail'
+						  ({'case_clause',_cor6})
+					  -| ['compiler_generated'] )
+				      end
+				  ( <_cor5> when 'true' ->
+					primop 'match_fail'
+					    ({'badmatch',_cor5})
+				    -| ['compiler_generated'] )
+				end
+			    ( <_cor4> when 'true' ->
+				  primop 'match_fail'
+				      ({'badmatch',_cor4})
+			      -| ['compiler_generated'] )
+			  end
+		      ( <_cor3> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor3})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor2> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor2})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 234
+	  <Request,{'internal',_cor52,_cor53,{'unix','freebsd'}}> when 'true' ->
+	      let <_cor7> =
+		  %% Line 235
+		  call 'os':'cmd'
+		      ([47|[115|[98|[105|[110|[47|[115|[121|[115|[99|[116|[108|[32|[45|[110|[32|[118|[109|[46|[108|[111|[97|[100|[97|[118|[103]]]]]]]]]]]]]]]]]]]]]]]]]])
+	      in  let <D> =
+		      %% Line 235
+		      call 'erlang':'--'
+			  (_cor7, [10])
+		  in  %% Line 236
+		      case call 'io_lib':'fread'
+			       ([123|[32|[126|[102|[32|[126|[102|[32|[126|[102|[32|[125]]]]]]]]]]]], D) of
+			<{'ok',[Load1|[Load5|[Load15|[]]]],_cor54}> when 'true' ->
+			    %% Line 238
+			    case Request of
+			      %% Line 239
+			      <[49]> when 'true' ->
+				  apply 'sunify'/1
+				      (Load1)
+			      %% Line 240
+			      <[53]> when 'true' ->
+				  apply 'sunify'/1
+				      (Load5)
+			      %% Line 241
+			      <[102]> when 'true' ->
+				  apply 'sunify'/1
+				      (Load15)
+			      %% Line 242
+			      <[112]> when 'true' ->
+				  4711
+			      %% Line 243
+			      <[110]> when 'true' ->
+				  let <Ps> =
+				      %% Line 244
+				      call 'os':'cmd'
+					  ([47|[98|[105|[110|[47|[112|[115|[32|[45|[97|[120|[32|[124|[32|[47|[117|[115|[114|[47|[98|[105|[110|[47|[119|[99|[32|[45|[108]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+				  in  %% Line 245
+				      case call 'io_lib':'fread'
+					       ([126|[100]], Ps) of
+					<{'ok',[N|[]],_cor55}> when 'true' ->
+					    %% Line 246
+					    call 'erlang':'-'
+						(N, 1)
+					( <_cor11> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor11})
+					  -| ['compiler_generated'] )
+				      end
+			      ( <_cor12> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor12})
+				-| ['compiler_generated'] )
+			    end
+			( <_cor9> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor9})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 248
+	  <Request,{'internal',_cor56,_cor57,{'unix','dragonfly'}}> when 'true' ->
+	      let <_cor13> =
+		  %% Line 249
+		  call 'os':'cmd'
+		      ([47|[115|[98|[105|[110|[47|[115|[121|[115|[99|[116|[108|[32|[45|[110|[32|[118|[109|[46|[108|[111|[97|[100|[97|[118|[103]]]]]]]]]]]]]]]]]]]]]]]]]])
+	      in  let <D> =
+		      %% Line 249
+		      call 'erlang':'--'
+			  (_cor13, [10])
+		  in  %% Line 250
+		      case call 'io_lib':'fread'
+			       ([123|[32|[126|[102|[32|[126|[102|[32|[126|[102|[32|[125]]]]]]]]]]]], D) of
+			<{'ok',[Load1|[Load5|[Load15|[]]]],_cor58}> when 'true' ->
+			    %% Line 252
+			    case Request of
+			      %% Line 253
+			      <[49]> when 'true' ->
+				  apply 'sunify'/1
+				      (Load1)
+			      %% Line 254
+			      <[53]> when 'true' ->
+				  apply 'sunify'/1
+				      (Load5)
+			      %% Line 255
+			      <[102]> when 'true' ->
+				  apply 'sunify'/1
+				      (Load15)
+			      %% Line 256
+			      <[112]> when 'true' ->
+				  4711
+			      %% Line 257
+			      <[110]> when 'true' ->
+				  let <Ps> =
+				      %% Line 258
+				      call 'os':'cmd'
+					  ([47|[98|[105|[110|[47|[112|[115|[32|[45|[97|[120|[32|[124|[32|[47|[117|[115|[114|[47|[98|[105|[110|[47|[119|[99|[32|[45|[108]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+				  in  %% Line 259
+				      case call 'io_lib':'fread'
+					       ([126|[100]], Ps) of
+					<{'ok',[N|[]],_cor59}> when 'true' ->
+					    %% Line 260
+					    call 'erlang':'-'
+						(N, 1)
+					( <_cor17> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor17})
+					  -| ['compiler_generated'] )
+				      end
+			      ( <_cor18> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor18})
+				-| ['compiler_generated'] )
+			    end
+			( <_cor15> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor15})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 262
+	  <Request,{'internal',_cor60,_cor61,{'unix','openbsd'}}> when 'true' ->
+	      let <_cor19> =
+		  %% Line 263
+		  call 'os':'cmd'
+		      ([47|[115|[98|[105|[110|[47|[115|[121|[115|[99|[116|[108|[32|[45|[110|[32|[118|[109|[46|[108|[111|[97|[100|[97|[118|[103]]]]]]]]]]]]]]]]]]]]]]]]]])
+	      in  let <D> =
+		      %% Line 263
+		      call 'erlang':'--'
+			  (_cor19, [10])
+		  in  %% Line 264
+		      case call 'io_lib':'fread'
+			       ([126|[102|[32|[126|[102|[32|[126|[102]]]]]]]], D) of
+			<{'ok',[L1|[L5|[L15|[]]]],_cor62}> when 'true' ->
+			    %% Line 265
+			    case Request of
+			      %% Line 266
+			      <[49]> when 'true' ->
+				  apply 'sunify'/1
+				      (L1)
+			      %% Line 267
+			      <[53]> when 'true' ->
+				  apply 'sunify'/1
+				      (L5)
+			      %% Line 268
+			      <[102]> when 'true' ->
+				  apply 'sunify'/1
+				      (L15)
+			      %% Line 269
+			      <[112]> when 'true' ->
+				  4711
+			      %% Line 270
+			      <[110]> when 'true' ->
+				  let <Ps> =
+				      %% Line 271
+				      call 'os':'cmd'
+					  ([47|[98|[105|[110|[47|[112|[115|[32|[45|[97|[120|[32|[124|[32|[47|[117|[115|[114|[47|[98|[105|[110|[47|[119|[99|[32|[45|[108]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+				  in  %% Line 272
+				      case call 'io_lib':'fread'
+					       ([126|[100]], Ps) of
+					<{'ok',[N|[]],_cor63}> when 'true' ->
+					    %% Line 273
+					    call 'erlang':'-'
+						(N, 1)
+					( <_cor23> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor23})
+					  -| ['compiler_generated'] )
+				      end
+			      ( <_cor24> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor24})
+				-| ['compiler_generated'] )
+			    end
+			( <_cor21> when 'true' ->
+			      primop 'match_fail'
+				  ({'badmatch',_cor21})
+			  -| ['compiler_generated'] )
+		      end
+	  %% Line 275
+	  <Request,{'internal',_cor64,_cor65,{'unix','darwin'}}> when 'true' ->
+	      let <_cor25> =
+		  %% Line 277
+		  call 'os':'cmd'
+		      ([76|[65|[78|[71|[61|[67|[32|[76|[67|[95|[65|[76|[76|[61|[67|[32|[117|[112|[116|[105|[109|[101]]]]]]]]]]]]]]]]]]]]]])
+	      in  let <D> =
+		      %% Line 277
+		      call 'erlang':'--'
+			  (_cor25, [10])
+		  in  let <_cor27> =
+			  %% Line 282
+			  call 'lists':'reverse'
+			      (D)
+		      in  let <_cor28> =
+			      %% Line 282
+			      call 'string':'tokens'
+				  (_cor27, [58])
+			  in  let <_cor29> =
+				  %% Line 282
+				  call 'erlang':'hd'
+				      (_cor28)
+			      in  let <Avg> =
+				      %% Line 282
+				      call 'lists':'reverse'
+					  (_cor29)
+				  in  %% Line 283
+				      case call 'io_lib':'fread'
+					       ([126|[102|[32|[126|[102|[32|[126|[102]]]]]]]], Avg) of
+					<{'ok',[L1|[L5|[L15|[]]]],_cor66}> when 'true' ->
+					    %% Line 285
+					    case Request of
+					      %% Line 286
+					      <[49]> when 'true' ->
+						  apply 'sunify'/1
+						      (L1)
+					      %% Line 287
+					      <[53]> when 'true' ->
+						  apply 'sunify'/1
+						      (L5)
+					      %% Line 288
+					      <[102]> when 'true' ->
+						  apply 'sunify'/1
+						      (L15)
+					      %% Line 289
+					      <[112]> when 'true' ->
+						  4711
+					      %% Line 290
+					      <[110]> when 'true' ->
+						  let <Ps> =
+						      %% Line 291
+						      call 'os':'cmd'
+							  ([47|[98|[105|[110|[47|[112|[115|[32|[45|[97|[120|[32|[124|[32|[47|[117|[115|[114|[47|[98|[105|[110|[47|[119|[99|[32|[45|[108]]]]]]]]]]]]]]]]]]]]]]]]]]]])
+						  in  %% Line 292
+						      case call 'io_lib':'fread'
+							       ([126|[100]], Ps) of
+							<{'ok',[N|[]],_cor67}> when 'true' ->
+							    %% Line 293
+							    call 'erlang':'-'
+								(N, 1)
+							( <_cor33> when 'true' ->
+							      primop 'match_fail'
+								  ({'badmatch',_cor33})
+							  -| ['compiler_generated'] )
+						      end
+					      ( <_cor34> when 'true' ->
+						    primop 'match_fail'
+							({'case_clause',_cor34})
+						-| ['compiler_generated'] )
+					    end
+					( <_cor31> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor31})
+					  -| ['compiler_generated'] )
+				      end
+	  %% Line 295
+	  <Request,{'internal',_cor68,_cor69,{'unix',Sys}}>
+	      when let <_cor35> =
+		    call 'erlang':'=:='
+			(Sys, 'irix64')
+		in  let <_cor36> =
+			%% Line 296
+			call 'erlang':'=:='
+			    (Sys, 'irix')
+		    in  call 'erlang':'or'
+			    (_cor35, _cor36) ->
+	      let <_cor37> =
+		  %% Line 299
+		  call 'os':'cmd'
+		      ([117|[112|[116|[105|[109|[101]]]]]])
+	      in  let <D> =
+		      %% Line 299
+		      call 'erlang':'--'
+			  (_cor37, [10])
+		  in  let <_cor39> =
+			  %% Line 300
+			  call 'lists':'reverse'
+			      (D)
+		      in  let <_cor40> =
+			      %% Line 300
+			      call 'string':'tokens'
+				  (_cor39, [58])
+			  in  let <_cor41> =
+				  %% Line 300
+				  call 'erlang':'hd'
+				      (_cor40)
+			      in  let <Avg> =
+				      %% Line 300
+				      call 'lists':'reverse'
+					  (_cor41)
+				  in  %% Line 301
+				      case call 'io_lib':'fread'
+					       ([126|[102|[44|[32|[126|[102|[44|[32|[126|[102]]]]]]]]]], Avg) of
+					<{'ok',[L1|[L5|[L15|[]]]],_cor70}> when 'true' ->
+					    %% Line 302
+					    case Request of
+					      %% Line 303
+					      <[49]> when 'true' ->
+						  apply 'sunify'/1
+						      (L1)
+					      %% Line 304
+					      <[53]> when 'true' ->
+						  apply 'sunify'/1
+						      (L5)
+					      %% Line 305
+					      <[102]> when 'true' ->
+						  apply 'sunify'/1
+						      (L15)
+					      %% Line 306
+					      <[112]> when 'true' ->
+						  4711
+					      %% Line 307
+					      <[110]> when 'true' ->
+						  %% Line 308
+						  case call 'file':'list_dir'
+							   ([47|[112|[114|[111|[99|[47|[112|[105|[110|[102|[111]]]]]]]]]]]) of
+						    <{'ok',ProcList}> when 'true' ->
+							%% Line 309
+							call 'erlang':'length'
+							    (ProcList)
+						    ( <_cor44> when 'true' ->
+							  primop 'match_fail'
+							      ({'badmatch',_cor44})
+						      -| ['compiler_generated'] )
+						  end
+					      ( <_cor45> when 'true' ->
+						    primop 'match_fail'
+							({'case_clause',_cor45})
+						-| ['compiler_generated'] )
+					    end
+					( <_cor43> when 'true' ->
+					      primop 'match_fail'
+						  ({'badmatch',_cor43})
+					  -| ['compiler_generated'] )
+				      end
+	  %% Line 311
+	  <_cor71,_cor72> when 'true' ->
+	      %% Line 312
+	      call 'erlang':'throw'
+		  ('not_implemented')
+	end
+'get_util_measurement'/2 =
+    %% Line 315
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[117],{'internal',P,_cor5,_cor6}> when 'true' ->
+	      %% Line 316
+	      case apply 'port_server_call'/2
+		       (P, [117]) of
+		%% Line 317
+		<{'error',Error}> when 'true' ->
+		    {'error',Error}
+		%% Line 318
+		<NewCpuUtil> when 'true' ->
+		    NewCpuUtil
+	      end
+	  %% Line 320
+	  <_cor7,_cor8> when 'true' ->
+	      %% Line 321
+	      call 'erlang':'throw'
+		  ('not_implemented')
+	end
+'sunify'/1 =
+    %% Line 327
+    fun (_cor0) ->
+	let <_cor1> =
+	    %% Line 328
+	    call 'erlang':'*'
+		(_cor0, 256)
+	in  %% Line 328
+	    call 'erlang':'round'
+		(_cor1)
+'keysearchdelete'/3 =
+    %% Line 332
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_cor8,_cor9,[]> when 'true' ->
+	      %% Line 333
+	      {'false',[]}
+	  %% Line 334
+	  <K,N,[T|Ts]>
+	      when try
+		    let <_cor3> =
+			call 'erlang':'element'
+			    (N, T)
+		    in  call 'erlang':'=='
+			    (_cor3, K)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 335
+	      {{'value',T},Ts}
+	  %% Line 336
+	  <K,N,[T|Ts]> when 'true' ->
+	      %% Line 337
+	      case apply 'keysearchdelete'/3
+		       (K, N, Ts) of
+		<{X,NTs}> when 'true' ->
+		    %% Line 338
+		    {X,[T|NTs]}
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	  ( <_cor7,_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor7,_cor6,_cor5})
+		  -| [{'function_name',{'keysearchdelete',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'cpu_util_diff'/2 =
+    %% Line 347
+    fun (_cor1,_cor0) ->
+	%% Line 348
+	apply 'cpu_util_diff'/3
+	    (_cor1, _cor0, [])
+'cpu_util_diff'/3 =
+    %% Line 350
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <[],[],Acc> when 'true' ->
+	      %% Line 351
+	      Acc
+	  %% Line 352
+	  <[{'cpu_util',Cpu,%% Line 353
+			    NewBusy,%% Line 354
+				    NewNonBusy}|%% Line 354
+						NewCpuUtils],%% Line 355
+							     [{'cpu_util',_cor17,%% Line 356
+										 OldBusy,%% Line 357
+											 OldNonBusy}|%% Line 357
+												     OldCpuUtils],%% Line 358
+														  Acc>
+	      when call 'erlang':'=:='
+		    (_cor17,
+		     %% Line 355
+		     Cpu) ->
+	      %% Line 359
+	      case apply 'state_list_diff'/2
+		       (NewBusy, OldBusy) of
+		<{PreBusy,GotBusy}> when 'true' ->
+		    %% Line 360
+		    case apply 'state_list_diff'/2
+			     (NewNonBusy, OldNonBusy) of
+		      <{NonBusy,GotNonBusy}> when 'true' ->
+			  let <_cor7> =
+			      %% Line 361
+			      ( case GotBusy of
+				  ( <( 'true'
+				       -| ['compiler_generated'] )> when 'true' ->
+					'true'
+				    -| ['compiler_generated'] )
+				  ( <( 'false'
+				       -| ['compiler_generated'] )> when 'true' ->
+					GotNonBusy
+				    -| ['compiler_generated'] )
+				  ( <_cor5> when 'true' ->
+					( call ( 'erlang'
+						 -| ['compiler_generated'] ):( 'error'
+									       -| ['compiler_generated'] )
+					      (( {( 'badarg'
+						    -| ['compiler_generated'] ),_cor5}
+						 -| ['compiler_generated'] ))
+					  -| ['compiler_generated'] )
+				    -| ['compiler_generated'] )
+				end
+				-| ['compiler_generated'] )
+			  in  let <_cor12> =
+				  %% Line 361
+				  case _cor7 of
+				    %% Line 362
+				    <'true'> when 'true' ->
+					%% Line 363
+					PreBusy
+				    %% Line 364
+				    <'false'> when 'true' ->
+					let <_cor10> =
+					    %% Line 369
+					    ( fun (_cor8) ->
+						  case _cor8 of
+						    <{'user',0}> when 'true' ->
+							{'user',1}
+						    %% Line 370
+						    <StateTup = {_cor18,0}> when 'true' ->
+							StateTup
+						    ( <_cor9> when 'true' ->
+							  ( primop 'match_fail'
+								({'function_clause',_cor9})
+							    -| [{'function_name',{'-cpu_util_diff/3-fun-0-',1}}] )
+						      -| ['compiler_generated'] )
+						  end
+					      -| [{'id',{0,0,'-cpu_util_diff/3-fun-0-'}}] )
+					in  %% Line 369
+					    call 'lists':'map'
+						(_cor10, %% Line 372
+							 PreBusy)
+				    ( <_cor11> when 'true' ->
+					  primop 'match_fail'
+					      ({'case_clause',_cor11})
+				      -| ['compiler_generated'] )
+				  end
+			      in  %% Line 374
+				  apply 'cpu_util_diff'/3
+				      (NewCpuUtils, OldCpuUtils, [{'cpu_util',Cpu,_cor12,%% Line 376
+											 NonBusy}|%% Line 377
+												  Acc])
+		      ( <_cor4> when 'true' ->
+			    primop 'match_fail'
+				({'badmatch',_cor4})
+			-| ['compiler_generated'] )
+		    end
+		( <_cor3> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor3})
+		  -| ['compiler_generated'] )
+	      end
+	  %% Line 380
+	  <New = [{'cpu_util',NC,_cor19,_cor20}|_cor21],Old = %% Line 381
+							      [{'cpu_util',OC,_cor22,_cor23}|_cor24],%% Line 382
+												     Acc>
+	      when %% Line 382
+		call 'erlang':'<'
+		    (NC,
+		     OC) ->
+	      %% Line 383
+	      apply 'cpu_util_diff'/3
+		  (New, [{'cpu_util',NC,[],[]}|Old], Acc)
+	  %% Line 384
+	  <New = [{'cpu_util',NC,_cor25,_cor26}|_cor27],[],Acc> when 'true' ->
+	      %% Line 385
+	      apply 'cpu_util_diff'/3
+		  (New, [{'cpu_util',NC,[],[]}|[]], Acc)
+	  %% Line 388
+	  <[{'cpu_util',NC,_cor28,_cor29}|Ns],Old = %% Line 389
+						    [{'cpu_util',OC,_cor30,_cor31}|_cor32],%% Line 390
+											   Acc>
+	      when %% Line 390
+		call 'erlang':'>'
+		    (NC,
+		     OC) ->
+	      %% Line 391
+	      apply 'cpu_util_diff'/3
+		  (Ns, Old, Acc)
+	  %% Line 392
+	  <[],_X_Old,Acc> when 'true' ->
+	      %% Line 393
+	      apply 'cpu_util_diff'/3
+		  ([], [], Acc)
+	  ( <_cor16,_cor15,_cor14> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor16,_cor15,_cor14})
+		  -| [{'function_name',{'cpu_util_diff',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'cpu_util_rel'/4 =
+    %% Line 395
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	let <_cor4> =
+	    %% Line 396
+	    apply 'cpu_util_diff'/2
+		(_cor3, _cor2)
+	in  %% Line 396
+	    apply 'cpu_util_rel'/3
+		(_cor4, _cor1, _cor0)
+'cpu_util_rel'/3 =
+    %% Line 405
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <CUDiff,'false','false'> when 'true' ->
+	      let <_cor12> =
+		  %% Line 406
+		  ( fun (_cor9,_cor8) ->
+			case <_cor9,_cor8> of
+			  <{'cpu_util',_cor20,BusyList,%% Line 407
+						       NonBusyList},%% Line 408
+								    {BusyAcc,TotAcc}> when 'true' ->
+			      let <Busy> =
+				  %% Line 409
+				  apply 'state_list_sum'/1
+				      (BusyList)
+			      in  let <NonBusy> =
+				      %% Line 410
+				      apply 'state_list_sum'/1
+					  (NonBusyList)
+				  in  let <_cor7> =
+					  %% Line 411
+					  call 'erlang':'+'
+					      (BusyAcc, Busy)
+				      in  let <_cor5> =
+					      %% Line 411
+					      call 'erlang':'+'
+						  (TotAcc, Busy)
+					  in  let <_cor6> =
+						  %% Line 411
+						  call 'erlang':'+'
+						      (_cor5, NonBusy)
+					      in  %% Line 411
+						  {_cor7,_cor6}
+			  ( <_cor11,_cor10> when 'true' ->
+				( primop 'match_fail'
+				      ({'function_clause',_cor11,_cor10})
+				  -| [{'function_name',{'-cpu_util_rel/3-fun-0-',2}}] )
+			    -| ['compiler_generated'] )
+			end
+		    -| [{'id',{0,0,'-cpu_util_rel/3-fun-0-'}}] )
+	      in  %% Line 406
+		  case call 'lists':'foldl'
+			   (_cor12, %% Line 413
+				    {0,0}, %% Line 414
+					   CUDiff) of
+		    <{B,T}> when 'true' ->
+			let <_cor14> =
+			    %% Line 415
+			    call 'erlang':'/'
+				(B, T)
+			in  let <BRel> =
+				%% Line 415
+				call 'erlang':'*'
+				    (_cor14, 100)
+			    in  let <_cor16> =
+				    %% Line 416
+				    call 'erlang':'-'
+					(100, BRel)
+				in  %% Line 416
+				    {'all',BRel,_cor16,[]}
+		    ( <_cor13> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor13})
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 417
+	  <CUDiff,'true','false'> when 'true' ->
+	      %% Line 418
+	      apply 'cpu_util_rel_det'/2
+		  (CUDiff, {'cpu_util',[],[],[]})
+	  %% Line 419
+	  <CUDiff,'false','true'> when 'true' ->
+	      %% Line 420
+	      apply 'cpu_util_rel_pcpu'/2
+		  (CUDiff, [])
+	  %% Line 421
+	  <CUDiff,'true','true'> when 'true' ->
+	      %% Line 422
+	      apply 'cpu_util_rel_det_pcpu'/2
+		  (CUDiff, [])
+	  ( <_cor19,_cor18,_cor17> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor19,_cor18,_cor17})
+		  -| [{'function_name',{'cpu_util_rel',3}}] )
+	    -| ['compiler_generated'] )
+	end
+'cpu_util_rel_pcpu'/2 =
+    %% Line 424
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Acc> when 'true' ->
+	      %% Line 425
+	      Acc
+	  %% Line 426
+	  <[{'cpu_util',C,%% Line 427
+			  BusyList,%% Line 428
+				   NonBusyList}|%% Line 428
+						Rest],%% Line 428
+						      Acc> when 'true' ->
+	      let <Busy> =
+		  %% Line 429
+		  apply 'state_list_sum'/1
+		      (BusyList)
+	      in  let <NonBusy> =
+		      %% Line 430
+		      apply 'state_list_sum'/1
+			  (NonBusyList)
+		  in  let <Tot> =
+			  %% Line 431
+			  call 'erlang':'+'
+			      (Busy, NonBusy)
+		      in  let <_cor7> =
+			      %% Line 432
+			      call 'erlang':'/'
+				  (Busy, Tot)
+			  in  let <_cor8> =
+				  %% Line 432
+				  call 'erlang':'*'
+				      (_cor7, 100)
+			      in  let <_cor5> =
+				      %% Line 432
+				      call 'erlang':'/'
+					  (NonBusy, Tot)
+				  in  let <_cor6> =
+					  %% Line 432
+					  call 'erlang':'*'
+					      (_cor5, 100)
+				      in  %% Line 432
+					  apply 'cpu_util_rel_pcpu'/2
+					      (Rest, [{C,_cor8,_cor6,[]}|Acc])
+	  ( <_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9})
+		  -| [{'function_name',{'cpu_util_rel_pcpu',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'cpu_util_rel_det'/2 =
+    %% Line 434
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],{'cpu_util',CpuAcc,%% Line 435
+				 BusyAcc,%% Line 436
+					 NonBusyAcc}> when 'true' ->
+	      let <_cor3> =
+		  %% Line 437
+		  apply 'state_list_sum'/1
+		      (BusyAcc)
+	      in  let <_cor2> =
+		      %% Line 437
+		      apply 'state_list_sum'/1
+			  (NonBusyAcc)
+		  in  let <Total> =
+			  %% Line 437
+			  call 'erlang':'+'
+			      (_cor3, _cor2)
+		      in  let <_cor6> =
+			      %% Line 438
+			      apply 'mk_rel_states'/2
+				  (BusyAcc, Total)
+			  in  let <_cor5> =
+				  %% Line 438
+				  apply 'mk_rel_states'/2
+				      (NonBusyAcc, Total)
+			      in  %% Line 438
+				  {CpuAcc,_cor6,_cor5,[]}
+	  %% Line 439
+	  <[{'cpu_util',Cpu,%% Line 440
+			    Busy,%% Line 441
+				 NonBusy}|%% Line 441
+					  Rest],%% Line 442
+						{'cpu_util',CpuAcc,%% Line 443
+								   BusyAcc,%% Line 444
+									   NonBusyAcc}> when 'true' ->
+	      let <_cor8> =
+		  %% Line 446
+		  apply 'state_list_add'/2
+		      (Busy, %% Line 447
+			     BusyAcc)
+	      in  let <_cor7> =
+		      %% Line 448
+		      apply 'state_list_add'/2
+			  (NonBusy, %% Line 449
+				    NonBusyAcc)
+		  in  %% Line 445
+		      apply 'cpu_util_rel_det'/2
+			  (Rest, {'cpu_util',[Cpu|CpuAcc],_cor8,_cor7})
+	  ( <_cor10,_cor9> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor10,_cor9})
+		  -| [{'function_name',{'cpu_util_rel_det',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'cpu_util_rel_det_pcpu'/2 =
+    %% Line 451
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],Acc> when 'true' ->
+	      %% Line 452
+	      Acc
+	  %% Line 453
+	  <[{'cpu_util',Cpu,%% Line 454
+			    Busy,%% Line 455
+				 NonBusy}|%% Line 455
+					  Rest],%% Line 455
+						Acc> when 'true' ->
+	      let <_cor3> =
+		  %% Line 456
+		  apply 'state_list_sum'/1
+		      (Busy)
+	      in  let <_cor2> =
+		      %% Line 456
+		      apply 'state_list_sum'/1
+			  (NonBusy)
+		  in  let <Total> =
+			  %% Line 456
+			  call 'erlang':'+'
+			      (_cor3, _cor2)
+		      in  let <_cor6> =
+			      %% Line 459
+			      apply 'mk_rel_states'/2
+				  (Busy, Total)
+			  in  let <_cor5> =
+				  %% Line 460
+				  apply 'mk_rel_states'/2
+				      (NonBusy, Total)
+			      in  %% Line 457
+				  apply 'cpu_util_rel_det_pcpu'/2
+				      (Rest, %% Line 458
+					     [{Cpu,_cor6,_cor5,%% Line 461
+							       []}|%% Line 461
+								   Acc])
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7})
+		  -| [{'function_name',{'cpu_util_rel_det_pcpu',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'mk_rel_states'/2 =
+    %% Line 463
+    fun (_cor1,_cor0) ->
+	let <_cor6> =
+	    %% Line 464
+	    ( fun (_cor4) ->
+		  case _cor4 of
+		    <{State,Value}> when 'true' ->
+			let <_cor2> =
+			    call 'erlang':'*'
+				(100, Value)
+			in  let <_cor3> =
+				call 'erlang':'/'
+				    (_cor2, _cor0)
+			    in  {State,_cor3}
+		    ( <_cor5> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor5})
+			    -| [{'function_name',{'-mk_rel_states/2-fun-0-',1}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-mk_rel_states/2-fun-0-'}}] )
+	in  %% Line 464
+	    call 'lists':'map'
+		(_cor6, _cor1)
+'state_list_sum'/1 =
+    %% Line 466
+    fun (_cor0) ->
+	let <_cor5> =
+	    %% Line 467
+	    ( fun (_cor2,_cor1) ->
+		  case <_cor2,_cor1> of
+		    <{_cor7,X},Acc> when 'true' ->
+			call 'erlang':'+'
+			    (Acc, X)
+		    ( <_cor4,_cor3> when 'true' ->
+			  ( primop 'match_fail'
+				({'function_clause',_cor4,_cor3})
+			    -| [{'function_name',{'-state_list_sum/1-fun-0-',2}}] )
+		      -| ['compiler_generated'] )
+		  end
+	      -| [{'id',{0,0,'-state_list_sum/1-fun-0-'}}] )
+	in  %% Line 467
+	    call 'lists':'foldl'
+		(_cor5, 0, _cor0)
+'state_list_diff'/2 =
+    %% Line 469
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],[]> when 'true' ->
+	      %% Line 470
+	      {[],'false'}
+	  %% Line 471
+	  <[{State,ValueNew}|RestNew],[]> when 'true' ->
+	      %% Line 472
+	      apply 'state_list_diff'/2
+		  ([{State,ValueNew}|RestNew], [{State,0}|[]])
+	  %% Line 473
+	  <[{State,ValueNew}|RestNew],[{_cor9,ValueOld}|RestOld]>
+	      when call 'erlang':'=:='
+		    (_cor9,
+		     State) ->
+	      let <ValDiff> =
+		  %% Line 474
+		  apply 'val_diff'/3
+		      (State, ValueNew, ValueOld)
+	      in  %% Line 475
+		  case apply 'state_list_diff'/2
+			   (RestNew, RestOld) of
+		    <{RestStateDiff,FoundDiff}> when 'true' ->
+			let <_cor6> =
+			    %% Line 476
+			    ( case FoundDiff of
+				( <( 'true'
+				     -| ['compiler_generated'] )> when 'true' ->
+				      'true'
+				  -| ['compiler_generated'] )
+				( <( 'false'
+				     -| ['compiler_generated'] )> when 'true' ->
+				      call 'erlang':'/='
+					  (ValDiff, 0)
+				  -| ['compiler_generated'] )
+				( <_cor4> when 'true' ->
+				      ( call ( 'erlang'
+					       -| ['compiler_generated'] ):( 'error'
+									     -| ['compiler_generated'] )
+					    (( {( 'badarg'
+						  -| ['compiler_generated'] ),_cor4}
+					       -| ['compiler_generated'] ))
+					-| ['compiler_generated'] )
+				  -| ['compiler_generated'] )
+			      end
+			      -| ['compiler_generated'] )
+			in  %% Line 476
+			    {[{State,ValDiff}|RestStateDiff],_cor6}
+		    ( <_cor3> when 'true' ->
+			  primop 'match_fail'
+			      ({'badmatch',_cor3})
+		      -| ['compiler_generated'] )
+		  end
+	  ( <_cor8,_cor7> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor8,_cor7})
+		  -| [{'function_name',{'state_list_diff',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'state_list_add'/2 =
+    %% Line 478
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <[],[]> when 'true' ->
+	      %% Line 479
+	      []
+	  %% Line 480
+	  <[{State,ValueA}|RestA],[]> when 'true' ->
+	      let <_cor2> =
+		  %% Line 481
+		  apply 'state_list_add'/2
+		      (RestA, [])
+	      in  %% Line 481
+		  [{State,ValueA}|_cor2]
+	  %% Line 482
+	  <[{State,ValueA}|RestA],[{_cor7,ValueB}|RestB]>
+	      when call 'erlang':'=:='
+		    (_cor7,
+		     State) ->
+	      let <_cor3> =
+		  %% Line 483
+		  call 'erlang':'+'
+		      (ValueA, ValueB)
+	      in  let <_cor4> =
+		      %% Line 483
+		      apply 'state_list_add'/2
+			  (RestA, RestB)
+		  in  %% Line 483
+		      [{State,_cor3}|_cor4]
+	  ( <_cor6,_cor5> when 'true' ->
+		( primop 'match_fail'
+		      ({'function_clause',_cor6,_cor5})
+		  -| [{'function_name',{'state_list_add',2}}] )
+	    -| ['compiler_generated'] )
+	end
+'one_step_backwards'/3 =
+    %% Line 485
+    fun (_cor2,_cor1,_cor0) ->
+	%% Line 486
+	case call 'os':'type'
+		 () of
+	  %% Line 487
+	  <{'unix','linux'}> when 'true' ->
+	      %% Line 491
+	      0
+	  %% Line 492
+	  <_cor7> when 'true' ->
+	      %% Line 493
+	      apply 'val_diff2'/3
+		  (_cor2, _cor1, _cor0)
+	end
+'val_diff'/3 =
+    %% Line 496
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <State,New,Old>
+	      when try
+		    let <_cor3> =
+			call 'erlang':'-'
+			    (Old, 1)
+		    in  call 'erlang':'=='
+			    (New, _cor3)
+		of <Try> ->
+		    Try
+		catch <T,R> ->
+		    'false' ->
+	      %% Line 497
+	      apply 'one_step_backwards'/3
+		  (State, New, Old)
+	  %% Line 498
+	  <State,4294967295,0> when 'true' ->
+	      %% Line 499
+	      apply 'one_step_backwards'/3
+		  (State, 4294967295, 0)
+	  %% Line 500
+	  <State,New,Old> when 'true' ->
+	      %% Line 501
+	      apply 'val_diff2'/3
+		  (State, New, Old)
+	end
+'val_diff2'/3 =
+    %% Line 503
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <State,New,Old>
+	      when let <_cor5> =
+		    call 'erlang':'>'
+			(New, 4294967295)
+		in  let <_cor8> =
+			call 'erlang':'>'
+			    (Old, 4294967295)
+		    in  call 'erlang':'or'
+			    (_cor5, _cor8) ->
+	      let <_cor9> =
+		  %% Line 505
+		  call 'erlang':'-'
+		      (New, Old)
+	      in  %% Line 505
+		  apply 'ensure_positive_diff'/2
+		      (State, _cor9)
+	  %% Line 506
+	  <State,New,Old>
+	      when call 'erlang':'<'
+		    (New,
+		     Old) ->
+	      let <_cor13> =
+		  %% Line 508
+		  call 'erlang':'+'
+		      (4294967296, New)
+	      in  let <_cor14> =
+		      %% Line 508
+		      call 'erlang':'-'
+			  (_cor13, Old)
+		  in  %% Line 508
+		      apply 'ensure_positive_diff'/2
+			  (State, _cor14)
+	  %% Line 509
+	  <_X_State,New,Old> when 'true' ->
+	      %% Line 510
+	      call 'erlang':'-'
+		  (New, Old)
+	end
+'ensure_positive_diff'/2 =
+    %% Line 512
+    fun (_cor1,_cor0) ->
+	case <_cor1,_cor0> of
+	  <_X_State,Diff>
+	      when call 'erlang':'>='
+		    (Diff,
+		     0) ->
+	      %% Line 513
+	      Diff
+	  %% Line 514
+	  <State,Diff> when 'true' ->
+	      %% Line 515
+	      call 'erlang':'throw'
+		  ({'error',{'negative_diff',State,Diff}})
+	end
+'measurement_server_call'/2 =
+    %% Line 524
+    fun (_cor1,_cor0) ->
+	let <_cor3> =
+	    %% Line 526
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 526
+		call 'erlang':'!'
+		    (_cor1, {_cor3,_cor0})
+		%% Line 527
+		receive
+		  %% Line 528
+		  <{'data',Data}> when 'true' ->
+		      Data
+		after 5000 ->
+		  %% Line 530
+		  {'error','timeout'}
+'measurement_server_restart'/1 =
+    %% Line 533
+    fun (_cor0) ->
+	do  %% Line 534
+	    call 'erlang':'exit'
+		(_cor0, 'kill')
+	    %% Line 535
+	    apply 'measurement_server_start'/0
+		()
+'measurement_server_start'/0 =
+    %% Line 537
+    fun () ->
+	let <_cor0> =
+	    %% Line 538
+	    ( fun () ->
+		  apply 'measurement_server_init'/0
+		      ()
+	      -| [{'id',{0,0,'-measurement_server_start/0-fun-0-'}}] )
+	in  %% Line 538
+	    call 'erlang':'spawn'
+		(_cor0)
+'measurement_server_init'/0 =
+    %% Line 540
+    fun () ->
+	do  %% Line 541
+	    call 'erlang':'process_flag'
+		('trap_exit', 'true')
+	    let <OS> =
+		%% Line 542
+		call 'os':'type'
+		    ()
+	    in  let <_cor14> =
+		    %% Line 543
+		    case OS of
+		      %% Line 544
+		      <{'unix',Flavor}>
+			  when let <_cor1> =
+				call 'erlang':'=:='
+				    (Flavor, 'sunos')
+			    in  let <_cor2> =
+				    %% Line 545
+				    call 'erlang':'=:='
+					(Flavor, 'linux')
+				in  call 'erlang':'or'
+					(_cor1, _cor2) ->
+			  %% Line 546
+			  apply 'port_server_start'/0
+			      ()
+		      %% Line 547
+		      <{'unix',Flavor}>
+			  when let <_cor3> =
+				call 'erlang':'=:='
+				    (Flavor, 'darwin')
+			    in  let <_cor4> =
+				    %% Line 548
+				    call 'erlang':'=:='
+					(Flavor, 'freebsd')
+				in  let <_cor5> =
+					%% Line 549
+					call 'erlang':'=:='
+					    (Flavor, 'dragonfly')
+				    in  let <_cor6> =
+					    %% Line 550
+					    call 'erlang':'=:='
+						(Flavor, 'openbsd')
+					in  let <_cor7> =
+						%% Line 551
+						call 'erlang':'=:='
+						    (Flavor, 'irix64')
+					    in  let <_cor8> =
+						    %% Line 552
+						    call 'erlang':'=:='
+							(Flavor, 'irix')
+						in  let <_cor9> =
+							%% Line 551
+							call 'erlang':'or'
+							    (_cor7, _cor8)
+						    in  let <_cor10> =
+							    %% Line 550
+							    call 'erlang':'or'
+								(_cor6, _cor9)
+							in  let <_cor11> =
+								%% Line 549
+								call 'erlang':'or'
+								    (_cor5, _cor10)
+							    in  let <_cor12> =
+								    %% Line 548
+								    call 'erlang':'or'
+									(_cor4, _cor11)
+								in  call 'erlang':'or'
+									(_cor3, _cor12) ->
+			  %% Line 553
+			  'not_used'
+		      %% Line 554
+		      <_cor16> when 'true' ->
+			  %% Line 555
+			  call 'erlang':'exit'
+			      ({'unsupported_os',OS})
+		    end
+		in  %% Line 557
+		    apply 'measurement_server_loop'/1
+			({'internal',_cor14,[],OS})
+'measurement_server_loop'/1 =
+    %% Line 559
+    fun (_cor0) ->
+	%% Line 560
+	receive
+	  %% Line 561
+	  <{_cor42,'quit'}> when 'true' ->
+	      %% Line 562
+	      ( case _cor0 of
+		  ( <( {'internal',_rec10,_cor43,_cor44}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_cor1> =
+			    call 'erlang':'self'
+				()
+			in  do  call 'erlang':'!'
+				    (_rec10, {_cor1,[113]})
+				%% Line 563
+				'ok'
+		    -| ['compiler_generated'] )
+		  ( <_cor45> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','internal'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 564
+	  <{'DOWN',Monitor,'process',_cor46,_cor47}> when 'true' ->
+	      %% Line 568
+	      ( case _cor0 of
+		  ( <( {'internal',_cor48,_rec13,_cor49}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <_rec11> =
+			    call 'lists':'keydelete'
+				(Monitor, 2, _rec13)
+			in  let <_cor9> =
+				call 'erlang':'setelement'
+				    (3, _cor0, _rec11)
+			    in  apply 'measurement_server_loop'/1
+				    (_cor9)
+		    -| ['compiler_generated'] )
+		  ( <_cor50> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','internal'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 569
+	  <{Pid,{[117],D,PC,Client}}> when 'true' ->
+	      %% Line 570
+	      ( case _cor0 of
+		  ( <( {'internal',_cor55,_rec14,_cor56}
+		       -| ['compiler_generated'] )> when 'true' ->
+			let <Monitor,OldCpuUtil,Utils2> =
+			    case apply 'keysearchdelete'/3
+				     (Client, 1, _rec14) of
+			      %% Line 571
+			      <{{'value',{_cor58,Mon,U}},Us}>
+				  when call 'erlang':'=:='
+					(_cor58,
+					 Client) ->
+				  <Mon,U,Us>
+			      %% Line 572
+			      <{'false',Us}> when 'true' ->
+				  let <_cor12> =
+				      call 'erlang':'monitor'
+					  ('process', Client)
+				  in  <_cor12,[],Us>
+			      ( <_cor13> when 'true' ->
+				    primop 'match_fail'
+					({'case_clause',_cor13})
+				-| ['compiler_generated'] )
+			    end
+			in  %% Line 574
+			    try
+				apply 'get_util_measurement'/2
+				    ([117], _cor0)
+			    of <_cor16> ->
+				let <Result> =
+				    %% Line 576
+				    apply 'cpu_util_rel'/4
+					(_cor16, OldCpuUtil, D, PC)
+				in  do  %% Line 577
+					call 'erlang':'!'
+					    (Pid, {'data',Result})
+					let <_rec15> =
+					    %% Line 578
+					    [{Client,Monitor,_cor16}|Utils2]
+					in  let <_cor21> =
+						%% Line 578
+						call 'erlang':'setelement'
+						    (3, _cor0, _rec15)
+					    in  %% Line 578
+						apply 'measurement_server_loop'/1
+						    (_cor21)
+			    catch <_cor25,_cor24,_cor23> ->
+				case <_cor25,_cor24,_cor23> of
+				  %% Line 580
+				  <'throw',Error,_cor63> when 'true' ->
+				      do  %% Line 581
+					  call 'erlang':'!'
+					      (Pid, {'error',Error})
+					  %% Line 582
+					  apply 'measurement_server_loop'/1
+					      (_cor0)
+				  ( <_cor25,_cor24,_cor23> when 'true' ->
+					primop 'raise'
+					    (_cor23, _cor24)
+				    -| ['compiler_generated'] )
+				end
+		    -| ['compiler_generated'] )
+		  ( <_cor57> when 'true' ->
+			( call ( 'erlang'
+				 -| ['compiler_generated'] ):( 'error'
+							       -| ['compiler_generated'] )
+			      (( {'badrecord','internal'}
+				 -| ['compiler_generated'] ))
+			  -| ['compiler_generated'] )
+		    -| ['compiler_generated'] )
+		end
+		-| ['compiler_generated'] )
+	  %% Line 584
+	  <{Pid,Request}> when 'true' ->
+	      do  %% Line 585
+		  try
+		      apply 'get_uint32_measurement'/2
+			  (Request, _cor0)
+		  of <_cor26> ->
+		      %% Line 586
+		      call 'erlang':'!'
+			  (Pid, {'data',_cor26})
+		  catch <_cor30,_cor29,_cor28> ->
+		      case <_cor30,_cor29,_cor28> of
+			%% Line 588
+			<'throw',Error,_cor64> when 'true' ->
+			    call 'erlang':'!'
+				(Pid, {'error',Error})
+			( <_cor30,_cor29,_cor28> when 'true' ->
+			      primop 'raise'
+				  (_cor28, _cor29)
+			  -| ['compiler_generated'] )
+		      end
+		  %% Line 590
+		  apply 'measurement_server_loop'/1
+		      (_cor0)
+	  %% Line 591
+	  <{'EXIT',Pid,_X_n}>
+	      when ( try
+		      ( case <> of
+			  ( <>
+				when ( call ( 'erlang'
+					   -| ['compiler_generated'] ):( 'is_record'
+									 -| ['compiler_generated'] )
+					(_cor0,
+					 ( 'internal'
+					   -| ['compiler_generated'] ),
+					 ( 4
+					   -| ['compiler_generated'] ))
+				    -| ['compiler_generated'] ) ->
+				let <_cor35> =
+				    ( call 'erlang':'element'
+					  (2, _cor0)
+				      -| ['compiler_generated'] )
+				in  ( call 'erlang':'=='
+					  (_cor35, Pid)
+				      -| ['compiler_generated'] )
+			    -| ['compiler_generated'] )
+			  ( <> when 'true' ->
+				'false'
+			    -| ['compiler_generated'] )
+			end
+			-| ['compiler_generated'] )
+		  of <Try> ->
+		      Try
+		  catch <T,R> ->
+		      'false'
+		  -| ['compiler_generated'] ) ->
+	      let <_rec17> =
+		  %% Line 592
+		  apply 'port_server_start'/0
+		      ()
+	      in  %% Line 592
+		  case _cor0 of
+		    <{'internal',_cor65,_cor66,_cor67}> when 'true' ->
+			let <_cor40> =
+			    call 'erlang':'setelement'
+				(2, _cor0, _rec17)
+			in  apply 'measurement_server_loop'/1
+				(_cor40)
+		    ( <_cor68> when 'true' ->
+			  ( call ( 'erlang'
+				   -| ['compiler_generated'] ):( 'error'
+								 -| ['compiler_generated'] )
+				(( {'badrecord','internal'}
+				   -| ['compiler_generated'] ))
+			    -| ['compiler_generated'] )
+		      -| ['compiler_generated'] )
+		  end
+	  %% Line 593
+	  <_X_Other> when 'true' ->
+	      %% Line 594
+	      apply 'measurement_server_loop'/1
+		  (_cor0)
+	after 'infinity' ->
+	  'true'
+'port_server_call'/2 =
+    %% Line 601
+    fun (_cor1,_cor0) ->
+	let <_cor2> =
+	    %% Line 602
+	    call 'erlang':'self'
+		()
+	in  do  %% Line 602
+		call 'erlang':'!'
+		    (_cor1, {_cor2,_cor0})
+		%% Line 603
+		receive
+		  %% Line 604
+		  <{_cor5,{'data',Result}}>
+		      when call 'erlang':'=:='
+			    (_cor5,
+			     _cor1) ->
+		      Result
+		  %% Line 605
+		  <{_cor6,{'error',Reason}}>
+		      when call 'erlang':'=:='
+			    (_cor6,
+			     _cor1) ->
+		      {'error',Reason}
+		after 'infinity' ->
+		  'true'
+'port_server_start'/0 =
+    %% Line 608
+    fun () ->
+	let <_cor1> =
+	    %% Line 610
+	    ( fun () ->
+		  apply 'port_server_init'/1
+		      (6000)
+	      -| [{'id',{0,0,'-port_server_start/0-fun-0-'}}] )
+	in  let <Pid> =
+		%% Line 610
+		call 'erlang':'spawn_link'
+		    (_cor1)
+	    in  let <_cor3> =
+		    %% Line 611
+		    call 'erlang':'self'
+			()
+		in  do  %% Line 611
+			call 'erlang':'!'
+			    (Pid, {_cor3,[112]})
+			%% Line 612
+			receive
+			  %% Line 613
+			  <{_cor4,{'data',4711}}>
+			      when call 'erlang':'=:='
+				    (_cor4,
+				     Pid) ->
+			      Pid
+			  %% Line 614
+			  <{'error',Reason}> when 'true' ->
+			      {'error',Reason}
+			after 6000 ->
+			  %% Line 616
+			  {'error','timeout'}
+'port_server_init'/1 =
+    %% Line 619
+    fun (_cor0) ->
+	let <Port> =
+	    %% Line 620
+	    apply 'start_portprogram'/0
+		()
+	in  %% Line 621
+	    apply 'port_server_loop'/2
+		(Port, _cor0)
+'port_server_loop'/2 =
+    %% Line 623
+    fun (_cor1,_cor0) ->
+	%% Line 624
+	receive
+	  %% Line 627
+	  <{Pid,{'timeout',_cor17}}>
+	      when call 'erlang':'=:='
+		    (_cor17,
+		     _cor0) ->
+	      do  %% Line 628
+		  call 'erlang':'!'
+		      (Pid, {'data',_cor0})
+		  %% Line 629
+		  apply 'port_server_loop'/2
+		      (_cor1, _cor0)
+	  %% Line 631
+	  <{Pid,[110]}> when 'true' ->
+	      do  %% Line 632
+		  call 'erlang':'port_command'
+		      (_cor1, [110])
+		  let <Result> =
+		      %% Line 633
+		      apply 'port_receive_uint32'/2
+			  (_cor1, _cor0)
+		  in  let <_cor3> =
+			  %% Line 634
+			  call 'erlang':'self'
+			      ()
+		      in  do  %% Line 634
+			      call 'erlang':'!'
+				  (Pid, {_cor3,{'data',Result}})
+			      %% Line 635
+			      apply 'port_server_loop'/2
+				  (_cor1, _cor0)
+	  %% Line 638
+	  <{Pid,[49]}> when 'true' ->
+	      do  %% Line 639
+		  call 'erlang':'port_command'
+		      (_cor1, [49])
+		  let <Result> =
+		      %% Line 640
+		      apply 'port_receive_uint32'/2
+			  (_cor1, _cor0)
+		  in  let <_cor5> =
+			  %% Line 641
+			  call 'erlang':'self'
+			      ()
+		      in  do  %% Line 641
+			      call 'erlang':'!'
+				  (Pid, {_cor5,{'data',Result}})
+			      %% Line 642
+			      apply 'port_server_loop'/2
+				  (_cor1, _cor0)
+	  %% Line 645
+	  <{Pid,[53]}> when 'true' ->
+	      do  %% Line 646
+		  call 'erlang':'port_command'
+		      (_cor1, [53])
+		  let <Result> =
+		      %% Line 647
+		      apply 'port_receive_uint32'/2
+			  (_cor1, _cor0)
+		  in  let <_cor7> =
+			  %% Line 648
+			  call 'erlang':'self'
+			      ()
+		      in  do  %% Line 648
+			      call 'erlang':'!'
+				  (Pid, {_cor7,{'data',Result}})
+			      %% Line 649
+			      apply 'port_server_loop'/2
+				  (_cor1, _cor0)
+	  %% Line 652
+	  <{Pid,[102]}> when 'true' ->
+	      do  %% Line 653
+		  call 'erlang':'port_command'
+		      (_cor1, [102])
+		  let <Result> =
+		      %% Line 654
+		      apply 'port_receive_uint32'/2
+			  (_cor1, _cor0)
+		  in  let <_cor9> =
+			  %% Line 655
+			  call 'erlang':'self'
+			      ()
+		      in  do  %% Line 655
+			      call 'erlang':'!'
+				  (Pid, {_cor9,{'data',Result}})
+			      %% Line 656
+			      apply 'port_server_loop'/2
+				  (_cor1, _cor0)
+	  %% Line 658
+	  <{Pid,[117]}> when 'true' ->
+	      do  %% Line 659
+		  call 'erlang':'port_command'
+		      (_cor1, [117])
+		  let <Result> =
+		      %% Line 660
+		      apply 'port_receive_util'/2
+			  (_cor1, _cor0)
+		  in  let <_cor11> =
+			  %% Line 661
+			  call 'erlang':'self'
+			      ()
+		      in  do  %% Line 661
+			      call 'erlang':'!'
+				  (Pid, {_cor11,{'data',Result}})
+			      %% Line 662
+			      apply 'port_server_loop'/2
+				  (_cor1, _cor0)
+	  %% Line 665
+	  <{Pid,[112]}> when 'true' ->
+	      do  %% Line 666
+		  call 'erlang':'port_command'
+		      (_cor1, [112])
+		  let <Result> =
+		      %% Line 667
+		      apply 'port_receive_uint32'/2
+			  (_cor1, _cor0)
+		  in  let <_cor13> =
+			  %% Line 668
+			  call 'erlang':'self'
+			      ()
+		      in  do  %% Line 668
+			      call 'erlang':'!'
+				  (Pid, {_cor13,{'data',Result}})
+			      %% Line 669
+			      apply 'port_server_loop'/2
+				  (_cor1, _cor0)
+	  %% Line 672
+	  <{Pid,[113]}> when 'true' ->
+	      do  %% Line 673
+		  call 'erlang':'port_command'
+		      (_cor1, [113])
+		  do  %% Line 674
+		      call 'erlang':'port_close'
+			  (_cor1)
+		      let <_cor14> =
+			  %% Line 675
+			  call 'erlang':'self'
+			      ()
+		      in  do  %% Line 675
+			      call 'erlang':'!'
+				  (Pid, {_cor14,{'data','quit'}})
+			      %% Line 676
+			      'ok'
+	  %% Line 679
+	  <_cor18> when 'true' ->
+	      apply 'port_server_loop'/2
+		  (_cor1, _cor0)
+	after 'infinity' ->
+	  'true'
+'port_receive_uint32'/2 =
+    %% Line 682
+    fun (_cor1,_cor0) ->
+	apply 'port_receive_uint32'/3
+	    (_cor1, _cor0, [])
+'port_receive_uint32'/3 =
+    %% Line 683
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <_X_Port,_X_Timeout,[D3|[D2|[D1|[D0|[]]]]]> when 'true' ->
+	      let <_cor5> =
+		  call 'erlang':'bsl'
+		      (D3, 24)
+	      in  let <_cor4> =
+		      call 'erlang':'bsl'
+			  (D2, 16)
+		  in  let <_cor6> =
+			  call 'erlang':'bor'
+			      (_cor5, _cor4)
+		      in  let <_cor3> =
+			      call 'erlang':'bsl'
+				  (D1, 8)
+			  in  let <_cor7> =
+				  call 'erlang':'bor'
+				      (_cor6, _cor3)
+			      in  call 'erlang':'bor'
+				      (_cor7, D0)
+	  %% Line 684
+	  <_X_Port,_X_Timeout,[_cor12|[_cor13|[_cor14|[_cor15|G]]]]> when 'true' ->
+	      call 'erlang':'exit'
+		  ({'port_garbage',G})
+	  %% Line 685
+	  <Port,Timeout,D> when 'true' ->
+	      %% Line 686
+	      receive
+		%% Line 687
+		<{'EXIT',_cor16,Reason}>
+		    when call 'erlang':'=:='
+			  (_cor16,
+			   Port) ->
+		    call 'erlang':'exit'
+			({'port_exit',Reason})
+		%% Line 688
+		<{_cor17,{'data',ND}}>
+		    when call 'erlang':'=:='
+			  (_cor17,
+			   Port) ->
+		    let <_cor8> =
+			call 'erlang':'++'
+			    (D, ND)
+		    in  apply 'port_receive_uint32'/3
+			    (Port, Timeout, _cor8)
+	      after %% Line 689
+		    Timeout ->
+		%% Line 689
+		call 'erlang':'exit'
+		    ('timeout_uint32')
+	end
+'port_receive_util'/2 =
+    %% Line 691
+    fun (_cor1,_cor0) ->
+	%% Line 692
+	receive
+	  %% Line 693
+	  <{_cor16,{'data',[NP3|[NP2|[NP1|[NP0|%% Line 694
+					       [NE3|[NE2|[NE1|[NE0|%% Line 695
+								   CpuData]]]]]]]]}}>
+	      when call 'erlang':'=:='
+		    (_cor16,
+		     _cor1) ->
+	      let <_cor10> =
+		  %% Line 696
+		  call 'erlang':'bsl'
+		      (NP3, 24)
+	      in  let <_cor9> =
+		      %% Line 696
+		      call 'erlang':'bsl'
+			  (NP2, 16)
+		  in  let <_cor11> =
+			  %% Line 696
+			  call 'erlang':'bor'
+			      (_cor10, _cor9)
+		      in  let <_cor8> =
+			      %% Line 696
+			      call 'erlang':'bsl'
+				  (NP1, 8)
+			  in  let <_cor12> =
+				  %% Line 696
+				  call 'erlang':'bor'
+				      (_cor11, _cor8)
+			      in  let <_cor13> =
+				      %% Line 696
+				      call 'erlang':'bor'
+					  (_cor12, NP0)
+				  in  let <_cor4> =
+					  %% Line 697
+					  call 'erlang':'bsl'
+					      (NE3, 24)
+				      in  let <_cor3> =
+					      %% Line 697
+					      call 'erlang':'bsl'
+						  (NE2, 16)
+					  in  let <_cor5> =
+						  %% Line 697
+						  call 'erlang':'bor'
+						      (_cor4, _cor3)
+					      in  let <_cor2> =
+						      %% Line 697
+						      call 'erlang':'bsl'
+							  (NE1, 8)
+						  in  let <_cor6> =
+							  %% Line 697
+							  call 'erlang':'bor'
+							      (_cor5, _cor2)
+						      in  let <_cor7> =
+							      %% Line 697
+							      call 'erlang':'bor'
+								  (_cor6, NE0)
+							  in  %% Line 696
+							      apply 'port_receive_cpu_util'/4
+								  (_cor13, _cor7, %% Line 698
+										  CpuData, %% Line 698
+											   [])
+	  %% Line 699
+	  <{'EXIT',_cor17,Reason}>
+	      when call 'erlang':'=:='
+		    (_cor17,
+		     _cor1) ->
+	      call 'erlang':'exit'
+		  ({'port_exit',Reason})
+	after _cor0 ->
+	  %% Line 700
+	  call 'erlang':'exit'
+	      ('timeout_util')
+'port_receive_cpu_util'/4 =
+    %% Line 703
+    fun (_cor3,_cor2,_cor1,_cor0) ->
+	case <_cor3,_cor2,_cor1,_cor0> of
+	  <0,_X_NE,[],CpuList> when 'true' ->
+	      %% Line 705
+	      call 'lists':'reverse'
+		  (CpuList)
+	  %% Line 706
+	  <0,_X_NE,Garbage,_cor10> when 'true' ->
+	      %% Line 707
+	      call 'erlang':'exit'
+		  ({'port_garbage',Garbage})
+	  %% Line 708
+	  <NP,NE,CpuData,CpuList> when 'true' ->
+	      %% Line 709
+	      case apply 'port_receive_cpu_util_entries'/3
+		       (NE, {'cpu_util','undefined',[],[]}, CpuData) of
+		<{CpuUtil,Rest}> when 'true' ->
+		    let <_cor5> =
+			%% Line 710
+			call 'erlang':'-'
+			    (NP, 1)
+		    in  %% Line 710
+			apply 'port_receive_cpu_util'/4
+			    (_cor5, NE, Rest, [CpuUtil|CpuList])
+		( <_cor4> when 'true' ->
+		      primop 'match_fail'
+			  ({'badmatch',_cor4})
+		  -| ['compiler_generated'] )
+	      end
+	end
+'port_receive_cpu_util_entries'/3 =
+    %% Line 713
+    fun (_cor2,_cor1,_cor0) ->
+	case <_cor2,_cor1,_cor0> of
+	  <0,CU,Rest> when 'true' ->
+	      %% Line 714
+	      {CU,Rest}
+	  %% Line 715
+	  <NE,CU,%% Line 716
+		 [CID3|[CID2|[CID1|[CID0|%% Line 717
+					 [Val3|[Val2|[Val1|[Val0|%% Line 718
+								 CpuData]]]]]]]]> when 'true' ->
+	      let <_cor5> =
+		  %% Line 720
+		  call 'erlang':'bsl'
+		      (CID3, 24)
+	      in  let <_cor4> =
+		      %% Line 720
+		      call 'erlang':'bsl'
+			  (CID2, 16)
+		  in  let <_cor6> =
+			  %% Line 720
+			  call 'erlang':'bor'
+			      (_cor5, _cor4)
+		      in  let <_cor3> =
+			      %% Line 720
+			      call 'erlang':'bsl'
+				  (CID1, 8)
+			  in  let <_cor7> =
+				  %% Line 720
+				  call 'erlang':'bor'
+				      (_cor6, _cor3)
+			      in  let <TagId> =
+				      %% Line 720
+				      call 'erlang':'bor'
+					  (_cor7, CID0)
+				  in  let <_cor11> =
+					  %% Line 721
+					  call 'erlang':'bsl'
+					      (Val3, 24)
+				      in  let <_cor10> =
+					      %% Line 721
+					      call 'erlang':'bsl'
+						  (Val2, 16)
+					  in  let <_cor12> =
+						  %% Line 721
+						  call 'erlang':'bor'
+						      (_cor11, _cor10)
+					      in  let <_cor9> =
+						      %% Line 721
+						      call 'erlang':'bsl'
+							  (Val1, 8)
+						  in  let <_cor13> =
+							  %% Line 721
+							  call 'erlang':'bor'
+							      (_cor12, _cor9)
+						      in  let <Value> =
+							      %% Line 721
+							      call 'erlang':'bor'
+								  (_cor13, Val0)
+							  in  %% Line 724
+							      case TagId of
+								%% Line 725
+								<0> when 'true' ->
+								    %% Line 726
+								    case CU of
+								      <{'cpu_util',_cor88,_cor89,_cor90}> when 'true' ->
+									  let <_cor17> =
+									      call 'erlang':'setelement'
+										  (2, CU, Value)
+									  in  let <_cor19> =
+										  %% Line 727
+										  call 'erlang':'-'
+										      (NE, 1)
+									      in  %% Line 727
+										  apply 'port_receive_cpu_util_entries'/3
+										      (_cor19, _cor17, CpuData)
+								      ( <_cor91> when 'true' ->
+									    ( call ( 'erlang'
+										     -| ['compiler_generated'] ):( 'error'
+														   -| ['compiler_generated'] )
+										  (( {'badrecord','cpu_util'}
+										     -| ['compiler_generated'] ))
+									      -| ['compiler_generated'] )
+									-| ['compiler_generated'] )
+								    end
+								%% Line 728
+								<1> when 'true' ->
+								    %% Line 730
+								    ( case CU of
+									( <( {'cpu_util',_cor92,_rec22,_cor93}
+									     -| ['compiler_generated'] )> when 'true' ->
+									      let <_rec20> =
+										  [{'user',Value}|_rec22]
+									      in  let <_cor25> =
+										      call 'erlang':'setelement'
+											  (3, CU, _rec20)
+										  in  let <_cor27> =
+											  %% Line 731
+											  call 'erlang':'-'
+											      (NE, 1)
+										      in  %% Line 731
+											  apply 'port_receive_cpu_util_entries'/3
+											      (_cor27, _cor25, CpuData)
+									  -| ['compiler_generated'] )
+									( <_cor94> when 'true' ->
+									      ( call ( 'erlang'
+										       -| ['compiler_generated'] ):( 'error'
+														     -| ['compiler_generated'] )
+										    (( {'badrecord','cpu_util'}
+										       -| ['compiler_generated'] ))
+										-| ['compiler_generated'] )
+									  -| ['compiler_generated'] )
+								      end
+								      -| ['compiler_generated'] )
+								%% Line 732
+								<2> when 'true' ->
+								    %% Line 734
+								    ( case CU of
+									( <( {'cpu_util',_cor99,_rec25,_cor100}
+									     -| ['compiler_generated'] )> when 'true' ->
+									      let <_rec23> =
+										  [{'nice_user',Value}|_rec25]
+									      in  let <_cor33> =
+										      call 'erlang':'setelement'
+											  (3, CU, _rec23)
+										  in  let <_cor35> =
+											  %% Line 735
+											  call 'erlang':'-'
+											      (NE, 1)
+										      in  %% Line 735
+											  apply 'port_receive_cpu_util_entries'/3
+											      (_cor35, _cor33, CpuData)
+									  -| ['compiler_generated'] )
+									( <_cor101> when 'true' ->
+									      ( call ( 'erlang'
+										       -| ['compiler_generated'] ):( 'error'
+														     -| ['compiler_generated'] )
+										    (( {'badrecord','cpu_util'}
+										       -| ['compiler_generated'] ))
+										-| ['compiler_generated'] )
+									  -| ['compiler_generated'] )
+								      end
+								      -| ['compiler_generated'] )
+								%% Line 736
+								<3> when 'true' ->
+								    %% Line 738
+								    ( case CU of
+									( <( {'cpu_util',_cor106,_rec28,_cor107}
+									     -| ['compiler_generated'] )> when 'true' ->
+									      let <_rec26> =
+										  [{'kernel',Value}|_rec28]
+									      in  let <_cor41> =
+										      call 'erlang':'setelement'
+											  (3, CU, _rec26)
+										  in  let <_cor43> =
+											  %% Line 739
+											  call 'erlang':'-'
+											      (NE, 1)
+										      in  %% Line 739
+											  apply 'port_receive_cpu_util_entries'/3
+											      (_cor43, _cor41, CpuData)
+									  -| ['compiler_generated'] )
+									( <_cor108> when 'true' ->
+									      ( call ( 'erlang'
+										       -| ['compiler_generated'] ):( 'error'
+														     -| ['compiler_generated'] )
+										    (( {'badrecord','cpu_util'}
+										       -| ['compiler_generated'] ))
+										-| ['compiler_generated'] )
+									  -| ['compiler_generated'] )
+								      end
+								      -| ['compiler_generated'] )
+								%% Line 740
+								<4> when 'true' ->
+								    %% Line 742
+								    ( case CU of
+									( <( {'cpu_util',_cor113,_cor114,_rec31}
+									     -| ['compiler_generated'] )> when 'true' ->
+									      let <_rec29> =
+										  [{'wait',Value}|_rec31]
+									      in  let <_cor49> =
+										      call 'erlang':'setelement'
+											  (4, CU, _rec29)
+										  in  let <_cor51> =
+											  %% Line 743
+											  call 'erlang':'-'
+											      (NE, 1)
+										      in  %% Line 743
+											  apply 'port_receive_cpu_util_entries'/3
+											      (_cor51, _cor49, CpuData)
+									  -| ['compiler_generated'] )
+									( <_cor115> when 'true' ->
+									      ( call ( 'erlang'
+										       -| ['compiler_generated'] ):( 'error'
+														     -| ['compiler_generated'] )
+										    (( {'badrecord','cpu_util'}
+										       -| ['compiler_generated'] ))
+										-| ['compiler_generated'] )
+									  -| ['compiler_generated'] )
+								      end
+								      -| ['compiler_generated'] )
+								%% Line 744
+								<5> when 'true' ->
+								    %% Line 746
+								    ( case CU of
+									( <( {'cpu_util',_cor120,_cor121,_rec34}
+									     -| ['compiler_generated'] )> when 'true' ->
+									      let <_rec32> =
+										  [{'idle',Value}|_rec34]
+									      in  let <_cor57> =
+										      call 'erlang':'setelement'
+											  (4, CU, _rec32)
+										  in  let <_cor59> =
+											  %% Line 747
+											  call 'erlang':'-'
+											      (NE, 1)
+										      in  %% Line 747
+											  apply 'port_receive_cpu_util_entries'/3
+											      (_cor59, _cor57, CpuData)
+									  -| ['compiler_generated'] )
+									( <_cor122> when 'true' ->
+									      ( call ( 'erlang'
+										       -| ['compiler_generated'] ):( 'error'
+														     -| ['compiler_generated'] )
+										    (( {'badrecord','cpu_util'}
+										       -| ['compiler_generated'] ))
+										-| ['compiler_generated'] )
+									  -| ['compiler_generated'] )
+								      end
+								      -| ['compiler_generated'] )
+								%% Line 748
+								<6> when 'true' ->
+								    %% Line 750
+								    ( case CU of
+									( <( {'cpu_util',_cor127,_rec37,_cor128}
+									     -| ['compiler_generated'] )> when 'true' ->
+									      let <_rec35> =
+										  [{'hard_irq',Value}|_rec37]
+									      in  let <_cor65> =
+										      call 'erlang':'setelement'
+											  (3, CU, _rec35)
+										  in  let <_cor67> =
+											  %% Line 751
+											  call 'erlang':'-'
+											      (NE, 1)
+										      in  %% Line 751
+											  apply 'port_receive_cpu_util_entries'/3
+											      (_cor67, _cor65, CpuData)
+									  -| ['compiler_generated'] )
+									( <_cor129> when 'true' ->
+									      ( call ( 'erlang'
+										       -| ['compiler_generated'] ):( 'error'
+														     -| ['compiler_generated'] )
+										    (( {'badrecord','cpu_util'}
+										       -| ['compiler_generated'] ))
+										-| ['compiler_generated'] )
+									  -| ['compiler_generated'] )
+								      end
+								      -| ['compiler_generated'] )
+								%% Line 752
+								<7> when 'true' ->
+								    %% Line 754
+								    ( case CU of
+									( <( {'cpu_util',_cor134,_rec40,_cor135}
+									     -| ['compiler_generated'] )> when 'true' ->
+									      let <_rec38> =
+										  [{'soft_irq',Value}|_rec40]
+									      in  let <_cor73> =
+										      call 'erlang':'setelement'
+											  (3, CU, _rec38)
+										  in  let <_cor75> =
+											  %% Line 755
+											  call 'erlang':'-'
+											      (NE, 1)
+										      in  %% Line 755
+											  apply 'port_receive_cpu_util_entries'/3
+											      (_cor75, _cor73, CpuData)
+									  -| ['compiler_generated'] )
+									( <_cor136> when 'true' ->
+									      ( call ( 'erlang'
+										       -| ['compiler_generated'] ):( 'error'
+														     -| ['compiler_generated'] )
+										    (( {'badrecord','cpu_util'}
+										       -| ['compiler_generated'] ))
+										-| ['compiler_generated'] )
+									  -| ['compiler_generated'] )
+								      end
+								      -| ['compiler_generated'] )
+								%% Line 756
+								<8> when 'true' ->
+								    %% Line 758
+								    ( case CU of
+									( <( {'cpu_util',_cor141,_cor142,_rec43}
+									     -| ['compiler_generated'] )> when 'true' ->
+									      let <_rec41> =
+										  [{'steal',Value}|_rec43]
+									      in  let <_cor81> =
+										      call 'erlang':'setelement'
+											  (4, CU, _rec41)
+										  in  let <_cor83> =
+											  %% Line 759
+											  call 'erlang':'-'
+											      (NE, 1)
+										      in  %% Line 759
+											  apply 'port_receive_cpu_util_entries'/3
+											      (_cor83, _cor81, CpuData)
+									  -| ['compiler_generated'] )
+									( <_cor143> when 'true' ->
+									      ( call ( 'erlang'
+										       -| ['compiler_generated'] ):( 'error'
+														     -| ['compiler_generated'] )
+										    (( {'badrecord','cpu_util'}
+										       -| ['compiler_generated'] ))
+										-| ['compiler_generated'] )
+									  -| ['compiler_generated'] )
+								      end
+								      -| ['compiler_generated'] )
+								%% Line 760
+								<Unhandled> when 'true' ->
+								    %% Line 761
+								    call 'erlang':'exit'
+									({'unexpected_type_id',Unhandled})
+							      end
+	  %% Line 763
+	  <_cor148,_cor149,Data> when 'true' ->
+	      %% Line 764
+	      call 'erlang':'exit'
+		  ({'data_mismatch',Data})
+	end
+'start_portprogram'/0 =
+    %% Line 766
+    fun () ->
+	let <Port> =
+	    %% Line 767
+	    call 'os_mon':'open_port'
+		([99|[112|[117|[95|[115|[117|[112]]]]]]], ['stream'])
+	in  do  %% Line 768
+		call 'erlang':'port_command'
+		    (Port, [112])
+		%% Line 769
+		case apply 'port_receive_uint32'/2
+			 (Port, 5000) of
+		  <4711> when 'true' ->
+		      %% Line 770
+		      Port
+		  ( <_cor1> when 'true' ->
+			primop 'match_fail'
+			    ({'badmatch',_cor1})
+		    -| ['compiler_generated'] )
+		end
+'module_info'/0 =
+    fun () ->
+	call 'erlang':'get_module_info'
+	    ('cpu_sup')
+'module_info'/1 =
+    fun (_cor0) ->
+	call 'erlang':'get_module_info'
+	    ('cpu_sup', _cor0)
+end
