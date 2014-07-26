@@ -427,7 +427,7 @@ newPureModTable = do
 
 newBaseModTable :: IO ModTable
 newBaseModTable = do
-  cores <- mapM loadCoreModule preloadedModuleNames
+  cores <- mapM loadPreloadedCoreModule preloadedModuleNames
   let Right cores' = sequence cores
   let pure = newPureModTable
       bifModules = Bifs.newBifsModTable

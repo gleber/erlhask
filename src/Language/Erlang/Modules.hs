@@ -2,6 +2,10 @@
 
 module Language.Erlang.Modules where
 
+import Debug.HTrace
+import System.FilePath (takeFileName, (</>))
+import System.Directory (doesFileExist, getCurrentDirectory)
+
 import Language.CoreErlang.Parser as P
 import Language.CoreErlang.Pretty as PP
 import Language.CoreErlang.Syntax as S
@@ -25,6 +29,16 @@ import Control.Concurrent.MVar (readMVar, modifyMVarMasked)
 
 import Language.Erlang.Core
 import Language.Erlang.Lang
+
+import Distribution.Simple.Utils (findFirstFile, findFile)
+
+-- findFile :: [FilePath]    -- ^search locations
+--          -> FilePath      -- ^File Name
+--          -> IO (Maybe FilePath)
+-- findFile searchPath fileName = do
+--   res <- findFirstFile id [ path </> fileName | path <- L.nub searchPath]
+--   putStrLn $ "Search result: " ++ show res
+--   return $ htrace ("Looking for "++fileName++ " in "++ (show searchPath)++ ": ") $ res
 
 merge :: ErlModule -> ErlModule -> ErlModule
 merge a b =
@@ -70,16 +84,28 @@ parseCoreModule moduleName moduleSource = do
                           source = Just (unann m),
                           funs = exportedFuns (unann m) }
 
-loadCoreModule :: String -> IO (Either String ErlModule)
-loadCoreModule moduleName = do
-  fileContent <- readFile ("samples/" ++ moduleName ++ ".core")
-  return $ parseCoreModule moduleName fileContent
+loadPreloadedCoreModule :: String -> IO (Either String ErlModule)
+loadPreloadedCoreModule moduleName = loadCoreModulePath $ "otp/erts/preloaded/ebin/" ++ moduleName ++ ".core"
+
+bootPaths :: [FilePath]
+bootPaths = ["otp/erts/preloaded/ebin"
+            ,"otp/lib/kernel/ebin"]
 
 addCoreModule :: ModTable -> String -> IO (Either String (ErlModule, ModTable))
 addCoreModule modTable moduleName = do
   Right m <- loadCoreModule moduleName
   let modTable' = M.insert moduleName m modTable
   return $ Right (m, modTable')
+
+loadCoreModule :: String -> IO (Either String ErlModule)
+loadCoreModule moduleName = do
+  p <- findFile bootPaths (moduleName ++ ".core")
+  loadCoreModulePath p
+
+loadCoreModulePath :: FilePath -> IO (Either String ErlModule)
+loadCoreModulePath modulePath = do
+  fileContent <- readFile (modulePath)
+  return $ parseCoreModule (takeFileName modulePath) fileContent
 
 findExportedFunction :: String -> ErlArity -> [FunDef] -> Maybe FunDef
 findExportedFunction name arity funs =
