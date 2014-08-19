@@ -64,55 +64,6 @@ eval eCtx (Let (vars,vals) exps) = do
   resseq <- evalExps eCtx' exps
   return $ unseq resseq
 
-{-
-
-                                try
-                                    let <_cor3> =
-                                        call 'erlang':'float'
-                                            (X)
-                                    in  call 'erlang':'>'
-                                            (_cor3, 1)
-                                of <Try> ->
-                                    Try
-                                catch <T,R> ->
-                                    'false'
-
-  (Try
-   (Exp
-    (Constr
-     (Let
-      (["_cor3"],Exp
-                 (Constr
-                  (ModCall (Exp (Constr (Lit (LAtom (Atom "erlang")))),
-                            Exp (Constr (Lit (LAtom (Atom "float")))))
-                   [Exp (Constr (Var "X"))])
-                 ))
-      (Exp
-       (Constr
-        (ModCall (Exp (Constr (Lit (LAtom (Atom "erlang")))),
-                  Exp (Constr (Lit (LAtom (Atom ">")))))
-         [Exp (Constr (Var "_cor3")),
-          Exp (Constr (Lit (LInt 1)))]))))))
-
-   (["Try"],Exp
-            (Constr
-             (Let
-              (["_cor3"],Exp
-                         (Constr
-                          (ModCall (Exp (Constr (Lit (LAtom (Atom "erlang")))),
-                                    Exp (Constr (Lit (LAtom (Atom "float")))))
-                           [Exp (Constr (Var "X"))])))
-              (Exp
-               (Constr
-                (ModCall (Exp (Constr (Lit (LAtom (Atom "erlang")))),
-                          Exp (Constr (Lit (LAtom (Atom ">")))))
-                 [Exp (Constr (Var "_cor3")),
-                  Exp (Constr (Lit (LInt 1)))]))))))
-   (["T","R"],Exp
-              (Constr
-               (Var "Try"))))
--}
-
 eval eCtx (Try body (bodyBind, success) (catchVars, catchBody)) = do
   Right mt <- gets mod_table
   let bodyRes = runErlPure mt $ evalExps eCtx body

@@ -54,5 +54,5 @@ bootProc = do
   pid <- spawnLocal (localEvaluator bootModule mmt ("init", "boot", [ErlList [ErlBinary "-root"]]))
   mref <- monitor pid
   a <- expect :: Process ProcessMonitorNotification
-  liftIO $ print $ show a
+  liftIO $ putStrLn $ "init process exit with: " ++ show a
   return ()

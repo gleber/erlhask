@@ -453,6 +453,7 @@ evalBifs =
 -- 'spawnLocal' actual process and supply it MVar ModTable
 localRunner :: ErlModule -> MVar ModTable -> ErlProcess ErlTerm -> Process ()
 localRunner cmod mmt runner = do
+  self <- getSelfPid
   let ev = do
         r <- runErlProcess runner cmod mmt newProcDict
         case r of
@@ -462,7 +463,7 @@ localRunner cmod mmt runner = do
           Right _ ->
             return ()
   catch ev (\(e :: SomeException) -> do
-                 liftIO $ print (show e)
+                 liftIO $ putStrLn $ "process " ++ show self ++ " failed with: " ++ show e
                  throw e)
 
 localEvaluator :: ErlModule -> MVar ModTable -> (ModName, FunName, [ErlTerm]) -> Process ()
