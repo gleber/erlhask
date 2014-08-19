@@ -247,6 +247,10 @@ erlang_tuple_to_list [ErlTuple l] =
 erlang_tuple_to_list [_] = bif_badarg_t
 erlang_tuple_to_list _ = bif_badarg_num
 
+erlang_element [ErlNum i, ErlTuple t] =
+  return $ t !! (fromInteger i - 1)
+erlang_element [_, _] = bif_badarg_t
+erlang_element _ = bif_badarg_num
 --
 -- TYPES
 --
@@ -329,11 +333,12 @@ exportedMod =
 
                                  (("list_to_tuple", 1), ErlPureFun erlang_list_to_tuple),
                                  (("tuple_to_list", 1), ErlPureFun erlang_tuple_to_list),
+                                 (("element", 2), ErlPureFun erlang_element),
 
                                  (("is_float", 1), ErlPureFun erlang_is_float),
                                  (("is_integer", 1), ErlPureFun erlang_is_integer),
                                  (("is_atom", 1), ErlPureFun erlang_is_atom),
                                  (("is_tuple", 1), ErlPureFun erlang_is_tuple),
-                                 (("is_tuple", 1), ErlPureFun erlang_is_tuple),
+                                 (("is_list", 1), ErlPureFun erlang_is_list),
                                  (("is_binary", 1), ErlPureFun erlang_is_binary)
                                 ] }
